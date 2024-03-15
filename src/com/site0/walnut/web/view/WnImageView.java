@@ -8,7 +8,7 @@ import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.ByteInputStream;
 import org.nutz.mvc.View;
@@ -61,7 +61,7 @@ public class WnImageView implements View {
         }
         // 标记响应头
         String _etag = req.getHeader("If-None-Match");
-        String etag = Lang.sha1(new ByteInputStream(buf)).substring(0, 12);
+        String etag = Wlang.sha1(new ByteInputStream(buf)).substring(0, 12);
         if (etag.equals(_etag)) {
             resp.setStatus(304);
             return;

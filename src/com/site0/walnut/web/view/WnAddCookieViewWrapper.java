@@ -3,7 +3,7 @@ package com.site0.walnut.web.view;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import com.site0.walnut.web.WnConfig;
 import org.nutz.lang.util.NutMap;
@@ -42,7 +42,7 @@ public class WnAddCookieViewWrapper implements View {
         WnTmpl cookie = conf.getCookieTmpl(req);
 
         if (null != obj && !(obj instanceof Throwable)) {
-            NutMap context = Lang.obj2map(obj, NutMap.class);
+            NutMap context = Wlang.obj2nutmap(obj);
             String cookieStr = cookie.render(context, false);
             resp.addHeader("SET-COOKIE", cookieStr + "; Path=/;");
         }

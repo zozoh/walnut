@@ -3,7 +3,7 @@ package com.site0.walnut.api.hook;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.stream.VoidInputStream;
 import org.nutz.log.Log;
 import com.site0.walnut.api.auth.WnAuthService;
@@ -44,7 +44,7 @@ public class WnHookContext {
         box.setup(bc);
 
         StringBuilder out = new StringBuilder();
-        OutputStream dftOut = Lang.ops(out);
+        OutputStream dftOut = Wlang.ops(out);
         InputStream dftIn = new VoidInputStream();
 
         // 设置标准输入输出

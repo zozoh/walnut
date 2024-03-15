@@ -1,7 +1,7 @@
 package com.site0.walnut.impl.box.cmd;
 
 import org.nutz.lang.Each;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.Disks;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
@@ -51,7 +51,7 @@ public class cmd_chmod extends cmd_chxxx {
             } else if (sMod.startsWith("=")) {
                 op = 0;
             } else {
-                throw Lang.impossible();
+                throw Wlang.impossible();
             }
         }
         // 抛错吧
@@ -84,7 +84,7 @@ public class cmd_chmod extends cmd_chxxx {
             newMd = oldMd | md;
             break;
         default:
-            throw Lang.impossible();
+            throw Wlang.impossible();
         }
 
         if (newMd != oldMd) {

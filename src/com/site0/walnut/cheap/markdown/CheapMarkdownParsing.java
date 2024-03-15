@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import com.site0.walnut.cheap.dom.CheapComment;
@@ -123,7 +123,7 @@ public class CheapMarkdownParsing {
 
             // 这个分支打破了我的世界观
             if (-1 == pos) {
-                throw Lang.impossible();
+                throw Wlang.impossible();
             }
         }
         // 尾部
@@ -539,7 +539,7 @@ public class CheapMarkdownParsing {
     ParseBlock checkParser(LineType type) {
         ParseBlock pb = parser.get(type);
         if (null == pb) {
-            throw Lang.makeThrow("Invalid block type [%s] : %s", type);
+            throw Wlang.makeThrow("Invalid block type [%s] : %s", type);
         }
         return pb;
     }

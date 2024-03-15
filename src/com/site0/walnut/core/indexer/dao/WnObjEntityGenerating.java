@@ -14,7 +14,7 @@ import org.nutz.dao.jdbc.JdbcExpert;
 import org.nutz.dao.jdbc.ValueAdaptor;
 import org.nutz.json.Json;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
@@ -113,7 +113,7 @@ public class WnObjEntityGenerating {
         __fill_field_default_value(map);
 
         // 转换
-        NutMappingField mf = Lang.map2Object(map, NutMappingField.class);
+        NutMappingField mf = Wlang.map2Object(map, NutMappingField.class);
 
         // 得到 WnObj 标准字段名，如果 revKeys 没给，那么自然是初始化默认字段
         // 就直接用字段名称即可
@@ -176,7 +176,7 @@ public class WnObjEntityGenerating {
         // ----------------------------------------
         // 默认内置标准字段
         if (!conf.hasObjKeys()) {
-            conf.setObjKeys(Lang.array("id", "pid", "nm", "race", ".."));
+            conf.setObjKeys(Wlang.array("id", "pid", "nm", "race", ".."));
         }
 
         // ----------------------------------------
@@ -286,16 +286,16 @@ public class WnObjEntityGenerating {
 
             // 有 ID
             if (null != en.getField("id")) {
-                indexes.add(Lang.map("unique:true")
+                indexes.add(Wlang.map("unique:true")
                                 .setv("name", "obj_id")
-                                .setv("fields", Lang.list("id")));
+                                .setv("fields", Wlang.list("id")));
             }
 
             // 有 PID 和 NM
             if (null != en.getField("pid") && null != en.getField("nm")) {
-                indexes.add(Lang.map("unique:true")
+                indexes.add(Wlang.map("unique:true")
                                 .setv("name", "obj_pid_nm")
-                                .setv("fields", Lang.list("pid", "nm")));
+                                .setv("fields", Wlang.list("pid", "nm")));
             }
 
             // 记入
@@ -327,7 +327,7 @@ public class WnObjEntityGenerating {
 
     private HashSet<String> __setup_primary_keys() {
         if (null == conf.getPks()) {
-            conf.setPks(Lang.array("id"));
+            conf.setPks(Wlang.array("id"));
         }
 
         // 编制主键表

@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 
@@ -65,7 +65,7 @@ public class ZMoMapReduceManager {
                     map.put(key, mr);
                 }
                 catch (IOException e) {
-                    throw Lang.wrapThrow(e);
+                    throw Wlang.wrapThrow(e);
                 }
             }
         }

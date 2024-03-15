@@ -20,12 +20,12 @@ import org.nutz.el.El;
 import org.nutz.http.Http;
 import org.nutz.json.Json;
 import org.nutz.json.JsonException;
-import org.nutz.lang.Each;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.Context;
 import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.SimpleContext;
 import org.nutz.mapl.Mapl;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.cheap.Cheaps;
@@ -36,6 +36,8 @@ import com.site0.walnut.util.JsExec;
 import com.site0.walnut.util.JsExecContext;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.each.WnEachIteratee;
+
 import org.nutz.web.WebException;
 
 /**
@@ -129,7 +131,7 @@ public class WnmlService {
         NutMap header = context.getAs(WWWPageAPI.CK_SET_HTTP_HEADER, NutMap.class);
         List<String> cookies = new LinkedList<>();
         if (null != setCookies) {
-            Lang.each(setCookies, (index, co, len) -> {
+            Wlang.each(setCookies, (index, co, src) -> {
                 if (null != co)
                     cookies.add(co.toString());
             });
@@ -144,7 +146,7 @@ public class WnmlService {
             if (null != header && header.size() > 0) {
                 for (String key : header.keySet()) {
                     Object val = header.get(key);
-                    Lang.each(val, (index, ele, len) -> {
+                    Wlang.each(val, (index, ele, src) -> {
                         if (null != ele) {
                             String s = ele.toString();
                             if (!Strings.isBlank(s)) {
@@ -336,7 +338,7 @@ public class WnmlService {
     private void __do_set(WnmlRuntime wrt, Element ele, NutMap c) {
         String el = ele.text();
         NutMap c2 = c.duplicate();
-        Context context = Lang.context(c2);
+        Context context = new SimpleContext(c2);
         Object re = El.eval(context, el);
         String key = ele.attr("key");
         if (!Strings.isBlank(key) && null != re)
@@ -359,7 +361,7 @@ public class WnmlService {
         WnTmpl tmpl = WnTmpl.parse(txt, "#");
         if (tmpl.keys().size() > 0) {
             NutMap c2 = c.duplicate();
-            Context context = Lang.context(c2);
+            Context context = new SimpleContext(c2);
 
             // 如果有对应的占位符为 = 开头，则标识 EL 表达式，要预先执行一下
             // TODO 如果 Tmpl 支持了内置的 TmplElEle，这个就木有必要了
@@ -492,9 +494,9 @@ public class WnmlService {
             final NutMap loopC = new NutMap().attach(c);
             // 每个子元素都要迭代
             final Node[] children = this.__get_children_array(ele);
-            Lang.each(items, new Each<Object>() {
+            Wlang.each(items, new WnEachIteratee<Object>() {
                 @Override
-                public void invoke(int index, Object val, int length) {
+                public void invoke(int index, Object val, Object src) {
                     loopC.put(varName, val);
                     for (Node child : children) {
                         Node newNode = child.clone();
@@ -511,7 +513,7 @@ public class WnmlService {
 
     private boolean __do_if(WnmlRuntime wrt, Element ele, NutMap c) {
         String test = ele.attr("test");
-        Object re = El.eval(Lang.context(c), test);
+        Object re = El.eval(new SimpleContext(c), test);
         boolean b = null == re ? false : Castors.me().castTo(re, Boolean.class);
         // 输出
         if (b) {
@@ -618,7 +620,7 @@ public class WnmlService {
         // 复制Body所有的内容到自己之后
         children = __get_children_array(doc.body());
         // Fixed: 因为ele.after在当前节点后面一直插入，所以导致nd顺序完全倒置
-        Lang.reverse(children);
+        Wlang.reverse(children);
         for (Node nd : children) {
             ele.after(nd);
         }
@@ -669,7 +671,7 @@ public class WnmlService {
                 JE.exec(jsc, engineName, c, cmdText);
             }
             catch (Exception e) {
-                throw Lang.wrapThrow(e);
+                throw Wlang.wrapThrow(e);
             }
 
             // 得到结果

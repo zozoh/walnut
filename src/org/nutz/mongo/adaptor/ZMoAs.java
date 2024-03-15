@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 import org.bson.Document;
 import org.bson.types.Decimal128;
 import org.bson.types.ObjectId;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
 import org.nutz.mongo.ZMoAdaptor;
 import org.nutz.mongo.entity.ZMoField;
@@ -81,7 +81,7 @@ public class ZMoAs {
             return ZMoAs.pojo();
         }
         // 错误
-        throw Lang.makeThrow("fail to found adaptor for type %s", mi.getType());
+        throw Wlang.makeThrow("fail to found adaptor for type %s", mi.getType());
     }
 
     public static ZMoAdaptor id() {

@@ -1,6 +1,6 @@
 package com.site0.walnut.alg.nfa.chars;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.alg.ds.buf.WnCharArray;
 import com.site0.walnut.alg.ds.buf.WnLinkedArrayList;
@@ -57,13 +57,13 @@ class CharNfaTreeParsing {
                 }
                 // 否则不能容忍
                 else {
-                    throw Lang.makeThrow("unexpact char '%s' at %d", c, input.getPosition());
+                    throw Wlang.makeThrow("unexpact char '%s' at %d", c, input.getPosition());
                 }
             }
             // 并联操操作符: 需要确保当前栈顶为一个并联节点
             else if ('|' == c) {
                 if (null == topNode) {
-                    throw Lang.makeThrow("unexpact char '%s' at %d", c, input.getPosition());
+                    throw Wlang.makeThrow("unexpact char '%s' at %d", c, input.getPosition());
                 }
                 // 已经为并联节点了，
                 if (topNode instanceof CnnParallel) {
@@ -81,7 +81,7 @@ class CharNfaTreeParsing {
                 // 边数： *
                 case '*':
                     if (null == topNode) {
-                        throw Lang.makeThrow("unexpact char '%s' at %d", c, input.getPosition());
+                        throw Wlang.makeThrow("unexpact char '%s' at %d", c, input.getPosition());
                     }
                     topNode.minMatch = 0;
                     topNode.maxMatch = 0;
@@ -90,7 +90,7 @@ class CharNfaTreeParsing {
                 // 边数： ?
                 case '?':
                     if (null == topNode) {
-                        throw Lang.makeThrow("unexpact char '%s' at %d", c, input.getPosition());
+                        throw Wlang.makeThrow("unexpact char '%s' at %d", c, input.getPosition());
                     }
                     topNode.minMatch = 0;
                     topNode.maxMatch = 1;
@@ -131,7 +131,7 @@ class CharNfaTreeParsing {
 
     private void do_node_edge_number() {
         if (null == topNode) {
-            throw Lang.makeThrow("unexpact char '{' at %d", input.getPosition());
+            throw Wlang.makeThrow("unexpact char '{' at %d", input.getPosition());
         }
         String s = input.nextString('}');
         String[] ss = Strings.splitIgnoreBlank(s);
@@ -150,7 +150,7 @@ class CharNfaTreeParsing {
         }
         // 其他通通错误
         else {
-            throw Lang.makeThrow("unexpact '{%s' at %d", s, input.getPosition() - s.length() - 1);
+            throw Wlang.makeThrow("unexpact '{%s' at %d", s, input.getPosition() - s.length() - 1);
         }
     }
 
@@ -182,7 +182,7 @@ class CharNfaTreeParsing {
         case '\\':
             break;
         default:
-            throw Lang.makeThrow("Invalid escape char [%s]", c);
+            throw Wlang.makeThrow("Invalid escape char [%s]", c);
         }
         return c;
     }

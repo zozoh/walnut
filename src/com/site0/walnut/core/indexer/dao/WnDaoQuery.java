@@ -19,7 +19,7 @@ import org.nutz.dao.util.cri.SimpleCriteria;
 import org.nutz.dao.util.cri.SimpleExpression;
 import org.nutz.dao.util.cri.SqlExpression;
 import org.nutz.dao.util.cri.SqlExpressionGroup;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.DateRegion;
@@ -109,7 +109,7 @@ public class WnDaoQuery {
                 if (0 == ss.length) {
                     val = null;
                 } else {
-                    val = Lang.arrayFirst("all", ss);
+                    val = Wlang.arrayFirst("all", ss);
                 }
             }
             // 设置到查询条件中
@@ -455,7 +455,7 @@ public class WnDaoQuery {
         }
         // 其他不支持
         else {
-            throw Lang.noImplement();
+            throw Wlang.noImplement();
         }
     }
 
@@ -499,7 +499,7 @@ public class WnDaoQuery {
             return Exps.eq(colName, left).setNot(not);
         }
         // 不可能啊
-        throw Lang.impossible();
+        throw Wlang.impossible();
     }
 
     private SqlExpression regionToExp(String colName, Region<?> rg, boolean not) {
@@ -527,7 +527,7 @@ public class WnDaoQuery {
             return Exps.eq(colName, rg.left()).setNot(not);
         }
         // 不可能啊
-        throw Lang.impossible();
+        throw Wlang.impossible();
     }
 
     public Pager getPager() {

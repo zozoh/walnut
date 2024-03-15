@@ -2,7 +2,6 @@ package com.site0.walnut.util;
 
 import java.io.OutputStream;
 
-import org.nutz.lang.Lang;
 import com.site0.walnut.api.box.WnTunnel;
 
 public class SyncJTOutputStream extends OutputStream {
@@ -16,19 +15,19 @@ public class SyncJTOutputStream extends OutputStream {
     @Override
     public void write(int b) {
         tnl.write((byte) b);
-        Lang.notifyAll(tnl);
+        Wlang.notifyAll(tnl);
     }
 
     @Override
     public void write(byte[] bs, int off, int len) {
         tnl.write(bs, off, len);
-        Lang.notifyAll(tnl);
+        Wlang.notifyAll(tnl);
     }
 
     @Override
     public void close() {
         tnl.closeWrite();
-        Lang.notifyAll(tnl);
+        Wlang.notifyAll(tnl);
     }
 
 }

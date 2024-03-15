@@ -1,7 +1,7 @@
 package com.site0.walnut.ext.data.entity.history.hdl;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.ext.data.entity.history.HistoryApi;
 import com.site0.walnut.ext.data.entity.history.HistoryRecord;
@@ -22,8 +22,8 @@ public class history_add implements JvmHdl {
 
         // 准备历史记录
         String json = Cmds.checkParamOrPipe(sys, hc.params, 0);
-        NutMap map = Lang.map(json);
-        HistoryRecord his = Lang.map2Object(map, HistoryRecord.class);
+        NutMap map = Wlang.map(json);
+        HistoryRecord his = Wlang.map2Object(map, HistoryRecord.class);
 
         // 准备返回值
         Object re = api.add(his);

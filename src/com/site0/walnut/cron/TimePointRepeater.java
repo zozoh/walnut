@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import com.site0.walnut.util.tmpl.WnTmpl;
@@ -89,7 +89,7 @@ class TimePointRepeater {
         // 匹配正则
         Matcher m = _P_TIME_REGION.matcher(str);
         if (!m.find())
-            throw Lang.makeThrow("Invalid time repeater '%s': ", str);
+            throw Wlang.makeThrow("Invalid time repeater '%s': ", str);
 
         // 有时间范围：
         String tmrg = m.group(1);
@@ -113,7 +113,7 @@ class TimePointRepeater {
 
         // 既没有时间范围，有没有时间点，那么不能忍啊
         if (null == this.region && null == this.timePoints && this.stepInSec <= 0) {
-            throw Lang.makeThrow("Invalid time repeater '%s': ", str);
+            throw Wlang.makeThrow("Invalid time repeater '%s': ", str);
         }
     }
 
@@ -135,7 +135,7 @@ class TimePointRepeater {
                        * unitInSec(null == offUnit ? stepUnit : offUnit);
             stepInSec = stepValue * unitInSec(stepUnit);
             if (stepInSec <= 0) {
-                throw Lang.makeThrow("Step Value is not ava!");
+                throw Wlang.makeThrow("Step Value is not ava!");
             }
             // ..............................................
             // 计算步长的真正区间

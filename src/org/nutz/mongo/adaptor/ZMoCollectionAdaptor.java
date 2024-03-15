@@ -24,7 +24,7 @@ public class ZMoCollectionAdaptor implements ZMoAdaptor {
 
         // 开始循环数组
         List<Object> list = new LinkedList<>();
-        Wlang.each(obj, (index, eleMongo, src) -> {
+        Wlang.eachEvenMap(obj, (index, eleMongo, src) -> {
             Object elePojo;
             // 如果元素是个 Mongo 类型
             if (eleMongo instanceof Document) {
@@ -56,7 +56,7 @@ public class ZMoCollectionAdaptor implements ZMoAdaptor {
     @Override
     public Object toMongo(ZMoField fld, Object obj) {
         List<Object> list = new LinkedList<>();
-        Wlang.each(obj, (index, objPojo, src) -> {
+        Wlang.eachEvenMap(obj, (index, objPojo, src) -> {
             Object objMongo;
             if (null == objPojo || (objPojo instanceof ObjectId) || (objPojo instanceof Document)) {
                 objMongo = objPojo;

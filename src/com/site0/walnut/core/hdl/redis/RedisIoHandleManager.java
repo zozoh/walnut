@@ -2,7 +2,7 @@ package com.site0.walnut.core.hdl.redis;
 
 import java.util.Map;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.core.HandleInfo;
@@ -35,7 +35,7 @@ public class RedisIoHandleManager extends AbstractIoHandleManager {
             Map<String, String> map = jed.hgetAll(key);
             HandleInfo info = null;
             if (null != map) {
-                info = Lang.map2Object(map, HandleInfo.class);
+                info = Wlang.map2Object(map, HandleInfo.class);
             }
             return info;
         });

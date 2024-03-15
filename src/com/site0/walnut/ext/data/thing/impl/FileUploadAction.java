@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.castor.Castors;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
@@ -127,7 +127,7 @@ public class FileUploadAction extends ThingDataAction<List<WnObj>> {
 
                             // 修改 mime
                             if (field.hasContentType()) {
-                                io.appendMeta(oM, Lang.map("mime", field.getContentType()));
+                                io.appendMeta(oM, Wlang.map("mime", field.getContentType()));
                             }
 
                             // 写入文件

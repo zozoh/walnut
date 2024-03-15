@@ -1,6 +1,6 @@
 package com.site0.walnut.core.indexer.dao.obj.race;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.core.indexer.dao.obj.WnObjInjecting;
 
@@ -33,7 +33,7 @@ public class WnObjRaceInjecting extends WnObjInjecting {
             }
             // 其他的，抛错
             else {
-                throw Lang.impossible();
+                throw Wlang.impossible();
             }
         }
         // 注入

@@ -3,7 +3,7 @@ package com.site0.walnut.web.clean;
 import java.util.Date;
 
 import org.nutz.lang.Each;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.Region;
 import org.nutz.log.Log;
@@ -40,7 +40,7 @@ public class WnIoCleaner implements Atom {
                         log.warnf("something wrong!", e);
                 }
                 // 休息一个时间间隔
-                Lang.quiteSleep(60*1000);
+                Wlang.quiteSleep(60*1000);
             }
         }
         catch (InterruptedException e) {

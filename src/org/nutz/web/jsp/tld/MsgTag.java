@@ -6,7 +6,7 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 import javax.servlet.jsp.tagext.TagSupport;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.Mvcs;
@@ -33,7 +33,7 @@ public class MsgTag extends BodyTagSupport {
         String body = this.getBodyContent().getString();
         NutMap map;
         if (!Strings.isBlank(body))
-            map = Lang.map(body);
+            map = Wlang.map(body);
         else
             map = null;
 
@@ -45,7 +45,7 @@ public class MsgTag extends BodyTagSupport {
             pageContext.getOut().write(str);
         }
         catch (IOException e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
 
         return TagSupport.EVAL_PAGE;

@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 
@@ -82,7 +82,7 @@ public class GodKey {
             Files.write(f, key + "\r\n");
         }
         catch (IOException e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
     }
 

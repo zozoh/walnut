@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.ext.util.jsonx.JsonXContext;
 import com.site0.walnut.ext.util.jsonx.JsonXFilter;
@@ -30,7 +30,7 @@ public class jsonx_put extends JsonXFilter {
             String key = params.val_check(0);
             // 记入新 Map
             if (params.vals.length == 1) {
-                fc.obj = Lang.map(key, fc.obj);
+                fc.obj = Wlang.map(key, fc.obj);
             }
             // 加入到当前 Map
             else {
@@ -80,7 +80,7 @@ public class jsonx_put extends JsonXFilter {
             String key = params.val_check(0);
             // 记入新 Map
             if (params.vals.length == 1) {
-                fc.obj = Lang.map(key, fc.obj);
+                fc.obj = Wlang.map(key, fc.obj);
             }
         }
     }

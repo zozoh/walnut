@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.ftpserver.ftplet.FtpFile;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.trans.Proton;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
@@ -164,7 +164,7 @@ public class WnFtpFile implements FtpFile {
                                     out.close();
                                 }
                                 catch (IOException e) {
-                                    throw Lang.wrapThrow(e);
+                                    throw Wlang.wrapThrow(e);
                                 }
                                 return null;
                             }

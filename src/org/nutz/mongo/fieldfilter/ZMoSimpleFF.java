@@ -2,7 +2,7 @@ package org.nutz.mongo.fieldfilter;
 
 import java.util.List;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 
 /**
  * 根据给定的 java 字段名字，来判断是否忽略该字段
@@ -28,7 +28,7 @@ public class ZMoSimpleFF extends ZMoFF {
 
     @Override
     public boolean match(String fld) {
-        return Lang.contains(names, fld);
+        return Wlang.contains(names, fld);
     }
 
 }

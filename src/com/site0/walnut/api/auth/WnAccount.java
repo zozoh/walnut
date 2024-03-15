@@ -3,7 +3,7 @@ package com.site0.walnut.api.auth;
 import java.util.Map;
 
 import org.nutz.json.JsonIgnore;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutBean;
@@ -813,7 +813,7 @@ public class WnAccount {
         }
         // 不可能
         else {
-            throw Lang.impossible();
+            throw Wlang.impossible();
         }
     }
 

@@ -13,7 +13,7 @@ import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
@@ -136,7 +136,7 @@ public class timg_create implements JvmHdl {
         }
         // 构建ffmpeg参数
         List<String> args = new ArrayList<>();
-        if (Lang.isWin()) {
+        if (Wlang.isWin()) {
             args.add("ffmpeg.exe");
         }
         else {
@@ -178,7 +178,7 @@ public class timg_create implements JvmHdl {
         args.add(ctx.tmpDir + "/timg.mp4");
         // 开始转视频
         log.info("启动: " + Strings.join(" ", args));
-        Lang.execOutput(args.toArray(new String[args.size()]));
+        Wlang.execOutput(args.toArray(new String[args.size()]));
         log.info("完成: " + Strings.join(" ", args));
         // 写到walnut里面去
         File f = new File(ctx.tmpDir + "/timg.mp4");
@@ -188,7 +188,7 @@ public class timg_create implements JvmHdl {
         // 算md5
         if (hc.params.is("fmd5")) {
             NutMap metas = new NutMap();
-            metas.put("fmd5", Lang.md5(f));
+            metas.put("fmd5", Wlang.md5(f));
             metas.put("smd5", simpleMd5(f));
             sys.io.appendMeta(wobj, metas);
         }
@@ -229,7 +229,7 @@ public class timg_create implements JvmHdl {
     // 移植Strato的md5算法
     public static String simpleMd5(File f) {
         if (f.length() <= 1024 * 1024) {
-            return Lang.md5(f);
+            return Wlang.md5(f);
         }
         RandomAccessFile raf = null;
         try {
@@ -243,7 +243,7 @@ public class timg_create implements JvmHdl {
                 raf.read(data);
                 md.update(data);
             }
-            return Lang.fixedHexString(md.digest());
+            return Wlang.fixedHexString(md.digest());
         }
         catch (Exception e) {
             throw Err.wrap(e);

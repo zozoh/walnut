@@ -3,7 +3,7 @@ package com.site0.walnut.ext.net.mailx.bean;
 import java.util.List;
 
 import org.nutz.lang.Encoding;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.util.Ws;
@@ -56,7 +56,7 @@ public abstract class WnMail {
 
     public String toString(NutBean vars) {
         String HR = Ws.repeat('-', 40);
-        List<String> ss = Lang.list(String.format("%s Email", this.getType().name()));
+        List<String> ss = Wlang.list(String.format("%s Email", this.getType().name()));
         ss.add(HR);
         ss.add(HR);
         if (this.hasSubject()) {

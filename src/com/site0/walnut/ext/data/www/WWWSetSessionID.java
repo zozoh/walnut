@@ -2,7 +2,7 @@ package com.site0.walnut.ext.data.www;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.mvc.ActionContext;
 import org.nutz.mvc.ActionFilter;
 import org.nutz.mvc.View;
@@ -21,7 +21,7 @@ public class WWWSetSessionID implements ActionFilter {
         HttpServletRequest req = ac.getRequest();
 
         // 获取 Session
-        Wn.WC().copyCookieItems(req, Lang.array(WWW.AT_SEID));
+        Wn.WC().copyCookieItems(req, Wlang.array(WWW.AT_SEID));
 
         // 继续下面的操作
         return null;

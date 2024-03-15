@@ -1,6 +1,6 @@
 package com.site0.walnut.ext.net.mailx.hdl;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -19,7 +19,7 @@ public class mailx_meta extends MailxFilter {
         String mapping = params.getString("mapping");
         NutMap transMap = null;
         if (!Strings.isBlank(mapping)) {
-            transMap = Lang.map(mapping);
+            transMap = Wlang.map(mapping);
         }
 
         // 读取文件

@@ -15,10 +15,10 @@ import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Encoding;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
+
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.util.callback.WnStrToken;
 import com.site0.walnut.util.callback.WnStrTokenCallback;
@@ -674,6 +674,40 @@ public class Ws {
         return sb.toString();
     }
 
+    public static String join(int[] arr, String sep) {
+        return join(arr, sep, 0, arr.length);
+    }
+
+    public static String join(int[] arr, String sep, int off, int len) {
+        StringBuilder sb = new StringBuilder();
+        if (len > 0) {
+            int lastI = Math.min(arr.length, off + len);
+            for (int i = off; i < lastI; i++) {
+                if (i > off)
+                    sb.append(sep);
+                sb.append(arr[i]);
+            }
+        }
+        return sb.toString();
+    }
+
+    public static String join(long[] arr, String sep) {
+        return join(arr, sep, 0, arr.length);
+    }
+
+    public static String join(long[] arr, String sep, int off, int len) {
+        StringBuilder sb = new StringBuilder();
+        if (len > 0) {
+            int lastI = Math.min(arr.length, off + len);
+            for (int i = off; i < lastI; i++) {
+                if (i > off)
+                    sb.append(sep);
+                sb.append(arr[i]);
+            }
+        }
+        return sb.toString();
+    }
+
     /**
      * 将容器内对象合并为一个字符串
      * 
@@ -905,7 +939,7 @@ public class Ws {
                 c = cs[++i];
                 char c2 = table.get(c);
                 if (0 == c2) {
-                    throw Lang.makeThrow("evalEscape invalid char[%d] '%c'  : %s", i, c, str);
+                    throw Wlang.makeThrow("evalEscape invalid char[%d] '%c'  : %s", i, c, str);
                 }
                 sb.append(c2);
             }
@@ -1096,7 +1130,7 @@ public class Ws {
                     break;
                 // 不可能
                 default:
-                    throw Lang.impossible();
+                    throw Wlang.impossible();
                 }
             }
 

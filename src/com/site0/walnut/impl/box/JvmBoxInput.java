@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import org.nutz.lang.Encoding;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.stream.VoidInputStream;
 
@@ -36,7 +36,7 @@ public class JvmBoxInput implements Closeable {
             return __r.readLine();
         }
         catch (IOException e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
     }
 
@@ -45,7 +45,7 @@ public class JvmBoxInput implements Closeable {
             return Streams.read(__r).toString();
         }
         catch (IOException e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
     }
 

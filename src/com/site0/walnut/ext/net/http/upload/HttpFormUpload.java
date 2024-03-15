@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.nutz.lang.Encoding;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -366,7 +366,7 @@ public class HttpFormUpload {
             return __fill_to_bound_and_update_rIndex(bs, off, len, false);
         }
         // 没可能
-        throw Lang.impossible();
+        throw Wlang.impossible();
     }
 
     private int __fill_to_bound_and_update_rIndex(byte[] bs, int off, int len, boolean foundBound) {

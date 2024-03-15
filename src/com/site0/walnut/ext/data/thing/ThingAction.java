@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.WnExecutable;
 import com.site0.walnut.api.err.Er;
@@ -108,7 +108,7 @@ public abstract class ThingAction<T> {
 
         // 排除
         if (null != oT)
-            q.setv("id", Lang.map("$ne", oT.id()));
+            q.setv("id", Wlang.map("$ne", oT.id()));
 
         // 逐个添加唯一键约束
         ArrayList<String> keyExists = new ArrayList<>(ukeys.length);

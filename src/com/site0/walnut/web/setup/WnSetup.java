@@ -11,7 +11,7 @@ import org.nutz.ioc.Ioc;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -30,8 +30,6 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.ext.net.ftpd.WnFtpServer;
 import com.site0.walnut.ext.net.sshd.srv.WnSshdServer;
-import com.site0.walnut.ext.sys.quota.JettyMonitorHandler;
-import com.site0.walnut.ext.sys.quota.QuotaService;
 import com.site0.walnut.ext.sys.websocket.WnWebSocket;
 import com.site0.walnut.impl.box.JvmExecutorFactory;
 import com.site0.walnut.util.Wn;
@@ -42,7 +40,6 @@ import com.site0.walnut.web.WnInitMount;
 import com.site0.walnut.web.bgt.WnBgRunCronConsumer;
 import com.site0.walnut.web.bgt.WnBgRunScheduleConsumer;
 import com.site0.walnut.web.bgt.WnBgRunTaskConsumer;
-import org.nutz.web.handler.JettyHandlerHook;
 
 public class WnSetup implements Setup {
 
@@ -78,7 +75,7 @@ public class WnSetup implements Setup {
             String WL_PID_PATH = System.getenv("WL_PID_PATH");
             if (Strings.isBlank(WL_PID_PATH) && new File("/etc/ssh/sshd_config").exists())
                 WL_PID_PATH = "/var/log/walnut.pid";
-            String pid = Lang.JdkTool.getProcessId(null);
+            String pid = Wlang.JdkTool.getProcessId(null);
             log.infof("path=%s pid=%s", WL_PID_PATH, pid);
             if (!Strings.isBlank(WL_PID_PATH) && !Strings.isBlank(pid)) {
                 Files.write(new File(WL_PID_PATH), pid);
@@ -180,9 +177,9 @@ public class WnSetup implements Setup {
                                                    "create_thumbnail",
                                                    WnRace.FILE);
             io.writeText(oHookCreateThumb, "iimg id:${id} -thumb 256x256 -Q");
-            NutMap hookBy = Lang.map("mime", "^image/");
+            NutMap hookBy = Wlang.map("mime", "^image/");
             hookBy.put("ph", "!^/home/.+/(.thumbnail/gen|.publish/gen|www)");
-            NutMap meta = Lang.map("hook_by", Lang.list(hookBy));
+            NutMap meta = Wlang.map("hook_by", Wlang.list(hookBy));
             io.appendMeta(oHookCreateThumb, meta);
 
         } else {
@@ -221,10 +218,6 @@ public class WnSetup implements Setup {
         catch (Throwable e) {
             log.warn("主动设置websocket失败, 已经设置过了? 如果是,无视这个日志", e);
         }
-
-        // 挂载流量统计的钩子
-        JettyHandlerHook.me().setCallback(new JettyMonitorHandler(ioc.get(QuotaService.class)));
-        log.debug("setup network quota hook");
 
         // 初始化jvm box
         ioc.get(JvmExecutorFactory.class).get("time");

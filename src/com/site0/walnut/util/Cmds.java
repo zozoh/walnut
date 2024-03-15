@@ -4,21 +4,22 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Each;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
+
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.TextTable;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.callback.WnStrToken;
 import com.site0.walnut.util.callback.WnStrTokenCallback;
+import com.site0.walnut.util.tmpl.WnTmpl;
 import com.site0.walnut.util.validate.WnMatch;
 
 public abstract class Cmds {
@@ -98,7 +99,7 @@ public abstract class Cmds {
                     break;
                 // 不可能
                 default:
-                    throw Lang.impossible();
+                    throw Wlang.impossible();
                 }
             }
         });
@@ -158,7 +159,7 @@ public abstract class Cmds {
                     break;
                 // 不可能
                 default:
-                    throw Lang.impossible();
+                    throw Wlang.impossible();
                 }
             }
         });
@@ -218,7 +219,7 @@ public abstract class Cmds {
                     break;
                 // 不可能
                 default:
-                    throw Lang.impossible();
+                    throw Wlang.impossible();
                 }
             }
         });
@@ -420,7 +421,7 @@ public abstract class Cmds {
     public static void output_objs_as_value(WnSystem sys, ZParams params, List<NutBean> outs) {
         String sep = params.get("sep", "");
         for (NutBean map : outs) {
-            sys.out.print(Lang.concat(sep, map.values()));
+            sys.out.print(Wlang.concat(sep, map.values()));
             if (params.is("N")) {
                 sys.out.println();
             }
@@ -464,7 +465,7 @@ public abstract class Cmds {
                                             boolean showIndex,
                                             int indexBase) {
         if (showIndex) {
-            cols = Lang.arrayFirst("#", cols);
+            cols = Wlang.arrayFirst("#", cols);
         }
 
         // 准备输出表
@@ -571,7 +572,7 @@ public abstract class Cmds {
         NutMap re = new NutMap();
         re.setv("list", list);
         re.setv("pager",
-                Lang.mapf("pn:%d,pgsz:%d,pgnb:%d,sum:%d,skip:%d,nb:%d,pgc:%d,count:%d",
+                Wlang.mapf("pn:%d,pgsz:%d,pgnb:%d,sum:%d,skip:%d,nb:%d,pgc:%d,count:%d",
                           wp.pn,
                           wp.pgsz,
                           wp.sum_page,
@@ -732,7 +733,7 @@ public abstract class Cmds {
                                           String[] paths,
                                           final List<WnObj> list,
                                           int mode) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
         // // 计算要列出的目录
         // // 没参数认为是当前目录
         // if (paths.length == 0) {
@@ -752,7 +753,7 @@ public abstract class Cmds {
 
     public static void assertCandidateObjsNoEmpty(String[] args, List<WnObj> list) {
         if (list.isEmpty()) {
-            throw Er.create("e.io.obj.noexists", Lang.concat(", ", args));
+            throw Er.create("e.io.obj.noexists", Wlang.concat(", ", args));
         }
     }
 }

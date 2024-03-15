@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 
-import org.nutz.lang.Lang;
-
 public class RandomAccessFileInputStream extends InputStream {
 
     private RandomAccessFile raf;
@@ -21,7 +19,7 @@ public class RandomAccessFileInputStream extends InputStream {
             this.raf = new RandomAccessFile(f, mode);
         }
         catch (FileNotFoundException e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
     }
 

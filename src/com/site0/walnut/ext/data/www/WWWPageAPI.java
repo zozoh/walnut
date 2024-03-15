@@ -1,10 +1,5 @@
 package com.site0.walnut.ext.data.www;
 
-import java.awt.image.BufferedImage;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import org.nutz.img.Images;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
@@ -16,11 +11,9 @@ import org.nutz.mapl.Mapl;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
-import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.ext.data.thing.WnThingService;
 import com.site0.walnut.ext.data.thing.util.ThQuery;
-import com.site0.walnut.ext.data.thing.util.Things;
-import com.site0.walnut.ext.net.weixin.WnIoWeixinApi;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 
 /**
@@ -51,13 +44,11 @@ public class WWWPageAPI extends WWWAPI {
      */
     private String siteId;
 
-    private WnIoWeixinApi wxApi;
-
     private String wxmp;
 
     /* 下面的变量来自上下文，以便成员函数可以方便的访问 */
-    private NutBean header;
-    private NutBean params;
+    NutBean header;
+    NutBean params;
 
     public WWWPageAPI(WnIo io, WnObj oHome, long sessionDu, WnObj oWWW, NutMap context) {
         super(io, oHome, sessionDu);
@@ -70,7 +61,7 @@ public class WWWPageAPI extends WWWAPI {
         this.siteId = oWWW.getString("hm_site_id");
         // 如果没有设置站点 ID，那么用当前的目录
         if (Strings.isBlank(this.siteId)) {
-            //throw Er.create("e.www.page.api_without_siteId", oWWW);
+            // throw Er.create("e.www.page.api_without_siteId", oWWW);
             this.siteId = oWWW.id();
         }
 
@@ -79,7 +70,7 @@ public class WWWPageAPI extends WWWAPI {
         if (!Strings.isBlank(wxmp)) {
             WnObj oWxConf = io.fetch(oHome, ".weixin/" + wxmp + "/wxconf");
             if (null != oWxConf) {
-                wxApi = new WnIoWeixinApi(io, oWxConf);
+                throw Wlang.noImplement();
             }
         }
     }
@@ -188,8 +179,9 @@ public class WWWPageAPI extends WWWAPI {
 
                     // 设置一下上下文属性，以便调用者发送 cookie
                     String seph = siteId + "/" + oSe.name();
-                    context.addv2(CK_SET_COOKIE, "www=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT");
-                    context.addv2(CK_SET_COOKIE, "www="+seph + "; path=/; Max-Age=1800");
+                    context.addv2(CK_SET_COOKIE,
+                                  "www=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT");
+                    context.addv2(CK_SET_COOKIE, "www=" + seph + "; path=/; Max-Age=1800");
                 }
             }
         }
@@ -265,79 +257,78 @@ public class WWWPageAPI extends WWWAPI {
      * </pre>
      */
     private WnObj __create_user_by_wxcode(WnThingService ths) {
-        if (null == wxApi)
-            return null;
-
-        WnObj oMe = null;
-        String userAgent = header.getString("USER-AGENT");
-        boolean is_weixin = userAgent.indexOf("MicroMessenger/") > 0;
-        String code = params.getString("code");
-        if (is_weixin && !Strings.isBlank(code)) {
-            // 试图获取用户 openid 信息
-            String openid = wxApi.user_openid_by_gh_code(code);
-            if (!Strings.isBlank(openid)) {
-                // 查一下是否存在这个用户
-                String key = "wx_" + wxmp;
-                ThQuery tq = new ThQuery(key, openid);
-                oMe = ths.getOne(tq);
-
-                // 嗯，已经有这个用户了
-                if (null != oMe)
-                    return oMe;
-
-                // 如果用户不存在，那么试图获取他的信息，并创建一个
-                NutMap re = wxApi.user_info(openid, null);
-                /**
-                 * 得到的返回信息格式为：
-                 * 
-                 * <pre>
-                 {
-                    subscribe: 1,
-                    openid: "xxx",
-                    nickname: "小白",
-                    sex: 1,
-                    language: "zh_CN",
-                    city: "海淀",
-                    province: "北京",
-                    country: "中国",
-                    headimgurl: "http://..",
-                    subscribe_time: 1474388443,
-                    remark: "",
-                    groupid: 0,
-                    tagid_list: [],
-                    subscribe_scene: "ADD_SCENE_OTHERS",
-                    qr_scene: 0,
-                    qr_scene_str: ""
-                 }
-                 * </pre>
-                 */
-                // 创建用户
-                String myName = re.getString("nickname", "anonymous");
-                NutMap meta = re.pickBy("^(city|province|country|sex)$");
-                meta.put(key, openid);
-                meta.put("th_nm", myName);
-                oMe = ths.createThing(meta);
-
-                // 如果有头像的话，搞一下
-                String headimgurl = re.getString("headimgurl");
-                if (!Strings.isBlank(headimgurl)) {
-                    WnObj oData = Things.dirTsData(io, oMe);
-                    WnObj oThumb = io.createIfNoExists(oData, oMe.id() + "/thumb.jpg", WnRace.FILE);
-                    // 读取 Image
-                    try {
-                        URL thumb_url = new URL(headimgurl);
-                        BufferedImage im = Images.read(thumb_url);
-                        io.writeImage(oThumb, im);
-                        oMe.thumbnail("id:" + oThumb.id());
-                        io.set(oMe, "^(thumb)$");
-                    }
-                    catch (MalformedURLException e) {
-                        throw Er.wrap(e);
-                    }
-                }
-            }
-        }
-        return oMe;
+        throw Wlang.noImplement();
+        // WnObj oMe = null;
+        // String userAgent = header.getString("USER-AGENT");
+        // boolean is_weixin = userAgent.indexOf("MicroMessenger/") > 0;
+        // String code = params.getString("code");
+        // if (is_weixin && !Strings.isBlank(code)) {
+        // // 试图获取用户 openid 信息
+        // String openid = wxApi.user_openid_by_gh_code(code);
+        // if (!Strings.isBlank(openid)) {
+        // // 查一下是否存在这个用户
+        // String key = "wx_" + wxmp;
+        // ThQuery tq = new ThQuery(key, openid);
+        // oMe = ths.getOne(tq);
+        //
+        // // 嗯，已经有这个用户了
+        // if (null != oMe)
+        // return oMe;
+        //
+        // // 如果用户不存在，那么试图获取他的信息，并创建一个
+        // NutMap re = wxApi.user_info(openid, null);
+        // /**
+        // * 得到的返回信息格式为：
+        // *
+        // * <pre>
+        // {
+        // subscribe: 1,
+        // openid: "xxx",
+        // nickname: "小白",
+        // sex: 1,
+        // language: "zh_CN",
+        // city: "海淀",
+        // province: "北京",
+        // country: "中国",
+        // headimgurl: "http://..",
+        // subscribe_time: 1474388443,
+        // remark: "",
+        // groupid: 0,
+        // tagid_list: [],
+        // subscribe_scene: "ADD_SCENE_OTHERS",
+        // qr_scene: 0,
+        // qr_scene_str: ""
+        // }
+        // * </pre>
+        // */
+        // // 创建用户
+        // String myName = re.getString("nickname", "anonymous");
+        // NutMap meta = re.pickBy("^(city|province|country|sex)$");
+        // meta.put(key, openid);
+        // meta.put("th_nm", myName);
+        // oMe = ths.createThing(meta);
+        //
+        // // 如果有头像的话，搞一下
+        // String headimgurl = re.getString("headimgurl");
+        // if (!Strings.isBlank(headimgurl)) {
+        // WnObj oData = Things.dirTsData(io, oMe);
+        // WnObj oThumb = io.createIfNoExists(oData, oMe.id() + "/thumb.jpg",
+        // WnRace.FILE);
+        // // 读取 Image
+        // try {
+        // URL thumb_url = new URL(headimgurl);
+        // BufferedImage im = Images.read(thumb_url);
+        // io.writeImage(oThumb, im);
+        // oMe.thumbnail("id:" + oThumb.id());
+        // io.set(oMe, "^(thumb)$");
+        // }
+        // catch (MalformedURLException e) {
+        // throw Er.wrap(e);
+        // }
+        // }
+        // }
+        // }
+        // return oMe;
     }
 
     public boolean checkMe() {

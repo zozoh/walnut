@@ -13,9 +13,8 @@ import org.nutz.castor.Castors;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Encoding;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
-import org.nutz.lang.Xmls;
 import org.nutz.lang.stream.VoidInputStream;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.ByteInputStream;
@@ -27,7 +26,6 @@ import com.site0.walnut.ext.net.http.HttpContext;
 import com.site0.walnut.ext.net.http.HttpMethod;
 import com.site0.walnut.ext.net.http.bean.HttpFormPart;
 import com.site0.walnut.ext.net.util.WnNet;
-import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.validate.WnMatch;
@@ -470,7 +468,6 @@ public class XApiRequest {
         return Ws.join(list, "&");
     }
 
-    @SuppressWarnings("unchecked")
     public String getBodyDataXml() {
         if (null == body) {
             return "";
@@ -485,11 +482,12 @@ public class XApiRequest {
         }
         // Map -> XML
         if (body instanceof Map) {
-            NutMap map = NutMap.WRAP((Map<String, Object>) body);
-            return Xmls.mapToXml(map);
+            // NutMap map = NutMap.WRAP((Map<String, Object>) body);
+            // TODO gen map to XML
+            throw Wlang.noImplement();
         }
 
-        throw Lang.makeThrow("ThirdXRequest: Can not get XML from body");
+        throw Wlang.makeThrow("ThirdXRequest: Can not get XML from body");
     }
 
     public String getBodyDataJson() {
@@ -562,7 +560,7 @@ public class XApiRequest {
             sb.append("BODY=");
             sb.append(Json.toJson(this.body));
         }
-        String md5 = Lang.md5(sb);
+        String md5 = Wlang.md5(sb);
         String name = Ws.sBlank(key, "_anonymity");
         return name + "-" + md5;
     }

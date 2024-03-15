@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Random;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -46,7 +46,7 @@ public class HistoryFaker {
     public HistoryFaker(HistoryFakeConfig config, WnIo io, String homePath) {
         this.config = config;
         this.io = io;
-        this.vars = Lang.map("HOME", homePath);
+        this.vars = Wlang.map("HOME", homePath);
     }
 
     public List<HistoryRecord> getRecords(int seq, int n, int pad) {
@@ -97,7 +97,7 @@ public class HistoryFaker {
         }
         // 生成模板
         if (fld.hasGenTmpl()) {
-            return fld.getGenTmpl().render(Lang.map("seq", padSeq));
+            return fld.getGenTmpl().render(Wlang.map("seq", padSeq));
         }
         // 固定值
         if (fld.hasValue()) {

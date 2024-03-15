@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bson.Document;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.mongo.ZMo;
 import org.nutz.mongo.ZMoAdaptor;
 import org.nutz.mongo.ZMoDoc;
@@ -33,7 +33,7 @@ public class ZMoDocumentAdaptor implements ZMoAdaptor {
             return ZMo.me().fromDocToMap(ZMoDoc.WRAP((Document) obj));
         }
         // 不可忍受，抛吧 >:D
-        throw Lang.makeThrow("toJava error: %s", obj.getClass());
+        throw Wlang.makeThrow("toJava error: %s", obj.getClass());
     }
 
     @Override
@@ -41,7 +41,7 @@ public class ZMoDocumentAdaptor implements ZMoAdaptor {
         if (obj instanceof Document) {
             return obj;
         }
-        throw Lang.makeThrow("toMongo error: %s", obj.getClass());
+        throw Wlang.makeThrow("toMongo error: %s", obj.getClass());
     }
 
 }

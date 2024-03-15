@@ -10,7 +10,7 @@ import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutBean;
@@ -23,7 +23,6 @@ import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.api.io.agg.WnAggOptions;
 import com.site0.walnut.api.io.agg.WnAggResult;
 import com.site0.walnut.core.indexer.AbstractIoIndexer;
-import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.WnSort;
 import com.site0.walnut.util.validate.WnMatch;
 import com.site0.walnut.util.validate.impl.AutoMatch;
@@ -391,7 +390,7 @@ public class LocalFileIndexer extends AbstractIoIndexer {
 
     @Override
     public WnObj setBy(WnQuery q, NutBean map, boolean returnNew) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
@@ -410,27 +409,27 @@ public class LocalFileIndexer extends AbstractIoIndexer {
 
     @Override
     public WnObj move(WnObj src, String destPath) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj move(WnObj src, String destPath, int mode) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj rename(WnObj o, String nm) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj rename(WnObj o, String nm, boolean keepType) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj rename(WnObj o, String nm, int mode) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
@@ -455,47 +454,47 @@ public class LocalFileIndexer extends AbstractIoIndexer {
 
     @Override
     public WnObj create(WnObj p, String path, WnRace race) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj createById(WnObj p, String id, String name, WnRace race) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj create(WnObj p, WnObj o) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public void delete(WnObj o) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj push(String id, String key, Object val, boolean returnNew) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public void push(WnQuery query, String key, Object val) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj pull(String id, String key, Object val, boolean returnNew) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public void pull(WnQuery query, String key, Object val) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
 }

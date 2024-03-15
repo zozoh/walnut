@@ -1,7 +1,7 @@
 package com.site0.walnut.web.setup;
 
 import org.nutz.ioc.Ioc;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.log.Log;
 import com.site0.walnut.util.Wlog;
 import org.nutz.mvc.NutConfig;
@@ -53,7 +53,7 @@ public class WnMakeSysFolderSetup implements Setup {
                 log.info("! move /session to " + destph);
         }
 
-        throw Lang.makeThrow("done for upgrade!");
+        throw Wlang.makeThrow("done for upgrade!");
 
     }
 

@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.trans.Atom;
 import com.site0.walnut.api.box.WnTunnel;
@@ -55,7 +55,7 @@ public class JvmTunnelTest {
 
         // 等待结果
         while (aT.isAlive() || bT.isAlive()) {
-            Lang.wait(lock, 100);
+            Wlang.wait(lock, 100);
             // System.out.printf("aT:%b, bT:%b\n", aT.isAlive(), bT.isAlive());
         }
 

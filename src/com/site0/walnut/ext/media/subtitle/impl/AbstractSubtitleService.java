@@ -1,10 +1,10 @@
 package com.site0.walnut.ext.media.subtitle.impl;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.ext.media.subtitle.SubtitleService;
 import com.site0.walnut.ext.media.subtitle.bean.SubtitleItem;
 import com.site0.walnut.ext.media.subtitle.bean.SubtitleObj;
@@ -25,7 +25,7 @@ public abstract class AbstractSubtitleService implements SubtitleService {
 
         // 解析成行
         String[] lines = cs.toString().split("\r?\n");
-        ArrayList<String> list = Lang.list(lines);
+        List<String> list = Wlang.list(lines);
         Iterator<String> it = list.iterator();
         while (it.hasNext()) {
             SubtitleItem si = createItem();

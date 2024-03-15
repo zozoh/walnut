@@ -5,7 +5,7 @@ import java.io.OutputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 
 /**
  * 专门弄个类，只有第一次设置 status 才会有用，其他的统统的无视
@@ -27,7 +27,7 @@ public class HttpRespStatusSetter {
             this.ops = resp.getOutputStream();
         }
         catch (IOException e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
     }
 
@@ -47,7 +47,7 @@ public class HttpRespStatusSetter {
             resp.flushBuffer();
         }
         catch (IOException e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
     }
 

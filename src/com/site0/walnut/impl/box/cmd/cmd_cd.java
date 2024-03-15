@@ -1,11 +1,11 @@
 package com.site0.walnut.impl.box.cmd;
 
-import org.nutz.lang.Lang;
 import org.nutz.lang.util.Disks;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 
 public class cmd_cd extends JvmExecutor {
@@ -15,7 +15,7 @@ public class cmd_cd extends JvmExecutor {
 
         String[] vals;
         if (args.length == 0) {
-            vals = Lang.array("~");
+            vals = Wlang.array("~");
         } else {
             vals = args;
         }

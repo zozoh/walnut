@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Encoding;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
@@ -50,17 +50,17 @@ public class cmd_videoi extends JvmExecutor {
             VideoInfo vi = new VideoInfo();
             String cmd = "ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "
                          + path;
-            StringBuilder tmp = Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
+            StringBuilder tmp = Wlang.execOutput(cmd, Encoding.CHARSET_UTF8);
             vi.setLength(Double.parseDouble(tmp.toString().trim()));
 
             cmd = "ffprobe -v error -of default=noprint_wrappers=1:nokey=1 -select_streams v:0 -show_entries stream=width "
                   + path;
-            tmp = Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
+            tmp = Wlang.execOutput(cmd, Encoding.CHARSET_UTF8);
             vi.setWidth(Integer.parseInt(tmp.toString().trim()));
 
             cmd = "ffprobe -v error -of default=noprint_wrappers=1:nokey=1 -select_streams v:0 -show_entries stream=height "
                   + path;
-            tmp = Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
+            tmp = Wlang.execOutput(cmd, Encoding.CHARSET_UTF8);
             vi.setHeight(Integer.parseInt(tmp.toString().trim()));
 
             if (vi.getFrameCount() > 0 && vi.getLength() > 0 && vi.getFrameRate() == 0) {

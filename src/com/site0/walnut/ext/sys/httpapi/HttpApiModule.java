@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.nutz.dao.Dao;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Streams;
 import org.nutz.lang.stream.ComboOutputStream;
@@ -61,6 +61,7 @@ import com.site0.walnut.web.module.AbstractWnModule;
 import com.site0.walnut.web.module.AppRespOpsWrapper;
 import com.site0.walnut.web.module.HttpRespStatusSetter;
 import com.site0.walnut.web.util.WnWeb;
+import com.site0.walnut.util.Wsum;
 import org.nutz.web.WebException;
 
 @IocBean
@@ -88,7 +89,7 @@ public class HttpApiModule extends AbstractWnModule {
         // 找到用户和对应的命令
         try {
             if (log.isInfoEnabled())
-                log.infof("httpAPI(%s): /%s/%s", Lang.getIP(req), usr, api);
+                log.infof("httpAPI(%s): /%s/%s", Wlang.getIP(req), usr, api);
 
             // .........................................
             // 得到用户和主目录
@@ -513,7 +514,7 @@ public class HttpApiModule extends AbstractWnModule {
         StringBuilder in_sb = new StringBuilder();
         OutputStream in_ops = null;
         if (null != in_tp && in_tp.matches("^(text|form|json)$")) {
-            in_ops = Lang.ops(in_sb);
+            in_ops = Wlang.ops(in_sb);
         }
 
         // .........................................
@@ -706,7 +707,7 @@ public class HttpApiModule extends AbstractWnModule {
         String fingerKey = apc.oApi.getString("cache-finger-key");
         if (!Ws.isBlank(fingerKey)) {
             String fingerAs = apc.oApi.getString("cache-finger-as", "MD5");
-            apc.reqQuerySign = Lang.digest(fingerAs, apc.reqQuery);
+            apc.reqQuerySign = Wsum.digestAsString(fingerAs, apc.reqQuery);
             // 得到缓存的签名
             String sign = oCache.getString(fingerKey);
             if (Ws.isBlank(sign) || !sign.equals(apc.reqQuerySign)) {
@@ -1054,8 +1055,8 @@ public class HttpApiModule extends AbstractWnModule {
     void _do_redirect(WnHttpApiContext apc) throws IOException {
         StringBuilder sbOut = new StringBuilder();
         StringBuilder sbErr = new StringBuilder();
-        OutputStream out = Lang.ops(sbOut);
-        OutputStream err = Lang.ops(sbErr);
+        OutputStream out = Wlang.ops(sbOut);
+        OutputStream err = Wlang.ops(sbErr);
 
         this.exec("apiR", apc.se, apc.cmdText, out, err, null, null);
 
@@ -1175,7 +1176,7 @@ public class HttpApiModule extends AbstractWnModule {
         // 单条历史记录
         else if (history instanceof Map) {
             NutMap itMap = NutMap.WRAP((Map<String, Object>) history);
-            historyList = Lang.list(itMap);
+            historyList = Wlang.list(itMap);
         }
         // 神马也不是
         else {
@@ -1232,7 +1233,7 @@ public class HttpApiModule extends AbstractWnModule {
             NutMap hisre = (NutMap) Wn.explainObj(apc.oReq, hisTmpl);
 
             // 插入历史记录
-            HistoryRecord his = Lang.map2Object(hisre, HistoryRecord.class);
+            HistoryRecord his = Wlang.map2Object(hisre, HistoryRecord.class);
             api.add(his);
         }
     }

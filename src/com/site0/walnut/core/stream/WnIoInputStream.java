@@ -3,7 +3,7 @@ package com.site0.walnut.core.stream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.core.WnIoHandle;
 
 public class WnIoInputStream extends InputStream {
@@ -16,7 +16,7 @@ public class WnIoInputStream extends InputStream {
 
     @Override
     public int read() throws IOException {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override

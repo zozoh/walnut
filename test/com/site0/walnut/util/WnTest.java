@@ -6,7 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.junit.Test;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.auth.WnAccount;
@@ -111,43 +111,43 @@ public class WnTest {
 
     @Test
     public void test_explain_obj() {
-        NutMap context = Lang.map("x:100,name:'xiaobai',male:true");
-        context.put("pet", Lang.map("race:'dog',age:8"));
+        NutMap context = Wlang.map("x:100,name:'xiaobai',male:true");
+        context.put("pet", Wlang.map("race:'dog',age:8"));
 
-        NutMap map = Lang.map("size:'=x',age:'=pet.age'");
+        NutMap map = Wlang.map("size:'=x',age:'=pet.age'");
         NutMap m2 = (NutMap) Wn.explainObj(context, map);
         assertEquals(100, m2.getInt("size"));
         assertEquals(8, m2.getInt("age"));
 
-        map = Lang.map("hasAge:'==pet.age'");
+        map = Wlang.map("hasAge:'==pet.age'");
         m2 = (NutMap) Wn.explainObj(context, map);
         assertEquals(true, m2.getBoolean("hasAge"));
 
-        map = Lang.map("hasSex:'==pet.sex'");
+        map = Wlang.map("hasSex:'==pet.sex'");
         m2 = (NutMap) Wn.explainObj(context, map);
         assertEquals(false, m2.getBoolean("hasAge"));
 
-        map = Lang.map("brief:'->${pet.age}:${pet.race}@${name}'");
+        map = Wlang.map("brief:'->${pet.age}:${pet.race}@${name}'");
         m2 = (NutMap) Wn.explainObj(context, map);
         assertEquals("8:dog@xiaobai", m2.getString("brief"));
 
-        map = Lang.map("petName:'=page.name?AA'");
+        map = Wlang.map("petName:'=page.name?AA'");
         m2 = (NutMap) Wn.explainObj(context, map);
         assertEquals("AA", m2.getString("petName"));
     }
 
     @Test
     public void test_explain_obj2() {
-        NutMap context = Lang.map("x:100,name:'xiaobai',male:true");
-        context.put("pet", Lang.map("race:'dog',age:8"));
+        NutMap context = Wlang.map("x:100,name:'xiaobai',male:true");
+        context.put("pet", Wlang.map("race:'dog',age:8"));
         context.put("G", new WnElRuntime());
 
-        NutMap map = Lang.map("n:'=>name.length()',race:'=>pet.race.substring(0,1).toUpperCase()'");
+        NutMap map = Wlang.map("n:'=>name.length()',race:'=>pet.race.substring(0,1).toUpperCase()'");
         NutMap m2 = (NutMap) Wn.explainObj(context, map);
         assertEquals(7, m2.getInt("n"));
         assertEquals("D", m2.get("race"));
 
-        map = Lang.map("n1:'=>G.count(name)',n2:'=>G.count(abc)'");
+        map = Wlang.map("n1:'=>G.count(name)',n2:'=>G.count(abc)'");
         m2 = (NutMap) Wn.explainObj(context, map);
         assertEquals(1, m2.getInt("n1"));
         assertEquals(0, m2.getInt("n2"));

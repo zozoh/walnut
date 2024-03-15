@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -139,15 +139,15 @@ public class WnIoObj extends NutMap implements WnObj {
     }
 
     public boolean hasWriteHandle() {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     public String getWriteHandle() {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     public WnObj setWriteHandle(String hid) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     public boolean hasID() {
@@ -290,19 +290,19 @@ public class WnIoObj extends NutMap implements WnObj {
     }
 
     public boolean hasData() {
-        throw Lang.makeThrow("data not supported anymore");
+        throw Wlang.makeThrow("data not supported anymore");
     }
 
     public String data() {
-        throw Lang.makeThrow("data not supported anymore");
+        throw Wlang.makeThrow("data not supported anymore");
     }
 
     public WnObj data(String data) {
-        throw Lang.makeThrow("data not supported anymore");
+        throw Wlang.makeThrow("data not supported anymore");
     }
 
     public boolean isSameData(String data) {
-        throw Lang.makeThrow("data not supported anymore");
+        throw Wlang.makeThrow("data not supported anymore");
     }
 
     public long len() {
@@ -384,8 +384,8 @@ public class WnIoObj extends NutMap implements WnObj {
         if (Strings.isBlank(d0))
             return new String[0];
         if (Strings.isBlank(d1))
-            return Lang.array(d0);
-        return Lang.array(d0, d1);
+            return Wlang.array(d0);
+        return Wlang.array(d0, d1);
     }
 
     public WnObj update(Map<? extends String, ? extends Object> map) {
@@ -519,7 +519,7 @@ public class WnIoObj extends NutMap implements WnObj {
             if (o.size() != size())
                 return false;
             for (String key : o.keySet()) {
-                if (!Lang.equals(o.get(key), get(key)))
+                if (!Wlang.isEqual(o.get(key), get(key)))
                     return false;
             }
             return true;
@@ -712,7 +712,7 @@ public class WnIoObj extends NutMap implements WnObj {
         if (null == _parent && hasParent()) {
             String pid = this.parentId();
             if (this.indexer == null) {
-                throw Lang.makeThrow("NPE indexer: %s/%s > %s", pid, this.id(), this.name());
+                throw Wlang.makeThrow("NPE indexer: %s/%s > %s", pid, this.id(), this.name());
             }
             // 自己的父就是根了
             if (this.indexer.isRoot(pid)) {
@@ -722,7 +722,7 @@ public class WnIoObj extends NutMap implements WnObj {
             WnObj oP = indexer.get(pid);
             if (null == oP) {
                 // oP = tree.get(pid);
-                // throw Lang.makeThrow("NPE parent: %s/%s > %s", pid,
+                // throw Wlang.makeThrow("NPE parent: %s/%s > %s", pid,
                 // this.id(), this.name());
                 return null;
             }
@@ -907,7 +907,7 @@ public class WnIoObj extends NutMap implements WnObj {
     }
 
     public boolean isMyParent(WnObj p) {
-        return Lang.equals(this.parentId(), p.myId());
+        return Wlang.isEqual(this.parentId(), p.myId());
     }
 
     public boolean isMyAncestor(WnObj an) {
@@ -926,32 +926,32 @@ public class WnIoObj extends NutMap implements WnObj {
 
     @Override
     public boolean isRWMeta() {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj setRWMeta(boolean rwmeta) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public boolean hasRWMetaKeys() {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public String getRWMetaKeys() {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj setRWMetaKeys(String regex) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj clearRWMetaKeys() {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     public WnObj clone() {

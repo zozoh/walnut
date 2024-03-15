@@ -1,6 +1,6 @@
 package com.site0.walnut.impl.box.cmd;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
@@ -23,7 +23,7 @@ public class cmd_fnm extends JvmExecutor {
         WnObj current = Strings.isBlank(str) ? sys.getCurrentObj() : Wn.checkObj(sys, str);
 
         int i = 1;
-        NutMap context = Lang.map("n", i);
+        NutMap context = Wlang.map("n", i);
         String fnm = tmpl.render(context);
 
         while (true) {

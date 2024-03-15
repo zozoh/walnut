@@ -9,13 +9,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Nums;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Atom;
 import com.site0.walnut.api.WnOutputable;
+import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WalkMode;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
@@ -106,7 +106,7 @@ public class TiBuilding implements Atom {
                 walker.run(index, f, rph, lines);
             }
             catch (Exception e) {
-                throw Lang.wrapThrow(e);
+                throw Er.wrap(e);
             }
         }, WalkMode.LEAF_ONLY);
     }
@@ -229,7 +229,7 @@ public class TiBuilding implements Atom {
                 out.printf(logPrefix + " -> line:%4d: %s\n", i, line);
                 m = P_E.matcher(line);
                 if (!m.find()) {
-                    throw Lang.makeThrow("Fail to match export RegExp");
+                    throw Er.create("Fail to match export RegExp");
                 }
                 // out.printf(logPrefix + " -> line:%4d: @export %s\n",
                 // i,

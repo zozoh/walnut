@@ -2,7 +2,7 @@ package com.site0.walnut.impl.box.cmd;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
@@ -61,7 +61,7 @@ public class cmd_httpparam extends JvmExecutor {
         // .......................................................
         // 将指定的参数根据分隔符拆分成数组
         if (params.has("varray")) {
-            NutMap mapping = Lang.map(params.getString("varray"));
+            NutMap mapping = Wlang.map(params.getString("varray"));
             for (String nm : mapping.keySet()) {
                 String sep = mapping.getString(nm);
                 String val = c.getString(nm);
@@ -102,7 +102,7 @@ public class cmd_httpparam extends JvmExecutor {
             String mapKey = params.get("map");
             if ("true".equals(mapKey))
                 mapKey = "params";
-            c = Lang.map(mapKey, c);
+            c = Wlang.map(mapKey, c);
         }
 
         // .......................................................

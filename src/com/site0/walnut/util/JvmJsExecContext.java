@@ -7,11 +7,11 @@ import java.io.OutputStream;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Encoding;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
+
 import com.site0.walnut.api.WnAuthExecutable;
 import com.site0.walnut.api.WnOutputable;
 import com.site0.walnut.api.auth.WnAuthSession;
@@ -57,11 +57,11 @@ public class JvmJsExecContext implements JsExecContext {
     }
 
     public JvmJsExecContext(WnSystem sys, StringBuilder sb) {
-        this(sys, new JvmBoxOutput(Lang.ops(sb)));
+        this(sys, new JvmBoxOutput(Wlang.ops(sb)));
     }
 
     public JvmJsExecContext(WnSystem sys, StringBuilder sbOut, StringBuilder sbErr) {
-        this(sys, new JvmBoxOutput(Lang.ops(sbOut)), new JvmBoxOutput(Lang.ops(sbErr)));
+        this(sys, new JvmBoxOutput(Wlang.ops(sbOut)), new JvmBoxOutput(Wlang.ops(sbErr)));
     }
 
     public JvmJsExecContext(WnIo io,
@@ -87,9 +87,9 @@ public class JvmJsExecContext implements JsExecContext {
         this(io,
              session,
              runner,
-             new JvmBoxInput(Lang.ins(input)),
-             new JvmBoxOutput(Lang.ops(sbOut)),
-             new JvmBoxOutput(Lang.ops(sbErr)));
+             new JvmBoxInput(Wlang.ins(input)),
+             new JvmBoxOutput(Wlang.ops(sbOut)),
+             new JvmBoxOutput(Wlang.ops(sbErr)));
     }
 
     public JvmJsExecContext(WnIo io,
@@ -265,10 +265,10 @@ public class JvmJsExecContext implements JsExecContext {
             return reb;
         }
         catch (WnIoHandleMutexException e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
         catch (IOException e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
         finally {
             Streams.safeClose(h);

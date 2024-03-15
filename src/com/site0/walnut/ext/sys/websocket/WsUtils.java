@@ -3,8 +3,7 @@ package com.site0.walnut.ext.sys.websocket;
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
 
-import org.nutz.lang.Each;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.Callback;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.WnSystem;
@@ -20,12 +19,10 @@ public abstract class WsUtils {
     public static void eachSession(WnSystem sys, String id, Callback<Session> callback) {
         if (id.startsWith("id:") || id.startsWith("~/")) {
             WnObj wobj = Wn.checkObj(sys, id);
-            Lang.each(wobj.get(WnWebSocket.KEY), new Each<Object>() {
-                public void invoke(int index, Object ele, int length) {
-                    Session session = WnWebSocket.get(String.valueOf(ele));
-                    if (session != null)
-                        callback.invoke(session);
-                }
+            Wlang.each(wobj.get(WnWebSocket.KEY), (int index, Object ele, Object src) -> {
+                Session session = WnWebSocket.get(String.valueOf(ele));
+                if (session != null)
+                    callback.invoke(session);
             });
         } else {
             Session session = WnWebSocket.get(id);

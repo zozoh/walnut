@@ -1,6 +1,6 @@
 package com.site0.walnut.impl.srv;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnIo;
@@ -57,7 +57,7 @@ public class WnDomainService {
         if (null != oHome) {
             String homePath = oHome.path();
             String sitePath = oHome.getString("auth_site", "~/www/login");
-            NutMap vars = Lang.map("HOME", homePath).setv("PWD", homePath);
+            NutMap vars = Wlang.map("HOME", homePath).setv("PWD", homePath);
             String aph = Wn.normalizeFullPath(sitePath, vars);
             return io.check(null, aph);
         }
@@ -95,7 +95,7 @@ public class WnDomainService {
 
         // 映射里直接指定了站点名称
         if (!Ws.isBlank(sitePath)) {
-            NutMap vars = Lang.map("HOME", si.oHome.path());
+            NutMap vars = Wlang.map("HOME", si.oHome.path());
             sitePath = Wn.normalizeFullPath(sitePath, vars);
             si.oWWW = io.fetch(null, sitePath);
         }

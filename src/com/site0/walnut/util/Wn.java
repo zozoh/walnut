@@ -24,7 +24,6 @@ import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
 import org.nutz.lang.LoopException;
 import org.nutz.lang.Maths;
 import org.nutz.lang.Mirror;
@@ -32,9 +31,6 @@ import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.random.R;
-import com.site0.walnut.util.each.WnEachIteratee;
-import com.site0.walnut.util.explain.WnExplain;
-import com.site0.walnut.util.explain.WnExplains;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutBean;
@@ -42,6 +38,8 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
+import org.nutz.web.Webs.Err;
+
 import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.auth.WnAuthService;
 import com.site0.walnut.api.auth.WnAuthSession;
@@ -60,7 +58,9 @@ import com.site0.walnut.ext.sys.schedule.WnSysScheduleApi;
 import com.site0.walnut.ext.sys.task.WnSysTaskApi;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.impl.io.WnSecurityImpl;
-import org.nutz.web.Webs.Err;
+import com.site0.walnut.util.each.WnEachIteratee;
+import com.site0.walnut.util.explain.WnExplain;
+import com.site0.walnut.util.explain.WnExplains;
 
 /**
  * Walnut 系统的各种帮助函数集合
@@ -756,7 +756,7 @@ public abstract class Wn {
     public static class Io {
 
         // da39a3ee5e6b4b0d3255bfef95601890afd80709
-        public static final String EMPTY_SHA1 = Lang.sha1("");
+        public static final String EMPTY_SHA1 = Wlang.sha1("");
 
         public static final int R = 1 << 2;
 
@@ -1756,7 +1756,7 @@ public abstract class Wn {
     }
 
     public static String genSaltPassword(String passwd, String salt) {
-        return Lang.sha1(passwd + salt);
+        return Wlang.sha1(passwd + salt);
     }
 
     // 对 HTML 代码逃逸

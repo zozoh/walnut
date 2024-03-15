@@ -3,7 +3,7 @@ package com.site0.walnut.impl.box;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.stream.VoidInputStream;
@@ -119,7 +119,7 @@ public class JvmAtomRunner {
         }
         catch (Throwable e) {
             // 如果不是被 InterruptedException， 记录错误
-            if (!Lang.isCauseBy(e, InterruptedException.class)) {
+            if (!Wlang.isCauseBy(e, InterruptedException.class)) {
                 // 拆包 ...
                 Throwable ue = Er.unwrap(e);
 
@@ -299,7 +299,7 @@ public class JvmAtomRunner {
             if (null != a)
                 return;
         status = WnBoxStatus.IDLE;
-        Lang.notifyAll(idleLock);
+        Wlang.notifyAll(idleLock);
     }
 
     /**
@@ -320,7 +320,7 @@ public class JvmAtomRunner {
                             idleLock.wait(0);
                         }
                         catch (InterruptedException e) {
-                            throw Lang.wrapThrow(e);
+                            throw Wlang.wrapThrow(e);
                         }
                     }
                 }
@@ -343,7 +343,7 @@ public class JvmAtomRunner {
                     t.join();
                 }
                 catch (InterruptedException e) {
-                    throw Lang.wrapThrow(e);
+                    throw Wlang.wrapThrow(e);
                 }
                 if (t.isAlive())
                     return false;

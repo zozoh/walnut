@@ -3,11 +3,11 @@ package com.site0.walnut.ext.data.app.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.WnExecutable;
 import com.site0.walnut.api.WnOutputable;
+import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.app.bean.init.AppInitGroup;
@@ -118,7 +118,7 @@ public class AppInitContext {
 
     public AppInitProcessor getProcessor(AppInitItem item) {
         if (!item.hasType()) {
-            throw Lang.makeThrow("AppInitItem without type", item.toString());
+            throw Er.create("e.cmd.app.init.WithoutType", item.toString());
         }
         return processors.get(item.getType());
     }

@@ -7,7 +7,7 @@ import java.util.List;
 import org.nutz.castor.Castors;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import com.site0.walnut.api.io.WnObj;
@@ -129,7 +129,7 @@ public class WnObjTable {
         }
         // 不可能
         else {
-            throw Lang.impossible();
+            throw Wlang.impossible();
         }
 
         // 输出颜色
@@ -147,7 +147,7 @@ public class WnObjTable {
             sb.append('-');
             break;
         default:
-            throw Lang.impossible();
+            throw Wlang.impossible();
         }
 
         // Mode

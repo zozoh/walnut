@@ -3,7 +3,7 @@ package com.site0.walnut.impl.auth;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.auth.WnGroupAccount;
@@ -112,7 +112,7 @@ public class WnGroupRoleServiceImpl implements WnGroupRoleService {
             int r = oR.getInt("role", 0);
             WnGroupRole gr = WnGroupRole.parseInt(r);
             if (gr != role) {
-                io.appendMeta(oR, Lang.map("role", role.getValue()));
+                io.appendMeta(oR, Wlang.map("role", role.getValue()));
             }
         }
         // 如果获取失败，则新创建一个

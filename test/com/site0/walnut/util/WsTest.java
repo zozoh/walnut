@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutBean;
 import com.site0.walnut.util.callback.WnStrToken;
 import com.site0.walnut.util.callback.WnStrTokenCallback;
@@ -84,7 +84,7 @@ public class WsTest {
                     break;
                 // 其他的就是错误
                 default:
-                    throw Lang.impossible();
+                    throw Wlang.impossible();
                 }
             }
         };

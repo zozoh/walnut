@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.segment.CharSegment;
 import org.nutz.mvc.View;
@@ -24,7 +24,7 @@ public class ErrPageView implements View {
             String tmpl = Streams.readAndClose(new InputStreamReader(WebMaker.class.getResourceAsStream("/org/nutz/web/error/errpage.html.tmpl")));
             CharSegment cs = new CharSegment(tmpl);
             // 异常
-            errMsg = Lang.getStackTrace((Throwable) obj);
+            errMsg = Wlang.getStackTrace((Throwable) obj);
             String[] errlines = errMsg.split("\n");
             StringBuilder sb = new StringBuilder();
             Map<String, Integer> pkgNum = new HashMap<String, Integer>();

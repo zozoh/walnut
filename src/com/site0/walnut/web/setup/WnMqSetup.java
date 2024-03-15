@@ -3,7 +3,7 @@ package com.site0.walnut.web.setup;
 import java.util.List;
 
 import org.nutz.ioc.Ioc;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.log.Log;
 import com.site0.walnut.util.Wlog;
@@ -66,7 +66,7 @@ public class WnMqSetup implements Setup {
                 }
             }
             catch (WnMqException e) {
-                throw Lang.wrapThrow(e);
+                throw Wlang.wrapThrow(e);
             }
         }
     }
@@ -78,7 +78,7 @@ public class WnMqSetup implements Setup {
                 this.api.unsubscribe(null);
             }
             catch (WnMqException e) {
-                throw Lang.wrapThrow(e);
+                throw Wlang.wrapThrow(e);
             }
         }
     }

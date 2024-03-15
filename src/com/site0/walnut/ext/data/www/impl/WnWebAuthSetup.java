@@ -1,6 +1,6 @@
 package com.site0.walnut.ext.data.www.impl;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.auth.WnAuthService;
@@ -84,7 +84,7 @@ public class WnWebAuthSetup extends AbstractWnAuthSetup {
     public void afterAccountCreated(WnAuthService auth, WnAccount user) {
         // 设置 Thing Set 的标准属性
         WnObj oU = io.checkById(user.getId());
-        NutMap meta = Lang.map("th_live", Things.TH_LIVE);
+        NutMap meta = Wlang.map("th_live", Things.TH_LIVE);
         meta.put("th_set", site.getAccountHome().id());
         io.appendMeta(oU, meta);
     }

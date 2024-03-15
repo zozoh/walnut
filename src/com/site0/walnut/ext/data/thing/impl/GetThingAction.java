@@ -3,7 +3,7 @@ package com.site0.walnut.ext.data.thing.impl;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
@@ -80,13 +80,13 @@ public class GetThingAction extends ThingAction<WnObj> {
             WnQuery q = Wn.Q.pid(oT.parentId()).setv("th_live", Things.TH_LIVE);
             // 正序
             if (this.isAsc) {
-                oTPrev = io.getOne(q.desc(sortKey).setv(sortKey, Lang.map("$lt", sortVal)));
-                oTNext = io.getOne(q.asc(sortKey).setv(sortKey, Lang.map("$gt", sortVal)));
+                oTPrev = io.getOne(q.desc(sortKey).setv(sortKey, Wlang.map("$lt", sortVal)));
+                oTNext = io.getOne(q.asc(sortKey).setv(sortKey, Wlang.map("$gt", sortVal)));
             }
             // 倒序
             else {
-                oTPrev = io.getOne(q.asc(sortKey).setv(this.sortKey, Lang.map("$gt", sortVal)));
-                oTNext = io.getOne(q.desc(sortKey).setv(this.sortKey, Lang.map("$lt", sortVal)));
+                oTPrev = io.getOne(q.asc(sortKey).setv(this.sortKey, Wlang.map("$gt", sortVal)));
+                oTNext = io.getOne(q.desc(sortKey).setv(this.sortKey, Wlang.map("$lt", sortVal)));
             }
             // 记录一下
             oT.setv("th_prev", oTPrev);

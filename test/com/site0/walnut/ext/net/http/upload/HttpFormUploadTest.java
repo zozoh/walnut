@@ -10,7 +10,7 @@ import java.util.List;
 import org.junit.Test;
 import org.nutz.json.Json;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.LinkedByteBuffer;
 import org.nutz.lang.util.NutMap;
@@ -50,7 +50,7 @@ public class HttpFormUploadTest {
 
         File fHead = Files.findFile(phHead);
         File fBody = Files.findFile(phBody);
-        System.out.println(Lang.sha1(fBody));
+        System.out.println(Wlang.sha1(fBody));
 
         NutMap head = Json.fromJsonFile(NutMap.class, fHead);
         InputStream ins = Streams.fileIn(fBody);
@@ -64,7 +64,7 @@ public class HttpFormUploadTest {
         upload.parse(new HttpFormCallback() {
             public void handle(HttpFormUploadField field) throws IOException {
                 if (!field.isFile() || !field.isName("file")) {
-                    throw Lang.makeThrow("Invalid field %s", field.getName());
+                    throw Wlang.makeThrow("Invalid field %s", field.getName());
                 }
                 // 记录
                 fld0.setName(field.getFileName());

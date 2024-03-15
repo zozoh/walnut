@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
@@ -160,7 +160,7 @@ public class WnCron {
         __parse_for_ext(items, stdList);
 
         // 默认标准表达式
-        String[] stds = Lang.array("0", "0", "0", "*", "*", "?", "*");
+        String[] stds = Wlang.array("0", "0", "0", "*", "*", "?", "*");
 
         // 如果标准表达式项目不足，试图补上
         int stdIC = stdList.size();
@@ -183,21 +183,21 @@ public class WnCron {
         // 什么都没给，必须有 timePoints 和 rgDate
         case 0:
             if (0 == timeRepeaters.size())
-                throw Lang.makeThrow("No TimePoints : " + cron);
+                throw Wlang.makeThrow("No TimePoints : " + cron);
             if (null == rgDate)
-                throw Lang.makeThrow("No DateRange : " + cron);
+                throw Wlang.makeThrow("No DateRange : " + cron);
             stdN = 0;
             break;
         // 给了 `日 月 周` 必须还要给定 timePoints
         case 3:
             if (0 == timeRepeaters.size())
-                throw Lang.makeThrow("No TimePoints : " + cron);
+                throw Wlang.makeThrow("No TimePoints : " + cron);
             stdN = 1;
             break;
         // 给了 `日 月 周 年` 必须还要给定 timePoints
         case 4:
             if (0 == timeRepeaters.size())
-                throw Lang.makeThrow("No TimePoints : " + cron);
+                throw Wlang.makeThrow("No TimePoints : " + cron);
             stdN = 0;
             break;
         // 给了 `秒 分 时 日 月 周`
@@ -209,7 +209,7 @@ public class WnCron {
             stdN = 0;
             break;
         default:
-            throw Lang.makeThrow("Wrong format : " + cron);
+            throw Wlang.makeThrow("Wrong format : " + cron);
         }
 
         // 补上标准表达式项
@@ -527,7 +527,7 @@ public class WnCron {
             }
         }
         catch (Exception e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
     }
 

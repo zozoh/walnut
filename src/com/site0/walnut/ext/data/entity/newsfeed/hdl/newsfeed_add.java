@@ -1,7 +1,7 @@
 package com.site0.walnut.ext.data.entity.newsfeed.hdl;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.ext.data.entity.newsfeed.Newsfeed;
@@ -23,8 +23,8 @@ public class newsfeed_add implements JvmHdl {
 
         // 准备新消息
         String json = Cmds.checkParamOrPipe(sys, hc.params, 0);
-        NutMap map = Lang.map(json);
-        Newsfeed feed = Lang.map2Object(map, Newsfeed.class);
+        NutMap map = Wlang.map(json);
+        Newsfeed feed = Wlang.map2Object(map, Newsfeed.class);
 
         // 批量插入
         String target = hc.params.get("target");

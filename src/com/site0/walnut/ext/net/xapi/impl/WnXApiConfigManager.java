@@ -3,7 +3,7 @@ package com.site0.walnut.ext.net.xapi.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnIo;
@@ -88,7 +88,7 @@ public class WnXApiConfigManager implements XApiConfigManager {
         }
 
         // 转换到需要的类型
-        return Lang.map2Object(config, configType);
+        return Wlang.map2Object(config, configType);
     }
 
     @Override
@@ -115,7 +115,7 @@ public class WnXApiConfigManager implements XApiConfigManager {
                 if (null == ak || ak.isExpired() || !ak.hasTicket()) {
                     WnObj oAk = io.fetch(null, aph);
                     if (null != oAk) {
-                        ak = Lang.map2Object(oAk, XApiAccessKey.class);
+                        ak = Wlang.map2Object(oAk, XApiAccessKey.class);
                         return null != ak && !ak.isExpired() && ak.hasTicket();
                     }
                 }
@@ -148,7 +148,7 @@ public class WnXApiConfigManager implements XApiConfigManager {
                 if (!force && (null == ak || ak.isExpired() || !ak.hasTicket())) {
                     WnObj oAk = io.fetch(null, aph);
                     if (null != oAk) {
-                        ak = Lang.map2Object(oAk, XApiAccessKey.class);
+                        ak = Wlang.map2Object(oAk, XApiAccessKey.class);
                     }
                 }
 
@@ -176,12 +176,12 @@ public class WnXApiConfigManager implements XApiConfigManager {
 
                         // 转换成标准的请求对象
                         NutMap ao = (NutMap) Wn.explainObj(re, expert.getAccessKeyObj());
-                        ak = Lang.map2Object(ao, XApiAccessKey.class);
+                        ak = Wlang.map2Object(ao, XApiAccessKey.class);
                     }
                     // 否则就是模板密钥
                     else {
                         NutMap ao = (NutMap) Wn.explainObj(context, expert.getAccessKeyObj());
-                        ak = Lang.map2Object(ao, XApiAccessKey.class);
+                        ak = Wlang.map2Object(ao, XApiAccessKey.class);
                     }
 
                     // 初始化一下绝对过期时间，其中稍微少设 300秒，保险一点

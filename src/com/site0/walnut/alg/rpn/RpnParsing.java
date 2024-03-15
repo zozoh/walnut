@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.Callback;
 
 /**
@@ -100,7 +100,7 @@ public class RpnParsing {
             }
             // 神马玩意？ 不认识！抛错
             else {
-                throw Lang.makeThrow("Invalid RPN Item: %s", it.toString());
+                throw Wlang.makeThrow("Invalid RPN Item: %s", it.toString());
             }
 
             // 回调观察者

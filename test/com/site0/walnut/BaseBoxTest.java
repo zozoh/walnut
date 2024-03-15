@@ -1,6 +1,5 @@
 package com.site0.walnut;
 
-import org.nutz.lang.Lang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -15,6 +14,7 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmBoxService;
 import com.site0.walnut.impl.box.JvmExecutorFactory;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.Wlang;
 
 public abstract class BaseBoxTest extends BaseUsrTest {
 
@@ -100,8 +100,8 @@ public abstract class BaseBoxTest extends BaseUsrTest {
     protected WnBox _alloc_box() {
         WnBox box = boxes.alloc(0);
         box.setStdin(null);
-        box.setStdout(Lang.ops(out));
-        box.setStderr(Lang.ops(err));
+        box.setStdout(Wlang.ops(out));
+        box.setStderr(Wlang.ops(err));
         box.setup(bc);
         return box;
     }
@@ -113,12 +113,12 @@ public abstract class BaseBoxTest extends BaseUsrTest {
         super.on_after();
 
         // 最后等一下再第二个测试
-        Lang.sleep(200);
+        Wlang.sleep(200);
     }
 
     private WnBoxService _create_box_service() {
         JvmExecutorFactory jef = new JvmExecutorFactory();
-        Mirror.me(jef).setValue(jef, "scanPkgs", Lang.array("com.site0.walnut.impl.box.cmd"));
+        Mirror.me(jef).setValue(jef, "scanPkgs", Wlang.array("com.site0.walnut.impl.box.cmd"));
         return new JvmBoxService(jef);
     }
 

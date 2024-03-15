@@ -3,7 +3,7 @@ package com.site0.walnut.ext.data.app.bean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
@@ -189,7 +189,7 @@ public class SidebarItem {
         if (Strings.isBlank(val))
             return dft;
 
-        NutMap icon = Lang.map("className", "material-icons").setv("text", val);
+        NutMap icon = Wlang.map("className", "material-icons").setv("text", val);
         Matcher m = Pattern.compile("^([a-z]+)-(.+)$").matcher(val);
         if (m.find()) {
             // fontawsome

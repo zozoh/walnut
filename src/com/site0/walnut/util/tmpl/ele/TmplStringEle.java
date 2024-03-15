@@ -3,7 +3,7 @@ package com.site0.walnut.util.tmpl.ele;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 
 /**
@@ -76,7 +76,7 @@ public class TmplStringEle extends TmplDynamicEle {
         }
         if (null != val) {
             if (val.getClass().isArray()) {
-                return Lang.concat(", ", (Object[]) val).toString();
+                return Wlang.concat(", ", (Object[]) val).toString();
             }
             if (val instanceof Collection<?>) {
                 return Strings.join(", ", (Collection<?>) val);

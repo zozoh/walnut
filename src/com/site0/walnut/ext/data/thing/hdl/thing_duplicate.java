@@ -3,7 +3,7 @@ package com.site0.walnut.ext.data.thing.hdl;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.thing.WnThingService;
@@ -41,7 +41,7 @@ public class thing_duplicate implements JvmHdl {
 
         String fmeta = hc.params.getString("fmeta");
         if (!Ws.isBlank(fmeta)) {
-            opt.fmeta = Lang.map(fmeta);
+            opt.fmeta = Wlang.map(fmeta);
         }
 
         // 指定复制目标
@@ -67,7 +67,7 @@ public class thing_duplicate implements JvmHdl {
 
             String fvars = hc.params.getString("fvars");
             if (!Ws.isBlank(fvars)) {
-                opt.fvars = Lang.map(fvars);
+                opt.fvars = Wlang.map(fvars);
             }
 
             String fnewname = hc.params.getString("fnewname", "${id}-${name?@input}");

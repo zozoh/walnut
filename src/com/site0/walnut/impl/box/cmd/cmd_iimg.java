@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 import org.nutz.img.Images;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
@@ -153,7 +153,7 @@ public class cmd_iimg extends JvmExecutor {
                 try (OutputStream out = new FileOutputStream(f)) {
                     sys.io.readAndClose(oim, out);
                 }
-                Lang.execOutput(new String[]{"/usr/bin/convert",
+                Wlang.execOutput(new String[]{"/usr/bin/convert",
                                              "-auto-orient",
                                              "-strip",
                                              "-quality",

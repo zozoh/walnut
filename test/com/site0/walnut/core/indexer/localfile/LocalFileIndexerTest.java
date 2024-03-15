@@ -14,7 +14,7 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Each;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WalkMode;
@@ -173,7 +173,8 @@ public class LocalFileIndexerTest extends IoCoreTest {
         String json = Json.toJson(o, JsonFormat.full());
         NutMap map0 = Json.fromJson(NutMap.class, json);
         NutMap map1 = o.toMap(null);
-        assertTrue(Lang.equals(map0, map1));
+        boolean is_equal = Wlang.isEqualDeeply(map0, map1);
+        assertTrue(is_equal);
 
         //
         // 目录
@@ -190,7 +191,8 @@ public class LocalFileIndexerTest extends IoCoreTest {
         json = Json.toJson(o, JsonFormat.full());
         map0 = Json.fromJson(NutMap.class, json);
         map1 = o.toMap(null);
-        assertTrue(Lang.equals(map0, map1));
+        is_equal = Wlang.isEqualDeeply(map0, map1);
+        assertTrue(is_equal);
     }
 
     /**

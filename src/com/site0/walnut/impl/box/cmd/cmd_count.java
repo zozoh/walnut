@@ -3,7 +3,7 @@ package com.site0.walnut.impl.box.cmd;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
@@ -52,7 +52,7 @@ public class cmd_count extends JvmExecutor {
         }
         if (params.has("match")) {
             String json = params.get("match", "{}");
-            q.setAll(Lang.map(json));
+            q.setAll(Wlang.map(json));
         }
         if (phObj.d0() != null)
             q.setv("d0", phObj.d0());

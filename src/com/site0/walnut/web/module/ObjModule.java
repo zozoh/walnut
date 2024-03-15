@@ -20,7 +20,7 @@ import org.nutz.img.Images;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Nums;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
@@ -281,7 +281,7 @@ public class ObjModule extends AbstractWnModule {
         pager.setupQuery(q);
 
         // 排序
-        NutMap sorting = Lang.map(sort);
+        NutMap sorting = Wlang.map(sort);
         q.sort(sorting);
 
         // 确保去掉 "_" 开头的字段
@@ -736,7 +736,7 @@ public class ObjModule extends AbstractWnModule {
         localMeta.put("name", nm);
         localMeta.put("mime", mime);
         localMeta.put("size", sz);
-        NutMap meta = Lang.map("local", localMeta);
+        NutMap meta = Wlang.map("local", localMeta);
         io().appendMeta(o, meta);
 
         // 返回

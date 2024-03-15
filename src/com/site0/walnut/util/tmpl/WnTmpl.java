@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import com.site0.walnut.util.tmpl.ele.TmplBooleanEle;
@@ -309,7 +309,7 @@ public class WnTmpl {
         Matcher m2 = _P2.matcher(s_match);
 
         if (!m2.find())
-            throw Lang.makeThrow("Fail to parse tmpl key '%s'", s_match);
+            throw Wlang.makeThrow("Fail to parse tmpl key '%s'", s_match);
 
         String key = m2.group(1);
         String type = Strings.sNull(m2.group(3), "string");
@@ -350,7 +350,7 @@ public class WnTmpl {
         }
         // 靠不可能
         else {
-            throw Lang.impossible();
+            throw Wlang.impossible();
         }
     }
 

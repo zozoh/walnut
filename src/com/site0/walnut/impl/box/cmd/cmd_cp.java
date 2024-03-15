@@ -2,7 +2,6 @@ package com.site0.walnut.impl.box.cmd;
 
 import java.util.List;
 
-import org.nutz.lang.Lang;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
@@ -34,7 +33,7 @@ public class cmd_cp extends JvmExecutor {
         }
 
         // 得到源
-        List<WnObj> oSrcList = Cmds.evalCandidateObjsNoEmpty(sys, Lang.array(ph_src), 0);
+        List<WnObj> oSrcList = Cmds.evalCandidateObjsNoEmpty(sys, Wlang.array(ph_src), 0);
 
         // 准备 copy 模式
         int mode = 0;

@@ -6,7 +6,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Atom;
@@ -19,6 +18,7 @@ import com.site0.walnut.impl.box.JvmHdlParamArgs;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
+import com.site0.walnut.util.Ws;
 
 @JvmHdlParamArgs("cqn")
 public class app_setup implements JvmHdl {
@@ -188,7 +188,7 @@ public class app_setup implements JvmHdl {
                 WnObj oMimeHome = sys.io.fetch(oUiHome, "mimes");
                 if (null != oMimeHome) {
                     String[] ss = Strings.splitIgnoreBlank(o.mime(), "/");
-                    oFType = sys.io.fetch(oMimeHome, Lang.concat("_", ss) + ".js");
+                    oFType = sys.io.fetch(oMimeHome, Ws.join(ss, "_") + ".js");
                     // 还找不到，就用 mime 的分类名
                     if (null == oFType) {
                         oFType = sys.io.fetch(oMimeHome, ss[0] + ".js");

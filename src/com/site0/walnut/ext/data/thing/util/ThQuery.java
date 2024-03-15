@@ -1,7 +1,7 @@
 package com.site0.walnut.ext.data.thing.util;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.util.WnPager;
@@ -45,7 +45,7 @@ public class ThQuery {
     }
 
     public ThQuery(String key, Object val) {
-        this(Lang.map(key, val));
+        this(Wlang.map(key, val));
     }
 
 }

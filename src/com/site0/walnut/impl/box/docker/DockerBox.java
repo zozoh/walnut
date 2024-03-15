@@ -68,7 +68,7 @@ public class DockerBox implements WnBox {
             	// TODO 怎样拿到ip呢?
     			p = Runtime.getRuntime().exec(("docker run -it --rm --privileged --name walnut_"+id+" "+dockerImageName).split(" "));
     		} catch (IOException e) {
-    			//throw Lang.wrapThrow(e);
+    			//throw Wlang.wrapThrow(e);
     		}
         	NutMap params = new NutMap();
         	params.put("cmd", cmdText);

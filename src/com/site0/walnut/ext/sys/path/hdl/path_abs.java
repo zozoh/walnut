@@ -3,13 +3,12 @@ package com.site0.walnut.ext.sys.path.hdl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.impl.box.JvmHdl;
 import com.site0.walnut.impl.box.JvmHdlContext;
 import com.site0.walnut.impl.box.JvmHdlParamArgs;
 import com.site0.walnut.impl.box.TextTable;
 import com.site0.walnut.impl.box.WnSystem;
-import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 
 @JvmHdlParamArgs("bish")
@@ -39,7 +38,7 @@ public class path_abs implements JvmHdl {
 
             String[] cols = Wlang.array("Path", "ABS");
             if (showIndex) {
-                cols = Lang.arrayFirst("#", cols);
+                cols = Wlang.arrayFirst("#", cols);
             }
 
             // 准备输出表

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.nutz.json.JsonFormat;
+
 import com.site0.walnut.api.WnOutputable;
 
 public class WnJsOutput implements WnOutputable {

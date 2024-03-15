@@ -4,15 +4,12 @@ import com.site0.walnut.api.auth.WnAuthSetup;
 import com.site0.walnut.api.auth.WnCaptchaService;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
-import com.site0.walnut.ext.net.weixin.WnIoWeixinApi;
 
 public abstract class AbstractWnAuthSetup implements WnAuthSetup {
 
     protected WnIo io;
 
     protected WnCaptchaService captcha;
-
-    protected WnIoWeixinApi weixinApi;
 
     private WnObj oAccountDir;
 
@@ -52,21 +49,6 @@ public abstract class AbstractWnAuthSetup implements WnAuthSetup {
             }
         }
         return oSessionDir;
-    }
-
-    @Override
-    public WnIoWeixinApi getWeixinApi(String codeType) {
-        if (null == weixinApi) {
-            synchronized (WnAuthSetup.class) {
-                if (null == weixinApi) {
-                    WnObj oWxConf = getWeixinConf(codeType);
-                    if (null != oWxConf) {
-                        weixinApi = new WnIoWeixinApi(io, oWxConf);
-                    }
-                }
-            }
-        }
-        return weixinApi;
     }
 
     @Override

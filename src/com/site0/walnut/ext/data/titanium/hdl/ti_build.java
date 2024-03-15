@@ -12,7 +12,7 @@ import java.util.Set;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
@@ -197,7 +197,7 @@ public class ti_build implements JvmHdl {
                 List<NutMap> depsList = new ArrayList<>(depss.size());
                 for (String deps : depss) {
                     String type = Files.getSuffixName(deps);
-                    NutMap bean = Lang.map("type", type);
+                    NutMap bean = Wlang.map("type", type);
                     if (deps.matches("^@https?://.+$")) {
                         deps = deps.substring(1);
                     }

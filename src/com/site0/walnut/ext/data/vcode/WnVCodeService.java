@@ -2,7 +2,7 @@ package com.site0.walnut.ext.data.vcode;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
@@ -81,7 +81,7 @@ public class WnVCodeService implements VCodeService {
             String expectCode = oCode.getString("v_code");
 
             // 验证成功
-            if (Lang.equals(code, expectCode)) {
+            if (Wlang.isEqual(code, expectCode)) {
                 return oCode;
             }
 

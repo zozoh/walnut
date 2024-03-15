@@ -17,6 +17,8 @@ import org.nutz.mvc.annotation.ReqHeader;
 import org.nutz.mvc.annotation.SetupBy;
 import org.nutz.mvc.annotation.Views;
 import org.nutz.mvc.ioc.provider.ComboIocProvider;
+import org.nutz.web.ajax.AjaxViewMaker;
+
 import com.site0.walnut.WnVersion;
 import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.util.Wn;
@@ -27,7 +29,6 @@ import com.site0.walnut.web.module.AbstractWnModule;
 import com.site0.walnut.web.setup.WnSetup;
 import com.site0.walnut.web.view.WnObjDownloadView;
 import com.site0.walnut.web.view.WnViewMaker;
-import org.nutz.web.ajax.AjaxViewMaker;
 
 @SetupBy(WnSetup.class)
 @IocBy(type = ComboIocProvider.class, args = {"*js", "ioc"}, init = {"loader"})

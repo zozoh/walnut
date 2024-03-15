@@ -20,7 +20,7 @@ import org.apache.sshd.server.subsystem.sftp.SftpSubsystemFactory;
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.io.WnObj;
@@ -94,7 +94,7 @@ public class WnSshdServer extends WnRun {
                 return new WnJdkFileSystemProvider(session, io()).getFileSystem(new URI("/"));
             }
             catch (URISyntaxException e) {
-                throw Lang.impossible();
+                throw Wlang.impossible();
             }
         });
         sshd.setSubsystemFactories(Arrays.<NamedFactory<Command>> asList(new SftpSubsystemFactory()));

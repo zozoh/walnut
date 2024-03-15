@@ -25,7 +25,7 @@ import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import com.site0.walnut.util.Wlog;
@@ -101,7 +101,7 @@ public class ElasticsearchService implements BulkProcessor.Listener {
         String key = wobj.id() + "_" + wobj.lastModified();
         EsiConf conf = esiConfs.get(key);
         if (conf == null) {
-            conf = Lang.map2Object(_conf, EsiConf.class);
+            conf = Wlang.map2Object(_conf, EsiConf.class);
             esiConfs.put(key, conf);
         }
         return conf;

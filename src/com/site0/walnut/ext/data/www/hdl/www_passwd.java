@@ -1,7 +1,7 @@
 package com.site0.walnut.ext.data.www.hdl;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.auth.WnAccount;
@@ -43,7 +43,7 @@ public class www_passwd implements JvmHdl {
             // 校验密码
             if (hc.params.has("check")) {
                 String json = Cmds.checkParamOrPipe(sys, hc.params, "check", true);
-                NutMap form = Lang.map(json);
+                NutMap form = Wlang.map(json);
                 // 采用旧密码校验
                 String oldpwd = form.getString("oldpwd");
                 String newpwd = form.getString("newpwd");

@@ -3,7 +3,6 @@ package com.site0.walnut.util;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.nutz.lang.Lang;
 import com.site0.walnut.api.box.WnTunnel;
 import com.site0.walnut.api.err.Er;
 
@@ -177,7 +176,7 @@ public class JvmTunnel implements WnTunnel {
 
         r4W = new JTRow(r4W, rowWidth);
         if (!r4W.write(b))
-            throw Lang.impossible();
+            throw Wlang.impossible();
     }
 
     @Override

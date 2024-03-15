@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 
 import org.lionsoul.ip2region.DbSearcher;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.Mvcs;
@@ -37,13 +37,13 @@ public class ip2region_query implements JvmHdl {
                 init();
             }
             catch (IOException e) {
-                throw Lang.wrapThrow(e);
+                throw Wlang.wrapThrow(e);
             }
         }
         LinkedHashMap<String, NutMap> list = new LinkedHashMap<>();
         for (String ip : hc.params.vals) {
             if ("self".equals(ip)) {
-                ip = Lang.getIP(Mvcs.getReq());
+                ip = Wlang.getIP(Mvcs.getReq());
             }
             String region = this.getRegion(ip);
             String[] tmp = region.split("\\|");

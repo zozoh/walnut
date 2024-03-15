@@ -1,6 +1,5 @@
 package com.site0.walnut.util;
 
-import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 
@@ -33,7 +32,7 @@ public class WnSysConf {
     private int websocketPort;
 
     public NutMap toMap() {
-        return (NutMap) Lang.obj2map(this);
+        return (NutMap) Wlang.obj2map(this);
     }
 
     /**

@@ -2,7 +2,7 @@ package com.site0.walnut.impl.auth;
 
 import java.util.List;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.auth.WnAuthService;
@@ -49,7 +49,7 @@ public class WnSysAuthSetup extends AbstractWnAuthSetup {
 
     @Override
     public WnObj getAvatarObj(WnAccount user, boolean autoCreate) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
@@ -76,7 +76,7 @@ public class WnSysAuthSetup extends AbstractWnAuthSetup {
 
     @Override
     protected WnObj getWeixinConf(String codeType) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
@@ -123,7 +123,7 @@ public class WnSysAuthSetup extends AbstractWnAuthSetup {
             return false;
         }
         // 重命名用户所在组
-        NutMap meta = Lang.map("grp", newName);
+        NutMap meta = Wlang.map("grp", newName);
         WnObj oDir = auth.getSysRoleDir();
         WnQuery q = Wn.Q.pid(oDir);
         q.setv("grp", user.getId());

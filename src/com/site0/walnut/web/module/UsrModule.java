@@ -1,5 +1,6 @@
 package com.site0.walnut.web.module;
 
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,10 +13,8 @@ import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.json.JsonException;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
-import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.View;
@@ -35,6 +34,9 @@ import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.trans.Atom;
+import org.nutz.web.WebException;
+import org.nutz.web.ajax.Ajax;
+
 import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.auth.WnAuths;
@@ -45,15 +47,15 @@ import com.site0.walnut.ext.data.captcha.Captchas;
 import com.site0.walnut.ext.data.vcode.VCodes;
 import com.site0.walnut.ext.data.vcode.WnVCodeService;
 import com.site0.walnut.impl.io.WnEvalLink;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
+import com.site0.walnut.util.tmpl.WnTmpl;
 import com.site0.walnut.web.filter.WnAsUsr;
 import com.site0.walnut.web.filter.WnCheckSession;
 import com.site0.walnut.web.util.WnWeb;
 import com.site0.walnut.web.view.WnImageView;
 import com.site0.walnut.web.view.WnObjDownloadView;
-import org.nutz.web.WebException;
-import org.nutz.web.ajax.Ajax;
 
 /**
  * 处理用户的登入登出，以及用户资料信息等的接口
@@ -104,7 +106,7 @@ public class UsrModule extends AbstractWnModule {
             try {
                 String ticket = Wn.WC().getTicket();
                 auth().checkSession(ticket);
-                throw Lang.makeThrow("already login, go to /");
+                throw Wlang.makeThrow("already login, go to /");
             }
             catch (WebException e) {}
         }
@@ -129,7 +131,7 @@ public class UsrModule extends AbstractWnModule {
                 String ticket = wc.getTicket();
                 WnAuthSession se = auth().checkSession(ticket);
                 if (!se.isDead()) {
-                    throw Lang.makeThrow("already login, go to /");
+                    throw Wlang.makeThrow("already login, go to /");
                 }
             }
             catch (WebException e) {}
@@ -472,7 +474,7 @@ public class UsrModule extends AbstractWnModule {
             if (null != pse)
                 return pse.toMapForClient();
         }
-        throw Lang.makeThrow("logout delete cookie");
+        throw Wlang.makeThrow("logout delete cookie");
     }
 
     @POST
@@ -792,17 +794,17 @@ public class UsrModule extends AbstractWnModule {
         WnQuery q = new WnQuery();
         // 限制数量和排序
         q.limit(nb);
-        q.sort(Lang.map("nm:1"));
+        q.sort(Wlang.map("nm:1"));
 
         // 限制条件
         if (!Strings.isBlank(prefix)) {
             Pattern p = Pattern.compile(prefix.startsWith("^") ? prefix : "^" + prefix);
-            q.setv("$or", Lang.list(Lang.map("nm", p), Lang.map("phone", p), Lang.map("email", p)));
+            q.setv("$or", Wlang.list(Wlang.map("nm", p), Wlang.map("phone", p), Wlang.map("email", p)));
         }
 
         // 忽略的名字
         if (null != ignoreNames && ignoreNames.length > 0) {
-            q.setv("nm", Lang.map("$nin", ignoreNames));
+            q.setv("nm", Wlang.map("$nin", ignoreNames));
         }
 
         // 执行查询
@@ -910,7 +912,7 @@ public class UsrModule extends AbstractWnModule {
             return new HttpStatusView(403);
         }
         String str = ackey + "," + nm + "," + time + "," + once;
-        String _sign = Lang.sha1(str);
+        String _sign = Wlang.sha1(str);
         if (!_sign.equals(sign)) {
             return new HttpStatusView(403);
         }

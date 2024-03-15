@@ -3,13 +3,12 @@ package com.site0.walnut.util;
 import java.util.Map;
 
 import org.nutz.castor.Castors;
-import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
 
 public class WnSort {
 
     public static WnSort[] makeList(String json) {
-        NutMap map = Lang.map(json);
+        NutMap map = Wlang.map(json);
         return makeList(map);
     }
 

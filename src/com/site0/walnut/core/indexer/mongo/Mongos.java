@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bson.Document;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.DateRegion;
@@ -24,7 +24,6 @@ import org.nutz.mongo.ZMoDoc;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.core.bean.WnIoObj;
-import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wregion;
 
 import com.mongodb.client.FindIterable;
@@ -54,7 +53,7 @@ public class Mongos {
                     if (0 == ss.length) {
                         val = null;
                     } else {
-                        val = Lang.arrayFirst("%all", ss);
+                        val = Wlang.arrayFirst("%all", ss);
                     }
                 }
                 // 设置到查询条件中

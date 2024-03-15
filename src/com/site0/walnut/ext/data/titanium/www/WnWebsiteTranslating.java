@@ -12,7 +12,7 @@ import org.jsoup.select.Elements;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WalkMode;
 import com.site0.walnut.api.io.WnObj;
@@ -23,6 +23,7 @@ import com.site0.walnut.ext.data.www.WnmlService;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnObjWalkjFilter;
+import com.site0.walnut.util.Wsum;
 
 public class WnWebsiteTranslating {
 
@@ -147,7 +148,7 @@ public class WnWebsiteTranslating {
 
                 // 准备参数
                 String qsJson = api.getParamsValueJson();
-                String qsFinger = Lang.sha1(qsJson);
+                String qsFinger = Wsum.sha1AsString(qsJson);
 
                 // 准备命令
                 String cmdText = "httpapi invoke " + api.getPath() + " -get @pipe";
@@ -245,10 +246,10 @@ public class WnWebsiteTranslating {
 
         // 因为 wnml会把 ${xxx] 直接转义，对于 site-state.json 里面所有的东东不要转义，所以添加一下逃逸字符
         // zozoh: 以后 wnml 采用 #{xxx} 来声明占位符，这样就不会产生冲突了
-        //escapeSiteStateForMap(siteStateMap);
+        // escapeSiteStateForMap(siteStateMap);
 
         // 解析
-        this.siteState = Lang.map2Object(siteStateMap, WebsiteState.class);
+        this.siteState = Wlang.map2Object(siteStateMap, WebsiteState.class);
 
         sys.io.writeJson(oTaSS, siteStateMap, JsonFormat.full());
         if (!this.quiet) {

@@ -8,7 +8,6 @@ import java.util.Set;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Times;
 import org.nutz.lang.Times.TmInfo;
 import org.nutz.lang.util.NutMap;
@@ -16,6 +15,7 @@ import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.TextTable;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Cmds;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnSysRuntime;
 import com.site0.walnut.util.ZParams;
@@ -82,7 +82,7 @@ public class cmd_sys extends JvmExecutor {
             tt.setCellSpacing(2);
 
             // 标题
-            tt.addRow(Lang.list("Name", "Value"));
+            tt.addRow(Wlang.list("Name", "Value"));
             tt.addHr();
 
             // 排序字段看的有条理点
@@ -94,7 +94,7 @@ public class cmd_sys extends JvmExecutor {
             // 逐行计入输出表
             for (String key : list) {
                 String val = map.getString(key);
-                tt.addRow(Lang.list(key, val));
+                tt.addRow(Wlang.list(key, val));
             }
 
             // 最后一行

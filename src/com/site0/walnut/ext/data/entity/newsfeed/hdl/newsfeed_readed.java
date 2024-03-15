@@ -1,7 +1,7 @@
 package com.site0.walnut.ext.data.entity.newsfeed.hdl;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.ext.data.entity.newsfeed.NewsfeedApi;
@@ -24,7 +24,7 @@ public class newsfeed_readed implements JvmHdl {
         String targetId = hc.params.getString("target");
 
         // 准备返回值
-        NutMap re = Lang.map("n", 0);
+        NutMap re = Wlang.map("n", 0);
 
         // 标记所有消息
         if (!Strings.isBlank(targetId)) {

@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.castor.Castors;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -184,7 +184,7 @@ public class ThOtherUpdating {
                         }
                         // 靠，不可能
                         else {
-                            throw Lang.impossible();
+                            throw Wlang.impossible();
                         }
                     }
                 }

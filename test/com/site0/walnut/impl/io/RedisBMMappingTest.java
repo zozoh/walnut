@@ -3,7 +3,7 @@ package com.site0.walnut.impl.io;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.BaseSessionTest;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
@@ -24,13 +24,13 @@ public class RedisBMMappingTest extends BaseSessionTest {
         // 写入
         io.writeText(o, "hello");
         assertEquals(5, o.len());
-        assertEquals(Lang.sha1("hello"), o.sha1());
+        assertEquals(Wlang.sha1("hello"), o.sha1());
 
         // 重新获取
         WnObj o2 = io.get(o.id());
         assertEquals(o.id(), o2.id());
         assertEquals(5, o2.len());
-        assertEquals(Lang.sha1("hello"), o2.sha1());
+        assertEquals(Wlang.sha1("hello"), o2.sha1());
 
         // 读取
         String str = io.readText(o2);

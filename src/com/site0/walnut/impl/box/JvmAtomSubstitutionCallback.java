@@ -3,7 +3,7 @@ package com.site0.walnut.impl.box;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.util.Ws;
@@ -33,8 +33,8 @@ public class JvmAtomSubstitutionCallback implements WnStrTokenCallback {
         this.oldOut = run.out;
         this.oldErr = run.err;
 
-        run.out = Lang.ops(this.sbOut);
-        run.err = Lang.ops(this.sbErr);
+        run.out = Wlang.ops(this.sbOut);
+        run.err = Wlang.ops(this.sbErr);
     }
 
     @Override
@@ -56,7 +56,7 @@ public class JvmAtomSubstitutionCallback implements WnStrTokenCallback {
             // 然后返回 null，表示不要往下执行了
             if (null != oldErr && sbErr.length() > 0) {
                 try {
-                    Streams.write(oldOut, Lang.ins(sbErr));
+                    Streams.write(oldOut, Wlang.ins(sbErr));
                 }
                 catch (IOException e) {
                     throw Er.wrap(e);

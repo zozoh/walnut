@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bson.Document;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
@@ -26,7 +26,7 @@ public class ZMongo {
             return new ServerAddress(host, port <= 0 ? ServerAddress.defaultPort() : port);
         }
         catch (Exception e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
     }
 
@@ -47,7 +47,7 @@ public class ZMongo {
     }
 
     public static ZMongo me(ServerAddress sa, MongoCredential cred, MongoClientOptions mopt) {
-        return new ZMongo(sa == null ? null : Lang.list(sa), cred, mopt);
+        return new ZMongo(sa == null ? null : Wlang.list(sa), cred, mopt);
     }
 
     public static ZMongo me(MongoClient mc) {

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 
 import com.aliyun.oss.OSS;
@@ -24,7 +24,7 @@ public class OssClientPool {
 	}
 
 	public OSS get(String endpoint, String accessKeyId, String accessKeySecret) {
-		String md5 = Lang.sha1(endpoint + " " + accessKeyId + " " + accessKeySecret);
+		String md5 = Wlang.sha1(endpoint + " " + accessKeyId + " " + accessKeySecret);
 		return clients.computeIfAbsent(md5, (key) -> {
 			return new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
 		});

@@ -3,7 +3,7 @@ package com.site0.walnut.cron;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 
 /**
@@ -262,7 +262,7 @@ class CrnStdItem implements CrnItem {
             }
             break;
         default:
-            throw Lang.makeThrow("Unknown type : %d", this.values[0]);
+            throw Wlang.makeThrow("Unknown type : %d", this.values[0]);
         }
         // 返回指向下一个位置的下标
         return off;
@@ -304,7 +304,7 @@ class CrnStdItem implements CrnItem {
                     if (v >= l && v <= r)
                         return true;
                 } else {
-                    throw Lang.impossible();
+                    throw Wlang.impossible();
                 }
             }
             return false;
@@ -374,7 +374,7 @@ class CrnStdItem implements CrnItem {
                     return i;
         }
         // 不支持
-        throw Lang.makeThrow("isNaN : " + str);
+        throw Wlang.makeThrow("isNaN : " + str);
     }
 
     // 子类重载它，可以支持更丰富的值

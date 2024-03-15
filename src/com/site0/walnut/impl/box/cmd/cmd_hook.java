@@ -4,24 +4,24 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import org.nutz.lang.Lang;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.hook.WnHook;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Cmds;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.ZParams;
 
 public class cmd_hook extends JvmExecutor {
 
-    private static final String[] acnms = Lang.array("create",
-                                                     "delete",
-                                                     "meta",
-                                                     "mount",
-                                                     "move",
-                                                     "write");
+    private static final String[] acnms = Wlang.array("create",
+                                                      "delete",
+                                                      "meta",
+                                                      "mount",
+                                                      "move",
+                                                      "write");
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
@@ -47,7 +47,7 @@ public class cmd_hook extends JvmExecutor {
         else if (params.has("do") && params.vals.length > 0) {
             String action = _check_action_name(params);
             String str = params.get("do");
-            List<WnObj> objs = Cmds.evalCandidateObjs(sys, Lang.array(str), 0);
+            List<WnObj> objs = Cmds.evalCandidateObjs(sys, Wlang.array(str), 0);
             for (WnObj o : objs) {
                 if (params.is("v"))
                     sys.out.printlnf("redo hook -> %s", o.path());

@@ -3,7 +3,6 @@ package com.site0.walnut.util;
 import java.util.regex.Matcher;
 
 import org.nutz.castor.Castors;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Regex;
 
@@ -59,13 +58,13 @@ public abstract class Wregion {
             String[] ss;
             // 可拆分
             if (pos >= 0) {
-                ss = Lang.array(Strings.trim(s_match.substring(0, pos)),
-                                Strings.trim(s_match.substring(pos + 1)));
+                ss = Wlang.array(Strings.trim(s_match.substring(0, pos)),
+                                 Strings.trim(s_match.substring(pos + 1)));
 
             }
             // 就一个
             else {
-                ss = Lang.array(Strings.trim(s_match));
+                ss = Wlang.array(Strings.trim(s_match));
             }
             // 对每个范围项目，深入展开内容
             for (int i = 0; i < ss.length; i++) {
@@ -74,7 +73,7 @@ public abstract class Wregion {
                     ss[i] = Castors.me().castToString(ams);
                 }
             }
-            s = m.group(1) + Lang.concat(",", ss) + m.group(14);
+            s = m.group(1) + Ws.join(ss, ",") + m.group(14);
         }
         return s;
     }

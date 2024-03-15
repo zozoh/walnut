@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.log.Log;
@@ -147,7 +147,7 @@ public class WnCronService extends NutRunner {
 				continue;
 			line = line.trim();
 			if (line.startsWith("###")) {
-				job = Lang.map2Object(Lang.map(line.substring(3)), CronJob.class);
+				job = Wlang.map2Object(Wlang.map(line.substring(3)), CronJob.class);
 			} else if (line.startsWith("#")) {
 				continue;
 			} else {

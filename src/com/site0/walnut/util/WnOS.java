@@ -6,10 +6,10 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
-import org.nutz.lang.Lang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.log.Log;
+
 import com.site0.walnut.WnVersion;
 import com.site0.walnut.api.err.Er;
 
@@ -85,7 +85,7 @@ public abstract class WnOS {
         // 必须有名称
         name = nif.getName();
         if (Strings.isBlank(name)) {
-            throw Lang.makeThrow("Face without name", nif);
+            throw Wlang.makeThrow("Face without name", nif);
         }
 
         // 必须有硬件地址
@@ -134,7 +134,7 @@ public abstract class WnOS {
                 netIFs = NetworkInterface.getNetworkInterfaces();
             }
             catch (SocketException e) {
-                throw Lang.wrapThrow(e);
+                throw Wlang.wrapThrow(e);
             }
         }
         return netIFs;

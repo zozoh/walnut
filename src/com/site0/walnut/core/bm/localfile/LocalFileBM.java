@@ -3,7 +3,7 @@ package com.site0.walnut.core.bm.localfile;
 import java.io.File;
 
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIoIndexer;
@@ -62,17 +62,17 @@ public class LocalFileBM extends AbstractIoBM {
 
     @Override
     public long copy(WnObj oSr, WnObj oTa) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public long remove(WnObj o) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public long truncate(WnObj o, long len, WnIoIndexer indexer) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     protected File checkFile(String buckId) {

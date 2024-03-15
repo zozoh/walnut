@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
@@ -64,7 +64,7 @@ public class WnDataSyncService {
             for (WnDataSyncTree tree : trees) {
                 sb.append(tree.getTreeObj().sha1());
             }
-            sha1 = Lang.sha1(sb);
+            sha1 = Wlang.sha1(sb);
         }
         return getPackageName(config, sha1);
     }
@@ -425,7 +425,7 @@ public class WnDataSyncService {
             WnObj oTree = io.createIfNoExists(null, aph, WnRace.FILE);
             // 确保内容类型
             if (!oTree.isMime("text/plain")) {
-                io.appendMeta(oTree, Lang.map("mime", "text/plain"));
+                io.appendMeta(oTree, Wlang.map("mime", "text/plain"));
             }
 
             // 得到元数据缓存文件
@@ -438,7 +438,7 @@ public class WnDataSyncService {
             WnObj oDir = io.check(null, aph);
             // 确保同步目录标识了同步时间戳
             if (oDir.syncTime() <= 0) {
-                io.appendMeta(oDir, Lang.map("synt", oDir.lastModified()));
+                io.appendMeta(oDir, Wlang.map("synt", oDir.lastModified()));
             }
             long synt = oDir.syncTime();
 
@@ -456,7 +456,7 @@ public class WnDataSyncService {
 
                 tree = this.buildTree(oDir, dir);
                 tree.setDataSyncTime(synt);
-                io.appendMeta(oTree, Lang.map("dsync_t", synt));
+                io.appendMeta(oTree, Wlang.map("dsync_t", synt));
 
                 // 记入缓存
                 String s0 = tree.toContentString();

@@ -14,10 +14,9 @@ import java.util.Set;
 
 import org.junit.Test;
 import org.nutz.json.Json;
-import org.nutz.lang.Each;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Disks;
@@ -50,11 +49,11 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
     @Test
     public void test_append_meta_remove_key() {
         WnObj o = io.create(null, "/a/b/c", WnRace.FILE);
-        NutMap meta = Lang.map("hello", "world");
+        NutMap meta = Wlang.map("hello", "world");
         io.appendMeta(o, meta);
         assertEquals("world", o.getString("hello"));
 
-        meta = Lang.map("!hello", true);
+        meta = Wlang.map("!hello", true);
         io.appendMeta(o, meta);
         assertFalse(o.has("hello"));
     }
@@ -132,10 +131,10 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
 
         // 准备一个基线文件
         WnObj oBase = io.create(null, "/home/demo/dir", WnRace.DIR);
-        io.appendMeta(oBase, Lang.map("ln", "/mnt/dir/b/c/d/"));
+        io.appendMeta(oBase, Wlang.map("ln", "/mnt/dir/b/c/d/"));
 
         // 根据基线的查询，应该能获取三个文件
-        WnQuery q = Wn.Q.pid(oBase).sort(Lang.map("nm:1"));
+        WnQuery q = Wn.Q.pid(oBase).sort(Wlang.map("nm:1"));
         List<WnObj> list = io.query(q);
         assertEquals(3, list.size());
         assertEquals("x.txt", list.get(0).name());
@@ -143,7 +142,7 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         assertEquals("z.txt", list.get(2).name());
 
         // 重新查一遍，确保没问题
-        q = Wn.Q.pid(oBase).sort(Lang.map("nm:1"));
+        q = Wn.Q.pid(oBase).sort(Wlang.map("nm:1"));
         oBase = io.fetch(null, "/home/demo/dir");
         list = io.query(q);
         assertEquals(3, list.size());
@@ -152,7 +151,7 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         assertEquals("z.txt", list.get(2).name());
 
         // 那么查询的时候，排序一下呢
-        q = Wn.Q.pid(oBase).sort(Lang.map("nm:-1"));
+        q = Wn.Q.pid(oBase).sort(Wlang.map("nm:-1"));
         oBase = io.fetch(null, "/home/demo/dir");
         list = io.query(q);
         assertEquals(3, list.size());
@@ -245,7 +244,7 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
 
         // 建立链接目录
         WnObj oLnkDir = io.create(null, "/home/demo/dir", WnRace.DIR);
-        io.appendMeta(oLnkDir, Lang.map("ln", "/mnt/dir/b/c/"));
+        io.appendMeta(oLnkDir, Wlang.map("ln", "/mnt/dir/b/c/"));
 
         // 那么自然通过 "/home/demo/dir/xyz.txt" 可以得到文件，并可读写
         WnObj o = io.fetch(null, "/home/demo/dir/xyz.txt");
@@ -320,7 +319,7 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
     @Test
     public void test_get_silbing_in_file_mount() {
         WnObj dTi = io.create(null, "/rs/ti", WnRace.DIR);
-        io.appendMeta(dTi, Lang.map("ln:'/mnt/ti'"));
+        io.appendMeta(dTi, Wlang.map("ln:'/mnt/ti'"));
 
         File dHome = setup.getLocalFileHome();
         File f = Files.getFile(dHome, "titanium/src/view/creation.json");
@@ -391,7 +390,7 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
     @Test
     public void test_walk_in_mount_2() {
         WnObj dTi = io.create(null, "/rs/ti", WnRace.DIR);
-        io.appendMeta(dTi, Lang.map("ln:'/mnt/ti/src'"));
+        io.appendMeta(dTi, Wlang.map("ln:'/mnt/ti/src'"));
 
         File dHome = setup.getLocalFileHome();
         File f = Files.getFile(dHome, "titanium/src/view/creation.json");
@@ -417,7 +416,7 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
     @Test
     public void test_link_in_mount_2() {
         WnObj dTi = io.create(null, "/rs/ti", WnRace.DIR);
-        io.appendMeta(dTi, Lang.map("ln:'/mnt/ti/src'"));
+        io.appendMeta(dTi, Wlang.map("ln:'/mnt/ti/src'"));
 
         File dHome = setup.getLocalFileHome();
         File f = Files.getFile(dHome, "titanium/src/view/creation.json");
@@ -537,27 +536,27 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         WnObj c = io.create(null, "/c.txt", WnRace.FILE);
 
         // 设置条件
-        io.appendMeta(a, Lang.map("age:10, weight:10"));
-        io.appendMeta(b, Lang.map("age:12, weight:14"));
-        io.appendMeta(c, Lang.map("age:12, weight:10"));
+        io.appendMeta(a, Wlang.map("age:10, weight:10"));
+        io.appendMeta(b, Wlang.map("age:12, weight:14"));
+        io.appendMeta(c, Wlang.map("age:12, weight:10"));
 
         // 修改的字段
         // 修改一个，没条件应该是 null
-        WnObj o = io.setBy(Wn.Q.map("{}"), Lang.map("realname:'xiaobai', nb:24"), false);
+        WnObj o = io.setBy(Wn.Q.map("{}"), Wlang.map("realname:'xiaobai', nb:24"), false);
         assertNull(o);
 
         // 修改 "{age:12}" 的，只有一个修改了
-        o = io.setBy(Wn.Q.map("{age:12}"), Lang.map("realname:'xiaobai', nb:24"), false);
+        o = io.setBy(Wn.Q.map("{age:12}"), Wlang.map("realname:'xiaobai', nb:24"), false);
         assertTrue(b.isSameId(o) || c.isSameId(o));
         assertEquals("xiaobai", io.getString(o.id(), "realname", null));
         assertEquals(24, io.getInt(o.id(), "nb", 0));
 
         // 修改 "{age:12, weight:11}" 的返回 null
-        o = io.setBy(Wn.Q.map("{age:12, weight:11}"), Lang.map("brief:'AAA', x:3001"), false);
+        o = io.setBy(Wn.Q.map("{age:12, weight:11}"), Wlang.map("brief:'AAA', x:3001"), false);
         assertNull(o);
 
         // 修改 "{age:12 weight:14}" 的返回只有一个被修改了
-        o = io.setBy(Wn.Q.map("{age:12, weight:14}"), Lang.map("brief:'AAA', x:3001"), true);
+        o = io.setBy(Wn.Q.map("{age:12, weight:14}"), Wlang.map("brief:'AAA', x:3001"), true);
         assertTrue(b.isSameId(o));
         assertEquals("AAA", io.getString(o.id(), "brief", null));
         assertEquals(3001, io.getInt(o.id(), "x", 0));
@@ -569,7 +568,7 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
     public void test_setBy() {
         WnObj a = io.create(null, "/a.txt", WnRace.FILE);
 
-        WnObj a1 = io.setBy(a.id(), Lang.map("x:100,y:80"), false);
+        WnObj a1 = io.setBy(a.id(), Wlang.map("x:100,y:80"), false);
         assertEquals(a.id(), a1.id());
         assertEquals(-1, a1.getInt("x"));
         assertEquals(-1, a1.getInt("y"));
@@ -610,7 +609,7 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         assertEquals(4, io.get(o.id()).len());
 
         OutputStream ops = io.getOutputStream(o, 0);
-        Streams.writeAndClose(ops, Lang.ins(""));
+        Streams.writeAndClose(ops, Wlang.ins(""));
         assertEquals("", io.readText(o));
         assertEquals(0, o.len());
         assertEquals(0, io.get(o.id()).len());
@@ -680,11 +679,11 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
     @Test
     public void test_write_json_obj() {
         WnObj o = io.create(null, "/a", WnRace.FILE);
-        NutMap map = Lang.map("x:100,y:10");
+        NutMap map = Wlang.map("x:100,y:10");
         io.writeJson(o, map, null);
 
         NutMap map2 = io.readJson(o, NutMap.class);
-        assertTrue(Lang.equals(map, map2));
+        assertTrue(Wlang.isEqual(map, map2));
     }
 
     @Test
@@ -713,7 +712,7 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         WnObj oHT = io.check(null, "/HT");
 
         WnQuery q = Wn.Q.pid(oHT);
-        q.setv("x", Lang.map("$ne:100")).asc("nm");
+        q.setv("x", Wlang.map("$ne:100")).asc("nm");
         List<WnObj> list = io.query(q);
         assertEquals(2, list.size());
         assertEquals(b.id(), list.get(0).id());
@@ -731,7 +730,7 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         WnObj oHT = io.check(null, "/HT");
 
         WnQuery q = Wn.Q.pid(oHT);
-        q.setv("alias", Lang.map("$ne:null"));
+        q.setv("alias", Wlang.map("$ne:null"));
         List<WnObj> list = io.query(q);
         assertEquals(1, list.size());
         assertEquals(a.id(), list.get(0).id());
@@ -750,14 +749,14 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         assertEquals(b.id(), list.get(0).id());
 
         q = Wn.Q.pid(oHT);
-        q.setv("alias", Lang.map("$exists:true")).asc("nm");
+        q.setv("alias", Wlang.map("$exists:true")).asc("nm");
         list = io.query(q);
         assertEquals(2, list.size());
         assertEquals(a.id(), list.get(0).id());
         assertEquals(b.id(), list.get(1).id());
 
         q = Wn.Q.pid(oHT);
-        q.setv("alias", Lang.map("$exists:false"));
+        q.setv("alias", Wlang.map("$exists:false"));
         list = io.query(q);
         assertEquals(1, list.size());
         assertEquals(c.id(), list.get(0).id());
@@ -1445,7 +1444,7 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
 
         assertEquals(1, o.len());
         assertEquals("A", io.readText(o));
-        assertEquals(Lang.sha1("A"), o.sha1());
+        assertEquals(Wlang.sha1("A"), o.sha1());
     }
 
     @Test
@@ -1456,7 +1455,7 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         io.appendText(o, "B");
 
         assertEquals(2, o.len());
-        assertEquals(Lang.sha1("AB"), o.sha1());
+        assertEquals(Wlang.sha1("AB"), o.sha1());
         assertEquals("AB", io.readText(o));
     }
 
@@ -1472,18 +1471,18 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
 
         assertEquals(str, str2);
         assertEquals(str.length(), o.len());
-        assertEquals(Lang.sha1(str), o.sha1());
+        assertEquals(Wlang.sha1(str), o.sha1());
 
         // 验证一下数据库里记录的正确性
         o = io.fetch(null, "/a/b/c");
         assertEquals("/a/b/c", o.path());
         assertEquals(str, str2);
         assertEquals(str.length(), o.len());
-        assertEquals(Lang.sha1(str), o.sha1());
+        assertEquals(Wlang.sha1(str), o.sha1());
 
         o = io.get(o.id());
         assertEquals(str.length(), o.len());
-        assertEquals(Lang.sha1(str), o.sha1());
+        assertEquals(Wlang.sha1(str), o.sha1());
 
         // 删除
         io.delete(o);
@@ -1561,11 +1560,9 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         o = io.get(id);
         assertNotNull(o);
         assertNotNull(o.get("pets"));
-        assertEquals(3, Lang.eleSize(o.get("pets")));
-        Lang.each(o.get("pets"), new Each<Object>() {
-            public void invoke(int index, Object ele, int length) {
-                assertTrue("wendal".equals(ele) || "zozoh".equals(ele) || "pangwu".equals(ele));
-            }
+        assertEquals(3, Wlang.eleSize(o.get("pets")));
+        Wlang.each(o.get("pets"), (int index, Object ele, Object src) -> {
+            assertTrue("wendal".equals(ele) || "zozoh".equals(ele) || "pangwu".equals(ele));
         });
 
         // 减少
@@ -1573,11 +1570,9 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         o = io.get(id);
         assertNotNull(o);
         assertNotNull(o.get("pets"));
-        assertEquals(2, Lang.eleSize(o.get("pets")));
-        Lang.each(o.get("pets"), new Each<Object>() {
-            public void invoke(int index, Object ele, int length) {
-                assertTrue("wendal".equals(ele) || "pangwu".equals(ele));
-            }
+        assertEquals(2, Wlang.eleSize(o.get("pets")));
+        Wlang.each(o.get("pets"), (int index, Object ele, Object src) -> {
+            assertTrue("wendal".equals(ele) || "pangwu".equals(ele));
         });
 
         io.pull(id, "pets", "wendal", false);
@@ -1585,7 +1580,7 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
 
         o = io.get(id);
         assertNotNull(o);
-        assertEquals(0, Lang.eleSize(o.get("pets")));
+        assertEquals(0, Wlang.eleSize(o.get("pets")));
 
     }
 
@@ -1606,11 +1601,9 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         o = io.get(id);
         assertNotNull(o);
         assertNotNull(o.get("pets"));
-        assertEquals(3, Lang.eleSize(o.get("pets")));
-        Lang.each(o.get("pets"), new Each<Object>() {
-            public void invoke(int index, Object ele, int length) {
-                assertTrue("wendal".equals(ele) || "zozoh".equals(ele) || "pangwu".equals(ele));
-            }
+        assertEquals(3, Wlang.eleSize(o.get("pets")));
+        Wlang.each(o.get("pets"), (int index, Object ele, Object src) -> {
+            assertTrue("wendal".equals(ele) || "zozoh".equals(ele) || "pangwu".equals(ele));
         });
 
         // 减少
@@ -1618,11 +1611,9 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         o = io.get(id);
         assertNotNull(o);
         assertNotNull(o.get("pets"));
-        assertEquals(2, Lang.eleSize(o.get("pets")));
-        Lang.each(o.get("pets"), new Each<Object>() {
-            public void invoke(int index, Object ele, int length) {
-                assertTrue("wendal".equals(ele) || "pangwu".equals(ele));
-            }
+        assertEquals(2, Wlang.eleSize(o.get("pets")));
+        Wlang.each(o.get("pets"), (int index, Object ele, Object src) -> {
+            assertTrue("wendal".equals(ele) || "pangwu".equals(ele));
         });
 
         io.pull(Wn.Q.pid(pid), "pets", "wendal");
@@ -1630,7 +1621,7 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
 
         o = io.get(id);
         assertNotNull(o);
-        assertEquals(0, Lang.eleSize(o.get("pets")));
+        assertEquals(0, Wlang.eleSize(o.get("pets")));
 
     }
 

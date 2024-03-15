@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.o.OContext;
@@ -88,7 +88,7 @@ public class o_tree extends OFilter {
                 // 找到自己的父，并加入
                 WnObj oP = omap.get(o.parentId());
                 if (null == oP) {
-                    throw Lang.impossible();
+                    throw Wlang.impossible();
                 }
                 oP.addv2(subkey, o);
                 // 记录一下自己

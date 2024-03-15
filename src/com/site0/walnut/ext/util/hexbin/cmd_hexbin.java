@@ -1,6 +1,6 @@
 package com.site0.walnut.ext.util.hexbin;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
@@ -28,7 +28,7 @@ public class cmd_hexbin extends JvmExecutor {
 				result[i/2] = (byte) Integer.parseInt(new String(data, i, 2), 16);
 			}
 		} else {
-			result = Lang.fixedHexString(data).getBytes();
+			result = Wlang.fixedHexString(data).getBytes();
 		}
 		if (result != null)
 			sys.out.write(result);

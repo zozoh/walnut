@@ -16,7 +16,7 @@ import org.nutz.http.Response;
 import org.nutz.http.Sender;
 import org.nutz.json.Json;
 import org.nutz.lang.Encoding;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
@@ -38,7 +38,7 @@ public abstract class WhoisX {
             }
             catch (Throwable e) {
                 // 稍等,再查一查
-                Lang.quiteSleep(300);
+                Wlang.quiteSleep(300);
             }
         }
         return null;

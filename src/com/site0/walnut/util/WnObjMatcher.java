@@ -1,6 +1,5 @@
 package com.site0.walnut.util;
 
-import org.nutz.lang.Lang;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.util.validate.WnMatch;
 import com.site0.walnut.util.validate.impl.AutoMatch;
@@ -12,7 +11,7 @@ public class WnObjMatcher {
     public WnObjMatcher() {}
 
     public WnObjMatcher setf(String fmt, Object... args) {
-        return set(Lang.mapf(fmt, args));
+        return set(Wlang.mapf(fmt, args));
     }
 
     public WnObjMatcher set(Object input) {

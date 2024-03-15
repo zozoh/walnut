@@ -1,6 +1,6 @@
 package com.site0.walnut.ext.data.entity.history;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.ext.sys.sql.WnDaoFieldsConfig;
 
@@ -11,7 +11,7 @@ public class HistoryConfig extends WnDaoFieldsConfig {
     private String nullAs;
 
     public HistoryConfig() {
-        requires = Lang.array("uid", "tid", "opt");
+        requires = Wlang.array("uid", "tid", "opt");
     }
 
     public boolean isNotMatchRequires(HistoryRecord re) {

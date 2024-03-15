@@ -3,7 +3,6 @@ package com.site0.walnut.web.processor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.nutz.lang.Lang;
 import org.nutz.log.Log;
 import org.nutz.mvc.ActionContext;
 import org.nutz.mvc.impl.processor.AbstractProcessor;
@@ -14,6 +13,7 @@ import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wlang;
 
 public class CreateWnContext extends AbstractProcessor {
 
@@ -56,7 +56,7 @@ public class CreateWnContext extends AbstractProcessor {
             // System.out.printf("=== Get Again=%s\n", ticket);
             // 从 cookie 里获取 Session 的 ID
             if (Ws.isBlank(ticket)) {
-                wc.copyCookieItems(req, Lang.array(Wn.AT_SEID));
+                wc.copyCookieItems(req, Wlang.array(Wn.AT_SEID));
             }
             // 恢复票据
             else {

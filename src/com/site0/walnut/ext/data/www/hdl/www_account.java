@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.auth.WnAccount;
@@ -44,7 +44,7 @@ public class www_account implements JvmHdl {
         // 作为唯一标识
         if (!Strings.isBlank(user) && !Strings.isQuoteBy(user, '{', '}')) {
             WnAccount u = webs.getAuthApi().checkAccount(user);
-            list = Lang.list(u);
+            list = Wlang.list(u);
         }
         // 否则作为查询条件
         else {
@@ -97,7 +97,7 @@ public class www_account implements JvmHdl {
         if (hc.params.has("u")) {
             String json = Cmds.getParamOrPipe(sys, hc.params, "u", true);
             if (!Strings.isBlank(json)) {
-                NutMap meta = Lang.map(json);
+                NutMap meta = Wlang.map(json);
                 for (WnAccount u : list) {
                     webs.getAuthApi().saveAccount(u, meta);
                 }

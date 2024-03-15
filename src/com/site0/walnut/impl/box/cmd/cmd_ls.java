@@ -4,7 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.Each;
-import org.nutz.lang.Lang;
+import org.nutz.lang.ExitLoop;
+
 import org.nutz.lang.util.Disks;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmExecutor;
@@ -110,7 +111,7 @@ public class cmd_ls extends JvmExecutor {
                     // 超过了最多显示的个数
                     if (index >= maxN) {
                         tooMany[0] = true;
-                        Lang.Break();
+                        throw new ExitLoop();
                     }
                     // 加入结果集
                     if (!child.isHidden() || showHidden)

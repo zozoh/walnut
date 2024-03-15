@@ -14,7 +14,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
@@ -61,7 +61,7 @@ public class MqttClientService {
                 throw Err.create("e.service.mqttc.miss_client_config");
             }
             try {
-                String md5 = Lang.md5(userName + "," + name);
+                String md5 = Wlang.md5(userName + "," + name);
                 return createMqttConnectOptions(wobj, md5);
             }
             catch (MqttException e) {

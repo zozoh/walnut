@@ -5,7 +5,7 @@ import java.io.FileInputStream;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.random.R;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
@@ -45,7 +45,7 @@ public class pdf_pdf2jpg implements JvmHdl {
                 String input = pdfTmp.getAbsolutePath() + "[" + i + "]";
                 String imageName = "output_" + String.format("%03d", i) + ".jpg";
                 String output = tmpDir.getAbsolutePath() + "/" + imageName;
-                Lang.execOutput(new String[]{convertExec, input, output});
+                Wlang.execOutput(new String[]{convertExec, input, output});
                 WnObj tmp = sys.io.createIfNoExists(wdir, imageName, WnRace.FILE);
                 try (FileInputStream ins = new FileInputStream(output)) {
                     sys.io.writeAndClose(tmp, ins);

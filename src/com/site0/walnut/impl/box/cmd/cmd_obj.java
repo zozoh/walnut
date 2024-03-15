@@ -15,7 +15,9 @@ import java.util.regex.Pattern;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Each;
-import org.nutz.lang.Lang;
+import org.nutz.lang.ExitLoop;
+
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
@@ -42,7 +44,7 @@ public class cmd_obj extends JvmExecutor {
 
         NutMap sort = null;
         if (params.has("sort")) {
-            sort = Lang.map(params.check("sort"));
+            sort = Wlang.map(params.check("sort"));
         }
 
         // 如果是要更新，首先分析一下更新参数
@@ -57,7 +59,7 @@ public class cmd_obj extends JvmExecutor {
             }
             // 解析 Map
             try {
-                u_map = Lang.map(json);
+                u_map = Wlang.map(json);
             }
             catch (Exception e) {
                 u_map = new NutMap();
@@ -83,7 +85,7 @@ public class cmd_obj extends JvmExecutor {
                     }
                     // 就是一个单个对象咯
                     else {
-                        meta = Lang.map(json);
+                        meta = Wlang.map(json);
                     }
                 }
                 // 管道已经被用了，直接搞个新的吧
@@ -93,7 +95,7 @@ public class cmd_obj extends JvmExecutor {
             }
             // 解析 JSON
             else {
-                meta = Lang.map(json);
+                meta = Wlang.map(json);
             }
 
             // 执行创建：单个对象
@@ -171,10 +173,10 @@ public class cmd_obj extends JvmExecutor {
         if (params.has("ExtendFilter")) {
             List<WnObj> list2 = new LinkedList<WnObj>();
             String json = params.get("ExtendFilter");
-            NutMap flt = "true".equals(json) ? new NutMap() : Lang.map(json);
+            NutMap flt = "true".equals(json) ? new NutMap() : Wlang.map(json);
 
             WnQuery q = new WnQuery();
-            NutMap by = Lang.map(params.get("ExtendBy", "{}"));
+            NutMap by = Wlang.map(params.get("ExtendBy", "{}"));
             q.setAll(by);
 
             if (null != sort)
@@ -284,7 +286,7 @@ public class cmd_obj extends JvmExecutor {
             if ("noroot".equals(anMode)) {
                 list.add(oSelf);
             }
-              // nodes 则表示返回: [节点1] [节点2]
+            // nodes 则表示返回: [节点1] [节点2]
             else if ("nodes".equals(anMode)) {}
             // full 则表示返回: [根] [节点1] [节点2] [自己]
             else if ("full".equals(anMode)) {
@@ -308,21 +310,20 @@ public class cmd_obj extends JvmExecutor {
         // 匹配的就展开
         if (o.isDIR() && flt.match(o)) {
             q.setv("pid", o.id());
-            sys.io.each(q,
-                        (int i, WnObj child, int len) -> {
-                            // 设置父
-                            child.setParent(o);
+            sys.io.each(q, (int i, WnObj child, int len) -> {
+                // 设置父
+                child.setParent(o);
 
-                            // 深层递归展开
-                            if (ExtendDeeply) {
-                                __do_extend(sys, list2, flt, q, child, ExtendDeeply);
-                            }
-                            // 仅仅展开一层
-                            else {
-                                child.setParent(o);
-                                list2.add(child);
-                            }
-                        });
+                // 深层递归展开
+                if (ExtendDeeply) {
+                    __do_extend(sys, list2, flt, q, child, ExtendDeeply);
+                }
+                // 仅仅展开一层
+                else {
+                    child.setParent(o);
+                    list2.add(child);
+                }
+            });
         }
         // 没匹配，加入到结果里
         else {
@@ -334,10 +335,10 @@ public class cmd_obj extends JvmExecutor {
         List<WnObj> list2 = new LinkedList<WnObj>();
 
         String json = params.get("tree");
-        NutMap flt = "true".equals(json) ? new NutMap() : Lang.map(json);
+        NutMap flt = "true".equals(json) ? new NutMap() : Wlang.map(json);
 
         WnQuery q = new WnQuery();
-        NutMap by = Lang.map(params.get("treeBy", "{}"));
+        NutMap by = Wlang.map(params.get("treeBy", "{}"));
         q.setAll(by);
 
         if (null != sort)
@@ -388,19 +389,12 @@ public class cmd_obj extends JvmExecutor {
             o.setv("children", children);
 
             q.setv("pid", o.id());
-            sys.io.each(q,
-                        (int i, WnObj child, int len) -> {
-                            // 设置父
-                            child.setParent(o);
-                            // 深层递归展开
-                            __do_tree_in_loop(sys,
-                                              children,
-                                              flt,
-                                              q,
-                                              child,
-                                              wantDepth,
-                                              currDepth + 1);
-                        });
+            sys.io.each(q, (int i, WnObj child, int len) -> {
+                // 设置父
+                child.setParent(o);
+                // 深层递归展开
+                __do_tree_in_loop(sys, children, flt, q, child, wantDepth, currDepth + 1);
+            });
         }
         // 加到结果集里
         resultList.add(o);
@@ -531,7 +525,7 @@ public class cmd_obj extends JvmExecutor {
             // 从后面弹
             if (n >= 0) {
                 if (i >= (length - n)) {
-                    Lang.Break();
+                    throw new ExitLoop();
                 } else {
                     vList.add(ele);
                 }
@@ -570,7 +564,7 @@ public class cmd_obj extends JvmExecutor {
 
         @Override
         public void invoke(int i, Object ele, int length) {
-            if (Lang.equals(ele, v) ^ match_for_remove) {
+            if (Wlang.isEqual(ele, v) ^ match_for_remove) {
                 vList.add(ele);
             }
         }
@@ -662,7 +656,7 @@ public class cmd_obj extends JvmExecutor {
     private void __do_set(WnSystem sys, ZParams params, List<WnObj> list) {
         // 得到要 set 的值
         String json = Cmds.getParamOrPipe(sys, params, "set", false);
-        NutMap setMap = Lang.map(json);
+        NutMap setMap = Wlang.map(json);
 
         // 处理每个对象
         for (WnObj o : list) {
@@ -707,7 +701,7 @@ public class cmd_obj extends JvmExecutor {
             }
 
             // 更新的正则表达式
-            String regex = "^(" + Lang.concat("|", setMap.keySet()) + ")$";
+            String regex = "^(" + Wlang.concat("|", setMap.keySet()) + ")$";
 
             // 执行更新
             sys.io.set(o, regex);
@@ -716,97 +710,11 @@ public class cmd_obj extends JvmExecutor {
     }
 
     private void __do_pop(WnSystem sys, ZParams params, List<WnObj> list) {
-        // 得到要 pop 的值
-        String json = Cmds.getParamOrPipe(sys, params, "pop", false);
-        NutMap popMap = Lang.map(json);
-
-        // 处理每个对象
-        for (WnObj o : list) {
-
-            // 对每个对象对应的 key 执行操作
-            for (Map.Entry<String, Object> en : popMap.entrySet()) {
-                String key = en.getKey();
-                Object val = en.getValue();
-
-                // 准备一个空列表准备来拼合值
-                List<Object> vList = new LinkedList<Object>();
-
-                // null 表示清除全部数据，那就啥也别干了
-                // 否则具体看看 val 是几个意思
-                if (null != val) {
-                    // 准备回调函数
-                    Each<Object> callback = PopEach.create(val.toString()).setVList(vList);
-
-                    // 搞一遍
-                    Lang.each(o.get(key), callback);
-                }
-
-                // 更新到对象里
-                o.setv(key, vList.isEmpty() ? null : vList);
-            }
-
-            // 更新的正则表达式
-            String regex = "^(" + Lang.concat("|", popMap.keySet()) + ")$";
-
-            // 执行更新
-            sys.io.set(o, regex);
-        }
+        throw Wlang.noImplement();
     }
 
     private void __do_push(WnSystem sys, ZParams params, List<WnObj> list) {
-        // 得到要 push 的值
-        String json = Cmds.getParamOrPipe(sys, params, "push", false);
-        NutMap pushMap = Lang.map(json);
-
-        // 是否唯一
-        boolean pushUniq = params.is("push_uniq", true);
-
-        // 处理每个对象
-        for (WnObj o : list) {
-
-            // 对每个对象对应的 key 执行操作
-            for (Map.Entry<String, Object> en : pushMap.entrySet()) {
-                String key = en.getKey();
-                Object val = en.getValue();
-
-                // 准备一个空列表准备来拼合值
-                List<Object> vList = new LinkedList<Object>();
-
-                // 首先搞一下原来的值
-                HashSet<Object> memo = pushUniq ? new HashSet<Object>() : null;
-
-                // 准备回调函数
-                Each<Object> callback = new Each<Object>() {
-                    @Override
-                    public void invoke(int index, Object v, int len) {
-                        // 唯一值的过滤
-                        if (null != memo) {
-                            if (memo.contains(v))
-                                return;
-                            memo.add(v);
-                        }
-                        // 添加
-                        vList.add(v);
-                    }
-                };
-
-                // 搞一遍旧值
-                Lang.each(o.get(key), callback);
-
-                // 搞一遍新值
-                // Lang.each(val, callback);
-                vList.add(val);
-
-                // 更新到对象里
-                o.setv(key, vList);
-            }
-
-            // 更新的正则表达式
-            String regex = "^(" + Lang.concat("|", pushMap.keySet()) + ")$";
-
-            // 执行更新
-            sys.io.set(o, regex);
-        }
+        throw Wlang.noImplement();
     }
 
     private WnObj __do_new(WnSystem sys, ZParams params, NutMap meta) {
@@ -938,7 +846,7 @@ public class cmd_obj extends JvmExecutor {
             }
             // 条件是"与"
             else {
-                q.add(Lang.map(json));
+                q.add(Wlang.map(json));
             }
         }
 

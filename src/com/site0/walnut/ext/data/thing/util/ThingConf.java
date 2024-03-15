@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
@@ -144,7 +144,7 @@ public class ThingConf {
                 }
                 // 不支持
                 else {
-                    throw Lang.impossible();
+                    throw Wlang.impossible();
                 }
             }
         }

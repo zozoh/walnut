@@ -4,11 +4,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
@@ -37,7 +37,7 @@ public class dom_docx extends DomFilter {
         NutBean varsData = null;
         if (!Ws.isBlank(vars)) {
             if (Ws.isQuoteBy(vars, '{', '}')) {
-                varsData = Lang.map(vars);
+                varsData = Wlang.map(vars);
             } else {
                 WnObj oVars = Wn.checkObj(sys, vars);
                 varsData = sys.io.readJson(oVars, NutMap.class);

@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.titanium.builder.TiJoinAction;
@@ -117,7 +117,7 @@ public class TiJoinMJS extends TiJoinAction {
         String[] ss = str.split("from");
 
         if (ss.length != 2) {
-            throw Lang.impossible();
+            throw Wlang.impossible();
         }
 
         // 引入什么呢？
@@ -128,7 +128,7 @@ public class TiJoinMJS extends TiJoinAction {
         if (Ws.isQuoteBy(fromPath, '"', '"') || Ws.isQuoteBy(fromPath, '\'', '\'')) {
             fromPath = fromPath.substring(1, fromPath.length() - 1);
         } else {
-            throw Lang.impossible();
+            throw Wlang.impossible();
         }
 
         // 找到一个路径

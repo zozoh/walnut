@@ -3,7 +3,7 @@ package com.site0.walnut.impl.box;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.BaseBoxTest;
 import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.io.WnObj;
@@ -34,7 +34,7 @@ public class JvmBoxTest extends BaseBoxTest {
     @Test
     public void test_subsitution_in_pipe() {
         box.run("echo -n `echo -n abc` | md5sum -n");
-        assertEquals(Lang.md5("abc"), outs());
+        assertEquals(Wlang.md5("abc"), outs());
     }
 
     @Test
@@ -74,7 +74,7 @@ public class JvmBoxTest extends BaseBoxTest {
     public void test_simple_pipe() {
         box.run("output -delay 500 'hello' | md5sum -t");
 
-        assertEquals(Lang.md5("hello\n"), touts());
+        assertEquals(Wlang.md5("hello\n"), touts());
     }
 
     @Test

@@ -4,12 +4,13 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.site0.walnut.util.tmpl.WnTmpl;
+
 import org.nutz.dao.Dao;
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.json.Json;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
-import org.nutz.lang.tmpl.Tmpl;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -334,7 +335,7 @@ public class IoCoreSetup {
     public String explainConfig(String text) {
         NutBean ctx = new NutMap();
         ctx.putAll(pp.toMap());
-        return Tmpl.exec(text, ctx);
+        return WnTmpl.exec(text, ctx);
     }
 
     public MimeMap getMimes() {
@@ -442,7 +443,7 @@ public class IoCoreSetup {
             if (aph.endsWith(".walnut/test/localfile")) {
                 Files.clearDir(d);
             } else {
-                throw Lang.makeThrow("!!!删除这个路径有点危险：%s", aph);
+                throw Wlang.makeThrow("!!!删除这个路径有点危险：%s", aph);
             }
         }
     }
@@ -457,7 +458,7 @@ public class IoCoreSetup {
             if (aph.endsWith(".walnut/test/localbm/bucket")) {
                 Files.clearDir(d);
             } else {
-                throw Lang.makeThrow("!!!删除这个路径有点危险：%s", aph);
+                throw Wlang.makeThrow("!!!删除这个路径有点危险：%s", aph);
             }
         }
 
@@ -469,7 +470,7 @@ public class IoCoreSetup {
             if (aph.endsWith(".walnut/test/localbm/swap")) {
                 Files.clearDir(d);
             } else {
-                throw Lang.makeThrow("!!!删除这个路径有点危险：%s", aph);
+                throw Wlang.makeThrow("!!!删除这个路径有点危险：%s", aph);
             }
         }
     }

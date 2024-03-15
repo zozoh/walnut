@@ -5,7 +5,7 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIoIndexer;
@@ -68,7 +68,7 @@ public class LocalFileWBM extends LocalFileBM {
             Files.copy(ofSr.getFile(), ofTa.getFile());
             return oTa.len();
         }
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
@@ -78,7 +78,7 @@ public class LocalFileWBM extends LocalFileBM {
             Files.deleteFile(of.getFile());
             return 0;
         }
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
@@ -95,7 +95,7 @@ public class LocalFileWBM extends LocalFileBM {
                 chan.force(false);
             }
             catch (Exception e) {
-                throw Lang.wrapThrow(e);
+                throw Wlang.wrapThrow(e);
             }
             finally {
                 Streams.safeClose(chan);
@@ -103,7 +103,7 @@ public class LocalFileWBM extends LocalFileBM {
             }
             return len;
         }
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
 }

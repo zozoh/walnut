@@ -2,14 +2,14 @@ package com.site0.walnut.util;
 
 import org.nutz.lang.Each;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback2;
 import org.nutz.lang.util.NutBean;
+import org.nutz.web.Webs.Err;
+
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
-import org.nutz.web.Webs.Err;
 
 /**
  * <b>!!!注意</b> 本类线程不安全，不要在多个线程共享实例
@@ -125,7 +125,7 @@ public class WnObjCopying {
             }
             // 靠！什么鬼！
             else {
-                throw Lang.impossible();
+                throw Wlang.impossible();
             }
         }
         // 返回目标
@@ -181,7 +181,7 @@ public class WnObjCopying {
         }
         // 靠，不可能
         else {
-            throw Lang.impossible();
+            throw Wlang.impossible();
         }
 
     }

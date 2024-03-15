@@ -3,7 +3,7 @@ package com.site0.walnut.web.clean;
 import java.util.Date;
 import java.util.List;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Times;
 import org.nutz.log.Log;
 import org.nutz.trans.Atom;
@@ -63,7 +63,7 @@ public class WnExpiObjTableCleaner implements Atom {
                         log.warnf("something wrong!", e);
                 }
                 // 休息一个时间间隔
-                Lang.quiteSleep(sleepInterval);
+                Wlang.quiteSleep(sleepInterval);
             }
         }
         catch (InterruptedException e) {
@@ -124,7 +124,7 @@ public class WnExpiObjTableCleaner implements Atom {
             log.infof("ExpiObjTable(%s) : clean table %d records", myName, cc);
 
             // 让 CPU 缓缓
-            Lang.quiteSleep(100);
+            Wlang.quiteSleep(100);
 
             // 再接手一批
             list = table.takeover(myName, sleepInterval, cleanLimit);

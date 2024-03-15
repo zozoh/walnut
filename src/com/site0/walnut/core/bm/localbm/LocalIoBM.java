@@ -6,7 +6,7 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
@@ -214,7 +214,7 @@ public class LocalIoBM extends AbstractIoBM {
                 chan.force(false);
             }
             catch (Exception e) {
-                throw Lang.wrapThrow(e);
+                throw Wlang.wrapThrow(e);
             }
             finally {
                 Streams.safeClose(chan);
@@ -229,7 +229,7 @@ public class LocalIoBM extends AbstractIoBM {
             return o.len();
         }
         catch (IOException e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
         // 无论怎样，确保删除交换文件
         finally {
@@ -270,7 +270,7 @@ public class LocalIoBM extends AbstractIoBM {
         // 某些时候，没有调用写接口的句柄实例，或者仅仅写了空字节的实例
         // 并不会生成 swap 文件
         if (null != swap && null != o) {
-            sha1 = Lang.sha1(swap);
+            sha1 = Wlang.sha1(swap);
             olen = swap.length();
             lm = swap.lastModified();
         }

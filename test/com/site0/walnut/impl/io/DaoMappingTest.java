@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.nutz.dao.Dao;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.BaseSessionTest;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
@@ -80,7 +80,7 @@ public class DaoMappingTest extends BaseSessionTest {
 
         // 执行
         long now = System.currentTimeMillis();
-        io.appendMeta(o, Lang.map("lm", now));
+        io.appendMeta(o, Wlang.map("lm", now));
         assertEquals(lm_p, o.lastModified());
 
         // 再获取
@@ -98,7 +98,7 @@ public class DaoMappingTest extends BaseSessionTest {
         assertFalse(o.getBoolean("live"));
 
         // 设置
-        io.appendMeta(o, Lang.map("live", true));
+        io.appendMeta(o, Wlang.map("live", true));
         assertTrue(o.getBoolean("live"));
 
         // 再获取
@@ -112,7 +112,7 @@ public class DaoMappingTest extends BaseSessionTest {
         assertFalse(o2.getBoolean("live"));
 
         // 设置
-        o2 = io.setBy(o.id(), Lang.map("live", true), true);
+        o2 = io.setBy(o.id(), Wlang.map("live", true), true);
         assertTrue(o2.getBoolean("live"));
 
         o2 = io.get(o.id());
@@ -132,11 +132,11 @@ public class DaoMappingTest extends BaseSessionTest {
         io.create(p, "E", WnRace.FILE);
 
         WnQuery q = Wn.Q.pid(p);
-        io.setBy(q.setv("nm", "A"), Lang.map("age:5"), false);
-        io.setBy(q.setv("nm", "B"), Lang.map("age:6"), false);
-        io.setBy(q.setv("nm", "C"), Lang.map("age:7"), false);
-        io.setBy(q.setv("nm", "D"), Lang.map("age:8"), false);
-        io.setBy(q.setv("nm", "E"), Lang.map("age:9"), false);
+        io.setBy(q.setv("nm", "A"), Wlang.map("age:5"), false);
+        io.setBy(q.setv("nm", "B"), Wlang.map("age:6"), false);
+        io.setBy(q.setv("nm", "C"), Wlang.map("age:7"), false);
+        io.setBy(q.setv("nm", "D"), Wlang.map("age:8"), false);
+        io.setBy(q.setv("nm", "E"), Wlang.map("age:9"), false);
 
         // 查一下
         q = Wn.Q.pid(p);
@@ -226,7 +226,7 @@ public class DaoMappingTest extends BaseSessionTest {
         assertTrue(o2.isFILE());
 
         // 设置元数据
-        WnObj o3 = io.setBy(o2.id(), Lang.map("age", 12), true);
+        WnObj o3 = io.setBy(o2.id(), Wlang.map("age", 12), true);
         assertEquals(12, o3.getInt("age"));
 
         WnObj o4 = io.get(o3.id());

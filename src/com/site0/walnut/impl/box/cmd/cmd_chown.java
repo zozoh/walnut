@@ -1,7 +1,7 @@
 package com.site0.walnut.impl.box.cmd;
 
 import org.nutz.lang.Each;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
@@ -27,7 +27,7 @@ public class cmd_chown extends cmd_chxxx {
             unm = ss[0];
             grp = null;
         } else {
-            throw Lang.impossible();
+            throw Wlang.impossible();
         }
 
         // 确保有这个用户

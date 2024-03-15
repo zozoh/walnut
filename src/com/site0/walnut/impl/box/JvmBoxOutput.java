@@ -10,7 +10,7 @@ import java.io.Writer;
 import org.nutz.castor.Castors;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.stream.VoidOutputStream;
 import org.nutz.log.Log;
@@ -47,7 +47,7 @@ public class JvmBoxOutput implements WnOutputable {
                 _w = new OutputStreamWriter(ops, charset);
             }
             catch (UnsupportedEncodingException e) {
-                throw Lang.wrapThrow(e);
+                throw Wlang.wrapThrow(e);
             }
         }
         return _w;
@@ -64,7 +64,7 @@ public class JvmBoxOutput implements WnOutputable {
                 log.debug("EofException cached");
         }
         catch (IOException e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
     }
 
@@ -79,7 +79,7 @@ public class JvmBoxOutput implements WnOutputable {
                 log.debug("EofException cached");
         }
         catch (IOException e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
         finally {
             Streams.safeClose(ins);
@@ -102,7 +102,7 @@ public class JvmBoxOutput implements WnOutputable {
                 log.debug("EofException cached");
         }
         catch (IOException e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
     }
 
@@ -143,7 +143,7 @@ public class JvmBoxOutput implements WnOutputable {
                 log.debug("EofException cached");
         }
         catch (IOException e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
     }
 
@@ -169,7 +169,7 @@ public class JvmBoxOutput implements WnOutputable {
                 log.debug("EofException cached");
         }
         catch (IOException e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
     }
 

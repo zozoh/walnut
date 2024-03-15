@@ -2,7 +2,7 @@ package com.site0.walnut.impl.box;
 
 import java.util.TimeZone;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.log.Log;
 import org.nutz.trans.Atom;
@@ -46,7 +46,7 @@ class JvmAtom extends JvmCmd implements Atom {
             }
             catch (Exception e) {
                 // 如果是 Eof 就忍了
-                Throwable e2 = Lang.unwrapThrow(e);
+                Throwable e2 = Wlang.unwrapThrow(e);
                 if (e2 instanceof org.eclipse.jetty.io.EofException) {
                     if (log.isDebugEnabled())
                         log.debug("EofException cached");
@@ -59,7 +59,7 @@ class JvmAtom extends JvmCmd implements Atom {
         }
         catch (Throwable e) {
             // 如果不是被 InterruptedException， 记录错误
-            if (!Lang.isCauseBy(e, InterruptedException.class)) {
+            if (!Wlang.isCauseBy(e, InterruptedException.class)) {
                 // 拆包 ...
                 Throwable ue = Er.unwrap(e);
 

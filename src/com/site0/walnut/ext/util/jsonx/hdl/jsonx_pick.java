@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.ext.util.jsonx.JsonXContext;
 import com.site0.walnut.ext.util.jsonx.JsonXFilter;
@@ -43,7 +43,7 @@ public class jsonx_pick extends JsonXFilter {
         }
         // 对于数组
         else if (fc.obj.getClass().isArray()) {
-            int len = Lang.eleSize(fc.obj);
+            int len = Wlang.eleSize(fc.obj);
             List list = new ArrayList(len);
             for (int i = 0; i < len; i++) {
                 Object o = Array.get(fc.obj, i);

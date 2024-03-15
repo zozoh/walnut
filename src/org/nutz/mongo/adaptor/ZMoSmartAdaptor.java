@@ -1,6 +1,6 @@
 package org.nutz.mongo.adaptor;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
 import org.nutz.mongo.ZMoAdaptor;
 import org.nutz.mongo.entity.ZMoField;
@@ -24,7 +24,7 @@ public class ZMoSmartAdaptor implements ZMoAdaptor {
             return ZMoAs.get(mi).toJava(fld, obj);
         }
         catch (Exception e) {
-            throw Lang.wrapThrow(e, "I am not such smart toJava -_-! : %s", obj.getClass());
+            throw Wlang.wrapThrow(e, "I am not such smart toJava -_-! : %s", obj.getClass());
         }
     }
 
@@ -38,7 +38,7 @@ public class ZMoSmartAdaptor implements ZMoAdaptor {
             return ZMoAs.get(mi).toMongo(fld, obj);
         }
         catch (Exception e) {
-            throw Lang.wrapThrow(e, "I am not such smart toMongo -_-! : %s", obj.getClass());
+            throw Wlang.wrapThrow(e, "I am not such smart toMongo -_-! : %s", obj.getClass());
         }
     }
 

@@ -2,7 +2,7 @@ package com.site0.walnut.ext.data.app.bean.init;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
@@ -253,7 +253,7 @@ public class AppInitItem {
             if (null != vars) {
                 json = WnTmpl.exec(json, vars);
             }
-            this.properties = Lang.map(json);
+            this.properties = Wlang.map(json);
         }
     }
 
@@ -265,7 +265,7 @@ public class AppInitItem {
             if (null != vars) {
                 json = WnTmpl.exec(json, vars);
             }
-            NutMap map = Lang.map(json);
+            NutMap map = Wlang.map(json);
             this.properties.putAll(map);
         }
     }
@@ -421,7 +421,7 @@ public class AppInitItem {
             if (null != vars) {
                 json = WnTmpl.exec(json, vars);
             }
-            NutMap map = Lang.map(json);
+            NutMap map = Wlang.map(json);
             this.meta.putAll(map);
         }
     }
@@ -433,7 +433,7 @@ public class AppInitItem {
             if (null != vars) {
                 json = WnTmpl.exec(json, vars);
             }
-            this.meta = Lang.map(json);
+            this.meta = Wlang.map(json);
         }
     }
 
@@ -496,7 +496,7 @@ public class AppInitItem {
             if (null != vars) {
                 json = WnTmpl.exec(json, vars);
             }
-            this.contentFileVars = Lang.map(json);
+            this.contentFileVars = Wlang.map(json);
         }
     }
 

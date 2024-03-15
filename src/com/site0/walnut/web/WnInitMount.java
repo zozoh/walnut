@@ -3,9 +3,10 @@ package com.site0.walnut.web;
 import java.io.File;
 import java.io.IOException;
 
-import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.log.Logs;
+
+import com.site0.walnut.util.Wlang;
 
 public class WnInitMount {
 
@@ -16,7 +17,7 @@ public class WnInitMount {
     public WnInitMount(String line) {
         int pos = line.indexOf(':');
         if (pos <= 0) {
-            throw Lang.makeThrow("init mount invalid line input: %s", line);
+            throw Wlang.makeThrow("init mount invalid line input: %s", line);
         }
         path = Strings.trim(line.substring(0, pos));
         mount = Strings.trim(line.substring(pos + 1));

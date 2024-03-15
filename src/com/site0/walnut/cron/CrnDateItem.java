@@ -2,7 +2,7 @@ package com.site0.walnut.cron;
 
 import java.util.Calendar;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 
 abstract class CrnDateItem extends CrnStdItem {
 
@@ -21,7 +21,7 @@ abstract class CrnDateItem extends CrnStdItem {
 
     @Override
     public boolean match(int v, int min, int max) {
-        throw Lang.makeThrow("Please use : match(Calendar c)");
+        throw Wlang.makeThrow("Please use : match(Calendar c)");
     }
 
     @Override

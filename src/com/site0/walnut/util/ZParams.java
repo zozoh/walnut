@@ -10,10 +10,10 @@ import java.util.regex.Pattern;
 import org.nutz.castor.Castors;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+
 import com.site0.walnut.api.err.Er;
 
 /**
@@ -434,7 +434,7 @@ public class ZParams implements Cloneable {
         if (val instanceof Map)
             return NutMap.WRAP((Map) val);
 
-        return Lang.map(val.toString());
+        return Wlang.map(val.toString());
     }
 
     public <T> List<T> getList(String key, Class<T> eleType) {

@@ -6,8 +6,9 @@ import java.util.List;
 import java.util.ListIterator;
 
 import org.junit.Test;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
+
+import com.site0.walnut.util.Wlang;
 
 public class WnLinkedArrayListTest {
 
@@ -18,7 +19,7 @@ public class WnLinkedArrayListTest {
     @Test
     public void test_first_last_popFirst() {
         WnLinkedArrayList<String> list = _L(3);
-        list.addAll(Lang.list("A", "B", "C", "D"));
+        list.addAll(Wlang.list("A", "B", "C", "D"));
 
         assertEquals("A", list.first());
         assertEquals("D", list.last());
@@ -56,7 +57,7 @@ public class WnLinkedArrayListTest {
     @Test
     public void test_first_last_popLast() {
         WnLinkedArrayList<String> list = _L(3);
-        list.addAll(Lang.list("A", "B", "C", "D"));
+        list.addAll(Wlang.list("A", "B", "C", "D"));
 
         assertEquals("A", list.first());
         assertEquals("D", list.last());
@@ -94,7 +95,7 @@ public class WnLinkedArrayListTest {
     @Test
     public void test_iterator() {
         List<String> list = _L(3);
-        list.addAll(Lang.list("A", "B", "C", "D"));
+        list.addAll(Wlang.list("A", "B", "C", "D"));
         ListIterator<String> it = list.listIterator();
 
         assertTrue(it.hasNext());
@@ -158,7 +159,7 @@ public class WnLinkedArrayListTest {
     @Test
     public void test_contains() {
         List<String> list = _L(3);
-        list.addAll(Lang.list("A", "B", "C", "D"));
+        list.addAll(Wlang.list("A", "B", "C", "D"));
 
         assertTrue(list.contains("A"));
         assertTrue(list.contains("B"));
@@ -167,19 +168,19 @@ public class WnLinkedArrayListTest {
         assertFalse(list.contains("X"));
         assertFalse(list.contains("Y"));
 
-        List<String> cans = Lang.list("A", "C", "D");
+        List<String> cans = Wlang.list("A", "C", "D");
         assertTrue(list.containsAll(cans));
 
-        cans = Lang.list("A", "C", "M");
+        cans = Wlang.list("A", "C", "M");
         assertFalse(list.containsAll(cans));
     }
 
     @Test
     public void test_add_collections() {
         List<String> list = _L(3);
-        list.addAll(Lang.list("A", "B", "C", "D"));
+        list.addAll(Wlang.list("A", "B", "C", "D"));
         assertEquals(4, list.size());
-        list.addAll(2, Lang.list("x", "y", "z"));
+        list.addAll(2, Wlang.list("x", "y", "z"));
         assertEquals(7, list.size());
 
         String[] ss = list.toArray(new String[list.size()]);

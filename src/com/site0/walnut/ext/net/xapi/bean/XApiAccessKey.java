@@ -1,9 +1,8 @@
 package com.site0.walnut.ext.net.xapi.bean;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
-import org.nutz.lang.util.NutMap;
 import com.site0.walnut.util.Wtime;
 
 public class XApiAccessKey {
@@ -29,7 +28,7 @@ public class XApiAccessKey {
     private long expiAtMs;
 
     public NutBean toBean() {
-        return Lang.obj2map(this, NutMap.class);
+        return Wlang.obj2nutmap(this);
     }
 
     public boolean hasTicket() {

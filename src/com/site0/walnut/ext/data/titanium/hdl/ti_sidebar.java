@@ -1,7 +1,6 @@
 package com.site0.walnut.ext.data.titanium.hdl;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import com.site0.walnut.api.auth.WnAccount;
@@ -19,6 +18,7 @@ import com.site0.walnut.impl.box.JvmHdlParamArgs;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.impl.io.WnSecurityImpl;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.Wsum;
 import com.site0.walnut.util.validate.impl.AutoMatch;
 
 @JvmHdlParamArgs("cqn")
@@ -122,7 +122,7 @@ public class ti_sidebar implements JvmHdl {
         TiSidebarOutput output = sidebars.getOutput(input, sys.session, checkRole, checkPvg, sys);
 
         // 设置状态存储键
-        output.setStatusStoreKey(Lang.md5(oSidebar.id()));
+        output.setStatusStoreKey(Wsum.md5AsString(oSidebar.id()));
 
         // 输出
         sys.out.println(Json.toJson(output, hc.jfmt));

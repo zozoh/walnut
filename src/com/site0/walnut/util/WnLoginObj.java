@@ -1,7 +1,7 @@
 package com.site0.walnut.util;
 
-import org.nutz.lang.Lang;
 import org.nutz.lang.util.NutMap;
+
 import com.site0.walnut.api.err.Er;
 
 /**
@@ -79,7 +79,7 @@ public class WnLoginObj {
         }
         // 不可能
         else {
-            throw Lang.impossible();
+            throw Wlang.impossible();
         }
         return map;
     }

@@ -2,7 +2,7 @@ package com.site0.walnut.ext.net.xapi.hdl;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
@@ -72,7 +72,7 @@ public class xapi_wxjssdk implements JvmHdl {
                                    nonceStr,
                                    timestamp,
                                    url);
-        String signature = Lang.sha1(str);
+        String signature = Wlang.sha1(str);
 
         // 返回结果
         NutMap map = new NutMap();

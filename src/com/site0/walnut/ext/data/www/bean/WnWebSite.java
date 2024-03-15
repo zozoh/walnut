@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.nutz.dao.Dao;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -354,7 +354,7 @@ public class WnWebSite {
             NutMap hisre = (NutMap) Wn.explainObj(context, hisTmpl);
 
             // 插入历史记录
-            HistoryRecord his = Lang.map2Object(hisre, HistoryRecord.class);
+            HistoryRecord his = Wlang.map2Object(hisre, HistoryRecord.class);
             api.add(his);
         }
     }
@@ -379,7 +379,7 @@ public class WnWebSite {
 
     public void setDomainHomePath(String domainHomePath) {
         this.domainHomePath = domainHomePath;
-        this.vars = Lang.map("HOME", domainHomePath);
+        this.vars = Wlang.map("HOME", domainHomePath);
     }
 
     public String getDomainGroup() {

@@ -3,7 +3,7 @@ package com.site0.walnut.cheap.markdown;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.cheap.dom.CheapElement;
 import com.site0.walnut.cheap.dom.CheapNode;
 
@@ -128,7 +128,7 @@ public class ParseBlockAsList implements ParseBlock {
             }
             // 其他是不可能的
             else {
-                throw Lang.impossible();
+                throw Wlang.impossible();
             }
         }
 

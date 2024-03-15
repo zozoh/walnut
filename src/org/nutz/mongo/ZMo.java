@@ -15,7 +15,7 @@ import org.bson.types.ObjectId;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.json.entity.JsonCallback;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
 import org.nutz.mongo.adaptor.ZMoAs;
 import org.nutz.mongo.entity.ZMoEntity;
@@ -79,7 +79,7 @@ public class ZMo {
             }
             // 确定一定会有映射关系
             if (null == en) {
-                throw Lang.makeThrow("Map[%s] without define!", _key);
+                throw Wlang.makeThrow("Map[%s] without define!", _key);
             }
         }
         // POJO
@@ -87,11 +87,11 @@ public class ZMo {
             Class<? extends Object> objType = obj.getClass();
             // 数组不可以
             if (objType.isArray()) {
-                throw Lang.makeThrow("Array can not toDoc : %s", objType.getName());
+                throw Wlang.makeThrow("Array can not toDoc : %s", objType.getName());
             }
             // 集合不可以
             else if (obj instanceof Collection) {
-                throw Lang.makeThrow("Collection can not toDoc : %s", objType.getName());
+                throw Wlang.makeThrow("Collection can not toDoc : %s", objType.getName());
             }
             // POJO
             else {
@@ -112,7 +112,7 @@ public class ZMo {
      * @return 文档对象
      */
     public ZMoDoc toDoc(String json, Object... args) {
-        return toDoc(Lang.mapf(json, args));
+        return toDoc(Wlang.mapf(json, args));
     }
 
     /**

@@ -1,7 +1,7 @@
 package org.nutz.mongo.adaptor;
 
 import org.bson.Document;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
 import org.nutz.mongo.ZMo;
 import org.nutz.mongo.ZMoAdaptor;
@@ -20,7 +20,7 @@ public class ZMoMapAdaptor implements ZMoAdaptor {
             ZMoEntity en = ZMo.me().getEntity(fld.getType());
             return ZMo.me().fromDoc(doc, en);
         }
-        throw Lang.makeThrow("toJava error: %s", obj.getClass());
+        throw Wlang.makeThrow("toJava error: %s", obj.getClass());
     }
 
     @Override
@@ -30,7 +30,7 @@ public class ZMoMapAdaptor implements ZMoAdaptor {
             ZMoEntity en = ZMo.me().getEntity(mi.getType());
             return ZMo.me().toDoc(obj, en);
         }
-        throw Lang.makeThrow("toMongo error: %s", obj.getClass());
+        throw Wlang.makeThrow("toMongo error: %s", obj.getClass());
     }
 
 }

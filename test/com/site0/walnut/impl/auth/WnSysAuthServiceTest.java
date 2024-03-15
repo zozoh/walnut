@@ -7,7 +7,7 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import com.site0.walnut.BaseUsrTest;
@@ -186,7 +186,7 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
                 str = wc.su(ub, new Proton<String>() {
                     protected String exec() {
                         io.check(null, path);
-                        throw Lang.impossible();
+                        throw Wlang.impossible();
                     }
                 });
                 fail();

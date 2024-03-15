@@ -38,7 +38,7 @@ import org.nutz.http.Http;
 import org.nutz.http.Response;
 import org.nutz.lang.Each;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
@@ -82,7 +82,7 @@ public class WebServer {
         if (!dc.has(WebConfig.BIND_ADDRESS))
             dc.set(WebConfig.BIND_ADDRESS, "0.0.0.0");
         // 创建基础服务器
-        server = new Server(new QueuedThreadPool(Lang.isAndroid ? 50 : 500));
+        server = new Server(new QueuedThreadPool(Wlang.isAndroid ? 50 : 500));
         ServerConnector connector = new ServerConnector(server);
         connector.setHost(dc.get(WebConfig.BIND_ADDRESS));
         connector.setPort(dc.getAppPort());
@@ -97,7 +97,7 @@ public class WebServer {
             File root = Files.findFile(rootPath);
             if (root == null || !root.exists()) {
                 log.warnf("root: '%s' not exist!", dc.get(WebConfig.APP_ROOT));
-                warUrlString = Lang.runRootPath();
+                warUrlString = Wlang.runRootPath();
             } else {
                 warUrlString = root.getCanonicalFile().toURI().toURL().toExternalForm();
             }

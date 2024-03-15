@@ -1,6 +1,6 @@
 package com.site0.walnut.core.indexer.dao.obj.sarray;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.core.indexer.dao.obj.WnObjInjecting;
 
@@ -21,7 +21,7 @@ public class WnObjSArrayInjecting extends WnObjInjecting {
             if (value instanceof CharSequence) {
                 String[] ss = Strings.splitIgnoreBlank(value.toString());
                 if (this.asList) {
-                    value = Lang.list(ss);
+                    value = Wlang.list(ss);
                 } else {
                     value = ss;
                 }

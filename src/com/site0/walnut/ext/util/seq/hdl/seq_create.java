@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
@@ -32,7 +32,7 @@ public class seq_create implements JvmHdl {
             if ("~pipe".equals(vstr) || "true".equals(vstr)) {
                 vstr = sys.in.readAll();
             }
-            vars = Lang.map(vstr);
+            vars = Wlang.map(vstr);
         }
         // 预防null
         if (vars == null) {
@@ -69,11 +69,11 @@ public class seq_create implements JvmHdl {
             int nochange = 0;
             if (Strings.isNotBlank(list_match)) {
                 WnQuery q = new WnQuery();
-                NutMap map = Lang.map(list_match);
+                NutMap map = Wlang.map(list_match);
                 map.put("d0", "home");
                 map.setnx("d1", sys.getMyGroup());
                 q.add(map);
-                q.sort(Lang.map(sort));
+                q.sort(Wlang.map(sort));
                 objs = sys.io.query(q);
                 if (objs.isEmpty())
                     return;

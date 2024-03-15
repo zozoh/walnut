@@ -2,7 +2,7 @@ package com.site0.walnut.cron;
 
 import java.util.Calendar;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 
 /**
  * 判断周，它不支持 "L" 修饰符
@@ -69,13 +69,13 @@ public class CrnItem_ww extends CrnDateItem {
     @Override
     protected int eval4override(String str) {
         if (str.endsWith("L"))
-            throw Lang.makeThrow("Week item don's support 'L' : '%s'", str);
+            throw Wlang.makeThrow("Week item don's support 'L' : '%s'", str);
 
         int n = 0;
         int pos = str.lastIndexOf("#");
         if (pos > 0) {
             if (str.indexOf('0') >= 0 || str.indexOf(',') >= 0) {
-                throw Lang.makeThrow("Wrong week item '%s'!!!", str);
+                throw Wlang.makeThrow("Wrong week item '%s'!!!", str);
             }
             n = Integer.parseInt(str.substring(pos + 1));
             str = str.substring(0, pos);

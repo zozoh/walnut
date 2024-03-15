@@ -6,7 +6,7 @@ import java.util.ListIterator;
 import java.util.Map;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
@@ -14,7 +14,6 @@ import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.ext.data.o.OContext;
 import com.site0.walnut.ext.data.o.OFilter;
 import com.site0.walnut.impl.box.WnSystem;
-import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.ZParams;
 import com.site0.walnut.util.validate.WnMatch;
 import com.site0.walnut.util.validate.impl.AutoMatch;
@@ -173,7 +172,7 @@ public class o_children extends OFilter {
             ms[i++] = m;
         }
         if (ms.length == 0) {
-            ing.test = new MapMatch(Lang.map("race", "DIR"));
+            ing.test = new MapMatch(Wlang.map("race", "DIR"));
         } else if (ms.length == 1) {
             ing.test = ms[0];
         } else {

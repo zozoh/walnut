@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.born.Borning;
@@ -164,7 +164,7 @@ public class ZMoEntity {
     public ZMoField javaField(String name) {
         ZMoField fld = getJavaField(name);
         if (null == fld) {
-            throw Lang.makeThrow("no such field! %s->%s", type, name);
+            throw Wlang.makeThrow("no such field! %s->%s", type, name);
         }
         return fld;
     }
@@ -192,7 +192,7 @@ public class ZMoEntity {
     public ZMoField mongoField(String name) {
         ZMoField fld = getMongoField(name);
         if (null == fld) {
-            throw Lang.makeThrow("no such field! %s->%s", type, name);
+            throw Wlang.makeThrow("no such field! %s->%s", type, name);
         }
         return fld;
     }

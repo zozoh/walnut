@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.Each;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.Callback;
 import com.site0.walnut.api.io.MimeMap;
 import com.site0.walnut.api.io.WalkMode;
@@ -77,7 +77,7 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
         }
         // 不可能
         else {
-            throw Lang.impossible();
+            throw Wlang.impossible();
         }
     }
 

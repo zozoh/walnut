@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -51,7 +51,7 @@ public class WnAliyunOssService {
 			String sha1 = wobj.sha1();
 			if (Strings.isBlank(sha1)) {
 				try (InputStream ins = io.getInputStream(wobj, 0)) {
-					sha1 = Lang.sha1(ins);
+					sha1 = Wlang.sha1(ins);
 				}
 			}
 			if (!force) {

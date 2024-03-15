@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -341,7 +341,7 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
             checkEleType(vo, io, vars, caches);
             // 转换为字段
             try {
-                fld = Lang.map2Object(vo, WnBeanField.class);
+                fld = Wlang.map2Object(vo, WnBeanField.class);
                 fld.loadOptions(io, vars, caches);
                 if (fld.hasMapping()) {
                     fld.getMapping().checkFields(io, vars, caches);
@@ -376,7 +376,7 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
             else if (eleType instanceof Map) {
                 NutMap map = NutMap.WRAP((Map<String, Object>) eleType);
                 checkEleType(map, io, vars, caches);
-                WnValue wv = Lang.map2Object(map, WnValue.class);
+                WnValue wv = Wlang.map2Object(map, WnValue.class);
                 wv.loadOptions(io, vars, caches);
                 if (wv.hasMapping()) {
                     wv.getMapping().checkFields(io, vars, caches);

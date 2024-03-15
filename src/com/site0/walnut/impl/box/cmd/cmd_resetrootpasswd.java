@@ -1,6 +1,6 @@
 package com.site0.walnut.impl.box.cmd;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 
@@ -22,7 +22,7 @@ public class cmd_resetrootpasswd extends JvmExecutor {
         // });
         //
         // sys.out.println("root user password reseted!");
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
 }

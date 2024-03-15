@@ -3,7 +3,7 @@ package com.site0.walnut.ext.data.thing.hdl;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
@@ -76,7 +76,7 @@ public class thing_query implements JvmHdl {
 
         // 设置排序
         if (hc.params.hasString("sort")) {
-            tq.sort = Lang.map(hc.params.check("sort"));
+            tq.sort = Wlang.map(hc.params.check("sort"));
         }
 
         tq.needContent = hc.params.is("content");

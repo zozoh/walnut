@@ -12,7 +12,7 @@ import java.util.List;
 import org.eclipse.paho.client.mqttv3.MqttClientPersistence;
 import org.eclipse.paho.client.mqttv3.MqttPersistable;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
@@ -32,7 +32,7 @@ public class WnMqttClientPersistence implements MqttClientPersistence {
     @Override
     public void open(String clientId, String serverURI) throws MqttPersistenceException {
         this.serverURI = serverURI;
-        this.serverPath = "persistence/" + Lang.md5(serverURI) + "/";
+        this.serverPath = "persistence/" + Wlang.md5(serverURI) + "/";
     }
 
     @Override

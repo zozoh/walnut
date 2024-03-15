@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.validate.WnMatch;
@@ -113,33 +113,33 @@ public class WnMatchTest {
         NutMap obj, map;
         WnMatch vli;
 
-        obj = Lang.map("name:'xiaobai', age:12");
+        obj = Wlang.map("name:'xiaobai', age:12");
 
-        map = Lang.map("name:'xiaobai', age:'[10, 15]'");
+        map = Wlang.map("name:'xiaobai', age:'[10, 15]'");
         vli = new AutoMatch(map);
         assertTrue(vli.match(obj));
 
-        map = Lang.map("name:'xiaobai', age:'[13, 15]'");
+        map = Wlang.map("name:'xiaobai', age:'[13, 15]'");
         vli = new AutoMatch(map);
         assertFalse(vli.match(obj));
 
-        map = Lang.map("name:'xiaobai', age:'(10, 15]'");
+        map = Wlang.map("name:'xiaobai', age:'(10, 15]'");
         vli = new AutoMatch(map);
         assertTrue(vli.match(obj));
 
-        map = Lang.map("age:'(12, 15)'");
+        map = Wlang.map("age:'(12, 15)'");
         vli = new AutoMatch(map);
         assertFalse(vli.match(obj));
 
-        map = Lang.map("name:'^xiao.+$'");
+        map = Wlang.map("name:'^xiao.+$'");
         vli = new AutoMatch(map);
         assertTrue(vli.match(obj));
 
-        map = Lang.map("!name:'^xiao.+$'");
+        map = Wlang.map("!name:'^xiao.+$'");
         vli = new AutoMatch(map);
         assertFalse(vli.match(obj));
 
-        map = Lang.map("name:'^y.+$'");
+        map = Wlang.map("name:'^y.+$'");
         vli = new AutoMatch(map);
         assertFalse(vli.match(obj));
     }
@@ -149,25 +149,25 @@ public class WnMatchTest {
         NutMap obj, map;
         WnMatch vli;
 
-        obj = Lang.map("x:100, y:99");
+        obj = Wlang.map("x:100, y:99");
 
-        map = Lang.map("x:100, y:99");
+        map = Wlang.map("x:100, y:99");
         vli = new AutoMatch(map);
         assertTrue(vli.match(obj));
 
-        map = Lang.map("x:100");
+        map = Wlang.map("x:100");
         vli = new AutoMatch(map);
         assertTrue(vli.match(obj));
 
-        map = Lang.map("y:99");
+        map = Wlang.map("y:99");
         vli = new AutoMatch(map);
         assertTrue(vli.match(obj));
 
-        map = Lang.map("y:98");
+        map = Wlang.map("y:98");
         vli = new AutoMatch(map);
         assertFalse(vli.match(obj));
 
-        map = Lang.map("z:'notNil'");
+        map = Wlang.map("z:'notNil'");
         vli = new AutoMatch(map);
         assertFalse(vli.match(obj));
     }

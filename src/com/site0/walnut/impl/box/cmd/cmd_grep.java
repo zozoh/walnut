@@ -1,5 +1,6 @@
 package com.site0.walnut.impl.box.cmd;
 
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,13 +9,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Cmds;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
 
@@ -37,7 +38,7 @@ public class cmd_grep extends JvmExecutor {
 
             // 计算要列出的要处理的对象
             List<WnObj> list = new LinkedList<WnObj>();
-            Cmds.evalCandidateObjs(sys, Lang.array(filePath), list, 0);
+            Cmds.evalCandidateObjs(sys, Wlang.array(filePath), list, 0);
 
             // 检查是否候选对象列表为空
             Cmds.assertCandidateObjsNoEmpty(args, list);

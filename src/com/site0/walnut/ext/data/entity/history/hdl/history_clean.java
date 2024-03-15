@@ -1,6 +1,6 @@
 package com.site0.walnut.ext.data.entity.history.hdl;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.ext.data.entity.history.HisQuery;
 import com.site0.walnut.ext.data.entity.history.HistoryApi;
@@ -21,8 +21,8 @@ public class history_clean implements JvmHdl {
 
         // 获取查询条件
         String json = Cmds.getParamOrPipe(sys, hc.params, 0);
-        NutMap map = Lang.map(json);
-        HisQuery q = Lang.map2Object(map, HisQuery.class);
+        NutMap map = Wlang.map(json);
+        HisQuery q = Wlang.map2Object(map, HisQuery.class);
 
         // 查询
         int n = api.removeBy(q);

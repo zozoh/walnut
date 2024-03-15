@@ -3,7 +3,7 @@ package com.site0.walnut.alg.exp;
 import java.util.HashMap;
 import java.util.List;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.alg.exp.op.*;
 import com.site0.walnut.alg.exp.val.*;
 
@@ -40,7 +40,7 @@ public class WnSimpleExpressionBuilder extends AbstractWnExpressBuilder {
         if ('/' == op) {
             return new WnExpOpDiv(token, op, priority);
         }
-        throw Lang.impossible();
+        throw Wlang.impossible();
     }
 
     @Override
@@ -51,7 +51,7 @@ public class WnSimpleExpressionBuilder extends AbstractWnExpressBuilder {
         if (token.matches("^\\d*\\.\\d+$")) {
             return new WnExpValFloat(token);
         }
-        throw Lang.impossible();
+        throw Wlang.impossible();
     }
 
     @Override

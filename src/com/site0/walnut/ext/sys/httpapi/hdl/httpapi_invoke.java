@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.nutz.castor.Castors;
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.Callback;
@@ -22,6 +22,7 @@ import com.site0.walnut.impl.box.JvmHdlParamArgs;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Cmds;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.Ws;
 
 @JvmHdlParamArgs("cqn")
 public class httpapi_invoke implements JvmHdl {
@@ -52,7 +53,7 @@ public class httpapi_invoke implements JvmHdl {
                     NutMap qs_cnd = qs.pickBy(pa_cnd_keys);
                     NutMap po_cnd = postMap.pickBy(pa_cnd_keys);
                     if (qs_cnd.isEmpty() && po_cnd.isEmpty()) {
-                        NutMap re = Lang.map("ok", false);
+                        NutMap re = Wlang.map("ok", false);
                         re.put("errCode", "e.cmd.httpapi.invoke.nocnd");
                         sys.err.println(Json.toJson(re, hc.jfmt));
                         return;
@@ -69,7 +70,7 @@ public class httpapi_invoke implements JvmHdl {
                 }
                 // .....................................................
                 // 准备元数据
-                NutMap meta = Lang.map("http-method", "GET");
+                NutMap meta = Wlang.map("http-method", "GET");
                 meta.put("http-usr", c.usr.getName());
                 meta.put("http-api", rph);
                 meta.put("http-protocol", "HTTP/1.1");
@@ -116,7 +117,7 @@ public class httpapi_invoke implements JvmHdl {
                         String vs = Castors.me().castToString(val);
                         list.add(key + "=" + vs);
                     }
-                    String postStr = Lang.concat("&", list).toString();
+                    String postStr = Ws.join(list, "&").toString();
                     sys.io.writeText(oReq, postStr);
                 }
                 // 写入请求 body
@@ -151,7 +152,7 @@ public class httpapi_invoke implements JvmHdl {
             if ("@pipe".equals(get)) {
                 get = sys.in.readAll();
             }
-            qs = Lang.map(get);
+            qs = Wlang.map(get);
         } else {
             qs = new NutMap();
         }

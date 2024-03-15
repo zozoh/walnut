@@ -13,7 +13,7 @@ import org.nutz.dao.entity.Record;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Each;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import com.site0.walnut.util.tmpl.WnTmpl;
@@ -66,7 +66,7 @@ public class WnStatSum extends WnStatistics {
         // 排序的设定
         String sort = params.getString("sort");
         if (!Strings.isBlank(sort)) {
-            sortMap = Lang.map(sort);
+            sortMap = Wlang.map(sort);
         }
 
         // Top 10

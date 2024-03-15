@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.o.OContext;
 import com.site0.walnut.ext.data.o.OFilter;
@@ -33,7 +33,7 @@ public class o_filter extends OFilter {
             ms[i++] = m;
         }
         if (ms.length == 0) {
-            test = new MapMatch(Lang.map("race", "DIR"));
+            test = new MapMatch(Wlang.map("race", "DIR"));
         } else if (ms.length == 1) {
             test = ms[0];
         } else {

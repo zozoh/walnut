@@ -6,7 +6,6 @@ import com.site0.walnut.api.auth.WnCaptchaService;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.www.bean.WnWebSite;
-import com.site0.walnut.ext.net.weixin.WnIoWeixinApi;
 import com.site0.walnut.impl.auth.DomainAuthEventGenerator;
 import com.site0.walnut.impl.auth.WnAuthServiceImpl;
 import com.site0.walnut.impl.box.WnSystem;
@@ -79,15 +78,6 @@ public class WnWebService {
      */
     public WnWebSite getSite() {
         return this.site;
-    }
-
-    /**
-     * @param codeType
-     *            公号类型(mp | gh | open)
-     * @return 微信服务接口
-     */
-    public WnIoWeixinApi getWeixinApi(String codeType) {
-        return setup.getWeixinApi(codeType);
     }
 
     /**

@@ -2,7 +2,7 @@ package com.site0.walnut.ext.data.o.hdl;
 
 import java.util.Map;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.o.OContext;
@@ -35,13 +35,13 @@ public class o_update extends OFilter {
                 sys.err.print(json);
                 return;
             }
-            meta = Lang.map(json);
+            meta = Wlang.map(json);
         }
         // 合并一下
         else {
             meta = new NutMap();
             for (String str : params.vals) {
-                NutMap map = Lang.map(str);
+                NutMap map = Wlang.map(str);
                 meta.putAll(map);
             }
         }

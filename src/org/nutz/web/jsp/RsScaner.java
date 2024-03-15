@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.HashMap;
 
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.segment.Segment;
 import org.nutz.lang.util.Context;
@@ -44,7 +44,7 @@ public class RsScaner {
         final StringBuilder sb = new StringBuilder();
         final HashMap<String, Boolean> paths = new HashMap<String, Boolean>();
         File home = Files.createDirIfNoExists(rsHome);
-        Context context = Lang.context();
+        Context context = Wlang.context();
         context.set(Webs.RS, rs);
 
         for (String path : scanPaths) {

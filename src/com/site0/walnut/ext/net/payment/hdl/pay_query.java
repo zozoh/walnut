@@ -2,7 +2,7 @@ package com.site0.walnut.ext.net.payment.hdl;
 
 import java.util.List;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.ext.net.payment.WnPayInfo;
@@ -39,7 +39,7 @@ public class pay_query implements JvmHdl {
         // 更多匹配条件
         if (hc.params.has("match")) {
             String json = hc.params.get("match");
-            q.add(Lang.map(json));
+            q.add(Wlang.map(json));
         }
 
         // 简介
@@ -71,7 +71,7 @@ public class pay_query implements JvmHdl {
 
         NutMap sort = null;
         if (hc.params.has("sort")) {
-            sort = Lang.map(hc.params.check("sort"));
+            sort = Wlang.map(hc.params.check("sort"));
         }
         q.sort(sort);
 

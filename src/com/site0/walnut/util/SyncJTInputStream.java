@@ -2,8 +2,8 @@ package com.site0.walnut.util;
 
 import java.io.InputStream;
 
-import org.nutz.lang.Lang;
 import org.nutz.log.Log;
+
 import com.site0.walnut.api.box.WnTunnel;
 
 public class SyncJTInputStream extends InputStream {
@@ -21,7 +21,7 @@ public class SyncJTInputStream extends InputStream {
         byte re = tnl.read();
         while (re == -1) {
             if (tnl.isWritable())
-                Lang.wait(tnl, 100);
+                Wlang.wait(tnl, 100);
             else
                 break;
             re = tnl.read();
@@ -34,7 +34,7 @@ public class SyncJTInputStream extends InputStream {
         int re = tnl.read(bs, off, len);
         while (re == -1) {
             if (tnl.isWritable())
-                Lang.wait(tnl, 100);
+                Wlang.wait(tnl, 100);
             else
                 break;
             if (log.isDebugEnabled())

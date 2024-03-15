@@ -3,7 +3,7 @@ package com.site0.walnut.impl.srv;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
@@ -153,9 +153,9 @@ public class WnBoxRunning implements WnAuthExecutable {
                      StringBuilder stdOut,
                      StringBuilder stdErr,
                      CharSequence stdIn) {
-        InputStream ins = null == stdIn ? null : Lang.ins(stdIn);
-        OutputStream out = null == stdOut ? null : Lang.ops(stdOut);
-        OutputStream err = null == stdErr ? null : Lang.ops(stdErr);
+        InputStream ins = null == stdIn ? null : Wlang.ins(stdIn);
+        OutputStream out = null == stdOut ? null : Wlang.ops(stdOut);
+        OutputStream err = null == stdErr ? null : Wlang.ops(stdErr);
         exec(cmdText, out, err, ins);
     }
 
@@ -172,7 +172,7 @@ public class WnBoxRunning implements WnAuthExecutable {
 
     @Override
     public void exec(String cmdText, CharSequence input) {
-        InputStream ins = null == input ? null : Lang.ins(input);
+        InputStream ins = null == input ? null : Wlang.ins(input);
         exec(cmdText, null, null, ins);
     }
 

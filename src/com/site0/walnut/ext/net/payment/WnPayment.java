@@ -8,7 +8,7 @@ import java.util.Map;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Each;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
@@ -23,9 +23,6 @@ import com.site0.walnut.ext.net.payment.alipay.ZfbQrcodePay3x;
 import com.site0.walnut.ext.net.payment.alipay.ZfbScanPay3x;
 import com.site0.walnut.ext.net.payment.free.FreePay3x;
 import com.site0.walnut.ext.net.payment.paypal.PaypalPay3x;
-import com.site0.walnut.ext.net.payment.weixin.WxJsApiPay3x;
-import com.site0.walnut.ext.net.payment.weixin.WxQrcodePay3x;
-import com.site0.walnut.ext.net.payment.weixin.WxScanPay3x;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnRun;
 
@@ -44,9 +41,9 @@ public class WnPayment {
 
     public WnPayment() {
         _3xes = new HashMap<>();
-        _3xes.put(WnPayType.WX_JSAPI, new WxJsApiPay3x());
-        _3xes.put(WnPayType.WX_QRCODE, new WxQrcodePay3x());
-        _3xes.put(WnPayType.WX_SCAN, new WxScanPay3x());
+        // _3xes.put(WnPayType.WX_JSAPI, new WxJsApiPay3x());
+        // _3xes.put(WnPayType.WX_QRCODE, new WxQrcodePay3x());
+        // _3xes.put(WnPayType.WX_SCAN, new WxScanPay3x());
         _3xes.put(WnPayType.ZFB_QRCODE, new ZfbQrcodePay3x());
         _3xes.put(WnPayType.ZFB_SCAN, new ZfbScanPay3x());
         _3xes.put(WnPayType.PAYPAL, new PaypalPay3x());
@@ -279,7 +276,7 @@ public class WnPayment {
         }
 
         // 关键元数据
-        NutMap m2 = Lang.obj2map(wpi, NutMap.class);
+        NutMap m2 = Wlang.obj2nutmap(wpi);
         m2.remove("meta");
         meta.putAll(m2);
 

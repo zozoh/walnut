@@ -1,7 +1,7 @@
 package com.site0.walnut.ext.net.mailx.hdl;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -117,7 +117,7 @@ public class mailx_set extends MailxFilter {
         // 准备映射
         String mapping = params.getString("mapping");
         if (!Strings.isBlank(mapping)) {
-            NutMap translate = Lang.map(mapping);
+            NutMap translate = Wlang.map(mapping);
             meta = (NutBean) Wn.explainObj(bean, translate);
         }
         // 无需映射
@@ -126,7 +126,7 @@ public class mailx_set extends MailxFilter {
         }
 
         // 转换到上下文中
-        WnSmtpMail mail = Lang.map2Object(meta, WnSmtpMail.class);
+        WnSmtpMail mail = Wlang.map2Object(meta, WnSmtpMail.class);
         fc.mail.copyFrom(mail);
     }
 

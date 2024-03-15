@@ -1,7 +1,7 @@
 package com.site0.walnut.ext.data.www.hdl;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.auth.WnAccount;
@@ -46,7 +46,7 @@ public class www_checkme implements JvmHdl {
                 if (hc.params.has("u")) {
                     String json = Cmds.getParamOrPipe(sys, hc.params, "u", true);
                     if (!Strings.isBlank(json)) {
-                        NutMap meta = Lang.map(json);
+                        NutMap meta = Wlang.map(json);
                         WnAccount u = se.getMe();
                         u = webs.getAuthApi().saveAccount(u, meta);
                         se.setMe(u);

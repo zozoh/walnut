@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
@@ -39,7 +39,7 @@ public class ti_config implements JvmHdl {
             field.put("text", text);
             fdata.add(field);
         }
-        dftDictionaries.put("BuiltInFields", Lang.map("data", fdata));
+        dftDictionaries.put("BuiltInFields", Wlang.map("data", fdata));
     }
 
     @Override

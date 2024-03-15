@@ -5,7 +5,7 @@ import java.io.Writer;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.trans.Atom;
@@ -79,7 +79,7 @@ public class AppCommandCallback implements Callback<WnBoxContext> {
                 // ----------------------------------
             }
             catch (IOException e) {
-                throw Lang.wrapThrow(e);
+                throw Wlang.wrapThrow(e);
             }
         }
         // 处理后的回调

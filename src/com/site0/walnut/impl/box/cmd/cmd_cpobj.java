@@ -2,13 +2,13 @@ package com.site0.walnut.impl.box.cmd;
 
 import java.util.List;
 
-import org.nutz.lang.Lang;
 import org.nutz.lang.util.Disks;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Cmds;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.WnObjCopying;
 import com.site0.walnut.util.ZParams;
 import org.nutz.web.WebException;
@@ -25,7 +25,7 @@ public class cmd_cpobj extends JvmExecutor {
 
         try {
             // 得到源列表
-            List<WnObj> oSrcList = Cmds.evalCandidateObjsNoEmpty(sys, Lang.array(ph_src), 0);
+            List<WnObj> oSrcList = Cmds.evalCandidateObjsNoEmpty(sys, Wlang.array(ph_src), 0);
 
             // 准备 copy 模式
             WnObjCopying woc = new WnObjCopying(sys.io);

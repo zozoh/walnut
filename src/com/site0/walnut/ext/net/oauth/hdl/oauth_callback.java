@@ -7,7 +7,7 @@ import org.brickred.socialauth.AuthProvider;
 import org.brickred.socialauth.Profile;
 import org.brickred.socialauth.SocialAuthManager;
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmHdl;
@@ -23,7 +23,7 @@ public class oauth_callback implements JvmHdl {
         WnObj tmp = sys.io.check(null, Wn.normalizeFullPath("~/.oauth/tmp/" + sys.session.getId(), sys));
         ByteArrayOutputStream ops = new ByteArrayOutputStream();
         sys.io.readAndClose(tmp, ops);
-        SocialAuthManager manager = Lang.fromBytes(ops.toByteArray(), SocialAuthManager.class);
+        SocialAuthManager manager = Wlang.fromBytes(ops.toByteArray(), SocialAuthManager.class);
         try {
             Map<String, String> params = (Map<String, String>) Json.fromJson(Map.class, sys.in.getReader());
             AuthProvider provider = manager.connect(params);

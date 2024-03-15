@@ -6,7 +6,9 @@ import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.Ws;
+
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
@@ -56,7 +58,7 @@ public class sms_send implements JvmHdl {
         // 分析消息: 从参数里读取
         String msg = null;
         if (params.vals.length > 0) {
-            msg = Lang.concat(" ", params.vals).toString();
+            msg = Ws.join(params.vals, " ").toString();
         }
         // 从管道里读取
         else if (null != sys.in) {
@@ -82,7 +84,7 @@ public class sms_send implements JvmHdl {
             }
             // 渲染消息
             String str = sys.io.readText(oTmpl);
-            NutMap map = Lang.map(msg);
+            NutMap map = Wlang.map(msg);
             msg = WnTmpl.exec(str, map, false);
         }
         // ............................................

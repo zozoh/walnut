@@ -7,7 +7,7 @@ import org.nutz.json.Json;
 import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.LoopException;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -76,7 +76,7 @@ public class cmd_dircount extends JvmExecutor {
             q.setv("tp", tp);
         }
         if (!Strings.isBlank(match)) {
-            q.setAll(Lang.map(match));
+            q.setAll(Wlang.map(match));
         }
         long childrenNum = sys.io.count(q);
         result.setv("count", childrenNum);

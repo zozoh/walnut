@@ -1,7 +1,7 @@
 package com.site0.walnut.ext.sys.websocket.hdl;
 
 import org.nutz.lang.Each;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -48,7 +48,7 @@ public class websocket_list implements JvmHdl {
         WnQuery q = new WnQuery();
 
         // 附加条件
-        NutMap map = Lang.map(hc.params.val(0));
+        NutMap map = Wlang.map(hc.params.val(0));
         if (null != map && map.size() > 0) {
             q.setAll(map);
         }
@@ -61,7 +61,7 @@ public class websocket_list implements JvmHdl {
         q.limit(Math.min(1000, hc.params.getInt("limit", 100)));
         // 排序
         if (hc.params.has("sort")) {
-            NutMap sort = Lang.map(hc.params.check("sort"));
+            NutMap sort = Wlang.map(hc.params.check("sort"));
             q.sort(sort);
         }
         // ......................................................
@@ -83,7 +83,7 @@ public class websocket_list implements JvmHdl {
 
                 // 得到 WebSocket 的 ID 列表
                 Object wsIds = o.get(WnWebSocket.KEY);
-                int wsnb = Lang.eleSize(wsIds);
+                int wsnb = Wlang.eleSize(wsIds);
                 // ..................................................
                 // 如果有 WebSocket
                 if (wsnb > 0) {
@@ -94,28 +94,26 @@ public class websocket_list implements JvmHdl {
                         log.infof("%3d) %2d wsIds : %s", objIndex, wsnb, o.path());
                     }
                     // 循环处理每个 WebSocket ID
-                    Lang.each(wsIds, new Each<String>() {
-                        public void invoke(int index, String wsId, int length) {
-                            boolean isAlive = null != WnWebSocket.get(wsId);
-                            // 计数
-                            if (isAlive) {
-                                _cc[2]++;
-                            } else {
-                                _cc[3]++;
-                            }
-                            // 打印日志
-                            if (null != log) {
-                                log.infof("     - %d.%d %5s : %s%s",
-                                          objIndex,
-                                          index,
-                                          isAlive ? "alive" : "--",
-                                          wsId,
-                                          isAlive ? "" : " --> should be removed");
-                            }
-                            // 移除
-                            if (!isAlive && isClean) {
-                                sys.io.pull(o.id(), WnWebSocket.KEY, wsId, false);
-                            }
+                    Wlang.each(wsIds, (int index, String wsId, Object src) -> {
+                        boolean isAlive = null != WnWebSocket.get(wsId);
+                        // 计数
+                        if (isAlive) {
+                            _cc[2]++;
+                        } else {
+                            _cc[3]++;
+                        }
+                        // 打印日志
+                        if (null != log) {
+                            log.infof("     - %d.%d %5s : %s%s",
+                                      objIndex,
+                                      index,
+                                      isAlive ? "alive" : "--",
+                                      wsId,
+                                      isAlive ? "" : " --> should be removed");
+                        }
+                        // 移除
+                        if (!isAlive && isClean) {
+                            sys.io.pull(o.id(), WnWebSocket.KEY, wsId, false);
                         }
                     });
                 }

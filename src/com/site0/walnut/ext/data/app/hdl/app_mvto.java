@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
@@ -65,7 +65,7 @@ public class app_mvto implements JvmHdl {
         }
 
         // 输出对象
-        NutMap reMap = Lang.map("base", base).setv("filter", filter);
+        NutMap reMap = Wlang.map("base", base).setv("filter", filter);
         sys.out.println(Json.toJson(reMap, hc.jfmt));
     }
 

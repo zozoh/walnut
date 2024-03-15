@@ -5,7 +5,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 
 public class AppRespOpsWrapper extends OutputStream {
 
@@ -40,7 +40,7 @@ public class AppRespOpsWrapper extends OutputStream {
      *            字符串缓冲
      */
     public void addStringWatcher(StringBuilder sb) {
-        addWatcher(Lang.ops(sb));
+        addWatcher(Wlang.ops(sb));
     }
 
     public void addWatcher(OutputStream wo) {

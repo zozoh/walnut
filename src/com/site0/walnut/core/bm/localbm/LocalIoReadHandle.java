@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.core.bm.WnIoReadHandle;
@@ -26,7 +26,7 @@ public class LocalIoReadHandle extends WnIoReadHandle {
         if (null != o && null == ins) {
             // 虚桶
             if (Wn.Io.isEmptySha1(o.sha1())) {
-                ins = Lang.ins("");
+                ins = Wlang.ins("");
             }
             // 获取文件
             else {

@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.auth.WnAccount;
@@ -15,6 +14,7 @@ import com.site0.walnut.api.err.Er;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Cmds;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.ZParams;
 import org.nutz.web.WebException;
 
@@ -89,7 +89,7 @@ public class cmd_grp extends JvmExecutor {
             }
             // 输出成表格
             else {
-                String[] keys = Lang.array("unm", "roleName", "role");
+                String[] keys = Wlang.array("unm", "roleName", "role");
                 params.setv("t", Strings.join(",", keys));
 
                 List<NutMap> outs = new ArrayList<NutMap>(list.size());
@@ -122,7 +122,7 @@ public class cmd_grp extends JvmExecutor {
             }
             // 输出成表格
             else {
-                String[] keys = Lang.array("grp", "roleName", "role");
+                String[] keys = Wlang.array("grp", "roleName", "role");
                 params.setv("t", Strings.join(",", keys));
 
                 List<NutMap> outs = new ArrayList<NutMap>(list.size());

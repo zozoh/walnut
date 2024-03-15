@@ -7,13 +7,13 @@ import java.util.TimeZone;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
-import org.nutz.lang.Lang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
+
 import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.auth.WnAuthService;
 import com.site0.walnut.api.auth.WnAuthSession;
@@ -532,7 +532,7 @@ public class WnContext extends NutMap {
         if (null != cookies)
             for (Cookie co : cookies) {
                 String cknm = co.getName();
-                if (Lang.contains(cookieNames, cknm)) {
+                if (Wlang.contains(cookieNames, cknm)) {
                     if (Wn.AT_SEID.equals(cknm)) {
                         this.ticket = co.getValue();
                     } else {

@@ -1,6 +1,6 @@
 package com.site0.walnut.ext.data.titanium.hdl;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import com.site0.walnut.api.io.WnObj;
@@ -68,7 +68,7 @@ public class ti_www implements JvmHdl {
         // .......................................
         // 准备服务类
         WnWebsiteTranslating wwt = new WnWebsiteTranslating(sys, oSrc, oWWW);
-        wwt.setVars(Lang.map(wnmlSetting));
+        wwt.setVars(Wlang.map(wnmlSetting));
 
         // .........................................
         // 准备过滤器

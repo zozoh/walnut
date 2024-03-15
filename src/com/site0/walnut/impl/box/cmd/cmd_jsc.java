@@ -5,7 +5,7 @@ import java.util.Arrays;
 import javax.script.ScriptEngineFactory;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
@@ -51,7 +51,7 @@ public class cmd_jsc extends JvmExecutor {
                                  ef.getEngineVersion(),
                                  ef.getLanguageName(),
                                  ef.getLanguageVersion(),
-                                 Lang.concat(",", ef.getNames()));
+                                 Wlang.concat(",", ef.getNames()));
             }
             return;
         }
@@ -69,7 +69,7 @@ public class cmd_jsc extends JvmExecutor {
             if ("~pipe".equals(vstr) || "true".equals(vstr)) {
                 vstr = sys.in.readAll();
             }
-            vars = Lang.map(vstr);
+            vars = Wlang.map(vstr);
         }
         // 预防null
         if (vars == null) {

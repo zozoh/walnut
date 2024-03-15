@@ -1,11 +1,11 @@
 package com.site0.walnut.impl.box.cmd;
 
 import java.io.InputStream;
-import org.nutz.lang.Lang;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.Wsum;
 import com.site0.walnut.util.ZParams;
 
 public abstract class cmd_xxxsum extends JvmExecutor {
@@ -60,10 +60,10 @@ public abstract class cmd_xxxsum extends JvmExecutor {
     }
 
     protected String sum(CharSequence cs) {
-        return Lang.digest(algorithm, cs);
+        return Wsum.digestAsString(algorithm, cs.toString());
     }
 
     protected String sum(InputStream ins) {
-        return Lang.digest(algorithm, ins);
+        return Wsum.digestAsString(algorithm, ins);
     }
 }

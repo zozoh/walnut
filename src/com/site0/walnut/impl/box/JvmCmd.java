@@ -1,6 +1,6 @@
 package com.site0.walnut.impl.box;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Cmds;
 
 class JvmCmd {
@@ -21,7 +21,7 @@ class JvmCmd {
 
         // 不可能
         if (null == ss || ss.length == 0) {
-            throw Lang.impossible();
+            throw Wlang.impossible();
         }
 
         // 记录命令名称

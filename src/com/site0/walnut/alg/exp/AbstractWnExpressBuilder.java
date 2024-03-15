@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 
 /**
  * 封装一个简单表达式的实现
@@ -58,7 +58,7 @@ public abstract class AbstractWnExpressBuilder {
                 char op = c;
                 int pri = opTable.getPriority(op);
                 if (pri < 0) {
-                    throw Lang.makeThrow("Invalid operator '%s'", token);
+                    throw Wlang.makeThrow("Invalid operator '%s'", token);
                 }
                 WnExpOperator ope = this.createOperator(token, op, pri);
                 items.add(ope);

@@ -1,7 +1,7 @@
 package com.site0.walnut.ext.data.pvg;
 
 import java.util.Arrays;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.impl.box.JvmHdlContext;
@@ -30,7 +30,7 @@ public class cmd_pvg extends JvmHdlExecutor {
         else if (null != this.getHdl(hc.args[0])) {
             hc.hdlName = hc.args[0];
             String matrixJson = sys.in.readAll();
-            NutMap matrix = Lang.map(matrixJson);
+            NutMap matrix = Wlang.map(matrixJson);
             setPvgService(hc, matrix);
             pos = 1;
         }

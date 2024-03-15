@@ -2,7 +2,7 @@ package com.site0.walnut.ext.data.esi;
 
 import java.io.ByteArrayOutputStream;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.hook.WnHookBreak;
 import com.site0.walnut.api.hook.WnHookContext;
@@ -48,7 +48,7 @@ public class EsiHook extends AbstractWnHook {
         NutMap conf = wobj.getAs("esi_conf", NutMap.class);
         if (conf != null && wobj.getBoolean("esi_enable", true)) {
             if (!conf.getBoolean("recu") || origin.parentId().equals(wobj.id())) {
-                return Lang.map2Object(conf, EsiConf.class);
+                return Wlang.map2Object(conf, EsiConf.class);
             }
         }
         wobj = wobj.parent();

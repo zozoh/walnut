@@ -1,7 +1,7 @@
 package com.site0.walnut.ext.data.o.hdl;
 
 import java.util.List;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
@@ -27,7 +27,7 @@ public class o_query extends OFilter {
         // 设置了条件
         if (params.vals.length > 0) {
             for (String val : params.vals) {
-                NutMap map = Lang.map(val);
+                NutMap map = Wlang.map(val);
                 q.add(map);
             }
         }
@@ -60,7 +60,7 @@ public class o_query extends OFilter {
             oP = fc.list.get(0);
         }
         if (null != oP) {
-            NutMap map = Lang.map("pid", oP.id());
+            NutMap map = Wlang.map("pid", oP.id());
             q.setAllToList(map);
         }
 

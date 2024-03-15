@@ -7,7 +7,7 @@ import java.io.Writer;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 
@@ -33,7 +33,7 @@ public class Comet {
             // log.debugf("Comet-Send By XHR : [%s]", respTxt);
             wr.write(data);
             wr.flush();
-            Lang.quiteSleep(1 * sleepTime);
+            Wlang.quiteSleep(1 * sleepTime);
         }
         catch (IOException e) {
             log.warn("Comet-Send Has Stoped");

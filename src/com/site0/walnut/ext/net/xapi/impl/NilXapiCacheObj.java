@@ -10,7 +10,7 @@ import java.io.UnsupportedEncodingException;
 import org.nutz.castor.Castors;
 import org.nutz.json.Json;
 import org.nutz.lang.Encoding;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.LinkedByteBuffer;
 import com.site0.walnut.cheap.dom.CheapDocument;
@@ -134,7 +134,7 @@ public class NilXapiCacheObj implements XApiCacheObj {
             return r;
         }
         catch (UnsupportedEncodingException e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
     }
 
@@ -149,7 +149,7 @@ public class NilXapiCacheObj implements XApiCacheObj {
             return bytes.toArray();
         }
         catch (IOException e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
     }
 

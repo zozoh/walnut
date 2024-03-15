@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 import org.nutz.img.Colors;
 import org.nutz.img.Images;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
@@ -137,7 +137,7 @@ public class cmd_chimg extends cmd_image {
             Images.writeAndClose(outImg, outObj.type(), sys.io.getOutputStream(outObj, 0));
             // 修改元数据
             sys.io.appendMeta(outObj,
-                              Lang.mapf("width:%d,height:%d",
+                              Wlang.mapf("width:%d,height:%d",
                                         outImg.getWidth(),
                                         outImg.getHeight()));
         }

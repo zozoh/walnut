@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.mvc.View;
@@ -118,7 +118,7 @@ public class GuestModule extends AbstractWnModule {
             qr.writeTo(ops, fmt);
         }
         catch (Exception e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
         finally {
             Streams.safeClose(ops);
@@ -161,7 +161,7 @@ public class GuestModule extends AbstractWnModule {
             w.write(data);
         }
         catch (Exception e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
         finally {
             Streams.safeClose(w);

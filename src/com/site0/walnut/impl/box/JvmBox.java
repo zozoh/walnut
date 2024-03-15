@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.nutz.lang.Encoding;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
@@ -112,7 +112,7 @@ public class JvmBox implements WnBox {
         Streams.safeClose(err);
 
         // 让渡一下CPU控制权
-        Lang.sleep(1);
+        Wlang.sleep(1);
 
     }
 

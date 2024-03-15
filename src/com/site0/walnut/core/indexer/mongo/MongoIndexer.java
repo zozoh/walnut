@@ -11,7 +11,7 @@ import org.bson.Document;
 import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -30,7 +30,6 @@ import com.site0.walnut.api.io.agg.WnAggTransMode;
 import com.site0.walnut.api.io.agg.WnAggregateKey;
 import com.site0.walnut.core.bean.WnIoObj;
 import com.site0.walnut.core.indexer.AbstractIoDataIndexer;
-import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 import com.site0.walnut.util.Wtime;
@@ -111,7 +110,7 @@ public class MongoIndexer extends AbstractIoDataIndexer {
                 NutMap dsCovert = new NutMap();
                 dsCovert.put("format", "%Y-%m-%d");
                 dsCovert.put("date", dscDate);
-                NutMap gkVal = Lang.map("$dateToString", dsCovert);
+                NutMap gkVal = Wlang.map("$dateToString", dsCovert);
                 project.put(gkFrom, gkVal);
             }
             // 普通字段

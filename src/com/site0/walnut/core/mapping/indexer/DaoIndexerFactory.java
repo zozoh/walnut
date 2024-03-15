@@ -3,7 +3,7 @@ package com.site0.walnut.core.mapping.indexer;
 import java.util.Map;
 
 import org.nutz.ioc.Ioc;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.auth.WnAuthService;
@@ -93,7 +93,7 @@ public class DaoIndexerFactory implements WnIndexerFactory {
                 WnDaoMappingConfig conf = WnDaos.loadConfig(WnDaoMappingConfig.class,
                                                      io,
                                                      o,
-                                                     Lang.map("HOME", homePath));
+                                                     Wlang.map("HOME", homePath));
                 return new DaoIndexer(oHome, mimes, conf);
             }
         }

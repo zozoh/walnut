@@ -1,6 +1,6 @@
 package com.site0.walnut.ext.data.www;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
@@ -37,7 +37,7 @@ public class cmd_wnml extends JvmExecutor {
                 json = sys.io.readText(oJson);
             }
             // 解析并放入上下文
-            context = Lang.map(json);
+            context = Wlang.map(json);
         }
         // 建立一个空白的上下文
         else {

@@ -9,7 +9,7 @@ import java.util.Map;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocketFactory;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.stream.StringInputStream;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -78,7 +78,7 @@ public class HttpContext {
             return new HttpPostConnector(this);
         }
 
-        throw Lang.impossible();
+        throw Wlang.impossible();
     }
 
     public boolean isAUTO() {

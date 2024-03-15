@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.WnExecutable;
 import com.site0.walnut.api.WnOutputable;
@@ -287,7 +287,7 @@ public class WnThingService {
         tq.autoObj = true;
         tq.wp = new WnPager();
         tq.wp.limit = 1;
-        tq.qStr = Json.toJson(Lang.map("th_nm", th_nm));
+        tq.qStr = Json.toJson(Wlang.map("th_nm", th_nm));
         List<WnObj> list = this.queryList(tq);
         return null != list && list.size() > 0 ? list.get(0) : null;
     }
@@ -409,7 +409,7 @@ public class WnThingService {
                                    Object match,
                                    boolean hard,
                                    String... ids) {
-        DeleteThingAction a = _A(new DeleteThingAction()).setHard(hard).setIds(Lang.list(ids));
+        DeleteThingAction a = _A(new DeleteThingAction()).setHard(hard).setIds(Wlang.list(ids));
         a.setConf(this.checkConf());
         a.setExecutor(executor);
         a.setMatch(match);

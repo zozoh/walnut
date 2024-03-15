@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.bson.Document;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.api.err.Er;
 
 import com.mongodb.client.MongoCollection;
@@ -34,7 +34,7 @@ public class ZMoDB {
      */
     public ZMoCo c(String name) {
         if (!cExists(name))
-            throw Lang.makeThrow("Colection noexitst: %s.%s", db.getName(), name);
+            throw Wlang.makeThrow("Colection noexitst: %s.%s", db.getName(), name);
         try {
             return new ZMoCo(db.getCollection(name));
         }
@@ -94,7 +94,7 @@ public class ZMoDB {
      */
     public ZMoCo createCollection(String name, CreateCollectionOptions options) {
         if (cExists(name)) {
-            throw Lang.makeThrow("Colection exitst: %s.%s", db.getName(), name);
+            throw Wlang.makeThrow("Colection exitst: %s.%s", db.getName(), name);
         }
 
         // 创建默认配置信息

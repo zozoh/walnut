@@ -17,7 +17,7 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Each;
 import org.nutz.lang.Encoding;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
@@ -147,10 +147,10 @@ public class WnIoImpl2 implements WnIo {
                 }
             }
             catch (IOException e) {
-                throw Lang.wrapThrow(e);
+                throw Wlang.wrapThrow(e);
             }
             catch (WnIoHandleMutexException e) {
-                throw Lang.wrapThrow(e);
+                throw Wlang.wrapThrow(e);
             }
             // 确保关闭
             finally {
@@ -204,47 +204,47 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public String open(WnObj o, int mode) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj flush(String hid) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj close(String hid) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public int read(String hid, byte[] bs, int off, int len) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public void write(String hid, byte[] bs, int off, int len) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public int read(String hid, byte[] bs) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public void write(String hid, byte[] bs) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public void seek(String hid, long pos) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public long getPos(String hid) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     // 考虑到 copyData 操作除了涉及 BM 也涉及到 indexer，所以主要操作逻辑放到 mapping 层比较合适
@@ -420,7 +420,7 @@ public class WnIoImpl2 implements WnIo {
             // - 通配符 "*" 会在 WnQuery 转成真正查询条件时，正则表达式化
             if (nm.startsWith("^") || nm.contains("*")) {
                 WnQuery q = Wn.Q.pid(p).setv("nm", nm).limit(1);
-                nd = Lang.first(this.query(q));
+                nd = Wlang.first(this.query(q));
             }
             // 找子节点，找不到，就返回 null
             else {
@@ -471,7 +471,7 @@ public class WnIoImpl2 implements WnIo {
         // 目标是通配符或正则表达式
         if (nm.startsWith("^") || nm.contains("*")) {
             WnQuery q = Wn.Q.pid(p).setv("nm", nm).limit(1);
-            nd = Lang.first(this.query(q));
+            nd = Wlang.first(this.query(q));
         }
         // 仅仅是普通名称
         else {
@@ -647,13 +647,13 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public WnObj setBy(String id, String key, Object val, boolean returnNew) {
-        NutMap map = Lang.map(key, val);
+        NutMap map = Wlang.map(key, val);
         return this.setBy(id, map, returnNew);
     }
 
     @Override
     public WnObj setBy(WnQuery q, String key, Object val, boolean returnNew) {
-        return this.setBy(q, Lang.map(key, val), returnNew);
+        return this.setBy(q, Wlang.map(key, val), returnNew);
     }
 
     @Override
@@ -1528,7 +1528,7 @@ public class WnIoImpl2 implements WnIo {
             ops.write(b);
         }
         catch (IOException e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
         finally {
             Streams.safeClose(ops);
@@ -1545,7 +1545,7 @@ public class WnIoImpl2 implements WnIo {
             ops.write(b);
         }
         catch (IOException e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
         finally {
             Streams.safeClose(ops);

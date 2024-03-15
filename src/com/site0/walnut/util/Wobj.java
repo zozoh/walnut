@@ -7,14 +7,14 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
-import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
+
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
+import com.site0.walnut.util.tmpl.WnTmpl;
 import com.site0.walnut.util.validate.WnMatch;
 import com.site0.walnut.util.validate.impl.AlwaysMatch;
 import com.site0.walnut.util.validate.impl.AutoStrMatch;
@@ -318,7 +318,7 @@ public class Wobj {
 
     public static String evalName(String name, String id) {
         name = Strings.sBlank(name, "${id}");
-        return WnTmpl.exec(name, Lang.map("id", id));
+        return WnTmpl.exec(name, Wlang.map("id", id));
     }
 
     public static boolean isValidName(String name) {

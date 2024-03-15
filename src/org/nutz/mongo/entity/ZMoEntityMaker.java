@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.born.ArrayBorning;
@@ -82,7 +82,7 @@ public class ZMoEntityMaker {
         Mirror<?> mi = Mirror.me(pojoType);
         // 保证给的是个 POJO 类型
         if (!mi.isPojo()) {
-            throw Lang.makeThrow("!! %s is NOT a kind of POJO", pojoType);
+            throw Wlang.makeThrow("!! %s is NOT a kind of POJO", pojoType);
         }
         // 开始创建实体
         ZMoEntity en = new ZMoEntity().forPojo();
@@ -135,7 +135,7 @@ public class ZMoEntityMaker {
                 // 获得元素类型
                 mof.setEleType(Mirror.getGenericTypes(fld, 0));
                 if (null == mof.getEleType()) {
-                    throw Lang.makeThrow("can not fould eleType for fld %s of %s",
+                    throw Wlang.makeThrow("can not fould eleType for fld %s of %s",
                                          fld.getName(),
                                          mi.getType());
                 }
@@ -156,7 +156,7 @@ public class ZMoEntityMaker {
                 }
                 // 其他类型，抛错
                 else {
-                    throw Lang.makeThrow("can not found borning for %s", fmi.getType());
+                    throw Wlang.makeThrow("can not found borning for %s", fmi.getType());
                 }
 
             }
@@ -191,7 +191,7 @@ public class ZMoEntityMaker {
                 mi = Mirror.me(Class.forName(map.get("_class").toString()));
             }
             catch (ClassNotFoundException e) {
-                throw Lang.wrapThrow(e);
+                throw Wlang.wrapThrow(e);
             }
         }
 

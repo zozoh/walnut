@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Streams;
 import org.nutz.lang.born.Borning;
@@ -113,7 +113,7 @@ public class WnSheetService {
                     ((AbstractPoiSheetHandler) sh).setTmpl(io.getInputStream(tmp, 0));
                 }
                 catch (IOException e) {
-                    throw Lang.wrapThrow(e);
+                    throw Wlang.wrapThrow(e);
                 }
             }
             // 有图片的话,处理一下

@@ -21,9 +21,8 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.nutz.json.Json;
 import org.nutz.lang.ContinueLoop;
-import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.LoopException;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -33,6 +32,7 @@ import com.site0.walnut.impl.box.JvmHdlContext;
 import com.site0.walnut.impl.box.JvmHdlParamArgs;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.WnPager;
+import com.site0.walnut.util.each.WnEachIteratee;
 
 @JvmHdlParamArgs(value = "cnqihbslVNHQ", regex = "^(pager|content|obj|match_all|debug|rawresp)$")
 public class esi_query extends esi_xxx {
@@ -113,7 +113,7 @@ public class esi_query extends esi_xxx {
                 }
                 return bool;
             } else {
-                NutMap map = Lang.map(match);
+                NutMap map = Wlang.map(match);
                 return toQueryBuilder(conf, map);
             }
         }
@@ -135,7 +135,7 @@ public class esi_query extends esi_xxx {
         // 是不是日期呢?
         if (conf.getMapping().containsKey(key)) {
             if ("date".equals(conf.getMapping().get(key).type)) {
-                if (Lang.eleSize(value) > 1) {
+                if (Wlang.eleSize(value) > 1) {
                     List<Object> list = (List<Object>) value;
                     return new RangeQueryBuilder(key).from(list.get(0)).to(list.get(1));
                 } else {
@@ -154,29 +154,29 @@ public class esi_query extends esi_xxx {
         } else if (value instanceof Boolean) {
             return new MatchQueryBuilder(key, value);
         } else if (value.getClass().isArray() || value instanceof List) {
-            int len = Lang.eleSize(value);
+            int len = Wlang.eleSize(value);
             if (len == 0) {
                 return new MatchQueryBuilder(key, null); // NULL?
             }
             if (len == 1) {
-                return toQueryBuilder(conf, key, Lang.first(value));
+                return toQueryBuilder(conf, key, Wlang.firstInAny(value));
             }
             BoolQueryBuilder bool = new BoolQueryBuilder();
-            Lang.each(value, new Each<Object>() {
-                public void invoke(int index, Object ele, int length)
+            Wlang.each(value, new WnEachIteratee<Object>() {
+                public void invoke(int index, Object ele, Object src)
                         throws ExitLoop, ContinueLoop, LoopException {
                     bool.should(toQueryBuilder(conf, key, ele));
                 }
             });
             return bool;
         }
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     public static void setupQuery(SearchSourceBuilder builder, String sort, WnPager pager) {
         // 排序
         if (!Strings.isBlank(sort)) {
-            NutMap _s = Lang.map(sort);
+            NutMap _s = Wlang.map(sort);
             for (Map.Entry<String, Object> en : _s.entrySet()) {
                 if ("1".equals(String.valueOf(en.getValue()))) {
                     builder.sort(en.getKey(), SortOrder.ASC);

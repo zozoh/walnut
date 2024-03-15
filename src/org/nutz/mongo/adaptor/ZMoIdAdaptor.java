@@ -1,7 +1,7 @@
 package org.nutz.mongo.adaptor;
 
 import org.bson.types.ObjectId;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
 import org.nutz.mongo.ZMoAdaptor;
 import org.nutz.mongo.entity.ZMoField;
@@ -24,7 +24,7 @@ public class ZMoIdAdaptor implements ZMoAdaptor {
             }
             return obj.toString();
         }
-        throw Lang.makeThrow("should be ObjectId");
+        throw Wlang.makeThrow("should be ObjectId");
     }
 
     @Override

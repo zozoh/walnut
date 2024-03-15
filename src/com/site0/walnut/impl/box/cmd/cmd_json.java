@@ -9,7 +9,7 @@ import java.util.Map;
 import org.nutz.castor.Castors;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.MapKeyConvertor;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
@@ -65,7 +65,7 @@ public class cmd_json extends JvmExecutor {
             obj = json;
             break;
         case "Boolean":
-            obj = Lang.parseBoolean(json);
+            obj = Boolean.parseBoolean(json);
             break;
         case "Object":
         default:
@@ -85,7 +85,7 @@ public class cmd_json extends JvmExecutor {
             // 如果对象是个集合或者数组
             if (obj.getClass().isArray() || obj instanceof Collection<?>) {
                 List<Object> list = new LinkedList<>();
-                Lang.each(obj, (index, ele, len) -> {
+                Wlang.each(obj, (index, ele, len) -> {
                     Object val = Mapl.cell(ele, valKey);
                     list.add(val);
                 });
@@ -137,7 +137,7 @@ public class cmd_json extends JvmExecutor {
         // ----------------------------------------------
         // 映射字段的值
         if (params.has("mapping")) {
-            NutMap mapping = Lang.map(params.get("mapping"));
+            NutMap mapping = Wlang.map(params.get("mapping"));
             boolean is_mapping_only = params.is("mapping_only");
             obj = __do_mapping(obj, mapping, is_mapping_only);
         }
@@ -157,7 +157,7 @@ public class cmd_json extends JvmExecutor {
             }
 
             // 执行修改
-            Lang.convertMapKey(obj, new MapKeyConvertor() {
+            Wlang.convertMapKey(obj, new MapKeyConvertor() {
                 public String convertKey(String key) {
                     // 所有
                     if (null == C.pKey)
@@ -175,7 +175,7 @@ public class cmd_json extends JvmExecutor {
         // ----------------------------------------------
         // 修改模式
         if (params.has("u")) {
-            NutMap map = Lang.map(params.get("u"));
+            NutMap map = Wlang.map(params.get("u"));
             if (null == obj) {
                 obj = map;
             }
@@ -189,7 +189,7 @@ public class cmd_json extends JvmExecutor {
         // ----------------------------------------------
         // 修改模式（默认值模式）
         if (params.has("a")) {
-            NutMap map = Lang.map(params.get("a"));
+            NutMap map = Wlang.map(params.get("a"));
             if (null == obj) {
                 obj = map;
             }
@@ -203,7 +203,7 @@ public class cmd_json extends JvmExecutor {
         // ----------------------------------------------
         // 添加模式
         if (params.has("put")) {
-            obj = Lang.map(params.get("put"), obj);
+            obj = Wlang.map(params.get("put"), obj);
         }
         // ----------------------------------------------
         // 获取对象键值列表

@@ -17,13 +17,13 @@ import org.apache.sshd.common.util.io.LimitInputStream;
 import org.nutz.http.Http;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.RawView.RangeRange;
 import org.nutz.mvc.view.RawView2;
+
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
@@ -302,7 +302,7 @@ public class WnHttpResponseWriter {
     }
 
     public void prepare(String content) {
-        this.prepare(content, Lang.sha1(content));
+        this.prepare(content, Wlang.sha1(content));
     }
 
     public void prepare(InputStream ins, int len) throws IOException {
@@ -469,6 +469,6 @@ public class WnHttpResponseWriter {
     }
 
     public WnHttpResponseWriter(String headers_str) {
-        this.headers = Strings.isBlank(headers_str) ? new NutMap() : Lang.map(headers_str);
+        this.headers = Strings.isBlank(headers_str) ? new NutMap() : Wlang.map(headers_str);
     }
 }

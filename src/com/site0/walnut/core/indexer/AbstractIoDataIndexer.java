@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.nutz.lang.Each;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
@@ -132,7 +132,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
             // - 通配符 "*" 会在 WnQuery 转成真正查询条件时，正则表达式化
             if (nm.startsWith("^") || nm.contains("*")) {
                 WnQuery q = Wn.Q.pid(p).setv("nm", nm).limit(1);
-                nd = Lang.first(this.query(q));
+                nd = Wlang.first(this.query(q));
             }
             // 找子节点，找不到，就返回 null
             else {
@@ -177,7 +177,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         // 目标是通配符或正则表达式
         if (nm.startsWith("^") || nm.contains("*")) {
             WnQuery q = Wn.Q.pid(p).setv("nm", nm).limit(1);
-            nd = Lang.first(this.query(q));
+            nd = Wlang.first(this.query(q));
         }
         // 仅仅是普通名称
         else {
@@ -698,7 +698,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         if (src.isDIR()) {
             final String d0 = src.d0();
             final String d1 = src.d1();
-            if (!Lang.equals(d0, old_d0) || !Lang.equals(d1, old_d1)) {
+            if (!Wlang.isEqual(d0, old_d0) || !Wlang.isEqual(d1, old_d1)) {
                 this.walk(src, new Callback<WnObj>() {
                     public void invoke(WnObj obj) {
                         obj.d0(d0).d1(d1);

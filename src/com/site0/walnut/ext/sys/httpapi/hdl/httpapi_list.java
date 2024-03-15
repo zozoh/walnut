@@ -1,6 +1,6 @@
 package com.site0.walnut.ext.sys.httpapi.hdl;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Nums;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
@@ -26,7 +26,7 @@ public class httpapi_list implements JvmHdl {
                 tt.setShowBorder(true);
                 // tt.setCellSpacing(2);
 
-                tt.addRow(Lang.array("M", "ContentType", "Path", "Return", "Params"));
+                tt.addRow(Wlang.array("M", "ContentType", "Path", "Return", "Params"));
                 tt.addHr();
 
                 // 依次循环 api 并输出
@@ -55,7 +55,7 @@ public class httpapi_list implements JvmHdl {
                                                                                                      "text/html");
 
                         // 输出
-                        tt.addRow(Lang.array(method, contentType, rph, reType, paKeys));
+                        tt.addRow(Wlang.array(method, contentType, rph, reType, paKeys));
 
                         // 计数
                         re[0]++;

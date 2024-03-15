@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.nutz.json.Json;
 import org.nutz.lang.Each;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnIoIndexer;
 import com.site0.walnut.api.io.WnObj;
@@ -208,27 +208,27 @@ public abstract class AbstractWnIoIndexerTest extends IoCoreTest {
         WnObj c = indexer.create(null, "/c.txt", WnRace.FILE);
 
         // 设置条件
-        indexer.setBy(a.id(), Lang.map("age:10, weight:10"), false);
-        indexer.setBy(b.id(), Lang.map("age:12, weight:14"), false);
-        indexer.setBy(c.id(), Lang.map("age:12, weight:10"), false);
+        indexer.setBy(a.id(), Wlang.map("age:10, weight:10"), false);
+        indexer.setBy(b.id(), Wlang.map("age:12, weight:14"), false);
+        indexer.setBy(c.id(), Wlang.map("age:12, weight:10"), false);
 
         // 修改的字段
         // 修改一个，没条件应该是 null
-        WnObj o = indexer.setBy(Wn.Q.map("{}"), Lang.map("realname:'xiaobai', nb:24"), false);
+        WnObj o = indexer.setBy(Wn.Q.map("{}"), Wlang.map("realname:'xiaobai', nb:24"), false);
         assertNull(o);
 
         // 修改 "{age:12}" 的，只有一个修改了
-        o = indexer.setBy(Wn.Q.map("{age:12}"), Lang.map("realname:'xiaobai', nb:24"), false);
+        o = indexer.setBy(Wn.Q.map("{age:12}"), Wlang.map("realname:'xiaobai', nb:24"), false);
         assertTrue(b.isSameId(o) || c.isSameId(o));
         assertEquals("xiaobai", indexer.getString(o.id(), "realname", null));
         assertEquals(24, indexer.getInt(o.id(), "nb", 0));
 
         // 修改 "{age:12, weight:11}" 的返回 null
-        o = indexer.setBy(Wn.Q.map("{age:12, weight:11}"), Lang.map("brief:'AAA', x:3001"), false);
+        o = indexer.setBy(Wn.Q.map("{age:12, weight:11}"), Wlang.map("brief:'AAA', x:3001"), false);
         assertNull(o);
 
         // 修改 "{age:12 weight:14}" 的返回只有一个被修改了
-        o = indexer.setBy(Wn.Q.map("{age:12, weight:14}"), Lang.map("brief:'AAA', x:3001"), true);
+        o = indexer.setBy(Wn.Q.map("{age:12, weight:14}"), Wlang.map("brief:'AAA', x:3001"), true);
         assertTrue(b.isSameId(o));
         assertEquals("AAA", indexer.getString(o.id(), "brief", null));
         assertEquals(3001, indexer.getInt(o.id(), "x", 0));
@@ -243,7 +243,7 @@ public abstract class AbstractWnIoIndexerTest extends IoCoreTest {
     public void test_03() {
         WnObj a = indexer.create(null, "/a.txt", WnRace.FILE);
 
-        WnObj a1 = indexer.setBy(a.id(), Lang.map("x:100,y:80"), false);
+        WnObj a1 = indexer.setBy(a.id(), Wlang.map("x:100,y:80"), false);
         assertEquals(a.id(), a1.id());
         assertEquals(-1, a1.getInt("x"));
         assertEquals(-1, a1.getInt("y"));
@@ -277,16 +277,16 @@ public abstract class AbstractWnIoIndexerTest extends IoCoreTest {
     @Test
     public void test_05() {
         WnObj a = indexer.create(null, "/HT/a", WnRace.FILE);
-        indexer.setBy(a.id(), Lang.map("x:100"), false);
+        indexer.setBy(a.id(), Wlang.map("x:100"), false);
         WnObj b = indexer.create(null, "/HT/b", WnRace.FILE);
-        indexer.setBy(b.id(), Lang.map("x:99"), false);
+        indexer.setBy(b.id(), Wlang.map("x:99"), false);
         WnObj c = indexer.create(null, "/HT/c", WnRace.FILE);
-        indexer.setBy(c.id(), Lang.map("x:98"), false);
+        indexer.setBy(c.id(), Wlang.map("x:98"), false);
 
         WnObj oHT = indexer.check(null, "/HT");
 
         WnQuery q = Wn.Q.pid(oHT);
-        q.setv("x", Lang.map("$ne:100")).asc("nm");
+        q.setv("x", Wlang.map("$ne:100")).asc("nm");
         List<WnObj> list = indexer.query(q);
         assertEquals(2, list.size());
         assertEquals(b.id(), list.get(0).id());
@@ -299,15 +299,15 @@ public abstract class AbstractWnIoIndexerTest extends IoCoreTest {
     @Test
     public void test_06() {
         WnObj a = indexer.create(null, "/HT/a", WnRace.FILE);
-        indexer.setBy(a.id(), Lang.map("alias:'aaa'"), false);
+        indexer.setBy(a.id(), Wlang.map("alias:'aaa'"), false);
         WnObj b = indexer.create(null, "/HT/b", WnRace.FILE);
-        indexer.setBy(b.id(), Lang.map("alias:null"), false);
+        indexer.setBy(b.id(), Wlang.map("alias:null"), false);
         WnObj c = indexer.create(null, "/HT/c", WnRace.FILE);
 
         WnObj oHT = indexer.check(null, "/HT");
 
         WnQuery q = Wn.Q.pid(oHT);
-        q.setv("alias", Lang.map("$ne:null"));
+        q.setv("alias", Wlang.map("$ne:null"));
         List<WnObj> list = indexer.query(q);
         assertEquals(1, list.size());
         assertEquals(a.id(), list.get(0).id());
@@ -333,14 +333,14 @@ public abstract class AbstractWnIoIndexerTest extends IoCoreTest {
         assertEquals(b.id(), list.get(0).id());
 
         q = Wn.Q.pid(oHT);
-        q.setv("alias", Lang.map("$exists:true")).asc("nm");
+        q.setv("alias", Wlang.map("$exists:true")).asc("nm");
         list = indexer.query(q);
         assertEquals(2, list.size());
         assertEquals(a.id(), list.get(0).id());
         assertEquals(b.id(), list.get(1).id());
 
         q = Wn.Q.pid(oHT);
-        q.setv("alias", Lang.map("$exists:false"));
+        q.setv("alias", Wlang.map("$exists:false"));
         list = indexer.query(q);
         assertEquals(1, list.size());
         assertEquals(c.id(), list.get(0).id());
@@ -354,7 +354,7 @@ public abstract class AbstractWnIoIndexerTest extends IoCoreTest {
         WnObj o = indexer.create(null, "/abc", WnRace.FILE);
         o.setv("x", 100);
         o.setv("y", 4000);
-        o.setv("map", Lang.map("{txt:'haha'}"));
+        o.setv("map", Wlang.map("{txt:'haha'}"));
         indexer.set(o, "^(x|y|map)$");
 
         String id = o.id();
@@ -585,11 +585,9 @@ public abstract class AbstractWnIoIndexerTest extends IoCoreTest {
         o = indexer.get(id);
         assertNotNull(o);
         assertNotNull(o.get("pets"));
-        assertEquals(3, Lang.eleSize(o.get("pets")));
-        Lang.each(o.get("pets"), new Each<Object>() {
-            public void invoke(int index, Object ele, int length) {
-                assertTrue("wendal".equals(ele) || "zozoh".equals(ele) || "pangwu".equals(ele));
-            }
+        assertEquals(3, Wlang.eleSize(o.get("pets")));
+        Wlang.each(o.get("pets"), (int index, Object ele, Object src) -> {
+            assertTrue("wendal".equals(ele) || "zozoh".equals(ele) || "pangwu".equals(ele));
         });
 
         // 减少
@@ -597,11 +595,9 @@ public abstract class AbstractWnIoIndexerTest extends IoCoreTest {
         o = indexer.get(id);
         assertNotNull(o);
         assertNotNull(o.get("pets"));
-        assertEquals(2, Lang.eleSize(o.get("pets")));
-        Lang.each(o.get("pets"), new Each<Object>() {
-            public void invoke(int index, Object ele, int length) {
-                assertTrue("wendal".equals(ele) || "pangwu".equals(ele));
-            }
+        assertEquals(2, Wlang.eleSize(o.get("pets")));
+        Wlang.each(o.get("pets"), (int index, Object ele, Object src) -> {
+            assertTrue("wendal".equals(ele) || "pangwu".equals(ele));
         });
 
         indexer.pull(id, "pets", "wendal", false);
@@ -609,7 +605,7 @@ public abstract class AbstractWnIoIndexerTest extends IoCoreTest {
 
         o = indexer.get(id);
         assertNotNull(o);
-        assertEquals(0, Lang.eleSize(o.get("pets")));
+        assertEquals(0, Wlang.eleSize(o.get("pets")));
 
     }
 
@@ -633,11 +629,9 @@ public abstract class AbstractWnIoIndexerTest extends IoCoreTest {
         o = indexer.get(id);
         assertNotNull(o);
         assertNotNull(o.get("pets"));
-        assertEquals(3, Lang.eleSize(o.get("pets")));
-        Lang.each(o.get("pets"), new Each<Object>() {
-            public void invoke(int index, Object ele, int length) {
-                assertTrue("wendal".equals(ele) || "zozoh".equals(ele) || "pangwu".equals(ele));
-            }
+        assertEquals(3, Wlang.eleSize(o.get("pets")));
+        Wlang.each(o.get("pets"), (int index, Object ele, Object src) -> {
+            assertTrue("wendal".equals(ele) || "zozoh".equals(ele) || "pangwu".equals(ele));
         });
 
         // 减少
@@ -645,11 +639,9 @@ public abstract class AbstractWnIoIndexerTest extends IoCoreTest {
         o = indexer.get(id);
         assertNotNull(o);
         assertNotNull(o.get("pets"));
-        assertEquals(2, Lang.eleSize(o.get("pets")));
-        Lang.each(o.get("pets"), new Each<Object>() {
-            public void invoke(int index, Object ele, int length) {
-                assertTrue("wendal".equals(ele) || "pangwu".equals(ele));
-            }
+        assertEquals(2, Wlang.eleSize(o.get("pets")));
+        Wlang.each(o.get("pets"), (int index, Object ele, Object src) -> {
+            assertTrue("wendal".equals(ele) || "pangwu".equals(ele));
         });
 
         indexer.pull(Wn.Q.pid(pid), "pets", "wendal");
@@ -657,7 +649,7 @@ public abstract class AbstractWnIoIndexerTest extends IoCoreTest {
 
         o = indexer.get(id);
         assertNotNull(o);
-        assertEquals(0, Lang.eleSize(o.get("pets")));
+        assertEquals(0, Wlang.eleSize(o.get("pets")));
 
     }
 

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
@@ -48,7 +48,7 @@ public class o_list extends OFilter {
         // 准备排序
         NutMap sort = params.getMap("sort");
         if (null == sort || sort.isEmpty()) {
-            sort = Lang.map("ct", -1);
+            sort = Wlang.map("ct", -1);
         }
 
         // 循环处理

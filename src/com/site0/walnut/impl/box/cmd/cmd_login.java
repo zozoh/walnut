@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Proton;
 import com.site0.walnut.api.auth.WnAccount;
@@ -147,7 +147,7 @@ public class cmd_login extends JvmExecutor {
 
         // ............................................
         // 在沙盒的上下文标记一把
-        sys.attrs().put(Wn.MACRO.CHANGE_SESSION, Lang.map("seid", newSe.getTicket()));
+        sys.attrs().put(Wn.MACRO.CHANGE_SESSION, Wlang.map("seid", newSe.getTicket()));
     }
 
 }

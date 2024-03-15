@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
@@ -177,9 +177,9 @@ public class WnSystem implements WnAuthExecutable {
                      StringBuilder stdOut,
                      StringBuilder stdErr,
                      CharSequence stdIn) {
-        InputStream ins = null == stdIn ? in.getInputStream() : Lang.ins(stdIn);
-        OutputStream out = null == stdOut ? null : Lang.ops(stdOut);
-        OutputStream err = null == stdErr ? null : Lang.ops(stdErr);
+        InputStream ins = null == stdIn ? in.getInputStream() : Wlang.ins(stdIn);
+        OutputStream out = null == stdOut ? null : Wlang.ops(stdOut);
+        OutputStream err = null == stdErr ? null : Wlang.ops(stdErr);
 
         exec(cmdText, out, err, ins);
     }

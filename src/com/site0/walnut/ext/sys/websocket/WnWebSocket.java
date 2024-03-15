@@ -23,11 +23,12 @@ import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.SimpleContext;
 import org.nutz.log.Log;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.api.auth.WnAccount;
@@ -67,7 +68,7 @@ public class WnWebSocket extends Endpoint {
         }
         peers.put(session.getId(), session);
 
-        NutMap map = Lang.map("event", "hi").setv("wsid", session.getId());
+        NutMap map = Wlang.map("event", "hi").setv("wsid", session.getId());
         String json = Json.toJson(map, JsonFormat.compact().setQuoteName(true));
 
         session.getAsyncRemote().sendText(json);
@@ -179,7 +180,7 @@ public class WnWebSocket extends Endpoint {
                 ctx.put("ok", map.getBoolean("ok", false));
                 ctx.put("args", map.get("args"));
                 ctx.put("cfile", cfile);
-                String cmd = El.render(callback, Lang.context(ctx));
+                String cmd = El.render(callback, new SimpleContext(ctx));
                 wnRun.exec("websocket", user, cmd);
                 break;
             }

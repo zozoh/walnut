@@ -6,8 +6,7 @@ import java.util.Date;
 import java.util.Map;
 
 import org.nutz.castor.Castors;
-import org.nutz.lang.Each;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
@@ -142,13 +141,11 @@ public class SheetField {
             }
             // 获取对象的一个值
             else {
-                String[] vals = new String[Lang.eleSize(val)];
-                Lang.each(val, new Each<Map<String, Object>>() {
-                    public void invoke(int index, Map<String, Object> ele, int length) {
-                        NutMap map = NutMap.WRAP(ele);
-                        Object val = Mapl.cell(map, key);
-                        vals[index] = null == val ? "--" : val.toString();
-                    }
+                String[] vals = new String[Wlang.eleSize(val)];
+                Wlang.each(val, (int index, Map<String, Object> ele, Object src) -> {
+                    NutMap map = NutMap.WRAP(ele);
+                    Object v = Mapl.cell(map, key);
+                    vals[index] = null == v ? "--" : v.toString();
                 });
                 return Strings.join(", ", vals);
             }

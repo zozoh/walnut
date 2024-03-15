@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Each;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.ext.geo.lbs.bean.LbsChina;
 import com.site0.walnut.ext.geo.lbs.bean.LbsChinaAddr;
 import com.site0.walnut.impl.box.JvmHdl;
@@ -68,10 +67,8 @@ public class lbs_cn implements JvmHdl {
         // 纯粹输出内容
         else {
             boolean noTownn = hc.params.is("notown");
-            Lang.each(re, new Each<LbsChinaAddr>() {
-                public void invoke(int index, LbsChinaAddr lca, int length) {
-                    sys.out.printlnf("%d. %s", index + 1, lca.toString(noTownn));
-                }
+            Wlang.each(re, (int index, LbsChinaAddr lca, Object src) -> {
+                sys.out.printlnf("%d. %s", index + 1, lca.toString(noTownn));
             });
         }
 

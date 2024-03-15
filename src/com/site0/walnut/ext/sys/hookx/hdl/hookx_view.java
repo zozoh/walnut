@@ -2,7 +2,7 @@ package com.site0.walnut.ext.sys.hookx.hdl;
 
 import java.util.List;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.api.hook.WnHook;
 import com.site0.walnut.api.io.WnObj;
@@ -14,7 +14,7 @@ import com.site0.walnut.util.ZParams;
 
 public class hookx_view extends HookXFilter {
 
-    private static final String[] ACTIONS = Lang.array("create",
+    private static final String[] ACTIONS = Wlang.array("create",
                                                        "delete",
                                                        "meta",
                                                        "mount",

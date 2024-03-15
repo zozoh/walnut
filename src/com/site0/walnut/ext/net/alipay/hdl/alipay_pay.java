@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
@@ -43,7 +43,7 @@ public class alipay_pay implements JvmHdl {
         // 从 pipe 读取
         if (Strings.isBlank(pay)) {
             String str = sys.in.readAll();
-            payMap = Lang.map(str);
+            payMap = Wlang.map(str);
         }
         // 直接是 JSON 字符串
         else if (Strings.isQuoteBy(pay, '{', '}')) {

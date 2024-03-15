@@ -13,7 +13,7 @@ import org.nutz.dao.entity.Entity;
 import org.nutz.dao.entity.Record;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Each;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Times;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
@@ -174,7 +174,7 @@ public class WnStatAgg extends WnStatistics {
         if (null == beans || beans.isEmpty())
             return;
         // 分析实体
-        NutBean firstBean = Lang.first(beans);
+        NutBean firstBean = Wlang.first(beans);
 
         Entity<NutBean> en = targetDao.getEntityHolder()
                                       .makeEntity(config.getTargetTableName(), firstBean);

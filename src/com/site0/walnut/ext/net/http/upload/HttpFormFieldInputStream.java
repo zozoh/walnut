@@ -3,7 +3,7 @@ package com.site0.walnut.ext.net.http.upload;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 
 public class HttpFormFieldInputStream extends InputStream {
 
@@ -15,7 +15,7 @@ public class HttpFormFieldInputStream extends InputStream {
 
     @Override
     public int read() throws IOException {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override

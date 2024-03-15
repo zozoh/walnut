@@ -7,7 +7,7 @@ import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
@@ -243,7 +243,7 @@ public class WnImapMail extends WnMail {
     public String dumpString(boolean showHeader) {
         String HR = Ws.repeat('-', 40);
         String HR2 = Ws.repeat('.', 40);
-        List<String> ss = Lang.list(String.format("%s Email", this.getType().name()));
+        List<String> ss = Wlang.list(String.format("%s Email", this.getType().name()));
         ss.add(HR);
         ss.add(String.format("[%s]%s %s",
                              number,

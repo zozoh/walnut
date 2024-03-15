@@ -4,7 +4,7 @@ import java.io.ByteArrayInputStream;
 
 import org.brickred.socialauth.SocialAuthConfig;
 import org.brickred.socialauth.SocialAuthManager;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.impl.box.JvmHdl;
@@ -28,7 +28,7 @@ public class oauth_send implements JvmHdl {
             String url = manager.getAuthenticationUrl(provider, returnTo);
             String aph = Wn.normalizeFullPath("~/.oauth/tmp/" + sys.session.getId(), sys);
             WnObj tmp = sys.io.createIfNoExists(null, aph, WnRace.FILE);
-            sys.io.writeAndClose(tmp, new ByteArrayInputStream(Lang.toBytes(manager)));
+            sys.io.writeAndClose(tmp, new ByteArrayInputStream(Wlang.toBytes(manager)));
             sys.out.print(url);
         }
         catch (Exception e) {

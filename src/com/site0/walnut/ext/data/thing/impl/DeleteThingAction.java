@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import com.site0.walnut.api.WnExecutable;
@@ -50,7 +50,7 @@ public class DeleteThingAction extends ThingAction<List<WnObj>> {
     }
 
     public DeleteThingAction setIds(String... ids) {
-        this.ids = Lang.list(ids);
+        this.ids = Wlang.list(ids);
         return this;
     }
 

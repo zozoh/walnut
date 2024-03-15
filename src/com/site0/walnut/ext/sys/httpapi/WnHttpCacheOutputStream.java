@@ -3,7 +3,7 @@ package com.site0.walnut.ext.sys.httpapi;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
@@ -54,7 +54,7 @@ public class WnHttpCacheOutputStream extends OutputStream {
         // 流关闭后，需要更新一下请求参数签名
         if (null != apc.reqQuerySign) {
             String fingerKey = apc.oApi.getString("cache-finger-key");
-            NutMap meta = Lang.map(fingerKey, apc.reqQuerySign);
+            NutMap meta = Wlang.map(fingerKey, apc.reqQuerySign);
             io.appendMeta(oCache, meta);
         }
     }

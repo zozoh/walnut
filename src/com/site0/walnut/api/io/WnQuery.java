@@ -6,10 +6,9 @@ import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
-import com.site0.walnut.util.Wlang;
 
 public class WnQuery {
 
@@ -121,7 +120,7 @@ public class WnQuery {
         if (!Strings.isBlank(tm)) {
             // 不存在
             if ("0".equals(tm)) {
-                this.setv(key, Lang.map("$exists", false));
+                this.setv(key, Wlang.map("$exists", false));
             }
             // 区间
             else {

@@ -1,7 +1,7 @@
 package com.site0.walnut.ext.data.entity.newsfeed.hdl;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.ext.data.entity.newsfeed.NewsfeedApi;
@@ -23,7 +23,7 @@ public class newsfeed_stared implements JvmHdl {
         boolean stared = hc.params.is("star", true);
 
         // 准备返回值
-        NutMap re = Lang.map("n", 0);
+        NutMap re = Wlang.map("n", 0);
 
         // 标记单个消息
         if (hc.params.vals.length > 0) {

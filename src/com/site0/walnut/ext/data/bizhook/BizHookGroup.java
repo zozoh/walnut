@@ -5,8 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.nutz.lang.Each;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.each.WnEachIteratee;
+
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
@@ -38,8 +39,8 @@ public class BizHookGroup {
         }
         // 钩子列表：[{BizHook}...]
         else {
-            Lang.each(any, new Each<NutMap>() {
-                public void invoke(int index, NutMap map, int length) {
+            Wlang.each(any, new WnEachIteratee<NutMap>() {
+                public void invoke(int index, NutMap map, Object src) {
                     BizHook bh = new BizHook(map);
                     list.add(bh);
                 }
@@ -56,7 +57,7 @@ public class BizHookGroup {
             BizHook bh = this.hooks[i];
             if (bh.match(obj)) {
                 list.add(bh);
-                if (limit>0 && list.size() >= limit)
+                if (limit > 0 && list.size() >= limit)
                     break;
             }
         }
@@ -69,7 +70,7 @@ public class BizHookGroup {
             BizHook bh = this.hooks[i];
             if (bh.match(obj)) {
                 list.add(bh);
-                if (limit>0 && list.size() >= limit)
+                if (limit > 0 && list.size() >= limit)
                     break;
             }
         }

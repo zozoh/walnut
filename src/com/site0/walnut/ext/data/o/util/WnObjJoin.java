@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.nutz.lang.tmpl.Tmpl;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
@@ -17,6 +16,7 @@ import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
 import com.site0.walnut.util.explain.WnExplain;
 import com.site0.walnut.util.explain.WnExplains;
+import com.site0.walnut.util.tmpl.WnTmpl;
 
 public class WnObjJoin {
 
@@ -24,7 +24,7 @@ public class WnObjJoin {
 
     private WnSystem sys;
 
-    private Tmpl parentPath;
+    private WnTmpl parentPath;
 
     private boolean isFetch;
 
@@ -50,7 +50,7 @@ public class WnObjJoin {
         // 解析父路径模板
         String pph = params.val(0);
         if (!Ws.isBlank(pph)) {
-            this.parentPath = Tmpl.parse(pph);
+            this.parentPath = WnTmpl.parse(pph);
         }
         // 解析查询模板
         String q = params.getString("query");

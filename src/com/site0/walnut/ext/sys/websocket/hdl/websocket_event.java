@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
@@ -26,7 +26,7 @@ public class websocket_event implements JvmHdl {
         String event = params.val_check(1);
         Map<String, Object> map = null;
         if (params.vals.length > 2) {
-            map = Lang.map(params.val(2));
+            map = Wlang.map(params.val(2));
         }
         NutMap re = new NutMap("event", event);
         if (map != null)

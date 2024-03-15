@@ -1,6 +1,6 @@
 package com.site0.walnut.impl.box;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 
 /**
  * 对 Unix/Linux 终端字符颜色的一些操作
@@ -160,7 +160,7 @@ public abstract class LinuxTerminal {
                 sb.append(new String(cs, l, r - l));
             }
             catch (Exception e) {
-                throw Lang.makeThrow("fail to str:'%s' l=%d, r=%d", str, l, r);
+                throw Wlang.makeThrow("fail to str:'%s' l=%d, r=%d", str, l, r);
             }
         }
         // 返回

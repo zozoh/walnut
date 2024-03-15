@@ -3,13 +3,12 @@ package com.site0.walnut.util;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.nutz.lang.Lang;
 
 public class ZParamsTest {
 
     @Test
     public void test_pairs() {
-        String[] args = Lang.array("-src", "AAA", "-ok", "-ta", "haha");
+        String[] args = Wlang.array("-src", "AAA", "-ok", "-ta", "haha");
         ZParams params = ZParams.parse(args, null);
         assertEquals(0, params.vals.length);
 
@@ -20,7 +19,7 @@ public class ZParamsTest {
 
     @Test
     public void test_boolstr() {
-        String[] args = Lang.array("-read", "-same", "hello");
+        String[] args = Wlang.array("-read", "-same", "hello");
         ZParams params = ZParams.parse(args, "^read|same$");
         assertEquals(1, params.vals.length);
         assertEquals("hello", params.vals[0]);
@@ -31,7 +30,7 @@ public class ZParamsTest {
 
     @Test
     public void test_boolchars() {
-        String[] args = Lang.array("abc", "-avl", "hello");
+        String[] args = Wlang.array("abc", "-avl", "hello");
         ZParams params = ZParams.parse(args, "avl");
         assertEquals(2, params.vals.length);
         assertEquals("abc", params.vals[0]);
@@ -44,7 +43,7 @@ public class ZParamsTest {
 
     @Test
     public void test_simple() {
-        String[] args = Lang.array("A", "-u", "B");
+        String[] args = Wlang.array("A", "-u", "B");
         ZParams params = ZParams.parse(args, null);
         assertEquals(1, params.vals.length);
         assertEquals("A", params.vals[0]);

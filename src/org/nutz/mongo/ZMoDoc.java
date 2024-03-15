@@ -9,8 +9,7 @@ import java.util.Map;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.nutz.castor.Castors;
-import org.nutz.lang.Each;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mongo.adaptor.ZMoAs;
@@ -70,11 +69,11 @@ public class ZMoDoc extends Document {
     }
 
     public static ZMoDoc NEW(String json) {
-        return NEW(Lang.map(json));
+        return NEW(Wlang.map(json));
     }
 
     public static ZMoDoc NEWf(String jsonf, Object... args) {
-        return NEW(Lang.mapf(jsonf, args));
+        return NEW(Wlang.mapf(jsonf, args));
     }
 
     public static ZMoDoc WRAP(Document obj) {
@@ -368,15 +367,13 @@ public class ZMoDoc extends Document {
             return new ArrayList<T>();
 
         if (v instanceof CharSequence) {
-            return Lang.list(Castors.me().castTo(v, eleType));
+            return Wlang.list(Castors.me().castTo(v, eleType));
         }
 
-        int len = Lang.eleSize(v);
+        int len = Wlang.eleSize(v);
         final List<T> list = new ArrayList<T>(len);
-        Lang.each(v, new Each<Object>() {
-            public void invoke(int index, Object ele, int length) {
-                list.add(Castors.me().castTo(ele, eleType));
-            }
+        Wlang.eachEvenMap(v, (int index, Object ele, Object src) -> {
+            list.add(Castors.me().castTo(ele, eleType));
         });
 
         return list;
@@ -398,16 +395,14 @@ public class ZMoDoc extends Document {
             return (T[]) Array.newInstance(eleType, 0);
 
         if (v instanceof CharSequence) {
-            return Lang.array(Castors.me().castTo(v, eleType));
+            return Wlang.array(Castors.me().castTo(v, eleType));
         }
 
-        int len = Lang.eleSize(v);
+        int len = Wlang.eleSize(v);
         final Object arr = Array.newInstance(eleType, len);
         final int[] i = new int[]{0};
-        Lang.each(v, new Each<Object>() {
-            public void invoke(int index, Object ele, int length) {
-                Array.set(arr, i[0]++, Castors.me().castTo(ele, eleType));
-            }
+        Wlang.eachEvenMap(v, (int index, Object ele, Object src) -> {
+            Array.set(arr, i[0]++, Castors.me().castTo(ele, eleType));
         });
 
         return (T[]) arr;

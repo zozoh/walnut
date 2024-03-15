@@ -11,7 +11,7 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
@@ -97,7 +97,7 @@ public class cmd_videoc extends JvmExecutor {
                                       + ".00 -i ${source} -f image2 -vframes 1 ${thumbPath}");
                 cmd = seg.render(new SimpleContext(vc_params)).toString();
                 log.debug("cmd: " + cmd);
-                Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
+                Wlang.execOutput(cmd, Encoding.CHARSET_UTF8);
                 t = sys.io.createIfNoExists(tdir, "_preview.jpg", WnRace.FILE);
                 sys.io.writeAndClose(t, new FileInputStream(thumb));
                 t = sys.io.checkById(t.id());
@@ -125,7 +125,7 @@ public class cmd_videoc extends JvmExecutor {
                 seg = Segments.create("ffmpeg -y -v quiet -i ${source} -movflags faststart -preset ultrafast -pix_fmt yuv420p -vcodec libx264 -maxrate ${preview_bv}k -bufsize 2048k -b:a 64k -r ${fps} -s ${preview_size} ${previewPath}");
                 cmd = seg.render(new SimpleContext(vc_params)).toString();
                 log.debug("cmd: " + cmd);
-                Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
+                Wlang.execOutput(cmd, Encoding.CHARSET_UTF8);
                 t = sys.io.createIfNoExists(tdir, "_preview.mp4", WnRace.FILE);
                 sys.io.writeAndClose(t, new FileInputStream(preview));
                 sys.io.appendMeta(obj, "video_preview:'" + t.id() + "'");
@@ -146,9 +146,9 @@ public class cmd_videoc extends JvmExecutor {
                     seg = Segments.create("ffmpeg -y -v quiet -i ${source} -movflags faststart -pix_fmt yuv420p -preset ${preset} -vcodec ${vcodec} -acodec aac -maxrate ${bv}k -bufsize 2048k -b:a ${ba}k -r ${fps} -ar 48000 -ac 2 ${mainTarget}");
                     cmd = seg.render(new SimpleContext(vc_params)).toString();
                     log.debug("cmd: " + cmd);
-                    Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
+                    Wlang.execOutput(cmd, Encoding.CHARSET_UTF8);
                     t = sys.io.createIfNoExists(tdir, "_1_1.mp4", WnRace.FILE);
-                    String fmd5 = Lang.md5(mainTarget);
+                    String fmd5 = Wlang.md5(mainTarget);
                     String smd5 = simpleMd5(mainTarget);
                     sys.io.writeAndClose(t, new FileInputStream(mainTarget));
                     sys.io.appendMeta(t, "fmd5:'" + fmd5 + "'");
@@ -175,11 +175,11 @@ public class cmd_videoc extends JvmExecutor {
                             seg = Segments.create("ffmpeg -y -v quiet -i ${source} ${crop} -movflags faststart -pix_fmt yuv420p -preset ${preset} -vcodec ${vcodec} -acodec aac -maxrate ${bv}k -bufsize 2048k -b:a ${ba}k -r ${fps} -ar 48000 -ac 2 ${crop_target}");
                             cmd = seg.render(new SimpleContext(vc_params)).toString();
                             log.debug("cmd: " + cmd);
-                            Lang.execOutput(cmd, Encoding.CHARSET_UTF8);
+                            Wlang.execOutput(cmd, Encoding.CHARSET_UTF8);
                             t = sys.io.createIfNoExists(tdir,
                                                         String.format("_%s_%s.mp4", i + 1, j + 1),
                                                         WnRace.FILE);
-                            String fmd5 = Lang.md5(crop_target);
+                            String fmd5 = Wlang.md5(crop_target);
                             String smd5 = simpleMd5(new File(crop_target));
                             sys.io.writeAndClose(t, new FileInputStream(crop_target));
                             sys.io.appendMeta(t, "fmd5:'" + fmd5 + "'");
@@ -215,7 +215,7 @@ public class cmd_videoc extends JvmExecutor {
      */
     public static String simpleMd5(File f) {
         if (f.length() <= 1024 * 1024) {
-            return Lang.md5(f);
+            return Wlang.md5(f);
         }
         RandomAccessFile raf = null;
         try {
@@ -229,7 +229,7 @@ public class cmd_videoc extends JvmExecutor {
                 raf.read(data);
                 md.update(data);
             }
-            return Lang.fixedHexString(md.digest());
+            return Wlang.fixedHexString(md.digest());
         }
         catch (Exception e) {
             throw Err.wrap(e);

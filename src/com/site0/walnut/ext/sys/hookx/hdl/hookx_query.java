@@ -2,7 +2,7 @@ package com.site0.walnut.ext.sys.hookx.hdl;
 
 import java.util.List;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
@@ -16,7 +16,7 @@ public class hookx_query extends HookXFilter {
     @Override
     protected void process(WnSystem sys, HookXContext fc, ZParams params) {
         String val = params.val_check(0);
-        NutMap map = Lang.map(val);
+        NutMap map = Wlang.map(val);
         int limit = params.getInt("limit", 10);
         int skip = params.getInt("skip", 0);
         WnQuery q = new WnQuery();

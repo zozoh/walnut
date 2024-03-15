@@ -21,7 +21,7 @@ import org.nutz.dao.Dao;
 import org.nutz.dao.impl.NutDao;
 import org.nutz.dao.util.Daos;
 import org.nutz.ioc.impl.PropertiesProxy;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
@@ -156,7 +156,7 @@ public class AccessLogFilter implements Filter, Runnable {
                 }
                 alog.setUri(uri);
                 alog.setReferer(req.getHeader("Referer"));
-                alog.setRemoteIp(Lang.getIP(req));
+                alog.setRemoteIp(Wlang.getIP(req));
                 alog.setRespCode(resp.getStatus());
                 alog.setUserAgent(req.getHeader("User-Agent"));
                 queue.offer(alog, 10, TimeUnit.MILLISECONDS);
@@ -176,7 +176,7 @@ public class AccessLogFilter implements Filter, Runnable {
     public void run() {
         while (!stoped) {
             if (enable == null) {
-                Lang.quiteSleep(1000);
+                Wlang.quiteSleep(1000);
                 continue;
             }
             try {
@@ -187,7 +187,7 @@ public class AccessLogFilter implements Filter, Runnable {
             }
             catch (Throwable e) {
                 log.debug("something happen", e);
-                Lang.quiteSleep(1000);
+                Wlang.quiteSleep(1000);
             }
         }
     }

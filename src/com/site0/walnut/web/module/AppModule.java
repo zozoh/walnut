@@ -10,7 +10,7 @@ import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import org.nutz.lang.stream.StringInputStream;
@@ -216,7 +216,7 @@ public class AppModule extends AbstractWnModule {
 
             // 渲染模板
             String html = apps.renderAppHtml(app);
-            String sha1 = Lang.sha1(html);
+            String sha1 = Wlang.sha1(html);
             if (etag != null && sha1.equals(etag)) {
                 return V_304;
             }
@@ -379,7 +379,7 @@ public class AppModule extends AbstractWnModule {
         HttpRespStatusSetter _resp = new HttpRespStatusSetter(resp);
         AppRespOpsWrapper out = new AppRespOpsWrapper(_resp, 200);
         AppRespOpsWrapper err = new AppRespOpsWrapper(_resp, 500);
-        InputStream ins = Strings.isEmpty(in) ? null : Lang.ins(in);
+        InputStream ins = Strings.isEmpty(in) ? null : Wlang.ins(in);
 
         // 强制触发响应刷新缓冲
         if (forceFlushBuffer) {

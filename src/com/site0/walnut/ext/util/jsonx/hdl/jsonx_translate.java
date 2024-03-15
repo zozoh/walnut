@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.o.util.WnObjTrans;
@@ -93,7 +93,7 @@ public class jsonx_translate extends JsonXFilter {
         // 普通转换
         //
         else {
-            NutMap mapping = Lang.map(json);
+            NutMap mapping = Wlang.map(json);
             Object v2 = Wn.translate(fc.obj, mapping);
             fc.obj = v2;
         }

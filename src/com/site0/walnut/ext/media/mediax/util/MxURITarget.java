@@ -3,7 +3,7 @@ package com.site0.walnut.ext.media.mediax.util;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 
 public class MxURITarget {
 
@@ -70,7 +70,7 @@ public class MxURITarget {
                 this.__download = this.__build_map(download);
             return __download;
         }
-        throw Lang.makeThrow("map name invalid ", actionName);
+        throw Wlang.makeThrow("map name invalid ", actionName);
     }
 
     private Map<String, MxURI> __build_map(MxURI[] list) {

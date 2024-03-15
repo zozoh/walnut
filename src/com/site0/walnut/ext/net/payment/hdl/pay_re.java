@@ -1,7 +1,7 @@
 package com.site0.walnut.ext.net.payment.hdl;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
@@ -28,7 +28,7 @@ public class pay_re implements JvmHdl {
         if (Strings.isBlank(json)) {
             json = sys.in.readAll();
         }
-        NutMap req = Lang.map(json);
+        NutMap req = Wlang.map(json);
 
         // 得到支付单对象
         String poIdKey = hc.params.check("idkey");

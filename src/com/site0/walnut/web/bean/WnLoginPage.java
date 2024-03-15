@@ -4,7 +4,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
@@ -54,7 +54,7 @@ public class WnLoginPage {
                 }
                 // 那么就是一个文件夹
                 else {
-                    NutMap vars = Lang.map("HOME", domainUser.getHomePath());
+                    NutMap vars = Wlang.map("HOME", domainUser.getHomePath());
                     String aph = Wn.normalizeFullPath(loginPath, vars);
                     oPageHome = io.fetch(null, aph);
                     if (null == oPageHome) {
@@ -122,7 +122,7 @@ public class WnLoginPage {
 
     static {
         LOGIN_HTML = Files.read("com/site0/walnut/web/module/login.html");
-        LOGIN_SHA1 = Lang.sha1(LOGIN_HTML);
+        LOGIN_SHA1 = Wlang.sha1(LOGIN_HTML);
     }
 
     public View getBuiltinLoginView() {

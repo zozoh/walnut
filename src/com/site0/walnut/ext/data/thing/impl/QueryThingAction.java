@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -51,7 +51,7 @@ public class QueryThingAction extends ThingAction<ThQr> {
             }
             // 条件是"与"
             else {
-                q.add(Lang.map(tq.qStr));
+                q.add(Wlang.map(tq.qStr));
             }
         }
         // 未指定条件
@@ -71,7 +71,7 @@ public class QueryThingAction extends ThingAction<ThQr> {
         }
 
         // 限定数据集
-        q.setAllToList(Lang.map("pid", oIndex.id()));
+        q.setAllToList(Wlang.map("pid", oIndex.id()));
 
         // 检查 th_live
         List<NutMap> qList = q.getList();

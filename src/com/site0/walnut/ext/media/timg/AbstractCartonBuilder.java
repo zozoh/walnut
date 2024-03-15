@@ -12,7 +12,7 @@ import java.util.List;
 
 import org.nutz.img.Images;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.segment.Segment;
 import org.nutz.lang.segment.Segments;
 import org.nutz.log.Log;
@@ -111,7 +111,7 @@ public abstract class AbstractCartonBuilder implements CartonBuilder {
             log.info("CMD: " + seg.render());
             String[] cmd = seg.render().toString().split(" ");
             try {
-                Lang.execOutput(cmd);
+                Wlang.execOutput(cmd);
             }
             catch (IOException e) {
             }

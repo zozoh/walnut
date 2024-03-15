@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
@@ -175,7 +175,7 @@ public class thing_comment implements JvmHdl {
             }
             // 条件是"与"
             else {
-                q.add(Lang.map(qStr));
+                q.add(Wlang.map(qStr));
             }
         }
         // 未指定条件
@@ -197,7 +197,7 @@ public class thing_comment implements JvmHdl {
 
         // 设置排序
         if (hc.params.has("sort")) {
-            NutMap sort = Lang.map(hc.params.check("sort"));
+            NutMap sort = Wlang.map(hc.params.check("sort"));
             q.sort(sort);
         }
 

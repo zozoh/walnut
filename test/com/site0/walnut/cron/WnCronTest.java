@@ -5,8 +5,8 @@ import static org.junit.Assert.*;
 import java.util.List;
 
 import org.junit.Test;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Times;
+import com.site0.walnut.util.Wlang;
 
 public class WnCronTest {
 
@@ -375,13 +375,13 @@ public class WnCronTest {
     public void test_overlap_by_hour() {
         OVERL(24,
               "2012-02-08",
-              Lang.array("0 0 5-7 * * ?", "0 0 5-6 * 2 ?", "0 0 5-8 * 3 ?"),
-              Lang.array("5:0.E,1.E", "6:0.E,1.E", "7:0.E"));
+              Wlang.array("0 0 5-7 * * ?", "0 0 5-6 * 2 ?", "0 0 5-8 * 3 ?"),
+              Wlang.array("5:0.E,1.E", "6:0.E,1.E", "7:0.E"));
 
         OVERL(24,
               "2012-03-08",
-              Lang.array("0 0 5-7 * * ?", "0 0 5-6 * 2 ?", "0 0 5-8 * 3 ?"),
-              Lang.array("5:0.E,2.E", "6:0.E,2.E", "7:0.E,2.E", "8:2.E"));
+              Wlang.array("0 0 5-7 * * ?", "0 0 5-6 * 2 ?", "0 0 5-8 * 3 ?"),
+              Wlang.array("5:0.E,2.E", "6:0.E,2.E", "7:0.E,2.E", "8:2.E"));
     }
 
     @Test

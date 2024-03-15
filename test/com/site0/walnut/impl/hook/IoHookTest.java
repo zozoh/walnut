@@ -3,7 +3,7 @@ package com.site0.walnut.impl.hook;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
@@ -225,9 +225,9 @@ public class IoHookTest extends BaseHookTest {
         // 验证
         WnObj o = io.check(oHome, "abc.txt");
         String txt = io.readText(o);
-        assertEquals(Lang.md5("hello\n") + "\n" + Lang.sha1(Lang.md5("hello\n") + "\n") + "\n",
+        assertEquals(Wlang.md5("hello\n") + "\n" + Wlang.sha1(Wlang.md5("hello\n") + "\n") + "\n",
                      txt);
-        assertEquals(Lang.sha1(txt), o.sha1());
+        assertEquals(Wlang.sha1(txt), o.sha1());
     }
 
     @Test
@@ -246,8 +246,8 @@ public class IoHookTest extends BaseHookTest {
         // 验证
         WnObj o = io.check(oHome, "abc.txt");
         String txt = io.readText(o);
-        assertEquals(Lang.md5("/home/xiaobai/abc.txt\n") + "\n", txt);
-        assertEquals(Lang.sha1(txt), o.sha1());
+        assertEquals(Wlang.md5("/home/xiaobai/abc.txt\n") + "\n", txt);
+        assertEquals(Wlang.sha1(txt), o.sha1());
     }
 
     @Test
@@ -265,8 +265,8 @@ public class IoHookTest extends BaseHookTest {
 
         // 验证
         String txt = io.readText(o);
-        assertEquals(Lang.md5("/home/xiaobai/abc.txt\n") + "\n", txt);
-        assertEquals(Lang.sha1(txt), o.sha1());
+        assertEquals(Wlang.md5("/home/xiaobai/abc.txt\n") + "\n", txt);
+        assertEquals(Wlang.sha1(txt), o.sha1());
     }
 
     @Test
@@ -285,7 +285,7 @@ public class IoHookTest extends BaseHookTest {
         // 验证
         String txt = io.readText(o);
         assertEquals("/home/xiaobai/abc.txt\n", txt);
-        assertEquals(Lang.sha1(txt), o.sha1());
+        assertEquals(Wlang.sha1(txt), o.sha1());
     }
 
 }

@@ -8,7 +8,7 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.json.ToJson;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutBean;
@@ -155,12 +155,12 @@ public class WnLocalFileObj extends NutMap implements WnObj {
                 WnLocalFileObj lfp = (WnLocalFileObj) _parent;
                 // 如果映射不一致，那么不能够啊
                 // 如果是顶级，那么两个 mount 都是 null
-                if (!Lang.equals(lfp.mount(), this.mount())) {
-                    throw Lang.impossible();
+                if (!Wlang.isEqual(lfp.mount(), this.mount())) {
+                    throw Wlang.impossible();
                 }
                 // 我的相对路径竟然不是以父的相对路径开始的？ 不能够啊
                 if (!this.rph.startsWith(lfp.rph)) {
-                    throw Lang.impossible();
+                    throw Wlang.impossible();
                 }
                 // 得到自己的相对路径
                 rph = this.rph.substring(lfp.rph.length());
@@ -273,11 +273,11 @@ public class WnLocalFileObj extends NutMap implements WnObj {
                 WnLocalFileObj lfp = (WnLocalFileObj) _parent;
                 // 如果映射不一致，那么不能够啊
                 if (!lfp.mount().equals(this.mount())) {
-                    throw Lang.impossible();
+                    throw Wlang.impossible();
                 }
                 // 我的相对路径比父的还长？ 不能够啊
                 if (!this.rph.startsWith(lfp.rph)) {
-                    throw Lang.impossible();
+                    throw Wlang.impossible();
                 }
                 // 得到自己的相对父路径
                 String rph2 = this.rph.substring(lfp.rph.length());
@@ -618,67 +618,67 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     @Override
     public boolean hasWriteHandle() {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public String getWriteHandle() {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj setWriteHandle(String hid) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public boolean isRWMeta() {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj setRWMeta(boolean rwmeta) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public boolean hasRWMetaKeys() {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public String getRWMetaKeys() {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj setRWMetaKeys(String regex) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj clearRWMetaKeys() {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj id(String id) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj path(String path) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj appendPath(String path) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj race(WnRace race) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
@@ -701,42 +701,42 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     @Override
     public WnObj link(String lid) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj type(String tp) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj mime(String mime) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj thumbnail(String thumbnail) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public boolean hasData() {
-        throw Lang.makeThrow("data not supported anymore");
+        throw Wlang.makeThrow("data not supported anymore");
     }
 
     @Override
     public String data() {
-        throw Lang.makeThrow("data not supported anymore");
+        throw Wlang.makeThrow("data not supported anymore");
     }
 
     @Override
     public boolean isSameData(String data) {
-        throw Lang.makeThrow("data not supported anymore");
+        throw Wlang.makeThrow("data not supported anymore");
     }
 
     @Override
     public WnObj data(String data) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
@@ -747,62 +747,62 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     @Override
     public int remain() {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj remain(int remain) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj creator(String creator) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj mender(String mender) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj group(String grp) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj mode(int md) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj d0(String d0) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj d1(String d1) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj labels(String[] lbls) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj createTime(long ct) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj expireTime(long expi) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
     public WnObj syncTime(long st) {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override

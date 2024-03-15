@@ -27,7 +27,7 @@ import org.nutz.dao.sql.Sql;
 import org.nutz.dao.sql.SqlCallback;
 import org.nutz.dao.sql.SqlContext;
 import org.nutz.lang.Each;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
@@ -251,7 +251,7 @@ public class DaoIndexer extends AbstractIoDataIndexer {
                             re.add(bean);
                         }
                         catch (SQLException e) {
-                            throw Lang.wrapThrow(e);
+                            throw Wlang.wrapThrow(e);
                         }
                         return true;
                     }
@@ -636,7 +636,7 @@ public class DaoIndexer extends AbstractIoDataIndexer {
             this.expert = WnJdbc.getExpert(this.dbProductName);
         }
         catch (Throwable e) {
-            throw Lang.wrapThrow(e);
+            throw Wlang.wrapThrow(e);
         }
         finally {
             Trans.closeConnectionAuto(conn);

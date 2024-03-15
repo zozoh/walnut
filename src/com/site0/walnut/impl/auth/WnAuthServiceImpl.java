@@ -1,17 +1,12 @@
 package com.site0.walnut.impl.auth;
 
-import java.awt.image.BufferedImage;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
-import org.nutz.img.Images;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
 import com.site0.walnut.api.auth.WnAuthEvent;
 import com.site0.walnut.api.WnEventListener;
 import com.site0.walnut.api.WnListenable;
@@ -30,15 +25,13 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.ext.data.www.bean.WnWebSite;
-import com.site0.walnut.ext.net.weixin.WnIoWeixinApi;
 import com.site0.walnut.impl.AbstractListenable;
-import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 
 public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
         implements WnAuthService, WnListenable<WnAuthEvent> {
 
-    private static final Log log = Wlog.getAUTH();
+    //private static final Log log = Wlog.getAUTH();
 
     WnIo io;
 
@@ -267,7 +260,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
     @Override
     public WnAuthSession getSession(String byType, String byValue) {
         WnObj oSessionDir = setup.getSessionDir();
-        NutMap by = Lang.map("by_tp", byType);
+        NutMap by = Wlang.map("by_tp", byType);
         by.put("by_val", byValue);
         WnQuery q = Wn.Q.pid(oSessionDir);
         q.setAll(by);
@@ -305,7 +298,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
             long nowInMs = Wn.now();
             int se_du = se.getDurationInSec();
             se.setExpi(nowInMs + (se_du * 1000L));
-            io.appendMeta(se.getObj(), Lang.map("expi", se.getExpi()));
+            io.appendMeta(se.getObj(), Wlang.map("expi", se.getExpi()));
         }
 
         return se;
@@ -313,7 +306,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
 
     @Override
     public WnAuthSession createSession(WnAccount user, boolean longSession) {
-        NutMap by = Lang.map("by_tp", "transient");
+        NutMap by = Wlang.map("by_tp", "transient");
         by.put("by_val", null);
         int se_du = longSession ? setup.getSessionDefaultDuration()
                                 : setup.getSessionTransientDuration();
@@ -322,14 +315,14 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
 
     @Override
     public WnAuthSession createSession(WnAccount user, int se_du) {
-        NutMap by = Lang.map("by_tp", "transient");
+        NutMap by = Wlang.map("by_tp", "transient");
         by.put("by_val", null);
         return createSessionBy(se_du, user, by);
     }
 
     @Override
     public WnAuthSession createSession(WnAuthSession pse, WnAccount user, int se_du) {
-        NutMap by = Lang.map("by_tp", WnAuthSession.V_BT_SESSION);
+        NutMap by = Wlang.map("by_tp", WnAuthSession.V_BT_SESSION);
         by.put("by_val", pse.getId());
         by.put(WnAuthSession.K_PSE_ID, pse.getId());
         return createSessionBy(se_du, user, by);
@@ -404,214 +397,213 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
 
     @Override
     public WnAuthSession loginByWxCode(String code, String wxCodeType, boolean forbidUnsubscribe) {
-        WnIoWeixinApi wxApi = setup.getWeixinApi(wxCodeType);
-        WnObj oSessionDir = setup.getSessionDir();
-
-        // 得到用户的 OpenId
-        String openid;
-        String unionid;
-        String session_key = null;
-        wxCodeType = Strings.sBlank(wxCodeType, "gh");
-        if (!wxCodeType.matches("^(mp|gh|open)$")) {
-            throw Er.create("e.auth.login.invalid.wxCodeType");
-        }
-        // 小程序的权限码
-        if ("mp".equals(wxCodeType)) {
-            NutMap resp = wxApi.user_info_by_mp_code(code);
-            openid = resp.getString("openid");
-            unionid = resp.getString("unionid");
-            session_key = resp.getString("session_key");
-            if (log.isInfoEnabled())
-                log.infof("user_info_by_mp_code: %s ", Json.toJson(resp, JsonFormat.compact()));
-        }
-        // 微信公号的登录码
-        else {
-            NutMap resp = wxApi.user_info_by_gh_code(code);
-            openid = resp.getString("openid");
-            unionid = resp.getString("unionid");
-        }
-        if (Strings.isBlank(openid)) {
-            throw Er.create("e.auth.login.invalid.wxCode");
-        }
-        // 得到公众号名称
-        String ghOrMpName = wxApi.getHomeObj().name();
-        String key = "wx_" + wxCodeType + "_" + ghOrMpName;
-
-        // 如果已经有了这个用户的微信会话，重用之
-        NutMap by = Lang.map("by_tp", key);
-        by.put("by_val", openid);
-        WnQuery q = Wn.Q.pid(oSessionDir);
-        q.setAll(by);
-        WnObj oSe = io.getOne(q);
-        if (null != oSe) {
-            String uid = oSe.getString("uid");
-            WnAccount me = getAccountById(uid);
-            if (null != me) {
-                // 小程序的 session key 要保存一下，以便以后随时获取用户手机号等相关信息
-                if (session_key != null) {
-                    // 已经有存了（虽然不太可能）那就不用再存了
-                    if (!Strings.isBlank(oSe.getString("mp_session_key"))
-                        && session_key.equals(oSe.getString("mp_session_key"))) {
-                        // nop
-                    }
-                    // 保存并持久化
-                    else {
-                        oSe.put("mp_session_key", session_key);
-                        io.appendMeta(oSe, new NutMap("mp_session_key", session_key));
-                    }
-                }
-                return new WnAuthSession(oSe, me);
-            }
-        }
-        // 既然是微信小程序登录的，那么就固定记录一下 SessionKey，以便以后随时获取用户手机号等相关信息
-        if (session_key != null) {
-            by.put("mp_session_key", session_key);
-        }
-
-        // 看看这个用户是否存在
-        WnAccount info = new WnAccount();
-        WnAccount me = null;
-        // 先尝试用 union ID
-        if (!Strings.isBlank(unionid)) {
-            info.setWxUnionId(unionid);
-            me = accountLoader.getAccount(info);
-        }
-        // 没有的话，用 openid
-        if (null == me) {
-            info.setWxUnionId(null);
-            info.setWxOpenId(wxCodeType, ghOrMpName, openid);
-            me = accountLoader.getAccount(info);
-        }
-
-        // 看看是否有机会再次获取头像
-        String headimgurl = null;
-
-        // 不存在的话，就创建
-        if (null == me) {
-            // 选择一个默认角色
-            String role = setup.getDefaultRoleName();
-
-            // 公众号的话
-            if ("gh".equals(wxCodeType)) {
-                headimgurl = fillAccountInfo(wxApi, openid, info, forbidUnsubscribe);
-            }
-            // 开放平台的话，也设一下 openid 咯
-            else if ("open".equals(wxCodeType)) {
-                info.setNickname(openid);
-            }
-            // 小程序的话，获得不了，那么就用默认的吧
-            else {
-                info.setNickname(openid);
-            }
-
-            // 设置默认角色
-            info.setRoleName(role);
-
-            // 确保设置了 unionid 和 openid
-            info.setWxUnionId(unionid);
-            info.setWxOpenId(wxCodeType, ghOrMpName, openid);
-
-            // 创建账户
-            me = this.createAccount(info);
-        }
-        // 已经存在了的话，当前是公众号登陆，可能会得到更多的信息
-        else if ("gh".equals(wxCodeType)) {
-            // 如果没设 unionid， 或者如果没有合法昵称，搞一下信息
-            if ((!me.hasWxUnionId() && !Strings.isBlank(unionid))
-                || (me.isNameSameAsId() && me.hasRawNickname())) {
-                headimgurl = fillAccountInfo(wxApi, openid, info, forbidUnsubscribe);
-                boolean needSave = false;
-                if (!me.hasWxUnionId() && !Strings.isBlank(unionid)) {
-                    me.setWxUnionId(unionid);
-                    needSave = true;
-                }
-                if (!info.hasRawNickname()) {
-                    me.setNickname(info.getNickname());
-                    needSave = true;
-                }
-                if (me.isSexUnknown() && !info.isSexUnknown()) {
-                    me.setSex(info.getSex());
-                    needSave = true;
-                }
-                needSave |= me.putAllDefaultMeta(me.getMetaMap());
-
-                if (needSave) {
-                    this.saveAccount(me);
-                }
-            }
-        }
-
-        // 如果有头像的话，搞一下
-        updateUserAvatar(me, headimgurl);
-
-        // 创建完毕，收工
-        int se_du = setup.getSessionDefaultDuration();
-        return createSessionBy(se_du, me, by);
+        throw Wlang.noImplement();
+        // WnObj oSessionDir = setup.getSessionDir();
+        //
+        // // 得到用户的 OpenId
+        // String openid;
+        // String unionid;
+        // String session_key = null;
+        // wxCodeType = Strings.sBlank(wxCodeType, "gh");
+        // if (!wxCodeType.matches("^(mp|gh|open)$")) {
+        // throw Er.create("e.auth.login.invalid.wxCodeType");
+        // }
+        // // 小程序的权限码
+        // if ("mp".equals(wxCodeType)) {
+        // NutMap resp = wxApi.user_info_by_mp_code(code);
+        // openid = resp.getString("openid");
+        // unionid = resp.getString("unionid");
+        // session_key = resp.getString("session_key");
+        // if (log.isInfoEnabled())
+        // log.infof("user_info_by_mp_code: %s ", Json.toJson(resp,
+        // JsonFormat.compact()));
+        // }
+        // // 微信公号的登录码
+        // else {
+        // NutMap resp = wxApi.user_info_by_gh_code(code);
+        // openid = resp.getString("openid");
+        // unionid = resp.getString("unionid");
+        // }
+        // if (Strings.isBlank(openid)) {
+        // throw Er.create("e.auth.login.invalid.wxCode");
+        // }
+        // // 得到公众号名称
+        // String ghOrMpName = wxApi.getHomeObj().name();
+        // String key = "wx_" + wxCodeType + "_" + ghOrMpName;
+        //
+        // // 如果已经有了这个用户的微信会话，重用之
+        // NutMap by = Wlang.map("by_tp", key);
+        // by.put("by_val", openid);
+        // WnQuery q = Wn.Q.pid(oSessionDir);
+        // q.setAll(by);
+        // WnObj oSe = io.getOne(q);
+        // if (null != oSe) {
+        // String uid = oSe.getString("uid");
+        // WnAccount me = getAccountById(uid);
+        // if (null != me) {
+        // // 小程序的 session key 要保存一下，以便以后随时获取用户手机号等相关信息
+        // if (session_key != null) {
+        // // 已经有存了（虽然不太可能）那就不用再存了
+        // if (!Strings.isBlank(oSe.getString("mp_session_key"))
+        // && session_key.equals(oSe.getString("mp_session_key"))) {
+        // // nop
+        // }
+        // // 保存并持久化
+        // else {
+        // oSe.put("mp_session_key", session_key);
+        // io.appendMeta(oSe, new NutMap("mp_session_key", session_key));
+        // }
+        // }
+        // return new WnAuthSession(oSe, me);
+        // }
+        // }
+        // // 既然是微信小程序登录的，那么就固定记录一下 SessionKey，以便以后随时获取用户手机号等相关信息
+        // if (session_key != null) {
+        // by.put("mp_session_key", session_key);
+        // }
+        //
+        // // 看看这个用户是否存在
+        // WnAccount info = new WnAccount();
+        // WnAccount me = null;
+        // // 先尝试用 union ID
+        // if (!Strings.isBlank(unionid)) {
+        // info.setWxUnionId(unionid);
+        // me = accountLoader.getAccount(info);
+        // }
+        // // 没有的话，用 openid
+        // if (null == me) {
+        // info.setWxUnionId(null);
+        // info.setWxOpenId(wxCodeType, ghOrMpName, openid);
+        // me = accountLoader.getAccount(info);
+        // }
+        //
+        // // 看看是否有机会再次获取头像
+        // String headimgurl = null;
+        //
+        // // 不存在的话，就创建
+        // if (null == me) {
+        // // 选择一个默认角色
+        // String role = setup.getDefaultRoleName();
+        //
+        // // 公众号的话
+        // if ("gh".equals(wxCodeType)) {
+        // headimgurl = fillAccountInfo(wxApi, openid, info, forbidUnsubscribe);
+        // }
+        // // 开放平台的话，也设一下 openid 咯
+        // else if ("open".equals(wxCodeType)) {
+        // info.setNickname(openid);
+        // }
+        // // 小程序的话，获得不了，那么就用默认的吧
+        // else {
+        // info.setNickname(openid);
+        // }
+        //
+        // // 设置默认角色
+        // info.setRoleName(role);
+        //
+        // // 确保设置了 unionid 和 openid
+        // info.setWxUnionId(unionid);
+        // info.setWxOpenId(wxCodeType, ghOrMpName, openid);
+        //
+        // // 创建账户
+        // me = this.createAccount(info);
+        // }
+        // // 已经存在了的话，当前是公众号登陆，可能会得到更多的信息
+        // else if ("gh".equals(wxCodeType)) {
+        // // 如果没设 unionid， 或者如果没有合法昵称，搞一下信息
+        // if ((!me.hasWxUnionId() && !Strings.isBlank(unionid))
+        // || (me.isNameSameAsId() && me.hasRawNickname())) {
+        // headimgurl = fillAccountInfo(wxApi, openid, info, forbidUnsubscribe);
+        // boolean needSave = false;
+        // if (!me.hasWxUnionId() && !Strings.isBlank(unionid)) {
+        // me.setWxUnionId(unionid);
+        // needSave = true;
+        // }
+        // if (!info.hasRawNickname()) {
+        // me.setNickname(info.getNickname());
+        // needSave = true;
+        // }
+        // if (me.isSexUnknown() && !info.isSexUnknown()) {
+        // me.setSex(info.getSex());
+        // needSave = true;
+        // }
+        // needSave |= me.putAllDefaultMeta(me.getMetaMap());
+        //
+        // if (needSave) {
+        // this.saveAccount(me);
+        // }
+        // }
+        // }
+        //
+        // // 如果有头像的话，搞一下
+        // updateUserAvatar(me, headimgurl);
+        //
+        // // 创建完毕，收工
+        // int se_du = setup.getSessionDefaultDuration();
+        // return createSessionBy(se_du, me, by);
     }
 
-    private String fillAccountInfo(WnIoWeixinApi wxApi,
-                                   String openid,
-                                   WnAccount info,
-                                   boolean forbidUnsubscribe) {
-        String headimgurl;
-        NutMap re = wxApi.user_info(openid, null);
-        /**
-         * 得到的返回信息格式为：
-         * 
-         * <pre>
-         {
-            subscribe: 1,
-            openid: "xxx",
-            nickname: "小白",
-            sex: 1,
-            language: "zh_CN",
-            city: "海淀",
-            province: "北京",
-            country: "中国",
-            headimgurl: "http://..",
-            subscribe_time: 1474388443,
-            remark: "",
-            groupid: 0,
-            tagid_list: [],
-            subscribe_scene: "ADD_SCENE_OTHERS",
-            qr_scene: 0,
-            qr_scene_str: ""
-         }
-         * </pre>
-         */
-        if (forbidUnsubscribe && !re.is("subscribe", 1)) {
-            throw Er.create("e.auth.login.WxGhNoSubscribed");
-        }
-        String nickname = re.getString("nickname", "anonymous");
-        NutMap meta = re.pickBy("^(language|city|province|country|subscribe)$");
-        info.setNickname(nickname);
-        info.setSex(re.getInt("sex", 0));
-        info.putAllMeta(meta);
+    // private String fillAccountInfo(String openid, WnAccount info, boolean
+    // forbidUnsubscribe) {
+    // String headimgurl;
+    // NutMap re = wxApi.user_info(openid, null);
+    // /**
+    // * 得到的返回信息格式为：
+    // *
+    // * <pre>
+    // {
+    // subscribe: 1,
+    // openid: "xxx",
+    // nickname: "小白",
+    // sex: 1,
+    // language: "zh_CN",
+    // city: "海淀",
+    // province: "北京",
+    // country: "中国",
+    // headimgurl: "http://..",
+    // subscribe_time: 1474388443,
+    // remark: "",
+    // groupid: 0,
+    // tagid_list: [],
+    // subscribe_scene: "ADD_SCENE_OTHERS",
+    // qr_scene: 0,
+    // qr_scene_str: ""
+    // }
+    // * </pre>
+    // */
+    // if (forbidUnsubscribe && !re.is("subscribe", 1)) {
+    // throw Er.create("e.auth.login.WxGhNoSubscribed");
+    // }
+    // String nickname = re.getString("nickname", "anonymous");
+    // NutMap meta = re.pickBy("^(language|city|province|country|subscribe)$");
+    // info.setNickname(nickname);
+    // info.setSex(re.getInt("sex", 0));
+    // info.putAllMeta(meta);
+    //
+    // // 记录一下头像
+    // headimgurl = re.getString("headimgurl");
+    // return headimgurl;
+    // }
 
-        // 记录一下头像
-        headimgurl = re.getString("headimgurl");
-        return headimgurl;
-    }
-
-    private void updateUserAvatar(WnAccount me, String headimgurl) {
-        if (!Strings.isBlank(headimgurl) && !me.hasThumb()) {
-            WnObj oThumb = this.setup.getAvatarObj(me, true);
-            // 读取 Image
-            try {
-                URL thumb_url = new URL(headimgurl);
-                BufferedImage im = Images.read(thumb_url);
-                io.writeImage(oThumb, im);
-
-                // 保存头像
-                me.setThumb("id:" + oThumb.id());
-                NutMap map = me.toBeanOf("thumb");
-                this.saveAccount(me, map);
-            }
-            catch (MalformedURLException e) {
-                throw Er.wrap(e);
-            }
-        }
-    }
+    // private void updateUserAvatar(WnAccount me, String headimgurl) {
+    // if (!Strings.isBlank(headimgurl) && !me.hasThumb()) {
+    // WnObj oThumb = this.setup.getAvatarObj(me, true);
+    // // 读取 Image
+    // try {
+    // URL thumb_url = new URL(headimgurl);
+    // BufferedImage im = Images.read(thumb_url);
+    // io.writeImage(oThumb, im);
+    //
+    // // 保存头像
+    // me.setThumb("id:" + oThumb.id());
+    // NutMap map = me.toBeanOf("thumb");
+    // this.saveAccount(me, map);
+    // }
+    // catch (MalformedURLException e) {
+    // throw Er.wrap(e);
+    // }
+    // }
+    // }
 
     @Override
     public WnAuthSession bindAccount(String nameOrIdOrPhoneOrEmail,
@@ -711,7 +703,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
         }
 
         // 创建会话并返回
-        NutMap by = Lang.map("by_tp", "web_vcode");
+        NutMap by = Wlang.map("by_tp", "web_vcode");
         by.put("by_val", account);
         int se_du = setup.getSessionDefaultDuration();
         WnAuthSession se = createSessionBy(se_du, me, by);
@@ -733,7 +725,7 @@ public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
         }
 
         // 创建会话并返回
-        NutMap by = Lang.map("by_tp", "web_passwd");
+        NutMap by = Wlang.map("by_tp", "web_passwd");
         by.put("by_val", nameOrIdOrPhoneOrEmail);
         int se_du = setup.getSessionDefaultDuration();
         WnAuthSession se = createSessionBy(se_du, me, by);

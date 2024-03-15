@@ -2,7 +2,7 @@ package com.site0.walnut.ext.data.fake.hdl;
 
 import java.util.ArrayList;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.fake.FakeContext;
@@ -32,7 +32,7 @@ public class fake_bean extends FakeFilter {
 
         // 获得模拟对象生成配置
         String json = Cmds.getParamOrPipe(sys, params, 0);
-        NutMap map = Lang.map(json);
+        NutMap map = Wlang.map(json);
         fc.faker = new WnBeanFaker(lang, map);
 
         // 输出到目录里

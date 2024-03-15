@@ -2,7 +2,7 @@ package com.site0.walnut.ext.net.payment.hdl;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.auth.WnAccountLoader;
@@ -59,7 +59,7 @@ public class pay_create implements JvmHdl {
         }
         // 不可能
         else {
-            throw Lang.impossible();
+            throw Wlang.impossible();
         }
 
         // 填充简介
@@ -80,7 +80,7 @@ public class pay_create implements JvmHdl {
         // 更多元数据
         String json = Cmds.getParamOrPipe(sys, hc.params, "meta", false);
         if (!Strings.isBlank(json)) {
-            wpi.meta = Lang.map(json);
+            wpi.meta = Wlang.map(json);
         }
 
         // 创建支付单

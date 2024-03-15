@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -88,20 +88,20 @@ public abstract class JvmAliyunExecutor extends JvmHdlExecutor {
         }
         // 如果是 WnObj ..
         else if (hc.output instanceof WnObj) {
-            Cmds.output_objs(sys, hc.params, hc.pager, Lang.list((WnObj) hc.output), false);
+            Cmds.output_objs(sys, hc.params, hc.pager, Wlang.list((WnObj) hc.output), false);
         }
         // 如果是 NutBean
         else if (hc.output instanceof NutBean) {
-            Cmds.output_beans(sys, hc.params, hc.pager, Lang.list((NutBean) hc.output));
+            Cmds.output_beans(sys, hc.params, hc.pager, Wlang.list((NutBean) hc.output));
         }
         // 如果就是普通 Map
         else if (hc.output instanceof Map) {
             NutMap map = NutMap.WRAP((Map<String, Object>) hc.output);
-            Cmds.output_beans(sys, hc.params, hc.pager, Lang.list(map));
+            Cmds.output_beans(sys, hc.params, hc.pager, Wlang.list(map));
         }
         // 如果是数组或者列表，直接搞
         else if (hc.output.getClass().isArray() || hc.output instanceof List) {
-            Object oFirst = Lang.first(hc.output);
+            Object oFirst = Wlang.firstInAny(hc.output);
 
             // 确保按照列表输出
             hc.params.setv("l", true);

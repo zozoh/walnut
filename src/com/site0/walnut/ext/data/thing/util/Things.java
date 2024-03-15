@@ -9,7 +9,7 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
@@ -330,7 +330,7 @@ public abstract class Things {
 
             // 如果指定了更新键
             if (!Strings.isBlank(ukey) && null != oMedia) {
-                sys.io.appendMeta(oT, Lang.map(ukey, "id:" + oMedia.id()));
+                sys.io.appendMeta(oT, Wlang.map(ukey, "id:" + oMedia.id()));
             }
         }
         // 仅仅是更新计数
@@ -383,7 +383,7 @@ public abstract class Things {
         }
         // 那么就是查询咯
         else {
-            NutMap sort = Lang.map(hc.params.get("sort", "nm:1"));
+            NutMap sort = Wlang.map(hc.params.get("sort", "nm:1"));
             hc.output = ths.fileQuery(dirName, oT, sort);
         }
     }
@@ -451,7 +451,7 @@ public abstract class Things {
 
     public static String runCommand(NutBean context, String cmd, WnExecutable executor) {
         if (!Strings.isBlank(cmd)) {
-            return runCommands(context, Lang.array(cmd), executor);
+            return runCommands(context, Wlang.array(cmd), executor);
         }
         return null;
     }

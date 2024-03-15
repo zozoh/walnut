@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 import org.nutz.lang.Encoding;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.LinkedByteBuffer;
 import com.site0.walnut.api.io.WnIoIndexer;
 import com.site0.walnut.api.io.WnObj;
@@ -35,7 +35,7 @@ public abstract class AbstractWnIoBMTest extends IoCoreTest {
     public void test_simple_trucate() throws IOException, WnIoHandleMutexException {
         WnIoHandle h = bm.open(o, Wn.S.W, indexer);
         String str = "hello";
-        String sha1 = Lang.sha1(str);
+        String sha1 = Wlang.sha1(str);
 
         // 写入
         byte[] buf = str.getBytes(Encoding.CHARSET_UTF8);
@@ -52,7 +52,7 @@ public abstract class AbstractWnIoBMTest extends IoCoreTest {
         // 准备读回来
         h = bm.open(o, Wn.S.R, indexer);
         LinkedByteBuffer bytes = new LinkedByteBuffer();
-        sha1 = Lang.sha1("hel");
+        sha1 = Wlang.sha1("hel");
 
         // 读取
         buf = new byte[20];
@@ -73,7 +73,7 @@ public abstract class AbstractWnIoBMTest extends IoCoreTest {
     public void test_simple_write_read() throws Exception {
         WnIoHandle h = bm.open(o, Wn.S.W, indexer);
         String str = "hello";
-        String sha1 = Lang.sha1(str);
+        String sha1 = Wlang.sha1(str);
 
         // 写入
         byte[] buf = str.getBytes(Encoding.CHARSET_UTF8);

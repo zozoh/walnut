@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.ext.net.aliyun.sdk.WnAliyunMediaQuery;
@@ -17,6 +16,7 @@ import com.site0.walnut.impl.box.JvmHdlContext;
 import com.site0.walnut.impl.box.JvmHdlParamArgs;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Cmds;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.WnPager;
 
 import com.aliyuncs.vod.model.v20170321.SearchMediaResponse;
@@ -60,7 +60,7 @@ public class aliyunvod_search implements JvmHdl {
             List<String> rmks = new ArrayList<>();
             List<NutMap> list = new ArrayList<>();
             for (Media media : resp.getMediaList()) {
-                NutMap obj = Lang.obj2map(media.getVideo(), NutMap.class);
+                NutMap obj = Wlang.obj2nutmap(media.getVideo());
                 obj.put("mediaId", media.getMediaId());
                 obj.put("mediaType", media.getMediaType());
                 obj.putDefault("creationTime", media.getCreationTime());

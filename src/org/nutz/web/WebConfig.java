@@ -3,7 +3,7 @@ package org.nutz.web;
 import java.io.Reader;
 
 import org.nutz.ioc.impl.PropertiesProxy;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.segment.Segments;
 import org.nutz.lang.util.Disks;
@@ -156,7 +156,7 @@ public class WebConfig extends PropertiesProxy {
     public String check(String key) {
         String val = get(key);
         if (null == val)
-            throw Lang.makeThrow("Ioc.$conf expect property '%s'", key);
+            throw Wlang.makeThrow("Ioc.$conf expect property '%s'", key);
         return val;
     }
 

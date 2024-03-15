@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.ext.data.entity.history.HistoryApi;
@@ -36,7 +36,7 @@ public class history_remove implements JvmHdl {
         int n = api.remove(ids);
 
         // 输出结果
-        NutMap re = Lang.map("count", n);
+        NutMap re = Wlang.map("count", n);
         String json = Json.toJson(re, hc.jfmt);
         sys.out.println(json);
     }

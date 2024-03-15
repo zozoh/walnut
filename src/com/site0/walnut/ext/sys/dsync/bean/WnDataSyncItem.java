@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.auth.WnAuthSession;
@@ -102,11 +102,11 @@ public class WnDataSyncItem {
 
         this.bean = o.pick(Wobj.CORE_FIELDS);
         String beanJson = Json.toJson(this.bean, jfmt);
-        this.beanSha1 = Lang.sha1(beanJson);
+        this.beanSha1 = Wlang.sha1(beanJson);
 
         this.meta = o.omit(Wobj.CORE_FIELDS);
         String metaJson = Json.toJson(this.meta, jfmt);
-        this.metaSha1 = Lang.sha1(metaJson);
+        this.metaSha1 = Wlang.sha1(metaJson);
 
         this.sha1 = Ws.sBlank(o.sha1(), null);
         this.len = o.len();

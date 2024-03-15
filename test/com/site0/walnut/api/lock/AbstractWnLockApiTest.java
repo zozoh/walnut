@@ -3,7 +3,7 @@ package com.site0.walnut.api.lock;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.trans.Atom;
 import com.site0.walnut.core.IoCoreTest;
 
@@ -51,7 +51,7 @@ public abstract class AbstractWnLockApiTest extends IoCoreTest {
                 try {
                     lo = locks.tryLock(LO_NM, LO_OW, LO_HI, 5000000);
                     // 其他的人，可以搞我了
-                    Lang.notifyAll(cond);
+                    Wlang.notifyAll(cond);
 
                     // 我开始写
                     re[0] = "Hello";
@@ -71,7 +71,7 @@ public abstract class AbstractWnLockApiTest extends IoCoreTest {
         Atom ax = new Atom() {
             public void run() {
                 // 先等个3s，直到得到通知
-                Lang.wait(cond, 3000);
+                Wlang.wait(cond, 3000);
 
                 // 请求锁，并且不可能得到
                 WnLock lo = null;
@@ -93,10 +93,10 @@ public abstract class AbstractWnLockApiTest extends IoCoreTest {
                         locks.freeLock(lo);
                     }
                     catch (WnLockBusyException e) {
-                        throw Lang.wrapThrow(e);
+                        throw Wlang.wrapThrow(e);
                     }
                     catch (WnLockNotSameException e) {
-                        throw Lang.wrapThrow(e);
+                        throw Wlang.wrapThrow(e);
                     }
                 }
             }

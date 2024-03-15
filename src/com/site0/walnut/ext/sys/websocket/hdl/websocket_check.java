@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.ext.sys.websocket.WnWebSocket;
@@ -33,7 +33,7 @@ public class websocket_check implements JvmHdl {
                     toRemove.add(ele.id());
                 count[0]++;
             } else if (tmp.getClass().isArray() || tmp instanceof Collection) {
-                Lang.each(tmp, (index2, ele2, len2)->{
+                Wlang.each(tmp, (index2, ele2, len2)->{
                     String wsid = String.valueOf(ele2);
                     if (WnWebSocket.get(wsid) == null) {
                         sys.out.printlnf("%s - array - %s", ele.path(), wsid);

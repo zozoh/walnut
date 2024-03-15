@@ -5,7 +5,7 @@ import java.io.OutputStream;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.usermodel.Paragraph;
 import org.apache.poi.hwpf.usermodel.Range;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
@@ -40,7 +40,7 @@ public class cmd_wordt extends JvmExecutor {
         if (Strings.isBlank(vars)) {
             throw Err.create("e.cmd.wordt.miss_vars");
         }
-        NutMap varMap = Lang.map(vars);
+        NutMap varMap = Wlang.map(vars);
 
         // 修正换行符
         replaceRN(varMap);

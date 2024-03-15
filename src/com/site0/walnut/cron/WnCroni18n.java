@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.Ws;
 
@@ -80,7 +80,7 @@ public class WnCroni18n {
                 return step;
             if ("pad".equals(key))
                 return pad;
-            throw Lang.makeThrow("Invalid unit : %s", key);
+            throw Wlang.makeThrow("Invalid unit : %s", key);
         }
     }
 
@@ -132,7 +132,7 @@ public class WnCroni18n {
             return minute;
         if ("second".equals(key))
             return second;
-        throw Lang.makeThrow("Unknown i18n key '%s'", key);
+        throw Wlang.makeThrow("Unknown i18n key '%s'", key);
     }
 
 }

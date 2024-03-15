@@ -8,7 +8,6 @@ import java.util.Map;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
@@ -17,6 +16,7 @@ import com.site0.walnut.api.WnExecutable;
 import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnObjDataCachedFactory;
 
@@ -87,7 +87,7 @@ public class TiSidebarService {
             if (reObj instanceof Collection) {
                 Collection<?> reList = (Collection<?>) reObj;
                 for (Object ele : reList) {
-                    NutMap o = Lang.obj2nutmap(ele);
+                    NutMap o = Wlang.obj2nutmap(ele);
                     TiSidebarOutputItem it = new TiSidebarOutputItem(depth, inIt, o, vars);
                     // 计算子项目
                     TiSidebarInputItem inIt2 = inIt.clone();
@@ -106,7 +106,7 @@ public class TiSidebarService {
             }
             // 单个对象
             else {
-                NutMap o = Lang.obj2nutmap(reObj);
+                NutMap o = Wlang.obj2nutmap(reObj);
                 TiSidebarOutputItem it = new TiSidebarOutputItem(depth, inIt, o, vars);
                 // 计算子项目
                 __check_dynamic_item_children(depth,

@@ -1,7 +1,7 @@
 package org.nutz.mongo.adaptor;
 
 import org.nutz.castor.Castors;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.mongo.ZMoAdaptor;
 import org.nutz.mongo.entity.ZMoField;
 
@@ -25,7 +25,7 @@ public class ZMoEnumAdaptor implements ZMoAdaptor {
             }
             return Castors.me().castTo(obj, Integer.class);
         }
-        throw Lang.makeThrow("obj<%s> should be ENUM", obj.getClass());
+        throw Wlang.makeThrow("obj<%s> should be ENUM", obj.getClass());
     }
 
 }

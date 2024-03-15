@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 
 /**
@@ -166,7 +166,7 @@ public class LbsChinaAddr {
             vcode = "90";
             name = "自治县";
         } else {
-            throw Lang.makeThrow("Invalid viruatal address type", type);
+            throw Wlang.makeThrow("Invalid viruatal address type", type);
         }
 
         // 创建地址
@@ -198,7 +198,7 @@ public class LbsChinaAddr {
     public void fromString(String str) {
         Matcher m = _P.matcher(str);
         if (!m.find())
-            throw Lang.makeThrow("Invalid input", str);
+            throw Wlang.makeThrow("Invalid input", str);
 
         this.code = Strings.trim(m.group(1));
         this.name = Strings.trim(m.group(2));
@@ -213,7 +213,7 @@ public class LbsChinaAddr {
         m = _P2.matcher(this.code);
 
         if (!m.find()) {
-            throw Lang.makeThrow("Invalid Addr Code", this.code);
+            throw Wlang.makeThrow("Invalid Addr Code", this.code);
         }
 
         // 提取码
@@ -321,7 +321,7 @@ public class LbsChinaAddr {
         }
         // 不可能
         else {
-            throw Lang.impossible();
+            throw Wlang.impossible();
         }
     }
 
@@ -478,7 +478,7 @@ public class LbsChinaAddr {
         if (lv == 4)
             return this.town;
 
-        throw Lang.makeThrow("Leval allow 0-4 only, level:", lv);
+        throw Wlang.makeThrow("Leval allow 0-4 only, level:", lv);
     }
 
     public String getCode() {

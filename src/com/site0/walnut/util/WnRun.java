@@ -5,13 +5,13 @@ import java.io.OutputStream;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.lang.Lang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
+
 import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.auth.WnAuthService;
 import com.site0.walnut.api.auth.WnAuthSession;
@@ -121,9 +121,9 @@ public class WnRun {
                      StringBuilder sbErr) {
         // 检查用户和会话
         final WnAuthSession se = creatSession(unm, false);
-        InputStream in = null == input ? null : Lang.ins(input);
-        OutputStream out = Lang.ops(sbOut);
-        OutputStream err = Lang.ops(sbErr);
+        InputStream in = null == input ? null : Wlang.ins(input);
+        OutputStream out = Wlang.ops(sbOut);
+        OutputStream err = Wlang.ops(sbErr);
         // 执行命令
         try {
             this.exec(logPrefix, se, cmdText, out, err, in, null);
@@ -154,9 +154,9 @@ public class WnRun {
     public String exec(String logPrefix, WnAuthSession se, String input, String cmdText) {
         StringBuilder sbOut = new StringBuilder();
         StringBuilder sbErr = new StringBuilder();
-        OutputStream out = Lang.ops(sbOut);
-        OutputStream err = Lang.ops(sbErr);
-        InputStream in = null == input ? null : Lang.ins(input);
+        OutputStream out = Wlang.ops(sbOut);
+        OutputStream err = Wlang.ops(sbErr);
+        InputStream in = null == input ? null : Wlang.ins(input);
 
         exec(logPrefix, se, cmdText, out, err, in, null);
 

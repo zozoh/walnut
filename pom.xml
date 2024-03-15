@@ -5,7 +5,7 @@
 	<groupId>org.nutz</groupId>
 	<packaging>jar</packaging>
 	<name>walnut</name>
-	<version>1.r.69-SNAPSHOT</version>
+	<version>13.70</version>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<elasticsearch.version>6.3.2</elasticsearch.version>
@@ -24,25 +24,9 @@
 			<email>zozohtnt@gmail.com</email>
 			<url>http://weibo.com/zozoh</url>
 		</developer>
-		<developer>
-			<id>wendal</id>
-			<name>Wendal Chen</name>
-			<email>wendal1985@gmail.com</email>
-			<url>http://wendal.net/</url>
-		</developer>
 	</developers>
-	<!-- scm> <connection>scm:git:git://github.com/nutzam/nutz.git</connection> 
-		<developerConnection>scm:git:git://github.com/nutzam/nutz.git</developerConnection> 
-		<url>git://github.com/nutzam/nutz.git</url> </scm -->
-
 
 	<repositories>
-		<!-- repository> <id>nutz-snapshots</id> <url>https://jfrog.nutz.cn/artifactory/snapshots</url> 
-			<snapshots> <enabled>true</enabled> <updatePolicy>always</updatePolicy> </snapshots> 
-			<releases> <enabled>false</enabled> </releases> </repository> <repository> 
-			<id>nutz-libs</id> <url>https://jfrog.nutz.cn/artifactory/lib-releases</url> 
-			<snapshots> <enabled>false</enabled> </snapshots> <releases> <enabled>true</enabled> 
-			</releases> </repository -->
 	</repositories>
 	<dependencies>
 		<dependency>
@@ -50,6 +34,11 @@
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>1.4.200</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -99,15 +88,6 @@
 			<version>${jetty.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.nutz</groupId>
-			<artifactId>nutz</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<!--dependency> <groupId>org.nutz</groupId> <artifactId>nutz-web</artifactId> 
-			<version>${project.version}</version> </dependency -->
-		<!-- dependency> <groupId>org.apache.commons</groupId> <artifactId>commons-email</artifactId> 
-			<version>1.5</version> </dependency -->
-		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-imaging</artifactId>
 			<version>1.0-alpha2</version>
@@ -116,21 +96,6 @@
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
 			<version>1.8.3</version>
-		</dependency>
-		<dependency>
-			<groupId>org.nutz</groupId>
-			<artifactId>nutzwx</artifactId>
-			<version>${project.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>redis.clients</groupId>
-					<artifactId>jedis</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.nutz</groupId>
-					<artifactId>nutz-integration-jedis</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.google.zxing</groupId>
@@ -142,15 +107,6 @@
 			<artifactId>javase</artifactId>
 			<version>3.4.1</version>
 		</dependency>
-		<dependency>
-			<groupId>org.nutz</groupId>
-			<artifactId>nutz-plugins-xmlbind</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<!-- dependency> <groupId>org.nutz</groupId> <artifactId>nutz-plugins-zdoc</artifactId> 
-			<version>${project.version}</version> </dependency> <dependency> <groupId>org.nutz</groupId> 
-			<artifactId>nutz-integration-json4excel</artifactId> <version>${project.version}</version> 
-			</dependency -->
 		<dependency>
 			<groupId>com.qiniu</groupId>
 			<artifactId>qiniu-java-sdk</artifactId>
@@ -194,13 +150,6 @@
 			<artifactId>simplecaptcha</artifactId>
 			<version>1.2.2</version>
 		</dependency>
-		<!--dependency> <groupId>org.slf4j</groupId> <artifactId>slf4j-log4j12</artifactId> 
-			<version>1.7.25</version> </dependency -->
-		<!-- dependency> <groupId>org.slf4j</groupId> <artifactId>slf4j-api</artifactId> 
-			<version>1.7.25</version> </dependency> <dependency> <groupId>org.apache.commons</groupId> 
-			<artifactId>commons-email</artifactId> <version>1.5</version> </dependency -->
-		<!-- dependency> <groupId>com.sun.mail</groupId> <artifactId>javax.mail</artifactId> 
-			<version>1.6.2</version> </dependency -->
 		<dependency>
 			<groupId>org.simplejavamail</groupId>
 			<artifactId>simple-java-mail</artifactId>
@@ -326,9 +275,6 @@
 			<artifactId>jaxb-api</artifactId>
 			<version>2.3.0</version>
 		</dependency>
-		<!-- dependency> <groupId>org.nutz</groupId> <artifactId>jst</artifactId> 
-			<version>1.0.3</version> </dependency -->
-		<!-- https://mvnrepository.com/artifact/gov.nist.math/jama -->
 		<dependency>
 			<groupId>gov.nist.math</groupId>
 			<artifactId>jama</artifactId>

@@ -1,6 +1,6 @@
 package com.site0.walnut.ext.data.o.impl;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import com.site0.walnut.api.io.WnIo;
@@ -35,7 +35,7 @@ public class WnReferLoader {
                 asId = true;
                 key = key.substring(0, key.length() - 3);
             }
-            String store = storeKeyTmpl.render(Lang.map("key", key));
+            String store = storeKeyTmpl.render(Wlang.map("key", key));
             __load_refer_by(o, key, asId, store);
         }
     }

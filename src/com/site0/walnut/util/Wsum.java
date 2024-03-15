@@ -2,8 +2,10 @@ package com.site0.walnut.util;
 
 import java.io.File;
 import java.io.InputStream;
+
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Streams;
+
 import com.site0.walnut.alg.sum.WnDigesting;
 
 public abstract class Wsum {

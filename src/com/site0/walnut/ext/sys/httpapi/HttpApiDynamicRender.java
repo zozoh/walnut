@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 
 /**
@@ -171,7 +171,7 @@ public class HttpApiDynamicRender {
                 String sStatus = str.substring(0, pos);
                 Matcher m = _P.matcher(sStatus);
                 if (!m.find())
-                    throw Lang.makeThrow("invalid HTTP status line: %s", sStatus);
+                    throw Wlang.makeThrow("invalid HTTP status line: %s", sStatus);
 
                 int statusCode = Integer.parseInt(m.group(1));
                 // zozoh: 下面貌似木有用，先注释掉

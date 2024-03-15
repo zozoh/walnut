@@ -1,7 +1,7 @@
 package com.site0.walnut.ext.net.aliyun.oss.hdl;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.ext.net.aliyun.oss.WnAliyunOssService;
 import com.site0.walnut.impl.box.JvmHdlContext;
@@ -24,7 +24,7 @@ public class aliyunoss_meta extends aliyunoss_xxx {
 			}
 			// 解析 Map
 			try {
-				u_map = Lang.map(json);
+				u_map = Wlang.map(json);
 			} catch (Exception e) {
 				u_map = new NutMap();
 			}

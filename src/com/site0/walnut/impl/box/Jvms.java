@@ -3,7 +3,7 @@ package com.site0.walnut.impl.box;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.stream.VoidInputStream;
 import com.site0.walnut.api.box.WnBoxContext;
@@ -19,9 +19,9 @@ public class Jvms {
                                           StringBuilder sbOut,
                                           StringBuilder sbErr,
                                           CharSequence strIn) {
-        OutputStream out = Lang.ops(sbOut);
-        OutputStream err = Lang.ops(sbErr);
-        InputStream in = Strings.isBlank(strIn) ? null : Lang.ins(strIn);
+        OutputStream out = Wlang.ops(sbOut);
+        OutputStream err = Wlang.ops(sbErr);
+        InputStream in = Strings.isBlank(strIn) ? null : Wlang.ins(strIn);
 
         return createWnSystem(runner, jef, bc, out, err, in);
     }

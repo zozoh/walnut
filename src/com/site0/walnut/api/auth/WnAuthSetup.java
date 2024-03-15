@@ -1,7 +1,6 @@
 package com.site0.walnut.api.auth;
 
 import com.site0.walnut.api.io.WnObj;
-import com.site0.walnut.ext.net.weixin.WnIoWeixinApi;
 
 public interface WnAuthSetup {
 
@@ -57,13 +56,6 @@ public interface WnAuthSetup {
      * @return 短会话持续时间（秒）
      */
     int getSessionTransientDuration();
-
-    /**
-     * @param codeType
-     *            公号类型(mp | gh | open)
-     * @return 微信公众号后台操作接口
-     */
-    WnIoWeixinApi getWeixinApi(String codeType);
 
     /**
      * @return 验证码服务实例

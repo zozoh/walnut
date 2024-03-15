@@ -2,7 +2,7 @@ package com.site0.walnut.ext.data.app.hdl;
 
 import java.util.List;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
@@ -54,7 +54,7 @@ public class app_init implements JvmHdl {
                 varJson = "{}";
             }
         }
-        ac.vars = Lang.map(varJson);
+        ac.vars = Wlang.map(varJson);
 
         // 准备服务类
         AppInitService init = new AppInitService();

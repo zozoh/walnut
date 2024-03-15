@@ -15,7 +15,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.nutz.ioc.Ioc;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
@@ -25,7 +25,6 @@ import org.nutz.mvc.Mvcs;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
-import com.site0.walnut.ext.sys.quota.QuotaService;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
@@ -58,8 +57,6 @@ public class WalnutFilter implements Filter {
 
     private ArrayList<DmnMatcher> _dms;
 
-    protected QuotaService quotaService;
-
     @Override
     public void doFilter(ServletRequest request, ServletResponse resp, FilterChain chain)
             throws IOException, ServletException {
@@ -69,7 +66,7 @@ public class WalnutFilter implements Filter {
 
         // 分析路径
         String path = Wn.appendPath(req.getServletPath(), req.getPathInfo());
-        String usrip = Lang.getIP(req);
+        String usrip = Wlang.getIP(req);
         String host = req.getHeader("Host");
         String method = req.getMethod();
         int port = req.getLocalPort();
@@ -144,7 +141,7 @@ public class WalnutFilter implements Filter {
             long expiAt = oDmn.getLong("expi_at", 0);
             if (expiAt > 0 && expiAt < Wn.now()) {
                 Mvcs.updateRequestAttributes(req);
-                req.setAttribute("obj", Lang.map("host", host).setv("path", path));
+                req.setAttribute("obj", Wlang.map("host", host).setv("path", path));
                 req.setAttribute("err_message", "域名转发过期");
                 req.getRequestDispatcher(errorPage).forward(req, resp);
                 if (log.isDebugEnabled()) {
@@ -168,21 +165,6 @@ public class WalnutFilter implements Filter {
                     log.debugf(" - router(B) to: %s : %s", grp, siteName);
                 }
                 chain.doFilter(req, resp);
-                return;
-            }
-
-            // 看看流量还够不够
-            if (quotaService == null) {
-                quotaService = Mvcs.ctx().getDefaultIoc().get(QuotaService.class, "quota");
-            }
-            if (!quotaService.checkQuota("network", grp, false)) {
-                Mvcs.updateRequestAttributes(req);
-                req.setAttribute("obj", Lang.map("host", host).setv("path", path));
-                req.setAttribute("err_message", "流量已经超出限额");
-                req.getRequestDispatcher(errorPage).forward(req, resp);
-                if (log.isDebugEnabled()) {
-                    log.debug(" - domain outof quota!");
-                }
                 return;
             }
 

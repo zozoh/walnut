@@ -12,9 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.lang.Each;
 import org.nutz.lang.Files;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
@@ -62,7 +61,7 @@ public class WWWModule extends AbstractWnModule {
 
     // private static final Pattern _P = Pattern.compile("^([^/]+)(/(.+))?$");
 
-    private static final List<String> ENTRIES = Lang.list("index.wnml", "index.html");
+    private static final List<String> ENTRIES = Wlang.list("index.wnml", "index.html");
 
     private WnTmpl tmpl_400;
     private WnTmpl tmpl_404;
@@ -114,7 +113,7 @@ public class WWWModule extends AbstractWnModule {
         }
 
         if (log.isInfoEnabled())
-            log.infof("www(%s): /%s/%s", Lang.getIP(req), usr, a_path);
+            log.infof("www(%s): /%s/%s", Wlang.getIP(req), usr, a_path);
 
         // ..............................................
         // 找到用户
@@ -135,7 +134,7 @@ public class WWWModule extends AbstractWnModule {
 
         // 如果指定了 site， 直接使用
         if (!Strings.isBlank(sitePath)) {
-            NutBean vars = Lang.map("HOME", homePath).setv("PWD", homePath);
+            NutBean vars = Wlang.map("HOME", homePath).setv("PWD", homePath);
             String aphSite = Wn.normalizeFullPath(sitePath, vars);
             oWWW = io().check(null, aphSite);
         }
@@ -220,12 +219,9 @@ public class WWWModule extends AbstractWnModule {
             if (null != oWWW) {
                 Object eno = oWWW.get("www_entry");
                 List<String> en_list = new ArrayList<String>(6);
-                Lang.each(eno, new Each<String>() {
-                    @Override
-                    public void invoke(int index, String ele, int length) {
-                        if (!Strings.isBlank(ele))
-                            en_list.add(ele);
-                    }
+                Wlang.each(eno, (int index, String ele, Object src) -> {
+                    if (!Strings.isBlank(ele))
+                        en_list.add(ele);
                 });
                 if (en_list.size() > 0)
                     entries = en_list;
@@ -476,11 +472,9 @@ public class WWWModule extends AbstractWnModule {
 
         // 找到相关的 pages
         List<VirtualPage> vpages = new ArrayList<>(5);
-        Lang.each(wwwPages, false, new Each<String>() {
-            public void invoke(int index, String str, int length) {
-                VirtualPage page = virtualPages.get(str);
-                vpages.add(page);
-            }
+        Wlang.each(wwwPages, (int index, String str, Object src) -> {
+            VirtualPage page = virtualPages.get(str);
+            vpages.add(page);
         });
 
         WnObj obj = null;
@@ -587,7 +581,7 @@ public class WWWModule extends AbstractWnModule {
 
     private View gen_errpage(WnTmpl tmpl, String path, String msg, int code) {
         path = Strings.escapeHtml(path);
-        NutMap map = Lang.map("url", path);
+        NutMap map = Wlang.map("url", path);
         map.setv("msg", msg);
         String html = tmpl.render(map, false);
         return new ViewWrapper(new RawView("text/html") {

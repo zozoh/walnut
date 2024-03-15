@@ -3,7 +3,7 @@ package com.site0.walnut.ext.sys.dirm;
 import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.LoopException;
 import org.nutz.log.Log;
 import com.site0.walnut.util.Wlog;
@@ -53,7 +53,7 @@ public class cmd_dirm extends JvmExecutor {
         }
         if (params.has("match")) {
             String json = params.get("match", "{}");
-            q.setAll(Lang.map(json));
+            q.setAll(Wlang.map(json));
         }
         long childrenNum = sys.io.count(q);
         sys.out.println("" + childrenNum);

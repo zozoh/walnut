@@ -9,12 +9,13 @@ import org.nutz.json.Json;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.web.WebConfig;
+
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.core.bean.WnIoObj;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.tmpl.WnTmpl;
-import org.nutz.web.WebConfig;
 
 public class WnConfig extends WebConfig {
 

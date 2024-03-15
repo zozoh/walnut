@@ -4,7 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.nutz.lang.Lang;
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.core.WnIoHandle;
@@ -29,7 +29,7 @@ public abstract class WnIoReadHandle extends WnIoHandle {
 
     @Override
     public long seek(long n) throws IOException {
-        throw Lang.noImplement();
+        throw Wlang.noImplement();
     }
 
     @Override
