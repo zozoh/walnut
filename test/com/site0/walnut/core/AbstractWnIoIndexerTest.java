@@ -1,6 +1,11 @@
 package com.site0.walnut.core;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -8,16 +13,16 @@ import java.util.List;
 
 import org.junit.Test;
 import org.nutz.json.Json;
-import org.nutz.lang.Each;
 import org.nutz.lang.Files;
-import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
+import org.nutz.web.WebException;
+
 import com.site0.walnut.api.io.WnIoIndexer;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.api.io.WnRace;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
-import org.nutz.web.WebException;
 
 public abstract class AbstractWnIoIndexerTest extends IoCoreTest {
 
