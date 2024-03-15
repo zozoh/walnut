@@ -1,4 +1,0 @@
-<table>
-<tr><td>X:</td><td>${pos.x}</td></tr>
-<tr><td>Y:</td><td>${pos.y}</td></tr>
-</table>
