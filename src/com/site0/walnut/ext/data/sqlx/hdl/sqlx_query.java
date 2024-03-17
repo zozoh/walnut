@@ -12,7 +12,7 @@ import com.site0.walnut.ext.data.sqlx.tmpl.WnSqls;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.ZParams;
 
-public class sqlx_select extends SqlxFilter {
+public class sqlx_query extends SqlxFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {

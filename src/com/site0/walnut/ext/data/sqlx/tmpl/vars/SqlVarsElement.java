@@ -5,6 +5,7 @@ import java.util.Map;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.ele.TmplEle;
 
@@ -17,6 +18,8 @@ public abstract class SqlVarsElement implements TmplEle {
     protected String[] omit;
 
     protected Boolean ignoreNil;
+
+    protected String scope;
 
     /**
      * 处理这样的占位符:
@@ -35,8 +38,12 @@ public abstract class SqlVarsElement implements TmplEle {
         if (null != content) {
             String[] ss = Ws.splitIgnoreBlank(content, ";");
             for (String s : ss) {
+                // scope=abc
+                if (s.startsWith("scope=")) {
+                    this.scope = Ws.trim(s.substring(6));
+                }
                 // pick=name,color,age
-                if (s.startsWith("pick=")) {
+                else if (s.startsWith("pick=")) {
                     this.pick = Ws.splitIgnoreBlank(s.substring(5));
                 }
                 // omit=city,country
@@ -58,6 +65,10 @@ public abstract class SqlVarsElement implements TmplEle {
 
     protected NutBean getBean(NutBean context) {
         NutBean bean = new NutMap();
+        if (this.hasScope()) {
+            Object obj = context.get(scope);
+            context = Wlang.anyToMap(obj);
+        }
         if (this.pick != null) {
             bean = context.pick(this.pick);
         } else {
@@ -66,7 +77,7 @@ public abstract class SqlVarsElement implements TmplEle {
         if (this.omit != null) {
             bean = bean.omit(this.omit);
         }
-        if (null!=this.ignoreNil && this.ignoreNil.booleanValue()) {
+        if (null != this.ignoreNil && this.ignoreNil.booleanValue()) {
             NutBean bean2 = new NutMap();
             for (Map.Entry<String, Object> en : bean.entrySet()) {
                 Object val = en.getValue();
@@ -92,6 +103,22 @@ public abstract class SqlVarsElement implements TmplEle {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public boolean hasScope() {
+        return !Ws.isBlank(scope);
+    }
+
+    public String getScope() {
+        return scope;
+    }
+
+    public void setScope(String scope) {
+        this.scope = scope;
+    }
+
+    public Boolean getIgnoreNil() {
+        return ignoreNil;
     }
 
     public boolean hasPick() {

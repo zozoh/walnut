@@ -302,9 +302,10 @@ public class Wlang {
      *            采用集合中元素的哪个一个字段为键。
      * @return Map 对象
      */
-    public static <T extends Map<Object, Object>> T array2map(Class<T> mapClass,
-                                                              Object array,
-                                                              String keyFieldName) {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static <T extends Map> T array2map(Class<T> mapClass,
+                                              Object array,
+                                              String keyFieldName) {
         if (null == array)
             return null;
         T map = createMap(mapClass);
@@ -321,8 +322,24 @@ public class Wlang {
         return map;
     }
 
-    @SuppressWarnings("unchecked")
-    private static <T extends Map<Object, Object>> T createMap(Class<T> mapClass) {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static <T extends Map> T array2map(Class<T> mapClass, Object array) {
+        if (null == array)
+            return null;
+        T map = createMap(mapClass);
+        int len = Array.getLength(array);
+        if (len > 0) {
+            for (int i = 0; i < len; i++) {
+                Object key = Array.get(array, i++);
+                Object val = i < len ? Array.get(array, i) : null;
+                map.put(key, val);
+            }
+        }
+        return map;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static <T extends Map> T createMap(Class<T> mapClass) {
         T map;
         try {
             map = mapClass.getDeclaredConstructor().newInstance();
@@ -347,9 +364,10 @@ public class Wlang {
      *            采用集合中元素的哪个一个字段为键。
      * @return Map 对象
      */
-    public static <T extends Map<Object, Object>> T collection2map(Class<T> mapClass,
-                                                                   Collection<?> coll,
-                                                                   String keyFieldName) {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static <T extends Map> T collection2map(Class<T> mapClass,
+                                                   Collection<?> coll,
+                                                   String keyFieldName) {
         if (null == coll)
             return null;
         T map = createMap(mapClass);
@@ -365,7 +383,23 @@ public class Wlang {
                 map.put(key, obj);
             }
         }
-        return (T) map;
+        return map;
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static <T extends Map> T collection2map(Class<T> mapClass, Collection<?> coll) {
+        if (null == coll)
+            return null;
+        T map = createMap(mapClass);
+        if (coll.size() > 0) {
+            Iterator<?> it = coll.iterator();
+            while (it.hasNext()) {
+                Object key = it.next();
+                Object val = it.hasNext() ? it.next() : null;
+                map.put(key, val);
+            }
+        }
+        return map;
     }
 
     /**
@@ -1143,6 +1177,19 @@ public class Wlang {
         return input;
     }
 
+    public static <T> List<T> anyToList(Object input, Class<T> classOfT) {
+        if (null == input) {
+            return null;
+        }
+        int N = Wlang.eleSize(input);
+        List<T> list = new ArrayList<>(N);
+        Wlang.each(input, (index, ele, src) -> {
+            T o = Castors.me().castTo(ele, classOfT);
+            list.add(o);
+        });
+        return list;
+    }
+
     /**
      * 自动处理对象，如果输入是个字符串，尝试自动补全{} 的JSON转换，否则就直接返回
      * 
@@ -1160,6 +1207,9 @@ public class Wlang {
         }
         if (input instanceof Map) {
             return NutMap.WRAP((Map<String, Object>) input);
+        }
+        if (input instanceof Collection) {
+            return Wlang.collection2map(NutMap.class, (Collection<?>) input);
         }
         String json = Json.toJson(input);
         return Json.fromJson(NutMap.class, json);
