@@ -793,7 +793,7 @@ public class WnCron {
      *
      * @param i18n
      *            为多国语言参数，结构参见
-     *            <code>src/main/resources/org/nutz/walnut/cron/i18n/zh_cn.json</code>
+     *            <code>src/com/site0/walnut/cron/i18n/zh_cn.json</code>
      * 
      * @return 人类可以读懂的字符串
      */

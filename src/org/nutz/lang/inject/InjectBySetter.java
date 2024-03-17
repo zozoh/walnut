@@ -1,20 +1,21 @@
 package org.nutz.lang.inject;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.Map;
+
 import org.nutz.castor.Castors;
 import org.nutz.conf.NutConf;
 import org.nutz.json.Json;
-import com.site0.walnut.util.Wlang;
 import org.nutz.lang.reflect.FastClassFactory;
 import org.nutz.lang.reflect.FastMethod;
 import org.nutz.lang.reflect.ReflectTool;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.Map;
+import com.site0.walnut.util.Wlang;
 
 public class InjectBySetter implements Injecting {
     

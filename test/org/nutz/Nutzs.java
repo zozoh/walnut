@@ -17,10 +17,12 @@ import org.nutz.ioc.Ioc;
 import org.nutz.ioc.impl.NutIoc;
 import org.nutz.ioc.loader.json.JsonLoader;
 import org.nutz.lang.Files;
-import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 
+import com.site0.walnut.util.Wlang;
+
+@SuppressWarnings("removal")
 public class Nutzs {
 
     private static Properties pp;

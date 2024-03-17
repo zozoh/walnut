@@ -42,11 +42,11 @@ public class JsExec {
         try {
             globalVars.put("_",
                            pre_eval(getEngine("nashorn"),
-                                    "classpath:org/nutz/walnut/impl/box/cmd/jsc/lodash.min.js",
+                                    "classpath:com/site0/walnut/impl/box/cmd/jsc/lodash.min.js",
                                     "_"));
             globalVars.put("__wn",
                            pre_eval(getEngine("nashorn"),
-                                    "classpath:org/nutz/walnut/impl/box/cmd/jsc/jsc_walnut.js",
+                                    "classpath:com/site0/walnut/impl/box/cmd/jsc/jsc_walnut.js",
                                     "$wn"));
         }
         catch (ScriptException e) {

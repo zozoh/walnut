@@ -8,7 +8,7 @@ public class wup_init implements JvmHdl {
 
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         String mode = hc.params.get("mode", "0");
-        String cmdText = "app-init -file org/nutz/walnut/ext/wup/hdl/wup_" + mode + ".init ~";
+        String cmdText = "app-init -file com/site0/walnut/ext/wup/hdl/wup_" + mode + ".init ~";
         sys.exec(cmdText);
     }
 

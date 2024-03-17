@@ -1130,7 +1130,7 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         String mnt = "file://" + aph;
 
         /*
-         * <pre> /a/b/ := org/nutz/walnut/core/bean/WnObjIdTest.class ^ |
+         * <pre> /a/b/ := com/site0/walnut/core/bean/WnObjIdTest.class ^ |
          * +-----------link------------+ | /x/y/ </pre>
          */
 

@@ -37,7 +37,6 @@ import org.nutz.mvc.annotation.PUT;
 public class NutEntryDeterminer implements EntryDeterminer {
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean isEntry(Class<?> module, Method method) {
         if (!Modifier.isPublic(method.getModifiers()) || method.isBridge())
             return false;
