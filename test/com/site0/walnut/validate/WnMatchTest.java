@@ -16,6 +16,15 @@ import com.site0.walnut.util.validate.impl.AutoMatch;
 public class WnMatchTest {
 
     @Test
+    public void test_exist2() {
+        NutMap map = Wlang.map("{a: {x:1,y:2},b:{x:3,y:4}}");
+        AutoMatch m = new AutoMatch(Wlang.map("'b.y':'[EXISTS]'"));
+        assertTrue(m.match(map));
+        m = new AutoMatch(Wlang.map("'b.y':'![EXISTS]'"));
+        assertFalse(m.match(map));
+    }
+
+    @Test
     public void test_findInArray() {
         NutMap map = Wlang.map("{'matchMode':'findInArray','matchBy':{'type':'W'}}");
         AutoMatch m = new AutoMatch(map);

@@ -13,7 +13,7 @@ import java.security.ProtectionDomain;
 
 import com.site0.walnut.util.Wlang;
 
-@SuppressWarnings({"unchecked", "rawtypes", "removal"})
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class ReflectTool {
 
     protected static boolean hasLookup = false;
