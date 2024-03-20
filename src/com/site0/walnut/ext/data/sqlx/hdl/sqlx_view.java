@@ -4,6 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.json.Json;
+import org.nutz.lang.util.NutMap;
+
 import com.site0.walnut.ext.data.sqlx.SqlxContext;
 import com.site0.walnut.ext.data.sqlx.SqlxFilter;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
@@ -32,7 +34,15 @@ public class sqlx_view extends SqlxFilter {
         }
 
         // 渲染
-        String str = t.render(fc.vars, criParams);
+        NutMap context;
+        if (fc.hasVarList()) {
+            context = fc.getVarList().get(0);
+        } else if(fc.hasVarMap()){
+            context = fc.getVarMap();
+        }else {
+            context = new NutMap();
+        }
+        String str = t.render(context, criParams);
         sys.out.println(str);
 
         if (null != criParams) {

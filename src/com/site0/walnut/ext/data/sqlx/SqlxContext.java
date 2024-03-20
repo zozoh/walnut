@@ -2,20 +2,23 @@ package com.site0.walnut.ext.data.sqlx;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.ext.data.sqlx.loader.SqlHolder;
+import com.site0.walnut.ext.data.sqlx.processor.ExecProcessor;
 import com.site0.walnut.ext.data.sqlx.processor.QueryProcessor;
 import com.site0.walnut.ext.sys.sql.WnDaoAuth;
 import com.site0.walnut.ext.sys.sql.WnDaos;
 import com.site0.walnut.impl.box.JvmFilterContext;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wlog;
+import com.site0.walnut.util.Wn;
 
 public class SqlxContext extends JvmFilterContext {
 
@@ -23,7 +26,9 @@ public class SqlxContext extends JvmFilterContext {
 
     public boolean quiet;
 
-    public NutBean vars;
+    private NutMap varMap;
+
+    private List<NutMap> varList;
 
     public SqlHolder sqls;
 
@@ -33,11 +38,67 @@ public class SqlxContext extends JvmFilterContext {
 
     public QueryProcessor query;
 
+    public ExecProcessor exec;
+
     public Object result;
 
     public SqlxContext() {
-        this.vars = new NutMap();
         this.query = new QueryProcessor();
+        this.exec = new ExecProcessor();
+    }
+
+    public boolean hasVarMap() {
+        return null != this.varMap;
+    }
+
+    public NutMap getVarMap() {
+        return varMap;
+    }
+    
+    public void prepareForUpdate() {
+        if(null!=varMap) {
+            Wn.explainMetaMacro(varMap);
+        }
+        if(null!=varList) {
+            for(NutMap li :varList) {
+                Wn.explainMetaMacro(li);
+            }
+        }
+    }
+
+    public void setVarMap(NutMap vars, String[] picks, String[] omits) {
+        this.varMap = __filter_bean(vars, picks, omits);
+    }
+
+    public boolean hasVarList() {
+        return null != varList && !varList.isEmpty();
+    }
+
+    public List<NutMap> getVarList() {
+        return varList;
+    }
+
+    private NutMap __filter_bean(NutMap bean, String[] picks, String[] omits) {
+        if (null != picks && picks.length > 0) {
+            bean = bean.pick(picks);
+        }
+        if (null != omits && omits.length > 0) {
+            bean = bean.omit(omits);
+        }
+        return bean;
+    }
+
+    public void setVarList(List<NutMap> varList, String[] picks, String[] omits) {
+        if ((null != picks && picks.length > 0) || (null != omits && omits.length > 0)) {
+            List<NutMap> beans = new ArrayList<>(varList.size());
+            for (NutMap bean : varList) {
+                NutMap bean2 = __filter_bean(bean, picks, omits);
+                beans.add(bean2);
+            }
+            this.varList = beans;
+        } else {
+            this.varList = varList;
+        }
     }
 
     public void prepareToRun(WnSystem sys) {

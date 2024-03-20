@@ -1,35 +1,86 @@
 package com.site0.walnut.ext.data.sqlx.hdl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.ext.data.sqlx.SqlxContext;
 import com.site0.walnut.ext.data.sqlx.SqlxFilter;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
 
 public class sqlx_vars extends SqlxFilter {
 
     @Override
+    protected ZParams parseParams(String[] args) {
+        return ZParams.parse(args, "^update$");
+    }
+
+    @Override
     protected void process(WnSystem sys, SqlxContext fc, ZParams params) {
+        String mode = params.getString("as", "map");
+        String omit = params.getString("omit");
+        String pick = params.getString("pick");
+        String[] omits = Ws.splitIgnoreBlank(omit);
+        String[] picks = Ws.splitIgnoreBlank(pick);
+
+        if ("list".equals(mode)) {
+            List<NutMap> list = __read_as_list(sys, fc, params);
+            fc.setVarList(list, picks, omits);
+        } else {
+            NutMap map = __read_as_map(sys, fc, params);
+            fc.setVarMap(map, picks, omits);
+        }
+
+        if (params.is("update")) {
+            fc.prepareForUpdate();
+        }
+    }
+
+    private List<NutMap> __read_as_list(WnSystem sys, SqlxContext fc, ZParams params) {
+        // 从标准输入读取
+        if (params.vals.length == 0) {
+            String json = sys.in.readAll();
+            return Json.fromJsonAsList(NutMap.class, json);
+        }
+        // 逐个解析参数
+        ArrayList<NutMap> beans = new ArrayList<>(params.vals.length);
+        for (String val : params.vals) {
+            if ("~STDIN~".equals(val)) {
+                String json = sys.in.readAll();
+                List<NutMap> list = Json.fromJsonAsList(NutMap.class, json);
+                beans.addAll(list);
+            } else {
+                NutMap map = Wlang.map(val);
+                beans.add(map);
+            }
+        }
+        return beans;
+    }
+
+    private NutMap __read_as_map(WnSystem sys, SqlxContext fc, ZParams params) {
         // 从标准输入读取
         if (params.vals.length == 0) {
             String json = sys.in.readAll();
             NutMap map = Json.fromJson(NutMap.class, json);
-            fc.vars.putAll(map);
+            return map;
         }
         // 逐个解析参数
-        else {
-            for (String val : params.vals) {
-                if ("~STDIN~".equals(val)) {
-                    String json = sys.in.readAll();
-                    NutMap map = Json.fromJson(NutMap.class, json);
-                    fc.vars.putAll(map);
-                } else {
-                    NutMap map = Wlang.map(val);
-                    fc.vars.putAll(map);
-                }
+        NutMap re = new NutMap();
+        for (String val : params.vals) {
+            if ("~STDIN~".equals(val)) {
+                String json = sys.in.readAll();
+                NutMap map = Json.fromJson(NutMap.class, json);
+                re.putAll(map);
+            } else {
+                NutMap map = Wlang.map(val);
+                re.putAll(map);
             }
         }
+        return re;
     }
+
 }

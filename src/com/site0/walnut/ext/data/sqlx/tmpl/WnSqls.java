@@ -1,11 +1,20 @@
 package com.site0.walnut.ext.data.sqlx.tmpl;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Mirror;
+import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
+
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wtime;
 
@@ -15,6 +24,50 @@ import com.site0.walnut.util.Wtime;
  * @author zozoh(zozohtnt@gmail.com)
  */
 public abstract class WnSqls {
+
+    public static List<Object[]> getParams(List<NutMap> list, List<SqlParam> params) {
+        List<Object[]> re = new ArrayList<>(list.size());
+        for (NutMap li : list) {
+            Object[] row = new Object[params.size()];
+            int x = 0;
+            for (SqlParam param : params) {
+                String key = param.getName();
+                Object val = li.get(key);
+                row[x++] = val;
+            }
+        }
+        return re;
+    }
+
+    public static void setParmas(PreparedStatement sta, Object[] params) throws SQLException {
+        for (int i = 0; i < params.length; i++) {
+            Object val = params[i];
+            sta.setObject(i + 1, val);
+        }
+    }
+
+    public static List<NutBean> toBeanList(ResultSet rs) throws SQLException {
+        List<NutBean> list = new LinkedList<>();
+        ResultSetMetaData meta = rs.getMetaData();
+        // 遍历结果集
+        while (rs.next()) {
+            NutBean bean = WnSqls.toBean(rs, meta);
+            list.add(bean);
+        }
+        return list;
+
+    }
+
+    public static NutBean toBean(ResultSet rs, ResultSetMetaData meta) throws SQLException {
+        NutMap bean = new NutMap();
+        int colCount = meta.getColumnCount();
+        for (int i = 1; i <= colCount; i++) {
+            String colName = meta.getColumnName(i);
+            Object val = rs.getObject(i);
+            bean.put(colName, val);
+        }
+        return bean;
+    }
 
     public static String[] getSqlParamsName(List<SqlParam> list) {
         String[] re = new String[list.size()];

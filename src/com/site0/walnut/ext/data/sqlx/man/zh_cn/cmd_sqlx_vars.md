@@ -148,8 +148,10 @@ SELECT * FROM t_pets WHERE name=? AND color=? AND age=?
 ```bash
 sqlx @vars 
   [{Vars}...]        # 参数为多个变量集合，如果未指定，则从标准输入读取
-  [-omit {..}]       # 在输入的变量集中移除指定的变量
-  [-pick {..}]       # 在输入的变量集中仅挑选指定的变量
+  [-as list|map]     # 参数存放为一个列表还是一个 Map
+                     # 通常对于批量插入、更新、删除等操作，需要 list
+  [-omit k1,k2..]    # 在输入的变量集中移除指定的变量
+  [-pick k1,k2..]    # 在输入的变量集中仅挑选指定的变量
 ```
 
 # 示例

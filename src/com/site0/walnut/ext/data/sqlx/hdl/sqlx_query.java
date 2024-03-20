@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.nutz.lang.util.NutMap;
+
 import com.site0.walnut.ext.data.sqlx.SqlxContext;
 import com.site0.walnut.ext.data.sqlx.SqlxFilter;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
@@ -27,16 +29,17 @@ public class sqlx_query extends SqlxFilter {
         WnSqlTmpl sqlt = fc.sqls.get(sqlName);
         Connection conn = fc.getConnection(sys);
 
+        NutMap context = fc.getVarMap();
         // 参数模式防止注入
         if (useParam) {
             List<SqlParam> cps = new ArrayList<>();
-            String sql = sqlt.render(fc.vars, cps);
+            String sql = sqlt.render(context, cps);
             Object[] sqlParams = WnSqls.getSqlParamsValue(cps);
             fc.result = fc.query.runWithParams(conn, sql, sqlParams);
         }
         // 普通模式
         else {
-            String sql = sqlt.render(fc.vars, null);
+            String sql = sqlt.render(context, null);
             fc.result = fc.query.run(conn, sql);
         }
     }

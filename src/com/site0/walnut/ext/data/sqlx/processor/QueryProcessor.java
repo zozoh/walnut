@@ -4,33 +4,22 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutBean;
-import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
+
 import com.site0.walnut.api.err.Er;
+import com.site0.walnut.ext.data.sqlx.tmpl.WnSqls;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
 
 public class QueryProcessor implements SqlProcessor<List<NutBean>> {
 
     private static Log log = Wlog.getCMD();
-
-    private NutBean toBean(ResultSet rs, ResultSetMetaData meta) throws SQLException {
-        NutMap bean = new NutMap();
-        int colCount = meta.getColumnCount();
-        for (int i = 1; i <= colCount; i++) {
-            String colName = meta.getColumnName(i);
-            Object val = rs.getObject(i);
-            bean.put(colName, val);
-        }
-        return bean;
-    }
 
     @Override
     public List<NutBean> run(Connection conn, String sql) {
@@ -40,7 +29,7 @@ public class QueryProcessor implements SqlProcessor<List<NutBean>> {
         }
 
         try {
-            // 准
+            // 准备语句
             Statement sta = conn.createStatement();
 
             // 执行
@@ -49,7 +38,7 @@ public class QueryProcessor implements SqlProcessor<List<NutBean>> {
 
             // 遍历结果集
             while (rs.next()) {
-                NutBean bean = toBean(rs, meta);
+                NutBean bean = WnSqls.toBean(rs, meta);
                 list.add(bean);
             }
 
@@ -77,11 +66,7 @@ public class QueryProcessor implements SqlProcessor<List<NutBean>> {
         try {
             // 准备
             PreparedStatement sta = conn.prepareStatement(sql);
-
-            for (int i = 0; i < params.length; i++) {
-                Object val = params[i];
-                sta.setObject(i + 1, val);
-            }
+            WnSqls.setParmas(sta, params);
 
             // 执行
             ResultSet rs = sta.executeQuery();
@@ -89,7 +74,7 @@ public class QueryProcessor implements SqlProcessor<List<NutBean>> {
 
             // 遍历结果集
             while (rs.next()) {
-                NutBean bean = toBean(rs, meta);
+                NutBean bean = WnSqls.toBean(rs, meta);
                 list.add(bean);
             }
 
