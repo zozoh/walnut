@@ -5,7 +5,7 @@
 	<groupId>com.site0</groupId>
 	<packaging>jar</packaging>
 	<name>walnut</name>
-	<version>13.71</version>
+	<version>13.72</version>
 	<description>LOONG[NI-SQLX-U]</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
