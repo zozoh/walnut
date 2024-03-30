@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -19,12 +20,11 @@ import org.nutz.img.Colors;
 import org.nutz.img.Images;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.lang.Encoding;
 import org.nutz.lang.Files;
-import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Nums;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
-import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import org.nutz.mvc.View;
@@ -42,15 +42,18 @@ import org.nutz.mvc.annotation.ReqHeader;
 import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.repo.Base64;
+
 import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.api.io.WnRace;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnPagerObj;
 import com.site0.walnut.util.Wobj;
+import com.site0.walnut.util.tmpl.WnTmpl;
 import com.site0.walnut.web.filter.WnCheckSession;
 import com.site0.walnut.web.filter.WnSetSecurity;
 import com.site0.walnut.web.util.WnWeb;
@@ -83,19 +86,39 @@ public class ObjModule extends AbstractWnModule {
         return o;
     }
 
+    @Filters(@By(type = WnCheckSession.class, args = {"true"}))
     @At("/fetch")
-    public WnObj fetch(@Param("str") String str) {
+    public WnObj fetch(@Param("str") String str,
+                       @Param("path") boolean loadPath,
+                       @Param("axis") boolean loadAxis,
+                       final HttpServletResponse resp) {
+        // 这个接口开放给外部 app 调用
+        WnWeb.setCrossDomainHeaders("*", (name, value) -> {
+            resp.setHeader(WnWeb.niceHeaderName(name), value);
+        });
+
         WnAuthSession se = Wn.WC().checkSession();
-        WnObj o = Wn.checkObj(io(), se, str);
+        String ph = URLDecoder.decode(str, Encoding.CHARSET_UTF8);
+        WnObj o = Wn.checkObj(io(), se, ph);
+
+        if (loadAxis) {
+            LinkedList<WnObj> ans = new LinkedList<>();
+            o.loadParents(ans, false);
+            o.put("ancestors", ans);
+            o.loadParents(null, loadAxis);
+        }
+
+        if (loadPath) {
+            o.path();
+        }
+
         return o;
     }
 
+    @Filters(@By(type = WnCheckSession.class, args = {"true"}))
     @At("/fetch2")
-    public WnObj fetch2(@Param("str") String str) {
-        WnAuthSession se = Wn.WC().checkSession();
-        WnObj o = Wn.checkObj(io(), se, str);
-        o.path();
-        return o;
+    public WnObj fetch2(@Param("str") String str, final HttpServletResponse resp) {
+        return fetch(str, true, false, resp);
     }
 
     /**

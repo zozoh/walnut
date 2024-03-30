@@ -132,6 +132,20 @@ public class app_init implements JvmHdl {
             return;
         }
 
+        // 2.2. /mnt/project/${domain}/init/_files
+        ac.oInitFile = sys.io.fetch(oMntHome, "init/" + fName);
+        if (null != ac.oInitFile) {
+            ac.oHome = ac.oInitFile.parent();
+            return;
+        }
+
+        // 2.3. /mnt/project/${domain}/init/${doman}.init
+        ac.oInitFile = sys.io.fetch(oMntHome, "init/" + initName + ".init");
+        if (null != ac.oInitFile) {
+            ac.oHome = ac.oInitFile.parent();
+            return;
+        }
+
         // 3. /mnt/project/${domain}/*/init/domain/_files
         List<WnObj> children = sys.io.getChildren(oMntHome, null);
         for (WnObj oChild : children) {
