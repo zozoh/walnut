@@ -105,7 +105,6 @@ public class ObjModule extends AbstractWnModule {
             LinkedList<WnObj> ans = new LinkedList<>();
             o.loadParents(ans, false);
             o.put("ancestors", ans);
-            o.loadParents(null, loadAxis);
         }
 
         if (loadPath) {

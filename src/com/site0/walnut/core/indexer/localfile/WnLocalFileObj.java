@@ -587,6 +587,14 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     }
 
     private void _fill_vals(NutBean map) {
+        // 预先填充自定义属性
+        for (Map.Entry<String, Object> en : this.entrySet()) {
+            String key = en.getKey();
+            Object val = en.getValue();
+            map.put(key, val);
+        }
+
+        // 填充一遍固定属性
         map.put("m", mender());
         map.put("c", creator());
         map.put("g", group());
