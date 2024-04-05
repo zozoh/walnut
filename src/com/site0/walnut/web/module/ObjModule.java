@@ -546,6 +546,11 @@ public class ObjModule extends AbstractWnModule {
                         @ReqHeader("Range") String range,
                         HttpServletRequest req,
                         HttpServletResponse resp) {
+        // 这个接口开放给外部 app 调用
+        WnWeb.setCrossDomainHeaders("*", (name, value) -> {
+            resp.setHeader(WnWeb.niceHeaderName(name), value);
+        });
+
         // 获取当前会话
         WnAuthSession se = Wn.WC().checkSession();
 
