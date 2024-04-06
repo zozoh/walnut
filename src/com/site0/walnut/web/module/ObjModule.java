@@ -546,6 +546,10 @@ public class ObjModule extends AbstractWnModule {
                         @ReqHeader("Range") String range,
                         HttpServletRequest req,
                         HttpServletResponse resp) {
+        // 这个接口开放给外部 app 调用
+        WnWeb.setCrossDomainHeaders("*", (name, value) -> {
+            resp.setHeader(WnWeb.niceHeaderName(name), value);
+        });
         // 获取当前会话
         WnAuthSession se = Wn.WC().checkSession();
 
@@ -576,7 +580,12 @@ public class ObjModule extends AbstractWnModule {
     public WnObj saveText(@Param("str") String str,
                           @Param("content") String content,
                           @Param("cine") boolean createIfNoExists,
-                          @Param("base64") boolean asBase64) {
+                          @Param("base64") boolean asBase64,
+                          HttpServletResponse resp) {
+        // 这个接口开放给外部 app 调用
+        WnWeb.setCrossDomainHeaders("*", (name, value) -> {
+            resp.setHeader(WnWeb.niceHeaderName(name), value);
+        });
         // 获取当前会话
         WnAuthSession se = Wn.WC().checkSession();
         WnIo io = io();
@@ -662,7 +671,13 @@ public class ObjModule extends AbstractWnModule {
                             @Param("sz") long sz,
                             @Param("mime") String mime,
                             @Param("tmpl") String tmpl,
-                            InputStream ins) {
+                            InputStream ins,
+                            HttpServletResponse resp) {
+        // 这个接口开放给外部 app 调用
+        WnWeb.setCrossDomainHeaders("*", (name, value) -> {
+            resp.setHeader(WnWeb.niceHeaderName(name), value);
+        });
+
         // 得到当前会话
         WnAuthSession se = Wn.WC().checkSession();
 
