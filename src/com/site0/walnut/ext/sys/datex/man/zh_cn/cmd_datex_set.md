@@ -18,5 +18,5 @@ datex @set 2023-09-21
 datex @set '%ms:now+1d'
 
 # 直接将指定当前时间的绝对毫秒数
-datex @set -ms 1694368557435
+datex @set 1694368557435
 ```
