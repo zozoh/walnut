@@ -5,8 +5,8 @@
 	<groupId>com.site0</groupId>
 	<packaging>jar</packaging>
 	<name>walnut</name>
-	<version>13.76</version>
-	<description>LOONG[NI-SQLX-U]</description>
+	<version>13.77</version>
+	<description>LOONG[C-record]</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<elasticsearch.version>6.3.2</elasticsearch.version>

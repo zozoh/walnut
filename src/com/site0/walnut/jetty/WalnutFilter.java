@@ -167,6 +167,22 @@ public class WalnutFilter implements Filter {
                 chain.doFilter(req, resp);
                 return;
             }
+            // 如果是 C 记录，那么就表明，这个请求是要转发到 "/" 的入口函数来处理
+            // 即， WnMainModule#@At("/")
+            // 它的处理就是要找到对应的域，以及域目录，依次加载静态资源
+            // 因此它需要读取 wn_www_grp/wn_www_site 这两个属性即可
+            // 同时我们需要给它做一个简单的标识，以便处理逻辑知道，现在正在处理 C 记录
+            else if (oDmn.isType("C")) {
+                req.setAttribute("wn_www_grp", grp);
+                req.setAttribute("wn_www_site", siteName);
+                req.setAttribute("wn_www_static", "yes");
+                // 这个通常还是要记录一下日志的
+                if (log.isDebugEnabled()) {
+                    log.debugf(" - router(C) to: %s : %s", grp, siteName);
+                }
+                chain.doFilter(req, resp);
+                return;
+            }
 
             // 准备替换的上下文
             NutMap map = new NutMap().setv("grp", grp);
