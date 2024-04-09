@@ -8,7 +8,7 @@
 
 ```bash
 thing [ThingSetID] ACTION [options] 
-        [-json "{..}"] [-tmpl "TMPL"] [-N] [-Q]
+        [-json "{..}"] [- tmpl "TMPL"] [-N] [-Q]
     
 - ThingSetID 「选」指代 ThingSet 的ID，默认为当前目录
 - ACTION     默认为 "get"，具体支持的 Action 看后续列表

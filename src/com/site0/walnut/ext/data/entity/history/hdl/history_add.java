@@ -1,5 +1,6 @@
 package com.site0.walnut.ext.data.entity.history.hdl;
 
+import com.site0.walnut.util.Wtime;
 import org.nutz.json.Json;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
@@ -24,6 +25,9 @@ public class history_add implements JvmHdl {
         String json = Cmds.checkParamOrPipe(sys, hc.params, 0);
         NutMap map = Wlang.map(json);
         HistoryRecord his = Wlang.map2Object(map, HistoryRecord.class);
+        if (!his.hasCreateTime()) {
+            his.setCreateTime(System.currentTimeMillis());
+        }
 
         // 准备返回值
         Object re = api.add(his);

@@ -9,6 +9,9 @@
 ```bash
 history {HistoryName} clean
   [Query Object]            # 复杂查询条件对象
+  [-all]                    # 显示的删除所有记录
+                            # 安全起见，若用户忘记指定删除条件
+                            # 必须显式的声明本参数，才能删除所有记录
 ```
 
 示例
@@ -16,7 +19,7 @@ history {HistoryName} clean
 
 ```bash
 # 清除全部历史记录 
-demo:$ history clean
+demo:$ history clean -all
 271234
 
 # 清除某用户的全部历史记录

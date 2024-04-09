@@ -2,6 +2,7 @@ package com.site0.walnut.ext.data.entity.history;
 
 import java.util.Date;
 
+import com.site0.walnut.util.Wtime;
 import org.nutz.dao.entity.annotation.Column;
 import org.nutz.dao.entity.annotation.Name;
 import org.nutz.dao.entity.annotation.Table;
@@ -97,7 +98,7 @@ public class HistoryRecord {
         map.put("unm", userName);
         map.put("utp", userType);
         map.put("ct", createTime);
-        map.put("cts", Times.format("yyyy-MM-dd HH:mm:ss.SSS", new Date(createTime)));
+        map.put("cts", Wtime.format(new Date(createTime),"yyyy-MM-dd HH:mm:ss.SSS"));
         map.put("tid", targetId);
         map.put("tnm", targetName);
         map.put("ttp", targetType);

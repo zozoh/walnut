@@ -1,5 +1,6 @@
 package com.site0.walnut.ext.data.entity.history.hdl;
 
+import com.site0.walnut.api.err.Er;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.ext.data.entity.history.HisQuery;
@@ -22,7 +23,12 @@ public class history_clean implements JvmHdl {
         // 获取查询条件
         String json = Cmds.getParamOrPipe(sys, hc.params, 0);
         NutMap map = Wlang.map(json);
+        if(map.isEmpty() && !hc.params.is("all")) {
+            throw Er.create("e.cmd.history.implicitCleanAll");
+        }
+
         HisQuery q = Wlang.map2Object(map, HisQuery.class);
+
 
         // 查询
         int n = api.removeBy(q);
