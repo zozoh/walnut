@@ -5,7 +5,7 @@
 	<groupId>com.site0</groupId>
 	<packaging>jar</packaging>
 	<name>walnut</name>
-	<version>13.78</version>
+	<version>13.79</version>
 	<description>LOONG[C-record]</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
