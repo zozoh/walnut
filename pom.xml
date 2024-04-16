@@ -5,7 +5,7 @@
 	<groupId>com.site0</groupId>
 	<packaging>jar</packaging>
 	<name>walnut</name>
-	<version>13.79</version>
+	<version>13.80</version>
 	<description>LOONG[C-record]</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -340,10 +340,12 @@
 			<artifactId>jedis</artifactId>
 			<version>3.6.0</version>
 		</dependency>
+		<!-- dependency> <groupId>ru.yandex.clickhouse</groupId> <artifactId>clickhouse-jdbc</artifactId> 
+			<version>0.2.4</version> </dependency -->
 		<dependency>
-			<groupId>ru.yandex.clickhouse</groupId>
+			<groupId>com.clickhouse</groupId>
 			<artifactId>clickhouse-jdbc</artifactId>
-			<version>0.2.4</version>
+			<version>0.5.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.docx4j</groupId>
