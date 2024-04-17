@@ -235,15 +235,15 @@ mor : "xxx"    # 关于动作的更多细节，譬如更新的字段值等
 
 ```sql
 CREATE TABLE `t_history` (
-	`id` CHAR(26)  NOT NULL,
-	`uid` CHAR(26) NOT NULL,
-	`unm` CHAR(26) NULL DEFAULT NULL,
-	`utp` CHAR(20) NULL DEFAULT NULL,
-	`tid` CHAR(26) NULL DEFAULT NULL,
-	`tnm` CHAR(26) NULL DEFAULT NULL,
-	`ttp` CHAR(20) NULL DEFAULT NULL,
-	`opt` VARCHAR(50) NOT NULL,
-	`mor` VARCHAR(128) NULL DEFAULT NULL,
+	`id` CHAR(64)  NOT NULL,
+	`uid` CHAR(64) NOT NULL,
+	`unm` CHAR(64) NULL DEFAULT NULL,
+	`utp` CHAR(32) NULL DEFAULT NULL,
+	`tid` CHAR(64) NULL DEFAULT NULL,
+	`tnm` CHAR(64) NULL DEFAULT NULL,
+	`ttp` CHAR(32) NULL DEFAULT NULL,
+	`opt` VARCHAR(128) NOT NULL,
+	`mor` text,
 	`ct` BIGINT(20) UNSIGNED NOT NULL,
 	PRIMARY KEY (`id`),
 	INDEX `UID` (`uid`),
@@ -255,6 +255,27 @@ CREATE TABLE `t_history` (
 COLLATE='utf8_general_ci'
 ENGINE=MyISAM
 ;
+```
+
+ClikHouse 建表语句:
+```sql
+CREATE TABLE t_history (
+    id String,
+    uid String,
+    unm String DEFAULT NULL,
+    utp String DEFAULT NULL,
+    tid String,
+    tnm String DEFAULT NULL,
+    ttp String DEFAULT NULL,
+    opt String,
+    mor String,
+    ct DateTime
+) ENGINE = MergeTree()
+ORDER BY (ct, id) 
+PRIMARY KEY (ct, id) 
+SETTINGS index_granularity = 8192;
+
+CREATE INDEX idx_tid ON his_case (tid) TYPE minmax GRANULARITY 8192;
 ```
 
 --------------------------------------
