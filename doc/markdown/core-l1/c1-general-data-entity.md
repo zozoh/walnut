@@ -269,7 +269,7 @@ CREATE TABLE t_history (
     ttp String DEFAULT NULL,
     opt String,
     mor String,
-    ct DateTime
+    ct Int64
 ) ENGINE = MergeTree()
 ORDER BY (ct, id) 
 PRIMARY KEY (ct, id) 
