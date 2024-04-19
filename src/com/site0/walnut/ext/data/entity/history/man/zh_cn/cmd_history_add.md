@@ -9,6 +9,8 @@
 ```bash
 history {HistoryName} add
   [{History Object}]        # 历史记录对象
+  [-mor]                    # 读取历史记录的更多操作信息
+                            # 声明了这个参数，将从标准输入读取
   [-cqn]                    # JSON 输出格式
 ```
 
