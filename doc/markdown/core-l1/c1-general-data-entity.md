@@ -259,7 +259,7 @@ ENGINE=MyISAM
 
 ClikHouse 建表语句:
 ```sql
-CREATE TABLE t_history (
+CREATE TABLE ${TableName} (
     id String,
     uid String,
     unm String DEFAULT NULL,
@@ -275,7 +275,7 @@ ORDER BY (ct, id)
 PRIMARY KEY (ct, id) 
 SETTINGS index_granularity = 8192;
 
-CREATE INDEX idx_tid ON his_case (tid) TYPE minmax GRANULARITY 8192;
+CREATE INDEX idx_tid ON ${TableName} (tid) TYPE minmax GRANULARITY 8192;
 ```
 
 --------------------------------------
