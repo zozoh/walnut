@@ -118,9 +118,23 @@ public class WnMainModule extends AbstractWnModule {
         while (path.startsWith("/")) {
             path = path.substring(1);
         }
+
         if (Ws.isBlank(path)) {
             path = "index.html";
         }
+        // 对于带有下列后缀的，直接访问
+        else if (path.matches("^.+[.](js(.map)?|css|json|html|txt|pdf|gif|png|svg|jpe?g)$")) {
+            // 维持原本的路径
+        }
+        // 对于下列目录，也是直接访问
+        else if (path.matches("^(assets|resources)[/].+$")) {
+            // 维持原本路径
+        }
+        // 否则，直接返回 index.html
+        else {
+            path = "index.html";
+        }
+
         WnObj obj = io.fetch(oDir, path);
         if (null == obj) {
             return HttpStatusView(404, path);
