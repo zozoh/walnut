@@ -9,10 +9,9 @@
 
 ```bash
 ~/.sqlx/
-|-- pet.add.sql
-|-- pet.update.sql
-|-- pet.query.sql
-|-- pet.delete.sql
+|-- pet.sql
+|-- address.sql
+|-- food.sql
 ```
 
 每个 SQL 文件实际上就是一个模板，它支持 `cmd_tmpl` 同样的语法。并在此基础上，支
@@ -44,7 +43,8 @@ UPDATE t_pet SET${@vars=update} WHERE id=?;
 
 ```bash
 @vars       # 为当前上下文指定变量集合
-@exec       # 执行指定的 SQL
+@exec       # 执行指定的 UPDATE/DELETE/INSERT 语句
+@query      # 执行指定的 SELECT 语句
 @trans      # 事务相关操作
 @view       # 测试 SQL 的渲染结果
 @cache      # 处理 SQL 的缓存
