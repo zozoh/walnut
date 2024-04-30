@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.json.Json;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.ext.data.sqlx.SqlxContext;
 import com.site0.walnut.ext.data.sqlx.SqlxFilter;
+import com.site0.walnut.ext.data.sqlx.util.SqlVarsFaker;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Ws;
@@ -28,7 +30,7 @@ public class sqlx_vars extends SqlxFilter {
         String[] picks = Ws.splitIgnoreBlank(pick);
 
         if ("list".equals(mode)) {
-            List<NutMap> list = __read_as_list(sys, fc, params);
+            List<NutBean> list = __read_as_list(sys, fc, params);
             fc.setVarList(list, picks, omits);
         } else {
             NutMap map = __read_as_map(sys, fc, params);
@@ -40,14 +42,21 @@ public class sqlx_vars extends SqlxFilter {
         }
     }
 
-    private List<NutMap> __read_as_list(WnSystem sys, SqlxContext fc, ZParams params) {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private List<NutBean> __read_as_list(WnSystem sys, SqlxContext fc, ZParams params) {
+        // 伪造列表数据
+        if (params.has("fake")) {
+            SqlVarsFaker faker = new SqlVarsFaker(params.getString("fake"));
+            return faker.genList(sys);
+        }
         // 从标准输入读取
-        if (params.vals.length == 0) {
+        else if (params.vals.length == 0) {
             String json = sys.in.readAll();
-            return Json.fromJsonAsList(NutMap.class, json);
+            List list = Json.fromJsonAsList(NutMap.class, json);
+            return (List<NutBean>) list;
         }
         // 逐个解析参数
-        ArrayList<NutMap> beans = new ArrayList<>(params.vals.length);
+        ArrayList<NutBean> beans = new ArrayList<>(params.vals.length);
         for (String val : params.vals) {
             if ("~STDIN~".equals(val)) {
                 String json = sys.in.readAll();

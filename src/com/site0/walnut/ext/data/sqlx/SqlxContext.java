@@ -7,8 +7,9 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.NutBean;
 import org.nutz.log.Log;
+
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.ext.data.sqlx.loader.SqlHolder;
 import com.site0.walnut.ext.data.sqlx.processor.ExecProcessor;
@@ -26,9 +27,9 @@ public class SqlxContext extends JvmFilterContext {
 
     public boolean quiet;
 
-    private NutMap varMap;
+    private NutBean varMap;
 
-    private List<NutMap> varList;
+    private List<NutBean> varList;
 
     public SqlHolder sqls;
 
@@ -51,22 +52,22 @@ public class SqlxContext extends JvmFilterContext {
         return null != this.varMap;
     }
 
-    public NutMap getVarMap() {
+    public NutBean getVarMap() {
         return varMap;
     }
-    
+
     public void prepareForUpdate() {
-        if(null!=varMap) {
+        if (null != varMap) {
             Wn.explainMetaMacro(varMap);
         }
-        if(null!=varList) {
-            for(NutMap li :varList) {
+        if (null != varList) {
+            for (NutBean li : varList) {
                 Wn.explainMetaMacro(li);
             }
         }
     }
 
-    public void setVarMap(NutMap vars, String[] picks, String[] omits) {
+    public void setVarMap(NutBean vars, String[] picks, String[] omits) {
         this.varMap = __filter_bean(vars, picks, omits);
     }
 
@@ -74,11 +75,11 @@ public class SqlxContext extends JvmFilterContext {
         return null != varList && !varList.isEmpty();
     }
 
-    public List<NutMap> getVarList() {
+    public List<NutBean> getVarList() {
         return varList;
     }
 
-    private NutMap __filter_bean(NutMap bean, String[] picks, String[] omits) {
+    private NutBean __filter_bean(NutBean bean, String[] picks, String[] omits) {
         if (null != picks && picks.length > 0) {
             bean = bean.pick(picks);
         }
@@ -88,11 +89,11 @@ public class SqlxContext extends JvmFilterContext {
         return bean;
     }
 
-    public void setVarList(List<NutMap> varList, String[] picks, String[] omits) {
+    public void setVarList(List<NutBean> varList, String[] picks, String[] omits) {
         if ((null != picks && picks.length > 0) || (null != omits && omits.length > 0)) {
-            List<NutMap> beans = new ArrayList<>(varList.size());
-            for (NutMap bean : varList) {
-                NutMap bean2 = __filter_bean(bean, picks, omits);
+            List<NutBean> beans = new ArrayList<>(varList.size());
+            for (NutBean bean : varList) {
+                NutBean bean2 = __filter_bean(bean, picks, omits);
                 beans.add(bean2);
             }
             this.varList = beans;

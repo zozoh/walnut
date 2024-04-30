@@ -152,6 +152,10 @@ sqlx @vars
                      # 通常对于批量插入、更新、删除等操作，需要 list
   [-omit k1,k2..]    # 在输入的变量集中移除指定的变量
   [-pick k1,k2..]    # 在输入的变量集中仅挑选指定的变量
+  [-fake {FAKER}]    # 伪造上下文变量，主要用于生成测试数据
+                     # {FAKER} 的格式为：
+                     # '10:/path/to/fake_bean.json' - 伪造10个对象
+                     # '/path/to/fake_bean.json' - 伪造1个对象
 ```
 
 # 示例
