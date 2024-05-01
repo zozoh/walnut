@@ -19,7 +19,8 @@
 -- omit : a,b,c
 -- pick : x,y,z
 -- sqlx @exec pet.query1
-SELECT * FROM ${table_name} WHERE ${limit<int>?500} LIMIT ${@vars=where};
+SELECT * FROM ${table_name} WHERE {@vars=where} 
+LIMIT {skip<int>?0}, ${limit<int>?50}
 
 -- name : change
 -- type : update
@@ -33,6 +34,12 @@ UPDATE ${table_name} SET ${@vars=upsert} WHERE ${@vars=where; pick=id};
 ```bash
 sqlx @view 
   [sqlName]      # sql 模板的名称
+  [-p]           # 按照 SQL 参数模板形式预览
+  [-i]           # 对于列表模式的预览，每个上下文需要打印序号
+                 # 默认从 1 开始
+  [-start 1]     # 对于 `-i` 模式，指定开始序号
+  [-cqn]         # 对于 `-p` 模式，输出上下文的每个对象时
+                 # 的 json 格式化方式
 ```
 
 

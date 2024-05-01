@@ -19,7 +19,7 @@ public class WnIntegerFaker extends FakeIntRange implements WnFaker<Integer> {
 
     @Override
     public Integer next() {
-        return Wuu.random(min, max);
+        return Wuu.random(min, max + 1);
     }
 
 }

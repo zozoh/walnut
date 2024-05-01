@@ -47,10 +47,11 @@ public class sqlx_vars extends SqlxFilter {
         // 伪造列表数据
         if (params.has("fake")) {
             SqlVarsFaker faker = new SqlVarsFaker(params.getString("fake"));
+            faker.setLang(params.getString("lang", "zh_cn"));
             return faker.genList(sys);
         }
         // 从标准输入读取
-        else if (params.vals.length == 0) {
+        if (params.vals.length == 0) {
             String json = sys.in.readAll();
             List list = Json.fromJsonAsList(NutMap.class, json);
             return (List<NutBean>) list;
@@ -71,6 +72,12 @@ public class sqlx_vars extends SqlxFilter {
     }
 
     private NutMap __read_as_map(WnSystem sys, SqlxContext fc, ZParams params) {
+        // 伪造列表数据
+        if (params.has("fake")) {
+            SqlVarsFaker faker = new SqlVarsFaker(params.getString("fake"));
+            faker.setLang(params.getString("lang", "zh_cn"));
+            return faker.genBean(sys);
+        }
         // 从标准输入读取
         if (params.vals.length == 0) {
             String json = sys.in.readAll();

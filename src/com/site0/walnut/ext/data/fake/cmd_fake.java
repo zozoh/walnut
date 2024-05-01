@@ -4,6 +4,7 @@ import org.nutz.json.Json;
 import com.site0.walnut.ext.data.fake.out.FakeSysOutput;
 import com.site0.walnut.impl.box.JvmFilterExecutor;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.util.ZParams;
 
 public class cmd_fake extends JvmFilterExecutor<FakeContext, FakeFilter> {
 
@@ -14,6 +15,11 @@ public class cmd_fake extends JvmFilterExecutor<FakeContext, FakeFilter> {
     @Override
     protected FakeContext newContext() {
         return new FakeContext();
+    }
+
+    @Override
+    protected ZParams parseParams(String[] args) {
+        return ZParams.parse(args, "cqnl");
     }
 
     @Override
@@ -32,7 +38,11 @@ public class cmd_fake extends JvmFilterExecutor<FakeContext, FakeFilter> {
 
         // 最后输入出 Beans 的 JSON
         if (null != fc.beans) {
-            String json = Json.toJson(fc.beans, fc.jfmt);
+            Object obj = fc.beans;
+            if (!fc.params.is("l") && 1 == fc.beans.size()) {
+                obj = fc.beans.get(0);
+            }
+            String json = Json.toJson(obj, fc.jfmt);
             sys.out.println(json);
         }
     }

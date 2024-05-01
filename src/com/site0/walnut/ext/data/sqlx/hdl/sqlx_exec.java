@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.ext.data.sqlx.SqlxContext;
@@ -30,20 +31,20 @@ public class sqlx_exec extends SqlxFilter {
 
         // 如果是批量
         if (fc.hasVarList()) {
-            List<NutMap> beans = fc.getVarList();
+            List<NutBean> beans = fc.getVarList();
 
-            NutMap context = beans.get(0);
+            NutBean context = beans.get(0);
             List<SqlParam> cps = new ArrayList<>();
             String sql = sqlt.render(context, cps);
 
             // 准备参数
             List<Object[]> paramList = WnSqls.getParams(beans, cps);
-            fc.exec.batchRun(conn, sql, paramList);
+            fc.result = fc.exec.batchRun(conn, sql, paramList);
 
         }
         // 参数模式
         else if (fc.hasVarMap()) {
-            NutMap context = fc.getVarMap();
+            NutBean context = fc.getVarMap();
             List<SqlParam> cps = new ArrayList<>();
             String sql = sqlt.render(context, cps);
             Object[] sqlParams = WnSqls.getSqlParamsValue(cps);

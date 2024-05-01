@@ -4,15 +4,20 @@ import java.util.List;
 
 import org.nutz.lang.util.NutBean;
 import com.site0.walnut.ext.data.sqlx.loader.SqlEntry;
+import com.site0.walnut.ext.data.sqlx.loader.SqlType;
 import com.site0.walnut.util.tmpl.WnTmplParsing;
 import com.site0.walnut.util.tmpl.WnTmplX;
 
 public class WnSqlTmpl {
-    
+
     public static WnSqlTmpl parse(SqlEntry sqle) {
         WnSqlElementMaker tknMaker = new WnSqlElementMaker(sqle);
         String input = sqle.getContent();
-        return parse(input, tknMaker);
+        WnSqlTmpl re = parse(input, tknMaker);
+        if (sqle.hasType()) {
+            re.type = sqle.getType();
+        }
+        return re;
     }
 
     public static WnSqlTmpl parse(String input) {
@@ -25,10 +30,12 @@ public class WnSqlTmpl {
         WnTmplParsing ing = new WnTmplParsing(tknMaker);
         ing.setExpert(null);
         WnTmplX tmpl = ing.parse(cs);
-
-        return new WnSqlTmpl(tmpl);
+        WnSqlTmpl re = new WnSqlTmpl(tmpl);
+        re.type = WnSqls.autoSqlType(input);
+        return re;
     }
 
+    private SqlType type;
     private WnTmplX tmpl;
 
     private WnSqlTmpl(WnTmplX tmpl) {
@@ -53,10 +60,29 @@ public class WnSqlTmpl {
         tmpl.renderTo(rc);
         return rc.out.toString();
     }
-    
 
     public String toString() {
         return tmpl.toString();
+    }
+
+    public boolean isSELECT() {
+        return SqlType.SELECT == this.type;
+    }
+
+    public boolean isUPDATE() {
+        return SqlType.UPDATE == this.type;
+    }
+
+    public boolean isDELETE() {
+        return SqlType.DELETE == this.type;
+    }
+
+    public boolean isINSERT() {
+        return SqlType.INSERT == this.type;
+    }
+
+    public SqlType getType() {
+        return type;
     }
 
 }

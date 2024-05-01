@@ -149,6 +149,10 @@ public class SqlEntry {
         this.name = name;
     }
 
+    public boolean hasType() {
+        return null != this.type;
+    }
+
     public SqlType getType() {
         return type;
     }

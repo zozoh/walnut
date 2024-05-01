@@ -21,9 +21,9 @@ demo> fake 3 @integer
 
 # 生成 20-50 的整数
 demo> fake 3 @integer 20-50
-59
-67
-44
+27
+39
+26
 
 # 生成 0-8 的整数
 demo> fake 3 @integer 8

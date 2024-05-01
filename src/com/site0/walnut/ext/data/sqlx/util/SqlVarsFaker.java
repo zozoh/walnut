@@ -65,6 +65,13 @@ public class SqlVarsFaker {
         return list;
     }
 
+    public NutMap genBean(WnSystem sys) {
+        WnObj obj = Wn.checkObj(sys, this.path);
+        NutMap map = sys.io.readJson(obj, NutMap.class);
+        WnBeanFaker faker = new WnBeanFaker(this.lang, map);
+        return (NutMap)faker.next();
+    }
+
     public String getPath() {
         return path;
     }

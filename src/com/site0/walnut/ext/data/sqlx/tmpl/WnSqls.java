@@ -15,6 +15,7 @@ import org.nutz.lang.Mirror;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
+import com.site0.walnut.ext.data.sqlx.loader.SqlType;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wtime;
 
@@ -25,9 +26,26 @@ import com.site0.walnut.util.Wtime;
  */
 public abstract class WnSqls {
 
-    public static List<Object[]> getParams(List<NutMap> list, List<SqlParam> params) {
+    public static SqlType autoSqlType(String sql) {
+        String str = Ws.trim(sql).toUpperCase();
+        if (str.startsWith("SELECT")) {
+            return SqlType.SELECT;
+        }
+        if (str.startsWith("UPDATE")) {
+            return SqlType.UPDATE;
+        }
+        if (str.startsWith("DELETE")) {
+            return SqlType.DELETE;
+        }
+        if (str.startsWith("INSERT")) {
+            return SqlType.INSERT;
+        }
+        return SqlType.EXEC;
+    }
+
+    public static List<Object[]> getParams(List<NutBean> list, List<SqlParam> params) {
         List<Object[]> re = new ArrayList<>(list.size());
-        for (NutMap li : list) {
+        for (NutBean li : list) {
             Object[] row = new Object[params.size()];
             int x = 0;
             for (SqlParam param : params) {
@@ -35,6 +53,7 @@ public abstract class WnSqls {
                 Object val = li.get(key);
                 row[x++] = val;
             }
+            re.add(row);
         }
         return re;
     }

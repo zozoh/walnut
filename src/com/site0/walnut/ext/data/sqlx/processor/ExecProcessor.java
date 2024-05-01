@@ -6,6 +6,7 @@ import java.sql.Statement;
 import java.util.List;
 
 import org.nutz.json.Json;
+import org.nutz.lang.Nums;
 import org.nutz.log.Log;
 
 import com.site0.walnut.api.err.Er;
@@ -94,15 +95,16 @@ public class ExecProcessor implements SqlProcessor<SqlResult> {
             // 准备语句
             PreparedStatement sta = conn.prepareStatement(sql);
 
-            sta.executeBatch();
+            // sta.executeBatch();
             for (Object[] params : paramList) {
                 WnSqls.setParmas(sta, params);
                 sta.addBatch();
             }
 
             // 执行
-            sta.execute();
+            re.batchResult = sta.executeBatch();
             re.updateCount = sta.getUpdateCount();
+            re.batchTotal = Nums.sum(re.batchResult);
 
         }
         catch (Exception e) {

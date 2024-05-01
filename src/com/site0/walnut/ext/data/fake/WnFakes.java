@@ -6,17 +6,21 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.Files;
+
 import com.site0.walnut.ext.data.fake.impl.WnAmsFaker;
+import com.site0.walnut.ext.data.fake.impl.WnCaseFaker;
 import com.site0.walnut.ext.data.fake.impl.WnDateFormatFaker;
 import com.site0.walnut.ext.data.fake.impl.WnEnumFaker;
 import com.site0.walnut.ext.data.fake.impl.WnIntTmplFaker;
 import com.site0.walnut.ext.data.fake.impl.WnIntegerFaker;
 import com.site0.walnut.ext.data.fake.impl.WnNameFakeMode;
 import com.site0.walnut.ext.data.fake.impl.WnNameFaker;
+import com.site0.walnut.ext.data.fake.impl.WnPadFaker;
 import com.site0.walnut.ext.data.fake.impl.WnSentenceFaker;
 import com.site0.walnut.ext.data.fake.impl.WnStaticFaker;
 import com.site0.walnut.ext.data.fake.impl.WnStrFaker;
 import com.site0.walnut.ext.data.fake.impl.WnStrTmplFaker;
+import com.site0.walnut.ext.data.fake.impl.WnSubStrFaker;
 import com.site0.walnut.ext.data.fake.impl.WnTextFaker;
 import com.site0.walnut.ext.data.fake.impl.WnUU32Faker;
 import com.site0.walnut.ext.data.fake.lang.WnLangEnFaker;
@@ -41,6 +45,44 @@ public class WnFakes {
      * @return WnFaker 实现类
      */
     public static WnFaker<?> createFaker(String input, String lang) {
+        // 针对 UPPER|LOWER|SNAKE|CAMEL|KEBAB 的伪造器
+        Matcher m = WnCaseFaker.tryInput(input);
+        if (m.find()) {
+            return WnCaseFaker.createFaker(m, lang);
+        }
+        //
+        // 针对 SUBSTR
+        m = WnSubStrFaker.tryInput(input);
+        if (m.find()) {
+            return WnSubStrFaker.createFaker(m, lang);
+        }
+        /**
+         * 根据输入字符串解析模拟配置
+         * 
+         * @param input
+         * 
+         *            <pre>
+         *   +----范围
+         *   |    +---- 居左还是居右，可以是 [LR]
+         *   V    V
+         * PAD[6R0]:{FAKER}
+         *       ^ ^
+         *       | +---- 采用什么字符填充，默认是 0 
+         *       +--- 数字表示填充的宽度
+         *            </pre>
+         */
+        if (input.startsWith("PAD[")) {
+            int pos = input.indexOf("]:");
+            if (pos > 0) {
+                String pad = input.substring(0, pos + 1);
+                String str = input.substring(pos + 2).trim();
+                WnFaker<?> faker = createFaker(str, lang);
+                WnPadFaker re = new WnPadFaker(faker);
+                re.valueOf(pad, lang);
+                return re;
+            }
+        }
+
         // 生成 UU32
         // "UU32",
         if ("UU32".equals(input)) {
@@ -119,7 +161,7 @@ public class WnFakes {
         // 4:[ 10, 12) `1d`
         // 5:[ 12, 32) `:yyyy-MM-dd HH:mm:ss`
         // 6:[ 13, 32) `yyyy-MM-dd HH:mm:ss`
-        Matcher m = P_AMS.matcher(input);
+        m = P_AMS.matcher(input);
         if (m.find()) {
             boolean autoIncrease = "+".equals(m.group(1));
             String start = Ws.sBlank(m.group(2), "today");
