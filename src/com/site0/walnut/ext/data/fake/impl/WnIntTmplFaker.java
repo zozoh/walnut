@@ -11,7 +11,7 @@ public class WnIntTmplFaker implements WnFaker<String> {
 
     private static Pattern _P = Pattern.compile("\\{(\\d+)-(\\d+)\\}");
 
-    private List<ItfItem> items;
+    private List<IntTmplItem> items;
 
     public WnIntTmplFaker(String input) {
         items = new LinkedList<>();
@@ -24,41 +24,41 @@ public class WnIntTmplFaker implements WnFaker<String> {
             // 记录之前
             if (p0 > last) {
                 String s = input.substring(last, p0);
-                items.add(new StaticItfItem(s));
+                items.add(new StaticIntTmplItem(s));
             }
 
             // 标记当前项目
             int min = Integer.parseInt(m.group(1));
             int max = Integer.parseInt(m.group(2));
-            items.add(new FakerItfItem(min, max));
+            items.add(new DynamicIntTmplItem(min, max));
 
             // 重新标记开始
             last = p1;
         }
         // 最后一段
         if (last < input.length()) {
-            items.add(new StaticItfItem(input.substring(last)));
+            items.add(new StaticIntTmplItem(input.substring(last)));
         }
     }
 
     @Override
     public String next() {
         StringBuilder sb = new StringBuilder();
-        for (ItfItem it : items) {
+        for (IntTmplItem it : items) {
             sb.append(it.getString());
         }
         return sb.toString();
     }
 
-    private static abstract class ItfItem {
+    private static abstract class IntTmplItem {
         abstract String getString();
     }
 
-    private static class StaticItfItem extends ItfItem {
+    private static class StaticIntTmplItem extends IntTmplItem {
 
         private String str;
 
-        public StaticItfItem(String str) {
+        public StaticIntTmplItem(String str) {
             this.str = str;
         }
 
@@ -69,11 +69,11 @@ public class WnIntTmplFaker implements WnFaker<String> {
 
     }
 
-    private static class FakerItfItem extends ItfItem {
+    private static class DynamicIntTmplItem extends IntTmplItem {
 
         private WnFaker<Integer> faker;
 
-        public FakerItfItem(int min, int max) {
+        public DynamicIntTmplItem(int min, int max) {
             faker = new WnIntegerFaker(min, max);
         }
 

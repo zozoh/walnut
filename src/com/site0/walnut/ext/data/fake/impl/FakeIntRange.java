@@ -9,24 +9,28 @@ public class FakeIntRange {
     protected int max;
 
     public FakeIntRange(String input) {
+        this(input, 10);
+    }
+
+    protected FakeIntRange(String input, int radix) {
         int pos = input.indexOf('-');
         if (pos > 0) {
-            int min = Integer.parseInt(input.substring(0, pos).trim());
-            int max = Integer.parseInt(input.substring(pos + 1).trim());
-            __tidy(min, max);
+            int min = Integer.parseInt(input.substring(0, pos).trim(), radix);
+            int max = Integer.parseInt(input.substring(pos + 1).trim(), radix);
+            _tidy(min, max);
         }
         // 如果只有一个值，则表示数值
         else {
             int n = Integer.parseInt(input);
-            __tidy(n, n);
+            _tidy(n, n);
         }
     }
 
     public FakeIntRange(int min, int max) {
-        __tidy(min, max);
+        _tidy(min, max);
     }
 
-    private void __tidy(int min, int max) {
+    protected void _tidy(int min, int max) {
         if (min > max) {
             this.min = max;
             this.max = min;

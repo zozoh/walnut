@@ -11,7 +11,6 @@ public class WnPadFaker implements WnFaker<String> {
 
     private enum PadMode {
         START, END
-
     }
 
     private WnFaker<?> faker;
@@ -22,11 +21,28 @@ public class WnPadFaker implements WnFaker<String> {
 
     private char padChar;
 
+    public WnPadFaker() {
+        this(null);
+    }
+
     public WnPadFaker(WnFaker<?> faker) {
         this.faker = faker;
         this.width = 0;
         this.mode = PadMode.START;
         this.padChar = ' ';
+    }
+
+    public WnPadFaker(WnFaker<?> faker, String input) {
+        this(faker);
+        this.valueOf(input, null);
+    }
+
+    public WnPadFaker clone() {
+        WnPadFaker re = new WnPadFaker(this.faker);
+        re.width = this.width;
+        re.mode = this.mode;
+        re.padChar = this.padChar;
+        return re;
     }
 
     /**
@@ -51,7 +67,7 @@ public class WnPadFaker implements WnFaker<String> {
         if (m.find()) {
             this.width = Integer.parseInt(m.group(2));
             // L:居于左侧; R: 居于右侧
-            this.mode = "R".equals(m.group(3)) ? PadMode.START : PadMode.END;
+            this.mode = "R".equals(m.group(3).toUpperCase()) ? PadMode.START : PadMode.END;
             String cs = m.group(4);
             if (null != cs && cs.length() > 0) {
                 this.padChar = cs.charAt(0);
@@ -67,7 +83,7 @@ public class WnPadFaker implements WnFaker<String> {
     }
 
     private static final String regex = "^(PAD)?\\[([0-9]+)([LR])(.)?\\](:(.+))?";
-    private static final Pattern _P = Pattern.compile(regex);
+    private static final Pattern _P = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
 
     @Override
     public String next() {

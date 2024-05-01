@@ -11,6 +11,8 @@ import com.site0.walnut.ext.data.fake.impl.WnAmsFaker;
 import com.site0.walnut.ext.data.fake.impl.WnCaseFaker;
 import com.site0.walnut.ext.data.fake.impl.WnDateFormatFaker;
 import com.site0.walnut.ext.data.fake.impl.WnEnumFaker;
+import com.site0.walnut.ext.data.fake.impl.WnHexFaker;
+import com.site0.walnut.ext.data.fake.impl.WnHexTmplFaker;
 import com.site0.walnut.ext.data.fake.impl.WnIntTmplFaker;
 import com.site0.walnut.ext.data.fake.impl.WnIntegerFaker;
 import com.site0.walnut.ext.data.fake.impl.WnNameFakeMode;
@@ -106,6 +108,25 @@ public class WnFakes {
         if ("INT".equals(input)) {
             return new WnIntegerFaker();
         }
+
+        // 生成一个随机颜色
+        // "HEXS:2R0:#{0-FF}{0-FF}{0-FF}",
+        if (input.startsWith("HEXS:")) {
+            input = input.substring(5).trim();
+            return new WnHexTmplFaker(input, false);
+        }
+        // 生成 50-100 的整数
+        // "HEX:6F-FF",
+        if (input.startsWith("HEX:")) {
+            input = input.substring(4).trim();
+            return new WnHexFaker(input);
+        }
+        // 生成 0-100 的整数
+        // "HEX",
+        if ("HEX".equals(input)) {
+            return new WnHexFaker();
+        }
+
         // 生成随机的字符串
         // "STR:5-10",
         if (input.startsWith("STR:")) {
