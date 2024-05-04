@@ -21,6 +21,8 @@ public abstract class SqlVarsElement implements TmplEle {
 
     protected String scope;
 
+    protected String defaultValue;
+
     /**
      * 处理这样的占位符:
      * 
@@ -38,22 +40,37 @@ public abstract class SqlVarsElement implements TmplEle {
         if (null != content) {
             String[] ss = Ws.splitIgnoreBlank(content, ";");
             for (String s : ss) {
+                // ignoreNil
+                if (s.equalsIgnoreCase("ignoreNil")) {
+                    this.ignoreNil = true;
+                    continue;
+                }
+                // 解析
+                String[] tt = Ws.splitIgnoreBlank(s, "=");
+                if (tt.length != 2) {
+                    continue;
+                }
+
+                String key = tt[0];
+                String val = tt[1];
+
                 // scope=abc
-                if (s.startsWith("scope=")) {
-                    this.scope = Ws.trim(s.substring(6));
+                if ("scope".equalsIgnoreCase(key)) {
+                    this.scope = val;
                 }
                 // pick=name,color,age
-                else if (s.startsWith("pick=")) {
-                    this.pick = Ws.splitIgnoreBlank(s.substring(5));
+                else if ("pick".equalsIgnoreCase(key)) {
+                    this.pick = Ws.splitIgnoreBlank(val);
                 }
                 // omit=city,country
-                else if (s.startsWith("omit=")) {
-                    this.omit = Ws.splitIgnoreBlank(s.substring(5));
+                else if ("omit".equalsIgnoreCase(key)) {
+                    this.omit = Ws.splitIgnoreBlank(val);
                 }
-                // ignoreNil
-                else if (s.equals("ignoreNil")) {
-                    this.ignoreNil = true;
+                // dft=xxxx
+                else if ("dft".equalsIgnoreCase(key)) {
+                    this.defaultValue = val;
                 }
+
                 // 错误
                 else {
                     throw Er.create("e.sqlx.var.invalid", "'" + s + "' => '${" + content + "}'");
@@ -71,7 +88,7 @@ public abstract class SqlVarsElement implements TmplEle {
         }
         if (this.pick != null) {
             bean = context.pick(this.pick);
-        } else {
+        } else if (null != context) {
             bean.putAll(context);
         }
         if (this.omit != null) {
@@ -155,6 +172,18 @@ public abstract class SqlVarsElement implements TmplEle {
 
     public void setIgnoreNil(Boolean ignoreNil) {
         this.ignoreNil = ignoreNil;
+    }
+
+    public boolean hasDefaultValue() {
+        return !Ws.isBlank(defaultValue);
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
     }
 
 }

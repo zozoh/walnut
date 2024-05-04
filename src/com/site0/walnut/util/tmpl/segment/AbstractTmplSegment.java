@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.nutz.lang.util.Callback2;
 import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
+
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmplRenderContext;
@@ -26,6 +28,9 @@ public abstract class AbstractTmplSegment implements TmplSegment {
     @Override
     public void renderTo(WnTmplRenderContext rc) {
         if (null != children) {
+            if (null == rc.context) {
+                rc.context = new NutMap();
+            }
             for (TmplSegment seg : children) {
                 seg.renderTo(rc);
             }
