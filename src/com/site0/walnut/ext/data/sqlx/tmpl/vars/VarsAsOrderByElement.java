@@ -9,9 +9,9 @@ import org.nutz.lang.util.NutBean;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmplRenderContext;
 
-public class VarsAsSorterElement extends SqlVarsElement {
+public class VarsAsOrderByElement extends SqlVarsElement {
 
-    public VarsAsSorterElement(String content) {
+    public VarsAsOrderByElement(String content) {
         super(content);
     }
 

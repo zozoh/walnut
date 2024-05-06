@@ -5,7 +5,7 @@ import com.site0.walnut.ext.data.sqlx.loader.SqlEntry;
 import com.site0.walnut.ext.data.sqlx.tmpl.vars.SqlVarsElement;
 import com.site0.walnut.ext.data.sqlx.tmpl.vars.VarsAsInsertColumnsElement;
 import com.site0.walnut.ext.data.sqlx.tmpl.vars.VarsAsInsertValuesElement;
-import com.site0.walnut.ext.data.sqlx.tmpl.vars.VarsAsSorterElement;
+import com.site0.walnut.ext.data.sqlx.tmpl.vars.VarsAsOrderByElement;
 import com.site0.walnut.ext.data.sqlx.tmpl.vars.VarsAsUpdateElement;
 import com.site0.walnut.ext.data.sqlx.tmpl.vars.VarsAsWhereElement;
 import com.site0.walnut.util.tmpl.WnTmplElementMaker;
@@ -54,8 +54,8 @@ public class WnSqlElementMaker implements WnTmplElementMaker {
                 return wrap(new VarsAsWhereElement(setup));
             }
             // ${@vars=sorter}
-            if ("sort".equals(type)) {
-                return wrap(new VarsAsSorterElement(setup));
+            if ("order".equals(type)) {
+                return wrap(new VarsAsOrderByElement(setup));
             }
             // ${@vars=update}
             if ("update".equals(type)) {
