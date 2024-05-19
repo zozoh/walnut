@@ -179,6 +179,12 @@ public class WnTmplXTest {
     }
 
     @Test
+    public void test_dft_dynamic_val() {
+        NutMap context = Wlang.map("{b:'B'}");
+        assertEquals("B", WnTmplX.exec("${a?=b}", context));
+    }
+
+    @Test
     public void test_string_replace() {
         NutMap context = Wlang.map("path:'  ~/a/b/c  '");
         assertEquals("-a-b-c",
