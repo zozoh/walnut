@@ -816,14 +816,17 @@ public class AppModule extends AbstractWnModule {
     @Fail("ajax")
     public List<NutBean> lookup(String lookupName,
                                 @Param("hint") String lookupHint,
+                                @Param(value = "len", df = "30") int len,
+                                @Param(value = "min", df = "5") int min,
+                                @Param(value = "max", df = "20") int max,
                                 final HttpServletResponse resp) {
         WnWeb.setCrossDomainHeaders("*", (name, value) -> {
             resp.setHeader(WnWeb.niceHeaderName(name), value);
         });
         // 测试查找
         if ("test".equals(lookupName)) {
-            int N = R.random(5, 10);
-            WnLookup look = new WnTestLookup(N);
+            int N = R.random(min, max);
+            WnLookup look = new WnTestLookup(N, len);
             return look.lookup(lookupHint);
         }
         // 通过设定查找
