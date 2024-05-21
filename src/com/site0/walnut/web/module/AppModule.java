@@ -2,6 +2,7 @@ package com.site0.walnut.web.module;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,7 +14,9 @@ import org.nutz.json.JsonFormat;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
+import org.nutz.lang.random.R;
 import org.nutz.lang.stream.StringInputStream;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.mvc.View;
@@ -39,6 +42,8 @@ import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.impl.srv.WnBoxRunning;
 import com.site0.walnut.impl.srv.WnDomainService;
 import com.site0.walnut.impl.srv.WwwSiteInfo;
+import com.site0.walnut.lookup.WnLookup;
+import com.site0.walnut.lookup.WnTestLookup;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Wn.Session;
@@ -804,6 +809,27 @@ public class AppModule extends AbstractWnModule {
         }
 
         return re;
+    }
+
+    @At("/lookup/**")
+    @Ok("ajax")
+    @Fail("ajax")
+    public List<NutBean> lookup(String lookupName,
+                                @Param("hint") String lookupHint,
+                                final HttpServletResponse resp) {
+        WnWeb.setCrossDomainHeaders("*", (name, value) -> {
+            resp.setHeader(WnWeb.niceHeaderName(name), value);
+        });
+        // 测试查找
+        if ("test".equals(lookupName)) {
+            int N = R.random(5, 10);
+            WnLookup look = new WnTestLookup(N);
+            return look.lookup(lookupHint);
+        }
+        // 通过设定查找
+        else {
+            throw Wlang.noImplement();
+        }
     }
 
 }
