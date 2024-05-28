@@ -32,14 +32,6 @@ UPDATE t_pet SET ${@vars=upsert} WHERE ${@vars=where; pick=id};
 ```bash
 sqlx @exec 
   [sqlName]          # sql 模板的名称
-  [-select]          # 执行的类型:
-                     #  -select
-                     #  -update
-                     #  -insert
-                     #  -delete
-                     #  -exec
-  [-batch]           # 尽在 update/insert 时有效，表示批量操作
-                     # 当然上下文对象，必须是一个列表
 ```
 
 
