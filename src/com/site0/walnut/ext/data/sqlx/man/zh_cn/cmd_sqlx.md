@@ -43,6 +43,7 @@ UPDATE t_pet SET${@vars=update} WHERE id=?;
 
 ```bash
 @vars       # 为当前上下文指定变量集合
+@dvcheck    # 检查数据版本，防止数据同时被写入
 @exec       # 执行指定的 UPDATE/DELETE/INSERT 语句
 @query      # 执行指定的 SELECT 语句
 @trans      # 事务相关操作

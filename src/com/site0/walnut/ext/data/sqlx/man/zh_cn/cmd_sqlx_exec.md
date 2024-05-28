@@ -8,24 +8,6 @@
 对于列表或者是判断条件，可以通过模板中的 `${#loop}` 以及  `${#if}` 来控制模板渲染结果
 详细语法，请参加： `man tmpl`
 
-# 一个 SQL 模板
-
-```sql
---------------------------------------------------
--- <pet.sql>
---------------------------------------------------
--- @name = query
--- @type = select
--- @omit = limit,skip
--- > sqlx @select pet.query
-SELECT * FROM t_pet WHERE ${@vars=where}; LIMIT ${skip<int>?0}, ${limit<int>?50};
---------------------------------------------------
--- @name = change
--- @type = update
--- @omit = a,b,c
--- @pick = x,y,z
-UPDATE t_pet SET ${@vars=upsert} WHERE ${@vars=where; pick=id};
-```
 
 # 用法
 
