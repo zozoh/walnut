@@ -13,7 +13,9 @@
 
 ```bash
 sqlx @exec 
-  [sqlName]          # sql 模板的名称
+  [sqlName]           # sql 模板的名称
+  [-fetch_by xxx]     # 执行完毕，执行回查的语句
+  [-fetch_vars {..}]  # 执行完毕，执行回查的语句
 ```
 
 

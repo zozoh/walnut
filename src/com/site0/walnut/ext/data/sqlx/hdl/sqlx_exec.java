@@ -9,10 +9,12 @@ import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.ext.data.sqlx.SqlxContext;
 import com.site0.walnut.ext.data.sqlx.SqlxFilter;
+import com.site0.walnut.ext.data.sqlx.processor.SqlResult;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqls;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
 
 public class sqlx_exec extends SqlxFilter {
@@ -29,6 +31,8 @@ public class sqlx_exec extends SqlxFilter {
         WnSqlTmpl sqlt = fc.sqls.get(sqlName);
         Connection conn = fc.getConnection(sys);
 
+        SqlResult re;
+
         // 如果是批量
         if (fc.hasVarList()) {
             List<NutBean> beans = fc.getVarList();
@@ -39,7 +43,7 @@ public class sqlx_exec extends SqlxFilter {
 
             // 准备参数
             List<Object[]> paramList = WnSqls.getParams(beans, cps);
-            fc.result = fc.exec.batchRun(conn, sql, paramList);
+            re = fc.exec.batchRun(conn, sql, paramList);
 
         }
         // 参数模式
@@ -48,13 +52,32 @@ public class sqlx_exec extends SqlxFilter {
             List<SqlParam> cps = new ArrayList<>();
             String sql = sqlt.render(context, cps);
             Object[] sqlParams = WnSqls.getSqlParamsValue(cps);
-            fc.result = fc.exec.runWithParams(conn, sql, sqlParams);
+            re = fc.exec.runWithParams(conn, sql, sqlParams);
         }
         // 那么就是普通模式
         else {
             NutMap context = new NutMap();
             String sql = sqlt.render(context, null);
-            fc.result = fc.exec.run(conn, sql);
+            re = fc.exec.run(conn, sql);
+        }
+
+        fc.result = re;
+
+        // 后续回查
+        String fetchSqlName = params.get("fetch_by");
+        NutMap fetchVars = params.getMap("fetch_vars", new NutMap());
+
+        if (!Ws.isBlank(fetchSqlName)) {
+            // 用上下文作为变量集备份
+            if (fc.hasVarMap()) {
+                fetchVars.attach(fc.getVarMap());
+            }
+
+            List<SqlParam> cps = new ArrayList<>();
+            WnSqlTmpl fetcht = fc.sqls.get(fetchSqlName);
+            String fetch_sql = fetcht.render(fetchVars, cps);
+            Object[] fetch_params = WnSqls.getSqlParamsValue(cps);
+            re.list = fc.query.runWithParams(conn, fetch_sql, fetch_params);
         }
 
     }

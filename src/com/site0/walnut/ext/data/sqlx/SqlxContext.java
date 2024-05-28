@@ -8,6 +8,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 
 import com.site0.walnut.api.err.Er;
@@ -52,6 +53,12 @@ public class SqlxContext extends JvmFilterContext {
         return null != this.varMap;
     }
 
+    public void resetVarMap() {
+        if (null != varMap) {
+            this.varMap.clear();
+        }
+    }
+
     public NutBean getVarMap() {
         return varMap;
     }
@@ -67,12 +74,21 @@ public class SqlxContext extends JvmFilterContext {
         }
     }
 
-    public void setVarMap(NutBean vars, String[] picks, String[] omits) {
-        this.varMap = __filter_bean(vars, picks, omits);
+    public void appendVarMap(NutBean vars, String[] picks, String[] omits) {
+        if (null == this.varMap) {
+            this.varMap = new NutMap();
+        }
+        this.varMap.putAll(__filter_bean(vars, picks, omits));
     }
 
     public boolean hasVarList() {
         return null != varList && !varList.isEmpty();
+    }
+
+    public void resetVarList() {
+        if (null != varList) {
+            varList.clear();
+        }
     }
 
     public List<NutBean> getVarList() {
@@ -89,16 +105,19 @@ public class SqlxContext extends JvmFilterContext {
         return bean;
     }
 
-    public void setVarList(List<NutBean> varList, String[] picks, String[] omits) {
+    public void appendVarList(List<NutBean> varList, String[] picks, String[] omits) {
+        if (null == this.varList) {
+            this.varList = new ArrayList<>(Math.max(20, varList.size()));
+        }
         if ((null != picks && picks.length > 0) || (null != omits && omits.length > 0)) {
             List<NutBean> beans = new ArrayList<>(varList.size());
             for (NutBean bean : varList) {
                 NutBean bean2 = __filter_bean(bean, picks, omits);
                 beans.add(bean2);
             }
-            this.varList = beans;
+            this.varList.addAll(beans);
         } else {
-            this.varList = varList;
+            this.varList.addAll(varList);
         }
     }
 

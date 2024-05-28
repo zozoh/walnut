@@ -74,8 +74,6 @@ public abstract class JvmFilterExecutor<C extends JvmFilterContext, T extends Jv
         }
     }
 
-    protected void onFinished(WnSystem sys, C context) {}
-
     @Override
     public String[] prepareArgs(String[] args) {
         return args;
@@ -149,17 +147,8 @@ public abstract class JvmFilterExecutor<C extends JvmFilterContext, T extends Jv
         prepare(sys, fc);
 
         // 依次调用处理器
-        int n = hdlFilters.size();
-
         try {
-            for (int i = 0; i < n; i++) {
-                T hdl = hdlFilters.get(i);
-                ZParams params = hdlParams.get(i);
-                hdl.process(sys, fc, params);
-                if (fc.isBreakExec()) {
-                    break;
-                }
-            }
+            _exec_filters(sys, hdlFilters, hdlParams, fc);
         }
         finally {
             this.onFinished(sys, fc);
@@ -168,6 +157,20 @@ public abstract class JvmFilterExecutor<C extends JvmFilterContext, T extends Jv
         // 处理输出
         output(sys, fc);
     }
+
+    protected void _exec_filters(WnSystem sys, List<T> hdlFilters, List<ZParams> hdlParams, C fc) {
+        int n = hdlFilters.size();
+        for (int i = 0; i < n; i++) {
+            T hdl = hdlFilters.get(i);
+            ZParams params = hdlParams.get(i);
+            hdl.process(sys, fc, params);
+            if (fc.isBreakExec()) {
+                break;
+            }
+        }
+    }
+
+    protected void onFinished(WnSystem sys, C context) {}
 
     protected ZParams parseParams(String[] args) {
         return ZParams.parse(args, "cqn");

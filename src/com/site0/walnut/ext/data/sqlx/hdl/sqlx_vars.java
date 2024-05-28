@@ -18,7 +18,7 @@ public class sqlx_vars extends SqlxFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "^update$");
+        return ZParams.parse(args, "^(update|reset)$");
     }
 
     @Override
@@ -28,13 +28,18 @@ public class sqlx_vars extends SqlxFilter {
         String pick = params.getString("pick");
         String[] omits = Ws.splitIgnoreBlank(omit);
         String[] picks = Ws.splitIgnoreBlank(pick);
+        boolean reset = params.is("reset");
+        if (reset) {
+            fc.resetVarMap();
+            fc.resetVarList();
+        }
 
         if ("list".equals(mode)) {
             List<NutBean> list = __read_as_list(sys, fc, params);
-            fc.setVarList(list, picks, omits);
+            fc.appendVarList(list, picks, omits);
         } else {
             NutMap map = __read_as_map(sys, fc, params);
-            fc.setVarMap(map, picks, omits);
+            fc.appendVarMap(map, picks, omits);
         }
 
         if (params.is("update")) {
