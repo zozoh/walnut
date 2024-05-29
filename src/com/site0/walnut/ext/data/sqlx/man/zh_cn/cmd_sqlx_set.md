@@ -10,16 +10,16 @@
 # - n = 9
 # - seq.parentPath = ~/path/to
 # - seq.name = yyyy-MM-dd.'txt'
-# - seq.key = inc_seq
-seq:M:9:~/path/to/yyyy-MM-dd.'txt'#inc_seq
+# - seq.key = my_seq
+seq:M:9:~/path/to/yyyy-MM-dd.'txt'#my_seq
 > M 000 003 423
 
 # SeqD('FX',9)
-seqD:FX:9:~/path/to/yyyy-MM-dd.'txt'#inc_seq
+seqD:FX:9:~/path/to/yyyy-MM-dd.'txt'#my_seq
 > FX 240501 000 005 902
 
 # SeqHH('BMH',5)
-seqHH:BMH:5:~/path/to/yyyy-MM-dd.'txt'#inc_seq
+seqHH:BMH:5:~/path/to/yyyy-MM-dd.'txt'#my_seq
 > BMH 24050109 05 902
 
 # snowQ('XT',4)
@@ -27,7 +27,7 @@ snowQ:XT:4
 > XT lvwjlrvf A8mz
 
 # snowQD('K',4)
-snowQ:K:4
+snowQD:K:4
 > K ynapsa57 tN7f9r
 
 # uu32

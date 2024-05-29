@@ -3,6 +3,7 @@ package com.site0.walnut.ext.data.sqlx;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -56,6 +57,8 @@ public class SqlxContext extends JvmFilterContext {
     public void resetVarMap() {
         if (null != varMap) {
             this.varMap.clear();
+        } else {
+            this.varMap = new NutMap();
         }
     }
 
@@ -88,6 +91,8 @@ public class SqlxContext extends JvmFilterContext {
     public void resetVarList() {
         if (null != varList) {
             varList.clear();
+        } else {
+            this.varList = new LinkedList<NutBean>();
         }
     }
 

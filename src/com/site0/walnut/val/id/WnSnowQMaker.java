@@ -1,36 +1,36 @@
-package com.site0.walnut.seq.impl_id;
+package com.site0.walnut.val.id;
 
 import java.util.Date;
 
 import org.nutz.lang.random.R;
 import org.nutz.lang.random.StringGenerator;
+import org.nutz.lang.util.NutBean;
 
-import com.site0.walnut.seq.IDMaker;
-import com.site0.walnut.util.Wtime;
+import com.site0.walnut.val.ValueMaker;
 
-public class WnSnowQDMaker implements IDMaker {
+public class WnSnowQMaker implements ValueMaker {
 
     private String prefix;
     private StringGenerator sg;
 
-    public WnSnowQDMaker(String prefix, int n) {
+    public WnSnowQMaker(String prefix, int n) {
         this.prefix = prefix;
         this.sg = R.sg(n);
     }
 
-    public WnSnowQDMaker(String prefix) {
+    public WnSnowQMaker(String prefix) {
         this(prefix, 4);
     }
 
     @Override
-    public String make(Date hint) {
+    public String make(Date hint, NutBean context) {
         StringBuilder sb = new StringBuilder();
         if (null != prefix && prefix.length() > 0) {
             sb.append(prefix);
         }
         // 生成时间戳
-        String dst = Wtime.format(hint, "yyMMddHHmmssSSS");
-        sb.append(dst);
+        long ams = hint.getTime();
+        sb.append(Long.toString(ams, Character.MAX_RADIX));
 
         // 生成随机数
         sb.append(sg.next());

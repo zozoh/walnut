@@ -1,13 +1,15 @@
-package com.site0.walnut.seq.impl_id;
+package com.site0.walnut.val.id;
 
 import java.util.Date;
 
-import com.site0.walnut.seq.SeqMaker;
-import com.site0.walnut.seq.IDMaker;
+import org.nutz.lang.util.NutBean;
+
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wtime;
+import com.site0.walnut.val.SeqMaker;
+import com.site0.walnut.val.ValueMaker;
 
-public class WnSeqHHMaker implements IDMaker {
+public class WnSeqHHMaker implements ValueMaker {
 
     private String prefix;
     private SeqMaker seq;
@@ -24,7 +26,7 @@ public class WnSeqHHMaker implements IDMaker {
     }
 
     @Override
-    public String make(Date hint) {
+    public String make(Date hint, NutBean context) {
         StringBuilder sb = new StringBuilder();
         if (null != prefix && prefix.length() > 0) {
             sb.append(prefix);
@@ -35,7 +37,7 @@ public class WnSeqHHMaker implements IDMaker {
         sb.append(dst);
 
         // 获取序号
-        long nb = seq.make(hint);
+        long nb = seq.make(hint, context);
         String ns = Long.toString(nb);
         String ss = Ws.padStart(ns, n, '0');
         sb.append(ss);
