@@ -13,17 +13,17 @@ import com.site0.walnut.api.err.Er;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqls;
 import com.site0.walnut.util.Wlog;
 
-public class ExecProcessor implements SqlProcessor<SqlResult> {
+public class ExecProcessor implements SqlProcessor<SqlExecResult> {
 
     private static Log log = Wlog.getCMD();
 
     @Override
-    public SqlResult run(Connection conn, String sql) {
+    public SqlExecResult run(Connection conn, String sql) {
         if (log.isInfoEnabled()) {
             log.info(Wlog.msg(sql));
         }
         // 准备返回
-        SqlResult re = new SqlResult();
+        SqlExecResult re = new SqlExecResult();
 
         try {
             // 准备语句
@@ -44,13 +44,13 @@ public class ExecProcessor implements SqlProcessor<SqlResult> {
     }
 
     @Override
-    public SqlResult runWithParams(Connection conn, String sql, Object[] params) {
+    public SqlExecResult runWithParams(Connection conn, String sql, Object[] params) {
         if (log.isInfoEnabled()) {
             log.info(Wlog.msg(sql));
             log.info(Wlog.msg("Params: " + Json.toJson(params)));
         }
         // 准备返回
-        SqlResult re = new SqlResult();
+        SqlExecResult re = new SqlExecResult();
 
         try {
             // 准备语句
@@ -72,7 +72,7 @@ public class ExecProcessor implements SqlProcessor<SqlResult> {
     }
 
     @Override
-    public SqlResult batchRun(Connection conn, String sql, List<Object[]> paramList) {
+    public SqlExecResult batchRun(Connection conn, String sql, List<Object[]> paramList) {
         if (log.isInfoEnabled()) {
             log.info(Wlog.msg(sql));
             int N = paramList.size();
@@ -89,7 +89,7 @@ public class ExecProcessor implements SqlProcessor<SqlResult> {
 
         }
         // 准备返回
-        SqlResult re = new SqlResult();
+        SqlExecResult re = new SqlExecResult();
 
         try {
             // 准备语句

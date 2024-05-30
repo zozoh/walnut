@@ -9,7 +9,7 @@ import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.ext.data.sqlx.SqlxContext;
 import com.site0.walnut.ext.data.sqlx.SqlxFilter;
-import com.site0.walnut.ext.data.sqlx.processor.SqlResult;
+import com.site0.walnut.ext.data.sqlx.processor.SqlExecResult;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqls;
@@ -31,7 +31,7 @@ public class sqlx_exec extends SqlxFilter {
         WnSqlTmpl sqlt = fc.sqls.get(sqlName);
         Connection conn = fc.getConnection(sys);
 
-        SqlResult re;
+        SqlExecResult re;
 
         // 如果是批量
         if (fc.hasVarList()) {

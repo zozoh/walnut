@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
@@ -63,6 +64,11 @@ public class cmd_sqlx extends JvmFilterExecutor<SqlxContext, SqlxFilter> {
         String dirPath = fc.params.getString("conf", "~/.sqlx");
         WnObj oDir = Wn.checkObj(sys, dirPath);
         fc.sqls = getSqlHolder(sys.io, oDir);
+
+        // 读取输入
+        String json = sys.in.readAll();
+        NutMap input = Json.fromJson(NutMap.class, json);
+        fc.setInput(input);
 
     }
 

@@ -7,7 +7,7 @@ import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.ext.data.sqlx.SqlxContext;
 import com.site0.walnut.ext.data.sqlx.SqlxFilter;
-import com.site0.walnut.ext.data.sqlx.processor.SqlResult;
+import com.site0.walnut.ext.data.sqlx.processor.SqlExecResult;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wlang;
@@ -35,7 +35,7 @@ public class sqlx_dvcheck extends SqlxFilter {
 
         // 执行
         String sql = sqlt.render(vars, null);
-        SqlResult re = fc.exec.run(conn, sql);
+        SqlExecResult re = fc.exec.run(conn, sql);
 
         // 判断
         if (re.updateCount != 1) {

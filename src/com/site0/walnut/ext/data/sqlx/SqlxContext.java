@@ -3,8 +3,10 @@ package com.site0.walnut.ext.data.sqlx;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -16,10 +18,12 @@ import com.site0.walnut.api.err.Er;
 import com.site0.walnut.ext.data.sqlx.loader.SqlHolder;
 import com.site0.walnut.ext.data.sqlx.processor.ExecProcessor;
 import com.site0.walnut.ext.data.sqlx.processor.QueryProcessor;
+import com.site0.walnut.ext.data.sqlx.processor.SqlExecResult;
 import com.site0.walnut.ext.sys.sql.WnDaoAuth;
 import com.site0.walnut.ext.sys.sql.WnDaos;
 import com.site0.walnut.impl.box.JvmFilterContext;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 
@@ -29,7 +33,9 @@ public class SqlxContext extends JvmFilterContext {
 
     public boolean quiet;
 
-    private NutBean varMap;
+    private NutMap input;
+
+    private NutMap varMap;
 
     private List<NutBean> varList;
 
@@ -50,6 +56,37 @@ public class SqlxContext extends JvmFilterContext {
         this.exec = new ExecProcessor();
     }
 
+    public NutMap getInput() {
+        return input;
+    }
+
+    public void setInput(NutMap input) {
+        this.input = input;
+    }
+
+    public NutMap getInputVarAsMap(String key) {
+        return input.getAs(key, NutMap.class);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public List<NutMap> getInputVarAsList(String key) {
+        Object v = input.get(key);
+        if (v instanceof Map) {
+            NutMap bean = NutMap.WRAP((Map) v);
+            return Wlang.list(bean);
+        }
+        if (v instanceof Collection<?>) {
+            Collection<?> col = (Collection<?>) v;
+            List<NutMap> list = new ArrayList<>(col.size());
+            for (Object o : col) {
+                NutMap bean = NutMap.WRAP((Map) o);
+                list.add(bean);
+            }
+            return list;
+        }
+        return new LinkedList<>();
+    }
+
     public boolean hasVarMap() {
         return null != this.varMap;
     }
@@ -66,13 +103,31 @@ public class SqlxContext extends JvmFilterContext {
         return varMap;
     }
 
-    public void prepareForUpdate() {
+    public void explainVars() {
         if (null != varMap) {
             Wn.explainMetaMacro(varMap);
         }
         if (null != varList) {
             for (NutBean li : varList) {
                 Wn.explainMetaMacro(li);
+            }
+        }
+        // 如果返回的结果有内容，也尝试做一下 explain
+        if (null != result && result instanceof SqlExecResult) {
+            SqlExecResult re = (SqlExecResult) result;
+            if (re.list != null && !re.list.isEmpty()) {
+                NutBean bean = re.list.get(0);
+                if (null != varMap) {
+                    this.varMap = (NutMap) Wn.explainObj(bean, varMap);
+                }
+                if (null != varList) {
+                    List<NutBean> list2 = new ArrayList<>(varList.size());
+                    for (NutBean li : varList) {
+                        NutMap li2 = (NutMap) Wn.explainObj(bean, li);
+                        list2.add(li2);
+                    }
+                    this.varList = list2;
+                }
             }
         }
     }
@@ -100,24 +155,24 @@ public class SqlxContext extends JvmFilterContext {
         return varList;
     }
 
-    private NutBean __filter_bean(NutBean bean, String[] picks, String[] omits) {
+    private NutMap __filter_bean(NutBean bean, String[] picks, String[] omits) {
         if (null != picks && picks.length > 0) {
             bean = bean.pick(picks);
         }
         if (null != omits && omits.length > 0) {
             bean = bean.omit(omits);
         }
-        return bean;
+        return NutMap.WRAP(bean);
     }
 
-    public void appendVarList(List<NutBean> varList, String[] picks, String[] omits) {
+    public void appendVarList(List<? extends NutBean> varList, String[] picks, String[] omits) {
         if (null == this.varList) {
             this.varList = new ArrayList<>(Math.max(20, varList.size()));
         }
         if ((null != picks && picks.length > 0) || (null != omits && omits.length > 0)) {
-            List<NutBean> beans = new ArrayList<>(varList.size());
+            List<NutMap> beans = new ArrayList<>(varList.size());
             for (NutBean bean : varList) {
-                NutBean bean2 = __filter_bean(bean, picks, omits);
+                NutMap bean2 = __filter_bean(bean, picks, omits);
                 beans.add(bean2);
             }
             this.varList.addAll(beans);

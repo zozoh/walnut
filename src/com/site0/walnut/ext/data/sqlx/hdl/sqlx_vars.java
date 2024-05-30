@@ -3,7 +3,6 @@ package com.site0.walnut.ext.data.sqlx.hdl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.nutz.json.Json;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.ext.data.sqlx.SqlxContext;
@@ -18,7 +17,7 @@ public class sqlx_vars extends SqlxFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "^(update|reset)$");
+        return ZParams.parse(args, "^(explain|reset)$");
     }
 
     @Override
@@ -42,12 +41,11 @@ public class sqlx_vars extends SqlxFilter {
             fc.appendVarMap(map, picks, omits);
         }
 
-        if (params.is("update")) {
-            fc.prepareForUpdate();
+        if (params.is("explain")) {
+            fc.explainVars();
         }
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     private List<NutBean> __read_as_list(WnSystem sys, SqlxContext fc, ZParams params) {
         // 伪造列表数据
         if (params.has("fake")) {
@@ -55,19 +53,23 @@ public class sqlx_vars extends SqlxFilter {
             faker.setLang(params.getString("lang", "zh_cn"));
             return faker.genList(sys);
         }
-        // 从标准输入读取
+        // 直接采用上下文
         if (params.vals.length == 0) {
-            String json = sys.in.readAll();
-            List list = Json.fromJsonAsList(NutMap.class, json);
-            return (List<NutBean>) list;
+            return Wlang.list(fc.getInput());
         }
         // 逐个解析参数
         ArrayList<NutBean> beans = new ArrayList<>(params.vals.length);
         for (String val : params.vals) {
-            if ("~STDIN~".equals(val)) {
-                String json = sys.in.readAll();
-                List<NutMap> list = Json.fromJsonAsList(NutMap.class, json);
-                beans.addAll(list);
+            if (val.startsWith("=") || val.startsWith(":")) {
+                String key = val.substring(1).trim();
+                if ("..".equals(key)) {
+                    beans.add(fc.getInput());
+                } else {
+                    List<NutMap> list = fc.getInputVarAsList(key);
+                    for (NutMap li : list) {
+                        beans.add(li);
+                    }
+                }
             } else {
                 NutMap map = Wlang.map(val);
                 beans.add(map);
@@ -85,17 +87,19 @@ public class sqlx_vars extends SqlxFilter {
         }
         // 从标准输入读取
         if (params.vals.length == 0) {
-            String json = sys.in.readAll();
-            NutMap map = Json.fromJson(NutMap.class, json);
-            return map;
+            return fc.getInput();
         }
         // 逐个解析参数
         NutMap re = new NutMap();
         for (String val : params.vals) {
-            if ("~STDIN~".equals(val)) {
-                String json = sys.in.readAll();
-                NutMap map = Json.fromJson(NutMap.class, json);
-                re.putAll(map);
+            if (val.startsWith("=") || val.startsWith(":")) {
+                String key = val.substring(1).trim();
+                if ("..".equals(key)) {
+                    re.putAll(fc.getInput());
+                } else {
+                    NutMap vmap = fc.getInputVarAsMap(key);
+                    re.putAll(vmap);
+                }
             } else {
                 NutMap map = Wlang.map(val);
                 re.putAll(map);

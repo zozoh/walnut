@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.nutz.lang.util.NutBean;
 
-public class SqlResult {
+public class SqlExecResult {
 
     public int updateCount;
     
