@@ -23,10 +23,16 @@ public class VarsAsInsertValuesElement extends SqlVarsElement {
         NutBean bean = this.getBean(rc.context);
         int i = 0;
         for (Map.Entry<String, Object> en : bean.entrySet()) {
+            String key = en.getKey();
+            if (key.startsWith("__") || key.startsWith("$")) {
+                continue;
+            }
+
             // 模板字段分隔符
             if (i > 0) {
                 rc.out.append(",");
             }
+
             // 记入模板字段和动态参数
             if (null != src && null != src.params) {
                 src.params.add(new SqlParam(en));
@@ -41,6 +47,7 @@ public class VarsAsInsertValuesElement extends SqlVarsElement {
 
             // 计数
             i++;
+
         }
     }
 

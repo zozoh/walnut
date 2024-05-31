@@ -24,6 +24,9 @@ public class VarsAsOrderByElement extends SqlVarsElement {
         List<String> sorts = new ArrayList<>(bean.size());
         for (Map.Entry<String, Object> en : bean.entrySet()) {
             String key = en.getKey();
+            if (key.startsWith("__") || key.startsWith("$")) {
+                continue;
+            }
             Object val = en.getValue();
             String srt = "ASC";
             if (null != val) {

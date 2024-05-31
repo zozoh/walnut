@@ -34,6 +34,12 @@ public abstract class ValueMakers {
         String typ = input;
         String val = null;
 
+        // 动态获取
+        if (input.startsWith("=")) {
+            String key = input.substring(1).trim();
+            return new ContextValueMaker(key);
+        }
+
         // 获取值的开头
         int pos = input.indexOf(':');
         if (pos > 0) {

@@ -21,7 +21,7 @@ public class sqlx_exec extends SqlxFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "p");
+        return ZParams.parse(args, "^(noresult)$");
     }
 
     @Override
@@ -61,23 +61,26 @@ public class sqlx_exec extends SqlxFilter {
             re = fc.exec.run(conn, sql);
         }
 
-        fc.result = re;
+        // 记录结果对象
+        if (!params.is("noresult")) {
+            fc.result = re;
 
-        // 后续回查
-        String fetchSqlName = params.get("fetch_by");
-        NutMap fetchVars = params.getMap("fetch_vars", new NutMap());
+            // 后续回查
+            String fetchSqlName = params.get("fetch_by");
+            NutMap fetchVars = params.getMap("fetch_vars", new NutMap());
 
-        if (!Ws.isBlank(fetchSqlName)) {
-            // 用上下文作为变量集备份
-            if (fc.hasVarMap()) {
-                fetchVars.attach(fc.getVarMap());
+            if (!Ws.isBlank(fetchSqlName)) {
+                // 用上下文作为变量集备份
+                if (fc.hasVarMap()) {
+                    fetchVars.attach(fc.getVarMap());
+                }
+
+                List<SqlParam> cps = new ArrayList<>();
+                WnSqlTmpl fetcht = fc.sqls.get(fetchSqlName);
+                String fetch_sql = fetcht.render(fetchVars, cps);
+                Object[] fetch_params = WnSqls.getSqlParamsValue(cps);
+                re.list = fc.query.runWithParams(conn, fetch_sql, fetch_params);
             }
-
-            List<SqlParam> cps = new ArrayList<>();
-            WnSqlTmpl fetcht = fc.sqls.get(fetchSqlName);
-            String fetch_sql = fetcht.render(fetchVars, cps);
-            Object[] fetch_params = WnSqls.getSqlParamsValue(cps);
-            re.list = fc.query.runWithParams(conn, fetch_sql, fetch_params);
         }
 
     }

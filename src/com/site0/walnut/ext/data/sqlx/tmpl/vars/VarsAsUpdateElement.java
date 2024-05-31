@@ -23,7 +23,11 @@ public class VarsAsUpdateElement extends SqlVarsElement {
         NutBean bean = this.getBean(rc.context);
         int i = 0;
         for (Map.Entry<String, Object> en : bean.entrySet()) {
-
+            String key = en.getKey();
+            if (key.startsWith("__") || key.startsWith("$")) {
+                continue;
+            }
+            
             // 模板字段分隔符
             if (i > 0) {
                 rc.out.append(",");
@@ -32,13 +36,13 @@ public class VarsAsUpdateElement extends SqlVarsElement {
             // 记入动态参数
             if (null != src && null != src.params) {
                 src.params.add(new SqlParam(en));
-                src.out.append(en.getKey()).append("=?");
+                src.out.append(key).append("=?");
             }
             // 采用传统的 SQL 方式
             else {
                 Object val = en.getValue();
                 String vs = WnSqls.valueToSqlExp(val);
-                rc.out.append(en.getKey()).append('=').append(vs);
+                rc.out.append(key).append('=').append(vs);
             }
 
             // 计数

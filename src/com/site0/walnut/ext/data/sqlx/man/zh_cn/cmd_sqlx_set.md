@@ -33,6 +33,10 @@ snowQD:K:4
 # uu32
 uu32
 > 7l075gcbreii6orfl8lh227k3d
+
+# 从前序结果集获取数据
+=the_id
+> 7l075gcbreii6orfl8lh227k3d
 ```
 
 # 用法

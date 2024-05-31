@@ -46,6 +46,9 @@ public abstract class SqlCriteria {
             List<SqlCriteriaNode> nodes = new ArrayList<>(map.size());
             for (Map.Entry<String, Object> en : map.entrySet()) {
                 String k = en.getKey();
+                if (k.startsWith("__") || k.matches("^[$](io|sys|vars)$")) {
+                    continue;
+                }
                 Object v = en.getValue();
                 SqlCriteriaNode node = anyToExp(k, v);
                 nodes.add(node);
