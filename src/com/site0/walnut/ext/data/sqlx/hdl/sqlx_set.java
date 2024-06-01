@@ -49,8 +49,12 @@ public class sqlx_set extends SqlxFilter {
         if (!fc.hasVarList()) {
             fc.resetVarList();
         }
+        // 获取上一次更新的结果
+        NutBean ctx = fc.prepareResultBean();
+
+        // 循环滚动
         for (NutBean bean : fc.getVarList()) {
-            Object v = vmk.make(new Date(), bean);
+            Object v = vmk.make(new Date(), ctx);
             Mapl.put(bean, varName, v);
         }
     }
@@ -60,9 +64,11 @@ public class sqlx_set extends SqlxFilter {
         if (!fc.hasVarMap()) {
             fc.resetVarMap();
         }
+        // 获取上一次更新的结果
+        NutBean ctx = fc.prepareResultBean();
         NutBean bean = fc.getVarMap();
 
-        Object v = vmk.make(new Date(), bean);
+        Object v = vmk.make(new Date(), ctx);
         Mapl.put(bean, varName, v);
     }
 

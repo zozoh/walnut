@@ -187,6 +187,16 @@ public class SqlxContext extends JvmFilterContext {
         }
     }
 
+    public NutBean prepareResultBean() {
+        if (null != result && (result instanceof SqlExecResult)) {
+            SqlExecResult re = (SqlExecResult) result;
+            if (null != re.list && re.list.size() > 0) {
+                return re.list.get(0);
+            }
+        }
+        return new NutMap();
+    }
+
     public Connection getConnection(WnSystem sys) {
         if (null == conn) {
             if (null == auth) {
