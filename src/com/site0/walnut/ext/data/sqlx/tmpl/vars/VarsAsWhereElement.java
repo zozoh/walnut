@@ -1,6 +1,5 @@
 package com.site0.walnut.ext.data.sqlx.tmpl.vars;
 
-import org.nutz.lang.util.NutBean;
 import com.site0.walnut.ext.data.sqlx.ast.SqlCriteria;
 import com.site0.walnut.ext.data.sqlx.ast.SqlCriteriaNode;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlRenderContext;
@@ -18,8 +17,8 @@ public class VarsAsWhereElement extends SqlVarsElement {
         if (rc instanceof SqlRenderContext) {
             src = (SqlRenderContext) rc;
         }
-        NutBean bean = this.getBean(rc.context);
-        SqlCriteriaNode cri = SqlCriteria.toCriNode(bean);
+        Object input = this.getObject(rc.context);
+        SqlCriteriaNode cri = SqlCriteria.toCriNode(input);
 
         // 记入动态参数
         if (null != src && null != src.params) {

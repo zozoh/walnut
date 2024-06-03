@@ -1,5 +1,8 @@
 package com.site0.walnut.ext.data.sqlx.tmpl.vars;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.nutz.lang.util.NutBean;
@@ -80,6 +83,19 @@ public abstract class SqlVarsElement implements TmplEle {
 
     }
 
+    private NutBean __apply_ignore_nil(NutBean bean) {
+        NutBean bean2 = new NutMap();
+        for (Map.Entry<String, Object> en : bean.entrySet()) {
+            Object val = en.getValue();
+            if (null != val) {
+                String key = en.getKey();
+                bean2.put(key, val);
+            }
+        }
+        bean = bean2;
+        return bean;
+    }
+
     protected NutBean getBean(NutBean context) {
         NutBean bean = new NutMap();
         if (this.hasScope()) {
@@ -95,15 +111,49 @@ public abstract class SqlVarsElement implements TmplEle {
             bean = bean.omit(this.omit);
         }
         if (null != this.ignoreNil && this.ignoreNil.booleanValue()) {
-            NutBean bean2 = new NutMap();
-            for (Map.Entry<String, Object> en : bean.entrySet()) {
-                Object val = en.getValue();
-                if (null != val) {
-                    String key = en.getKey();
-                    bean2.put(key, val);
+            bean = __apply_ignore_nil(bean);
+        }
+        return bean;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected Object getObject(NutBean context) {
+        Object val = context;
+        if (this.hasScope()) {
+            val = context.get(scope);
+        }
+
+        // 对于单个对象
+        if (val instanceof Map) {
+            return __apply_bean((Map<String, Object>) val);
+        }
+        // 对于集合
+        if (val instanceof Collection<?>) {
+            Collection<?> coll = (Collection<?>) val;
+            List<Object> list = new ArrayList<>(coll.size());
+            for (Object it : coll) {
+                if (it instanceof Map) {
+                    list.add(__apply_bean((Map<String, Object>) it));
+                } else {
+                    list.add(it);
                 }
             }
-            bean = bean2;
+            return list;
+        }
+
+        return val;
+    }
+
+    private Object __apply_bean(Map<String, Object> val) {
+        NutBean bean = NutMap.WRAP(val);
+        if (this.pick != null && pick.length > 0) {
+            bean = bean.pick(pick);
+        }
+        if (this.omit != null && omit.length > 0) {
+            bean = bean.omit(omit);
+        }
+        if (null != this.ignoreNil && this.ignoreNil.booleanValue()) {
+            bean = __apply_ignore_nil(bean);
         }
         return bean;
     }
