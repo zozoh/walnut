@@ -18,6 +18,11 @@ import com.site0.walnut.val.util.WnSeqInfo;
 public class sqlx_set extends SqlxFilter {
 
     @Override
+    protected ZParams parseParams(String[] args) {
+        return ZParams.parse(args, "^(explain)$");
+    }
+
+    @Override
     protected void process(WnSystem sys, SqlxContext fc, ZParams params) {
         String varName = params.val_check(0);
         String varValue = params.val_check(1);
@@ -42,6 +47,10 @@ public class sqlx_set extends SqlxFilter {
         // 仅映射
         else if ("map".equals(to)) {
             forMap(fc, varName, vmk);
+        }
+
+        if (params.is("explain")) {
+            fc.explainVars();
         }
     }
 

@@ -14,6 +14,7 @@
 ```bash
 sqlx @exec 
   [sqlName]           # sql 模板的名称
+  [-explain]          # 执行前自动展开要更新元数据的【宏】
   [-noresult]         # 执行结果不记录到上下文中
                       # 使用的场景，通常是前序过滤器插入主对象
                       # 之后 fetchBack, 后续的 exec 插入子对象

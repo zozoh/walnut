@@ -21,12 +21,17 @@ public class sqlx_exec extends SqlxFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "^(noresult)$");
+        return ZParams.parse(args, "^(explain|noresult)$");
     }
 
     @Override
     protected void process(WnSystem sys, SqlxContext fc, ZParams params) {
         String sqlName = params.val_check(0);
+
+        // 自动展开上下文
+        if (params.is("explain")) {
+            fc.explainVars();
+        }
 
         WnSqlTmpl sqlt = fc.sqls.get(sqlName);
         Connection conn = fc.getConnection(sys);

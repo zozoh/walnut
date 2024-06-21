@@ -1,7 +1,6 @@
 package com.site0.walnut.val;
 
 import org.nutz.lang.util.NutBean;
-import org.nutz.web.WebException;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
@@ -40,6 +39,11 @@ public abstract class ValueMakers {
             return new ContextValueMaker(key);
         }
 
+        // 静态值
+        if (input.startsWith(":")) {
+            return new StaticValueMaker(input.substring(1).trim());
+        }
+
         // 获取值的开头
         int pos = input.indexOf(':');
         if (pos > 0) {
@@ -50,7 +54,7 @@ public abstract class ValueMakers {
         try {
             return build(typ, val, seqBuilder);
         }
-        catch (WebException err) {
+        catch (Exception err) {
             return new StaticValueMaker(input);
         }
     }

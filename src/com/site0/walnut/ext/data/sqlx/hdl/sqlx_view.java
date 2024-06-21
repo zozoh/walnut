@@ -23,12 +23,18 @@ public class sqlx_view extends SqlxFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "picqn");
+        return ZParams.parse(args, "picqn", "^(explain)$");
     }
 
     @Override
     protected void process(WnSystem sys, SqlxContext fc, ZParams params) {
         String sqlName = params.val_check(0);
+
+        // 自动展开上下文
+        if (params.is("explain")) {
+            fc.explainVars();
+        }
+
         // 读取 SQL 模板
         WnSqlTmpl t = fc.sqls.get(sqlName);
 
@@ -50,6 +56,9 @@ public class sqlx_view extends SqlxFilter {
                 int index = startI;
                 for (NutBean ctx : fc.getVarList()) {
                     String str = t.render(ctx, criParams);
+                    if (!str.endsWith(";")) {
+                        str += ';';
+                    }
                     if (showI) {
                         sys.out.printlnf("%d) %s", index++, str);
                     } else {

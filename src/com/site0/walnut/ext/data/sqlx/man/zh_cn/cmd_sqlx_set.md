@@ -37,6 +37,10 @@ uu32
 # 从前序结果集获取数据
 =the_id
 > 7l075gcbreii6orfl8lh227k3d
+
+# 冒号开始为静态值
+:hello world
+> hello world
 ```
 
 # 用法
@@ -46,6 +50,7 @@ sqlx @set
   [varName]           # 变量名称
   [varValue]          # 变量值
   [-to list|map|all]  # 为列表还是map设置，如果不指定，则表示 all
+  [-explain]          # 自动展开要更新元数据的【宏】
 ```
 
 
