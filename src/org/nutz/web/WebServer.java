@@ -149,18 +149,18 @@ public class WebServer {
         if (System.getProperty("os.name").toLowerCase().contains("windows")) {
             wac.setInitParameter("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false");
         }
-        if (dc.getBoolean("gzip-enable", true)) {
-            Mirror.me(CompressedContentFormat.class)
-                  .setValue(CompressedContentFormat.GZIP, "_etag", "");
-            Mirror.me(CompressedContentFormat.class)
-                  .setValue(CompressedContentFormat.GZIP, "_etagQuote", "\"");
-            GzipHandler gzip = new GzipHandler();
-            gzip.setMinGzipSize(512);
-            gzip.setHandler(new JettyHandlerHook(server, wac));
-            server.setHandler(gzip);
-        } else {
-            server.setHandler(new JettyHandlerHook(server, wac));
-        }
+        // if (dc.getBoolean("gzip-enable", true)) {
+        // Mirror.me(CompressedContentFormat.class)
+        // .setValue(CompressedContentFormat.GZIP, "_etag", "");
+        // Mirror.me(CompressedContentFormat.class)
+        // .setValue(CompressedContentFormat.GZIP, "_etagQuote", "\"");
+        // GzipHandler gzip = new GzipHandler();
+        // gzip.setMinGzipSize(512);
+        // gzip.setHandler(new JettyHandlerHook(server, wac));
+        // server.setHandler(gzip);
+        // } else {
+        server.setHandler(new JettyHandlerHook(server, wac));
+        // }
         try {
             Class _klass = Class.forName("org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer",
                                          false,
