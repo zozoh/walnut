@@ -5,7 +5,7 @@
 	<groupId>com.site0</groupId>
 	<packaging>jar</packaging>
 	<name>walnut</name>
-	<version>13.87</version>
+	<version>13.88</version>
 	<description>LOONG[DCP]</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -16,7 +16,7 @@
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
 			<url>http://apache.org/licenses/LICENSE-2.0.txt</url>
-		  </license>
+		</license>
 	</licenses>
 	<developers>
 		<developer>
@@ -160,6 +160,26 @@
 			<version>7.8.1</version>
 		</dependency>
 		<dependency>
+			<groupId>jakarta.mail</groupId>
+			<artifactId>jakarta.mail-api</artifactId>
+			<version>2.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.13.4</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.13.4</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>2.13.4</version>
+		</dependency>
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>2.0.6</version>
@@ -181,7 +201,8 @@
 			<artifactId>mongodb-driver-legacy</artifactId>
 			<version>4.6.0</version>
 		</dependency>
-		<!-- dependency> <groupId>org.subethamail</groupId> <artifactId>subethasmtp</artifactId> 
+		<!-- dependency> <groupId>org.subethamail</groupId>
+		<artifactId>subethasmtp</artifactId> 
 			<version>3.1.7</version> </dependency -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>
@@ -224,7 +245,8 @@
 			<version>3.9.0</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- dependency> <groupId>org.nutz</groupId> <artifactId>lessc4j</artifactId> 
+		<!-- dependency> <groupId>org.nutz</groupId>
+		<artifactId>lessc4j</artifactId> 
 			<version>2.7.2-SNAPSHOT</version> </dependency -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -252,7 +274,8 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>8.0.27</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc -->
+		<!--
+		https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc -->
 		<dependency>
 			<groupId>com.microsoft.sqlserver</groupId>
 			<artifactId>mssql-jdbc</artifactId>
@@ -340,7 +363,8 @@
 			<artifactId>jedis</artifactId>
 			<version>3.6.0</version>
 		</dependency>
-		<!-- dependency> <groupId>ru.yandex.clickhouse</groupId> <artifactId>clickhouse-jdbc</artifactId> 
+		<!-- dependency> <groupId>ru.yandex.clickhouse</groupId>
+		<artifactId>clickhouse-jdbc</artifactId> 
 			<version>0.2.4</version> </dependency -->
 		<dependency>
 			<groupId>com.clickhouse</groupId>
@@ -349,8 +373,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.docx4j</groupId>
-			<artifactId>docx4j-JAXB-MOXy</artifactId>
-			<version>11.2.9</version>
+			<artifactId>docx4j-export-fo</artifactId>
+			<version>11.4.11</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openjdk.nashorn</groupId>

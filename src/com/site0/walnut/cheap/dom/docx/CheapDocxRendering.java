@@ -718,9 +718,13 @@ public class CheapDocxRendering {
             CTHeight h = new CTHeight();
             h.setVal(BigInteger.valueOf(height * 10));
 
-            List<JAXBElement<?>> div = trPr.getCnfStyleOrDivIdOrGridBefore();
-            JAXBElement<CTHeight> jax = factory.createCTTrPrBaseTrHeight(h);
-            div.add(jax);
+            // List<JAXBElement<?>> div = trPr.getCnfStyleOrDivIdOrGridBefore();
+            // JAXBElement<CTHeight> jax = factory.createCTTrPrBaseTrHeight(h);
+            // div.add(jax);
+            ObjectFactory of = new ObjectFactory();
+            jakarta.xml.bind.JAXBElement<CTHeight> heightElement = of.createCTTrPrBaseTrHeight(h);
+            List<jakarta.xml.bind.JAXBElement<?>> div = trPr.getCnfStyleOrDivIdOrGridBefore();
+            div.add(heightElement);
         }
 
         // 根据修正过 col-span/row-span 的格子，输出单元格
