@@ -6,7 +6,7 @@
 # 用法
 
 ```bash
-tmpl @render  
+tmpl @render
 ```
 
 # 示例

@@ -29,6 +29,15 @@ public abstract class ValueMakers {
         return new WnObjSeqMaker(io, p, info.getTarget(), info.getName());
     }
 
+    public static ValueMaker build(WnSystem sys, String input) {
+        ValueMaker vmk = ValueMakers.build(input, new SeqMakerBuilder() {
+            public SeqMaker build(WnSeqInfo info) {
+                return ValueMakers.getSeqMaker(sys, info);
+            }
+        });
+        return vmk;
+    }
+
     public static ValueMaker build(String input, SeqMakerBuilder seqBuilder) {
         String typ = input;
         String val = null;

@@ -130,12 +130,7 @@ public abstract class Wtime {
             tz = wc.getTimeZone();
         }
 
-        // 绝对毫秒数
-        Matcher m = _P_TIME_LONG.matcher(ds);
-        if (m.find()) {
-            long ams = Long.parseLong(m.group(1));
-            return new Date(ams);
-        }
+        Matcher m;
 
         // 偏移量 "=1900+44504"
         m = _P_OFFSET.matcher(ds);
@@ -151,12 +146,22 @@ public abstract class Wtime {
         }
 
         String str = null;
+        // 參考， 1980年初的毫秒: 315504000000
         // 一个8位的数字，譬如 20201202
-        if (ds.length() == 8 && ds.matches("^\\d{8}$")) {
+        if (ds.length() == 8 && ds.matches("^\\d{4}[01][0-9][0-5][0-9]$")) {
             str = String.format("%s-%s-%s 00:00:00.000",
                                 ds.substring(0, 4),
                                 ds.substring(4, 6),
                                 ds.substring(6, 8));
+        }
+        // 可能是绝对毫秒数
+        else {
+            // 绝对毫秒数
+            m = _P_TIME_LONG.matcher(ds);
+            if (m.find()) {
+                long ams = Long.parseLong(m.group(1));
+                return new Date(ams);
+            }
         }
 
         // 看来给的字符串需要认真解析一下 ...

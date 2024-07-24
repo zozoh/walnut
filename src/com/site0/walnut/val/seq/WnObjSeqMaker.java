@@ -30,7 +30,9 @@ public class WnObjSeqMaker implements SeqMaker {
         WnObj o = io.createIfNoExists(p, fname, WnRace.FILE);
         // 默认3日过期
         if (o.expireTime() <= 0) {
-            o.expireTime(System.currentTimeMillis() + 86400000L * 3);
+            // TODO 根据 format 自行决定默认的过期时间
+            
+            //o.expireTime(System.currentTimeMillis() + 86400000L * 3);
         }
         return io.inc(o.id(), key, 1, true);
     }

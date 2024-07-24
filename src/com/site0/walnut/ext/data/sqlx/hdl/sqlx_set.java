@@ -9,11 +9,8 @@ import com.site0.walnut.ext.data.sqlx.SqlxContext;
 import com.site0.walnut.ext.data.sqlx.SqlxFilter;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.ZParams;
-import com.site0.walnut.val.SeqMaker;
-import com.site0.walnut.val.SeqMakerBuilder;
 import com.site0.walnut.val.ValueMaker;
 import com.site0.walnut.val.ValueMakers;
-import com.site0.walnut.val.util.WnSeqInfo;
 
 public class sqlx_set extends SqlxFilter {
 
@@ -29,11 +26,7 @@ public class sqlx_set extends SqlxFilter {
         String to = params.getString("to", "all");
 
         // 获取值的生成器
-        ValueMaker vmk = ValueMakers.build(varValue, new SeqMakerBuilder() {
-            public SeqMaker build(WnSeqInfo info) {
-                return ValueMakers.getSeqMaker(sys, info);
-            }
-        });
+        ValueMaker vmk = ValueMakers.build(sys, varValue);
 
         // 根据模式执行
         if ("all".equals(to)) {

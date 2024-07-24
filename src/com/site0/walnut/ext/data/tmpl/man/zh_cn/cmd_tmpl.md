@@ -39,7 +39,9 @@ ${#end}
 # 用法
 
 ```bash
-tmpl [@load | @vars] @render
+tmpl [-showkeys] [@load | @vars] @render
+#-------------------------------------
+[-showkeys]   # 开启这个开关，如果占位符没有值，则会保留占位输出
 ```
 
 它支持的过滤器有：

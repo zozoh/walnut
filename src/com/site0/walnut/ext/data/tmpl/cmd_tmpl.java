@@ -2,6 +2,7 @@ package com.site0.walnut.ext.data.tmpl;
 
 import com.site0.walnut.impl.box.JvmFilterExecutor;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.util.ZParams;
 import com.site0.walnut.util.tmpl.WnTmplX;
 
 public class cmd_tmpl extends JvmFilterExecutor<TmplContext, TmplFilter> {
@@ -11,12 +12,19 @@ public class cmd_tmpl extends JvmFilterExecutor<TmplContext, TmplFilter> {
     }
 
     @Override
+    protected ZParams parseParams(String[] args) {
+        return ZParams.parse(args, "^(showkeys)$");
+    }
+
+    @Override
     protected TmplContext newContext() {
         return new TmplContext();
     }
 
     @Override
-    protected void prepare(WnSystem sys, TmplContext fc) {}
+    protected void prepare(WnSystem sys, TmplContext fc) {
+        fc.showKeys = fc.params.is("showkeys", false);
+    }
 
     @Override
     protected void output(WnSystem sys, TmplContext fc) {

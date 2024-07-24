@@ -38,6 +38,12 @@ public class jsonx_put extends JsonXFilter {
                 boolean asPath = params.is("path");
                 boolean isRaw = params.is("raw");
                 String json = params.val_check(1);
+                if (":stdin".equalsIgnoreCase(json)) {
+                    json = sys.in.readAll();
+                }
+                if (params.is("trim")) {
+                    json = Ws.trim(json);
+                }
                 Object val = json;
                 // 看看是不是对象
                 if (!isRaw) {

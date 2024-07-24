@@ -28,10 +28,13 @@ import org.nutz.dao.sql.SqlCallback;
 import org.nutz.dao.sql.SqlContext;
 import org.nutz.lang.Each;
 import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.Wlog;
+
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
 import org.nutz.trans.Trans;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.MimeMap;
@@ -55,6 +58,8 @@ import com.site0.walnut.util.Ws;
 
 public class DaoIndexer extends AbstractIoDataIndexer {
 
+    private static final Log log = Wlog.getMAIN();
+
     private Dao dao;
 
     private WnObjEntity entity;
@@ -73,7 +78,13 @@ public class DaoIndexer extends AbstractIoDataIndexer {
         // 通过 config 生成 Entity
         JdbcExpert expert = dao.getJdbcExpert();
         WnObjEntityGenerating ing = new WnObjEntityGenerating(root, config, expert);
-        this.entity = ing.generate();
+        try {
+            this.entity = ing.generate();
+        }
+        catch (Throwable err) {
+            log.error("Fail to ing.generate()", err);
+            throw Er.wrap(err);
+        }
 
         // 自动创建创建表
         if (config.isAutoCreate()) {
