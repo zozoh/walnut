@@ -2,6 +2,8 @@ package com.site0.walnut.ext.media.edi.hdl;
 
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutMap;
+
+import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.media.edi.EdiContext;
 import com.site0.walnut.ext.media.edi.EdiFilter;
@@ -20,12 +22,22 @@ public class edi_load extends EdiFilter {
 
     @Override
     protected void process(WnSystem sys, EdiContext fc, ZParams params) {
-        // 获取报文文件路径
-        String path = params.val_check(0);
+        boolean _loaded_stdin = false;
+        String str;
 
-        // 读取内容
-        WnObj obj = Wn.checkObj(sys, path);
-        String str = sys.io.readText(obj);
+        // 获取报文文件路径
+        String path = params.val(0);
+
+        // 从标准输入读取内容
+        if (Ws.isBlank(path)) {
+            _loaded_stdin = true;
+            str = sys.in.readAll();
+        }
+        // 从文件对象读取
+        else {
+            WnObj obj = Wn.checkObj(sys, path);
+            str = sys.io.readText(obj);
+        }
 
         // 是否需要渲染呢？
         if (params.has("render")) {
@@ -43,6 +55,9 @@ public class edi_load extends EdiFilter {
             }
             // 从管道读取
             else {
+                if (_loaded_stdin) {
+                    throw Er.create("e.cmd.edi.load.StdInUsed");
+                }
                 String input = sys.in.readAll();
                 vars = Json.fromJson(NutMap.class, input);
             }

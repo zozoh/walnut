@@ -22,6 +22,7 @@ public abstract class EdiMsgs {
         loaders.put("CONTRL", new CONTRLLoader());
         loaders.put("CLREGR", new CLREGRLoader());
         loaders.put("CLNTDUP", new CLNTDUPLoader());
+        loaders.put("CLREG", new CLREGLoader());
     }
 
     public static String getLoaderType(EdiMessage msg) {
@@ -30,7 +31,7 @@ public abstract class EdiMsgs {
             return "CONTRL";
         }
         // 根据BGM 判断
-        if (unh.isType("CUSRES")) {
+        if (unh.isType("^(CUSRES|CUSCAR)$")) {
             EdiSegment seg = msg.findSegment("BGM");
             NutBean bean = new NutMap();
             seg.fillBean(bean, null, "code,,,type");

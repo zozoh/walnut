@@ -7,8 +7,8 @@ import org.nutz.lang.util.NutMap;
 import com.site0.walnut.ext.media.edi.bean.EdiMessage;
 import com.site0.walnut.ext.media.edi.bean.EdiSegment;
 import com.site0.walnut.ext.media.edi.bean.segment.ICS_FTX;
-import com.site0.walnut.ext.media.edi.reply.EdiReplyCLREGR;
-import com.site0.walnut.ext.media.edi.reply.EdiReplyError;
+import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyCLREGR;
+import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyError;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
 
 public class CLREGRLoader implements EdiMsgLoader<EdiReplyCLREGR> {

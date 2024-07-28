@@ -390,6 +390,11 @@ public class NutMap extends LinkedHashMap<String, Object> implements NutBean {
             _map.clear();
     }
 
+    public NutMap reset() {
+        this.clear();
+        return this;
+    }
+
     private Map<String, Object> _map;
 
     public NutMap attach(Map<String, Object> map) {

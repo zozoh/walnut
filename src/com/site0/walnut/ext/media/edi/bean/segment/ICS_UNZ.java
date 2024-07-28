@@ -14,6 +14,9 @@ public class ICS_UNZ {
     public ICS_UNZ() {}
 
     public ICS_UNZ(EdiSegment seg) {
+        if (null == seg) {
+            return;
+        }
         NutMap bean = new NutMap();
         String[] keys = Wlang.array(null, "messageCount", "controlRefNumber");
         seg.fillBean(bean, keys);

@@ -4,7 +4,7 @@ import org.nutz.lang.util.NutMap;
 import com.site0.walnut.ext.media.edi.bean.EdiMessage;
 import com.site0.walnut.ext.media.edi.bean.EdiSegment;
 import com.site0.walnut.ext.media.edi.bean.segment.ICS_DOC;
-import com.site0.walnut.ext.media.edi.reply.EdiReplyCLNTDUP;
+import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyCLNTDUP;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
 
 public class CLNTDUPLoader implements EdiMsgLoader<EdiReplyCLNTDUP> {

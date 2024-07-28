@@ -3,7 +3,7 @@ package com.site0.walnut.ext.media.edi.loader;
 import com.site0.walnut.ext.media.edi.bean.EdiMessage;
 import com.site0.walnut.ext.media.edi.bean.EdiSegment;
 import com.site0.walnut.ext.media.edi.bean.segment.ICS_UCI;
-import com.site0.walnut.ext.media.edi.reply.EdiReplyCONTRL;
+import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyCONTRL;
 
 public class CONTRLLoader implements EdiMsgLoader<EdiReplyCONTRL> {
 

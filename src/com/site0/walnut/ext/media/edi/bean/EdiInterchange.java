@@ -112,22 +112,31 @@ public class EdiInterchange {
         StringBuilder sb = new StringBuilder();
         String HR = Ws.repeat('.', 60);
         sb.append(advice);
+        // ........................................
         sb.append("\n<HEAD>");
-        head.joinTree(sb, 1);
-        int N = this.messages.size();
-        sb.append(String.format("\n\n          <MESSAGES x %d>\n", N));
-        int i = 0;
-        for (EdiMessage msg : this.messages) {
-            sb.append('\n').append(HR);
-            sb.append(String.format("\n#<%d>: %s", i, msg.getHeadSegment()));
-            msg.joinTree(sb, 1);
-            sb.append(String.format("\n#<%d>: %s", i++, msg.getTailSegment()));
+        if (null != head) {
+            head.joinTree(sb, 1);
         }
-        sb.append('\n').append(HR);
-        sb.append(String.format("\n\n          <MESSAGES x %d>\n", N));
-        sb.append("\n<TAIL>");
-        tail.joinTree(sb, 1);
-
+        // ........................................
+        if (null != this.messages) {
+            int N = this.messages.size();
+            sb.append(String.format("\n\n          <MESSAGES x %d>\n", N));
+            int i = 0;
+            for (EdiMessage msg : this.messages) {
+                sb.append('\n').append(HR);
+                sb.append(String.format("\n#<%d>: %s", i, msg.getHeadSegment()));
+                msg.joinTree(sb, 1);
+                sb.append(String.format("\n#<%d>: %s", i++, msg.getTailSegment()));
+            }
+            sb.append('\n').append(HR);
+            sb.append(String.format("\n\n          <MESSAGES x %d>\n", N));
+            sb.append("\n<TAIL>");
+        }
+        // ........................................
+        if (null != tail) {
+            tail.joinTree(sb, 1);
+        }
+        // ........................................
         return sb.toString();
     }
 
