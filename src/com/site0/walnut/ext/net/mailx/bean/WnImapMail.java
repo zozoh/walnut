@@ -191,7 +191,6 @@ public class WnImapMail extends WnMail {
         meta.put("title", this.getSubject());
         meta.put("sort", this.number);
         meta.put("msg_receive_at", this.receiveAt);
-        meta.put("msg_subject", this.getSubject());
         meta.put("msg_sender", this.getSender());
         meta.put("msg_to", this.getTo());
         meta.put("msg_cc", this.getCc());
