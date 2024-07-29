@@ -84,7 +84,7 @@ public class CLREGLoader implements EdiMsgLoader<EdiOriCLREG> {
         // LOC+ZZZ+:::${BP.name}'
         if (re.BP.is("type", "ORG") && !re.BP.has("reg_num_primary")) {
             _seg = finder.next("LOC");
-            _seg.fillBean(re.BP, null, ",,,name");
+            _seg.fillBean(re.BP, null, null, ",,,name");
         }
         // ${#end}
 
@@ -125,8 +125,7 @@ public class CLREGLoader implements EdiMsgLoader<EdiOriCLREG> {
         // ${#end}
         _seg_list = finder.nextAllUtilNoMatch(true, "FTX");
         for (EdiSegment seg : _seg_list) {
-            bean.clear();
-            seg.fillBean(bean, null, "mode", "type");
+            seg.fillBean(bean.reset(), null, "mode", "type");
             // ${#if not
             // "BP.type":"ORG","BP.reg_num_primary":"![BLANK]","BP.reg_num_second":"[BLANK]"}
             // FTX+ATY+BA++${A.address_1}:${A.address_2?}:${A.city}:${A.postcode}:${A.state}+${A.country}'
@@ -173,7 +172,7 @@ public class CLREGLoader implements EdiMsgLoader<EdiOriCLREG> {
         // ${#loop roleName : clientRoles}
         // MEA+RN+:::${roleName}'
         // ${#end}
-        _seg_list = finder.nextUntil(true, "MEA");
+        _seg_list = finder.nextAllUtilNoMatch(true, "MEA");
         List<String> roles = new ArrayList<>(_seg_list.size());
         for (EdiSegment seg : _seg_list) {
             bean.clear();
