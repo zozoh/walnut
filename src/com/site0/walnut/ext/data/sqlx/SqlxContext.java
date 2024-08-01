@@ -33,6 +33,19 @@ public class SqlxContext extends JvmFilterContext {
 
     public boolean quiet;
 
+    /**
+     * 事务级别
+     * 
+     * <ul>
+     * <li><code>0</code> - 没有事务
+     * <li><code>1</code> - TRANSACTION_READ_UNCOMMITTED
+     * <li><code>2</code> - TRANSACTION_READ_COMMITTED
+     * <li><code>4</code> - TRANSACTION_REPEATABLE_READ
+     * <li><code>8</code> - TRANSACTION_SERIALIZABLE
+     * </ul>
+     */
+    private int transLevel;
+
     private NutMap input;
 
     private NutMap varMap;
@@ -181,6 +194,42 @@ public class SqlxContext extends JvmFilterContext {
         }
     }
 
+    public boolean hasTransLevel() {
+        return this.transLevel > 0;
+    }
+
+    public int getTransLevel() {
+        return transLevel;
+    }
+
+    /**
+     * 这里设置一下事务级别，如果已经在上下文里获取了连接，那么就要为连接设置上事务级别。
+     * <p>
+     * 否则这个标记会在连接第1次获取时生效。
+     * 
+     * @param transLevel
+     *            事务级别
+     * @see #getConnection(WnSystem)
+     */
+    public void setTransLevel(int transLevel) {
+        this.transLevel = transLevel;
+        if (null != this.conn && transLevel > 0) {
+            try {
+                this.conn.setTransactionIsolation(transLevel);
+                this.conn.setAutoCommit(false);
+            }
+            catch (SQLException e) {
+                throw Er.wrap(e);
+            }
+        }
+    }
+
+    public void rollback() throws SQLException {
+        if (null != this.conn) {
+            this.conn.rollback();
+        }
+    }
+
     public void prepareToRun(WnSystem sys) {
         if (null == this.getConnection(sys)) {
             throw Er.create("e.cmd.sqlx.FailToGetConnection");
@@ -205,6 +254,10 @@ public class SqlxContext extends JvmFilterContext {
             DataSource ds = WnDaos.getDataSource(auth);
             try {
                 this.conn = ds.getConnection();
+                if (this.hasTransLevel()) {
+                    this.conn.setTransactionIsolation(transLevel);
+                    this.conn.setAutoCommit(false);
+                }
             }
             catch (SQLException e) {
                 if (log.isWarnEnabled()) {
@@ -220,6 +273,10 @@ public class SqlxContext extends JvmFilterContext {
             try {
                 if (log.isTraceEnabled()) {
                     log.trace(Wlog.msg("conn.closed"));
+                }
+                if (!conn.getAutoCommit()) {
+                    conn.commit();
+                    conn.setAutoCommit(true);
                 }
                 conn.close();
             }

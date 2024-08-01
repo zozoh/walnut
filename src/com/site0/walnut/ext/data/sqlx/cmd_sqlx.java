@@ -1,12 +1,16 @@
 package com.site0.walnut.ext.data.sqlx;
 
+import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
 
+import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.sqlx.loader.SqlHolder;
@@ -15,10 +19,13 @@ import com.site0.walnut.ext.sys.sql.WnDaos;
 import com.site0.walnut.impl.box.JvmFilterExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Cmds;
+import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.ZParams;
 
 public class cmd_sqlx extends JvmFilterExecutor<SqlxContext, SqlxFilter> {
+
+    private static final Log log = Wlog.getCMD();
 
     static Map<String, SqlHolder> sqlHolders = new HashMap<>();
 
@@ -70,6 +77,30 @@ public class cmd_sqlx extends JvmFilterExecutor<SqlxContext, SqlxFilter> {
         NutMap input = Json.fromJson(NutMap.class, json);
         fc.setInput(input);
 
+    }
+
+    @Override
+    protected void _exec_filters(WnSystem sys,
+                                 List<SqlxFilter> hdlFilters,
+                                 List<ZParams> hdlParams,
+                                 SqlxContext fc) {
+        try {
+            super._exec_filters(sys, hdlFilters, hdlParams, fc);
+        }
+        // 遇到错误就回滚
+        catch (Throwable e) {
+            if (fc.hasTransLevel()) {
+                log.errorf("Rollback for Error: %s", e.toString());
+                try {
+                    fc.rollback();
+                }
+                catch (SQLException e1) {
+                    log.errorf("!!Rollback Fail: %s", e1.toString());
+                    throw Er.wrap(e1);
+                }
+            }
+            throw Er.wrap(e);
+        }
     }
 
     @Override
