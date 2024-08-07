@@ -20,6 +20,8 @@ public class sqlx_json extends SqlxFilter {
         JsonFormat jfmt = Cmds.gen_json_format(params);
         String str = Json.toJson(fc.result, jfmt);
         sys.out.println(str);
+        
+        fc.quiet = true;
     }
 
 }

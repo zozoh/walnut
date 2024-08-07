@@ -21,6 +21,10 @@ public class WnTmplX extends AbstractTmplSegment {
         return ing.parse(cs);
     }
 
+    public static WnTmplX parse(WnTmplTokenExpert expert, String input) {
+        return parse(null, expert, input);
+    }
+
     public static WnTmplX parse(String input) {
         return parse(null, null, input);
     }

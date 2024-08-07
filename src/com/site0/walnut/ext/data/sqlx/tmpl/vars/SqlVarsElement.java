@@ -50,12 +50,15 @@ public abstract class SqlVarsElement implements TmplEle {
                 }
                 // 解析
                 String[] tt = Ws.splitIgnoreBlank(s, "=");
-                if (tt.length != 2) {
-                    continue;
-                }
+                String key, val;
 
-                String key = tt[0];
-                String val = tt[1];
+                if (tt.length == 2) {
+                    key = tt[0];
+                    val = tt[1];
+                } else {
+                    key = tt[0];
+                    val = null;
+                }
 
                 // scope=abc
                 if ("scope".equalsIgnoreCase(key)) {
@@ -73,14 +76,26 @@ public abstract class SqlVarsElement implements TmplEle {
                 else if ("dft".equalsIgnoreCase(key)) {
                     this.defaultValue = val;
                 }
-
                 // 错误
-                else {
+                else if (!acceptSetup(key, val)) {
                     throw Er.create("e.sqlx.var.invalid", "'" + s + "' => '${" + content + "}'");
                 }
             }
         }
 
+    }
+
+    /**
+     * 子类重载这个函数，可以支持更多的自定义配置项目
+     * 
+     * @param key
+     *            配置名
+     * @param val
+     *            配置值
+     * @return 是否接受这个配置
+     */
+    protected boolean acceptSetup(String key, String val) {
+        return false;
     }
 
     private NutBean __apply_ignore_nil(NutBean bean) {

@@ -16,6 +16,14 @@ import com.site0.walnut.util.tmpl.ele.TmplEle;
 public class WnTmplXTest {
 
     @Test
+    public void test_customized_token() {
+        WnTmplTokenExpert expert = new WnTmplTokenExpert("$$", "$[", ']');
+        WnTmplX t = WnTmplX.parse(expert, "$[a]-$[b]");
+        assertEquals("A-200", t.render(Wlang.map("a:'A',b:200")));
+        assertEquals("X-", t.render(Wlang.map("a:'X'")));
+    }
+
+    @Test
     public void test_get_dyn_elements() {
         WnTmplX t = WnTmplX.parse("A-${@a}-B${@b}");
         String[] varNames = new String[2];

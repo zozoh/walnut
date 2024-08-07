@@ -41,6 +41,10 @@ public class EdiInterchange {
             advice = new EdiAdvice(una);
             input = input.substring(9);
         }
+        // 默认的 UNA
+        else if (null == advice) {
+            advice = new EdiAdvice("UNA:+.? '");
+        }
 
         // 逐个解析后面的行
         char[] cs = input.trim().toCharArray();
@@ -78,6 +82,13 @@ public class EdiInterchange {
             }
             seg = ing.nextSegment();
         }
+
+        // 记入最后一个消息
+        if (null != en) {
+            this.messages.add(en);
+        }
+
+        // 返回自身以便链式赋值
         return this;
     }
 

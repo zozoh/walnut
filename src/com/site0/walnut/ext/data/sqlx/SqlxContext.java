@@ -145,11 +145,20 @@ public class SqlxContext extends JvmFilterContext {
         }
     }
 
-    public void appendVarMap(NutBean vars, String[] picks, String[] omits) {
+    public void assignVarMap(NutBean vars, String[] picks, String[] omits) {
         if (null == this.varMap) {
             this.varMap = new NutMap();
         }
-        this.varMap.putAll(__filter_bean(vars, picks, omits));
+        NutMap bean = __filter_bean(vars, picks, omits);
+        this.varMap.putAll(bean);
+    }
+    
+    public void mergeVarMap(NutBean vars, String[] picks, String[] omits) {
+        if (null == this.varMap) {
+            this.varMap = new NutMap();
+        }
+        NutMap bean = __filter_bean(vars, picks, omits);
+       this.varMap.mergeWith(bean);
     }
 
     public boolean hasVarList() {

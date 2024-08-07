@@ -6,6 +6,7 @@ import com.site0.walnut.ext.data.sqlx.tmpl.vars.SqlVarsElement;
 import com.site0.walnut.ext.data.sqlx.tmpl.vars.VarsAsInsertColumnsElement;
 import com.site0.walnut.ext.data.sqlx.tmpl.vars.VarsAsInsertValuesElement;
 import com.site0.walnut.ext.data.sqlx.tmpl.vars.VarsAsOrderByElement;
+import com.site0.walnut.ext.data.sqlx.tmpl.vars.VarsAsParamElement;
 import com.site0.walnut.ext.data.sqlx.tmpl.vars.VarsAsUpdateElement;
 import com.site0.walnut.ext.data.sqlx.tmpl.vars.VarsAsWhereElement;
 import com.site0.walnut.util.tmpl.WnTmplElementMaker;
@@ -48,6 +49,10 @@ public class WnSqlElementMaker implements WnTmplElementMaker {
             } else {
                 type = str.substring(6);
                 setup = null;
+            }
+            // ${@vars=param}
+            if ("param".equals(type)) {
+                return wrap(new VarsAsParamElement(setup));
             }
             // ${@vars=where}
             if ("where".equals(type)) {

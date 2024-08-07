@@ -161,13 +161,16 @@ var ioc = {
             }
         }
     },
+    lookupMaker: {
+		type : 'com.site0.walnut.lookup.impl.WnLookupMaker',
+		args : [{refer : "io"}]
+	},
     lockApi : {
         type : 'com.site0.walnut.impl.lock.redis.QuickRedisLockApi',
         args : [{
             refer : "redisConfForLockApi"
         }]
     },
-    
     expiObjTable : {
         type : 'com.site0.walnut.core.eot.mongo.MongoExpiObjTable',
         args : [{

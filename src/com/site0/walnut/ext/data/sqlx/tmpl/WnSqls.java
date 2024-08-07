@@ -81,7 +81,7 @@ public abstract class WnSqls {
         NutMap bean = new NutMap();
         int colCount = meta.getColumnCount();
         for (int i = 1; i <= colCount; i++) {
-            String colName = meta.getColumnName(i);
+            String colName = meta.getColumnLabel(i);
             Object val = rs.getObject(i);
             bean.put(colName, val);
         }

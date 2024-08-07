@@ -2,6 +2,7 @@ package com.site0.walnut.web.module;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,7 +15,6 @@ import org.nutz.json.JsonFormat;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
-import org.nutz.lang.random.R;
 import org.nutz.lang.stream.StringInputStream;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -43,7 +43,7 @@ import com.site0.walnut.impl.srv.WnBoxRunning;
 import com.site0.walnut.impl.srv.WnDomainService;
 import com.site0.walnut.impl.srv.WwwSiteInfo;
 import com.site0.walnut.lookup.WnLookup;
-import com.site0.walnut.lookup.WnTestLookup;
+import com.site0.walnut.lookup.impl.WnLookupMaker;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Wn.Session;
@@ -75,6 +75,9 @@ public class AppModule extends AbstractWnModule {
 
     @Inject
     protected WnAppService apps;
+
+    @Inject
+    protected WnLookupMaker lookupMaker;
 
     @At("/login")
     public View login(HttpServletRequest req,
@@ -815,24 +818,28 @@ public class AppModule extends AbstractWnModule {
     @Ok("ajax")
     @Fail("ajax")
     public List<NutBean> lookup(String lookupName,
+                                @Param("id") String lookupId,
                                 @Param("hint") String lookupHint,
-                                @Param(value = "len", df = "30") int len,
-                                @Param(value = "min", df = "5") int min,
-                                @Param(value = "max", df = "20") int max,
+                                @Param(value = "limit", df = "30") int limit,
+                                @Param("reset") boolean reset,
                                 final HttpServletResponse resp) {
         WnWeb.setCrossDomainHeaders("*", (name, value) -> {
             resp.setHeader(WnWeb.niceHeaderName(name), value);
         });
-        // 测试查找
-        if ("test".equals(lookupName)) {
-            int N = R.random(min, max);
-            WnLookup look = new WnTestLookup(N, len);
-            return look.lookup(lookupHint);
+
+        if (reset) {
+            lookupMaker.clear();
         }
-        // 通过设定查找
-        else {
-            throw Wlang.noImplement();
+
+        WnLookup lookup = lookupMaker.getLookup(lookupName);
+
+        if (!Ws.isBlank(lookupId)) {
+            return lookup.fetch(lookupId);
         }
+        if (!Ws.isBlank(lookupHint)) {
+            return lookup.lookup(lookupHint, limit);
+        }
+        return new ArrayList<>();
     }
 
 }
