@@ -38,6 +38,12 @@ public class WnValue {
     private Object emptyAs;
 
     /**
+     * 如果值是一个数字，需要将其除以这个单位。 从而表示一个浮点数。 譬如数据库里存的是分 896，如果设置 unit 100 则会输出为 8.96
+     * 如果再配合上 format="%.2fRMB" 则会输出为 '8.96RMB'
+     */
+    private int unit;
+
+    /**
      * 譬如 xsls 的日期，通常类型为 "44495"，表示 1900-01-01 之后的 44495 天 <br>
      * 这种，声明前缀 "=1900+" 则表示这个日期类型是 "=1900+44495" 也就是 "2021-10-26"
      */
@@ -267,6 +273,14 @@ public class WnValue {
 
     public void setEmptyAs(Object emptyAs) {
         this.emptyAs = emptyAs;
+    }
+
+    public int getUnit() {
+        return unit;
+    }
+
+    public void setUnit(int unit) {
+        this.unit = unit;
     }
 
     public String getDatePrefix() {

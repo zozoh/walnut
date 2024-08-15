@@ -15,6 +15,18 @@ public class WnFloatValueAdaptor implements WnValueAdaptor {
             if (!fld.isDoubleInRegion(v)) {
                 return fld.getDefaultAs();
             }
+
+            // 处理单位
+            double d = fld.getUnit();
+            if (d > 0) {
+                v = v / d;
+            }
+
+            // 格式化
+            if (fld.hasFormat()) {
+                return String.format(fld.getFormat(), v);
+            }
+
             return v;
         }
         // 解析失败，采用默认
