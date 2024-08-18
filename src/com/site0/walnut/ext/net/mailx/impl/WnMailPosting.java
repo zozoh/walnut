@@ -9,6 +9,7 @@ import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.net.mailx.bean.MailxSmtpConfig;
+import com.site0.walnut.ext.net.mailx.bean.WnMailAttachment;
 import com.site0.walnut.ext.net.mailx.bean.WnSmtpMail;
 import com.site0.walnut.ext.net.mailx.util.Mailx;
 import com.site0.walnut.ext.net.mailx.bean.WnMailSecurity;
@@ -83,15 +84,35 @@ public class WnMailPosting {
 
         // attachment
         if (mail.hasAttachments()) {
-            List<String> atPaths = mail.getAttachments();
-            for (String atPath : atPaths) {
-                String aph = Wn.normalizeFullPath(atPath, vars);
-                WnObj ato = io.check(null, aph);
-                String name = ato.name();
-                String mime = ato.mime();
-                byte[] bs = io.readBytes(ato);
-                builder.withAttachment(name, bs, mime);
+            List<String> atPaths = mail.getAttachmentPaths();
+
+            // 根据路径读取
+            if (null != atPaths) {
+                for (String atPath : atPaths) {
+                    String aph = Wn.normalizeFullPath(atPath, vars);
+                    WnObj ato = io.check(null, aph);
+                    String name = ato.name();
+                    String mime = ato.mime();
+                    byte[] bs = io.readBytes(ato);
+                    builder.withAttachment(name, bs, mime);
+                }
             }
+
+            // 设置的固定
+            List<WnMailAttachment> ats = mail.getAttachment();
+            if (null != ats) {
+                for (WnMailAttachment at : ats) {
+                    String name = at.getName();
+                    String mime = at.getMime();
+                    byte[] bs = at.getContent();
+                    builder.withAttachment(name, bs, mime);
+                }
+            }
+        }
+
+        // 固定 attachment
+        if (mail.hasAttachments()) {
+
         }
 
         // security

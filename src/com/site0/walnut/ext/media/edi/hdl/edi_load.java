@@ -1,5 +1,8 @@
 package com.site0.walnut.ext.media.edi.hdl;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutMap;
 
@@ -67,8 +70,24 @@ public class edi_load extends EdiFilter {
             str = tmpl.render(vars);
         }
 
+        // 计入原始输入
+        fc.raw_input = str;
+
+        // 寻找分隔符 :-------------------------
+        // 分隔符后面的就是报文的原始渲染上下文，即一个 JSON
+        Pattern p = Pattern.compile(":-{5,}\r?\n");
+        Matcher m = p.matcher(str);
+        if (m.find()) {
+            int pos_begin = m.start();
+            int pos_end = m.end();
+            fc.message = str.substring(0, pos_begin).trim();
+            fc.vars = str.substring(pos_end).trim();
+        }
         // 计入到上下文
-        fc.message = str;
+        else {
+            fc.message = str;
+        }
+
     }
 
 }

@@ -5,6 +5,13 @@ import com.site0.walnut.ext.media.edi.bean.EdiInterchange;
 import com.site0.walnut.impl.box.JvmFilterContext;
 
 public class EdiContext extends JvmFilterContext {
+    
+    public String raw_input;
+
+    /**
+     * 报文的原始渲染上下文
+     */
+    public String vars;
 
     /**
      * 报文文本

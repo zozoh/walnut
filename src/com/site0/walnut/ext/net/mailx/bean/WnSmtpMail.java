@@ -23,7 +23,12 @@ public class WnSmtpMail extends WnMail {
     /**
      * 附件列表，如果不是html邮件，且无附件，则采用简单邮件发送
      */
-    List<String> attachments;
+    List<String> attachmentPaths;
+
+    /**
+     * 固定附件列表
+     */
+    List<WnMailAttachment> attachments;
 
     /**
      * 附件列表，如果不是html邮件，且无附件，则采用简单邮件发送
@@ -52,13 +57,13 @@ public class WnSmtpMail extends WnMail {
         if (this.hasContent())
             content = WnTmpl.exec(content, vars);
 
-        if (this.hasAttachments()) {
-            List<String> ats = new ArrayList<String>(attachments.size());
-            for (String at : this.attachments) {
+        if (null != attachmentPaths && attachmentPaths.size() > 0) {
+            List<String> ats = new ArrayList<String>(attachmentPaths.size());
+            for (String at : this.attachmentPaths) {
                 at = WnTmpl.exec(at, vars);
                 ats.add(at);
             }
-            this.attachments = ats;
+            this.attachmentPaths = ats;
         }
 
         if (null != security) {
@@ -67,7 +72,7 @@ public class WnSmtpMail extends WnMail {
     }
 
     protected String dumpAttachments() {
-        return Ws.join(this.attachments, "; ");
+        return Ws.join(this.attachmentPaths, "; ");
     }
 
     @Override
@@ -77,9 +82,16 @@ public class WnSmtpMail extends WnMail {
 
         super.copyFrom(mail);
 
-        if (mail.hasAttachments()) {
+        if (null != mail.attachmentPaths && mail.attachmentPaths.size() > 0) {
+            this.attachmentPaths = new ArrayList<>(mail.attachmentPaths.size());
+            this.attachmentPaths.addAll(mail.attachmentPaths);
+        }
+
+        if (null != mail.attachments && mail.attachments.size() > 0) {
             this.attachments = new ArrayList<>(mail.attachments.size());
-            this.attachments.addAll(mail.attachments);
+            for (WnMailAttachment at : mail.attachments) {
+                this.attachments.add(at.clone());
+            }
         }
     }
 
@@ -97,33 +109,66 @@ public class WnSmtpMail extends WnMail {
 
     @Override
     public boolean hasAttachments() {
-        return null != attachments && !attachments.isEmpty();
+        if (null != attachmentPaths && attachmentPaths.size() > 0) {
+            return true;
+        }
+        if (null != attachments && attachments.size() > 0) {
+            return true;
+        }
+        return false;
     }
 
-    public List<String> getAttachments() {
+    public List<String> getAttachmentPaths() {
+        return attachmentPaths;
+    }
+
+    public void setAttachmentPaths(List<String> attachments) {
+        this.attachmentPaths = attachments;
+    }
+
+    public void addAttachmentPath(String at) {
+        if (null == attachmentPaths) {
+            attachmentPaths = new LinkedList<>();
+        }
+        this.attachmentPaths.add(at);
+    }
+
+    public void addAttachmentPaths(String... aphs) {
+        if (null == aphs || aphs.length == 0)
+            return;
+
+        if (null == attachmentPaths) {
+            attachmentPaths = new LinkedList<>();
+        }
+        for (String aph : aphs) {
+            attachmentPaths.add(aph);
+        }
+    }
+
+    public List<WnMailAttachment> getAttachment() {
         return attachments;
     }
 
-    public void setAttachments(List<String> attachments) {
+    public void setAttachment(List<WnMailAttachment> attachments) {
         this.attachments = attachments;
     }
 
-    public void addAttachment(String at) {
+    public void addAttachment(WnMailAttachment at) {
         if (null == attachments) {
             attachments = new LinkedList<>();
         }
         this.attachments.add(at);
     }
 
-    public void addAttachments(String... aphs) {
-        if (null == aphs || aphs.length == 0)
+    public void addAttachment(WnMailAttachment... ats) {
+        if (null == ats || ats.length == 0)
             return;
 
         if (null == attachments) {
             attachments = new LinkedList<>();
         }
-        for (String aph : aphs) {
-            attachments.add(aph);
+        for (WnMailAttachment at : ats) {
+            attachments.add(at);
         }
     }
 
