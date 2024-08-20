@@ -225,6 +225,8 @@ public class mailx_imap extends MailxFilter {
             String tp = "text/html".equals(mime) ? "html" : "txt";
             meta.put("mime", mime);
             meta.put("tp", tp);
+            
+            
             if (textPart.hasFileName()) {
                 meta.put("msg_content_name", textPart.getFileName());
             }

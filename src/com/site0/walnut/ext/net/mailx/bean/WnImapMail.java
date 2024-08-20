@@ -191,6 +191,7 @@ public class WnImapMail extends WnMail {
         meta.put("title", this.getSubject());
         meta.put("sort", this.number);
         meta.put("msg_receive_at", this.receiveAt);
+        meta.put("msg_receive_ats", this.getReceiveAtDateStr());
         meta.put("msg_sender", this.getSender());
         meta.put("msg_to", this.getTo());
         meta.put("msg_cc", this.getCc());
@@ -330,6 +331,15 @@ public class WnImapMail extends WnMail {
 
     public void setMessageId(String messageId) {
         this.messageId = messageId;
+    }
+
+    public String getReceiveAtDateStr() {
+        Date d = getReceiveAtDate();
+        return Wtime.format(d, "yyyy-MM-dd HH:mm:ss");
+    }
+
+    public Date getReceiveAtDate() {
+        return new Date(receiveAt);
     }
 
     public long getReceiveAt() {
