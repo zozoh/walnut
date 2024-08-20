@@ -186,12 +186,16 @@ public class WnImapMail extends WnMail {
 
     public NutMap toMeta(boolean includeHeader) {
         NutMap meta = new NutMap();
+
+        long recv_at = this.receiveAt;
+        String recv_asstr = this.getReceiveAtDateStr();
         // 基本信息
         meta.put("nm", this.messageId);
         meta.put("title", this.getSubject());
         meta.put("sort", this.number);
-        meta.put("msg_receive_at", this.receiveAt);
-        meta.put("msg_receive_ats", this.getReceiveAtDateStr());
+        meta.put("msg_receive_at", recv_at);
+        meta.put("msg_receive_ats", recv_asstr);
+        meta.put("reply_at", recv_asstr);
         meta.put("msg_sender", this.getSender());
         meta.put("msg_to", this.getTo());
         meta.put("msg_cc", this.getCc());
