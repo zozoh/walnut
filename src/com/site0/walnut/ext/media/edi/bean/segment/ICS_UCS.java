@@ -16,10 +16,10 @@ import java.util.List;
 public class ICS_UCS {
 
     // 报文消息中 "有错误的" 报文行(segment) 的行数(数字计数位置), 从 UNH 开始计算行数。
-    private String msgSegPosition;
+    private String segPos;
 
     // 报文行的语法错误 code
-    private String msgSegSyntaxErrCode;
+    private String errCode;
 
     private List<ICS_UCD> errItems = new ArrayList<>();
 
@@ -29,31 +29,31 @@ public class ICS_UCS {
 
     public ICS_UCS(EdiSegment ucsSeg) {
         NutMap bean = new NutMap();
-        String[] keys = Wlang.array(null, "msgSegPosition", "msgSegSyntaxErrCode");
+        String[] keys = Wlang.array(null, "segPos", "errCode");
         ucsSeg.fillBean(bean, keys);
         this.valueOf(bean);
     }
 
     public ICS_UCS valueOf(NutBean bean) {
-        this.msgSegPosition = bean.getString("msgSegPosition");
-        this.msgSegSyntaxErrCode = bean.getString("msgSegSyntaxErrCode");
+        this.segPos = bean.getString("segPos");
+        this.errCode = bean.getString("errCode");
         return this;
     }
 
-    public String getMsgSegPosition() {
-        return msgSegPosition;
+    public String getSegPos() {
+        return segPos;
     }
 
-    public void setMsgSegPosition(String msgSegPosition) {
-        this.msgSegPosition = msgSegPosition;
+    public void setSegPos(String segPos) {
+        this.segPos = segPos;
     }
 
-    public String getMsgSegSyntaxErrCode() {
-        return msgSegSyntaxErrCode;
+    public String getErrCode() {
+        return errCode;
     }
 
-    public void setMsgSegSyntaxErrCode(String msgSegSyntaxErrCode) {
-        this.msgSegSyntaxErrCode = msgSegSyntaxErrCode;
+    public void setErrCode(String errCode) {
+        this.errCode = errCode;
     }
 
     public List<ICS_UCD> getErrItems() {

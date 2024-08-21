@@ -7,43 +7,44 @@ import com.site0.walnut.util.Wlang;
 
 public class ICS_UCI {
 
-    private String refNumber;
+    private String refNum;
 
+    // 发件人站点 Id
     private String creator;
 
-    private String creatorIdCode;
-
+    // 所有者站点 Id
     private String owner;
 
+    // 收件人站点 Id
     private String recipient;
 
-    private String recipientIdCode;
-
-    private String recipientRoutingAddress;
-
+    // 4 --> 报文被拒绝；7 --> 相应引用级别已确认；[8：交换已收到(未在文档中列出)]
     private String actionCode;
 
-    public ICS_UCI() {}
+    private String errCode;
+
+    // 出现错误的交换服务段的段标记标识符，即 UNA、UNB 或 UNZ
+    private String segTag;
+
+    private String elementPos;
+
+    public ICS_UCI() {
+    }
 
     public ICS_UCI(EdiSegment seg) {
         NutMap bean = new NutMap();
         String[] keys = Wlang.array(null,
-                                    "refNumber",
-                                    "creator,creatorIdCode,owner",
-                                    "recipient,recipientIdCode,recipientRoutingAddress",
-                                    "actionCode");
+                "refNum", "creator,,owner", "recipient",
+                "actionCode", "errCode", "segTag", "elementPos");
         seg.fillBean(bean, keys);
         this.valueOf(bean);
     }
 
     public ICS_UCI valueOf(NutBean bean) {
-        this.refNumber = bean.getString("refNumber");
+        this.refNum = bean.getString("refNum");
         this.creator = bean.getString("creator");
-        this.creatorIdCode = bean.getString("creatorIdCode");
         this.owner = bean.getString("owner");
         this.recipient = bean.getString("recipient");
-        this.recipientIdCode = bean.getString("recipientIdCode");
-        this.recipientRoutingAddress = bean.getString("recipientRoutingAddress");
         this.actionCode = bean.getString("actionCode");
         return this;
     }
@@ -56,12 +57,12 @@ public class ICS_UCI {
         return "7".equals(actionCode);
     }
 
-    public String getRefNumber() {
-        return refNumber;
+    public String getRefNum() {
+        return refNum;
     }
 
-    public void setRefNumber(String refNumber) {
-        this.refNumber = refNumber;
+    public void setRefNum(String refNum) {
+        this.refNum = refNum;
     }
 
     public String getCreator() {
@@ -70,14 +71,6 @@ public class ICS_UCI {
 
     public void setCreator(String creator) {
         this.creator = creator;
-    }
-
-    public String getCreatorIdCode() {
-        return creatorIdCode;
-    }
-
-    public void setCreatorIdCode(String creatorIdCode) {
-        this.creatorIdCode = creatorIdCode;
     }
 
     public String getOwner() {
@@ -96,27 +89,35 @@ public class ICS_UCI {
         this.recipient = recipient;
     }
 
-    public String getRecipientIdCode() {
-        return recipientIdCode;
-    }
-
-    public void setRecipientIdCode(String recipientIdCode) {
-        this.recipientIdCode = recipientIdCode;
-    }
-
-    public String getRecipientRoutingAddress() {
-        return recipientRoutingAddress;
-    }
-
-    public void setRecipientRoutingAddress(String recipientRoutingAddress) {
-        this.recipientRoutingAddress = recipientRoutingAddress;
-    }
-
     public String getActionCode() {
         return actionCode;
     }
 
     public void setActionCode(String actionCode) {
         this.actionCode = actionCode;
+    }
+
+    public String getErrCode() {
+        return errCode;
+    }
+
+    public void setErrCode(String errCode) {
+        this.errCode = errCode;
+    }
+
+    public String getSegTag() {
+        return segTag;
+    }
+
+    public void setSegTag(String segTag) {
+        this.segTag = segTag;
+    }
+
+    public String getElementPos() {
+        return elementPos;
+    }
+
+    public void setElementPos(String elementPos) {
+        this.elementPos = elementPos;
     }
 }

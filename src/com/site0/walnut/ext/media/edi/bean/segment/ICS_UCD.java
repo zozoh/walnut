@@ -14,7 +14,7 @@ import org.nutz.lang.util.NutMap;
 public class ICS_UCD {
 
     // UCS 中错误的报文行的 DataElement 的行内位置 (+号分隔)
-    private String dataElementPos;
+    private String elementPos;
 
     // 特定 Elment 中 component 的位置 (:号分隔)
     private String componentPos;
@@ -28,24 +28,24 @@ public class ICS_UCD {
 
     public ICS_UCD(EdiSegment ucdSeg) {
         NutMap bean = new NutMap();
-        String[] keys = Wlang.array(null, "errCode", "dataElementPos,componentPos");
+        String[] keys = Wlang.array(null, "errCode", "elementPos,componentPos");
         ucdSeg.fillBean(bean, keys);
         this.valueOf(bean);
     }
 
     public ICS_UCD valueOf(NutBean bean) {
-        this.dataElementPos = bean.getString("dataElementPos");
+        this.elementPos = bean.getString("elementPos");
         this.componentPos = bean.getString("componentPos");
         this.errCode = bean.getString("errCode");
         return this;
     }
 
-    public String getDataElementPos() {
-        return dataElementPos;
+    public String getElementPos() {
+        return elementPos;
     }
 
-    public void setDataElementPos(String dataElementPos) {
-        this.dataElementPos = dataElementPos;
+    public void setElementPos(String elementPos) {
+        this.elementPos = elementPos;
     }
 
     public String getComponentPos() {
