@@ -1047,24 +1047,19 @@ public class WnIoImpl2 implements WnIo {
         // 声明了 ID 转到 get(id)
         // 防止 id:{"$ne":"6nev2ak790imqrf3peb45p4i0f"}
         NutMap qc = q.first();
-        Object idv = qc.get("id");
-        if (null != idv && (idv instanceof String)) {
-            String id = (String) idv;
-            WnObjMapping om = mappings.checkById(id);
-            WnIoIndexer indexer = om.getSelfIndexer();
-            WnObj o = indexer.get(id);
-            if (null == o) {
-                return 0;
-            }
-            callback.invoke(0, o, 1);
-            return 1;
+        String pid = qc.getString("pid");
+        String _id = qc.getString("id");
+        WnObjId oid = _id != null ? new WnObjId(_id) : null;
+        if (null != oid && oid.hasHomeId()) {
+            pid = oid.getHomeId();
+            _id = oid.getMyId();
         }
+        WnIoIndexer indexer;
 
         // 准备回调
         Each<WnObj> looper = Wn.eachLooping(callback);
 
         // 如果声明了 pid ，则看看有木有映射
-        String pid = qc.getString("pid");
         if (!Strings.isBlank(pid)) {
             WnObj oP = this.get(pid);
             if (null == oP)
@@ -1079,14 +1074,26 @@ public class WnIoImpl2 implements WnIo {
 
             // 检查映射，尝试交给对应的映射管理器处理
             WnIoMapping im = mappings.checkMapping(oP);
-            WnIoIndexer indexer = im.getIndexer();
+            indexer = im.getIndexer();
             // 确保 pid 是子ID
             q.setv("pid", oP.myId());
             q.setParentObj(oP);
-            return indexer.each(q, looper);
         }
         // 采用根索引管理器
-        WnIoIndexer indexer = mappings.getGlobalIndexer();
+        else {
+            indexer = mappings.getGlobalIndexer();
+        }
+
+        if (null != _id) {
+            WnObj o = indexer.get(_id);
+            if (null == o) {
+                return 0;
+            }
+            callback.invoke(0, o, 1);
+            return 1;
+        }
+
+        // 采用根索引管理器
         return indexer.each(q, looper);
     }
 
