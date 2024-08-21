@@ -8,8 +8,6 @@ import com.site0.walnut.ext.media.edi.bean.segment.ICS_UCM;
 import com.site0.walnut.ext.media.edi.bean.segment.ICS_UCS;
 import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyCONTRL;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
-import com.site0.walnut.util.Wlang;
-import org.nutz.lang.util.NutMap;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -61,6 +61,6 @@ public class ICS_UCD {
     }
 
     public void setErrCode(String errCode) {
-        errCode = errCode;
+        this.errCode = errCode;
     }
 }
