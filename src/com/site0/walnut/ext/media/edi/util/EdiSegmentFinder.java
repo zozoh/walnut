@@ -170,4 +170,20 @@ public class EdiSegmentFinder {
         return re;
     }
 
+    public EdiSegment tryNext(String tag) {
+        // 防守
+        if (!it.hasNext())
+            return null;
+
+        // 找下一行, 判断
+        EdiSegment seg = it.next();
+        if (seg.isTag(tag)) {
+            return seg;
+        }
+
+        //若找不到, 则回退一行
+        it.previous();
+        return null;
+    }
+
 }

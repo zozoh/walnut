@@ -1,6 +1,9 @@
 package com.site0.walnut.ext.media.edi.msg.reply;
 
 import com.site0.walnut.ext.media.edi.bean.segment.ICS_UCI;
+import com.site0.walnut.ext.media.edi.bean.segment.ICS_UCM;
+
+import java.util.List;
 
 /**
  * 控制信息的返回
@@ -10,6 +13,8 @@ import com.site0.walnut.ext.media.edi.bean.segment.ICS_UCI;
 public class EdiReplyCONTRL extends EdiReplyObj {
 
     private ICS_UCI uci;
+
+    private List<ICS_UCM> msgs;
 
     public EdiReplyCONTRL() {
         super("CONTRL");
@@ -23,4 +28,11 @@ public class EdiReplyCONTRL extends EdiReplyObj {
         this.uci = uci;
     }
 
+    public List<ICS_UCM> getMsgs() {
+        return msgs;
+    }
+
+    public void setMsgs(List<ICS_UCM> msgs) {
+        this.msgs = msgs;
+    }
 }
