@@ -1048,12 +1048,15 @@ public class WnIoImpl2 implements WnIo {
         // 防止 id:{"$ne":"6nev2ak790imqrf3peb45p4i0f"}
         NutMap qc = q.first();
         String pid = qc.getString("pid");
-        String _id = qc.getString("id");
-        WnObjId oid = _id != null ? new WnObjId(_id) : null;
-        if (null != oid && oid.hasHomeId()) {
+        Object _id = qc.get("id");
+        String id = null;
+        if (null != _id && _id instanceof String) {
+            id = _id.toString();
+            WnObjId oid = new WnObjId(id);
             pid = oid.getHomeId();
-            _id = oid.getMyId();
+            id = oid.getMyId();
         }
+
         WnIoIndexer indexer;
 
         // 准备回调
@@ -1084,8 +1087,8 @@ public class WnIoImpl2 implements WnIo {
             indexer = mappings.getGlobalIndexer();
         }
 
-        if (null != _id) {
-            WnObj o = indexer.get(_id);
+        if (null != id) {
+            WnObj o = indexer.get(id);
             if (null == o) {
                 return 0;
             }
