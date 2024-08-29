@@ -2,6 +2,7 @@ package com.site0.walnut.lookup.impl;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.mapl.Mapl;
 
 import com.site0.walnut.lookup.WnLookup;
 import com.site0.walnut.lookup.bean.LookupConfig;
@@ -20,16 +21,20 @@ public abstract class AbstractLookup implements WnLookup {
     protected NutBean prepareHintForQuery(String hint) {
         String sep = config.getPartsSep();
         String[] parts = config.getQueryParts();
-        return _prepare_hint(hint, "hint", sep, parts);
+        return _prepare_hint(hint, "hint", sep, parts, config.getQueryRequireds());
     }
 
     protected NutBean prepareHintForFetch(String hint) {
         String sep = config.getPartsSep();
         String[] parts = config.getFetchParts();
-        return _prepare_hint(hint, "id", sep, parts);
+        return _prepare_hint(hint, "id", sep, parts, config.getFetchParts());
     }
 
-    static NutBean _prepare_hint(String hint, String hintKey, String sep, String[] parts) {
+    static NutBean _prepare_hint(String hint,
+                                 String hintKey,
+                                 String sep,
+                                 String[] parts,
+                                 String[] required) {
         NutMap re = new NutMap();
         // 尝试具名 Hint
         if (!Ws.isBlank(sep)) {
@@ -65,6 +70,17 @@ public abstract class AbstractLookup implements WnLookup {
         else {
             re.put(hintKey, hint);
         }
+
+        // 检查，是否上下文里有必要字段，如果缺少，就相当于是空上下文
+        if (null != required) {
+            for (String rk : required) {
+                Object v = Mapl.cell(re, rk);
+                if (null == v) {
+                    return new NutMap();
+                }
+            }
+        }
+
         return re;
     }
 }

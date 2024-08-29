@@ -1,5 +1,7 @@
 package com.site0.walnut.lookup.bean;
 
+import com.site0.walnut.util.Wlang;
+
 public class LookupConfig {
 
     private LookupType type;
@@ -25,11 +27,17 @@ public class LookupConfig {
      * <p>
      * 它的值就是 ['name','age'] 这样的键名， 对应 hint 拆分后的每个部分， 如果不足，就用 'id_3' ...这样的变量来填充
      * <p>
-     * 另外如果键名写成 'name:->${name}%'
-     * 则表示用 explain 来再次渲染值
-     * @see com.site0.walnut.util.Wn#explainObj(org.nutz.lang.util.NutBean, Object)
+     * 另外如果键名写成 'name:->${name}%' 则表示用 explain 来再次渲染值
+     * 
+     * @see com.site0.walnut.util.Wn#explainObj(org.nutz.lang.util.NutBean,
+     *      Object)
      */
     private String[] fetchParts;
+
+    /**
+     * 获取前检查一下上下文，如果缺少指定变量，将返回空 默认的为 `['id']`
+     */
+    private String[] fetchRequireds;
 
     /**
      * 这里可以声明一个数组，根据 partsSep，
@@ -39,11 +47,17 @@ public class LookupConfig {
      * 它的值就是 ['name','age'] 这样的键名， 对应 hint 拆分后的每个部分， 如果不足，就用 'hint_3'
      * ...这样的变量来填充
      * <p>
-     * 另外如果键名写成 'name:->${name}%'
-     * 则表示用 explain 来再次渲染值
-     * @see com.site0.walnut.util.Wn#explainObj(org.nutz.lang.util.NutBean, Object)
+     * 另外如果键名写成 'name:->${name}%' 则表示用 explain 来再次渲染值
+     * 
+     * @see com.site0.walnut.util.Wn#explainObj(org.nutz.lang.util.NutBean,
+     *      Object)
      */
     private String[] queryParts;
+
+    /**
+     * 获取前检查一下上下文，如果缺少指定变量，将返回空 默认的为 `['hint']`
+     */
+    private String[] queryRequireds;
 
     /**
      * 用来拆解 hint 的具名变量，如果不设置，则不会拆解<br>
@@ -91,12 +105,34 @@ public class LookupConfig {
         this.fetchParts = fetchParts;
     }
 
+    public String[] getFetchRequireds() {
+        if (null == fetchRequireds) {
+            return Wlang.array("id");
+        }
+        return fetchRequireds;
+    }
+
+    public void setFetchRequireds(String[] fetchRequireds) {
+        this.fetchRequireds = fetchRequireds;
+    }
+
     public String[] getQueryParts() {
         return queryParts;
     }
 
     public void setQueryParts(String[] queryParts) {
         this.queryParts = queryParts;
+    }
+
+    public String[] getQueryRequireds() {
+        if (null == queryRequireds) {
+            return Wlang.array("hint");
+        }
+        return queryRequireds;
+    }
+
+    public void setQueryRequireds(String[] queryRequireds) {
+        this.queryRequireds = queryRequireds;
     }
 
     public String getPartsSep() {
