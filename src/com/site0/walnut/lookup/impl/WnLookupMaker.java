@@ -11,8 +11,8 @@ import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.lookup.WnLookup;
 import com.site0.walnut.lookup.WnTestLookup;
-import com.site0.walnut.lookup.config.LookupConfig;
-import com.site0.walnut.lookup.config.LookupType;
+import com.site0.walnut.lookup.bean.LookupConfig;
+import com.site0.walnut.lookup.bean.LookupType;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Ws;
 

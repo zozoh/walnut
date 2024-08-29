@@ -1053,7 +1053,9 @@ public class WnIoImpl2 implements WnIo {
         if (null != _id && _id instanceof String) {
             id = _id.toString();
             WnObjId oid = new WnObjId(id);
-            pid = oid.getHomeId();
+            if (oid.hasHomeId()) {
+                pid = oid.getHomeId();
+            }
             id = oid.getMyId();
         }
 

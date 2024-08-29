@@ -9,7 +9,6 @@ import javax.sql.DataSource;
 
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutBean;
-import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 
 import com.site0.walnut.api.io.WnIo;
@@ -21,12 +20,10 @@ import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqls;
 import com.site0.walnut.ext.sys.sql.WnDaoAuth;
 import com.site0.walnut.ext.sys.sql.WnDaos;
-import com.site0.walnut.lookup.WnLookup;
-import com.site0.walnut.lookup.config.LookupConfig;
-import com.site0.walnut.util.Wlang;
+import com.site0.walnut.lookup.bean.LookupConfig;
 import com.site0.walnut.util.Wlog;
 
-public class WnSqlLookup implements WnLookup {
+public class WnSqlLookup extends AbstractLookup {
 
     private static Log log = Wlog.getCMD();
 
@@ -46,14 +43,16 @@ public class WnSqlLookup implements WnLookup {
     private WnSqlTmpl fetchTmpl;
 
     public WnSqlLookup(WnIo io, LookupConfig config) {
+        super(config);
         this.prepareAuth(io, config.getDaoPath());
         this.prepareSqlTmpl(config.getSqlQuery(), config.getSqlFetch());
     }
 
-    public WnSqlLookup(WnDaoAuth auth, String query, String fetch) {
-        this.auth = auth;
-        prepareSqlTmpl(query, fetch);
-    }
+    // public WnSqlLookup(WnDaoAuth auth, String query, String fetch) {
+    // super(config);
+    // this.auth = auth;
+    // prepareSqlTmpl(query, fetch);
+    // }
 
     private void prepareAuth(WnIo io, String daoPath) {
         WnObj oAuth = io.check(null, daoPath);
@@ -67,7 +66,7 @@ public class WnSqlLookup implements WnLookup {
         this.fetchTmpl = WnSqlTmpl.parse(fetch, eleMaker);
     }
 
-    private List<NutBean> __inner_query(NutMap context, WnSqlTmpl sqlT) {
+    private List<NutBean> __inner_query(NutBean context, WnSqlTmpl sqlT) {
         // 获取数据库连接
         DataSource ds = WnDaos.getDataSource(auth);
         Connection conn = null;
@@ -107,13 +106,20 @@ public class WnSqlLookup implements WnLookup {
 
     @Override
     public List<NutBean> lookup(String hint, int limit) {
-        NutMap context = Wlang.map("hint", hint).setv("limit", limit);
+        NutBean context = prepareHintForQuery(hint);
+        if (context.isEmpty()) {
+            return new ArrayList<>();
+        }
+        context.put("limit", limit);
         return __inner_query(context, this.queryTmpl);
     }
 
     @Override
     public List<NutBean> fetch(String id) {
-        NutMap context = Wlang.map("id", id);
+        NutBean context = prepareHintForFetch(id);
+        if (context.isEmpty()) {
+            return new ArrayList<>();
+        }
         return __inner_query(context, this.fetchTmpl);
     }
 
