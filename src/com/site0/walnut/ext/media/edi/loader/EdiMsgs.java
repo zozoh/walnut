@@ -20,9 +20,11 @@ public abstract class EdiMsgs {
 
     static {
         loaders.put("CONTRL", new CONTRLLoader());
+        loaders.put("CLREG", new CLREGLoader());
         loaders.put("CLREGR", new CLREGRLoader());
         loaders.put("CLNTDUP", new CLNTDUPLoader());
-        loaders.put("CLREG", new CLREGLoader());
+        // AirCargoReport Response
+        loaders.put("AIRCRR", new AIRCRRLoader());
     }
 
     public static String getLoaderType(EdiMessage msg) {
