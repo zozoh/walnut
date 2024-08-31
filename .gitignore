@@ -59,3 +59,5 @@ debug.log
 
 bin/main/         
 bin/test/
+
+/test/test.properties
