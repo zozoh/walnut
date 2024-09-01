@@ -186,4 +186,28 @@ public class EdiSegmentFinder {
         return null;
     }
 
+//    public boolean moveBefore(String tag) {
+//        // 防守
+//        if (!it.hasNext())
+//            return false;
+//
+//        // 找下一行, 判断
+//        boolean findOne =  false;
+//        EdiSegment seg = null;
+//        while (it.hasNext()){
+//            seg = it.next();
+//            if(seg.isTag(tag)){
+//                findOne = true;
+//                it.previous();
+//                break;
+//            }
+//        }
+//
+//        if(findOne) {
+//            return true;
+//        }
+//
+//        return false;
+//    }
+
 }

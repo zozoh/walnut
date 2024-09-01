@@ -5,6 +5,7 @@ import com.site0.walnut.ext.media.edi.bean.EdiSegment;
 import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyError;
 import com.site0.walnut.ext.media.edi.msg.reply.cargorpt.EdiReplyAIRCRR;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
+import org.nutz.lang.segment.Segment;
 import org.nutz.lang.util.NutMap;
 
 import java.util.ArrayList;
@@ -13,8 +14,8 @@ import java.util.List;
 
 public class AIRCRRLoader implements EdiMsgLoader<EdiReplyAIRCRR> {
     @Override
-    public Class getResultType() {
-        return null;
+    public Class<EdiReplyAIRCRR> getResultType() {
+        return EdiReplyAIRCRR.class;
     }
 
     @Override
@@ -24,33 +25,41 @@ public class AIRCRRLoader implements EdiMsgLoader<EdiReplyAIRCRR> {
 
         EdiSegmentFinder finder = msg.getFinder();
         NutMap rff = new NutMap();
+        List<EdiSegment> segs;
         EdiSegment seg;
 
+        // 定位到 BGM 报文行
+        seg = finder.next("BGM");
+
         // 解析 FTX 报文行
-        seg = finder.tryNext("FTX");
-        if (seg != null) {
+        segs = finder.nextAllUtilNoMatch(false, "FTX");
+        for (EdiSegment item : segs) {
             rff.clear();
-            seg.fillBean(rff, null, null, null, null, "statusType,statusDesc");
-            re.getExtraInfo().put("statusType", rff.getString("statusType"));
-            re.getExtraInfo().put("statusDesc", rff.getString("statusDesc"));
+            seg.fillBean(rff, null, "subjectCode", null, null, "statusType,statusDesc");
+            String subjectCode = rff.getString("subjectCode");
+            if (rff.is("subjectCode", "AHN")) {
+                re.getExtraInfo().put("statusType", rff.getString("statusType"));
+                re.getExtraInfo().put("statusDesc", rff.getString("statusDesc"));
+            }
         }
 
         // 解析 NAD 报文行
-        seg = finder.tryNext("NAD");
-        if (seg != null) {
+        segs = finder.nextAllUtilNoMatch(false, "NAD");
+        for (EdiSegment item : segs) {
             rff.clear();
-            seg.fillBean(rff, null, null, "icsSiteId");
-            String icsSiteId = rff.getString("icsSiteId");
-            re.getExtraInfo().put("icsSiteId", icsSiteId);
+            item.fillBean(rff, null, "funcCode", "icsSiteId");
+            if (rff.is("funcCode", "MR")) {
+                String icsSiteId = rff.getString("icsSiteId");
+                re.getExtraInfo().put("icsSiteId", icsSiteId);
+            }
         }
-
 
         // 解析 SG3: RFF-DTM 报文组
         List<EdiSegment> _segs = finder.nextAllUtilNoMatch(false, "RFF");
         if (_segs != null && _segs.size() > 0) {
             for (EdiSegment _seg : _segs) {
                 rff.clear();
-                _seg.fillBean(rff, null, "refType:refId::refVer");
+                _seg.fillBean(rff, null, "refType,refId,,refVer");
                 if (rff.is("refType", "ACW")) {
                     re.getExtraInfo().put("msgType", rff.getString("refId"));
                 } else if (rff.is("refType", "AFM")) {
@@ -65,6 +74,7 @@ public class AIRCRRLoader implements EdiMsgLoader<EdiReplyAIRCRR> {
                 }
             }
         }
+
 
         // 解析 SG4: ERP-ERC-FTX 报文组
         // 定位一个错误信息
@@ -86,7 +96,20 @@ public class AIRCRRLoader implements EdiMsgLoader<EdiReplyAIRCRR> {
         errList.toArray(errs);
         re.setErrors(errs);
 
+        // 判断本次 CargoReport 是否成功
+        boolean msgSuccess = true;
+        if (errList.size() > 0) {
+            for (EdiReplyError item : errList) {
+                String lowerType = item.getType() == null ? "" : item.getType().toLowerCase();
+                if (lowerType.contains("error") || lowerType.contains("warn")) {
+                    msgSuccess = false;
+                    break;
+                }
+            }
+        }
+        re.setSuccess(msgSuccess);
 
-        return null;
+        // 返回解析结果
+        return re;
     }
 }
