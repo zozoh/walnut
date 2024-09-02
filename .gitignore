@@ -60,4 +60,4 @@ debug.log
 bin/main/         
 bin/test/
 
-/test/test.properties
+/test/test_local.properties

@@ -52,6 +52,7 @@ import com.site0.walnut.ext.sys.sql.WnDaos;
 import com.site0.walnut.impl.lock.redis.RedisLockApi;
 import com.site0.walnut.util.MongoDB;
 import com.site0.walnut.util.Wn;
+import org.nutz.web.WebConfig;
 
 public class IoCoreSetup {
 
@@ -93,8 +94,10 @@ public class IoCoreSetup {
 
     static {
         // 测试配置初始化
-        if (null == pp)
-            pp = new PropertiesProxy("test.properties");
+        if (null == pp) {
+            pp = new WebConfig("test.properties");
+        }
+
 
         // MimeMap 初始化
         if (null == mimes)
