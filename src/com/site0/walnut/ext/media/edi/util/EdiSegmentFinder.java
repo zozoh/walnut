@@ -186,28 +186,76 @@ public class EdiSegmentFinder {
         return null;
     }
 
-//    public boolean moveBefore(String tag) {
-//        // 防守
-//        if (!it.hasNext())
-//            return false;
-//
-//        // 找下一行, 判断
-//        boolean findOne =  false;
-//        EdiSegment seg = null;
-//        while (it.hasNext()){
-//            seg = it.next();
-//            if(seg.isTag(tag)){
-//                findOne = true;
-//                it.previous();
-//                break;
-//            }
-//        }
-//
-//        if(findOne) {
-//            return true;
-//        }
-//
-//        return false;
-//    }
+    /**
+     * 1. 从当前位置开始，移动到 能匹配上 tag 的位置;
+     * - a. 找到 tag 后，若 backOneSegment=true 那么则后退一步；
+     * - b. 找到 tag 后，若 backOneSegment=false 则维持指向位置；
+     * 2. 若找不到 tag，则回退到当前(匹配开始)的位置；
+     */
+    public boolean moveTo(boolean backOneSegment, String tag) {
+        // 防守
+        if (!it.hasNext())
+            return false;
+
+        int stepNum = 0;
+        boolean findOne = false;
+        EdiSegment seg;
+
+        // 查找判断
+        while (it.hasNext()) {
+            seg = it.next();
+            stepNum++;
+
+            if (seg.isTag(tag)) {
+                findOne = true;
+                if (backOneSegment) {
+                    it.previous();
+                }
+                break;
+            }
+        }
+
+        // 若找不到，则返回原位置
+        if (!findOne && stepNum > 0) {
+            while (stepNum > 0) {
+                it.previous();
+                stepNum--;
+            }
+        }
+
+        return findOne;
+    }
+
+    /**
+     * 1. 此方法常常配合 moveTo 方法使用，先使用 moveTo 方法定位到区域前方;
+     * 2.
+     */
+    public List<EdiSegment> findContinueSegments(String begin, String match, String boundary) {
+        List<EdiSegment> re = new ArrayList<>(list.size());
+
+        // 防守
+        if (!it.hasNext())
+            return re;
+
+        // 检查能否匹配 begin Tag的报文
+        EdiSegment seg = it.next();
+        if (!seg.is(begin)) {
+            it.previous();
+            return re;
+        }
+
+        // 读取 match 相关 tag，并返回
+        while (it.hasNext()) {
+            seg = it.next();
+            if (seg.isTag(match)) {
+                re.add(seg);
+            } else if (seg.isTag(boundary)) {
+                it.previous();
+                break;
+            }
+        }
+
+        return re;
+    }
 
 }

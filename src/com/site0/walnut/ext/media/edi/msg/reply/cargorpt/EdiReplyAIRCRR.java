@@ -6,7 +6,7 @@ import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyObj;
 import java.util.Map;
 
 /**
- * AIRCR 的返回报文对象
+ * AIR CARGO REPORT 的返回报文对象
  *
  * @author jrrx
  */
@@ -38,16 +38,10 @@ public class EdiReplyAIRCRR extends EdiReplyObj {
      */
     private int refVer;
 
-
     /**
      * 如果错误，这里是具体的错误信息
      */
     private EdiReplyError[] errors;
-
-    /**
-     * 对应 0040 : FTX+AHN 报文行
-     */
-//    private List<CargoResStatus> statuses;
 
     /**
      * (1) 存放 NAD 相关信息;

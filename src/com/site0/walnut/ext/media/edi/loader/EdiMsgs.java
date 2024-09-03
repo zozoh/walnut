@@ -11,8 +11,8 @@ import com.site0.walnut.ext.media.edi.bean.segment.ICS_UNH;
 
 /**
  * 封装报文解析的高级类的工厂方法
- * 
- * @author zozoh(zozohtnt@gmail.com)
+ *
+ * @author zozoh(zozohtnt @ gmail.com)
  */
 public abstract class EdiMsgs {
 
@@ -24,7 +24,8 @@ public abstract class EdiMsgs {
         loaders.put("CLREGR", new CLREGRLoader());
         loaders.put("CLNTDUP", new CLNTDUPLoader());
         // AirCargoReport Response
-        loaders.put("AIRCRR", new AIRCRRLoader());
+        loaders.put("AIRCRR", new AIR_SEA_CRRLoader());
+        loaders.put("SEACRR", new AIR_SEA_CRRLoader());
     }
 
     public static String getLoaderType(EdiMessage msg) {
