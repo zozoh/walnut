@@ -25,17 +25,15 @@ public class AIR_SEA_CRRLoader implements EdiMsgLoader<EdiReplyAIRCRR> {
         EdiSegmentFinder finder = msg.getFinder();
         NutMap rff = new NutMap();
         List<EdiSegment> segs;
-        EdiSegment seg;
 
         // 定位到 BGM 报文行
-        seg = finder.next("BGM");
+        finder.next("BGM");
 
         // 解析 FTX 报文行
         segs = finder.nextAllUtilNoMatch(false, "FTX");
         for (EdiSegment item : segs) {
             rff.clear();
-            seg.fillBean(rff, null, "subjectCode", null, null, "statusType,statusDesc");
-            String subjectCode = rff.getString("subjectCode");
+            item.fillBean(rff, null, "subjectCode", null, null, "statusType,statusDesc");
             if (rff.is("subjectCode", "AHN")) {
                 re.getExtraInfo().put("statusType", rff.getString("statusType"));
                 re.getExtraInfo().put("statusDesc", rff.getString("statusDesc"));
@@ -86,21 +84,6 @@ public class AIR_SEA_CRRLoader implements EdiMsgLoader<EdiReplyAIRCRR> {
         }
 
         // 解析 SG4: ERP-ERC-FTX 报文组
-        // 定位一个错误信息
-//        seg = finder.next("ERP");
-//        // 收集全部错误
-//        List<EdiReplyError> errList = new ArrayList<>();
-//        while (!finder.isEnd()) {
-//            List<EdiSegment> errs = finder.nextAllUtilNoMatch(false, "^(ERC|FTX)$");
-//            // 看来找不到错误了，那么退出循环
-//            if (errs.isEmpty() || !errs.get(0).is("ERC")) {
-//                break;
-//            }
-//            // 必然是三条报文，需要加载为 EdiReplyError
-//            EdiReplyError err = new EdiReplyError(errs);
-//            errList.add(err);
-//        }
-
         boolean erpFound = finder.moveTo(true, "ERP");
         if (erpFound) {
             // 收集全部错误
