@@ -680,7 +680,9 @@ public class WnmlService {
         // 普通脚本方式执行
         else {
             try {
-                str = wrt.exec2(cmdText);
+                // 处理一下 \\\r\n
+                String ct2 = cmdText.replaceAll("\\\\\r?\n", " ");
+                str = wrt.exec2(ct2);
             }
             catch (WebException e) {
                 if (null != erresult) {
