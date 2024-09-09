@@ -48,6 +48,11 @@ public class TmplStringEle extends TmplDynamicEle {
             if (s.equals("@trim")) {
                 convertors.add(new StrTrimConvertor());
             }
+            // 截取字符串
+            else if (s.startsWith("@sub=")) {
+                String input = s.substring(5).trim();
+                convertors.add(new StrSubConvertor(input));
+            }
             // 字符串替换
             else if (s.startsWith("@replace")) {
                 String input = s.substring("@replace".length());
