@@ -17,6 +17,10 @@ import com.site0.walnut.ext.data.sqlx.ast.cri.*;
 public abstract class SqlCriteria {
 
     public static SqlCriteriaNode toCriNode(Object input) {
+        // 防空
+        if (null == input) {
+            input = new NutMap();
+        }
         // Collection
         if (input instanceof Collection) {
             @SuppressWarnings("unchecked")
