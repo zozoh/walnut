@@ -26,13 +26,21 @@ public class WnObjSeqMaker implements SeqMaker {
 
     @Override
     public long make(Date hint, NutBean context) {
-        String fname = Wtime.format(hint, format);
+        String fname;
+        // ~/path/to/d=yyyy-MM-dd#key
+        if (format.startsWith("d=")) {
+            fname = Wtime.format(hint, format);
+        }
+        // ~/path/to/global#key
+        else {
+            fname = format;
+        }
         WnObj o = io.createIfNoExists(p, fname, WnRace.FILE);
         // 默认3日过期
         if (o.expireTime() <= 0) {
             // TODO 根据 format 自行决定默认的过期时间
-            
-            //o.expireTime(System.currentTimeMillis() + 86400000L * 3);
+
+            // o.expireTime(System.currentTimeMillis() + 86400000L * 3);
         }
         return io.inc(o.id(), key, 1, true);
     }
