@@ -198,12 +198,14 @@ public class WnTmplXTest {
         assertEquals("-a-b-c",
                      WnTmplX.exec("${path<:@trim;@replace'/','-';@replace'~'>}", context, true));
     }
-    
+
     @Test
     public void test_string_sub() {
-        NutMap context = Wlang.map("path:'  ~/a/b/c  '");
-        assertEquals("a/b",
-                     WnTmplX.exec("${path<:@trim;@sub=2/5>}", context, true));
+        NutMap context = Wlang.map("name: 'xiao bai'");
+        assertEquals("xiao", WnTmplX.exec("${name<:@sub=4>}", context, true));
+        assertEquals("ia", WnTmplX.exec("${name<:@sub=1/3>}", context, true));
+        assertEquals("bai", WnTmplX.exec("${name<:@sub=5/>}", context, true));
+        assertEquals("xi", WnTmplX.exec("${name<:@sub=/2>}", context, true));
     }
 
     @Test
