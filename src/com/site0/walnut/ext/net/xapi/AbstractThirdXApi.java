@@ -88,9 +88,12 @@ public abstract class AbstractThirdXApi implements XApi {
         // 准备 URL
         String url = xreq.getBase();
         String path = xreq.getPath();
-        if (path.startsWith("http")) {
+        // 指定了路径
+        if (path.startsWith("http://") || path.startsWith("https://")) {
             url = path;
-        } else {
+        }
+        // 拼合基础路径
+        else {
             if (!url.endsWith("/") && !path.startsWith("/")) {
                 url += "/";
             }
@@ -134,7 +137,8 @@ public abstract class AbstractThirdXApi implements XApi {
 
             // 得到响应
             resp = c.getResponse();
-        } catch (IOException e1) {
+        }
+        catch (IOException e1) {
             throw new XApiException(e1);
         }
 
