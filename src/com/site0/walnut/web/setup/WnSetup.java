@@ -201,8 +201,8 @@ public class WnSetup implements Setup {
             setup.init(nc);
         }
 
-        ioc.get(WnSshdServer.class);
-        ioc.get(WnFtpServer.class);
+        // ioc.get(WnSshdServer.class);
+        // ioc.get(WnFtpServer.class);
         // 不再使用 sendmail ，因为 apache.common.mail 依赖 javamail 1.5 冲突
         // 因此这个也没用了
         // ioc.get(WnMailServer.class);
