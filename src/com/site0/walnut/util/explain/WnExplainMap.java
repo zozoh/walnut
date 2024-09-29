@@ -16,7 +16,22 @@ public class WnExplainMap implements WnExplain {
         for (Map.Entry<String, Object> en : input.entrySet()) {
             String key = en.getKey();
             Object val = en.getValue();
-            WnExplain ex = WnExplains.parse(val);
+            boolean decon = "...".equals(key);
+
+            WnExplain ex;
+            // 采用数组的特殊处理方式
+            if (!decon && null != val && val.getClass().isArray()) {
+                ex = new WnExplainArray(val, true, "=" + key);
+            }
+            // 采用集合的特殊处理方式
+            if (!decon && null != val && (val instanceof List)) {
+                ex = new WnExplainArray(val, false, "=" + key);
+            }
+            // 其他采用通用的解析
+            else {
+                ex = WnExplains.parse(val);
+            }
+
             WnExplainPutToMap em = new WnExplainPutToMap(key, ex);
             pairs.add(em);
         }

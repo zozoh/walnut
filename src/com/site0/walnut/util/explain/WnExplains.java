@@ -153,12 +153,12 @@ public class WnExplains {
         // ....................................
         // Array
         if (mi.isArray()) {
-            return new WnExplainArray(obj, true);
+            return new WnExplainArray(obj, true, null);
         }
         // ....................................
         // 集合
         if (mi.isCollection()) {
-            return new WnExplainArray(obj);
+            return new WnExplainArray(obj, null);
         }
         // ....................................
         // Map

@@ -6,8 +6,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.junit.Test;
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 
@@ -153,6 +157,45 @@ public class WnTest {
         m2 = (NutMap) Wn.explainObj(context, map);
         assertEquals(1, m2.getInt("n1"));
         assertEquals(0, m2.getInt("n2"));
+    }
+
+    @Test
+    public void test_explain_array() {
+        NutMap context = Wlang.map("name:'abc',age:12,pet:{name:'xx'}");
+        Object input = Json.fromJson("['=name',{b:'=pet.name'},'=age']");
+        List<?> re = (List<?>) Wn.explainObj(context, input);
+        JsonFormat jfmt = JsonFormat.compact().setQuoteName(false);
+
+        assertEquals(3, re.size());
+        assertEquals("abc", re.get(0));
+        assertEquals("{b:\"xx\"}", Json.toJson(re.get(1), jfmt));
+        assertEquals(12, re.get(2));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void test_explain_array_as_scope() {
+        List<Object> list = new LinkedList<>();
+        list.add(Wlang.map("name:'abc', age:12"));
+        list.add(Wlang.map("name:'def', age:14"));
+        list.add(Wlang.map("name:'ghi', age:30"));
+        NutMap context = Wlang.map("list", list);
+        Object input = Wlang.map("{list:[{a:'=name',b:'=age'}]}");
+        JsonFormat jfmt = JsonFormat.compact().setQuoteName(false);
+
+        NutMap re = (NutMap) Wn.explainObj(context, input);
+        List<Object> reList = (List<Object>) re.get("list");
+        assertEquals(3, reList.size());
+        assertEquals("{a:\"abc\",b:12}", Json.toJson(reList.get(0), jfmt));
+        assertEquals("{a:\"def\",b:14}", Json.toJson(reList.get(1), jfmt));
+        assertEquals("{a:\"ghi\",b:30}", Json.toJson(reList.get(2), jfmt));
+
+        input = Wlang.map("{list:[':scope=list',{a:'=name',b:'=age'}]}");
+        reList = (List<Object>) re.get("list");
+        assertEquals(3, reList.size());
+        assertEquals("{a:\"abc\",b:12}", Json.toJson(reList.get(0), jfmt));
+        assertEquals("{a:\"def\",b:14}", Json.toJson(reList.get(1), jfmt));
+        assertEquals("{a:\"ghi\",b:30}", Json.toJson(reList.get(2), jfmt));
     }
 
     @Test
