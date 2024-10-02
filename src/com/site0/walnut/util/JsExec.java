@@ -3,6 +3,7 @@ package com.site0.walnut.util;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 
 import com.site0.walnut.api.err.Er;
+import com.site0.walnut.nashorn.NashornObjectWrapper;
 
 public class JsExec {
 
@@ -85,9 +87,22 @@ public class JsExec {
         }
         // 变量
         if (vars != null) {
+            NashornObjectWrapper objWrapper = null;
+            if ("nashorn".equals(engineName)) {
+                objWrapper = new NashornObjectWrapper(engine);
+            }
+
             for (Entry<String, Object> en : vars.entrySet()) {
                 String k = en.getKey();
                 Object v = en.getValue();
+                // 对于 nashorns 的特殊包裹
+                if (null != objWrapper
+                    && null != v
+                    && ((v instanceof Map)
+                        || (v instanceof Collection)
+                        || v.getClass().isArray())) {
+                    v = objWrapper.deepConvert(v);
+                }
                 bindings.put(k, v);
             }
         }

@@ -15,7 +15,7 @@ public class WnSnowQMaker implements ValueMaker {
 
     public WnSnowQMaker(String prefix, int n) {
         this.prefix = prefix;
-        this.sg = R.sg(n);
+        this.sg = R.sg36(n);
     }
 
     public WnSnowQMaker(String prefix) {

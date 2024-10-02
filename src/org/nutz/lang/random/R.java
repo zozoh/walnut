@@ -57,6 +57,10 @@ public abstract class R {
         return new StringGenerator(len, len);
     }
 
+    public static StringGenerator sg36(int len) {
+        return new StringGenerator(len, len).setCharGenerator(CharGenerator.me36());
+    }
+
     private static final char[] _UU64 = "-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz".toCharArray();
     private static final char[] _UU32 = "0123456789abcdefghijklmnopqrstuv".toCharArray();
     private static final char[] _C = "23456789abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ".toCharArray();

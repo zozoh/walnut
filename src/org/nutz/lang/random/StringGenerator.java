@@ -12,8 +12,7 @@ public class StringGenerator {
      *            必须大于0
      */
     public StringGenerator(int max) {
-        maxLen = max;
-        minLen = 1;
+        this(1, max);
     }
 
     /**
@@ -24,9 +23,16 @@ public class StringGenerator {
      *            必须不小于min
      */
     public StringGenerator(int min, int max) {
-        maxLen = max;
-        minLen = min;
+        this(min, max, CharGenerator.me());
     }
+
+    public StringGenerator(int min, int max, CharGenerator cg) {
+        this.maxLen = max;
+        this.minLen = min;
+        this.cg = cg;
+    }
+
+    private CharGenerator cg;
 
     /**
      * min length of the string
@@ -50,6 +56,15 @@ public class StringGenerator {
         maxLen = max;
     }
 
+    public CharGenerator getCharGenerator() {
+        return cg;
+    }
+
+    public StringGenerator setCharGenerator(CharGenerator cg) {
+        this.cg = cg;
+        return this;
+    }
+
     /**
      * 根据设置的max和min的长度,生成随机字符串.
      * <p/>
@@ -62,7 +77,7 @@ public class StringGenerator {
             return null;
         char[] buf = new char[R.random(minLen, maxLen)];
         for (int i = 0; i < buf.length; i++)
-            buf[i] = CharGenerator.next();
+            buf[i] = CharGenerator.next36();
         return new String(buf);
     }
 
