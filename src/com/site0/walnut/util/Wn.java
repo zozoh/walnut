@@ -150,7 +150,7 @@ public abstract class Wn {
         // return io.get(str);
         // }
         // 用路径
-        String path = normalizeFullPath(str, vars);
+        String path = normalizeFullPath(str, vars, false);
         return io.fetch(null, path);
     }
 
@@ -351,14 +351,26 @@ public abstract class Wn {
     }
 
     public static String normalizePath(String ph, WnSystem sys) {
-        return normalizePath(ph, sys.session);
+        return normalizePath(ph, sys, true);
     }
 
     public static String normalizePath(String ph, WnAuthSession se) {
-        return normalizePath(ph, se.getVars());
+        return normalizePath(ph, se, true);
     }
 
     public static String normalizePath(String ph, NutBean vars) {
+        return normalizePath(ph, vars, true);
+    }
+
+    public static String normalizePath(String ph, WnSystem sys, boolean applyEnv) {
+        return normalizePath(ph, sys.session, applyEnv);
+    }
+
+    public static String normalizePath(String ph, WnAuthSession se, boolean applyEnv) {
+        return normalizePath(ph, se.getVars(), applyEnv);
+    }
+
+    public static String normalizePath(String ph, NutBean vars, boolean applyEnv) {
         if (Strings.isBlank(ph))
             return ph;
         // 主目录开头
@@ -371,12 +383,27 @@ public abstract class Wn {
         }
 
         // 展开环境变量
-        return normalizeStr(ph, vars);
+        if (applyEnv) {
+            return normalizeStr(ph, vars);
+        }
+        return ph;
     }
 
     public static String normalizeFullPath(String ph, WnSystem sys) {
+        return normalizeFullPath(ph, sys, true);
+    }
+
+    public static String normalizeFullPath(String ph, WnAuthSession se) {
+        return normalizeFullPath(ph, se, true);
+    }
+
+    public static String normalizeFullPath(String ph, NutBean vars) {
+        return normalizeFullPath(ph, vars, true);
+    }
+
+    public static String normalizeFullPath(String ph, WnSystem sys, boolean applyEnv) {
         // 嗯，搞一下变量吧
-        ph = normalizeFullPath(ph, sys.session);
+        ph = normalizeFullPath(ph, sys.session, applyEnv);
 
         // 如果 ph 里面有 ../id:xxx/... 则用这个来截断
         int pos = ph.lastIndexOf("/id:");
@@ -406,11 +433,11 @@ public abstract class Wn {
         return ph;
     }
 
-    public static String normalizeFullPath(String ph, WnAuthSession se) {
-        return normalizeFullPath(ph, se.getVars());
+    public static String normalizeFullPath(String ph, WnAuthSession se, boolean applyEnv) {
+        return normalizeFullPath(ph, se.getVars(), applyEnv);
     }
 
-    public static String normalizeFullPath(String ph, NutBean vars) {
+    public static String normalizeFullPath(String ph, NutBean vars, boolean applyEnv) {
         // 防空
         if (Strings.isBlank(ph))
             return ph;
@@ -422,7 +449,7 @@ public abstract class Wn {
         }
 
         // 格式化当前路径
-        String path = normalizePath(ph, vars);
+        String path = normalizePath(ph, vars, applyEnv);
 
         String re;
 

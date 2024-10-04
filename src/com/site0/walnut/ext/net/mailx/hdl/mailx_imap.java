@@ -3,17 +3,19 @@ package com.site0.walnut.ext.net.mailx.hdl;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Files;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
+
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
-import com.site0.walnut.ext.data.thing.WnThingService;
-import com.site0.walnut.ext.data.thing.util.Things;
+import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.ext.net.mailx.MailxContext;
 import com.site0.walnut.ext.net.mailx.MailxFilter;
 import com.site0.walnut.ext.net.mailx.bean.WnImapMail;
@@ -67,24 +69,25 @@ public class mailx_imap extends MailxFilter {
         boolean isJson = params.is("json");
         String asContent = params.getString("content");
         String after = params.getString("after", null);
+        NutMap fixedMeta = params.getMap("meta");
 
         // 得到输出目标
         String taPath = params.getString("to");
-        WnObj oTa = null;
+        WnTmplX taTmpl = null;
         if (!Ws.isBlank(taPath)) {
-            String aph = Wn.normalizeFullPath(taPath, sys);
-            oTa = sys.io.fetch(null, aph);
+            taTmpl = WnTmplX.parse(taPath);
         }
-        // boolean hasTarget = null != oTa;
-        boolean debug = null == oTa;
-        debug = params.is("debug", debug);
 
-        // 得到数据集的服务类
-        WnThingService wts = null;
-        if (null != oTa) {
-            WnObj oTs = Things.checkThingSet(oTa);
-            wts = new WnThingService(sys, oTs);
+        // 附件的输出目标
+        String attchmentPath = params.getString("at");
+        WnTmplX attachmentTmpl = null;
+        if (!Ws.isBlank(attchmentPath)) {
+            attachmentTmpl = WnTmplX.parse(attchmentPath);
         }
+
+        // boolean hasTarget = null != oTa;
+        boolean debug = null == taTmpl;
+        debug = params.is("debug", debug);
 
         // 分析搜索标签
         List<SearchTerm> terms = __eval_flags(params);
@@ -151,15 +154,17 @@ public class mailx_imap extends MailxFilter {
                 //
                 // 输出到数据集
                 //
-                if (null != wts) {
+                if (null != taTmpl) {
                     WnObj oMail = __create_mail_obj(sys,
                                                     showHeader,
                                                     debug,
                                                     asContent,
-                                                    wts,
                                                     N,
                                                     i,
+                                                    fixedMeta,
                                                     mail,
+                                                    taTmpl,
+                                                    attachmentTmpl,
                                                     after);
                     // 计入结果
                     outputs.add(oMail);
@@ -206,14 +211,22 @@ public class mailx_imap extends MailxFilter {
                                       boolean showHeader,
                                       boolean debug,
                                       String asContent,
-                                      WnThingService wts,
                                       int N,
                                       int i,
+                                      NutMap fixedMeta,
                                       WnImapMail mail,
+                                      WnTmplX taTmpl,
+                                      WnTmplX attachmentTmpl,
                                       String after) {
         // 不是 JSON 输出，也要打印到控制台
         LOG(sys, debug, "%d/%d) %s", i, N, mail.toBrief());
         NutMap meta = mail.toMeta(showHeader);
+        meta.put("tp", "txt");
+        meta.put("mime", "text/plain");
+
+        if (null != fixedMeta) {
+            meta.putAll(fixedMeta);
+        }
 
         // 寻找正文
         List<WnMailPart> textCans = mail.findContentParts(asContent);
@@ -222,36 +235,65 @@ public class mailx_imap extends MailxFilter {
             // 采用最后一个文本
             WnMailPart textPart = textCans.get(textCans.size() - 1);
             String mime = textPart.getContentType();
-            String tp = "text/html".equals(mime) ? "html" : "txt";
-            meta.put("mime", mime);
-            meta.put("tp", tp);
-            
-            
+            if ("text/html".equals(mime)) {
+                meta.put("mime", "text/html");
+                meta.put("tp", "html");
+            } else {
+                meta.put("mime", "text/plain");
+                meta.put("tp", "txt");
+            }
+
             if (textPart.hasFileName()) {
                 meta.put("msg_content_name", textPart.getFileName());
             }
             text = textPart.getContent();
         }
 
-        // 创建对象
-        WnObj oMail = wts.createThing(meta, "nm");
+        // 准备目标路径，并创建对象
+        String mailPath = taTmpl.render(meta);
+        String mailAbsPath = Wn.normalizeFullPath(mailPath, sys, false);
+        String mailParentPath = Files.getParent(mailAbsPath);
+        String mailFileName = Files.getName(mailAbsPath);
+        WnObj oMailDir = sys.io.createIfNoExists(null, mailParentPath, WnRace.DIR);
+        WnObj oMail = sys.io.create(oMailDir, mailFileName, WnRace.FILE);
+
+        // 写入对象元数据
+        sys.io.appendMeta(oMail, meta);
         LOG(sys, debug, "     -> %s", oMail.toString());
         // 写入正文
         if (null != text) {
             sys.io.writeText(oMail, text);
         }
+
+        //
         // 计入附件
-        List<WnMailPart> attachments = mail.findAttachmentParts(asContent);
-        if (null != attachments) {
-            int x = 0;
-            int M = attachments.size();
-            LOG(sys, debug, "     ++ %d attachments:", M);
-            for (WnMailPart att : attachments) {
-                x++;
-                String fnm = att.getFileName();
-                byte[] data = att.getData();
-                WnObj oAtt = wts.fileAdd(null, oMail, fnm, data, null, true);
-                LOG(sys, debug, "     -> %d. %s => %s", x, fnm, oAtt);
+        //
+        if (null != attachmentTmpl) {
+            List<WnMailPart> attachments = mail.findAttachmentParts(asContent);
+            if (null != attachments) {
+                int x = 0;
+                int M = attachments.size();
+                List<String> attachmentIds = new LinkedList<>();
+                LOG(sys, debug, "     ++ %d attachments:", M);
+                for (WnMailPart att : attachments) {
+                    x++;
+                    String fnm = att.getFileName();
+                    NutMap ctx = new NutMap("attachment_file_name", fnm);
+                    ctx.attach(oMail);
+                    String atPath = attachmentTmpl.render(ctx);
+                    String atAbsPath = Wn.normalizeFullPath(atPath, sys, false);
+                    LOG(sys, debug, "     -> %d. %s => %s", x, fnm, atAbsPath);
+                    String pPath = Files.getParent(atAbsPath);
+                    String atName = Files.getName(atAbsPath);
+                    WnObj oAtP = sys.io.createIfNoExists(null, pPath, WnRace.DIR);
+                    WnObj oAtt = sys.io.create(oAtP, atName, WnRace.FILE);
+                    byte[] data = att.getData();
+                    sys.io.writeBytes(oAtt, data);
+                    attachmentIds.add(oAtt.id());
+                }
+                if (attachmentIds.size() > 0) {
+                    sys.io.appendMeta(oMail, new NutMap("msg_attachments", attachmentIds));
+                }
             }
         }
 

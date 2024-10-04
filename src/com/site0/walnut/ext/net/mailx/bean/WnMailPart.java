@@ -64,10 +64,10 @@ public class WnMailPart {
         this.setContentType(part.getContentType());
 
         // 加载文件名称（如果是附件的话）
-        String fnm = part.getFileName();
-        if (null != fnm) {
-            this.fileName = MimeUtility.decodeText(fnm);
-        }
+        // String fnm = part.getFileName();
+        // if (null != fnm) {
+        // this.fileName = MimeUtility.decodeText(fnm);
+        // }
 
         // 加载头
         this.headers = new NutMap();
@@ -84,7 +84,7 @@ public class WnMailPart {
                 NutMap props = new NutMap();
                 String cdType = Mailx.evalContentType(value, props);
                 this.attachment = "attachment".equals(cdType);
-                fnm = props.getString("filename");
+                String fnm = props.getString("filename");
                 this.fileName = MimeUtility.decodeText(fnm);
             }
         }

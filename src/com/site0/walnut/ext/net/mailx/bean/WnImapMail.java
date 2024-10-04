@@ -190,13 +190,12 @@ public class WnImapMail extends WnMail {
         long recv_at = this.receiveAt;
         String recv_asstr = this.getReceiveAtDateStr();
         // 基本信息
-        meta.put("nm", this.messageId);
         meta.put("title", this.getSubject());
-        meta.put("sort", this.number);
+        meta.put("msg_id", this.messageId);
+        meta.put("msg_number", this.number);
         meta.put("msg_receive_at", recv_at);
         meta.put("msg_receive_ats", recv_asstr);
-        meta.put("reply_at", recv_asstr);
-        meta.put("msg_sender", this.getSender());
+        meta.put("msg_from", this.getSender());
         meta.put("msg_to", this.getTo());
         meta.put("msg_cc", this.getCc());
         meta.put("msg_bcc", this.getBcc());
