@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.util.NutMap;
+
 import com.site0.walnut.ext.media.edi.EdiContext;
 import com.site0.walnut.ext.media.edi.EdiFilter;
 import com.site0.walnut.ext.media.edi.bean.EdiMessage;
@@ -32,7 +34,7 @@ public class edi_msg extends EdiFilter {
         // 逐个解析消息
         List<Object> objs = new ArrayList<>(fc.ic.getMessageCount());
         for (EdiMessage msg : fc.ic.getMessages()) {
-            if(autoType) {
+            if (autoType) {
                 type = EdiMsgs.getLoaderType(msg);
             }
             EdiMsgLoader<?> loader = EdiMsgs.checkLoader(type);
@@ -40,10 +42,14 @@ public class edi_msg extends EdiFilter {
             objs.add(obj);
         }
 
-        Object output = objs;
-        if (!keepList && objs.size() == 1) {
-            output = objs.get(0);
+        NutMap output = new NutMap();
+        output.put("head", fc.ic.getHeader());
+        if (!keepList && null != objs && objs.size() == 1) {
+            output.put("body", objs.get(0));
+        } else {
+            output.put("body", objs);
         }
+        output.put("tail", fc.ic.getTail());
 
         JsonFormat jfmt = Cmds.gen_json_format(params);
         String json = Json.toJson(output, jfmt);
