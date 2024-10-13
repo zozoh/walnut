@@ -6,7 +6,6 @@ import com.site0.walnut.ext.media.edi.bean.segment.ICS_UCD;
 import com.site0.walnut.ext.media.edi.bean.segment.ICS_UCI;
 import com.site0.walnut.ext.media.edi.bean.segment.ICS_UCM;
 import com.site0.walnut.ext.media.edi.bean.segment.ICS_UCS;
-import com.site0.walnut.ext.media.edi.bean.segment.ICS_UNB;
 import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyCONTRL;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
 
