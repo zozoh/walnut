@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.nutz.lang.util.NutBean;
+
 import com.site0.walnut.util.Wtime;
 import com.site0.walnut.util.bean.val.WnAMSValueAdaptor;
 import com.site0.walnut.util.bean.val.WnArrayValueAdaptor;
@@ -36,9 +38,9 @@ public class WnValues {
         map.put(WnValueType.Boolean, new WnBooleanValueAdaptor());
     }
 
-    public static Object toValue(WnValue fld, Object input) {
+    public static Object toValue(WnValue fld, Object input, NutBean bean) {
         WnValueAdaptor wv = map.get(fld.getType());
-        return wv.toValue(fld, input);
+        return wv.toValue(fld, input, bean);
     }
 
     public static Date parseDate(Object input, String datePrefix) {

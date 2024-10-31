@@ -1,18 +1,19 @@
 package com.site0.walnut.util.bean;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 
 import org.nutz.lang.Each;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Region;
+
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
@@ -21,6 +22,7 @@ import com.site0.walnut.util.Wobj;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.bean.util.WnBeanFieldMatchValue;
 import com.site0.walnut.util.bean.val.WnValueType;
+import com.site0.walnut.util.tmpl.WnTmplX;
 import com.site0.walnut.util.validate.WnMatch;
 
 public class WnValue {
@@ -50,6 +52,13 @@ public class WnValue {
     private String datePrefix;
 
     private String format;
+
+    /**
+     * 输出的时候用字符串模板转换,模板的上下文就是整个 Bean
+     */
+    private String tmpl;
+
+    private WnTmplX _tmpl;
 
     /**
      * 如果是字符串型函数，支持转换大小写等CASE。
@@ -313,6 +322,27 @@ public class WnValue {
 
     public void setFormat(String format) {
         this.format = format;
+    }
+
+    public boolean hasTmpl() {
+        return null != this.tmpl;
+    }
+
+    public String getTmpl() {
+        return tmpl;
+    }
+
+    public void setTmpl(String tmpl) {
+        this.tmpl = tmpl;
+        if (null != tmpl) {
+            this._tmpl = WnTmplX.parse(tmpl);
+        } else {
+            this._tmpl = null;
+        }
+    }
+
+    public WnTmplX getTemplate() {
+        return this._tmpl;
     }
 
     public boolean hasValueCase() {

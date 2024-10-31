@@ -2,6 +2,8 @@ package com.site0.walnut.util.bean.val;
 
 import java.util.Date;
 
+import org.nutz.lang.util.NutBean;
+
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wtime;
 import com.site0.walnut.util.bean.WnValue;
@@ -10,7 +12,7 @@ import com.site0.walnut.util.bean.WnValues;
 public class WnDateTimeValueAdaptor implements WnValueAdaptor {
 
     @Override
-    public Object toValue(WnValue vd, Object input) {
+    public Object toValue(WnValue vd, Object input, NutBean bean) {
         if (null == input) {
             return vd.getDefaultAs();
         }

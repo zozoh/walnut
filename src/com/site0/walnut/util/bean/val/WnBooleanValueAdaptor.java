@@ -1,13 +1,15 @@
 package com.site0.walnut.util.bean.val;
 
 import org.nutz.castor.Castors;
+import org.nutz.lang.util.NutBean;
+
 import com.site0.walnut.util.bean.WnEnumOptionItem;
 import com.site0.walnut.util.bean.WnValue;
 
 public class WnBooleanValueAdaptor implements WnValueAdaptor {
 
     @Override
-    public Object toValue(WnValue vd, Object input) {
+    public Object toValue(WnValue vd, Object input, NutBean bean) {
         int bi = 0;
         Object vIn = input;
         if (null != vIn && vd.hasValues()) {

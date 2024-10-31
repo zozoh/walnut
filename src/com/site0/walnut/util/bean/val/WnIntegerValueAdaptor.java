@@ -1,12 +1,14 @@
 package com.site0.walnut.util.bean.val;
 
 import org.nutz.castor.Castors;
+import org.nutz.lang.util.NutBean;
+
 import com.site0.walnut.util.bean.WnValue;
 
 public class WnIntegerValueAdaptor implements WnValueAdaptor {
 
     @Override
-    public Object toValue(WnValue fld, Object input) {
+    public Object toValue(WnValue fld, Object input, NutBean bean) {
         if (null == input) {
             return fld.getDefaultAs();
         }

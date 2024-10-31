@@ -3,6 +3,8 @@ package com.site0.walnut.util.bean.val;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.nutz.lang.util.NutBean;
+
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.bean.WnValue;
@@ -11,14 +13,14 @@ import com.site0.walnut.util.bean.WnValues;
 public class WnArrayValueAdaptor implements WnValueAdaptor {
 
     @Override
-    public Object toValue(WnValue vd, Object input) {
+    public Object toValue(WnValue vd, Object input, NutBean bean) {
         if (null == input) {
             return vd.getDefaultAs();
         }
         // 字符串的话，就拆分一下
         if (input instanceof String) {
             String sep = vd.getSeparator();
-            if(Ws.isBlank(sep)) {
+            if (Ws.isBlank(sep)) {
                 return Wlang.list(input);
             }
             List<String> ss = Ws.splitIgnoreBlanks((String) input, sep);
@@ -33,7 +35,7 @@ public class WnArrayValueAdaptor implements WnValueAdaptor {
             // 指定了子元素，深层转换一下
             WnValue eleType = vd.getEleType();
             if (null != eleType) {
-                Object v = WnValues.toValue(eleType, o);
+                Object v = WnValues.toValue(eleType, o, bean);
                 list.add(v);
             }
             // 就保持原始值咯

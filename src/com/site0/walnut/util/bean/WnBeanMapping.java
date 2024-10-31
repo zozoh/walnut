@@ -110,6 +110,10 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
                 if (fld.hasMatchValue()) {
                     val = fld.tryMatchValue(bean);
                 }
+                // 采用模板
+                else if (fld.hasTmpl()) {
+                    val = fld.getTemplate().render(bean);
+                }
                 // 从参考对象读取, 譬如:
                 // id:pet_id -> birthday
                 // ph:pet_path -> birthday
@@ -125,19 +129,19 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
                         String k = ss[i];
                         String[] kk = Ws.splitIgnoreBlank(k, ":");
                         String type = "id";
-                        String kv = k;
+                        String keyv = k;
                         if (kk.length > 1) {
                             type = kk[0];
-                            kv = kk[1];
+                            keyv = kk[1];
                         }
                         // 用 ID
                         if ("id".equals(type)) {
-                            String id = obj.getString(kv);
+                            String id = obj.getString(keyv);
                             obj = io.get(id);
                         }
                         // 用路径
                         else if ("ph".equals(type)) {
-                            String ph = obj.getString(kv);
+                            String ph = obj.getString(keyv);
                             String aph = Wn.normalizeFullPath(ph, vars);
                             obj = io.fetch(null, aph);
                         }
@@ -161,7 +165,7 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
                 }
 
                 // 执行映射
-                __map_bean_field_val(re, fld, val, key);
+                __map_bean_field_val(re, fld, val, key, bean);
             }
         }
         // 全部方式
@@ -172,19 +176,34 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
                     continue;
                 }
 
-                Object val = en.getValue();
-
                 WnBeanField fld = this.get(key);
 
                 // 未声明映射字段，直接 copy
                 if (null == fld) {
                     if (this.isFieldNameCanOutput(key)) {
+                        Object val = en.getValue();
                         re.put(key, val);
                     }
+                    continue;
                 }
+
                 // 执行映射
-                else if (this.isFieldNameCanOutput(fld)) {
-                    __map_bean_field_val(re, fld, val, key);
+                if (this.isFieldNameCanOutput(fld)) {
+                    Object val;
+                    // 获取值: 条件选择
+                    if (fld.hasMatchValue()) {
+                        val = fld.tryMatchValue(bean);
+                    }
+                    // 采用模板
+                    else if (fld.hasTmpl()) {
+                        val = fld.getTemplate().render(bean);
+                    }
+                    // 直接取值
+                    else {
+                        val = en.getValue();
+                    }
+                    // 执行值的映射
+                    __map_bean_field_val(re, fld, val, key, bean);
                 }
 
             }
@@ -227,11 +246,15 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
         return null == this.pickNames || this.pickNames.match(name);
     }
 
-    private void __map_bean_field_val(NutMap re, WnBeanField fld, Object val, String key) {
+    private void __map_bean_field_val(NutMap re,
+                                      WnBeanField fld,
+                                      Object val,
+                                      String key,
+                                      NutBean bean) {
         try {
             String k2 = fld.getName(key);
             Object v2 = fld.tryValueOptions(val);
-            Object v3 = WnValues.toValue(fld, v2);
+            Object v3 = WnValues.toValue(fld, v2, bean);
             if (null != v3 || !fld.isIgnoreNull()) {
                 re.put(k2, v3);
             }
@@ -249,7 +272,7 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
                         av = v3;
                     }
                     Object av2 = af.tryValueOptions(av);
-                    Object av3 = WnValues.toValue(af, av2);
+                    Object av3 = WnValues.toValue(af, av2, bean);
                     if (null != av3 || !af.isIgnoreNull()) {
                         re.put(ka, av3);
 

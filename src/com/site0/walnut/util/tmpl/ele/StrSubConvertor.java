@@ -50,13 +50,14 @@ public class StrSubConvertor implements StrEleConvertor {
 
     @Override
     public String process(String str) {
-        if (from < 0) {
-            return str;
+        int p0 = Math.max(0, Math.min(from, str.length() - 1));
+        int p1 = Math.min(str.length(), to);
+
+        if (null == str || p0 >= p1) {
+            return "";
         }
-        if (to < 0) {
-            return str.substring(from);
-        }
-        return str.substring(from, to);
+
+        return str.substring(p0, p1);
     }
 
 }
