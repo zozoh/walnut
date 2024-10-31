@@ -26,6 +26,7 @@ public abstract class EdiMsgs {
         // AirCargoReport Response
         loaders.put("AIRCRR", new AIR_SEA_CRRLoader());
         loaders.put("SEACRR", new AIR_SEA_CRRLoader());
+        loaders.put("CARST", new CARSTLoader());
     }
 
     public static String getLoaderType(EdiMessage msg) {
