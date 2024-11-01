@@ -57,13 +57,13 @@ public class CARSTLoader implements EdiMsgLoader<CargoStaAdviceObj> {
             if ("6".equals(transType)) {
                 // 空运: TDT+20+{FlightNumber}++6+{AirlineCode}::3'
                 item.fillBean(rff, null, null, "flight", null, "transType", "airlineCode");
-                re.getInfoMap().put("transType", rff.getString("6"));
+                re.getInfoMap().put("transType", "air");
                 re.getInfoMap().put("flight", rff.getString("flight"));
                 re.getInfoMap().put("airlineCode", rff.getString("airlineCode"));
             } else if ("11".equals(transType)) {
                 // 海运: TDT+20+{VoyageNumber}++11++++{VesselId}::11'
                 item.fillBean(rff, null, null, "voyage", null, "transType", null, null, null, "vessel");
-                re.getInfoMap().put("transType", rff.getString("11"));
+                re.getInfoMap().put("transType", "sea");
                 re.getInfoMap().put("voyage", rff.getString("voyage"));
                 re.getInfoMap().put("vessel", rff.getString("vessel"));
             }
@@ -113,7 +113,32 @@ public class CARSTLoader implements EdiMsgLoader<CargoStaAdviceObj> {
         for (EdiSegment item : segmentList) {
             rff.clear();
             item.fillBean(rff, null, "refCode,refVal,refVer");
-
+            String refCode = rff.getString("refCode");
+            if ("AAQ".equals(refCode)) {
+                re.getRefMap().put("CntrNum", rff.getString("refVal"));
+            } else if ("ABO".equals(refCode)) {
+                String referId = rff.getString("refVal");
+                re.getRefMap().put("senderRef", rff.getString("refVal"));
+                if (referId != null) {
+                    re.setReferId(referId);
+                    re.setReferIdInLower(referId.toLowerCase());
+                    re.setRefVer(rff.getInt("refVer"));
+                }
+            } else if ("ABT".equals(refCode)) {
+                re.getRefMap().put("ImportDecId", rff.getString("refVal"));
+            } else if ("BH".equals(refCode)) {
+                re.getRefMap().put("houseBill", rff.getString("refVal"));
+                re.getRefMap().put("transType", "sea");
+            } else if ("MB".equals(refCode)) {
+                re.getRefMap().put("masterBill", rff.getString("refVal"));
+                re.getRefMap().put("transType", "sea");
+            } else if ("HWB".equals(refCode)) {
+                re.getRefMap().put("houseBill", rff.getString("refVal"));
+                re.getRefMap().put("transType", "air");
+            } else if ("MWB".equals(refCode)) {
+                re.getRefMap().put("masterBill", rff.getString("refVal"));
+                re.getRefMap().put("transType", "air");
+            }
         }
 
         return null;
