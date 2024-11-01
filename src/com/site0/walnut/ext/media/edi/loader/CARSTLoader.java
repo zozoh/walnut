@@ -112,7 +112,7 @@ public class CARSTLoader implements EdiMsgLoader<CargoStaAdviceObj> {
         segmentList = finder.nextAll(true, "RFF");
         for (EdiSegment item : segmentList) {
             rff.clear();
-            item.fillBean(rff, null, "refCode,refVal,refVer");
+            item.fillBean(rff, null, "refCode,refVal,,refVer");
             String refCode = rff.getString("refCode");
             if ("AAQ".equals(refCode)) {
                 re.getRefMap().put("CntrNum", rff.getString("refVal"));
@@ -141,6 +141,6 @@ public class CARSTLoader implements EdiMsgLoader<CargoStaAdviceObj> {
             }
         }
 
-        return null;
+        return re;
     }
 }

@@ -32,6 +32,7 @@ public class CargoStaAdviceObj extends EdiReplyObj {
         super("CARST");
         statusMap = new HashMap<>();
         infoMap = new HashMap<>();
+        refMap = new HashMap<>();
     }
 
     public String getReferId() {
