@@ -22,7 +22,6 @@ public class jsonx_item extends JsonXFilter {
         int index = params.val_int(0, 0);
 
         // 列表
-
         if (fc.obj instanceof List<?>) {
             List<?> list = (List<?>) fc.obj;
             int i = Wnum.scrollIndex(index, list.size());
