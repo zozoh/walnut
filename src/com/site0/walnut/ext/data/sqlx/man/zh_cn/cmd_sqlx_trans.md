@@ -38,6 +38,7 @@ sqlx @trans
                            #  2 - TRANSACTION_READ_COMMITTED
                            #  4 - TRANSACTION_REPEATABLE_READ
                            #  8 - TRANSACTION_SERIALIZABLE
+                           # -1 - 采用数据库默认事务级别
   [-commit TransName]      # 提交一个事务
   [-rollback TransName]    # 回滚一个事务
   [-end TransName]         # 结束一个事务

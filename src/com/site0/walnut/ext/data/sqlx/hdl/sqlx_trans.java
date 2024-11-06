@@ -16,12 +16,10 @@ public class sqlx_trans extends SqlxFilter {
             // 暂时不支持 -keep 模式
             throw Er.create("e.cmd.sqlx.trans.KeepAliveNotSupport");
         }
-        int tl = params.getInt("level", fc.getTransLevel());
+        int tl = params.getInt("level", -1);
 
         // 设置事务级别
-        if (tl > 0) {
-            fc.setTransLevel(tl);
-        }
+        fc.setTransLevel(tl);
 
     }
 

@@ -42,6 +42,7 @@ public class SqlxContext extends JvmFilterContext {
      * <li><code>2</code> - TRANSACTION_READ_COMMITTED
      * <li><code>4</code> - TRANSACTION_REPEATABLE_READ
      * <li><code>8</code> - TRANSACTION_SERIALIZABLE
+     * <li><code>-1</code> - 数据库默认事务
      * </ul>
      */
     private int transLevel;
@@ -208,7 +209,7 @@ public class SqlxContext extends JvmFilterContext {
     }
 
     public boolean hasTransLevel() {
-        return this.transLevel > 0;
+        return this.transLevel != 0;
     }
 
     public int getTransLevel() {
@@ -268,7 +269,9 @@ public class SqlxContext extends JvmFilterContext {
             try {
                 this.conn = ds.getConnection();
                 if (this.hasTransLevel()) {
-                    this.conn.setTransactionIsolation(transLevel);
+                    if (this.transLevel > 0) {
+                        this.conn.setTransactionIsolation(transLevel);
+                    }
                     this.conn.setAutoCommit(false);
                 }
             }

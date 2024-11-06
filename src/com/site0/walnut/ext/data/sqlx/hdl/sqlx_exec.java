@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
 
 import com.site0.walnut.ext.data.sqlx.SqlxContext;
 import com.site0.walnut.ext.data.sqlx.SqlxFilter;
@@ -14,10 +15,13 @@ import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqls;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
 
 public class sqlx_exec extends SqlxFilter {
+
+    private static Log log = Wlog.getCMD();
 
     @Override
     protected ZParams parseParams(String[] args) {
@@ -34,6 +38,9 @@ public class sqlx_exec extends SqlxFilter {
         }
 
         WnSqlTmpl sqlt = fc.sqls.get(sqlName);
+        if (log.isDebugEnabled()) {
+            log.debugf("sqlx.exec", sqlt.toString());
+        }
         Connection conn = fc.getConnection(sys);
 
         SqlExecResult re;

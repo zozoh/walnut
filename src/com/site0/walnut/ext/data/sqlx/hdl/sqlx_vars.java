@@ -5,15 +5,20 @@ import java.util.List;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+
 import com.site0.walnut.ext.data.sqlx.SqlxContext;
 import com.site0.walnut.ext.data.sqlx.SqlxFilter;
 import com.site0.walnut.ext.data.sqlx.util.SqlVarsFaker;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
 
 public class sqlx_vars extends SqlxFilter {
+
+    private static final Log log = Wlog.getCMD();
 
     @Override
     protected ZParams parseParams(String[] args) {
@@ -32,6 +37,10 @@ public class sqlx_vars extends SqlxFilter {
         if (reset) {
             fc.resetVarMap();
             fc.resetVarList();
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debugf("sqlx.vars: %s", Ws.join(params.vals, " "));
         }
 
         if ("list".equals(mode)) {

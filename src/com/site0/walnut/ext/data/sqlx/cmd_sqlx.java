@@ -72,6 +72,10 @@ public class cmd_sqlx extends JvmFilterExecutor<SqlxContext, SqlxFilter> {
         WnObj oDir = Wn.checkObj(sys, dirPath);
         fc.sqls = getSqlHolder(sys.io, oDir);
 
+        if (log.isDebugEnabled()) {
+            log.debugf("sqlx prepare: %s : %s", daoName, dirPath);
+        }
+
         // 读取输入
         String json = sys.in.readAll();
         NutMap input = Json.fromJson(NutMap.class, json);
