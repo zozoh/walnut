@@ -44,7 +44,15 @@ public class CARSTLoader implements EdiMsgLoader<CargoStaAdviceObj> {
             rff.clear();
             item.fillBean(rff, null, "subjectCode", null, null, "stName,stVal");
             if (rff.is("subjectCode", "AHN")) {
-                re.getStatusMap().put(rff.getString("stName"), rff.getString("stVal"));
+                String stName = rff.getString("stName");
+                if (stName != null) {
+                    stName = stName.trim();
+                }
+                String stVal = rff.getString("stVal");
+                if (stVal != null) {
+                    stVal = stVal.trim();
+                }
+                re.getStatusMap().put(stName, stVal);
             }
         }
 
