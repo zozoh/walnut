@@ -550,6 +550,12 @@ public class ObjModule extends AbstractWnModule {
         WnWeb.setCrossDomainHeaders("*", (name, value) -> {
             resp.setHeader(WnWeb.niceHeaderName(name), value);
         });
+
+        // Options 无视
+        if (WnWeb.isRequestOptions(req)) {
+            return null;
+        }
+
         // 获取当前会话
         WnAuthSession se = Wn.WC().checkSession();
 
@@ -672,11 +678,17 @@ public class ObjModule extends AbstractWnModule {
                             @Param("mime") String mime,
                             @Param("tmpl") String tmpl,
                             InputStream ins,
+                            HttpServletRequest req,
                             HttpServletResponse resp) {
         // 这个接口开放给外部 app 调用
         WnWeb.setCrossDomainHeaders("*", (name, value) -> {
             resp.setHeader(WnWeb.niceHeaderName(name), value);
         });
+
+        // Options 无视
+        if (WnWeb.isRequestOptions(req)) {
+            return null;
+        }
 
         // 得到当前会话
         WnAuthSession se = Wn.WC().checkSession();
