@@ -671,6 +671,7 @@ public class ObjModule extends AbstractWnModule {
      */
     @At("/save/stream")
     @AdaptBy(type = QueryStringAdaptor.class)
+    @Fail("ajax")
     public WnObj saveStream(@Param("str") String str,
                             @Param("nm") String nm,
                             @Param("m") String mode,

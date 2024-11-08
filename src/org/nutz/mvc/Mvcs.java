@@ -53,10 +53,10 @@ public abstract class Mvcs {
 
     public static boolean DISABLE_X_POWERED_BY = false;
 
-    public static String X_POWERED_BY = "nutz/"+Nutz.version()+" <nutzam.com>";
-    
+    public static String X_POWERED_BY = "nutz/" + Nutz.version() + " <nutzam.com>";
+
     public static LocalizationManager localizationManager;
-    
+
     public static void setLocalizationManager(LocalizationManager localizationManager) {
         Mvcs.localizationManager = localizationManager;
     }
@@ -66,8 +66,7 @@ public abstract class Mvcs {
     public static Map<String, Object> getLocaleMessage(String local) {
         if (localizationManager != null) {
             return localizationManager.getMessageMap(local);
-        }
-        else {
+        } else {
             Map<String, Map<String, Object>> msgss = getMessageSet();
             if (null != msgss)
                 return msgss.get(local);
@@ -196,7 +195,8 @@ public abstract class Mvcs {
             if (null != msgss) {
                 Map<String, Object> msgs = null;
 
-                String lKey = Strings.sBlank(Mvcs.getLocalizationKey(), getDefaultLocalizationKey());
+                String lKey = Strings.sBlank(Mvcs.getLocalizationKey(),
+                                             getDefaultLocalizationKey());
 
                 if (!Strings.isBlank(lKey))
                     msgs = msgss.get(lKey);
@@ -209,8 +209,7 @@ public abstract class Mvcs {
                 // 记录到请求中
                 req.setAttribute(MSG, msgs);
             }
-        }
-        else {
+        } else {
             String lKey = Mvcs.getLocalizationKey();
             if (Strings.isBlank(lKey)) {
                 lKey = localizationManager.getDefaultLocal();
@@ -542,8 +541,7 @@ public abstract class Mvcs {
             if (session != null)
                 session.setAttribute(key, val);
         }
-        catch (Exception e) {
-        }
+        catch (Exception e) {}
     }
 
     public static NutMap toParamMap(Reader r, String enc) throws IOException {
@@ -573,6 +571,5 @@ public abstract class Mvcs {
             throw new IOException(e);
         }
     }
-
 
 }
