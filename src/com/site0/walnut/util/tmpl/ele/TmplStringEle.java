@@ -58,6 +58,13 @@ public class TmplStringEle extends TmplDynamicEle {
                 String input = s.substring("@replace".length());
                 convertors.add(new StrReplaceConvertor(input));
             }
+//            // 限制长度和精度的浮点数 @float=7#2 表示最多7长度，小数点后最多两位
+//            // - 5.45 => 5.45
+//            // - 12345678.45 => 12345678
+//            else if (s.startsWith("@replace")) {
+//                String input = s.substring("@replace".length());
+//                convertors.add(new StrReplaceConvertor(input));
+//            }
             // 字符串映射
             else if (s.startsWith(":")) {
                 String input = s.substring(1);
