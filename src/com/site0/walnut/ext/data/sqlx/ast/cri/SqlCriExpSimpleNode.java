@@ -19,7 +19,7 @@ public abstract class SqlCriExpSimpleNode extends SqlCriExpressionNode {
 
     @Override
     protected void _join_self_params(List<SqlParam> params) {
-        params.add(new SqlParam(name, value));
+        params.add(new SqlParam(name, value, null));
     }
 
     @Override

@@ -49,8 +49,13 @@ public abstract class WnSqls {
             Object[] row = new Object[params.size()];
             int x = 0;
             for (SqlParam param : params) {
+                String scope = param.getScope();
+                NutBean bean = li;
+                if (!Ws.isBlank(scope)) {
+                    bean = li.getAs(scope, NutMap.class);
+                }
                 String key = param.getName();
-                Object val = li.get(key);
+                Object val = bean.get(key);
                 row[x++] = val;
             }
             re.add(row);

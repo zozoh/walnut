@@ -16,7 +16,7 @@ public class SqlCriExpRegexpNode extends SqlCriExpressionNode {
 
     @Override
     protected void _join_self_params(List<SqlParam> params) {
-        params.add(new SqlParam(name, regex));
+        params.add(new SqlParam(name, regex, null));
     }
 
     @Override

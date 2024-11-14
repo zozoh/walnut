@@ -14,6 +14,24 @@ import com.site0.walnut.util.Wlang;
 public class WnSqlTmplTest {
 
     @Test
+    public void test_update_with_scope() {
+        String s = "UPDATE t_dict SET ${@vars=update;omit=__pk} WHERE ${@vars=where; scope=__pk}";
+        NutMap context = NutMap.WRAP("{value:'A',tip:'X',__pk:{value:'X',type:'C'}}");
+        WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
+        List<SqlParam> params = new ArrayList<>(2);
+        String sql = sqlt.render(context, params);
+        assertEquals("UPDATE t_dict SET value=?,tip=? WHERE value=? AND type=?", sql);
+        assertEquals(4, params.size());
+        assertEquals("value=\"A\"", params.get(0).toString());
+        assertEquals("tip=\"X\"", params.get(1).toString());
+        assertEquals("[__pk]:value=\"X\"", params.get(2).toString());
+        assertEquals("[__pk]:type=\"C\"", params.get(3).toString());
+
+        sql = sqlt.render(context, null);
+        assertEquals("UPDATE t_dict SET value='A',tip='X' WHERE value='X' AND type='C'", sql);
+    }
+
+    @Test
     public void test_var_in_scope() {
         String s = "SELECT * FROM t_pet WHERE ${@vars=where; scope=query; pick=a,b}";
         NutMap query = NutMap.WRAP("{a:'(100,500)',b:{$lt:6,$gte:9}}");
@@ -23,10 +41,10 @@ public class WnSqlTmplTest {
         String sql = sqlt.render(context, params);
         assertEquals("SELECT * FROM t_pet WHERE (a>? AND a<?) AND (b<? AND b>=?)", sql);
         assertEquals(4, params.size());
-        assertEquals("a=100", params.get(0).toString());
-        assertEquals("a=500", params.get(1).toString());
-        assertEquals("b=6", params.get(2).toString());
-        assertEquals("b=9", params.get(3).toString());
+        assertEquals("[query]:a=100", params.get(0).toString());
+        assertEquals("[query]:a=500", params.get(1).toString());
+        assertEquals("[query]:b=6", params.get(2).toString());
+        assertEquals("[query]:b=9", params.get(3).toString());
 
         sql = sqlt.render(context, null);
         assertEquals("SELECT * FROM t_pet WHERE (a>100 AND a<500) AND (b<6 AND b>=9)", sql);

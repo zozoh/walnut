@@ -22,7 +22,7 @@ public class SqlCriExpEnumNode extends SqlCriExpressionNode {
             for (int i = 0; i < vals.length; i++) {
                 Object v = vals[i];
                 String k = name + "." + i;
-                params.add(new SqlParam(k, v));
+                params.add(new SqlParam(k, v, null));
             }
         }
     }

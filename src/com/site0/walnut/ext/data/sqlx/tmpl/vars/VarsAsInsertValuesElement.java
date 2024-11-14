@@ -35,7 +35,7 @@ public class VarsAsInsertValuesElement extends SqlVarsElement {
 
             // 记入模板字段和动态参数
             if (null != src && null != src.params) {
-                src.params.add(new SqlParam(en));
+                src.params.add(new SqlParam(en, this.scope));
                 src.out.append('?');
             }
             // 采用传统的 SQL 方式

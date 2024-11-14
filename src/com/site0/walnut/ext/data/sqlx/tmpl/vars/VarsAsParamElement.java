@@ -68,7 +68,7 @@ public class VarsAsParamElement extends SqlVarsElement {
 
         // 记入模板字段和动态参数
         if (null != src && null != src.params) {
-            src.params.add(new SqlParam(name, val));
+            src.params.add(new SqlParam(name, val, this.scope));
             src.out.append('?');
         }
         // 采用传统的 SQL 方式

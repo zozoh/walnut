@@ -16,6 +16,41 @@ import com.site0.walnut.util.tmpl.ele.TmplEle;
 public class WnTmplXTest {
 
     @Test
+    public void test_float_str() {
+        NutMap c = new NutMap();
+
+        // 12345678.45 => 1234567
+        c.put("w", "12345678.45");
+        assertEquals("1234567", WnTmplX.exec("${w<:@fs=7.2>}", c));
+        c.put("w", 12345678.45);
+        assertEquals("1234567", WnTmplX.exec("${w<:@fs=7.2>}", c));
+
+        // 1234567.85 => 1234567
+        c.put("w", "1234567.85");
+        assertEquals("1234567", WnTmplX.exec("${w<:@fs=7.2>}", c));
+        c.put("w", 1234567.85);
+        assertEquals("1234567", WnTmplX.exec("${w<:@fs=7.2>}", c));
+
+        // 123456.85 => 123456
+        c.put("w", "123456.85");
+        assertEquals("123456", WnTmplX.exec("${w<:@fs=7.2>}", c));
+        c.put("w", 123456.85);
+        assertEquals("123456", WnTmplX.exec("${w<:@fs=7.2>}", c));
+
+        // 12348.45342 => 12348.4
+        c.put("w", "12348.45342");
+        assertEquals("12348.4", WnTmplX.exec("${w<:@fs=7.2>}", c));
+        c.put("w", 12348.45342);
+        assertEquals("12348.4", WnTmplX.exec("${w<:@fs=7.2>}", c));
+
+        // 0.00000001 => 0.01
+        c.put("w", "0.00000001");
+        assertEquals("0.01", WnTmplX.exec("${w<:@fs=7.2>}", c));
+        c.put("w", 0.00000001);
+        assertEquals("0.01", WnTmplX.exec("${w<:@fs=7.2>}", c));
+    }
+
+    @Test
     public void test_customized_token() {
         WnTmplTokenExpert expert = new WnTmplTokenExpert("$$", "$[", ']');
         WnTmplX t = WnTmplX.parse(expert, "$[a]-$[b]");

@@ -16,7 +16,7 @@ public class SqlCriExpLikeNode extends SqlCriExpressionNode {
 
     @Override
     protected void _join_self_params(List<SqlParam> params) {
-        params.add(new SqlParam(name, like));
+        params.add(new SqlParam(name, like, null));
     }
 
     @Override

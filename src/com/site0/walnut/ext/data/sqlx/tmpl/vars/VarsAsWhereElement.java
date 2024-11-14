@@ -1,7 +1,11 @@
 package com.site0.walnut.ext.data.sqlx.tmpl.vars;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import com.site0.walnut.ext.data.sqlx.ast.SqlCriteria;
 import com.site0.walnut.ext.data.sqlx.ast.SqlCriteriaNode;
+import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlRenderContext;
 import com.site0.walnut.util.tmpl.WnTmplRenderContext;
 
@@ -23,7 +27,12 @@ public class VarsAsWhereElement extends SqlVarsElement {
         // 记入动态参数
         if (null != src && null != src.params) {
             cri.joinTmpl(src.out, true);
-            cri.joinParams(src.params);
+
+            // 将参数搞进去
+            List<SqlParam> ps = new LinkedList<>();
+            cri.joinParams(ps);
+            SqlParam.setScopeTo(ps, this.scope);
+            src.params.addAll(ps);
         }
         // 采用传统的 SQL 方式
         else {
