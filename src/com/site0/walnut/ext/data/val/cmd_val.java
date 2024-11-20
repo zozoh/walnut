@@ -25,7 +25,7 @@ public class cmd_val extends JvmFilterExecutor<ValContext, ValFilter> {
     @Override
     protected void output(WnSystem sys, ValContext fc) {
         if (null != fc.result) {
-            sys.out.println(fc.result.toString());
+            sys.out.print(fc.result.toString());
         }
     }
 
