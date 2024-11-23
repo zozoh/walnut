@@ -42,7 +42,7 @@ public class StrFloatSubStrConvertor implements StrEleConvertor {
     public String process(String str) {
         try {
             // 无效
-            if (maxLen < 0) {
+            if (maxLen <= 0) {
                 return str;
             }
 
@@ -55,7 +55,7 @@ public class StrFloatSubStrConvertor implements StrEleConvertor {
 
             // 如果结尾为 . 也截取
             if (s.endsWith(".")) {
-                s.substring(0, maxLen - 1).trim();
+                s = s.substring(0, maxLen - 1).trim();
             }
 
             // 不需要四舍五入
