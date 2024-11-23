@@ -142,6 +142,38 @@ SELECT * FROM t_pets WHERE name=? AND color=? AND age=?
 
 因此只要我们得到任意一个节点实例。我们就能从从这个节点直接渲染出一个 sql 表达式。
 
+## `@vars=param` 适用于 `WHERE` 子句的条件
+
+```sql
+-- INPUT Template:
+SELECT * FROM t_pets WHERE id=${@vars=param; name=id;}
+
+-- Static Output:
+SELECT * FROM t_pets WHERE id='pet0009'
+
+-- Params Output:
+SELECT * FROM t_pets WHERE id=?
+
+-- Params List:
+[id='pet0009']
+```
+
+这种模式下，可能可能经常会用到 SQL 的 LIKE 关键字，它通常是这么使用的
+
+```sql
+-- INPUT Template:
+SELECT * FROM t_pets WHERE name LIKE ${@vars=param; format=%$[hint]%}
+
+-- Static Output:
+SELECT * FROM t_pets WHERE name LIKE '%red%'
+
+-- Params Output:
+SELECT * FROM t_pets WHERE name LIKE ?
+
+-- Params List:
+[null='red']
+```
+
 # 用法
 
 ```bash

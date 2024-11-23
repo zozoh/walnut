@@ -2,7 +2,7 @@ package com.site0.walnut.util.tmpl.ele;
 
 import java.text.DecimalFormat;
 
-public class StrFloatSubstringConvertor implements StrEleConvertor {
+public class StrFloatSubStrConvertor implements StrEleConvertor {
 
     /**
      * 首先用这个长度截一道, 如果小于等于 0 则书屋
@@ -16,7 +16,7 @@ public class StrFloatSubstringConvertor implements StrEleConvertor {
 
     private double _r;
 
-    public StrFloatSubstringConvertor(String input) {
+    public StrFloatSubStrConvertor(String input) {
         String[] ss = input.trim().split("[.,#-]");
         if (ss.length > 1) {
             maxLen = Integer.parseInt(ss[0]);

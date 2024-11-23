@@ -32,14 +32,21 @@ public class sqlx_json extends SqlxFilter {
                 }
                 // 数组
                 else if (re.getClass().isArray()) {
-                    if (Array.getLength(re) == 1) {
+                    int N = Array.getLength(re);
+                    if (N == 0) {
+                        re = null;
+                    } else if (N == 1) {
                         re = Array.get(re, 0);
                     }
+
                 }
                 // 集合
                 else if (re instanceof Collection<?>) {
                     Collection<?> col = (Collection<?>) re;
-                    if (col.size() == 1) {
+                    int N = col.size();
+                    if (N == 0) {
+                        re = null;
+                    } else if (N == 1) {
                         re = col.iterator().next();
                     }
                 }
@@ -48,14 +55,20 @@ public class sqlx_json extends SqlxFilter {
             else if ("obj".equals(as)) {
                 // 数组
                 if (re.getClass().isArray()) {
-                    if (Array.getLength(re) > 0) {
+                    int N = Array.getLength(re);
+                    if (N == 0) {
+                        re = null;
+                    } else if (N > 0) {
                         re = Array.get(re, 0);
                     }
                 }
                 // 集合
                 else if (re instanceof Collection<?>) {
                     Collection<?> col = (Collection<?>) re;
-                    if (col.size() > 0) {
+                    int N = col.size();
+                    if (N == 0) {
+                        re = null;
+                    } else if (N > 0) {
                         re = col.iterator().next();
                     }
                 }

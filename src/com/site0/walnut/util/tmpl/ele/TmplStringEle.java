@@ -66,7 +66,7 @@ public class TmplStringEle extends TmplDynamicEle {
             // 0.00000001 => 0.01
             else if (s.startsWith("@fs=")) {
                 String input = s.substring("@fs=".length());
-                convertors.add(new StrFloatSubstringConvertor(input));
+                convertors.add(new StrFloatSubStrConvertor(input));
             }
             // 字符串映射
             else if (s.startsWith(":")) {
