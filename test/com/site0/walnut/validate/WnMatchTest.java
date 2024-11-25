@@ -16,6 +16,15 @@ import com.site0.walnut.util.validate.impl.AutoMatch;
 public class WnMatchTest {
 
     @Test
+    public void test_str_float_range() {
+        AutoMatch m = new AutoMatch("(0.0,)");
+        assertTrue(m.match("23.689"));
+
+        AutoMatch m2 = new AutoMatch("(0,)");
+        assertTrue(m2.match("23.689"));
+    }
+
+    @Test
     public void test_exist2() {
         NutMap map = Wlang.map("{a: {x:1,y:2},b:{x:3,y:4}}");
         AutoMatch m = new AutoMatch(Wlang.map("'b.y':'[EXISTS]'"));

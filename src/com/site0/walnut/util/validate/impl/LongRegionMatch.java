@@ -5,31 +5,31 @@ import com.site0.walnut.util.validate.WnMatch;
 
 public class LongRegionMatch implements WnMatch {
 
-    private Region<Long> region = null;
+    private Region<Double> region = null;
 
     public LongRegionMatch(String input) {
-        region = Region.Long(input);
+        region = Region.Double(input);
     }
 
     @Override
     public boolean match(Object val) {
         if (null == val)
             return false;
-        
-        long v;
-        if (!(val instanceof Number)) {
+
+        // 归一输入参数为 Float
+        double v;
+        if (val instanceof Number) {
+            v = ((Number) val).doubleValue();
+        } else {
             try {
-                v = Long.parseLong(val.toString());
+                v = Double.parseDouble(val.toString());
             }
-            catch (Throwable e) {
+            catch (Throwable err) {
                 return false;
             }
-        } else {
-            Number n = (Number) val;
-            v = n.longValue();
         }
-        return region.match(v);
 
+        return region.match(v);
     }
 
 }

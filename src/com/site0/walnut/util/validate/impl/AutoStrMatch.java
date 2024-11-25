@@ -59,13 +59,13 @@ public class AutoStrMatch implements WnMatch {
             else if (str.matches(Wregion.intRegion())) {
                 this.m = new LongRegionMatch(str);
             }
-            // 长整数范围
-            else if (str.matches(Wregion.longRegion())) {
-                this.m = new LongRegionMatch(str);
-            }
             // 浮点数范围
             else if (str.matches(Wregion.floatRegion())) {
                 this.m = new FloatRegionMatch(str);
+            }
+            // 长整数范围
+            else if (str.matches(Wregion.longRegion())) {
+                this.m = new LongRegionMatch(str);
             }
             // 日期范围
             else if (str.matches(Wregion.dateRegion("^"))) {
