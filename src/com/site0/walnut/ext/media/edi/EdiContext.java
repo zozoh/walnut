@@ -1,11 +1,15 @@
 package com.site0.walnut.ext.media.edi;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.ext.media.edi.bean.EdiInterchange;
 import com.site0.walnut.impl.box.JvmFilterContext;
+import com.site0.walnut.util.Ws;
 
 public class EdiContext extends JvmFilterContext {
-    
+
     public String raw_input;
 
     /**
@@ -22,6 +26,19 @@ public class EdiContext extends JvmFilterContext {
      * 报文对象
      */
     public EdiInterchange ic;
+
+    public String tidyMessage() {
+        String[] lines = Ws.splitIgnoreBlank(message, "\r?\n");
+        List<String> list = new ArrayList<>(lines.length);
+        for (String line : lines) {
+            String trimed = line.trim();
+            if (!Ws.isBlank(trimed) && !trimed.startsWith("#")) {
+                list.add(trimed);
+            }
+        }
+        this.message = Ws.join(list, "\n");
+        return message;
+    }
 
     public void assertIC() {
         if (null == ic) {

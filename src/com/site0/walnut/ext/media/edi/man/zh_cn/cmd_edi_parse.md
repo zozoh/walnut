@@ -5,7 +5,8 @@
 # 用法
 
 ```bash
-edi @parse  
+edi @parse 
+[-tidy]        # 解析前按行整理，去掉空行和注释行
 ```
 
 # 示例
