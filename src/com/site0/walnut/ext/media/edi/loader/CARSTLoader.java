@@ -38,7 +38,7 @@ public class CARSTLoader implements EdiMsgLoader<CargoStaAdviceObj> {
             }
         }
 
-        // 解析 FTX+AHN 报文行
+        // 解析 FTX+AHN 报文行 (各类状态)
         segmentList = finder.nextAll(true, "FTX");
         for (EdiSegment item : segmentList) {
             rff.clear();

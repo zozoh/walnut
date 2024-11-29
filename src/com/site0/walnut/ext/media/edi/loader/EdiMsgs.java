@@ -24,8 +24,8 @@ public abstract class EdiMsgs {
         loaders.put("CLREGR", new CLREGRLoader());
         loaders.put("CLNTDUP", new CLNTDUPLoader());
         // AirCargoReport Response
-        loaders.put("AIRCRR", new AIR_SEA_CRRLoader());
-        loaders.put("SEACRR", new AIR_SEA_CRRLoader());
+        loaders.put("AIRCRR", new AIRCRRLoader());
+        loaders.put("SEACRR", new SEACRRLoader());
         loaders.put("CARST", new CARSTLoader());
     }
 

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class AIR_SEA_CRRLoader implements EdiMsgLoader<EdiReplyAIRCRR> {
+public class SEACRRLoader implements EdiMsgLoader<EdiReplyAIRCRR> {
     @Override
     public Class<EdiReplyAIRCRR> getResultType() {
         return EdiReplyAIRCRR.class;

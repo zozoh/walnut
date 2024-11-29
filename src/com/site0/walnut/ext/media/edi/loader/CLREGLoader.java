@@ -11,6 +11,7 @@ import com.site0.walnut.ext.media.edi.msg.ori.EdiOriCLREG;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
 import com.site0.walnut.util.Ws;
 
+// 用途: 解析 Client Register 的发送的报文。目前用不到。
 public class CLREGLoader implements EdiMsgLoader<EdiOriCLREG> {
 
     @Override

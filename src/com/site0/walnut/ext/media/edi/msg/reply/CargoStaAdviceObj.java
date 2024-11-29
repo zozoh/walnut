@@ -23,6 +23,9 @@ public class CargoStaAdviceObj extends EdiReplyObj {
 
     private Map<String, String> statusMap;
 
+    // todo impendiment details
+    // private List<>
+
     private Map<String, String> infoMap;
 
     private Map<String, String> refMap;
