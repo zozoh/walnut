@@ -276,6 +276,15 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
                     if (af.isUseMappedValue()) {
                         av = v3;
                     }
+                    // 获取值: 条件选择
+                    if (af.hasMatchValue()) {
+                        av = af.tryMatchValue(bean);
+                    }
+                    // 采用模板
+                    else if (af.hasTmpl()) {
+                        av = af.getTemplate().render(bean);
+                    }
+
                     Object av2 = af.tryValueOptions(av);
                     Object av3 = WnValues.toValue(af, av2, bean);
                     if (null != av3 || !af.isIgnoreNull()) {

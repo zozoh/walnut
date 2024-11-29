@@ -235,6 +235,13 @@ public class WnTmplXTest {
     }
 
     @Test
+    public void test_string_sub2() {
+        NutMap context = Wlang.map("addr: '8 Jessie Riley Avenue'");
+        assertEquals("8 Jessie Riley Avenue", WnTmplX.exec("${addr<:@sub=50>}", context, true));
+        assertEquals("", WnTmplX.exec("${addr<:@sub=50/100>}", context, true));
+    }
+
+    @Test
     public void test_string_sub() {
         NutMap context = Wlang.map("name: 'xiao bai'");
         assertEquals("xiao", WnTmplX.exec("${name<:@sub=4>}", context, true));
