@@ -10,6 +10,7 @@ import org.nutz.log.Log;
 import com.site0.walnut.ext.data.sqlx.SqlxContext;
 import com.site0.walnut.ext.data.sqlx.SqlxFilter;
 import com.site0.walnut.ext.data.sqlx.util.SqlVarsFaker;
+import com.site0.walnut.ext.data.sqlx.util.SqlVarsPutting;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
@@ -32,6 +33,7 @@ public class sqlx_vars extends SqlxFilter {
         String pick = params.getString("pick");
         String[] omits = Ws.splitIgnoreBlank(omit);
         String[] picks = Ws.splitIgnoreBlank(pick);
+        SqlVarsPutting[] puttings = SqlVarsPutting.parse(params.getString("put"));
         boolean reset = params.is("reset");
         boolean merge = params.is("merge");
         if (reset) {
@@ -43,11 +45,27 @@ public class sqlx_vars extends SqlxFilter {
             log.debugf("sqlx.vars: %s", Ws.join(params.vals, " "));
         }
 
+        // For List
         if ("list".equals(mode)) {
             List<NutBean> list = __read_as_list(sys, fc, params);
+
+            // 额外读取值
+            NutBean pipeContext = fc.getPipeContext();
+            for (NutBean bean : list) {
+                SqlVarsPutting.apply(puttings, bean, pipeContext);
+            }
+
+            // 计入上下文
             fc.appendVarList(list, picks, omits);
-        } else {
+        }
+        // For Map
+        else {
             NutMap map = __read_as_map(sys, fc, params);
+
+            // 额外读取值
+            NutBean pipeContext = fc.getPipeContext();
+            SqlVarsPutting.apply(puttings, map, pipeContext);
+
             if (merge) {
                 fc.mergeVarMap(map, picks, omits);
             } else {

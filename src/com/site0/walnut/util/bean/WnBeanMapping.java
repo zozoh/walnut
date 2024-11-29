@@ -159,6 +159,11 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
                     val = getFallback(bean, key);
                 }
 
+                // 如果为空则采用默认值
+                if (null == val) {
+                    val = fld.getDefaultAs();
+                }
+
                 // 无视空
                 if (null == val) {
                     continue;

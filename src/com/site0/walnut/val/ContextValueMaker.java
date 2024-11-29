@@ -3,6 +3,7 @@ package com.site0.walnut.val;
 import java.util.Date;
 
 import org.nutz.lang.util.NutBean;
+import org.nutz.mapl.Mapl;
 
 public class ContextValueMaker implements ValueMaker {
 
@@ -14,7 +15,7 @@ public class ContextValueMaker implements ValueMaker {
 
     @Override
     public Object make(Date hint, NutBean context) {
-        return context.get(key);
+        return Mapl.cell(context, key);
     }
 
 }

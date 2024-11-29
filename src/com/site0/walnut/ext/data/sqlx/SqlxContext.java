@@ -13,6 +13,7 @@ import javax.sql.DataSource;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
+import org.nutz.mapl.Mapl;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.ext.data.sqlx.loader.SqlHolder;
@@ -53,6 +54,33 @@ public class SqlxContext extends JvmFilterContext {
 
     private List<NutBean> varList;
 
+    /**
+     * 存储一个整个命令周期都能有效的动态上下文 建立这个对象的动机是： 我需要在一个 sqlx 周期内插入数据到两张表:
+     * 
+     * <pre>
+     * sqlx 
+     *  &#64; vars =I0 -as list 
+     *  &#64; set code snowQ::5 -to list 
+     *  &#64; exec pet.insert -p 
+     *  &#64; vars =I1 -as list -reset 
+     *  &#64; exec food.insert -p
+     * </pre>
+     * 
+     * 我希望 food 的数据字段，有一个关联值 <code>pet_code=pet.code</code>
+     * 犹豫这个值是我刚生成的，我希望在它新鲜热乎的时候，直接设置到上下文里，因此我希望这么写：
+     * 
+     * <pre>
+     * sqlx 
+     *  &#64; vars =I0 -as list 
+     *  &#64; set code snowQ::5 -to list -savepipe 'pet.${id}'
+     *  &#64; exec pet.insert -p 
+     *  &#64; vars =I1 -as list -reset -put 'pet_code=pet.${id}'
+     *  &#64; exec food.insert -p
+     * </pre>
+     * 
+     */
+    private NutMap pipeContext;
+
     public SqlHolder sqls;
 
     public WnDaoAuth auth;
@@ -68,6 +96,7 @@ public class SqlxContext extends JvmFilterContext {
     public SqlxContext() {
         this.query = new QueryProcessor();
         this.exec = new ExecProcessor();
+        this.pipeContext = new NutMap();
     }
 
     public NutMap getInput() {
@@ -250,14 +279,16 @@ public class SqlxContext extends JvmFilterContext {
         }
     }
 
-    public NutBean prepareResultBean() {
-        if (null != result && (result instanceof SqlExecResult)) {
-            SqlExecResult re = (SqlExecResult) result;
-            if (null != re.list && re.list.size() > 0) {
-                return re.list.get(0);
-            }
-        }
-        return new NutMap();
+    public NutMap getPipeContext() {
+        return pipeContext;
+    }
+
+    public void putPipeContext(String keyPath, Object val) {
+        Mapl.put(pipeContext, keyPath, val);
+    }
+
+    public void putAllPipeContext(NutBean vars) {
+        pipeContext.putAll(vars);
     }
 
     public Connection getConnection(WnSystem sys) {

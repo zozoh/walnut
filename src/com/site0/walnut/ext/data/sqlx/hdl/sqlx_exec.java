@@ -16,6 +16,7 @@ import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqls;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wlog;
+import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
 
@@ -78,20 +79,46 @@ public class sqlx_exec extends SqlxFilter {
             fc.result = re;
 
             // 后续回查
-            String fetchSqlName = params.get("fetch_by");
-            NutMap fetchVars = params.getMap("fetch_vars", new NutMap());
+            String fetch_by = params.get("fetch_by");
+            NutMap fetch_vars = params.getMap("fetch_vars", new NutMap());
+            String fetch_save = params.getString("fetch_save", "...");
 
-            if (!Ws.isBlank(fetchSqlName)) {
+            if (!Ws.isBlank(fetch_by)) {
+                NutBean _vars = fetch_vars;
                 // 用上下文作为变量集备份
                 if (fc.hasVarMap()) {
-                    fetchVars.attach(fc.getVarMap());
+                    _vars = fc.getVarMap();
+                    if (null != fetch_vars && !fetch_vars.isEmpty()) {
+                        _vars = (NutBean) Wn.explainObj(_vars, fetch_vars);
+                    }
+                }
+                // 用列表的第一个作为上下文
+                else if (fc.hasVarList()) {
+                    _vars = fc.getVarList().get(0);
+                    if (null != fetch_vars && !fetch_vars.isEmpty()) {
+                        _vars = (NutBean) Wn.explainObj(_vars, fetch_vars);
+                    }
                 }
 
                 List<SqlParam> cps = new ArrayList<>();
-                WnSqlTmpl fetcht = fc.sqls.get(fetchSqlName);
-                String fetch_sql = fetcht.render(fetchVars, cps);
+                WnSqlTmpl fetcht = fc.sqls.get(fetch_by);
+                String fetch_sql = fetcht.render(_vars, cps);
                 Object[] fetch_params = WnSqls.getSqlParamsValue(cps);
                 re.list = fc.query.runWithParams(conn, fetch_sql, fetch_params);
+
+                if (!Ws.isBlank(fetch_save) && re.list.size() > 0) {
+                    NutBean reBean = re.list.get(0);
+                    if (null != reBean) {
+                        // 全部结构推入
+                        if ("...".equals(fetch_save)) {
+                            fc.putAllPipeContext(reBean);
+                        }
+                        // 简单推入
+                        else {
+                            fc.putPipeContext(fetch_save, reBean);
+                        }
+                    }
+                }
             }
         }
 
