@@ -23,7 +23,7 @@ public class EdiReplyAIRCRR extends EdiReplyObj {
     private boolean success;
 
     /**
-     * 消息发送记录的 ID ，一般就是发件箱发送对象的 id。
+     * 消息发送记录的 ID，一般就是发件箱发送对象的 id，此处对应：shipment.id
      * 对应 RFF+ABO 报文行
      */
     private String referId;

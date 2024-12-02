@@ -117,12 +117,12 @@ public class SEACRRLoader implements EdiMsgLoader<EdiReplyAIRCRR> {
                 }
             }
         }
-
         if (errNum > 0) {
             re.setSuccess(false);
         } else if (errNum == 0) {
             re.setSuccess(true);
         } else if (errNum == -1) {
+            // 若未返回 errNum 报文，则根据是否有 error/warn 数据来判断
             boolean msgSuccess = true;
             EdiReplyError[] errArr = re.getErrors();
             if (errArr != null && errArr.length > 0) {
