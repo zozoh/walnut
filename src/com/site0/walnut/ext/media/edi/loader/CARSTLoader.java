@@ -52,7 +52,13 @@ public class CARSTLoader implements EdiMsgLoader<CargoStaAdviceObj> {
                 if (stVal != null) {
                     stVal = stVal.trim();
                 }
-                re.getStatusMap().put(stName, stVal);
+
+                // IMPEDIMENT DETAILS
+                if (stName != null && stName.contains("IMPEDIMENT DETAILS")) {
+                    re.getImpends().add(stVal);
+                } else {
+                    re.getStatusMap().put(stName, stVal);
+                }
             }
         }
 
@@ -123,7 +129,7 @@ public class CARSTLoader implements EdiMsgLoader<CargoStaAdviceObj> {
             item.fillBean(rff, null, "refCode,refVal,,refVer");
             String refCode = rff.getString("refCode");
             if ("AAQ".equals(refCode)) {
-                re.getRefMap().put("CntrNum", rff.getString("refVal"));
+                re.getRefMap().put("cntrNum", rff.getString("refVal"));
             } else if ("ABO".equals(refCode)) {
                 String referId = rff.getString("refVal");
                 re.getRefMap().put("senderRef", rff.getString("refVal"));
@@ -133,7 +139,7 @@ public class CARSTLoader implements EdiMsgLoader<CargoStaAdviceObj> {
                     re.setRefVer(rff.getInt("refVer"));
                 }
             } else if ("ABT".equals(refCode)) {
-                re.getRefMap().put("ImportDecId", rff.getString("refVal"));
+                re.getRefMap().put("importDecId", rff.getString("refVal"));
             } else if ("BH".equals(refCode)) {
                 re.getRefMap().put("houseBill", rff.getString("refVal"));
                 re.getRefMap().put("transType", "sea");

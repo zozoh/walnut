@@ -1,6 +1,8 @@
 package com.site0.walnut.ext.media.edi.msg.reply;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CargoStaAdviceObj extends EdiReplyObj {
@@ -24,7 +26,7 @@ public class CargoStaAdviceObj extends EdiReplyObj {
     private Map<String, String> statusMap;
 
     // todo impendiment details
-    // private List<>
+    private List<String> impends;
 
     private Map<String, String> infoMap;
 
@@ -34,6 +36,7 @@ public class CargoStaAdviceObj extends EdiReplyObj {
     public CargoStaAdviceObj() {
         super("CARST");
         statusMap = new HashMap<>();
+        impends = new ArrayList<>();
         infoMap = new HashMap<>();
         refMap = new HashMap<>();
     }
@@ -68,6 +71,14 @@ public class CargoStaAdviceObj extends EdiReplyObj {
 
     public void setStatusMap(Map<String, String> statusMap) {
         this.statusMap = statusMap;
+    }
+
+    public List<String> getImpends() {
+        return impends;
+    }
+
+    public void setImpends(List<String> impends) {
+        this.impends = impends;
     }
 
     public Map<String, String> getInfoMap() {
