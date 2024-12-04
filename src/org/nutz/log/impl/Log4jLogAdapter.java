@@ -95,7 +95,7 @@ public class Log4jLogAdapter implements LogAdapter, Plugin {
         }
 
         @Override
-        protected void log(int level, Object message, Throwable tx) {
+        protected void doPrintLog(int level, Object message, Throwable tx) {
             switch (level) {
             case LEVEL_FATAL:
                 logger.log(SUPER_FQCN, Level.FATAL, message, tx);

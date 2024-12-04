@@ -45,7 +45,7 @@ public class Slf4jLogger extends AbstractLog {
 			logger.log(null, SELF_FQCN, LocationAwareLogger.TRACE_INT, (String) message, EMTRY , t);
 	}
 
-	protected void log(int level, Object message, Throwable tx) {
+	protected void doPrintLog(int level, Object message, Throwable tx) {
 		if (level == 50)
 			level = 40;// slf4j没有FATEL level
 		logger.log(null, SUPER_FQCN, level, (String) message, EMTRY , tx);

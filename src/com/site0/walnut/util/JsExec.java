@@ -24,6 +24,7 @@ import org.nutz.log.Log;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.nashorn.NashornObjectWrapper;
+import com.site0.walnut.util.log.WnJsLogProxy;
 
 public class JsExec {
 
@@ -34,6 +35,51 @@ public class JsExec {
     private ScriptEngineManager engineManager;
 
     protected Map<String, ScriptEngine> engines;
+
+    private static String prefixLines = "";
+
+    static {
+        String[] ss = Wlang.array("var logTag = logTag || '-NoTag-';",
+                                  "function __log_args(_arguments) {",
+                                  "  var sys_msg = _arguments[0];",
+                                  "  var msg = '%s [%s] : ' + sys_msg;",
+                                  "  var args = [logTag, _TRACE_ID];",
+                                  "  var sys_args = [];",
+                                  "  for (var i = 1; i < _arguments.length; i++) {",
+                                  "    args.push(_arguments[i]);",
+                                  "    sys_args.push(_arguments[i]);",
+                                  "  }",
+                                  "  return [msg, args, sys_msg, sys_args];",
+                                  "}",
+                                  "function _log_info2() {",
+                                  "  var aa = __log_args(arguments);",
+                                  "  logx.print('info', aa[0], aa[1]);",
+                                  "  sys.out.printlnf(aa[2], aa[3]);",
+                                  "}",
+                                  "function _log_info() {",
+                                  "  var aa = __log_args(arguments);",
+                                  "  logx.print('info', aa[0], aa[1]);",
+                                  "}",
+                                  "function _log_warn2() {",
+                                  "  var aa = __log_args(arguments);",
+                                  "  logx.print('warn', aa[0], aa[1]);",
+                                  "  sys.out.printlnf(aa[2], aa[3]);",
+                                  "}",
+                                  "function _log_warn() {",
+                                  "  var aa = __log_args(arguments);",
+                                  "  logx.print('warn', aa[0], aa[1]);",
+                                  "}",
+                                  "function _log_err2() {",
+                                  "  var aa = __log_args(arguments);",
+                                  "  logx.print('error', aa[0], aa[1]);",
+                                  "  sys.err.printlnf(aa[2], aa[3]);",
+                                  "}",
+                                  "function _log_err() {",
+                                  "  var aa = __log_args(arguments);",
+                                  "  logx.print('error', aa[0], aa[1]);",
+                                  "}");
+        prefixLines = Ws.join(ss, "\n");
+    }
 
     private static JsExec _me = new JsExec();
     protected Map<String, Object> globalVars = new HashMap<>();
@@ -111,11 +157,16 @@ public class JsExec {
         bindings.put("_TRACE_ID", R.UU32());
         if (!bindings.containsKey("log")) {
             bindings.put("log", log);
+
+        }
+        if (!bindings.containsKey("logx")) {
+            bindings.put("logx", new WnJsLogProxy(log));
         }
 
         // 生成动态访问的 $wn
         if (!groovyMode)
-            jsStr = "var $wn = _.extend({}, __wn); $wn.sys = sys; $wn.toJsonStr = function(jsobj) { if (typeof jsobj == 'string') {return jsobj;} return JSON.stringify(jsobj, null, '');}\n"
+            jsStr = prefixLines
+                    + "\nvar $wn = _.extend({}, __wn); $wn.sys = sys; $wn.toJsonStr = function(jsobj) { if (typeof jsobj == 'string') {return jsobj;} return JSON.stringify(jsobj, null, '');}\n"
                     + jsStr;
 
         // 执行

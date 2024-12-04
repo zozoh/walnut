@@ -6,8 +6,10 @@ package org.nutz.log;
  * @author Young(sunonfire@gmail.com)
  */
 public interface Log {
-	
-	Log setTag(String tag);
+
+    Log setTag(String tag);
+
+    void log(int level, Object fmt, Object... args);
 
     boolean isFatalEnabled();
 

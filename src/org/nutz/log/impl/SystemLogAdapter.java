@@ -101,7 +101,7 @@ public class SystemLogAdapter implements LogAdapter, Plugin {
         }
 
         @Override
-        protected void log(int level, Object message, Throwable tx) {
+        protected void doPrintLog(int level, Object message, Throwable tx) {
             switch (level) {
                 case LEVEL_FATAL:
                     fatal(message, tx);

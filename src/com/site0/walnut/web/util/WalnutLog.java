@@ -99,7 +99,7 @@ public class WalnutLog extends AbstractLog {
         t.printStackTrace(new PrintStream(out.getOutputStream(), true));
     }
 
-    protected void log(int level, Object message, Throwable tx) {
+    protected void doPrintLog(int level, Object message, Throwable tx) {
         switch (level) {
         case LEVEL_FATAL:
             fatal(message, tx);

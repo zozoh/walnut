@@ -51,7 +51,7 @@ public class Slf4jLogAdapter implements LogAdapter, Plugin {
             logger.debug(String.valueOf(message), t);
         }
 
-        protected void log(int level, Object message, Throwable tx) {
+        protected void doPrintLog(int level, Object message, Throwable tx) {
             String msg = String.valueOf(message);
             switch (level) {
             case AbstractLog.LEVEL_FATAL:

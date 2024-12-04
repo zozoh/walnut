@@ -31,6 +31,11 @@ public class WnLogWrapper implements Log {
         return _prefix() + msg;
     }
 
+    @Override
+    public void log(int level, Object fmt, Object... args) {
+        log.log(level, fmt, args);
+    }
+
     public boolean isFatalEnabled() {
         return log.isFatalEnabled();
     }

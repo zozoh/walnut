@@ -4,6 +4,8 @@ import java.util.Arrays;
 
 import org.nutz.log.Log;
 
+import com.site0.walnut.api.err.Er;
+
 public abstract class AbstractLog implements Log {
 
     protected boolean isFatalEnabled = true;
@@ -21,6 +23,10 @@ public abstract class AbstractLog implements Log {
     protected static final int LEVEL_TRACE = 0;
 
     public static int level(String str) {
+        return level(str, false);
+    }
+
+    public static int level(String str, boolean strict) {
         if (null != str) {
             if ("F".equals(str) || "fatal".equals(str))
                 return LEVEL_FATAL;
@@ -40,14 +46,16 @@ public abstract class AbstractLog implements Log {
             if ("T".equals(str) || "trace".equals(str))
                 return LEVEL_TRACE;
         }
-
+        if (strict) {
+            throw Er.create("e.nutz.log.InvalidLogLevelStr", str);
+        }
         return LEVEL_INFO;
     }
 
-    protected abstract void log(int level, Object message, Throwable tx);
+    protected abstract void doPrintLog(int level, Object message, Throwable tx);
 
-    protected void log(int level, LogInfo info) {
-        log(level, info.message, info.e);
+    protected void printLog(int level, LogInfo info) {
+        doPrintLog(level, info.message, info.e);
     }
 
     private static final LogInfo LOGINFO_ERROR = new LogInfo();
@@ -98,64 +106,90 @@ public abstract class AbstractLog implements Log {
         }
     }
 
+    public void log(int level, Object fmt, Object... args) {
+        if (level == LEVEL_FATAL) {
+            if (!isFatalEnabled())
+                return;
+        } else if (level == LEVEL_ERROR) {
+            if (!isErrorEnabled())
+                return;
+        } else if (level == LEVEL_WARN) {
+            if (!isWarnEnabled())
+                return;
+        } else if (level == LEVEL_INFO) {
+            if (!isInfoEnabled())
+                return;
+        } else if (level == LEVEL_DEBUG) {
+            if (!isDebugEnabled())
+                return;
+        } else if (level == LEVEL_TRACE) {
+            if (!isTraceEnabled())
+                return;
+        } else {
+            throw Er.create("e.nutz.log.InvalidLogLevel", level);
+        }
+        LogInfo info = makeInfo(fmt, args);
+        printLog(level, info);
+    }
+
     public void debug(Object message) {
         if (isDebugEnabled())
-            log(LEVEL_DEBUG, makeInfo(message));
+            printLog(LEVEL_DEBUG, makeInfo(message));
     }
 
     public void debugf(String fmt, Object... args) {
         if (isDebugEnabled())
-            log(LEVEL_DEBUG, makeInfo(fmt, args));
+            printLog(LEVEL_DEBUG, makeInfo(fmt, args));
     }
 
     public void error(Object message) {
         if (isErrorEnabled())
-            log(LEVEL_ERROR, makeInfo(message));
+            printLog(LEVEL_ERROR, makeInfo(message));
     }
 
     public void errorf(String fmt, Object... args) {
         if (isErrorEnabled())
-            log(LEVEL_ERROR, makeInfo(fmt, args));
+            printLog(LEVEL_ERROR, makeInfo(fmt, args));
     }
 
     public void fatal(Object message) {
         if (isFatalEnabled())
-            log(LEVEL_FATAL, makeInfo(message));
+            printLog(LEVEL_FATAL, makeInfo(message));
     }
 
     public void fatalf(String fmt, Object... args) {
         if (isFatalEnabled())
-            log(LEVEL_FATAL, makeInfo(fmt, args));
+            printLog(LEVEL_FATAL, makeInfo(fmt, args));
     }
 
     public void info(Object message) {
         if (isInfoEnabled())
-            log(LEVEL_INFO, makeInfo(message));
+            printLog(LEVEL_INFO, makeInfo(message));
     }
 
     public void infof(String fmt, Object... args) {
         if (isInfoEnabled())
-            log(LEVEL_INFO, makeInfo(fmt, args));
+            printLog(LEVEL_INFO, makeInfo(fmt, args));
     }
 
     public void trace(Object message) {
         if (isTraceEnabled())
-            log(LEVEL_TRACE, makeInfo(message));
+            printLog(LEVEL_TRACE, makeInfo(message));
     }
 
     public void tracef(String fmt, Object... args) {
         if (isTraceEnabled())
-            log(LEVEL_TRACE, makeInfo(fmt, args));
+            printLog(LEVEL_TRACE, makeInfo(fmt, args));
     }
 
     public void warn(Object message) {
         if (isWarnEnabled())
-            log(LEVEL_WARN, makeInfo(message));
+            printLog(LEVEL_WARN, makeInfo(message));
     }
 
     public void warnf(String fmt, Object... args) {
         if (isWarnEnabled())
-            log(LEVEL_WARN, makeInfo(fmt, args));
+            printLog(LEVEL_WARN, makeInfo(fmt, args));
     }
 
     public boolean isDebugEnabled() {
