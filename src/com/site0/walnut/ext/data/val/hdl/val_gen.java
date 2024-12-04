@@ -1,8 +1,8 @@
 package com.site0.walnut.ext.data.val.hdl;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -29,7 +29,7 @@ public class val_gen extends ValFilter {
 
         // 生成值
         Date hint = new Date();
-        List<Object> vals = new ArrayList<>(n);
+        Set<Object> vals = new TreeSet<>();
         for (int i = 0; i < n; i++) {
             Object v = vmk.make(hint, fc.context);
             vals.add(v);
