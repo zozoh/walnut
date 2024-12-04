@@ -38,7 +38,8 @@ public abstract class AbstractLookup implements WnLookup {
         NutMap re = new NutMap();
         // 尝试具名 Hint
         if (!Ws.isBlank(sep)) {
-            String[] ss = Ws.splitIgnoreBlank(hint, sep);
+            // String[] ss = Ws.splitIgnoreBlank(hint, sep);
+            String[] ss = hint.split(sep);
             if (ss.length > 0) {
                 re.put(hintKey, hint);
                 for (int i = 0; i < ss.length; i++) {
