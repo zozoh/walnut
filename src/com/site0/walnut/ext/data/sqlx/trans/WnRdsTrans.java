@@ -15,7 +15,7 @@ import com.site0.walnut.util.Wlog;
  * @author zozoh(zozohtnt@gmail.com)
  */
 public class WnRdsTrans {
-    
+
     private static final Log log = Wlog.getCMD();
 
     /**
@@ -27,35 +27,95 @@ public class WnRdsTrans {
         map = new HashMap<>();
     }
 
-    public synchronized RdsTransItem beginTrans(Connection conn, int timeout) throws SQLException {
-        if (conn.getAutoCommit()) {
-            conn.setAutoCommit(false);
+    /**
+     * 回收一个过期的连接
+     * 
+     * @return 过期事务里对应的连接
+     */
+    public synchronized Connection recycleExpiredConnection() {
+        if (map.isEmpty()) {
+            return null;
+        }
+        // 获得系统当前时间
+        long now = System.currentTimeMillis();
+
+        // 尝试获取过期的连接
+        for (RdsTransItem ti : map.values()) {
+            if (ti.isExpiredFor(now)) {
+                map.remove(ti.getTransId());
+                return ti.getConn();
+            }
+        }
+
+        // 就是没有了
+        return null;
+    }
+
+    public synchronized RdsTransItem beginTrans(Connection conn, int timeout) {
+        if (log.isInfoEnabled()) {
+            log.infof("beginTrans: timeout=%s", timeout);
+        }
+        try {
+            if (conn.getAutoCommit()) {
+                conn.setAutoCommit(false);
+            }
+        }
+        catch (SQLException e) {
+            if (log.isWarnEnabled()) {
+                log.warn("Fail to setAutoCommit(false)", e);
+            }
         }
         RdsTransItem ti = new RdsTransItem(conn, timeout);
         map.put(ti.getTransId(), ti);
+        if (log.isInfoEnabled()) {
+            log.infof("beginTrans: trans=%s", ti);
+        }
         return ti;
     }
 
-    public synchronized void endTrans(String transId) throws SQLException {
+    public synchronized void endTrans(String transId) {
+        if (log.isInfoEnabled()) {
+            log.infof("endTrans: %s", transId);
+        }
         RdsTransItem ti = map.get(transId);
         if (null != ti) {
             Connection conn = ti.getConn();
-            if (!conn.isClosed()) {
-                if (!conn.getAutoCommit()) {
-                    conn.commit();
-                    conn.setAutoCommit(true);
+            try {
+                if (!conn.isClosed()) {
+                    if (!conn.getAutoCommit()) {
+                        conn.commit();
+                        conn.setAutoCommit(true);
+                    }
+                }
+                conn.close();
+            }
+            catch (SQLException e) {
+                if (log.isWarnEnabled()) {
+                    log.warnf("fail to close conn", e);
                 }
             }
-            conn.close();
+            map.remove(transId);
         }
     }
 
-    public synchronized void rollback(String transId) throws SQLException {
+    public synchronized void rolbackTrans(String transId) {
+        if (log.isInfoEnabled()) {
+            log.infof("rolbackTrans: %s", transId);
+        }
         RdsTransItem ti = map.get(transId);
         if (null != ti) {
             Connection conn = ti.getConn();
-            if (!conn.isClosed()) {
-                conn.rollback();
+            try {
+                if (!conn.isClosed()) {
+                    conn.rollback();
+                } else if (log.isInfoEnabled()) {
+                    log.info("conn is closed already, can not rollback");
+                }
+            }
+            catch (SQLException e) {
+                if (log.isWarnEnabled()) {
+                    log.warnf("fail to rollback", e);
+                }
             }
         }
     }
