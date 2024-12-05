@@ -455,7 +455,8 @@ public class AppModule extends AbstractWnModule {
     private View __get_session_default_view(WnAuthSession se) {
         String appName = se.getVars().getString("OPEN", "wn.console");
         String url = "/a/open/" + appName;
-        return new ViewWrapper(new WnAddCookieViewWrapper(conf, url), se);
+        Object reData = se.toMapForClient();
+        return new ViewWrapper(new WnAddCookieViewWrapper(conf, url), reData);
     }
 
     /**
