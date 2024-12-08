@@ -7,9 +7,10 @@ import com.site0.walnut.ext.media.edi.loader.EdiMsgLoader;
 import com.site0.walnut.ext.media.edi.newmsg.clreg.IcsReplyCLNTDUP;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
 import com.site0.walnut.util.Ws;
+import org.apache.commons.collections4.CollectionUtils;
 import org.nutz.lang.util.NutMap;
 
-import java.util.List;
+import java.util.*;
 
 public class CLNTDUPLoader implements EdiMsgLoader<IcsReplyCLNTDUP> {
 
@@ -90,23 +91,37 @@ public class CLNTDUPLoader implements EdiMsgLoader<IcsReplyCLNTDUP> {
             seg = finder.next("FTX", "BA");
             if (seg != null) {
                 rff.clear();
-                // seg.fillBean(rff, null, "addrType", null, null, "addr1,addr2,locality,postcode,state,country");
-                seg.fillBean(rff, null, "addrType", null, null, "addr");
+                seg.fillBean(rff, null, "addrType", null, null, "addr1,addr2,locality,postcode,state", "country");
                 re.setAddrType(rff.getString("addrType"));
-                re.setAddr(rff.getString("addr"));
+                List<String> addrs = new ArrayList<>() {
+                    {
+                        add(rff.getString("addr1"));
+                        add(rff.getString("addr2"));
+                        add(rff.getString("locality"));
+                        add(rff.getString("postcode"));
+                        add(rff.getString("state"));
+                        add(rff.getString("country"));
+                    }
+                };
+                addrs.removeIf(Objects::isNull);
+                re.setAddr(String.join(" ", addrs));
             }
 
             finder.reset();
             List<EdiSegment> segList = finder.nextAll(false, "TAX", "RN");
-            String rns = null;
+            List<String> rns = new ArrayList<>();
             if (segList != null && segList.size() > 0) {
                 for (EdiSegment item : segList) {
                     rff.clear();
-                    seg.fillBean(rff, null, null, ",,,rn");
-                    rns += rff.getString("rn");
+                    item.fillBean(rff, null, null, ",,,rn");
+                    if (!Ws.isBlank(rff.getString("rn"))) {
+                        rns.add(rff.getString("rn"));
+                    }
+                }
+                if (rns.size() > 0) {
+                    re.setRoleNames(Ws.join(rns, ","));
                 }
             }
-            re.setRoleNames(rns);
         }
 
         return re;
