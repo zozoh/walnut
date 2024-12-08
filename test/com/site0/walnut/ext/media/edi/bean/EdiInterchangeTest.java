@@ -1,30 +1,27 @@
 package com.site0.walnut.ext.media.edi.bean;
 
-import static org.junit.Assert.*;
+import com.site0.walnut.ext.media.edi.bean.segment.*;
+import com.site0.walnut.ext.media.edi.loader.CLNTDUPLoader_old;
+import com.site0.walnut.ext.media.edi.loader.CONTRLLoader;
+import com.site0.walnut.ext.media.edi.loader.EdiMsgs;
+import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyCLNTDUP;
+import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyCONTRL;
+import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyError;
+import com.site0.walnut.ext.media.edi.newloader.CLNTDUPLoader;
+import com.site0.walnut.ext.media.edi.newloader.CLREGRLoader;
+import com.site0.walnut.ext.media.edi.newmsg.clreg.IcsReplyCLNTDUP;
+import com.site0.walnut.ext.media.edi.newmsg.clreg.IcsReplyCLREGR;
+import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
+import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.tmpl.WnTmplX;
+import org.junit.Test;
+import org.nutz.lang.Files;
+import org.nutz.lang.util.NutMap;
 
 import java.util.Iterator;
 import java.util.List;
 
-import org.junit.Test;
-import org.nutz.lang.Files;
-import org.nutz.lang.util.NutMap;
-import com.site0.walnut.ext.media.edi.bean.segment.ICS_UNB;
-import com.site0.walnut.ext.media.edi.bean.segment.ICS_UNH;
-import com.site0.walnut.ext.media.edi.bean.segment.ICS_UNT;
-import com.site0.walnut.ext.media.edi.bean.segment.ICS_UNZ;
-import com.site0.walnut.ext.media.edi.bean.segment.ICS_FTX;
-import com.site0.walnut.ext.media.edi.bean.segment.ICS_UCI;
-import com.site0.walnut.ext.media.edi.loader.CLNTDUPLoader;
-import com.site0.walnut.ext.media.edi.loader.CLREGRLoader;
-import com.site0.walnut.ext.media.edi.loader.EdiMsgs;
-import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyCLNTDUP;
-import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyCLREGR;
-import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyCONTRL;
-import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyError;
-import com.site0.walnut.ext.media.edi.loader.CONTRLLoader;
-import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
-import com.site0.walnut.util.Wlang;
-import com.site0.walnut.util.tmpl.WnTmplX;
+import static org.junit.Assert.*;
 
 public class EdiInterchangeTest {
 
@@ -39,12 +36,12 @@ public class EdiInterchangeTest {
         EdiInterchange ic = EdiInterchange.parse(input);
         EdiMessage msg = ic.getFirstMessage();
         CLNTDUPLoader loader = EdiMsgs.getCLNTDUPLoader();
-        EdiReplyCLNTDUP re = loader.load(msg);
+        IcsReplyCLNTDUP re = loader.load(msg);
 
         assertEquals("CCI", re.getType());
         assertEquals("AAA3436797Y", re.getCode());
-        assertEquals("28558C74B757460991741B177754D009", re.getReferId());
-        assertEquals("28558c74b757460991741b177754d009", re.getReferIdInLower());
+        assertEquals("28558C74B757460991741B177754D009", re.getRefId());
+        assertEquals("28558c74b757460991741b177754d009", re.getRefIdInLower());
     }
 
     @Test
@@ -53,16 +50,15 @@ public class EdiInterchangeTest {
         EdiInterchange ic = EdiInterchange.parse(input);
         EdiMessage msg = ic.getFirstMessage();
         CLREGRLoader loader = EdiMsgs.getCLREGRLoader();
-        EdiReplyCLREGR re = loader.load(msg);
-        assertFalse(re.isFailed());
+        IcsReplyCLREGR re = loader.load(msg);
         assertTrue(re.isSuccess());
-        EdiReplyError[] errs = re.getErrors();
-        assertNull(errs);
+        EdiReplyError[] errs = re.getErrs();
+        assertNotNull(errs);
 
         assertEquals("ABN", re.getType());
         assertEquals("14165610382", re.getCode());
-        assertEquals("7N170STPSUIBEP6PH1D4E6ESHF", re.getReferId());
-        assertEquals("7n170stpsuibep6ph1d4e6eshf", re.getReferIdInLower());
+        assertEquals("7N170STPSUIBEP6PH1D4E6ESHF", re.getRefId());
+        assertEquals("7n170stpsuibep6ph1d4e6eshf", re.getRefIdInLower());
     }
 
     @Test
@@ -71,10 +67,9 @@ public class EdiInterchangeTest {
         EdiInterchange ic = EdiInterchange.parse(input);
         EdiMessage msg = ic.getFirstMessage();
         CLREGRLoader loader = EdiMsgs.getCLREGRLoader();
-        EdiReplyCLREGR re = loader.load(msg);
-        assertTrue(re.isFailed());
+        IcsReplyCLREGR re = loader.load(msg);
         assertFalse(re.isSuccess());
-        EdiReplyError[] errs = re.getErrors();
+        EdiReplyError[] errs = re.getErrs();
         assertEquals(12, errs.length);
 
         List<EdiReplyError> errList = Wlang.list(errs);
@@ -85,32 +80,32 @@ public class EdiInterchangeTest {
         assertEquals("ADVICE:MS5201:THIS TRANSACTION WAS REJECTED", err.toString());
         err = it.next();
         assertEquals("ERROR:CL0404:ADDRESS TYPE SUPPLIED ALONG WITH ABN BUT NO CAC SUPPLIED",
-                     err.toString());
+                err.toString());
         err = it.next();
         assertEquals("ERROR:CL0405:BUSINESS ADDRESS LINE 1 NOT ALLOWED WITH ABN", err.toString());
         err = it.next();
         assertEquals("ERROR:CL0420:BUSINESS ADDRESS LOCALITY SUPPLIED WITHOUT A VALID CLIENT TYPE",
-                     err.toString());
+                err.toString());
         err = it.next();
         assertEquals("ERROR:CL0422:ADDRESS LOCALITY NOT ALLOWED WITH ABN", err.toString());
         err = it.next();
         assertEquals("ERROR:CL0425:BUSINESS ADDRESS POST CODE SUPPLIED WITHOUT A VALID CLIENT TYPE",
-                     err.toString());
+                err.toString());
         err = it.next();
         assertEquals("ERROR:CL0427:ADDRESS POST CODE NOT ALLOWED WITH ABN", err.toString());
         err = it.next();
         assertEquals("ERROR:CL0436:BUSINESS ADDRESS STATE CODE SUPPLIED WITHOUT A VALID CLIENT TYPE",
-                     err.toString());
+                err.toString());
         err = it.next();
         assertEquals("ERROR:CL0438:BUSINESS ADDRESS COUNTRY CODE SUPPLIED WITHOUT A VALID CLIENT TYPE",
-                     err.toString());
+                err.toString());
         err = it.next();
         assertEquals("ERROR:CL0440:ADDRESS STATE CODE NOT ALLOWED WITH ABN", err.toString());
         err = it.next();
         assertEquals("ERROR:CL0441:ADDRESS COUNTRY CODE NOT ALLOWED WITH ABN", err.toString());
         err = it.next();
         assertEquals("ERROR:CL0467:PREFIX CODE ONLY ALLOWED WITH AP, FA OR BP CONTACT ADDRESS",
-                     err.toString());
+                err.toString());
 
         assertFalse(it.hasNext());
     }
