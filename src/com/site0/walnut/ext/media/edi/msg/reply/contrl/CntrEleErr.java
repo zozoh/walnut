@@ -1,4 +1,4 @@
-package com.site0.walnut.ext.media.edi.bean.segment;
+package com.site0.walnut.ext.media.edi.msg.reply.contrl;
 
 
 import com.site0.walnut.ext.media.edi.bean.EdiSegment;
@@ -11,7 +11,7 @@ import org.nutz.lang.util.NutMap;
  *
  * @author jrrx
  */
-public class ICS_UCD {
+public class CntrEleErr {
 
     // UCS 中错误的报文行的 DataElement 的行内位置 (+号分隔)
     private String elementPos;
@@ -23,17 +23,17 @@ public class ICS_UCD {
     private String errCode;
 
 
-    public ICS_UCD() {
+    public CntrEleErr() {
     }
 
-    public ICS_UCD(EdiSegment ucdSeg) {
+    public CntrEleErr(EdiSegment ucdSeg) {
         NutMap bean = new NutMap();
         String[] keys = Wlang.array(null, "errCode", "elementPos,componentPos");
         ucdSeg.fillBean(bean, keys);
         this.valueOf(bean);
     }
 
-    public ICS_UCD valueOf(NutBean bean) {
+    public CntrEleErr valueOf(NutBean bean) {
         this.elementPos = bean.getString("elementPos");
         this.componentPos = bean.getString("componentPos");
         this.errCode = bean.getString("errCode");

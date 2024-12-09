@@ -2,10 +2,10 @@ package com.site0.walnut.ext.media.edi.loader;
 
 import com.site0.walnut.ext.media.edi.bean.EdiMessage;
 import com.site0.walnut.ext.media.edi.bean.EdiSegment;
-import com.site0.walnut.ext.media.edi.bean.segment.ICS_UCD;
-import com.site0.walnut.ext.media.edi.bean.segment.ICS_UCI;
-import com.site0.walnut.ext.media.edi.bean.segment.ICS_UCM;
-import com.site0.walnut.ext.media.edi.bean.segment.ICS_UCS;
+import com.site0.walnut.ext.media.edi.msg.reply.contrl.CntrEleErr;
+import com.site0.walnut.ext.media.edi.msg.reply.contrl.CntrIcRes;
+import com.site0.walnut.ext.media.edi.msg.reply.contrl.CntrMsgRes;
+import com.site0.walnut.ext.media.edi.msg.reply.contrl.CntrSegErr;
 import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyCONTRL;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
 
@@ -19,33 +19,36 @@ public class CONTRLLoader implements EdiMsgLoader<EdiReplyCONTRL> {
         EdiReplyCONTRL re = new EdiReplyCONTRL();
         EdiSegmentFinder finder = msg.getFinder();
 
-        // 解析 UCI 报文行
-        // EdiSegment UCI = msg.findSegment("UCI");
+        /**
+         * 解析 UCI 报文行:
+         * 1. 模板: `UCI+{InterchangeControlReferenceNumber}+{InbCreator}::{InbOwner}+{InbRecipientId}+{ActionCode}+{ErrorCode}+{SegmentTag}+{DateElementPos}:{ComponentDataPos}'`
+         * 2. 样例: `UCI+23031014150005+AAR399A::AAR399A+AAA336C+7'`
+         * */
         EdiSegment UCI = finder.next("UCI");
         if (null == UCI) {
             return null;
         }
-        ICS_UCI uci = new ICS_UCI(UCI);
+        CntrIcRes uci = new CntrIcRes(UCI);
         re.setUci(uci);
 
         // 解析 UCM 报文行及附属信息
-        List<ICS_UCM> msgs = new ArrayList<>();
+        List<CntrMsgRes> msgs = new ArrayList<>();
         EdiSegment _seg;
         // 获取 UCM
         _seg = finder.tryNext("UCM");
         while (_seg != null) {
-            ICS_UCM ics_ucm = new ICS_UCM(_seg);
+            CntrMsgRes ics_ucm = new CntrMsgRes(_seg);
             msgs.add(ics_ucm);
             // 循环 UCM 的下一层 UCS
             _seg = finder.tryNext("UCS");
             while (_seg != null) {
-                ICS_UCS segErr = new ICS_UCS(_seg);
+                CntrSegErr segErr = new CntrSegErr(_seg);
                 ics_ucm.getSegsErr().add(segErr);
 
                 // 循环 UCS 的下一层 UCD
                 _seg = finder.tryNext("UCD");
                 while (_seg != null) {
-                    ICS_UCD errItem = new ICS_UCD(_seg);
+                    CntrEleErr errItem = new CntrEleErr(_seg);
                     segErr.getErrItems().add(errItem);
                     _seg = finder.tryNext("UCD");
                 }

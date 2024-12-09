@@ -9,6 +9,7 @@ import com.site0.walnut.ext.media.edi.loader.CLNTDUPLoader;
 import com.site0.walnut.ext.media.edi.loader.CLREGRLoader;
 import com.site0.walnut.ext.media.edi.msg.reply.clreg.IcsReplyCLNTDUP;
 import com.site0.walnut.ext.media.edi.msg.reply.clreg.IcsReplyCLREGR;
+import com.site0.walnut.ext.media.edi.msg.reply.contrl.CntrIcRes;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.tmpl.WnTmplX;
@@ -155,7 +156,7 @@ public class EdiInterchangeTest {
         EdiMessage msg = ic.getFirstMessage();
 
         EdiReplyCONTRL ric = loader.load(msg);
-        ICS_UCI uci = ric.getUci();
+        CntrIcRes uci = ric.getUci();
         assertEquals("23062600000024", uci.getRefNum());
         assertEquals("AAR399A", uci.getCreator());
         assertEquals("AAR399A", uci.getOwner());
@@ -355,7 +356,7 @@ public class EdiInterchangeTest {
         assertEquals("000001", mt.getRefNumber());
 
         EdiSegment uci_sg = msg.findSegment("UCI");
-        ICS_UCI uci = new ICS_UCI(uci_sg);
+        CntrIcRes uci = new CntrIcRes(uci_sg);
         assertEquals("23062700000008", uci.getRefNum());
         assertEquals("AAR399A", uci.getCreator());
         assertEquals("AAR399A", uci.getOwner());
