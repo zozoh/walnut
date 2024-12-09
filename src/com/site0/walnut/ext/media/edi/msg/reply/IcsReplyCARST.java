@@ -5,27 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CargoStaAdviceObj extends EdiReplyObj {
-
-    /**
-     * 消息发送记录的 ID ，一般就是发件箱发送对象的 id。
-     * 对应 RFF+ABO 报文行
-     */
-    private String referId;
-
-    /**
-     * referId 的小写形式
-     */
-    private String referIdInLower;
-
-    /**
-     * referId 的 version 版本号
-     */
-    private int refVer;
-
+public class IcsReplyCARST extends IcsCommonReply {
     private Map<String, String> statusMap;
 
-    // todo impendiment details
     private List<String> impends;
 
     private Map<String, String> infoMap;
@@ -33,36 +15,12 @@ public class CargoStaAdviceObj extends EdiReplyObj {
     private Map<String, String> refMap;
 
 
-    public CargoStaAdviceObj() {
+    public IcsReplyCARST() {
         super("CARST");
         statusMap = new HashMap<>();
         impends = new ArrayList<>();
         infoMap = new HashMap<>();
         refMap = new HashMap<>();
-    }
-
-    public String getReferId() {
-        return referId;
-    }
-
-    public void setReferId(String referId) {
-        this.referId = referId;
-    }
-
-    public String getReferIdInLower() {
-        return referIdInLower;
-    }
-
-    public void setReferIdInLower(String referIdInLower) {
-        this.referIdInLower = referIdInLower;
-    }
-
-    public int getRefVer() {
-        return refVer;
-    }
-
-    public void setRefVer(int refVer) {
-        this.refVer = refVer;
     }
 
     public Map<String, String> getStatusMap() {

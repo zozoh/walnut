@@ -13,6 +13,7 @@ public class IcsLoaderHelper {
 
     public static void fillVerAndFuncCode(IcsCommonReply re, EdiSegmentFinder finder) {
         NutMap rff = new NutMap();
+        finder.reset();
         EdiSegment seg = finder.next("BGM");
         seg.fillBean(rff, null, null, ",verionNum", "funcCode");
         re.setRefVer(rff.getInt("verionNum"));

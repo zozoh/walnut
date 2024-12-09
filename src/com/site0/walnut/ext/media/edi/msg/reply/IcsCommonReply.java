@@ -21,12 +21,13 @@ public abstract class IcsCommonReply {
 
 
     /**
-     * 11: Response [CLREGR, ]
+     * 11: Response
+     * 8: Status
      */
     private int funcCode;
 
-    public IcsCommonReply(String replyType) {
-        this.msgType = replyType;
+    public IcsCommonReply(String msgType) {
+        this.msgType = msgType;
     }
 
 

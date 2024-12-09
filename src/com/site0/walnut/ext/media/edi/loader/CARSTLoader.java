@@ -2,29 +2,29 @@ package com.site0.walnut.ext.media.edi.loader;
 
 import com.site0.walnut.ext.media.edi.bean.EdiMessage;
 import com.site0.walnut.ext.media.edi.bean.EdiSegment;
-import com.site0.walnut.ext.media.edi.msg.reply.CargoStaAdviceObj;
+import com.site0.walnut.ext.media.edi.msg.reply.IcsReplyCARST;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
+import com.site0.walnut.ext.media.edi.util.IcsLoaderHelper;
 import org.nutz.lang.util.NutMap;
 
 import java.util.List;
 
-public class CARSTLoader implements EdiMsgLoader<CargoStaAdviceObj> {
+public class CARSTLoader implements EdiMsgLoader<IcsReplyCARST> {
 
 
     @Override
-    public Class<CargoStaAdviceObj> getResultType() {
-        return CargoStaAdviceObj.class;
+    public Class<IcsReplyCARST> getResultType() {
+        return IcsReplyCARST.class;
     }
 
     @Override
-    public CargoStaAdviceObj load(EdiMessage msg) {
-        CargoStaAdviceObj re = new CargoStaAdviceObj();
-
+    public IcsReplyCARST load(EdiMessage msg) {
+        IcsReplyCARST re = new IcsReplyCARST();
         EdiSegmentFinder finder = msg.getFinder();
         NutMap rff = new NutMap();
 
         // 定位到 BGM 报文行
-        finder.next("BGM");
+        IcsLoaderHelper.fillVerAndFuncCode(re, finder);
 
         // 解析 DTM 报文行(C-9)
         List<EdiSegment> segmentList = finder.nextAll(true, "DTM");
@@ -134,8 +134,8 @@ public class CARSTLoader implements EdiMsgLoader<CargoStaAdviceObj> {
                 String referId = rff.getString("refVal");
                 re.getRefMap().put("senderRef", rff.getString("refVal"));
                 if (referId != null) {
-                    re.setReferId(referId);
-                    re.setReferIdInLower(referId.toLowerCase());
+                    re.setRefId(referId);
+                    re.setRefIdInLower(referId.toLowerCase());
                     re.setRefVer(rff.getInt("refVer"));
                 }
             } else if ("ABT".equals(refCode)) {
