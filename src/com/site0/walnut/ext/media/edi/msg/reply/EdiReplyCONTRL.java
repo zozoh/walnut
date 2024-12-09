@@ -14,7 +14,7 @@ public class EdiReplyCONTRL {
 
     private String msgType;
 
-    private CntrIcRes uci;
+    private CntrIcRes ic;
 
     private List<CntrMsgRes> msgs;
 
@@ -30,12 +30,12 @@ public class EdiReplyCONTRL {
         this.msgType = msgType;
     }
 
-    public CntrIcRes getUci() {
-        return uci;
+    public CntrIcRes getIc() {
+        return ic;
     }
 
-    public void setUci(CntrIcRes uci) {
-        this.uci = uci;
+    public void setIc(CntrIcRes ic) {
+        this.ic = ic;
     }
 
     public List<CntrMsgRes> getMsgs() {

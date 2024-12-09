@@ -29,7 +29,7 @@ public class CONTRLLoader implements EdiMsgLoader<EdiReplyCONTRL> {
             return null;
         }
         CntrIcRes uci = new CntrIcRes(UCI);
-        re.setUci(uci);
+        re.setIc(uci);
 
         // 解析 UCM 报文行及附属信息
         List<CntrMsgRes> msgs = new ArrayList<>();
