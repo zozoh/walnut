@@ -5,7 +5,7 @@ import com.site0.walnut.ext.media.edi.bean.EdiSegment;
 import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyError;
 import com.site0.walnut.ext.media.edi.msg.reply.clreg.IcsReplyCLREGR;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
-import com.site0.walnut.ext.media.edi.util.LoaderHelper;
+import com.site0.walnut.ext.media.edi.util.IcsLoaderHelper;
 import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 
@@ -80,9 +80,9 @@ public class CLREGRLoader implements EdiMsgLoader<IcsReplyCLREGR> {
          * ERC+CL0378:6:95'
          * FTX+AAO+++CCID =AAA3437644L CREATED SUCCESSFULLY'
          * */
-        EdiReplyError[] errs = LoaderHelper.parseERPErrs(finder);
+        EdiReplyError[] errs = IcsLoaderHelper.parseERPErrs(finder);
         re.setErrs(errs);
-        re.setErrCount(LoaderHelper.errCount(errs));
+        re.setErrCount(IcsLoaderHelper.errCount(errs));
         return re;
     }
 }

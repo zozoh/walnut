@@ -2,11 +2,10 @@ package com.site0.walnut.ext.media.edi.msg.reply;
 
 public abstract class IcsCommonReply {
 
-
-    protected boolean success;
-
     // 返回的消息类型
     protected String msgType;
+
+    protected boolean success;
 
     /**
      * 消息发送记录的 ID ，一般就是发件箱发送对象的 id。
@@ -26,13 +25,10 @@ public abstract class IcsCommonReply {
      */
     private int funcCode;
 
-    public boolean isSuccess() {
-        return success;
+    public IcsCommonReply(String replyType) {
+        this.msgType = replyType;
     }
 
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
 
     public String getMsgType() {
         return msgType;
@@ -40,6 +36,14 @@ public abstract class IcsCommonReply {
 
     public void setMsgType(String msgType) {
         this.msgType = msgType;
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
     }
 
     public String getRefId() {

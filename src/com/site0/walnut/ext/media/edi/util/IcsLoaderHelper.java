@@ -2,11 +2,22 @@ package com.site0.walnut.ext.media.edi.util;
 
 import com.site0.walnut.ext.media.edi.bean.EdiSegment;
 import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyError;
+import com.site0.walnut.ext.media.edi.msg.reply.IcsCommonReply;
+import org.nutz.lang.util.NutMap;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoaderHelper {
+public class IcsLoaderHelper {
+
+
+    public static void fillVerAndFuncCode(IcsCommonReply re, EdiSegmentFinder finder) {
+        NutMap rff = new NutMap();
+        EdiSegment seg = finder.next("BGM");
+        seg.fillBean(rff, null, null, ",verionNum", "funcCode");
+        re.setRefVer(rff.getInt("verionNum"));
+        re.setFuncCode(rff.getInt("funcCode"));
+    }
 
     /**
      * 解析 ERP-ERC-FTX 报文组, 收集错误信息
@@ -20,6 +31,7 @@ public class LoaderHelper {
      * FTX+AAO+++CCID =AAA3437644L CREATED SUCCESSFULLY'
      */
     public static EdiReplyError[] parseERPErrs(EdiSegmentFinder finder) {
+        finder.reset();
         boolean erpFound = finder.moveTo(true, "ERP");
         if (erpFound) {
             // 收集全部错误

@@ -26,6 +26,10 @@ public class IcsReplyCLREGR extends IcsCommonReply {
 
     private int errCount;
 
+    public IcsReplyCLREGR() {
+        super("CLREGR");
+    }
+
     public String getType() {
         return type;
     }

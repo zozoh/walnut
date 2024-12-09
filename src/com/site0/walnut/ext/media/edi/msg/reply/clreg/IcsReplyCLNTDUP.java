@@ -27,6 +27,10 @@ public class IcsReplyCLNTDUP extends IcsCommonReply {
 
     private String roleNames;
 
+    public IcsReplyCLNTDUP() {
+        super("CLNTDUP");
+    }
+
 
     public String getType() {
         return type;

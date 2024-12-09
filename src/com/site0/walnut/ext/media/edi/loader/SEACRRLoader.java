@@ -3,31 +3,35 @@ package com.site0.walnut.ext.media.edi.loader;
 import com.site0.walnut.ext.media.edi.bean.EdiMessage;
 import com.site0.walnut.ext.media.edi.bean.EdiSegment;
 import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyError;
-import com.site0.walnut.ext.media.edi.msg.reply.cargorpt.EdiReplyAIRCRR;
+import com.site0.walnut.ext.media.edi.msg.reply.cargorpt.IcsReplySEACRR;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
+import com.site0.walnut.ext.media.edi.util.IcsLoaderHelper;
 import org.nutz.lang.util.NutMap;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class SEACRRLoader implements EdiMsgLoader<EdiReplyAIRCRR> {
+public class SEACRRLoader implements EdiMsgLoader<IcsReplySEACRR> {
     @Override
-    public Class<EdiReplyAIRCRR> getResultType() {
-        return EdiReplyAIRCRR.class;
+    public Class<IcsReplySEACRR> getResultType() {
+        return IcsReplySEACRR.class;
     }
 
     @Override
-    public EdiReplyAIRCRR load(EdiMessage msg) {
-        EdiReplyAIRCRR re = new EdiReplyAIRCRR();
+    public IcsReplySEACRR load(EdiMessage msg) {
+        IcsReplySEACRR re = new IcsReplySEACRR();
         re.setExtraInfo(new HashMap<>());
 
         EdiSegmentFinder finder = msg.getFinder();
         NutMap rff = new NutMap();
         List<EdiSegment> segs;
+        EdiSegment seg;
 
-        // 定位到 BGM 报文行
-        finder.next("BGM");
+        /**
+         * 定位到 BGM 报文行，解析 Version 和 FuncCode
+         * BGM+961:::SEACRR+193B JJ26 651E:001+11'
+         * */
+        IcsLoaderHelper.fillVerAndFuncCode(re, finder);
 
         // 解析 FTX 报文行
         segs = finder.nextAllUtilNoMatch(false, "FTX");
@@ -64,8 +68,8 @@ public class SEACRRLoader implements EdiMsgLoader<EdiReplyAIRCRR> {
                 } else if (rff.is("refType", "ABO")) {
                     String referenceId = rff.getString("refId");
                     if (referenceId != null) {
-                        re.setReferId(referenceId);
-                        re.setReferIdInLower(referenceId.toLowerCase());
+                        re.setRefId(referenceId);
+                        re.setRefIdInLower(referenceId.toLowerCase());
                         re.setRefVer(rff.getInt("refVer"));
                     }
                 }
@@ -84,25 +88,9 @@ public class SEACRRLoader implements EdiMsgLoader<EdiReplyAIRCRR> {
         }
 
         // 解析 SG4: ERP-ERC-FTX 报文组
-        boolean erpFound = finder.moveTo(true, "ERP");
-        if (erpFound) {
-            // 收集全部错误
-            List<EdiReplyError> errList = new ArrayList<>();
-            while (!finder.isEnd()) {
-                List<EdiSegment> errs = finder.findContinueSegments("ERP", "^(ERC|FTX)$", "^(ERP|CNT|UNT)$");
-                // 看来找不到错误了，那么退出循环
-                if (errs.isEmpty() || !errs.get(0).is("ERC")) {
-                    break;
-                }
-                // 必然是三条报文，需要加载为 EdiReplyError
-                EdiReplyError err = new EdiReplyError(errs);
-                errList.add(err);
-            }
-            // 记入错误
-            EdiReplyError[] errs = new EdiReplyError[errList.size()];
-            errList.toArray(errs);
-            re.setErrors(errs);
-        }
+        EdiReplyError[] errors = IcsLoaderHelper.parseERPErrs(finder);
+        re.setErrs(errors);
+        re.setErrCount(IcsLoaderHelper.errCount(errors));
 
         // 判断本次 CargoReport 是否成功
         int errNum = -1;
@@ -124,7 +112,7 @@ public class SEACRRLoader implements EdiMsgLoader<EdiReplyAIRCRR> {
         } else if (errNum == -1) {
             // 若未返回 errNum 报文，则根据是否有 error/warn 数据来判断
             boolean msgSuccess = true;
-            EdiReplyError[] errArr = re.getErrors();
+            EdiReplyError[] errArr = re.getErrs();
             if (errArr != null && errArr.length > 0) {
                 for (EdiReplyError item : errArr) {
                     String lowerType = item.getType() == null ? "" : item.getType().toLowerCase();
@@ -135,6 +123,10 @@ public class SEACRRLoader implements EdiMsgLoader<EdiReplyAIRCRR> {
                 }
             }
             re.setSuccess(msgSuccess);
+        }
+        // 如果报文回复了错误的数量，那么覆盖计算出来的错误数量
+        if (errNum >= 0) {
+            re.setErrCount(errNum);
         }
 
         // 返回解析结果
