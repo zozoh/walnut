@@ -1,16 +1,14 @@
 package com.site0.walnut.ext.media.edi.bean;
 
 import com.site0.walnut.ext.media.edi.bean.segment.*;
-import com.site0.walnut.ext.media.edi.loader.CLNTDUPLoader_old;
 import com.site0.walnut.ext.media.edi.loader.CONTRLLoader;
 import com.site0.walnut.ext.media.edi.loader.EdiMsgs;
-import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyCLNTDUP;
 import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyCONTRL;
 import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyError;
-import com.site0.walnut.ext.media.edi.newloader.CLNTDUPLoader;
-import com.site0.walnut.ext.media.edi.newloader.CLREGRLoader;
-import com.site0.walnut.ext.media.edi.newmsg.clreg.IcsReplyCLNTDUP;
-import com.site0.walnut.ext.media.edi.newmsg.clreg.IcsReplyCLREGR;
+import com.site0.walnut.ext.media.edi.loader.CLNTDUPLoader;
+import com.site0.walnut.ext.media.edi.loader.CLREGRLoader;
+import com.site0.walnut.ext.media.edi.msg.reply.clreg.IcsReplyCLNTDUP;
+import com.site0.walnut.ext.media.edi.msg.reply.clreg.IcsReplyCLREGR;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.tmpl.WnTmplX;

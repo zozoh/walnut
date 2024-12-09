@@ -2,8 +2,6 @@ package com.site0.walnut.ext.media.edi.loader;
 
 import java.util.HashMap;
 
-import com.site0.walnut.ext.media.edi.newloader.CLNTDUPLoader;
-import com.site0.walnut.ext.media.edi.newloader.CLREGRLoader;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;

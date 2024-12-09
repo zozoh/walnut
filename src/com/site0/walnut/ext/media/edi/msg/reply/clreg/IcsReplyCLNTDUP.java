@@ -1,5 +1,7 @@
-package com.site0.walnut.ext.media.edi.newmsg.clreg;
+package com.site0.walnut.ext.media.edi.msg.reply.clreg;
 
+
+import com.site0.walnut.ext.media.edi.msg.reply.IcsCommonReply;
 
 public class IcsReplyCLNTDUP extends IcsCommonReply {
 

@@ -1,16 +1,16 @@
-package com.site0.walnut.ext.media.edi.newloader;
+package com.site0.walnut.ext.media.edi.loader;
 
 
 import com.site0.walnut.ext.media.edi.bean.EdiMessage;
 import com.site0.walnut.ext.media.edi.bean.EdiSegment;
-import com.site0.walnut.ext.media.edi.loader.EdiMsgLoader;
-import com.site0.walnut.ext.media.edi.newmsg.clreg.IcsReplyCLNTDUP;
+import com.site0.walnut.ext.media.edi.msg.reply.clreg.IcsReplyCLNTDUP;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
 import com.site0.walnut.util.Ws;
-import org.apache.commons.collections4.CollectionUtils;
 import org.nutz.lang.util.NutMap;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class CLNTDUPLoader implements EdiMsgLoader<IcsReplyCLNTDUP> {
 
@@ -79,6 +79,8 @@ public class CLNTDUPLoader implements EdiMsgLoader<IcsReplyCLNTDUP> {
          * TAX+RN+:::SUPPLIER'
          * */
         if (re.isSuccess()) {
+
+            // 解析 重复的 Client 的 Name
             finder.reset();
             seg = finder.next("LOC", "ZZZ");
             if (seg != null) {
@@ -87,6 +89,7 @@ public class CLNTDUPLoader implements EdiMsgLoader<IcsReplyCLNTDUP> {
                 re.setName(rff.getString("name"));
             }
 
+            // 解析 重复的 Client 的 Address
             finder.reset();
             seg = finder.next("FTX", "BA");
             if (seg != null) {
@@ -107,6 +110,7 @@ public class CLNTDUPLoader implements EdiMsgLoader<IcsReplyCLNTDUP> {
                 re.setAddr(String.join(" ", addrs));
             }
 
+            // 解析 重复的 Client 的 RoleNames
             finder.reset();
             List<EdiSegment> segList = finder.nextAll(false, "TAX", "RN");
             List<String> rns = new ArrayList<>();
@@ -123,7 +127,6 @@ public class CLNTDUPLoader implements EdiMsgLoader<IcsReplyCLNTDUP> {
                 }
             }
         }
-
         return re;
     }
 }

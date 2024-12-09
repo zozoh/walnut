@@ -1,10 +1,9 @@
-package com.site0.walnut.ext.media.edi.newloader;
+package com.site0.walnut.ext.media.edi.loader;
 
 import com.site0.walnut.ext.media.edi.bean.EdiMessage;
 import com.site0.walnut.ext.media.edi.bean.EdiSegment;
-import com.site0.walnut.ext.media.edi.loader.EdiMsgLoader;
 import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyError;
-import com.site0.walnut.ext.media.edi.newmsg.clreg.IcsReplyCLREGR;
+import com.site0.walnut.ext.media.edi.msg.reply.clreg.IcsReplyCLREGR;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
 import com.site0.walnut.ext.media.edi.util.LoaderHelper;
 import com.site0.walnut.util.Ws;

@@ -1,4 +1,4 @@
-package com.site0.walnut.ext.media.edi.newmsg.clreg;
+package com.site0.walnut.ext.media.edi.msg.reply;
 
 public abstract class IcsCommonReply {
 
