@@ -51,4 +51,5 @@ UPDATE t_pet SET${@vars=update} WHERE id=?;
 @view       # 测试 SQL 的渲染结果
 @cache      # 处理 SQL 的缓存
 @json       # 定义输出结果的 JSON 格式化方式
+@tab        # 用表格的形式输出结果
 ```

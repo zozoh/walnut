@@ -24,8 +24,8 @@ public class IcsReplySEACRR extends IcsCommonReply {
      */
     private Map<String, Object> extraInfo;
 
-    public IcsReplySEACRR() {
-        super("SEACRR");
+    public IcsReplySEACRR(String ediType) {
+        super(ediType);
     }
 
 

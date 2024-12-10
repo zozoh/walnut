@@ -12,6 +12,17 @@ import java.util.HashMap;
 import java.util.List;
 
 public class SEACRRLoader implements EdiMsgLoader<IcsReplySEACRR> {
+
+    protected String ediType;
+
+    public SEACRRLoader() {
+        this("SEACRR");
+    }
+
+    protected SEACRRLoader(String ediType) {
+        this.ediType = ediType;
+    }
+
     @Override
     public Class<IcsReplySEACRR> getResultType() {
         return IcsReplySEACRR.class;
@@ -19,18 +30,18 @@ public class SEACRRLoader implements EdiMsgLoader<IcsReplySEACRR> {
 
     @Override
     public IcsReplySEACRR load(EdiMessage msg) {
-        IcsReplySEACRR re = new IcsReplySEACRR();
+        IcsReplySEACRR re = new IcsReplySEACRR(this.ediType);
         re.setExtraInfo(new HashMap<>());
 
         EdiSegmentFinder finder = msg.getFinder();
         NutMap rff = new NutMap();
         List<EdiSegment> segs;
-        EdiSegment seg;
+        // EdiSegment seg;
 
         /**
-         * 定位到 BGM 报文行，解析 Version 和 FuncCode
-         * BGM+961:::SEACRR+193B JJ26 651E:001+11'
-         * */
+         * 定位到 BGM 报文行，解析 Version 和 FuncCode BGM+961:::SEACRR+193B JJ26
+         * 651E:001+11'
+         */
         IcsLoaderHelper.fillVerAndFuncCode(re, finder);
 
         // 解析 FTX 报文行
