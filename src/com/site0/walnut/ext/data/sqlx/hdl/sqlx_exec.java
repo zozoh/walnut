@@ -26,12 +26,13 @@ public class sqlx_exec extends SqlxFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "^(explain|noresult)$");
+        return ZParams.parse(args, "^(explain|noresult|batch)$");
     }
 
     @Override
     protected void process(WnSystem sys, SqlxContext fc, ZParams params) {
         String sqlName = params.val_check(0);
+        boolean batchMode = params.is("batch");
 
         // 自动展开上下文
         if (params.is("explain")) {
@@ -50,14 +51,28 @@ public class sqlx_exec extends SqlxFilter {
         if (fc.hasVarList()) {
             List<NutBean> beans = fc.getVarList();
 
-            NutBean context = beans.get(0);
-            List<SqlParam> cps = new ArrayList<>();
-            String sql = sqlt.render(context, cps);
+            // 批量模式
+            if (batchMode) {
+                NutBean context = beans.get(0);
+                List<SqlParam> cps = new ArrayList<>();
+                String sql = sqlt.render(context, cps);
 
-            // 准备参数
-            List<Object[]> paramList = WnSqls.getParams(beans, cps);
-            re = fc.exec.batchRun(conn, sql, paramList);
-
+                // 准备参数
+                List<Object[]> paramList = WnSqls.getParams(beans, cps);
+                re = fc.exec.batchRun(conn, sql, paramList);
+            }
+            // 单个模式
+            else {
+                re = new SqlExecResult();
+                for (NutBean context : beans) {
+                    List<SqlParam> cps = new ArrayList<>();
+                    String sql = sqlt.render(context, cps);
+                    Object[] sqlParams = WnSqls.getSqlParamsValue(cps);
+                    SqlExecResult updateResult = fc.exec.runWithParams(conn, sql, sqlParams);
+                    re.batchTotal += updateResult.batchTotal;
+                    re.updateCount += updateResult.updateCount;
+                }
+            }
         }
         // 参数模式
         else if (fc.hasVarMap()) {
