@@ -34,7 +34,7 @@ public class CLNTDUPLoader implements EdiMsgLoader<IcsReplyCLNTDUP> {
         seg = finder.next("BGM");
         rff.clear();
         seg.fillBean(rff, null, null, ",verionNum", "funcCode");
-        re.setRefVer(rff.getInt("verionNum"));
+        re.setRefVer(rff.getInt("verionNum", 0));
         re.setFuncCode(rff.getInt("funcCode"));
 
 

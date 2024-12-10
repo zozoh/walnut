@@ -16,7 +16,7 @@ public class IcsLoaderHelper {
         finder.reset();
         EdiSegment seg = finder.next("BGM");
         seg.fillBean(rff, null, null, ",verionNum", "funcCode");
-        re.setRefVer(rff.getInt("verionNum"));
+        re.setRefVer(rff.getInt("verionNum", 0));
         re.setFuncCode(rff.getInt("funcCode"));
     }
 

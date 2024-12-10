@@ -30,7 +30,7 @@ public class CLREGRLoader implements EdiMsgLoader<IcsReplyCLREGR> {
         seg = finder.next("BGM");
         rff.clear();
         seg.fillBean(rff, null, null, ",verionNum", "funcCode");
-        re.setRefVer(rff.getInt("verionNum"));
+        re.setRefVer(rff.getInt("verionNum", 0));
         // 11		Response
         re.setFuncCode(rff.getInt("funcCode"));
 
