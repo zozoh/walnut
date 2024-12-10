@@ -156,7 +156,7 @@ public class EdiInterchangeTest {
         EdiMessage msg = ic.getFirstMessage();
 
         EdiReplyCONTRL ric = loader.load(msg);
-        CntrIcRes uci = ric.getUci();
+        CntrIcRes uci = ric.getIc();
         assertEquals("23062600000024", uci.getRefNum());
         assertEquals("AAR399A", uci.getCreator());
         assertEquals("AAR399A", uci.getOwner());
@@ -173,7 +173,7 @@ public class EdiInterchangeTest {
 
         msg = ic.getFirstMessage();
         ric = loader.load(msg);
-        uci = ric.getUci();
+        uci = ric.getIc();
         assertEquals("23062700000009", uci.getRefNum());
         assertEquals("AAR399A", uci.getCreator());
         assertEquals("AAR399A", uci.getOwner());
