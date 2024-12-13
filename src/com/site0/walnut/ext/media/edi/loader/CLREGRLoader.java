@@ -54,17 +54,16 @@ public class CLREGRLoader implements EdiMsgLoader<IcsReplyCLREGR> {
         /**
          * 解析 refId, 就是 RFF+ABO 后面的字符串
          * RFF+ABO:M2E4GJ7P2EJZI90354::001'
+         * RFF+ABO:28558C74B757460991741B177754D008::001'
          * */
         finder.reset();
         seg = finder.next("RFF", "ABO");
         if (null != seg) {
-            seg.fillBean(rff, null, "type,rid");
+            rff.clear();
+            seg.fillBean(rff, null, "type,rid,,refVer");
             if (rff.is("type", "ABO")) {
-                String rid = rff.getString("rid");
-                if (null != rid) {
-                    re.setRefId(rid);
-                    re.setRefIdInLower(rid.toLowerCase());
-                }
+                re.setRefId(rff.getString("rid"));
+                re.setRefVer(rff.getInt("refVer"));
             }
         }
 

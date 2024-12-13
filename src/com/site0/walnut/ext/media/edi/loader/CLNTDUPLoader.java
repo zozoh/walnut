@@ -45,13 +45,10 @@ public class CLNTDUPLoader implements EdiMsgLoader<IcsReplyCLNTDUP> {
         seg = finder.next("RFF", "ABO");
         if (null != seg) {
             rff.clear();
-            seg.fillBean(rff, null, "type,rid");
+            seg.fillBean(rff, null, "type,rid,,refVer");
             if (rff.is("type", "ABO")) {
-                String rid = rff.getString("rid");
-                if (null != rid) {
-                    re.setRefId(rid);
-                    re.setRefIdInLower(rid.toLowerCase());
-                }
+                re.setRefId(rff.getString("rid"));
+                re.setRefVer(rff.getInt("refVer"));
             }
         }
         /**
