@@ -8,6 +8,10 @@ import com.site0.walnut.api.io.WnObj;
 
 public interface JsExecContext {
 
+    String getSessionTicket();
+
+    String getAccountName();
+
     /**
      * 
      * 便捷根据路径查找对象，如果不存在，返回 null
@@ -38,7 +42,7 @@ public interface JsExecContext {
     void exec(String cmdText, OutputStream stdOut, OutputStream stdErr, InputStream stdIn);
 
     void exec(String cmdText, StringBuilder stdOut, StringBuilder stdErr, CharSequence stdIn);
-    
+
     void exec(String cmdText, CharSequence input);
 
     String exec2(String cmdText);
@@ -54,5 +58,7 @@ public interface JsExecContext {
     Object exec2list(String cmdText);
 
     String path(String path);
+
+    String readText(String path);
 
 }

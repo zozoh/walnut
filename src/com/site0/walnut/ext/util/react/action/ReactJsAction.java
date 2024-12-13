@@ -9,7 +9,7 @@ import org.nutz.log.Log;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.util.react.bean.ReactAction;
-import com.site0.walnut.util.JsExec;
+import com.site0.walnut.jsexec.JsExec;
 import com.site0.walnut.util.JvmJsExecContext;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;

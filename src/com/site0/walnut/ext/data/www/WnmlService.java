@@ -32,7 +32,7 @@ import com.site0.walnut.cheap.Cheaps;
 import com.site0.walnut.cheap.dom.CheapDocument;
 import com.site0.walnut.cheap.dom.CheapElement;
 import com.site0.walnut.cheap.dom.CheapFilter;
-import com.site0.walnut.util.JsExec;
+import com.site0.walnut.jsexec.JsExec;
 import com.site0.walnut.util.JsExecContext;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;

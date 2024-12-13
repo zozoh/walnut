@@ -14,7 +14,7 @@ import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
-import com.site0.walnut.util.JsExec;
+import com.site0.walnut.jsexec.JsExec;
 import com.site0.walnut.util.JvmJsExecContext;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
@@ -39,7 +39,7 @@ public class cmd_jsc extends JvmExecutor {
         JsExec JE = JsExec.me();
 
         // 分析参数
-        ZParams params = ZParams.parse(args, "^debug$");
+        ZParams params = ZParams.parse(args, "^(debug|clear)$");
         boolean debug = params.is("debug");
 
         // 查看所有可用引擎
@@ -53,6 +53,12 @@ public class cmd_jsc extends JvmExecutor {
                                  ef.getLanguageVersion(),
                                  Wlang.concat(",", ef.getNames()));
             }
+            return;
+        }
+
+        // 清除缓存
+        if (params.is("clear")) {
+            JE.clearDomainGlobalJs(new JvmJsExecContext(sys));
             return;
         }
 

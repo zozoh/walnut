@@ -100,7 +100,15 @@ public class JvmJsExecContext implements JsExecContext {
         this(io, session, runner, null, sbOut, sbErr);
     }
 
-    // 提供一下高级帮助方法
+    @Override
+    public String getSessionTicket() {
+        return this.se.getTicket();
+    }
+
+    @Override
+    public String getAccountName() {
+        return this.se.getMyName();
+    }
 
     /**
      * 
@@ -233,6 +241,7 @@ public class JvmJsExecContext implements JsExecContext {
         io.writeText(o, data);
     }
 
+    @Override
     public String readText(String path) {
         WnObj o = Wn.checkObj(io, se, path);
         return io.readText(o);
