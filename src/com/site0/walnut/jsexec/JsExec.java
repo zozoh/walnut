@@ -176,7 +176,11 @@ public class JsExec {
             // + "$log.logx=logx;$log.sys=sys;"
             // + "$log.setTraceID(_TRACE_ID);"
             // + jsStr;
-            jsStr = "var $wn= __use_wn(sys),$log=__use_log(sys,logx,_TRACE_ID);" + jsStr;
+            jsStr = "var "
+                    + "$wn=__use_wn(sys),"
+                    + "$log=__use_log(sys,logx,_TRACE_ID),"
+                    + "$g=__g(sys, $log);"
+                    + jsStr;
         }
 
         // 执行
