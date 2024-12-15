@@ -23,6 +23,8 @@ public class CARSTLoader implements EdiMsgLoader<IcsReplyCARST> {
         EdiSegmentFinder finder = msg.getFinder();
         NutMap rff = new NutMap();
 
+        re.setSuccess(true);
+
         // 定位到 BGM 报文行
         IcsLoaderHelper.fillVerAndFuncCode(re, finder);
 
