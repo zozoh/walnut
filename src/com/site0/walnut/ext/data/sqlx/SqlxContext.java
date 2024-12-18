@@ -79,7 +79,7 @@ public class SqlxContext extends JvmFilterContext {
      * </pre>
      * 
      */
-    private NutMap pipeContext;
+    // private NutMap pipeContext;
 
     public SqlHolder sqls;
 
@@ -96,7 +96,7 @@ public class SqlxContext extends JvmFilterContext {
     public SqlxContext() {
         this.query = new QueryProcessor();
         this.exec = new ExecProcessor();
-        this.pipeContext = new NutMap();
+        // this.pipeContext = new NutMap();
     }
 
     public NutMap getInput() {
@@ -108,12 +108,19 @@ public class SqlxContext extends JvmFilterContext {
     }
 
     public NutMap getInputVarAsMap(String key) {
-        return input.getAs(key, NutMap.class);
+        NutMap re = input.getAs(key, NutMap.class);
+        // if (null == re) {
+        // re = pipeContext.getAs(key, NutMap.class);
+        // }
+        return re;
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public List<NutMap> getInputVarAsList(String key) {
         Object v = input.get(key);
+        // if (null == v) {
+        // v = pipeContext.get(key);
+        // }
         if (v instanceof Map) {
             NutMap bean = NutMap.WRAP((Map) v);
             return Wlang.list(bean);
@@ -280,15 +287,15 @@ public class SqlxContext extends JvmFilterContext {
     }
 
     public NutMap getPipeContext() {
-        return pipeContext;
+        return this.input;
     }
 
     public void putPipeContext(String keyPath, Object val) {
-        Mapl.put(pipeContext, keyPath, val);
+        Mapl.put(this.input, keyPath, val);
     }
 
     public void putAllPipeContext(NutBean vars) {
-        pipeContext.putAll(vars);
+        this.input.putAll(vars);
     }
 
     public Connection getConnection(WnSystem sys) {

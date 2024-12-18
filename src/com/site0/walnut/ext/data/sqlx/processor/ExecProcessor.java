@@ -91,6 +91,10 @@ public class ExecProcessor implements SqlProcessor<SqlExecResult> {
         // 准备返回
         SqlExecResult re = new SqlExecResult();
 
+        if (null == paramList || paramList.isEmpty()) {
+            return re;
+        }
+
         try {
             // 准备语句
             PreparedStatement sta = conn.prepareStatement(sql);

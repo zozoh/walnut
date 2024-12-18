@@ -19,6 +19,8 @@ import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
+import com.site0.walnut.util.validate.WnMatch;
+import com.site0.walnut.util.validate.impl.AutoMatch;
 
 public class sqlx_exec extends SqlxFilter {
 
@@ -33,10 +35,17 @@ public class sqlx_exec extends SqlxFilter {
     protected void process(WnSystem sys, SqlxContext fc, ZParams params) {
         String sqlName = params.val_check(0);
         boolean batchMode = params.is("batch");
+        WnMatch am = null;
 
         // 自动展开上下文
         if (params.is("explain")) {
             fc.explainVars();
+        }
+
+        // 判断是否执行
+        if (params.has("test")) {
+            Object test = params.get("test");
+            am = AutoMatch.parse(test, false);
         }
 
         WnSqlTmpl sqlt = fc.sqls.get(sqlName);
@@ -50,6 +59,11 @@ public class sqlx_exec extends SqlxFilter {
         // 如果是批量
         if (fc.hasVarList()) {
             List<NutBean> beans = fc.getVarList();
+
+            // 保护判断一下
+            if (null != am && !am.match(beans)) {
+                return;
+            }
 
             // 批量模式
             if (batchMode) {
@@ -77,6 +91,12 @@ public class sqlx_exec extends SqlxFilter {
         // 参数模式
         else if (fc.hasVarMap()) {
             NutBean context = fc.getVarMap();
+
+            // 保护判断一下
+            if (null != am && !am.match(context)) {
+                return;
+            }
+
             List<SqlParam> cps = new ArrayList<>();
             String sql = sqlt.render(context, cps);
             Object[] sqlParams = WnSqls.getSqlParamsValue(cps);
