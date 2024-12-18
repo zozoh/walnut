@@ -4,18 +4,19 @@
     __debug: false,
     __trace_id: traceID,
     __prefix: null,
-    __log_args: function __log_args(_arguments) {
+    __log_args: function __log_args(_arguments, offset) {
       var rt_msg, lg_msg;
+      offset = offset || 0;
       if (this.__prefix) {
-        rt_msg = this.__prefix + _arguments[0];
-        lg_msg = "%s [%s] : " + this.__prefix + _arguments[0];
+        rt_msg = this.__prefix + _arguments[offset];
+        lg_msg = "%s [%s] : " + this.__prefix + _arguments[offset];
       } else {
-        rt_msg = _arguments[0];
-        lg_msg = "%s [%s] : " + _arguments[0];
+        rt_msg = _arguments[offset];
+        lg_msg = "%s [%s] : " + _arguments[offset];
       }
       var rt_args = [];
       var lg_args = [this.__log_tag, this.__trace_id];
-      for (var i = 1; i < _arguments.length; i++) {
+      for (var i = offset + 1; i < _arguments.length; i++) {
         rt_args.push(_arguments[i]);
         lg_args.push(_arguments[i]);
       }
@@ -52,6 +53,22 @@
       var aa = this.__log_args(arguments);
       logx.print("error", aa[0], aa[1]);
       if (this.__debug) sys.err.printlnf(aa[2], aa[3]);
+    },
+    printJsError: function () {
+      var err = arguments[0];
+      var aa;
+      if (arguments.length > 1) {
+        aa = this.__log_args(arguments, 1);
+      } else {
+        aa = this.__log_args([err, ""], 1);
+      }
+      var errStack = logx.getJsErrString(err);
+      aa[0] = aa[0] + "\n" + errStack;
+      logx.print("error", aa[0], aa[1]);
+      if (this.__debug) {
+        aa[2] = aa[2] + "\n" + errStack;
+        sys.err.printlnf(aa[2], aa[3]);
+      }
     },
     ajax_error: function (errCode, reason) {
       var json = JSON.stringify({
