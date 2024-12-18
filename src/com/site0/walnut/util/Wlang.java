@@ -1218,29 +1218,31 @@ public class Wlang {
     /**
      * 获得访问者的IP地址, 反向代理过的也可以获得
      *
-     * @param request
+     * @param req
      *            请求的req对象
+     * @param checkStrictBlank
+     *            如果是空字符串或者不是 ipv4 或者 v6 那么就返回空串
      * @return 来源ip
      */
-    public static String getIP(HttpServletRequest request) {
-        if (request == null)
+    public static String getIP(HttpServletRequest req, boolean checkStrictBlank) {
+        if (req == null)
             return "";
-        String ip = request.getHeader("X-Forwarded-For");
+        String ip = req.getHeader("X-Forwarded-For");
         if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
             if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-                ip = request.getHeader("Proxy-Client-IP");
+                ip = req.getHeader("Proxy-Client-IP");
             }
             if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-                ip = request.getHeader("WL-Proxy-Client-IP");
+                ip = req.getHeader("WL-Proxy-Client-IP");
             }
             if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-                ip = request.getHeader("HTTP_CLIENT_IP");
+                ip = req.getHeader("HTTP_CLIENT_IP");
             }
             if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-                ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+                ip = req.getHeader("HTTP_X_FORWARDED_FOR");
             }
             if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-                ip = request.getRemoteAddr();
+                ip = req.getRemoteAddr();
             }
         } else if (ip.length() > 15) {
             String[] ips = ip.split(",");
@@ -1252,12 +1254,19 @@ public class Wlang {
                 }
             }
         }
+        if (!checkStrictBlank) {
+            return Ws.trim(ip);
+        }
         if (Strings.isBlank(ip))
             return "";
         if (isIPv4Address(ip) || isIPv6Address(ip)) {
             return ip;
         }
         return "";
+    }
+
+    public static String getIP(HttpServletRequest req) {
+        return getIP(req, true);
     }
 
     /**

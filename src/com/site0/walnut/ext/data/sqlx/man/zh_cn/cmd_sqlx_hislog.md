@@ -47,24 +47,23 @@
        *   sqlName: "pet.insert", // SQL 名称
        *   sqlName1: "pet",       // 第1个捕获组
        *   sqlName2: "insert",    // 第2个捕获组
-       *   sessionTicket: "xxxx",  // 会话票据
+       *   session: {...},    // 会话对象
        *   domain: "demo",    // 当前域
-       *   myName: "demo",    // 执行操作用户名
-       *   scene: "web"       // 来自全局设定
+       *   scene: "web"       // 来自 assign 段的设定
        *   item: {...}        // 当前处理对象
        * }
        */
       "data": {
-        "scene": "=scene",
-        "user": "=myName",
-        "ct": "=vars.ct",
-        "action": "=sqlName1",
-        "ref_tp": "=sqlName2",
+        "scene": "=scene",          // 在什么场景下?
+        "user": "=session.unm",     // 谁?
+        "ct": "=vars.ct",           // 在什么时候?
+        "ref_tp": "=sqlName1",      // 对什么数据?
         "ref_id": "=item.id",
-        "vars": "->${item<json>}"
+        "action": "=sqlName2",      // 做了什么操作?
+        "detail": "->${item<json>}"   // 具体的细节是什么?
       },
       // 将提取出来的数据暂存到【过滤管线上下文】
-      "to": "hislog"
+      "to": "HISTORY"
     }
   ]
 }
@@ -74,13 +73,11 @@
 
 ```bash
 sqlx @hislog
-  [sqlName]           # sql 模板的名称
-  [versionKey]        # 数据表中存版本号的字段名
-  [$before:$after]    # 期望版本号:成功后修改的版本号
+  [-f /path/to/conf.json]    # 指定配置的 JSON 文件
 ```
 
 # 示例
 
 ```bash
-sqlx @vars '{id:"xxx",title:"world"}' @dvcheck pet.check ver v0:v2 @exec pet.update
+sqlx @hislog -f ~/history.json @vars @exec ...
 ```
