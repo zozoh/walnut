@@ -8,8 +8,11 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.mvc.Mvcs;
+
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 import org.nutz.web.ajax.Ajax;
@@ -81,6 +84,11 @@ public class WnAuthSession {
         this();
         this.ticket = ticket;
         this.me = me;
+        this.vars = new NutMap();
+
+        // 记录 IP
+        String ipv4 = Wlang.getIP(Mvcs.getReq(), false);
+        this.vars.put("CLINET_IP", ipv4);
     }
 
     public WnAuthSession(WnObj oSe, WnAccount me) {
@@ -167,7 +175,7 @@ public class WnAuthSession {
     }
 
     public String getParentSessionId() {
-        // 2023-04-24:  采用 by_type/value 
+        // 2023-04-24: 采用 by_type/value
         // 方式来决定父会话ID 一定是我当时脑袋被门挤了
         // 这个必须是用一个专有的元数据据呀！
         // if ("session".equals(this.byType)) {
@@ -384,12 +392,6 @@ public class WnAuthSession {
             vars = new NutMap();
         }
         return vars;
-    }
-
-    public void setVars(NutMap vars) {
-        if (null != vars) {
-            this.vars = vars;
-        }
     }
 
     public WnObj getObj() {

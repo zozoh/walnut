@@ -7,6 +7,7 @@ import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
+
 import com.site0.walnut.api.auth.WnAuthEvent;
 import com.site0.walnut.api.WnEventListener;
 import com.site0.walnut.api.WnListenable;
@@ -31,7 +32,7 @@ import com.site0.walnut.util.Wn;
 public class WnAuthServiceImpl extends WnGroupRoleServiceImpl
         implements WnAuthService, WnListenable<WnAuthEvent> {
 
-    //private static final Log log = Wlog.getAUTH();
+    // private static final Log log = Wlog.getAUTH();
 
     WnIo io;
 
