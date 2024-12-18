@@ -78,17 +78,16 @@ public class WnAuthSession {
     private WnAuthSession() {
         this.vars = new NutMap();
         this.currentPath = "~";
+
+        // 记录 IP
+        String ipv4 = Wlang.getIP(Mvcs.getReq(), false);
+        this.vars.put("CLINET_IP", ipv4);
     }
 
     public WnAuthSession(String ticket, WnAccount me) {
         this();
         this.ticket = ticket;
         this.me = me;
-        this.vars = new NutMap();
-
-        // 记录 IP
-        String ipv4 = Wlang.getIP(Mvcs.getReq(), false);
-        this.vars.put("CLINET_IP", ipv4);
     }
 
     public WnAuthSession(WnObj oSe, WnAccount me) {
