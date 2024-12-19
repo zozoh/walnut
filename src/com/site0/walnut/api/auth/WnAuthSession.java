@@ -81,7 +81,7 @@ public class WnAuthSession {
 
         // 记录 IP
         String ipv4 = Wlang.getIP(Mvcs.getReq(), false);
-        this.vars.put("CLINET_IP", ipv4);
+        this.vars.put("CLIENT_IP", ipv4);
     }
 
     public WnAuthSession(String ticket, WnAccount me) {

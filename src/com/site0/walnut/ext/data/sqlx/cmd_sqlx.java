@@ -65,6 +65,8 @@ public class cmd_sqlx extends JvmFilterExecutor<SqlxContext, SqlxFilter> {
 
     @Override
     protected void prepare(WnSystem sys, SqlxContext fc) {
+        fc.setup(sys);
+        
         String daoName = fc.params.val(0, "default");
         fc.auth = WnDaos.loadAuth(sys, daoName);
 

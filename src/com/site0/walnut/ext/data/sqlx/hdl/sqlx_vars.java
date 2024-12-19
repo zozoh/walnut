@@ -97,7 +97,7 @@ public class sqlx_vars extends SqlxFilter {
                 if ("..".equals(key)) {
                     beans.add(fc.getInput());
                 } else {
-                    List<NutMap> list = fc.getInputVarAsList(key);
+                    List<NutMap> list = fc.getInputOrPipeVarAsList(key);
                     for (NutMap li : list) {
                         beans.add(li);
                     }
@@ -129,7 +129,7 @@ public class sqlx_vars extends SqlxFilter {
                 if ("..".equals(key)) {
                     re.putAll(fc.getInput());
                 } else {
-                    NutMap vmap = fc.getInputVarAsMap(key);
+                    NutMap vmap = fc.getInputOrPipeVarAsMap(key);
                     re.putAll(vmap);
                 }
             } else {

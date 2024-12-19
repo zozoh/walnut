@@ -23,9 +23,12 @@
   "daoName": null,
   /**
    * 根据全局上下文，生成一个对象，加入到 data explain 的上下文
+   * 所谓全局上下文，参看 SqlxContext.getMergedInputAndPipeContext
+   * 它融合了 Input 与 pipeContext，而 pipeContext 里默认包括了 "session" 信息
    */
   "assign": {
-    "scene": "=scene"
+    "scene": "=scene",
+    "session": "=session"
   },
   /**
    * 每次 @exec 将逐个执行下面的配置项, 对应 -list 的上下文
@@ -54,13 +57,14 @@
        * }
        */
       "data": {
-        "scene": "=scene",          // 在什么场景下?
-        "user": "=session.unm",     // 谁?
-        "ct": "=vars.ct",           // 在什么时候?
-        "ref_tp": "=sqlName1",      // 对什么数据?
+        "scene": "=scene", // 在什么场景下?
+        "user": "=session.unm", // 谁?
+        "ip_addr": "=session.envs.CLIENT_IP",
+        "ct": "=vars.ct", // 在什么时候?
+        "ref_tp": "=sqlName1", // 对什么数据?
         "ref_id": "=item.id",
-        "action": "=sqlName2",      // 做了什么操作?
-        "detail": "->${item<json>}"   // 具体的细节是什么?
+        "action": "=sqlName2", // 做了什么操作?
+        "detail": "->${item<json>}" // 具体的细节是什么?
       },
       // 将提取出来的数据暂存到【过滤管线上下文】
       "to": "HISTORY"
