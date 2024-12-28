@@ -1,6 +1,8 @@
 package com.site0.walnut.impl.lock.memory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.site0.walnut.api.lock.WnLock;
@@ -56,8 +58,7 @@ public class MemoryLockApi implements WnLockApi {
     }
 
     @Override
-    public synchronized void freeLock(WnLock lock)
-            throws WnLockBusyException, WnLockNotSameException {
+    public synchronized void freeLock(WnLock lock) throws WnLockNotSameException {
         // 防守
         if (null == lock) {
             return;
@@ -78,7 +79,7 @@ public class MemoryLockApi implements WnLockApi {
         // 判断一下
         else {
             lo = lo.clone();
-            lo.setName(lockName);
+            // lo.setName(lockName);
             // 不是自己的锁
             if (!lo.isSame(lock)) {
                 throw new WnLockNotSameException(lock);
@@ -87,6 +88,15 @@ public class MemoryLockApi implements WnLockApi {
             locks.remove(key);
         }
 
+    }
+
+    @Override
+    public List<WnLock> list() {
+        List<WnLock> list = new ArrayList<>(locks.size());
+        for (WnLock lo : locks.values()) {
+            list.add(lo.clone());
+        }
+        return list;
     }
 
     private WnLock setLock(String lockName, String owner, String hint, long duInMs) {

@@ -1,5 +1,7 @@
 package com.site0.walnut.impl.lock.redis;
 
+import java.util.List;
+
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutMap;
@@ -11,10 +13,12 @@ import com.site0.walnut.api.lock.WnLockNotSameException;
 import com.site0.walnut.ext.sys.redis.Wedis;
 import com.site0.walnut.ext.sys.redis.WedisConfig;
 import com.site0.walnut.impl.lock.WnLockObj;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 
 import redis.clients.jedis.params.SetParams;
 
+@Deprecated
 public class RedisLockApi implements WnLockApi {
 
     private String prefix;
@@ -251,6 +255,11 @@ public class RedisLockApi implements WnLockApi {
         }
         // 最后的结果
         return ask;
+    }
+
+    @Override
+    public List<WnLock> list() {
+        throw Wlang.noImplement();
     }
 
     /**

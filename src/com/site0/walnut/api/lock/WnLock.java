@@ -49,4 +49,5 @@ public interface WnLock {
      */
     boolean isSame(WnLock lock);
 
+    WnLock clone();
 }

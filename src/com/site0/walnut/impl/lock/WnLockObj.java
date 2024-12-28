@@ -15,7 +15,7 @@ import com.site0.walnut.util.Ws;
  * @author zozoh(zozohtnt@gmail.com)
  */
 public class WnLockObj implements WnLock {
-    
+
     public static WnLockObj create(String name, String str) {
         WnLockObj lo = new WnLockObj();
         lo.fromString(str);
@@ -85,6 +85,7 @@ public class WnLockObj implements WnLock {
         return sb.toString();
     }
 
+    @Override
     public WnLockObj clone() {
         WnLockObj lo = new WnLockObj();
         lo.name = name;

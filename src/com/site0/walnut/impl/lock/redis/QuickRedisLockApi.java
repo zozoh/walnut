@@ -1,5 +1,6 @@
 package com.site0.walnut.impl.lock.redis;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.random.R;
@@ -133,6 +134,9 @@ public class QuickRedisLockApi implements WnLockApi {
 
     @Override
     public void freeLock(WnLock lock) throws WnLockBusyException, WnLockNotSameException {
+        if (null == lock) {
+            return;
+        }
         String key = _KEY(lock.getName());
         String val = ((WnLockObj) lock).toValue();
         List<String> ks = Wlang.list(key);
@@ -140,6 +144,15 @@ public class QuickRedisLockApi implements WnLockApi {
         Wedis.run(conf, jed -> {
             jed.eval(LUA_FREE_LOCK, ks, vs);
         });
+    }
+
+    @Override
+    public List<WnLock> list() {
+        List<WnLock> re = new LinkedList<>();
+        Wedis.run(conf, jed -> {
+            // TODO
+        });
+        return re;
     }
 
     private WnLockObj genLock(String lockName, String owner, String hint) {

@@ -1,5 +1,7 @@
 package com.site0.walnut.api.lock;
 
+import java.util.List;
+
 /**
  * 锁服务接口
  * 
@@ -55,5 +57,10 @@ public interface WnLockApi {
      *             释放锁时失败，因为不是相同的一把锁
      */
     void freeLock(WnLock lock) throws WnLockBusyException, WnLockNotSameException;
+    
+    /**
+     * @return 当前所有锁的列表
+     */
+    List<WnLock> list();
 
 }

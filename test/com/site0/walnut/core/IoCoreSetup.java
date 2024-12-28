@@ -49,7 +49,7 @@ import com.site0.walnut.ext.sys.redis.Wedis;
 import com.site0.walnut.ext.sys.redis.WedisConfig;
 import com.site0.walnut.ext.sys.sql.WnDaoMappingConfig;
 import com.site0.walnut.ext.sys.sql.WnDaos;
-import com.site0.walnut.impl.lock.redis.RedisLockApi;
+import com.site0.walnut.impl.lock.redis.QuickRedisLockApi;
 import com.site0.walnut.util.MongoDB;
 import com.site0.walnut.util.Wn;
 import org.nutz.web.WebConfig;
@@ -224,7 +224,7 @@ public class IoCoreSetup {
         WedisConfig conf = this.getWedisConfig();
         conf = conf.clone();
         conf.setup().put("ask-du", askDu);
-        return new RedisLockApi(conf);
+        return new QuickRedisLockApi(conf);
     }
 
     public WedisConfig getWedisConfig() {
