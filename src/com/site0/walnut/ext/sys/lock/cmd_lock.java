@@ -7,7 +7,7 @@ import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wlog;
 
 public class cmd_lock extends JvmFilterExecutor<LockContext, LockFilter> {
-    
+
     private static final Log log = Wlog.getCMD();
 
     public cmd_lock() {
@@ -20,7 +20,9 @@ public class cmd_lock extends JvmFilterExecutor<LockContext, LockFilter> {
     }
 
     @Override
-    protected void prepare(WnSystem sys, LockContext fc) {}
+    protected void prepare(WnSystem sys, LockContext fc) {
+        fc.api = sys.services.getLockApi();
+    }
 
     @Override
     protected void output(WnSystem sys, LockContext fc) {}

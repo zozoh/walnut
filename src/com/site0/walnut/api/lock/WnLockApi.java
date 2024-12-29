@@ -53,11 +53,29 @@ public interface WnLockApi {
      * 
      * @throws WnLockBusyException
      *             当前锁服务繁忙，不能尝试释放锁
-     * @throws WnLockNotSameException
-     *             释放锁时失败，因为不是相同的一把锁
+     * @throws WnLockInvalidKeyException
+     *             释放锁时失败，譬如私钥错误
+     *             
+     * @see #freeLock(String, String)
      */
-    void freeLock(WnLock lock) throws WnLockBusyException, WnLockNotSameException;
-    
+    void freeLock(WnLock lock) throws WnLockBusyException, WnLockInvalidKeyException;
+
+    /**
+     * 尝试释放一个锁
+     * 
+     * @param lockName
+     *            锁对象名称
+     * @param privateKey
+     *            锁的私有密码，创建锁的时候你可以拿到
+     * 
+     * @throws WnLockBusyException
+     *             当前锁服务繁忙，不能尝试释放锁
+     * @throws WnLockInvalidKeyException
+     *             释放锁时失败，譬如私钥错误
+     */
+    void freeLock(String lockName, String privateKey)
+            throws WnLockBusyException, WnLockInvalidKeyException;
+
     /**
      * @return 当前所有锁的列表
      */

@@ -95,7 +95,7 @@ public abstract class AbstractWnLockApiTest extends IoCoreTest {
                     catch (WnLockBusyException e) {
                         throw Wlang.wrapThrow(e);
                     }
-                    catch (WnLockNotSameException e) {
+                    catch (WnLockInvalidKeyException e) {
                         throw Wlang.wrapThrow(e);
                     }
                 }

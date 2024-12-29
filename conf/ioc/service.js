@@ -32,6 +32,9 @@ var ioc = {
             },
             referApi : {
                 refer : "referApi"
+            },
+            lockApi : {
+                refer : "lockApi"
             }
         }
     },

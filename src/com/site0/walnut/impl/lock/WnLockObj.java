@@ -7,7 +7,6 @@ import org.nutz.json.JsonField;
 import org.nutz.lang.random.R;
 import com.site0.walnut.api.lock.WnLock;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.util.Ws;
 
 /**
  * 普通锁对象（仅是一个 POJO）
@@ -63,26 +62,11 @@ public class WnLockObj implements WnLock {
     }
 
     public String toString() {
-        return this.toValue(true, true);
+        return String.format("%s; name=%s, owner=%s, hint=%s", privateKey, name, owner, hint);
     }
 
     public String toValue() {
-        return this.toValue(false, false);
-    }
-
-    public String toValue(boolean withName, boolean withHint) {
-        StringBuilder sb = new StringBuilder();
-        if (withName) {
-            sb.append(name).append(':');
-        }
-        sb.append(owner);
-        if (!Ws.isBlank(privateKey)) {
-            sb.append(':').append(privateKey);
-        }
-        if (withHint && !Ws.isBlank(hint)) {
-            sb.append('#').append(hint);
-        }
-        return sb.toString();
+        return this.privateKey;
     }
 
     @Override
@@ -133,6 +117,13 @@ public class WnLockObj implements WnLock {
 
     public void genPrivateKey() {
         this.privateKey = R.captchaChar(10);
+    }
+
+    public boolean matchPrivateKey(String privateKey) {
+        if (null == this.privateKey || null == privateKey) {
+            return false;
+        }
+        return this.privateKey.equals(privateKey);
     }
 
     public void genPrivateKey(int len) {

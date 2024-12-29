@@ -11,7 +11,7 @@ import com.site0.walnut.api.lock.WnLock;
 import com.site0.walnut.api.lock.WnLockApi;
 import com.site0.walnut.api.lock.WnLockBusyException;
 import com.site0.walnut.api.lock.WnLockFailException;
-import com.site0.walnut.api.lock.WnLockNotSameException;
+import com.site0.walnut.api.lock.WnLockInvalidKeyException;
 import com.site0.walnut.ext.sys.cron.WnSysCron;
 import com.site0.walnut.ext.sys.schedule.WnCronSlot;
 import com.site0.walnut.ext.sys.schedule.WnSysScheduleApi;
@@ -98,14 +98,14 @@ public class WnSafeSysScheduleService implements WnSysScheduleApi {
             try {
                 locks.freeLock(loTask);
             }
-            catch (WnLockBusyException | WnLockNotSameException e) {
+            catch (WnLockBusyException | WnLockInvalidKeyException e) {
                 log.warn("sysScheduleApi.pushSchedule fail to freeTaskLock", e);
                 throw new WnSysScheduleException(e);
             }
             try {
                 locks.freeLock(loSchedule);
             }
-            catch (WnLockBusyException | WnLockNotSameException e) {
+            catch (WnLockBusyException | WnLockInvalidKeyException e) {
                 log.warn("sysScheduleApi.pushSchedule fail to freeScheduleLock", e);
                 throw new WnSysScheduleException(e);
             }
@@ -138,7 +138,7 @@ public class WnSafeSysScheduleService implements WnSysScheduleApi {
             try {
                 locks.freeLock(lo);
             }
-            catch (WnLockBusyException | WnLockNotSameException e) {
+            catch (WnLockBusyException | WnLockInvalidKeyException e) {
                 log.warn("sysScheduleApi.cleanSlotObj fail to freeLock", e);
                 throw new WnSysScheduleException(e);
             }
@@ -179,7 +179,7 @@ public class WnSafeSysScheduleService implements WnSysScheduleApi {
             try {
                 locks.freeLock(lo);
             }
-            catch (WnLockBusyException | WnLockNotSameException e) {
+            catch (WnLockBusyException | WnLockInvalidKeyException e) {
                 log.warn("sysScheduleApi.loadSchedule fail to freeLock", e);
                 throw new WnSysScheduleException(e);
             }

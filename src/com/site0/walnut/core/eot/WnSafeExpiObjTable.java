@@ -11,7 +11,7 @@ import com.site0.walnut.api.lock.WnLock;
 import com.site0.walnut.api.lock.WnLockApi;
 import com.site0.walnut.api.lock.WnLockBusyException;
 import com.site0.walnut.api.lock.WnLockFailException;
-import com.site0.walnut.api.lock.WnLockNotSameException;
+import com.site0.walnut.api.lock.WnLockInvalidKeyException;
 
 public class WnSafeExpiObjTable implements WnExpiObjTable {
 
@@ -75,7 +75,7 @@ public class WnSafeExpiObjTable implements WnExpiObjTable {
             try {
                 locks.freeLock(lo);
             }
-            catch (WnLockBusyException | WnLockNotSameException e) {
+            catch (WnLockBusyException | WnLockInvalidKeyException e) {
                 log.warn("takeover fail to freeLock", e);
             }
         }

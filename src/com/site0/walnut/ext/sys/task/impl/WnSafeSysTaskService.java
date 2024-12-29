@@ -12,7 +12,7 @@ import com.site0.walnut.api.lock.WnLock;
 import com.site0.walnut.api.lock.WnLockApi;
 import com.site0.walnut.api.lock.WnLockBusyException;
 import com.site0.walnut.api.lock.WnLockFailException;
-import com.site0.walnut.api.lock.WnLockNotSameException;
+import com.site0.walnut.api.lock.WnLockInvalidKeyException;
 import com.site0.walnut.ext.sys.task.WnSysTask;
 import com.site0.walnut.ext.sys.task.WnSysTaskApi;
 import com.site0.walnut.ext.sys.task.WnSysTaskException;
@@ -67,7 +67,7 @@ public class WnSafeSysTaskService implements WnSysTaskApi {
             try {
                 locks.freeLock(lo);
             }
-            catch (WnLockBusyException | WnLockNotSameException e) {
+            catch (WnLockBusyException | WnLockInvalidKeyException e) {
                 log.warn("sysTaskApi.addTask fail to freeLock", e);
                 throw new WnSysTaskException(e);
             }
@@ -100,7 +100,7 @@ public class WnSafeSysTaskService implements WnSysTaskApi {
             try {
                 locks.freeLock(lo);
             }
-            catch (WnLockBusyException | WnLockNotSameException e) {
+            catch (WnLockBusyException | WnLockInvalidKeyException e) {
                 log.warn("sysTaskApi.removeTask fail to freeLock", e);
                 throw new WnSysTaskException(e);
             }
@@ -131,7 +131,7 @@ public class WnSafeSysTaskService implements WnSysTaskApi {
             try {
                 locks.freeLock(lo);
             }
-            catch (WnLockBusyException | WnLockNotSameException e) {
+            catch (WnLockBusyException | WnLockInvalidKeyException e) {
                 log.warn("sysTaskApi.removeTask fail to freeLock", e);
                 throw new WnSysTaskException(e);
             }

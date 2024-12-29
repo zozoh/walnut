@@ -9,7 +9,7 @@ import com.site0.walnut.api.lock.WnLock;
 import com.site0.walnut.api.lock.WnLockApi;
 import com.site0.walnut.api.lock.WnLockBusyException;
 import com.site0.walnut.api.lock.WnLockFailException;
-import com.site0.walnut.api.lock.WnLockNotSameException;
+import com.site0.walnut.api.lock.WnLockInvalidKeyException;
 import com.site0.walnut.impl.lock.WnLockObj;
 import com.site0.walnut.util.Wn;
 
@@ -58,17 +58,18 @@ public class MemoryLockApi implements WnLockApi {
     }
 
     @Override
-    public synchronized void freeLock(WnLock lock) throws WnLockNotSameException {
-        // 防守
-        if (null == lock) {
-            return;
-        }
-        String lockName = lock.getName();
+    public synchronized void freeLock(WnLock lock) throws WnLockInvalidKeyException {
+        freeLock(lock.getName(), lock.getPrivateKey());
+    }
+
+    @Override
+    public synchronized void freeLock(String lockName, String privateKey)
+            throws WnLockInvalidKeyException {
+        // 防空
         if (null == lockName) {
             return;
         }
 
-        // 那么尝试获取锁
         String key = _KEY(lockName);
         WnLockObj lo = locks.get(key);
 
@@ -77,16 +78,12 @@ public class MemoryLockApi implements WnLockApi {
             return;
         }
         // 判断一下
-        else {
-            lo = lo.clone();
-            // lo.setName(lockName);
-            // 不是自己的锁
-            if (!lo.isSame(lock)) {
-                throw new WnLockNotSameException(lock);
-            }
-            // 移除锁
-            locks.remove(key);
+        // 校验密码呀失败
+        if (!lo.matchPrivateKey(privateKey)) {
+            throw new WnLockInvalidKeyException(lo);
         }
+        // 移除锁
+        locks.remove(key);
 
     }
 

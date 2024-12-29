@@ -10,6 +10,7 @@ import org.nutz.lang.util.NutMap;
 import com.site0.walnut.util.ZParams;
 
 import redis.clients.jedis.params.GetExParams;
+import redis.clients.jedis.params.SetParams;
 
 public class RedisSupport {
 
@@ -25,6 +26,22 @@ public class RedisSupport {
         }
         if (params.has("pxAt")) {
             return new GetExParams().pxAt(params.getLong("pxAt"));
+        }
+        return null;
+    }
+    
+    public static SetParams genSetParams(ZParams params) {
+        if (params.has("ex")) {
+            return new SetParams().ex(params.getLong("ex"));
+        }
+        if (params.has("px")) {
+            return new SetParams().px(params.getLong("px"));
+        }
+        if (params.has("exAt")) {
+            return new SetParams().exAt(params.getLong("exAt"));
+        }
+        if (params.has("pxAt")) {
+            return new SetParams().pxAt(params.getLong("pxAt"));
         }
         return null;
     }

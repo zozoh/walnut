@@ -9,7 +9,7 @@ import com.site0.walnut.api.lock.WnLock;
 import com.site0.walnut.api.lock.WnLockApi;
 import com.site0.walnut.api.lock.WnLockBusyException;
 import com.site0.walnut.api.lock.WnLockFailException;
-import com.site0.walnut.api.lock.WnLockNotSameException;
+import com.site0.walnut.api.lock.WnLockInvalidKeyException;
 import com.site0.walnut.ext.sys.redis.Wedis;
 import com.site0.walnut.ext.sys.redis.WedisConfig;
 import com.site0.walnut.impl.lock.WnLockObj;
@@ -124,6 +124,12 @@ public class QuickRedisLockApi implements WnLockApi {
         return null;
     }
 
+    @Override
+    public synchronized void freeLock(WnLock lock)
+            throws WnLockInvalidKeyException, WnLockBusyException {
+        freeLock(lock.getName(), lock.getPrivateKey());
+    }
+
     // Lua 脚本，将判断锁和释放锁变为一步操作
     private static final String LUA_FREE_LOCK = "if redis.call('get', KEYS[1]) == ARGV[1] "
                                                 + "then "
@@ -133,14 +139,11 @@ public class QuickRedisLockApi implements WnLockApi {
                                                 + "end";
 
     @Override
-    public void freeLock(WnLock lock) throws WnLockBusyException, WnLockNotSameException {
-        if (null == lock) {
-            return;
-        }
-        String key = _KEY(lock.getName());
-        String val = ((WnLockObj) lock).toValue();
+    public void freeLock(String lockName, String privateKey)
+            throws WnLockBusyException, WnLockInvalidKeyException {
+        String key = _KEY(lockName);
         List<String> ks = Wlang.list(key);
-        List<String> vs = Wlang.list(val);
+        List<String> vs = Wlang.list(privateKey);
         Wedis.run(conf, jed -> {
             jed.eval(LUA_FREE_LOCK, ks, vs);
         });

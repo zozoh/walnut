@@ -13,7 +13,7 @@ import com.site0.walnut.api.lock.WnLock;
 import com.site0.walnut.api.lock.WnLockApi;
 import com.site0.walnut.api.lock.WnLockBusyException;
 import com.site0.walnut.api.lock.WnLockFailException;
-import com.site0.walnut.api.lock.WnLockNotSameException;
+import com.site0.walnut.api.lock.WnLockInvalidKeyException;
 import com.site0.walnut.ext.data.thing.ThingAction;
 import com.site0.walnut.ext.data.thing.util.ThOtherUpdating;
 import com.site0.walnut.ext.data.thing.util.ThingConf;
@@ -129,7 +129,7 @@ public class UpdateThingAction extends ThingAction<List<WnObj>> {
                     try {
                         locks.freeLock(lock);
                     }
-                    catch (WnLockBusyException | WnLockNotSameException e) {
+                    catch (WnLockBusyException | WnLockInvalidKeyException e) {
                         if (log.isWarnEnabled()) {
                             String msg = lock.toString();
                             log.warn("Fail to free Lock:" + msg, e);
