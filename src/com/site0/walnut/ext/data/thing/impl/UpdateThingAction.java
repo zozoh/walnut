@@ -11,7 +11,6 @@ import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.lock.WnLock;
 import com.site0.walnut.api.lock.WnLockApi;
-import com.site0.walnut.api.lock.WnLockBusyException;
 import com.site0.walnut.api.lock.WnLockFailException;
 import com.site0.walnut.api.lock.WnLockInvalidKeyException;
 import com.site0.walnut.ext.data.thing.ThingAction;
@@ -109,13 +108,6 @@ public class UpdateThingAction extends ThingAction<List<WnObj>> {
                 // 记入更新对象
                 objs.add(o);
             }
-            // 忙锁
-            catch (WnLockBusyException e) {
-                if (log.isInfoEnabled()) {
-                    log.infof("skip th update: %s , Locks Busy", id);
-                }
-                continue;
-            }
             // 占用锁
             catch (WnLockFailException e) {
                 if (log.isInfoEnabled()) {
@@ -129,7 +121,7 @@ public class UpdateThingAction extends ThingAction<List<WnObj>> {
                     try {
                         locks.freeLock(lock);
                     }
-                    catch (WnLockBusyException | WnLockInvalidKeyException e) {
+                    catch (WnLockInvalidKeyException e) {
                         if (log.isWarnEnabled()) {
                             String msg = lock.toString();
                             log.warn("Fail to free Lock:" + msg, e);

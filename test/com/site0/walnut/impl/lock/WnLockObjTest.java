@@ -8,26 +8,21 @@ public class WnLockObjTest {
 
     @Test
     public void test_stringify() {
-        String lock = "LOCK_TASK_QUEUE=node73:78rr21#push_task";
+        String lock = "78rr21;name=LOCK_TASK_QUEUE,owner=node73,hold=,expi=,hint=push_task";
 
         WnLockObj lo = WnLockObj.create(lock);
         assertEquals("LOCK_TASK_QUEUE", lo.getName());
         assertEquals("node73", lo.getOwner());
         assertEquals("78rr21", lo.getPrivateKey());
+        assertEquals(0, lo.getExpiTime());
+        assertEquals(0, lo.getHoldTime());
         assertEquals("push_task", lo.getHint());
 
-        WnLockObj l2 = WnLockObj.create("node73:78rr21#push_task");
-        assertEquals("node73", lo.getOwner());
-        assertEquals("78rr21", lo.getPrivateKey());
-        assertEquals("push_task", lo.getHint());
-        l2.setName(lo.getName());
+        WnLockObj l2 = WnLockObj.create(lock);
         assertTrue(l2.isSame(lo));
 
-        String s3 = lo.toValue();
-        assertEquals("node73:78rr21", s3);
-        WnLockObj l3 = WnLockObj.create(s3);
-        l3.setName(lo.getName());
-        assertTrue(l3.isSame(l2));
+        String s3 = lo.toString();
+        assertEquals(lock, s3);
 
     }
 

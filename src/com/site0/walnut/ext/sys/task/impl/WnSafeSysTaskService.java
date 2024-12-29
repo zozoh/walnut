@@ -10,7 +10,6 @@ import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.lock.WnLock;
 import com.site0.walnut.api.lock.WnLockApi;
-import com.site0.walnut.api.lock.WnLockBusyException;
 import com.site0.walnut.api.lock.WnLockFailException;
 import com.site0.walnut.api.lock.WnLockInvalidKeyException;
 import com.site0.walnut.ext.sys.task.WnSysTask;
@@ -52,11 +51,6 @@ public class WnSafeSysTaskService implements WnSysTaskApi {
             lo = locks.tryLock(LOCK_NAME, nodeName, LOCK_HINT_ADD, tryLockDuration);
             return tasks.addTask(oTask, input);
         }
-        // 忙锁：系统有点不正常，需要打印一下日志以便追踪问题
-        catch (WnLockBusyException e) {
-            log.warn("sysTaskApi.addTask busy to tryLock", e);
-            throw new WnSysTaskException(e);
-        }
         // 败锁：没关系，就是取不到咯
         catch (WnLockFailException e) {
             log.warn("sysTaskApi.addTask fail to tryLock", e);
@@ -67,7 +61,7 @@ public class WnSafeSysTaskService implements WnSysTaskApi {
             try {
                 locks.freeLock(lo);
             }
-            catch (WnLockBusyException | WnLockInvalidKeyException e) {
+            catch (WnLockInvalidKeyException e) {
                 log.warn("sysTaskApi.addTask fail to freeLock", e);
                 throw new WnSysTaskException(e);
             }
@@ -85,11 +79,6 @@ public class WnSafeSysTaskService implements WnSysTaskApi {
             lo = locks.tryLock(LOCK_NAME, nodeName, LOCK_HINT_REMOVE, tryLockDuration);
             tasks.removeTask(oTask);
         }
-        // 忙锁：系统有点不正常，需要打印一下日志以便追踪问题
-        catch (WnLockBusyException e) {
-            log.warn("sysTaskApi.removeTask busy to tryLock", e);
-            throw new WnSysTaskException(e);
-        }
         // 败锁：没关系，就是取不到咯
         catch (WnLockFailException e) {
             log.warn("sysTaskApi.removeTask fail to tryLock", e);
@@ -100,7 +89,7 @@ public class WnSafeSysTaskService implements WnSysTaskApi {
             try {
                 locks.freeLock(lo);
             }
-            catch (WnLockBusyException | WnLockInvalidKeyException e) {
+            catch (WnLockInvalidKeyException e) {
                 log.warn("sysTaskApi.removeTask fail to freeLock", e);
                 throw new WnSysTaskException(e);
             }
@@ -116,11 +105,6 @@ public class WnSafeSysTaskService implements WnSysTaskApi {
             lo = locks.tryLock(LOCK_NAME, nodeName, LOCK_HINT_POP, tryLockDuration);
             return tasks.popTask(query);
         }
-        // 忙锁：系统有点不正常，需要打印一下日志以便追踪问题
-        catch (WnLockBusyException e) {
-            log.warn("sysTaskApi.removeTask busy to tryLock", e);
-            throw new WnSysTaskException(e);
-        }
         // 败锁：没关系，就是取不到咯
         catch (WnLockFailException e) {
             log.warn("sysTaskApi.removeTask fail to tryLock", e);
@@ -131,7 +115,7 @@ public class WnSafeSysTaskService implements WnSysTaskApi {
             try {
                 locks.freeLock(lo);
             }
-            catch (WnLockBusyException | WnLockInvalidKeyException e) {
+            catch (WnLockInvalidKeyException e) {
                 log.warn("sysTaskApi.removeTask fail to freeLock", e);
                 throw new WnSysTaskException(e);
             }

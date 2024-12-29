@@ -9,7 +9,6 @@ import com.site0.walnut.util.Wlog;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.lock.WnLock;
 import com.site0.walnut.api.lock.WnLockApi;
-import com.site0.walnut.api.lock.WnLockBusyException;
 import com.site0.walnut.api.lock.WnLockFailException;
 import com.site0.walnut.api.lock.WnLockInvalidKeyException;
 import com.site0.walnut.ext.sys.cron.WnSysCron;
@@ -70,11 +69,6 @@ public class WnSafeSysScheduleService implements WnSysScheduleApi {
                                        LOCK_HINT_PUSH,
                                        tryAddTaskLockDuration);
             }
-            // 忙锁：系统有点不正常，需要打印一下日志以便追踪问题
-            catch (WnLockBusyException e) {
-                log.warn("sysScheduleApi.pushSchedule busy to tryTaskLock", e);
-                throw new WnSysScheduleException(e);
-            }
             // 败锁：没关系，就是取不到咯
             catch (WnLockFailException e) {
                 log.warn("sysScheduleApi.pushSchedule fail to tryTaskLock", e);
@@ -82,11 +76,6 @@ public class WnSafeSysScheduleService implements WnSysScheduleApi {
             }
 
             return schedules.pushSchedule(slots, keep);
-        }
-        // 忙锁：系统有点不正常，需要打印一下日志以便追踪问题
-        catch (WnLockBusyException e) {
-            log.warn("sysScheduleApi.pushSchedule busy to tryLock", e);
-            throw new WnSysScheduleException(e);
         }
         // 败锁：没关系，就是取不到咯
         catch (WnLockFailException e) {
@@ -98,14 +87,14 @@ public class WnSafeSysScheduleService implements WnSysScheduleApi {
             try {
                 locks.freeLock(loTask);
             }
-            catch (WnLockBusyException | WnLockInvalidKeyException e) {
+            catch (WnLockInvalidKeyException e) {
                 log.warn("sysScheduleApi.pushSchedule fail to freeTaskLock", e);
                 throw new WnSysScheduleException(e);
             }
             try {
                 locks.freeLock(loSchedule);
             }
-            catch (WnLockBusyException | WnLockInvalidKeyException e) {
+            catch (WnLockInvalidKeyException e) {
                 log.warn("sysScheduleApi.pushSchedule fail to freeScheduleLock", e);
                 throw new WnSysScheduleException(e);
             }
@@ -123,11 +112,6 @@ public class WnSafeSysScheduleService implements WnSysScheduleApi {
             lo = locks.tryLock(LOCK_NAME, nodeName, LOCK_HINT_CLEAN, tryLockDuration);
             return schedules.cleanSlotObj(query);
         }
-        // 忙锁：系统有点不正常，需要打印一下日志以便追踪问题
-        catch (WnLockBusyException e) {
-            log.warn("sysScheduleApi.cleanSlotObj busy to tryLock", e);
-            throw new WnSysScheduleException(e);
-        }
         // 败锁：没关系，就是取不到咯
         catch (WnLockFailException e) {
             log.warn("sysScheduleApi.cleanSlotObj fail to tryLock", e);
@@ -138,7 +122,7 @@ public class WnSafeSysScheduleService implements WnSysScheduleApi {
             try {
                 locks.freeLock(lo);
             }
-            catch (WnLockBusyException | WnLockInvalidKeyException e) {
+            catch (WnLockInvalidKeyException e) {
                 log.warn("sysScheduleApi.cleanSlotObj fail to freeLock", e);
                 throw new WnSysScheduleException(e);
             }
@@ -164,11 +148,6 @@ public class WnSafeSysScheduleService implements WnSysScheduleApi {
             lo = locks.tryLock(LOCK_NAME, nodeName, LOCK_HINT_LOAD, tryLockDuration);
             return schedules.loadSchedule(list, today, slot, amount, force);
         }
-        // 忙锁：系统有点不正常，需要打印一下日志以便追踪问题
-        catch (WnLockBusyException e) {
-            log.warn("sysScheduleApi.loadSchedule busy to tryLock", e);
-            throw new WnSysScheduleException(e);
-        }
         // 败锁：没关系，就是取不到咯
         catch (WnLockFailException e) {
             log.warn("sysScheduleApi.loadSchedule fail to tryLock", e);
@@ -179,7 +158,7 @@ public class WnSafeSysScheduleService implements WnSysScheduleApi {
             try {
                 locks.freeLock(lo);
             }
-            catch (WnLockBusyException | WnLockInvalidKeyException e) {
+            catch (WnLockInvalidKeyException e) {
                 log.warn("sysScheduleApi.loadSchedule fail to freeLock", e);
                 throw new WnSysScheduleException(e);
             }

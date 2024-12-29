@@ -9,7 +9,6 @@ import com.site0.walnut.api.io.WnExpiObj;
 import com.site0.walnut.api.io.WnExpiObjTable;
 import com.site0.walnut.api.lock.WnLock;
 import com.site0.walnut.api.lock.WnLockApi;
-import com.site0.walnut.api.lock.WnLockBusyException;
 import com.site0.walnut.api.lock.WnLockFailException;
 import com.site0.walnut.api.lock.WnLockInvalidKeyException;
 
@@ -61,11 +60,6 @@ public class WnSafeExpiObjTable implements WnExpiObjTable {
             List<WnExpiObj> list = table.takeover(owner, duInMs, limit);
             return list;
         }
-        // 忙锁：系统有点不正常，需要打印一下日志以便追踪问题
-        catch (WnLockBusyException e) {
-            log.warn("takeover busy to tryLock", e);
-            return new LinkedList<>();
-        }
         // 败锁：没关系，就是取不到咯
         catch (WnLockFailException e) {
             return new LinkedList<>();
@@ -75,7 +69,7 @@ public class WnSafeExpiObjTable implements WnExpiObjTable {
             try {
                 locks.freeLock(lo);
             }
-            catch (WnLockBusyException | WnLockInvalidKeyException e) {
+            catch (WnLockInvalidKeyException e) {
                 log.warn("takeover fail to freeLock", e);
             }
         }

@@ -49,5 +49,7 @@ public interface WnLock {
      */
     boolean isSame(WnLock lock);
 
+    boolean matchPrivateKey(String privateKey);
+
     WnLock clone();
 }

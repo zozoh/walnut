@@ -2,11 +2,13 @@ package com.site0.walnut.impl.lock;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Date;
 
-import org.nutz.json.JsonField;
 import org.nutz.lang.random.R;
 import com.site0.walnut.api.lock.WnLock;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wtime;
 
 /**
  * 普通锁对象（仅是一个 POJO）
@@ -28,53 +30,58 @@ public class WnLockObj implements WnLock {
         return lo;
     }
 
-    @JsonField("nm")
     private String name;
 
-    @JsonField("hold")
-    private long holdTime;
+    private String hold;
 
-    @JsonField("expi")
-    private long expiTime;
+    private String expi;
 
-    @JsonField("pkey")
     private String privateKey;
 
-    @JsonField("ow")
     private String owner;
 
     private String hint;
 
-    private static final String REG = "^(([^=]+)=)?([^:]+)(:([^#]+))?(#(.+))?$";
+    private static final String REG = "^(([^;]+))"
+                                      + ";(name=([^,]*))"
+                                      + ",(owner=([^,]*))"
+                                      + ",(hold=([^,]*))"
+                                      + ",(expi=([^,]*))"
+                                      + ",(hint=(.*))"
+                                      + "$";
     private static final Pattern _P = Pattern.compile(REG);
 
-    // ${name}=${owner}:${privateKey}#${hint}
-    // LOCK_TASK_QUEUE=node73:78rr21#push_task
+    // %s;name=%s,owner=%s,hold=%s,expi=%s,hint=%s
+    // 78rr21;name=%s,owner=%s,hint=%s,hold=%s,expi=%s
 
     public void fromString(String str) {
         Matcher m = _P.matcher(str);
         if (m.find()) {
-            this.name = m.group(2);
-            this.owner = m.group(3);
-            this.privateKey = m.group(5);
-            this.hint = m.group(7);
+            this.privateKey = m.group(2);
+            this.name = m.group(4);
+            this.owner = m.group(6);
+            this.hold = m.group(8);
+            this.expi = m.group(10);
+            this.hint = m.group(12);
         }
     }
 
     public String toString() {
-        return String.format("%s; name=%s, owner=%s, hint=%s", privateKey, name, owner, hint);
-    }
-
-    public String toValue() {
-        return this.privateKey;
+        return String.format("%s;name=%s,owner=%s,hold=%s,expi=%s,hint=%s",
+                             privateKey,
+                             name,
+                             owner,
+                             this.hold,
+                             this.expi,
+                             hint);
     }
 
     @Override
     public WnLockObj clone() {
         WnLockObj lo = new WnLockObj();
         lo.name = name;
-        lo.holdTime = holdTime;
-        lo.expiTime = expiTime;
+        lo.hold = hold;
+        lo.expi = expi;
         lo.privateKey = privateKey;
         lo.owner = owner;
         lo.hint = hint;
@@ -90,25 +97,49 @@ public class WnLockObj implements WnLock {
     }
 
     public long getHoldTime() {
-        return holdTime;
+        if (Ws.isBlank(hold)) {
+            return 0;
+        }
+        return Wtime.parseAMS(this.hold);
     }
 
     public void setHoldTime(long holdTime) {
-        this.holdTime = holdTime;
+        Date d = new Date(holdTime);
+        this.hold = Wtime.format(d, "yyyy-MM-dd HH:mm:ss.SSS");
     }
 
     public long getExpiTime() {
-        return expiTime;
+        if (Ws.isBlank(expi)) {
+            return 0;
+        }
+        return Wtime.parseAMS(this.expi);
     }
 
     public void setExpiTime(long expiTime) {
-        this.expiTime = expiTime;
+        Date d = new Date(expiTime);
+        this.expi = Wtime.format(d, "yyyy-MM-dd HH:mm:ss.SSS");
+    }
+
+    public String getHold() {
+        return hold;
+    }
+
+    public void setHold(String hold) {
+        this.hold = hold;
+    }
+
+    public String getExpi() {
+        return expi;
+    }
+
+    public void setExpi(String expi) {
+        this.expi = expi;
     }
 
     @Override
     public boolean isExpired() {
         long now = Wn.now();
-        return (now - this.expiTime) > 0;
+        return (now - this.getExpiTime()) > 0;
     }
 
     public String getPrivateKey() {

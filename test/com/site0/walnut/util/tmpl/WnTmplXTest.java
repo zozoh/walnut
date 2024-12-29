@@ -327,7 +327,7 @@ public class WnTmplXTest {
 
     @Test
     public void test_simple_float() {
-        assertEquals("3.00", WnTmplX.exec("${n<float>}", Wlang.map("n:3")));
+        assertEquals("3", WnTmplX.exec("${n<float>}", Wlang.map("n:3")));
         assertEquals("0.98", WnTmplX.exec("${n<float>?.984}", null));
     }
 

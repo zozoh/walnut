@@ -27,13 +27,11 @@ public interface WnLockApi {
      *            实现类也可以自行规定时长的有效值区间等信息
      * @return 锁对象，如果有返回，一定不是 null
      * 
-     * @throws WnLockBusyException
-     *             当前锁服务繁忙，不能尝试加锁
      * @throws WnLockFailException
      *             加锁失败。当前锁已经被占用了
      */
     WnLock tryLock(String lockName, String owner, String hint, long duInMs)
-            throws WnLockBusyException, WnLockFailException;
+            throws WnLockFailException;
 
     /**
      * 获取一个锁对象，仅仅是为了运行时的日志之用，获得的锁不能用于释放。<br>
@@ -51,14 +49,14 @@ public interface WnLockApi {
      * @param lock
      *            锁对象
      * 
-     * @throws WnLockBusyException
-     *             当前锁服务繁忙，不能尝试释放锁
+     * @return 锁对象，如果释放失败，则会返回 null
+     * 
      * @throws WnLockInvalidKeyException
-     *             释放锁时失败，譬如私钥错误
-     *             
+     *             释放锁时失败，私钥错误
+     * 
      * @see #freeLock(String, String)
      */
-    void freeLock(WnLock lock) throws WnLockBusyException, WnLockInvalidKeyException;
+    WnLock freeLock(WnLock lock) throws WnLockInvalidKeyException;
 
     /**
      * 尝试释放一个锁
@@ -68,13 +66,12 @@ public interface WnLockApi {
      * @param privateKey
      *            锁的私有密码，创建锁的时候你可以拿到
      * 
-     * @throws WnLockBusyException
-     *             当前锁服务繁忙，不能尝试释放锁
+     * @return 锁对象，如果释放失败，则会返回 null
+     * 
      * @throws WnLockInvalidKeyException
      *             释放锁时失败，譬如私钥错误
      */
-    void freeLock(String lockName, String privateKey)
-            throws WnLockBusyException, WnLockInvalidKeyException;
+    WnLock freeLock(String lockName, String privateKey) throws WnLockInvalidKeyException;
 
     /**
      * @return 当前所有锁的列表

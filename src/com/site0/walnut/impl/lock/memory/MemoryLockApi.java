@@ -7,7 +7,6 @@ import java.util.Map;
 
 import com.site0.walnut.api.lock.WnLock;
 import com.site0.walnut.api.lock.WnLockApi;
-import com.site0.walnut.api.lock.WnLockBusyException;
 import com.site0.walnut.api.lock.WnLockFailException;
 import com.site0.walnut.api.lock.WnLockInvalidKeyException;
 import com.site0.walnut.impl.lock.WnLockObj;
@@ -23,7 +22,7 @@ public class MemoryLockApi implements WnLockApi {
 
     @Override
     public synchronized WnLock tryLock(String lockName, String owner, String hint, long duInMs)
-            throws WnLockBusyException, WnLockFailException {
+            throws WnLockFailException {
         // 那么尝试获取锁
         String key = _KEY(lockName);
         WnLockObj lo = locks.get(key);
@@ -51,23 +50,23 @@ public class MemoryLockApi implements WnLockApi {
         }
         // 去掉 privateKey 以防小人作祟
         // 对方因为不知道 privateKey，所以没法 free 这个锁
-        lo = lo.clone();
-        lo.setPrivateKey(null);
-        lo.setName(lockName);
-        return lo;
+        WnLockObj l2 = lo.clone();
+        l2.setPrivateKey(null);
+        l2.setName(lockName);
+        return l2;
     }
 
     @Override
-    public synchronized void freeLock(WnLock lock) throws WnLockInvalidKeyException {
-        freeLock(lock.getName(), lock.getPrivateKey());
+    public synchronized WnLock freeLock(WnLock lock) throws WnLockInvalidKeyException {
+        return freeLock(lock.getName(), lock.getPrivateKey());
     }
 
     @Override
-    public synchronized void freeLock(String lockName, String privateKey)
+    public synchronized WnLock freeLock(String lockName, String privateKey)
             throws WnLockInvalidKeyException {
         // 防空
         if (null == lockName) {
-            return;
+            return null;
         }
 
         String key = _KEY(lockName);
@@ -75,7 +74,7 @@ public class MemoryLockApi implements WnLockApi {
 
         // 木有锁
         if (null == lo) {
-            return;
+            return null;
         }
         // 判断一下
         // 校验密码呀失败
@@ -84,6 +83,7 @@ public class MemoryLockApi implements WnLockApi {
         }
         // 移除锁
         locks.remove(key);
+        return lo;
 
     }
 
@@ -91,7 +91,9 @@ public class MemoryLockApi implements WnLockApi {
     public List<WnLock> list() {
         List<WnLock> list = new ArrayList<>(locks.size());
         for (WnLock lo : locks.values()) {
-            list.add(lo.clone());
+            WnLockObj l2 = (WnLockObj) lo.clone();
+            l2.setPrivateKey(null);
+            list.add(l2);
         }
         return list;
     }

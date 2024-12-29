@@ -7,7 +7,6 @@ import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.lock.WnLock;
 import com.site0.walnut.api.lock.WnLockApi;
-import com.site0.walnut.api.lock.WnLockBusyException;
 import com.site0.walnut.api.lock.WnLockFailException;
 import com.site0.walnut.api.lock.WnLockInvalidKeyException;
 import com.site0.walnut.ext.sys.redis.Wedis;
@@ -16,6 +15,8 @@ import com.site0.walnut.impl.lock.WnLockObj;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Ws;
 
+import redis.clients.jedis.ScanParams;
+import redis.clients.jedis.ScanResult;
 import redis.clients.jedis.params.SetParams;
 
 public class QuickRedisLockApi implements WnLockApi {
@@ -58,10 +59,9 @@ public class QuickRedisLockApi implements WnLockApi {
 
     @Override
     public WnLock tryLock(String lockName, String owner, String hint, long duInMs)
-            throws WnLockBusyException, WnLockFailException {
+            throws WnLockFailException {
         // 准备锁
         WnLockObj lo = this.genLock(lockName, owner, hint);
-        String lv = lo.toValue();
 
         // 准备结果
         boolean ok = false;
@@ -70,6 +70,10 @@ public class QuickRedisLockApi implements WnLockApi {
         long duInSec = duInMs / 1000L;
 
         while (!ok) {
+            long now = System.currentTimeMillis();
+            lo.setHoldTime(now);
+            lo.setExpiTime(now + duInMs);
+            String lv = lo.toString();
             // 用 SET NX EX 去设置锁
             ok = Wedis.runGet(conf, jed -> {
                 SetParams params = new SetParams();
@@ -115,19 +119,29 @@ public class QuickRedisLockApi implements WnLockApi {
     @Override
     public WnLock getLock(String lockName) {
         String key = _KEY(lockName);
+        WnLockObj lo = _get_lock(key);
+        if (null == lo) {
+            return lo;
+        }
+        lo.setPrivateKey(null);
+        lo.setName(lockName);
+        return lo;
+    }
+
+    private WnLockObj _get_lock(String key) {
         String str = Wedis.runGet(conf, jed -> {
             return jed.get(key);
         });
         if (!Ws.isBlank(str)) {
-            return WnLockObj.create(lockName, str);
+            WnLockObj lo = WnLockObj.create(str);
+            return lo;
         }
         return null;
     }
 
     @Override
-    public synchronized void freeLock(WnLock lock)
-            throws WnLockInvalidKeyException, WnLockBusyException {
-        freeLock(lock.getName(), lock.getPrivateKey());
+    public synchronized WnLock freeLock(WnLock lock) throws WnLockInvalidKeyException {
+        return freeLock(lock.getName(), lock.getPrivateKey());
     }
 
     // Lua 脚本，将判断锁和释放锁变为一步操作
@@ -139,21 +153,48 @@ public class QuickRedisLockApi implements WnLockApi {
                                                 + "end";
 
     @Override
-    public void freeLock(String lockName, String privateKey)
-            throws WnLockBusyException, WnLockInvalidKeyException {
+    public WnLock freeLock(String lockName, String privateKey) throws WnLockInvalidKeyException {
         String key = _KEY(lockName);
+        WnLock lo = _get_lock(key);
+        if (null == lo) {
+            return null;
+        }
+        if (!lo.matchPrivateKey(privateKey)) {
+            throw new WnLockInvalidKeyException(lo);
+        }
         List<String> ks = Wlang.list(key);
-        List<String> vs = Wlang.list(privateKey);
+        List<String> vs = Wlang.list(lo.toString());
         Wedis.run(conf, jed -> {
             jed.eval(LUA_FREE_LOCK, ks, vs);
         });
+        return lo;
     }
 
     @Override
     public List<WnLock> list() {
         List<WnLock> re = new LinkedList<>();
+        int limit = 10000;
         Wedis.run(conf, jed -> {
-            // TODO
+            String pattern = this.prefix + "*";
+            int cur = 0;
+            ScanParams sp = new ScanParams();
+            sp.count(100);
+            sp.match(pattern);
+            do {
+                ScanResult<String> sr = jed.scan(Integer.toString(cur), sp);
+                for (String key : sr.getResult()) {
+                    String str = jed.get(key);
+                    WnLockObj lo = WnLockObj.create(str);
+                    lo.setPrivateKey(null);
+                    re.add(lo);
+                }
+                // 超过了限制
+                if (re.size() >= limit) {
+                    break;
+                }
+                String nextCur = sr.getCursor();
+                cur = Integer.parseInt(nextCur);
+            } while (cur > 0);
         });
         return re;
     }

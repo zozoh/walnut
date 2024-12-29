@@ -83,17 +83,10 @@ public abstract class AbstractWnLockApiTest extends IoCoreTest {
                 catch (WnLockFailException e) {
 
                 }
-                // 太忙？ 这是不可能的吧
-                catch (WnLockBusyException e) {
-                    fail(e.toString());
-                }
                 // 释放 null 锁，不会出错
                 finally {
                     try {
                         locks.freeLock(lo);
-                    }
-                    catch (WnLockBusyException e) {
-                        throw Wlang.wrapThrow(e);
                     }
                     catch (WnLockInvalidKeyException e) {
                         throw Wlang.wrapThrow(e);
