@@ -23,9 +23,9 @@ public class WnBgRunTaskConsumer implements Runnable {
 
     private static final Log log = Wlog.getBG_TASK();
 
-    WnSysTaskApi taskApi;
-    WnAuthService auth;
-    WnBoxRunning running;
+    private WnSysTaskApi taskApi;
+    private WnAuthService auth;
+    private WnBoxRunning running;
 
     public WnBgRunTaskConsumer(WnServiceFactory sf, WnRun _run) {
         this.taskApi = sf.getTaskApi();
