@@ -1,48 +1,52 @@
 # 过滤器简介
 
-`@try` 尝试加锁
+`@get` 获取一个指定的锁信息。
+它只是用来读一个锁，因此返回的锁信息并不包括 `privateKey`
+从而防止你释放锁。
 
 # 用法
 
 ```bash
-lock @try
-  [lockName]        # 锁名
-  [-du 3000]        # 锁的有效期，单位毫秒，默认 3000 毫秒
-  [-hint xxxx]      # 【选】一段文字的描述，描述锁试用的场景，便于排查死锁
-                    # 默认文字为 'USER_ASK'
-  [-fail {...}]     # 一段锁对象json，当加锁失败后，默认输出 null
-                    # 这里可以重新定义，以便生成一个假的锁对象
+lock @get
+  [lockName ...]    # 锁名，可以说多个
+  [-strict]         # 严格模式，任何一个锁不存在，就会抛出异常
+                    # 即，输出错误: e.cmd.lock.NoExists
 ```
 
 # 示例
 
 ```bash
-# 创建一个锁, 默认3秒过期
-> lock @try MyLock;
+# 获取一个锁
+> lock @get lockA
 {
-   name: "MyLock",
-   hold: "2024-12-30 01:58:29.273",
-   expi: "2024-12-30 01:58:39.273",
-   privateKey: "i4sf39w56v",
-   owner: "demo",
+   name: "lockA",
+   hold: "2025-01-03 11:34:48.210",
+   expi: "2025-01-03 11:34:51.210",
+   owner: "bunya",
    hint: "USER_ASK"
 }
 
-# 创建一个锁, 20秒过期，如果失败，则输出一个名为 FAIL 的锁
-> lock @try MyLock -du 20000 -fail '{name:"FAIL"}'
-# ....................... 成功的返回
-{
-   name: "MyLock",
-   hold: "2024-12-30 02:00:04.848",
-   expi: "2024-12-30 02:00:24.848",
-   privateKey: "8q4qf5pycb",
-   owner: "demo",
+# 获取多个锁
+> lock @get lockA lockB lockC
+[{
+   name: "lockA",
+   hold: "2025-01-03 11:36:24.746",
+   expi: "2025-01-03 11:53:04.746",
+   owner: "bunya",
    hint: "USER_ASK"
-}
-# ....................... 加锁失败
-{
-   name: "FAIL"
-}
+}, {
+   name: "lockB",
+   hold: "2025-01-03 11:36:28.040",
+   expi: "2025-01-03 11:53:08.040",
+   owner: "bunya",
+   hint: "USER_ASK"
+}, {
+   name: "lockC",
+   hold: "2025-01-03 11:36:31.464",
+   expi: "2025-01-03 11:53:11.464",
+   owner: "bunya",
+   hint: "USER_ASK"
+}]
 ```
 
 
