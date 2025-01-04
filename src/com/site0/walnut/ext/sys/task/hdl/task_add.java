@@ -2,6 +2,8 @@ package com.site0.walnut.ext.sys.task.hdl;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Encoding;
+
+import com.adobe.internal.xmp.impl.Base64;
 import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.core.bean.WnIoObj;
@@ -13,7 +15,7 @@ import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 
-@JvmHdlParamArgs("cqn")
+@JvmHdlParamArgs(value = "cqn")
 public class task_add implements JvmHdl {
 
     @Override
@@ -24,12 +26,17 @@ public class task_add implements JvmHdl {
         // 设置任务命令
         String cmdText = null;
 
+        // 采用 base64 输入子命令
+        if (hc.params.has("base64")) {
+            String str = hc.params.get("base64");
+            cmdText = Base64.decode(str);
+        }
         // 从标准输入读取
-        if (hc.params.vals.length == 0) {
+        else if (hc.params.vals.length == 0) {
             String str = sys.in.readAll();
             cmdText = Ws.trim(str);
         }
-        // 读取内容
+        // 将所有的参数都变成命令
         else {
             cmdText = Ws.join(hc.args, " ");
         }

@@ -1,12 +1,17 @@
 package com.site0.walnut.web.bgt;
 
 import java.io.InputStream;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.ByteInputStream;
 import org.nutz.log.Log;
+import org.nutz.trans.Atom;
+
 import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.auth.WnAuthService;
+import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.box.WnServiceFactory;
 import com.site0.walnut.api.lock.WnLockBusyException;
 import com.site0.walnut.api.lock.WnLockFailException;
@@ -17,7 +22,9 @@ import com.site0.walnut.ext.sys.task.WnSysTaskQuery;
 import com.site0.walnut.impl.srv.WnBoxRunning;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
+import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnRun;
+import com.site0.walnut.web.WnConfig;
 
 public class WnBgRunTaskConsumer implements Runnable {
 
@@ -26,15 +33,29 @@ public class WnBgRunTaskConsumer implements Runnable {
     private WnSysTaskApi taskApi;
     private WnAuthService auth;
     private WnBoxRunning running;
+    private WnAuthSession rootSession;
 
-    public WnBgRunTaskConsumer(WnServiceFactory sf, WnRun _run) {
+    // 创建一个固定大小为 3 的线程池
+    private ThreadPoolExecutor execPool;
+
+    public WnBgRunTaskConsumer(WnConfig config,
+                               WnServiceFactory sf,
+                               WnRun _run,
+                               WnAuthSession rootSe) {
         this.taskApi = sf.getTaskApi();
         this.auth = sf.getAuthApi();
         this.running = _run.createRunning(true);
+        this.rootSession = rootSe;
+
+        int N = config.getInt("bg-task-pool-size", 2);
+        this.execPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(N);
     }
 
     @Override
     public void run() {
+        // 准备上下文信息
+        Wn.WC().setSession(rootSession);
+
         // 准备查询对象
         WnSysTaskQuery q = new WnSysTaskQuery();
         q.setLimit(1);
@@ -44,9 +65,18 @@ public class WnBgRunTaskConsumer implements Runnable {
             try {
                 WnSysTask task = taskApi.popTask(q);
 
+                // 线程池满了，休息3秒
+                int pool_a_count = execPool.getActiveCount();
+                int pool_max_size = execPool.getMaximumPoolSize();
+                if (pool_a_count >= pool_max_size) {
+                    log.infof("execPool is full: %s==%s, sleep 3s", pool_a_count, pool_max_size);
+                    taskApi.waitForMoreTask(3000);
+                    continue;
+                }
+
                 // 没有更多任务，那么就睡久一点: 1分钟
                 if (null == task) {
-                    Wlang.wait(taskApi, 60000);
+                    taskApi.waitForMoreTask(60000);
                     continue;
                 }
                 log.infof("pop:%s", task.toString());
@@ -57,10 +87,27 @@ public class WnBgRunTaskConsumer implements Runnable {
 
                 // 执行
                 InputStream ins = new ByteInputStream(task.input);
-                
+
+                // 看看线程里是不是报退出
+                WnSysTaskException[] _atom_error = new WnSysTaskException[1];
+
                 // TODO 这里用线程池执行才好
                 // TODO 执行失败，要不要重新加会队列？ 来一个重试次数啥的
-                taskApi.runTask(running, task.meta, user, ins);
+                execPool.submit(new Atom() {
+                    public void run() {
+                        try {
+                            taskApi.runTask(running, task.meta, user, ins);
+                        }
+                        catch (WnSysTaskException e) {
+                            _atom_error[0] = e;
+                        }
+                    }
+                });
+
+                // 有异常了，抛一下
+                if (null != _atom_error[0]) {
+                    throw _atom_error[0];
+                }
 
                 // 任务执行完毕后休息1ms，释放一下 CPU
                 Wlang.quiteSleep(1);

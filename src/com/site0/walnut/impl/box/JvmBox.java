@@ -74,7 +74,7 @@ public class JvmBox implements WnBox {
                 continue;
             if (Strings.trim(cmdLine).endsWith("&")) {
                 cmdLine = cmdLine.substring(0, cmdLine.length() - 1);
-                cmdLine = "job add -base64 true "
+                cmdLine = "task add -base64 "
                           + Base64.encodeToString(cmdLine.getBytes(Encoding.CHARSET_UTF8), false);
             }
             runner.run(cmdLine);

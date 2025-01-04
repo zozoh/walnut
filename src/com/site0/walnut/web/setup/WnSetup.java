@@ -23,6 +23,7 @@ import org.nutz.resource.Scans;
 import com.site0.walnut.WnVersion;
 import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.auth.WnAuthService;
+import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.box.WnBoxService;
 import com.site0.walnut.api.box.WnServiceFactory;
 import com.site0.walnut.api.io.WnIo;
@@ -235,11 +236,12 @@ public class WnSetup implements Setup {
         // -----------------------------------------
         WnServiceFactory sf = ioc.get(WnServiceFactory.class, "serviceFactory");
         WnRun run = ioc.get(WnRun.class);
+        WnAuthSession rootSession = auth.createSession(root, true);
 
         //
         // 后台任务线程
         //
-        Runnable bgTask = new WnBgRunTaskConsumer(sf, run);
+        Runnable bgTask = new WnBgRunTaskConsumer(conf, sf, run, rootSession);
         this.bgtTask = new Thread(bgTask, "BGT_TASK");
         this.bgtTask.start();
         log.infof("--> THREAD: %s started", this.bgtTask.getName());

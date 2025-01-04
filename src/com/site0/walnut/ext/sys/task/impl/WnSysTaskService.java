@@ -19,6 +19,7 @@ import com.site0.walnut.ext.sys.task.WnSysTask;
 import com.site0.walnut.ext.sys.task.WnSysTaskApi;
 import com.site0.walnut.ext.sys.task.WnSysTaskException;
 import com.site0.walnut.ext.sys.task.WnSysTaskQuery;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 import com.site0.walnut.util.Ws;
@@ -215,6 +216,20 @@ public class WnSysTaskService implements WnSysTaskApi {
 
         // 搞定
         return list;
+    }
+
+    @Override
+    public void notifyForNewTaskComing() {
+        Wlang.notifyAll(this);
+    }
+
+    @Override
+    public void waitForMoreTask(long waitInMs) {
+        // 怎么也得等个几秒
+        if (waitInMs < 0) {
+            waitInMs = 3000;
+        }
+        Wlang.wait(this, waitInMs);
     }
 
     public WnIo getIo() {

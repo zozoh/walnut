@@ -16,7 +16,6 @@ import com.site0.walnut.ext.sys.task.WnSysTask;
 import com.site0.walnut.ext.sys.task.WnSysTaskApi;
 import com.site0.walnut.ext.sys.task.WnSysTaskException;
 import com.site0.walnut.ext.sys.task.WnSysTaskQuery;
-import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 
 public class WnSafeSysTaskService implements WnSysTaskApi {
@@ -65,8 +64,6 @@ public class WnSafeSysTaskService implements WnSysTaskApi {
                 log.warn("sysTaskApi.addTask fail to freeLock", e);
                 throw new WnSysTaskException(e);
             }
-            // 最后，尝试一下通知任务处理线程
-            Wlang.notifyAll(this);
         }
     }
 
@@ -120,6 +117,16 @@ public class WnSafeSysTaskService implements WnSysTaskApi {
                 throw new WnSysTaskException(e);
             }
         }
+    }
+
+    @Override
+    public void notifyForNewTaskComing() {
+        tasks.notifyForNewTaskComing();
+    }
+
+    @Override
+    public void waitForMoreTask(long waitInMs) {
+        tasks.waitForMoreTask(waitInMs);
     }
 
     @Override

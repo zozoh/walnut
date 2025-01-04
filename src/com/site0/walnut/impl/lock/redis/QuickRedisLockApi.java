@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+
 import com.site0.walnut.api.lock.WnLock;
 import com.site0.walnut.api.lock.WnLockApi;
 import com.site0.walnut.api.lock.WnLockFailException;
@@ -13,6 +15,7 @@ import com.site0.walnut.ext.sys.redis.Wedis;
 import com.site0.walnut.ext.sys.redis.WedisConfig;
 import com.site0.walnut.impl.lock.WnLockObj;
 import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Ws;
 
 import redis.clients.jedis.ScanParams;
@@ -20,6 +23,8 @@ import redis.clients.jedis.ScanResult;
 import redis.clients.jedis.params.SetParams;
 
 public class QuickRedisLockApi implements WnLockApi {
+
+    private static final Log log = Wlog.getIO();
 
     private String prefix;
 
@@ -54,7 +59,8 @@ public class QuickRedisLockApi implements WnLockApi {
         NutMap setup = conf.setup();
         this.prefix = setup.getString("prefix", "lock:");
         this.retryInterval = setup.getLong("retry-interval", 100);
-        this.retryTimes = setup.getInt("retry-times", 5);
+        // this.retryTimes = setup.getInt("retry-times", 5);
+        this.retryTimes = setup.getInt("retry-times", 0);
     }
 
     @Override
@@ -91,7 +97,7 @@ public class QuickRedisLockApi implements WnLockApi {
             retryCount++;
 
             // 超过重试次数
-            if (this.retryTimes > 0 && retryCount > this.retryTimes) {
+            if (retryCount > this.retryTimes) {
                 break;
             }
 
@@ -157,6 +163,9 @@ public class QuickRedisLockApi implements WnLockApi {
         String key = _KEY(lockName);
         WnLock lo = _get_lock(key);
         if (null == lo) {
+            if (log.isWarnEnabled()) {
+                log.warnf("Fail to freeLock, key=%s, privateKey=%s", key, privateKey);
+            }
             return null;
         }
         if (!lo.matchPrivateKey(privateKey)) {
