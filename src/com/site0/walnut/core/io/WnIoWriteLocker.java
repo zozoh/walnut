@@ -22,10 +22,6 @@ import com.site0.walnut.util.Ws;
  */
 public class WnIoWriteLocker {
 
-    public static String genLockName(String objId) {
-        return "write:" + objId;
-    }
-
     private WnLockApi locks;
 
     private String lockName;
@@ -34,14 +30,14 @@ public class WnIoWriteLocker {
 
     private String hint;
 
-    public WnIoWriteLocker(WnLockApi locks, WnObj obj, String methodName) {
+    public WnIoWriteLocker(WnLockApi locks, WnObj obj, String[] operations, String methodName) {
         this.locks = locks;
         this.myName = Wn.WC().checkMyName();
         this.hint = "io_" + methodName;
         this._set_lock_name(obj.id());
     }
 
-    public WnIoWriteLocker(WnLockApi locks, String objId, String methodName) {
+    public WnIoWriteLocker(WnLockApi locks, String objId, String[] operations, String methodName) {
         this.locks = locks;
         this.myName = Wn.WC().checkMyName();
         this.hint = "io_" + methodName;
@@ -52,7 +48,7 @@ public class WnIoWriteLocker {
         if (null == objId || Ws.isBlank(objId)) {
             this.lockName = null;
         } else {
-            this.lockName = genLockName(objId);
+            this.lockName = "write:" + objId;
         }
     }
 

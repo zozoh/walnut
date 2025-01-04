@@ -15,7 +15,7 @@ import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 
-@JvmHdlParamArgs(value = "cqn")
+@JvmHdlParamArgs(value = "cqn", regex = "^(quiet|json)$")
 public class task_add implements JvmHdl {
 
     @Override
@@ -36,9 +36,9 @@ public class task_add implements JvmHdl {
             String str = sys.in.readAll();
             cmdText = Ws.trim(str);
         }
-        // 将所有的参数都变成命令
+        // 将参数拼合
         else {
-            cmdText = Ws.join(hc.args, " ");
+            cmdText = Ws.join(hc.params.vals, " ");
         }
 
         // 防守
@@ -88,9 +88,20 @@ public class task_add implements JvmHdl {
         // 切换账号 & 创建任务
         taskApi.addTask(oTask, input);
 
-        // 输出内容
-        String json = Json.toJson(oTask, hc.jfmt);
-        sys.out.println(json);
+        // 静默
+        if (hc.params.is("quiet")) {}
+        // 输出JSON
+        else if (hc.params.is("json")) {
+            String json = Json.toJson(oTask, hc.jfmt);
+            sys.out.println(json);
+        }
+        // 输出普通文本
+        else {
+            sys.out.printlnf("task created: id=%s, user=%s, command=%s",
+                             oTask.id(),
+                             oTask.get("user"),
+                             oTask.get("command"));
+        }
     }
 
 }

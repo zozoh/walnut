@@ -65,18 +65,24 @@ public class WnIoSaftyWrapper implements WnIo {
         this.lockApi = lockApi;
     }
 
-    private void _safe_run(String methodName, WnObj obj, Atom atom) {
-        WnIoWriteLocker locker = new WnIoWriteLocker(lockApi, obj, methodName);
+    private void _safe_run(String methodName, WnObj obj, Atom atom, String[] operations) {
+        WnIoWriteLocker locker = new WnIoWriteLocker(lockApi, obj, operations, methodName);
         locker.safeRun(atom);
     }
 
-    private <T> T _safe_return(String methodName, WnObj obj, Proton<T> proton) {
-        WnIoWriteLocker locker = new WnIoWriteLocker(lockApi, obj, methodName);
+    private <T> T _safe_return(String methodName,
+                               WnObj obj,
+                               Proton<T> proton,
+                               String[] operations) {
+        WnIoWriteLocker locker = new WnIoWriteLocker(lockApi, obj, operations, methodName);
         return locker.safeReturn(proton);
     }
 
-    private <T> T _safe_return(String methodName, String objId, Proton<T> proton) {
-        WnIoWriteLocker locker = new WnIoWriteLocker(lockApi, objId, methodName);
+    private <T> T _safe_return(String methodName,
+                               String objId,
+                               Proton<T> proton,
+                               String[] operations) {
+        WnIoWriteLocker locker = new WnIoWriteLocker(lockApi, objId, operations, methodName);
         return locker.safeReturn(proton);
     }
 
@@ -121,7 +127,7 @@ public class WnIoSaftyWrapper implements WnIo {
             protected WnObj exec() {
                 return io.move(src, destPath);
             }
-        });
+        }, new String[]{"meta"});
     }
 
     public WnObj move(WnObj src, String destPath, int mode) {
@@ -129,7 +135,7 @@ public class WnIoSaftyWrapper implements WnIo {
             protected WnObj exec() {
                 return io.move(src, destPath, mode);
             }
-        });
+        }, new String[]{"meta"});
     }
 
     public WnObj rename(WnObj o, String nm) {
@@ -137,7 +143,7 @@ public class WnIoSaftyWrapper implements WnIo {
             protected WnObj exec() {
                 return io.rename(o, nm);
             }
-        });
+        }, new String[]{"meta"});
     }
 
     public WnObj rename(WnObj o, String nm, boolean keepType) {
@@ -145,7 +151,7 @@ public class WnIoSaftyWrapper implements WnIo {
             protected WnObj exec() {
                 return io.rename(o, nm, keepType);
             }
-        });
+        }, new String[]{"meta"});
     }
 
     public WnObj rename(WnObj o, String nm, int mode) {
@@ -153,7 +159,7 @@ public class WnIoSaftyWrapper implements WnIo {
             protected WnObj exec() {
                 return io.rename(o, nm, mode);
             }
-        });
+        }, new String[]{"meta"});
     }
 
     public void set(WnObj o, String regex) {
@@ -161,7 +167,7 @@ public class WnIoSaftyWrapper implements WnIo {
             public void run() {
                 io.set(o, regex);
             }
-        });
+        }, new String[]{"meta"});
     }
 
     public WnObj setBy(String id, NutBean map, boolean returnNew) {
@@ -169,7 +175,7 @@ public class WnIoSaftyWrapper implements WnIo {
             protected WnObj exec() {
                 return io.setBy(id, map, returnNew);
             }
-        });
+        }, new String[]{"meta"});
     }
 
     public WnObj setBy(WnQuery q, NutBean map, boolean returnNew) {
@@ -309,7 +315,7 @@ public class WnIoSaftyWrapper implements WnIo {
             protected WnObj exec() {
                 return io.setBy(id, key, val, returnNew);
             }
-        });
+        }, new String[]{"meta"});
     }
 
     public WnObj setBy(WnQuery q, String key, Object val, boolean returnNew) {
@@ -321,7 +327,7 @@ public class WnIoSaftyWrapper implements WnIo {
             public void run() {
                 io.setMount(o, mnt);
             }
-        });
+        }, new String[]{"meta"});
     }
 
     public void writeMeta(WnObj o, Object meta) {
@@ -329,7 +335,7 @@ public class WnIoSaftyWrapper implements WnIo {
             public void run() {
                 io.writeMeta(o, meta);
             }
-        });
+        }, new String[]{"content"});
     }
 
     public void appendMeta(WnObj o, Object meta) {
@@ -337,7 +343,7 @@ public class WnIoSaftyWrapper implements WnIo {
             public void run() {
                 io.appendMeta(o, meta);
             }
-        });
+        }, new String[]{"content"});
     }
 
     public void appendMeta(WnObj o, Object meta, boolean keepType) {
@@ -345,7 +351,7 @@ public class WnIoSaftyWrapper implements WnIo {
             public void run() {
                 io.appendMeta(o, meta, keepType);
             }
-        });
+        }, new String[]{"content"});
     }
 
     public String readText(WnObj o) {
@@ -373,7 +379,7 @@ public class WnIoSaftyWrapper implements WnIo {
             protected Long exec() {
                 return io.writeImage(o, im);
             }
-        });
+        }, new String[]{"content"});
     }
 
     public long writeText(WnObj o, CharSequence cs) {
@@ -381,7 +387,7 @@ public class WnIoSaftyWrapper implements WnIo {
             protected Long exec() {
                 return io.writeText(o, cs);
             }
-        });
+        }, new String[]{"content"});
     }
 
     public long appendText(WnObj o, CharSequence cs) {
@@ -389,7 +395,7 @@ public class WnIoSaftyWrapper implements WnIo {
             protected Long exec() {
                 return io.appendText(o, cs);
             }
-        });
+        }, new String[]{"content"});
     }
 
     public long writeJson(WnObj o, Object obj, JsonFormat fmt) {
@@ -397,7 +403,7 @@ public class WnIoSaftyWrapper implements WnIo {
             protected Long exec() {
                 return io.writeJson(o, obj, fmt);
             }
-        });
+        }, new String[]{"content"});
     }
 
     public long writeBytes(WnObj o, byte[] buf) {
@@ -405,7 +411,7 @@ public class WnIoSaftyWrapper implements WnIo {
             protected Long exec() {
                 return io.writeBytes(o, buf);
             }
-        });
+        }, new String[]{"content"});
     }
 
     public long writeBytes(WnObj o, byte[] buf, int off, int len) {
@@ -413,7 +419,7 @@ public class WnIoSaftyWrapper implements WnIo {
             protected Long exec() {
                 return io.writeBytes(o, buf, off, len);
             }
-        });
+        }, new String[]{"content"});
     }
 
     public long writeAndClose(WnObj o, InputStream ins) {
@@ -421,7 +427,7 @@ public class WnIoSaftyWrapper implements WnIo {
             protected Long exec() {
                 return io.writeAndClose(o, ins);
             }
-        });
+        }, new String[]{"content"});
     }
 
     public Reader getReader(WnObj o, long off) {
@@ -445,7 +451,7 @@ public class WnIoSaftyWrapper implements WnIo {
             protected Long exec() {
                 return io.copyData(a, b);
             }
-        });
+        }, new String[]{"content"});
     }
 
     public String open(WnObj o, int mode) {
@@ -485,7 +491,7 @@ public class WnIoSaftyWrapper implements WnIo {
             public void run() {
                 io.delete(o);
             }
-        });
+        }, new String[]{"meta", "content"});
     }
 
     public void delete(WnObj o, boolean r) {
@@ -493,7 +499,7 @@ public class WnIoSaftyWrapper implements WnIo {
             public void run() {
                 io.delete(o, r);
             }
-        });
+        }, new String[]{"meta", "content"});
     }
 
     public void trancate(WnObj o, long len) {
@@ -501,7 +507,7 @@ public class WnIoSaftyWrapper implements WnIo {
             public void run() {
                 io.trancate(o, len);
             }
-        });
+        }, new String[]{"meta", "content"});
     }
 
     public long getPos(String hid) {
@@ -513,7 +519,10 @@ public class WnIoSaftyWrapper implements WnIo {
     }
 
     public OutputStream getOutputStream(WnObj o, long off) {
-        WnIoWriteLocker locker = new WnIoWriteLocker(lockApi, o, "getOutputStream");
+        WnIoWriteLocker locker = new WnIoWriteLocker(lockApi,
+                                                     o,
+                                                     new String[]{"meta", "content"},
+                                                     "getOutputStream");
         while (true) {
             try {
                 WnLock lock = locker.tryLock();

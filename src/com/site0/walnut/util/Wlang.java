@@ -1962,6 +1962,19 @@ public class Wlang {
     }
 
     /**
+     * 通知对象的同步锁
+     *
+     * @param lock
+     *            锁对象
+     */
+    public static void notifyOne(Object lock) {
+        if (null != lock)
+            synchronized (lock) {
+                lock.notify();
+            }
+    }
+
+    /**
      * 获取指定文件的 MD5 值
      *
      * @param f

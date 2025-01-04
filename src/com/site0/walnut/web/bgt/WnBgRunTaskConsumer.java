@@ -1,8 +1,10 @@
 package com.site0.walnut.web.bgt;
 
 import java.io.InputStream;
-import java.util.concurrent.Executors;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.ByteInputStream;
@@ -47,8 +49,16 @@ public class WnBgRunTaskConsumer implements Runnable {
         this.running = _run.createRunning(true);
         this.rootSession = rootSe;
 
-        int N = config.getInt("bg-task-pool-size", 2);
-        this.execPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(N);
+        int corePoolSize = config.getInt("bg-task-pool-core-size", 5);
+        int maximumPoolSize = config.getInt("bg-task-pool-max-size", 100);
+        long keepAliveTime = config.getLong("bg-task-pool-keep-alive", 5000);
+        TimeUnit unit = TimeUnit.MILLISECONDS;
+        BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<>();
+        this.execPool = new ThreadPoolExecutor(corePoolSize,
+                                               maximumPoolSize,
+                                               keepAliveTime,
+                                               unit,
+                                               workQueue);
     }
 
     @Override
@@ -92,7 +102,7 @@ public class WnBgRunTaskConsumer implements Runnable {
                 WnSysTaskException[] _atom_error = new WnSysTaskException[1];
 
                 // TODO 这里用线程池执行才好
-                // TODO 执行失败，要不要重新加会队列？ 来一个重试次数啥的
+                // TODO 执行失败，要不要重新加回队列？ 来一个重试次数啥的
                 execPool.submit(new Atom() {
                     public void run() {
                         try {

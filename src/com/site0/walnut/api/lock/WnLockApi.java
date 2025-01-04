@@ -8,6 +8,20 @@ import java.util.List;
  * @author zozoh(zozohtnt@gmail.com)
  */
 public interface WnLockApi {
+    
+    /**
+     * 通知等待的消费线程，有新任务来了
+     */
+    void notifyWhenLockFree();
+
+    /**
+     * 消费线程通过这个方法可以挂起等待
+     * 
+     * @param waitInMs
+     *            挂起等待时长，如果小于等于 0 则根据子类自己理解 譬如 0 可以认为是永久等待， 或者小于等于 0
+     *            可以给一个默认值，譬如1分钟
+     */
+    void waitForLockFree(long waitInMs);
 
     /**
      * 尝试获取一个锁。如果成功则返回锁对象，如果这个锁被占用，抛出异常

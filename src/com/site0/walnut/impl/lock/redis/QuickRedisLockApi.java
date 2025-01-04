@@ -30,6 +30,20 @@ public class QuickRedisLockApi implements WnLockApi {
 
     private WedisConfig conf;
 
+    @Override
+    public void notifyWhenLockFree() {
+        Wlang.notifyOne(this);
+    }
+
+    @Override
+    public void waitForLockFree(long waitInMs) {
+        // 怎么也得等个几秒
+        if (waitInMs < 0) {
+            waitInMs = 1000;
+        }
+        Wlang.wait(this, waitInMs);
+    }
+
     /**
      * 加锁失败，阻塞并重试的间隔时间（毫秒）
      * <p>

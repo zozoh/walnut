@@ -143,10 +143,17 @@ var ioc = {
       expiTable: { refer: "safeExpiObjTable" }
     }
   },
-  io: {
+  lockedIo: {
     type: "com.site0.walnut.core.io.WnIoSaftyWrapper",
     fields: {
       io: { refer: "hookedIo" }
+    }
+  },
+  io: {
+    type: "com.site0.walnut.core.io.WnIoHookedWrapper",
+    fields: {
+      io: { refer: "rawIo" },
+      expiTable: { refer: "safeExpiObjTable" }
     }
   }
 };

@@ -220,7 +220,7 @@ public class WnSysTaskService implements WnSysTaskApi {
 
     @Override
     public void notifyForNewTaskComing() {
-        Wlang.notifyAll(this);
+        Wlang.notifyOne(this);
     }
 
     @Override

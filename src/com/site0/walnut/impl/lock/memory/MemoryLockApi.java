@@ -10,6 +10,7 @@ import com.site0.walnut.api.lock.WnLockApi;
 import com.site0.walnut.api.lock.WnLockFailException;
 import com.site0.walnut.api.lock.WnLockInvalidKeyException;
 import com.site0.walnut.impl.lock.WnLockObj;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 
 public class MemoryLockApi implements WnLockApi {
@@ -18,6 +19,20 @@ public class MemoryLockApi implements WnLockApi {
 
     public MemoryLockApi() {
         this.locks = new HashMap<>();
+    }
+
+    @Override
+    public void notifyWhenLockFree() {
+        Wlang.notifyOne(this);
+    }
+
+    @Override
+    public void waitForLockFree(long waitInMs) {
+        // 怎么也得等个几秒
+        if (waitInMs < 0) {
+            waitInMs = 1000;
+        }
+        Wlang.wait(this, waitInMs);
     }
 
     @Override
