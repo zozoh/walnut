@@ -97,6 +97,15 @@ public class Office365StoreProvider implements MailStoreProvider {
             oCache = io.fetch(null, aCachePath);
             if (null != oCache && !oCache.isExpired()) {
                 ticket = oCache.getString("ticket");
+
+                // 如果票快过期了，提前5分钟删除，因为如果不这样, 回收文件的线程没有及时删除
+                // 下个周期，获取这个文件还是过期的，那么会尝试重新创建文件
+                // 由于数据库里的文件并未被真正删掉，创建文件会失败
+                long f5min = System.currentTimeMillis() + 300000L;
+                if (oCache.isExpiredBy(f5min)) {
+                    io.delete(oCache);
+                }
+
                 if (!Ws.isBlank(ticket)) {
                     return ticket;
                 }
@@ -149,7 +158,7 @@ public class Office365StoreProvider implements MailStoreProvider {
             // 写入 token
             meta.put("ticket", ticket);
             // 设置过期时间: 保险期间，提前一分钟
-            meta.put("expi", result.expiresOnDate().getTime() - 120000);
+            meta.put("expi", result.expiresOnDate().getTime() - 60000);
 
             // 更新缓存
             io.appendMeta(oCache, meta);

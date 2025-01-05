@@ -24,10 +24,11 @@ public class lock_try extends LockFilter {
         String owner = sys.getMyName();
         String hint = params.getString("hint", "USER_ASK");
 
-        long du = params.getLong("du", 3000);
+        int duInSec = params.getInt("du", 3);
+        long duInMs = duInSec * 1000L;
         WnLock lo = null;
         try {
-            lo = fc.api.tryLock(lockName, owner, hint, du);
+            lo = fc.api.tryLock(lockName, owner, hint, duInMs);
             fc.locks.add(lo);
         }
         catch (WnLockFailException e) {
@@ -38,14 +39,15 @@ public class lock_try extends LockFilter {
             // 对于阻塞模式，需要重复尝试
             if (blockMode) {
                 int retryMaxTimes = params.getInt("retry", 3);
-                long retryInterval = params.getLong("interval", du);
+                int retryInSec = params.getInt("interval", duInSec);
+                long retryInterval = retryInSec * 1000L;
                 int retryCount = 0;
 
                 // 循环尝试加锁
                 while (retryCount < retryMaxTimes) {
                     retryCount++;
                     try {
-                        lo = fc.api.tryLock(lockName, owner, hint, du);
+                        lo = fc.api.tryLock(lockName, owner, hint, duInMs);
                         break;
                     }
                     catch (WnLockFailException e1) {

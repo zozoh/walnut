@@ -1,41 +1,31 @@
 package com.site0.walnut.ext.net.mailx.hdl;
 
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Files;
+import org.nutz.lang.Stopwatch;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
-
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
-import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.ext.net.mailx.MailxContext;
 import com.site0.walnut.ext.net.mailx.MailxFilter;
-import com.site0.walnut.ext.net.mailx.bean.WnImapMail;
-import com.site0.walnut.ext.net.mailx.bean.WnImapPkcs12Mail;
-import com.site0.walnut.ext.net.mailx.bean.WnMailPart;
-import com.site0.walnut.ext.net.mailx.bean.WnMailSecurity;
+import com.site0.walnut.ext.net.mailx.impl.WnMailIMAPRecieving;
 import com.site0.walnut.ext.net.mailx.provider.MailStoreProvider;
 import com.site0.walnut.ext.net.mailx.provider.MailStoreProviders;
-import com.site0.walnut.ext.net.mailx.util.Mailx;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Cmds;
-import com.site0.walnut.util.Wlog;
-import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
 import com.site0.walnut.util.tmpl.WnTmplX;
-import org.simplejavamail.api.mailer.config.Pkcs12Config;
-import org.simplejavamail.utils.mail.smime.SmimeKey;
-import org.simplejavamail.utils.mail.smime.SmimeKeyStore;
-
 import com.sun.mail.imap.IMAPFolder;
 
 import jakarta.mail.Flags;
@@ -50,8 +40,6 @@ import jakarta.mail.search.OrTerm;
 import jakarta.mail.search.AndTerm;
 
 public class mailx_imap extends MailxFilter {
-
-    private static Log log = Wlog.getCMD();
 
     @Override
     protected ZParams parseParams(String[] args) {
@@ -98,7 +86,6 @@ public class mailx_imap extends MailxFilter {
         }
 
         Store store = null;
-        String HR = Ws.repeat('#', 80);
         try {
             // 获取邮箱交互类
             MailStoreProvider provider;
@@ -126,63 +113,87 @@ public class mailx_imap extends MailxFilter {
             int N = messages.length;
             LOG(sys, debug, "find %s messages", N);
 
+            if (N <= 0) {
+                return;
+            }
+
+            // 准备计时
+            Stopwatch sw = Stopwatch.begin();
+
+            // 准备处理线程池
+            String poolSize = params.getString("pool", "0");
+            String[] pss = Ws.splitIgnoreBlank(poolSize, ":");
+            int pool_sz_core, pool_sz_max;
+            // 固定大小
+            if (pss.length == 1) {
+                pool_sz_core = Math.min(N, Integer.parseInt(pss[0]));
+                pool_sz_max = pool_sz_core;
+            }
+            // 指定了最大最小值
+            else {
+                pool_sz_core = Math.min(N, Integer.parseInt(pss[0]));
+                pool_sz_max = Integer.parseInt(pss[1]);
+            }
+            ThreadPoolExecutor execPool = null;
+
+            if (pool_sz_core > 1) {
+                LOG(sys, debug, "use execPool core=%d, max=%d", pool_sz_core, pool_sz_max);
+                BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<>();
+                execPool = new ThreadPoolExecutor(pool_sz_core,
+                                                  pool_sz_max,
+                                                  0,
+                                                  TimeUnit.MILLISECONDS,
+                                                  workQueue);
+            }
+
             // 循环处理消息
-            List<WnObj> outputs = new ArrayList<>(N); // 如果输出为数据集，输出目标记录在这里
+            Vector<WnObj> outputs = new Vector<>(N); // 如果输出为数据集，输出目标记录在这里
             for (int i = 0; i < N; i++) {
-                Message msg = messages[i];
-                WnImapMail mail;
-                String contentType = Mailx.evalContentType(msg.getContentType(), null);
-
-                // 加密邮件尝试解密
-                if (isAutoDecrypt && "application/pkcs7-mime".equals(contentType)) {
-                    WnMailSecurity secu = fc.mail.getSecurity();
-                    Pkcs12Config pkcs12 = Mailx.createPkcs12Config(sys, secu);
-                    ByteArrayInputStream storeIns = new ByteArrayInputStream(pkcs12.getPkcs12StoreData());
-                    char[] storePasswd = pkcs12.getStorePassword();
-                    SmimeKeyStore keyStore = new SmimeKeyStore(storeIns, storePasswd);
-                    String keyAlias = secu.getSign().getKeyAlias();
-                    String keyPasswd = secu.getSign().getKeyPassword();
-                    SmimeKey smimeKey = keyStore.getPrivateKey(keyAlias, keyPasswd.toCharArray());
-
-                    mail = new WnImapPkcs12Mail(session, smimeKey);
-                    mail.fromMessage(msg, asContent);
+                WnMailIMAPRecieving rv = new WnMailIMAPRecieving();
+                rv.msg = messages[i];
+                rv.isAutoDecrypt = isAutoDecrypt;
+                rv.sys = sys;
+                rv.fc = fc;
+                rv.session = session;
+                rv.asContent = asContent;
+                rv.taTmpl = taTmpl;
+                rv.showHeader = showHeader;
+                rv.debug = debug;
+                rv.i = i;
+                rv.N = N;
+                rv.fixedMeta = fixedMeta;
+                rv.attachmentTmpl = attachmentTmpl;
+                rv.after = after;
+                rv.outputs = outputs;
+                // 直接执行
+                if (null == execPool) {
+                    rv.run();
                 }
-                // 普通邮件
+                // 提交线程
                 else {
-                    mail = new WnImapMail(msg, asContent);
-                }
-                //
-                // 输出到数据集
-                //
-                if (null != taTmpl) {
-                    WnObj oMail = __create_mail_obj(sys,
-                                                    showHeader,
-                                                    debug,
-                                                    asContent,
-                                                    N,
-                                                    i,
-                                                    fixedMeta,
-                                                    mail,
-                                                    taTmpl,
-                                                    attachmentTmpl,
-                                                    after);
-                    // 计入结果
-                    outputs.add(oMail);
-                }
-                // 仅仅打印信息
-                else {
-                    LOG(sys,
-                        debug,
-                        "%s\n# %d/%d) <%s>: %s\n%s\n%s",
-                        HR,
-                        i,
-                        N,
-                        Ws.join(msg.getFrom(), ","),
-                        msg.getSubject(),
-                        HR,
-                        mail.dumpString(showHeader));
+                    execPool.submit(rv);
                 }
             } // for (int i = 0; i < N; i++) {
+
+            if (null != execPool) {
+                // 关闭线程池，不再接受新的任务
+                execPool.shutdown();
+
+                // 等待线程池执行完毕
+                try {
+                    if (!execPool.awaitTermination(7200, TimeUnit.SECONDS)) {
+                        execPool.shutdownNow(); // 如果等待超时，中断所有任务
+                        LOG(sys, debug, "exec pool timeout (over 7200s) force quiet");
+                    }
+                }
+                catch (InterruptedException e) {
+                    execPool.shutdownNow(); // 如果当前线程被中断，中断所有任务
+                    LOG(sys, debug, "exec pool timeout Interrupted, force quiet: %s", e.toString());
+                }
+            }
+
+            sw.stop();
+            LOG(sys, debug, "IMAP done in %s: N=%d", sw.toString(), N);
 
             // 输出
             if (isJson) {
@@ -205,114 +216,6 @@ public class mailx_imap extends MailxFilter {
                 }
             }
         }
-    }
-
-    protected WnObj __create_mail_obj(WnSystem sys,
-                                      boolean showHeader,
-                                      boolean debug,
-                                      String asContent,
-                                      int N,
-                                      int i,
-                                      NutMap fixedMeta,
-                                      WnImapMail mail,
-                                      WnTmplX taTmpl,
-                                      WnTmplX attachmentTmpl,
-                                      String after) {
-        // 不是 JSON 输出，也要打印到控制台
-        LOG(sys, debug, "%d/%d) %s", i, N, mail.toBrief());
-        NutMap meta = mail.toMeta(showHeader);
-        meta.put("tp", "txt");
-        meta.put("mime", "text/plain");
-
-        if (null != fixedMeta) {
-            meta.putAll(fixedMeta);
-        }
-
-        // 寻找正文
-        List<WnMailPart> textCans = mail.findContentParts(asContent);
-        String text = null;
-        if (!textCans.isEmpty()) {
-            // 采用最后一个文本
-            WnMailPart textPart = textCans.get(textCans.size() - 1);
-            String mime = textPart.getContentType();
-            if ("text/html".equals(mime)) {
-                meta.put("mime", "text/html");
-                meta.put("tp", "html");
-            } else {
-                meta.put("mime", "text/plain");
-                meta.put("tp", "txt");
-            }
-
-            if (textPart.hasFileName()) {
-                meta.put("msg_content_name", textPart.getFileName());
-            }
-            text = textPart.getContent();
-        }
-
-        // 准备目标路径，并创建对象
-        String mailPath = taTmpl.render(meta);
-        String mailAbsPath = Wn.normalizeFullPath(mailPath, sys, false);
-        String mailParentPath = Files.getParent(mailAbsPath);
-        String mailFileName = Files.getName(mailAbsPath);
-        WnObj oMailDir = sys.io.createIfNoExists(null, mailParentPath, WnRace.DIR);
-        WnObj oMail = sys.io.create(oMailDir, mailFileName, WnRace.FILE);
-
-        // 写入对象元数据
-        sys.io.appendMeta(oMail, meta);
-        LOG(sys, debug, "     -> %s", oMail.toString());
-        // 写入正文
-        if (null != text) {
-            sys.io.writeText(oMail, text);
-        }
-
-        //
-        // 计入附件
-        //
-        if (null != attachmentTmpl) {
-            List<WnMailPart> attachments = mail.findAttachmentParts(asContent);
-            if (null != attachments) {
-                int x = 0;
-                int M = attachments.size();
-                List<String> attachmentIds = new LinkedList<>();
-                LOG(sys, debug, "     ++ %d attachments:", M);
-                for (WnMailPart att : attachments) {
-                    x++;
-                    String fnm = att.getFileName();
-                    NutMap ctx = new NutMap("attachment_file_name", fnm);
-                    ctx.attach(oMail);
-                    String atPath = attachmentTmpl.render(ctx);
-                    String atAbsPath = Wn.normalizeFullPath(atPath, sys, false);
-                    LOG(sys, debug, "     -> %d. %s => %s", x, fnm, atAbsPath);
-                    String pPath = Files.getParent(atAbsPath);
-                    String atName = Files.getName(atAbsPath);
-                    WnObj oAtP = sys.io.createIfNoExists(null, pPath, WnRace.DIR);
-                    WnObj oAtt = sys.io.create(oAtP, atName, WnRace.FILE);
-                    byte[] data = att.getData();
-                    sys.io.writeBytes(oAtt, data);
-                    attachmentIds.add(oAtt.id());
-                }
-                if (attachmentIds.size() > 0) {
-                    sys.io.appendMeta(oMail, new NutMap("msg_attachments", attachmentIds));
-                }
-            }
-        }
-
-        // 执行回调
-        if (!Ws.isBlank(after)) {
-            String input = after;
-            // 命令来自一个文件
-            if (after.startsWith("o:")) {
-                String path = after.substring(2).trim();
-                WnObj oAfter = Wn.checkObj(sys, path);
-                input = sys.io.readText(oAfter);
-            }
-            // 渲染命令
-            if (!Ws.isBlank(input)) {
-                String cmdText = WnTmplX.exec(input, oMail);
-                sys.exec(cmdText);
-            }
-        }
-        return oMail;
     }
 
     protected SearchTerm __eval_term(boolean isOr, List<SearchTerm> terms) {
@@ -363,14 +266,7 @@ public class mailx_imap extends MailxFilter {
     }
 
     private void LOG(WnSystem sys, boolean showDebug, String fmt, Object... args) {
-        if (showDebug) {
-            String msg = String.format(fmt, args);
-            sys.out.println(msg);
-
-        }
-        if (log.isInfoEnabled()) {
-            log.infof(fmt, args);
-        }
+        WnMailIMAPRecieving.LOG(sys, showDebug, fmt, args);
     }
 
     private static Map<String, Flags.Flag> MAIL_FLAGS = new HashMap<>();
