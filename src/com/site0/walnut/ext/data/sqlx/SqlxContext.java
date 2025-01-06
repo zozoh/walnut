@@ -16,6 +16,7 @@ import org.nutz.log.Log;
 import org.nutz.mapl.Mapl;
 
 import com.site0.walnut.api.err.Er;
+import com.site0.walnut.ext.data.sqlx.hislog.SqlxHislogRuntime;
 import com.site0.walnut.ext.data.sqlx.loader.SqlHolder;
 import com.site0.walnut.ext.data.sqlx.processor.ExecProcessor;
 import com.site0.walnut.ext.data.sqlx.processor.QueryProcessor;
@@ -90,6 +91,8 @@ public class SqlxContext extends JvmFilterContext {
     public QueryProcessor query;
 
     public ExecProcessor exec;
+
+    public SqlxHislogRuntime hislog;
 
     public Object result;
 

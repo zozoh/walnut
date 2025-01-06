@@ -18,13 +18,11 @@
 ```json
 {
   /**
-   * 可以指定一个不同的数据源，如果不设置，则会采用当前数据源
-   */
-  "daoName": null,
-  /**
    * 根据全局上下文，生成一个对象，加入到 data explain 的上下文
    * 所谓全局上下文，参看 SqlxContext.getMergedInputAndPipeContext
-   * 它融合了 Input 与 pipeContext，而 pipeContext 里默认包括了 "session" 信息
+   * 它融合了 Input 与 pipeContext，
+   * 而 pipeContext 里默认包含了 "session" 信息。
+   * > 这是通过在 sqlx 的初始化逻辑里调用 SqlxContext.setup 来加载的
    */
   "assign": {
     "scene": "=scene",
@@ -39,13 +37,20 @@
     {
       // 看看执行的 sql 是否匹配，如果匹配了
       // 则会向上下文中添加匹配组 sqlName1, sqlName2 ...
+      // 譬如，如果 sqlName 是 "pet.insert"
+      // 那么如果匹配成功，就会在上下文里添加
+      //  sqlName = 'pet.insert'
+      //  sqlName1 = 'pet'
+      //  sqlName2 = 'inert'
+      // 组织数据的时候可以直接使用这两个变量
       "sqlName": "^(pet).(insert|update)$",
-      // 判断本行数据是否要执行插入
-      // 如果不声明，就表示每次执行都匹配
-      // 采用的是 AutoMatch 语法
+      // 判断当前操作的数据行是否要记录一个历史
+      // 采用的是 AutoMatch 语法，匹配的上下文就是操作记录本身
+      // 默认的，这个段的值为 true。表示任何数据都记录
       "test": true,
       /**
-       * 一个 explain 对象，上下文就是
+       * 生成插入日志数据的模板对象，命令会根据下述上下文，对其
+       * 进行 explainObj 操作
        * {
        *   sqlName: "pet.insert", // SQL 名称
        *   sqlName1: "pet",       // 第1个捕获组
@@ -60,7 +65,7 @@
         "scene": "=scene", // 在什么场景下?
         "user": "=session.unm", // 谁?
         "ip_addr": "=session.envs.CLIENT_IP",
-        "ct": "=vars.ct", // 在什么时候?
+        "ct": "=item.ct", // 在什么时候?
         "ref_tp": "=sqlName1", // 对什么数据?
         "ref_id": "=item.id",
         "action": "=sqlName2", // 做了什么操作?
@@ -83,5 +88,10 @@ sqlx @hislog
 # 示例
 
 ```bash
-sqlx @hislog -f ~/history.json @vars @exec ...
+# 记录很多操作的历史记录
+sqlx @hislog -f ~/history.json \
+   @vars @exec ...
+   @vars @exec ...
+   @vars @exec ...
+   @vars =HISTORY -reset -as list @exec history.insert -batch
 ```
