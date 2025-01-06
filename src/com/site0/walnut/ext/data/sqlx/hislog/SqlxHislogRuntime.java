@@ -39,9 +39,32 @@ public class SqlxHislogRuntime {
             }
         }
     }
-    
-    public void readHislog(NutBean record) {
-        
+
+    public void buildHislogForList(String sqlName, List<NutBean> records) {
+        NutBean myContext = createGlobalContext();
+        for (NutBean record : records) {
+            __use_hislog(sqlName, myContext, record);
+        }
+    }
+
+    public void buildHislog(String sqlName, NutBean record) {
+        NutBean myContext = createGlobalContext();
+        __use_hislog(sqlName, myContext, record);
+    }
+
+    private void __use_hislog(String sqlName, NutBean myContext, NutBean record) {
+        for (SqlxHislogRuntimeItem rtItem : logs) {
+            if (!rtItem.isMatchRecord(record) || !rtItem.hasToPipeKey()) {
+                continue;
+            }
+            if (rtItem.trySqlName(sqlName, myContext)) {
+                myContext.put("item", record);
+                NutBean hisMeta = rtItem.createLogRecord(myContext, record);
+                String pipeKey = rtItem.getToPipeKey();
+                fc.appendToPipeContext(pipeKey, hisMeta);
+                break;
+            }
+        }
     }
 
     @SuppressWarnings("unchecked")

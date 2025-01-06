@@ -315,11 +315,15 @@ public class SqlxContext extends JvmFilterContext {
     }
 
     public void putPipeContext(String keyPath, Object val) {
-        Mapl.put(this.input, keyPath, val);
+        Mapl.put(this.pipeContext, keyPath, val);
     }
 
     public void putAllPipeContext(NutBean vars) {
-        this.input.putAll(vars);
+        this.pipeContext.putAll(vars);
+    }
+
+    public void appendToPipeContext(String key, Object val) {
+        this.pipeContext.addv2(key, val);
     }
 
     public Connection getConnection(WnSystem sys) {

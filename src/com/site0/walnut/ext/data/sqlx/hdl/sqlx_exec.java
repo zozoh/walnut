@@ -88,20 +88,30 @@ public class sqlx_exec extends SqlxFilter {
                     re.updateCount += updateResult.updateCount;
                 }
             }
+
+            // 准备更新日志
+            if (null != fc.hislog) {
+                fc.hislog.buildHislogForList(sqlName, beans);
+            }
         }
         // 参数模式
         else if (fc.hasVarMap()) {
-            NutBean context = fc.getVarMap();
+            NutBean record = fc.getVarMap();
 
             // 保护判断一下
-            if (null != am && !am.match(context)) {
+            if (null != am && !am.match(record)) {
                 return;
             }
 
             List<SqlParam> cps = new ArrayList<>();
-            String sql = sqlt.render(context, cps);
+            String sql = sqlt.render(record, cps);
             Object[] sqlParams = WnSqls.getSqlParamsValue(cps);
             re = fc.exec.runWithParams(conn, sql, sqlParams);
+
+            // 准备更新日志
+            if (null != fc.hislog) {
+                fc.hislog.buildHislog(sqlName, record);
+            }
         }
         // 那么就是普通模式
         else {

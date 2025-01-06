@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.explain.WnExplain;
 import com.site0.walnut.util.explain.WnExplains;
 import com.site0.walnut.util.validate.WnMatch;
@@ -83,6 +84,10 @@ public class SqlxHislogRuntimeItem {
 
     public void setData(WnExplain data) {
         this.data = data;
+    }
+
+    public boolean hasToPipeKey() {
+        return !Ws.isBlank(toPipeKey);
     }
 
     public String getToPipeKey() {
