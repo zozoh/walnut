@@ -61,7 +61,8 @@ public class sqlx_exec extends SqlxFilter {
             List<NutBean> beans = fc.getVarList();
 
             // 保护判断一下
-            if (null != am && !am.match(beans)) {
+            NutMap input = fc.getInput();
+            if (null != am && !am.match(input)) {
                 return;
             }
 

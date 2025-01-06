@@ -39,6 +39,10 @@ public class SqlxHislogRuntime {
             }
         }
     }
+    
+    public void readHislog(NutBean record) {
+        
+    }
 
     @SuppressWarnings("unchecked")
     public NutBean createGlobalContext() {
