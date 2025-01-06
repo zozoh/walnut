@@ -50,7 +50,7 @@ public class QueryProcessor implements SqlProcessor<List<NutBean>> {
             if (log.isWarnEnabled()) {
                 log.warnf("SQL Fail: %s", sql);
             }
-            throw Er.wrap(e);
+            throw Er.create(e, "e.cmd.sqlx.query.Failed", e.toString());
         }
         return list;
     }
@@ -86,7 +86,7 @@ public class QueryProcessor implements SqlProcessor<List<NutBean>> {
             if (log.isWarnEnabled()) {
                 log.warnf("SQL Fail: %s", sql);
             }
-            throw Er.wrap(e);
+            throw Er.create(e, "e.cmd.sqlx.query.Failed", e.toString());
         }
         return list;
     }

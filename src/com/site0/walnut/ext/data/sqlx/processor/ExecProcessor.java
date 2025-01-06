@@ -37,7 +37,7 @@ public class ExecProcessor implements SqlProcessor<SqlExecResult> {
             if (log.isWarnEnabled()) {
                 log.warnf("SQL Fail: %s", sql);
             }
-            throw Er.wrap(e);
+            throw Er.create(e, "e.cmd.sqlx.exec.Failed", e.toString());
         }
 
         return re;
@@ -65,7 +65,7 @@ public class ExecProcessor implements SqlProcessor<SqlExecResult> {
             if (log.isWarnEnabled()) {
                 log.warnf("SQL Fail: %s", sql);
             }
-            throw Er.wrap(e);
+            throw Er.create(e, "e.cmd.sqlx.exec.Failed", e.toString());
         }
 
         return re;
@@ -115,7 +115,7 @@ public class ExecProcessor implements SqlProcessor<SqlExecResult> {
             if (log.isWarnEnabled()) {
                 log.warnf("SQL Fail: %s", sql);
             }
-            throw Er.wrap(e);
+            throw Er.create(e, "e.cmd.sqlx.exec.Failed", e.toString());
         }
 
         return re;

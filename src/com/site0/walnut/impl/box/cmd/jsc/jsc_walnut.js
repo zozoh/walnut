@@ -32,5 +32,37 @@
       var objStr = sys.exec2("o 'id:" + id + "' @json -cqn");
       return JSON.parse("(" + objStr + ")");
     },
+
+    getMyName: function () {
+      var re = sys.exec2("me -json -cqn | jsonx @tmpl '${nm}'");
+      return re.trim();
+    },
+
+    checkExecReturn: function (re) {
+      if (/^e\./.test(re)) {
+        var pos = re.indexOf(":");
+        var err = new Error(re);
+        if (pos > 0) {
+          err.code = re.substring(0, pos).trim();
+          err.reason = re.substring(pos + 1).trim();
+        } else {
+          err.code = re;
+          err.reason = null;
+        }
+        return err;
+      }
+    },
+
+    exec: function (cmdText, input) {
+      var re;
+      if (input) {
+        re = sys.exec2(cmdText, input).trim();
+      } else {
+        re = sys.exec2(cmdText).trim();
+      }
+      var err = this.checkExecReturn(re);
+      if (err) throw err;
+      return re;
+    },
   };
 });
