@@ -120,7 +120,9 @@ public class WnSafeSysScheduleService implements WnSysScheduleApi {
         // 确保释放锁
         finally {
             try {
-                locks.freeLock(lo);
+                if (null != lo) {
+                    locks.freeLock(lo);
+                }
             }
             catch (WnLockInvalidKeyException e) {
                 log.warn("sysScheduleApi.cleanSlotObj fail to freeLock", e);
@@ -156,7 +158,9 @@ public class WnSafeSysScheduleService implements WnSysScheduleApi {
         // 确保释放锁
         finally {
             try {
-                locks.freeLock(lo);
+                if (null != lo) {
+                    locks.freeLock(lo);
+                }
             }
             catch (WnLockInvalidKeyException e) {
                 log.warn("sysScheduleApi.loadSchedule fail to freeLock", e);
