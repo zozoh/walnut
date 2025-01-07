@@ -161,6 +161,9 @@ public class QuickRedisLockApi implements WnLockApi {
 
     @Override
     public synchronized WnLock freeLock(WnLock lock) throws WnLockInvalidKeyException {
+        if (null == lock) {
+            return null;
+        }
         return freeLock(lock.getName(), lock.getPrivateKey());
     }
 
