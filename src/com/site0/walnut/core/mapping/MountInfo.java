@@ -68,19 +68,24 @@ public class MountInfo {
         // 保险一点，抹去前后空白吧
         str = str.trim();
         int pos = str.indexOf("://");
+        int sepN = 3;
+        if (pos < 0) {
+            pos = str.indexOf("::");
+            sepN = 2;
+        }
         // 木有的话，那么说明，桶管理器是用全局的，给定这个仅仅是索引管理器
         if (pos < 0) {
             ix = parseItem(str);
         }
         // 第一个，那么表示索引用全局的，桶管理器是指定的
         else if (0 == pos) {
-            bm = parseItem(str.substring(3));
+            bm = parseItem(str.substring(sepN));
             bm.forBM = true;
         }
         // 两个都指定了
         else {
             ix = parseItem(str.substring(0, pos));
-            bm = parseItem(str.substring(pos + 3));
+            bm = parseItem(str.substring(pos + sepN));
             bm.forBM = true;
 
             // 这个特殊规则用来兼容之前的 "file:///" 和 "file://C:/" 映射

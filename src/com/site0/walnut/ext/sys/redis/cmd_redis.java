@@ -9,7 +9,6 @@ import com.site0.walnut.ext.sys.redis.hdl.RedisHanlder;
 import com.site0.walnut.impl.box.JvmFilterExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Cmds;
-import com.site0.walnut.util.Wn;
 
 public class cmd_redis extends JvmFilterExecutor<RedisContext, RedisFilter> {
 
@@ -25,16 +24,7 @@ public class cmd_redis extends JvmFilterExecutor<RedisContext, RedisFilter> {
     @Override
     protected void prepare(WnSystem sys, RedisContext fc) {
         // 获取配置信息(连接信息)
-        String confPath = fc.params.get("conf", "default");
-        if (!confPath.endsWith(".json")) {
-            confPath += ".json";
-        }
-        if (!confPath.startsWith("id:")
-            && !confPath.startsWith("/")
-            && !confPath.startsWith("~/")) {
-            confPath = Wn.appendPath("~/.redis/", confPath);
-        }
-        fc.config = Wedis.loadConfig(sys, confPath);
+        fc.config = Wedis.loadConfigByName(sys, fc.params.get("conf"));
 
         // 分析结果集键的渲染方式
         String rk = fc.params.val(0);

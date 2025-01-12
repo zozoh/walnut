@@ -375,7 +375,7 @@ public abstract class Wn {
         if (Strings.isBlank(ph))
             return ph;
         // 主目录开头
-        if (ph.startsWith("~")) {
+        if (ph.startsWith("~/") || ph.equals("~")) {
             ph = Wn.appendPath(vars.getString("HOME"), ph.substring(1));
         }
         // 当前目录开头

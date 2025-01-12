@@ -16,6 +16,7 @@ import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.Ws;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -135,6 +136,23 @@ public abstract class Wedis {
 
     public static Set<String> loadedKeys() {
         return new HashSet<>(jedis.keySet());
+    }
+
+    public static WedisConfig loadConfigByName(WnSystem sys, String confPath) {
+        return loadConfigByName(sys.io, confPath, sys.session.getVars());
+    }
+
+    public static WedisConfig loadConfigByName(WnIo io, String confPath, NutMap vars) {
+        confPath = Ws.sBlank(confPath, "default");
+        if (!confPath.endsWith(".json")) {
+            confPath += ".json";
+        }
+        if (!confPath.startsWith("id:")
+            && !confPath.startsWith("/")
+            && !confPath.startsWith("~/")) {
+            confPath = Wn.appendPath("~/.redis/", confPath);
+        }
+        return loadConfig(io, confPath, vars);
     }
 
     public static WedisConfig loadConfig(WnIo io, String path, NutMap vars) {
