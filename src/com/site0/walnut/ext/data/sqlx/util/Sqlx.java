@@ -1,14 +1,23 @@
 package com.site0.walnut.ext.data.sqlx.util;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.sql.DataSource;
+
 import org.nutz.lang.util.NutBean;
 
+import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.sqlx.loader.SqlHolder;
 import com.site0.walnut.ext.data.sqlx.loader.WnSqlHolder;
+import com.site0.walnut.ext.sys.sql.WnDaoAuth;
+import com.site0.walnut.ext.sys.sql.WnDaos;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
@@ -40,5 +49,61 @@ public abstract class Sqlx {
             }
         }
         return sqls;
+    }
+
+    public static <T> T sqlGet(WnDaoAuth auth, SqlGetter<T> callback) {
+        DataSource ds = WnDaos.getDataSource(auth);
+        Connection conn = null;
+        PreparedStatement sta = null;
+        ResultSet rs = null;
+        try {
+            conn = ds.getConnection();
+            return callback.doGet(conn);
+        }
+        catch (SQLException e) {
+            throw Er.wrap(e);
+        }
+        finally {
+            try {
+                if (null != rs) {
+                    rs.close();
+                }
+                if (null != sta) {
+                    sta.close();
+                }
+                if (null != conn) {
+                    conn.close();
+                }
+            }
+            catch (SQLException e) {
+                throw Er.wrap(e);
+            }
+        }
+    }
+
+    public static int sqlRun(WnDaoAuth auth, SqlAtom callback) {
+        DataSource ds = WnDaos.getDataSource(auth);
+        Connection conn = null;
+        PreparedStatement sta = null;
+        try {
+            conn = ds.getConnection();
+            return callback.exec(conn);
+        }
+        catch (SQLException e) {
+            throw Er.wrap(e);
+        }
+        finally {
+            try {
+                if (null != sta) {
+                    sta.close();
+                }
+                if (null != conn) {
+                    conn.close();
+                }
+            }
+            catch (SQLException e) {
+                throw Er.wrap(e);
+            }
+        }
     }
 }

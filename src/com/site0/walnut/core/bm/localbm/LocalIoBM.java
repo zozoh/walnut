@@ -211,14 +211,11 @@ public class LocalIoBM extends AbstractIoBM {
             }
 
             // 根据交换文件更新对象的索引
-            this.updateObjSha1(o, swap, indexer);
+            this.updateObjSha1AndSaveSwap(o, swap, indexer);
             swap = null;
 
             // 搞定
             return o.len();
-        }
-        catch (IOException e) {
-            throw Wlang.wrapThrow(e);
         }
         // 无论怎样，确保删除交换文件
         finally {
@@ -226,6 +223,16 @@ public class LocalIoBM extends AbstractIoBM {
                 Files.deleteFile(swap);
             }
         }
+    }
+
+    @Override
+    public void updateObjSha1(WnObj o, File swap, WnIoIndexer indexer) {
+        throw Er.create("LocalIoBM deprecated updateObjSha1, use updateObjSha1AndSaveSwap instead");
+    }
+
+    @Override
+    public void updateObjSha1(WnObj o, WnIoIndexer indexer, String sha1, long len, long lm) {
+        throw Er.create("LocalIoBM deprecated updateObjSha1, use updateObjSha1AndSaveSwap instead");
     }
 
     /**
@@ -247,8 +254,7 @@ public class LocalIoBM extends AbstractIoBM {
      * @throws IOException
      *             IO 读写发生异常
      */
-    @Override
-    public void updateObjSha1(WnObj o, File swap, WnIoIndexer indexer) throws IOException {
+    public void updateObjSha1AndSaveSwap(WnObj o, File swap, WnIoIndexer indexer) {
         // 2023-12-28: zozoh 如果传入的 o==null, swap 有，可能造成swap 丢失吧！
         // 无需更新，因为没有对象，对应的句柄肯定已经关闭了
         // if (null == o) {
@@ -285,13 +291,18 @@ public class LocalIoBM extends AbstractIoBM {
                 File buck = this.getBucketFile(sha1);
 
                 if (!buck.exists()) {
-                    // OSS 映射的文件不支持 move，需要把这个开关关闭
-                    if (canMoveSwap) {
-                        Files.move(swap, buck);
+                    try {
+                        // OSS 映射的文件不支持 move，需要把这个开关关闭
+                        if (canMoveSwap) {
+                            Files.move(swap, buck);
+                        }
+                        // Copy 的方式移动过去
+                        else {
+                            moveSwapToBuck(swap, buck);
+                        }
                     }
-                    // Copy 的方式移动过去
-                    else {
-                        moveSwapToBuck(swap, buck);
+                    catch (IOException e) {
+                        throw Er.wrap(e);
                     }
                     // 无论如何，空置一下缓冲
                     swap = null;
@@ -316,7 +327,6 @@ public class LocalIoBM extends AbstractIoBM {
             // 更新索引
             indexer.set(o, "^(sha1|len|lm)$");
         }
-
     }
 
     private void moveSwapToBuck(File swap, File buck) throws IOException {

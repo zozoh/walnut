@@ -23,7 +23,7 @@ public abstract class AbstractIoBM implements WnIoBM {
     }
 
     @Override
-    public void updateObjSha1(WnObj o, File swap, WnIoIndexer indexer) throws IOException {
+    public void updateObjSha1(WnObj o, File swap, WnIoIndexer indexer) {
         String sha1 = null;
         long olen = 0;
         long lm = -1;
@@ -34,7 +34,12 @@ public abstract class AbstractIoBM implements WnIoBM {
             olen = swap.length();
             lm = swap.lastModified();
         }
+        // 执行更新
+        updateObjSha1(o, indexer, sha1, olen, lm);
+    }
 
+    @Override
+    public void updateObjSha1(WnObj o, WnIoIndexer indexer, String sha1, long len, long lm) {
         if (null != o) {
             if (lm <= 0) {
                 lm = Wn.now();
@@ -46,7 +51,7 @@ public abstract class AbstractIoBM implements WnIoBM {
 
             o.sha1(sha1);
             o.lastModified(lm);
-            o.len(olen);
+            o.len(len);
 
             // 更新索引
             indexer.set(o, "^(sha1|len|lm)$");

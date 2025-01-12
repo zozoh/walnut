@@ -20,7 +20,7 @@ public class LocalIoWriteHandle extends WnIoWriteSwapHandle {
     @Override
     protected void update_when_close(File swap) throws IOException {
         // 根据交换文件更新对象的索引
-        bm.updateObjSha1(this.obj, swap, indexer);
+        bm.updateObjSha1AndSaveSwap(this.obj, swap, indexer);
     }
 
 }

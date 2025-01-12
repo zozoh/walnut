@@ -9,8 +9,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import org.nutz.json.Json;
 import org.nutz.lang.Files;
 import org.nutz.lang.util.NutBean;
@@ -29,13 +27,25 @@ import com.site0.walnut.ext.data.sqlx.processor.SqlExecResult;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqls;
+import com.site0.walnut.ext.data.sqlx.util.SqlGetter;
+import com.site0.walnut.ext.data.sqlx.util.Sqlx;
 import com.site0.walnut.ext.sys.sql.WnDaoAuth;
-import com.site0.walnut.ext.sys.sql.WnDaos;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.Wsum;
 
 public class SqlBM extends AbstractIoBM {
+
+    private static final String FETCH_CONTENT = "fetch_content";
+
+    private static final String UPDATE_CONTENT = "update_content";
+
+    private static final String INSERT_CONTENT = "insert_content";
+
+    private static final String COUNT_CONTENT = "count_content";
+
+    private static final String DELETE_CONTENT = "delete_content";
 
     private static final Log log = Wlog.getIO();
 
@@ -119,22 +129,87 @@ public class SqlBM extends AbstractIoBM {
 
     @Override
     public long copy(WnObj oSr, WnObj oTa) {
-        return 0;
+        byte[] content = getContent(oSr, 0, -1);
+        String sha1 = Wsum.sha1AsString(content);
+        long olen = content.length;
+        writeBlob(oTa, content, sha1, olen);
+        return 1;
     }
 
     @Override
     public long remove(WnObj o) {
-        return 0;
+        String sqlName = getSqlName(DELETE_CONTENT);
+        String objId = o.OID().getMyId();
+        WnSqlTmpl sqlt = sqls.get(sqlName);
+
+        NutBean vars = Wlang.map("id", objId);
+
+        List<SqlParam> cps = new ArrayList<>();
+        String sql = sqlt.render(vars, cps);
+        Object[] sqlParams = WnSqls.getSqlParamsValue(cps);
+
+        try {
+            SqlExecResult re = Sqlx.sqlGet(auth, new SqlGetter<SqlExecResult>() {
+                public SqlExecResult doGet(Connection conn) throws SQLException {
+                    PreparedStatement sta = conn.prepareStatement(sql);
+                    WnSqls.setParmas(sta, sqlParams);
+                    return exec.runWithParams(conn, sql, sqlParams);
+                }
+            });
+            if (re.updateCount <= 0) {
+                log.warnf("SqlBM writeBlob Fail: objId=%s, sqlName=%s, sql=%s, record=%s",
+                          objId,
+                          sqlName,
+                          sql,
+                          Json.toJson(vars));
+            }
+            return 0;
+        }
+        catch (RuntimeException e) {
+            String msg = String.format("SqlBM remove Fail: objId=%s, sqlName=%s, sql=%s, record=%s",
+                                       objId,
+                                       sqlName,
+                                       sql,
+                                       Json.toJson(vars));
+            log.warn(msg, e);
+            throw e;
+        }
+
     }
 
     @Override
     public long truncate(WnObj o, long len, WnIoIndexer indexer) {
+        // 直接置空
+        if (0 == len) {
+            this.writeBlob(o, new byte[0], null, 0);
+            this.updateObjSha1(o, null, indexer);
+        }
+        // 读取后，再剪裁
+        else {
+            Blob blob = getBlob(o);
+            try {
+                byte[] content = blob.getBytes(0, (int) len);
+                String sha1 = Wsum.sha1AsString(content);
+                long olen = content.length;
+                this.writeBlob(o, content, sha1, olen);
+                this.updateObjSha1(o, indexer, sha1, len, olen);
+            }
+            catch (SQLException e) {
+                throw Er.wrap(e);
+            }
+        }
+
         return 0;
     }
 
     public void writeBlob(WnObj obj, File swapFile) {
-        String sha1 = Wlang.sha1(swapFile);
-        long olen = swapFile.length();
+        byte[] content = Files.readBytes(swapFile);
+        String sha1 = Wsum.sha1AsString(content);
+        long olen = content.length;
+        writeBlob(obj, content, sha1, olen);
+    }
+
+    public void writeBlob(WnObj obj, byte[] content, String sha1, long olen) {
         String sqlName;
 
         // 首先查询一下这个文件的内容是否存在，
@@ -142,16 +217,13 @@ public class SqlBM extends AbstractIoBM {
 
         // 不存在，就用创建
         if (count == 0) {
-            sqlName = getSqlName("insert_content");
+            sqlName = getSqlName(INSERT_CONTENT);
         }
         // 存在就更新，当然 count==-1 表示用户并未定义 count_content 操作
         // 因为他这时候应该希望 bm/index 在一个表里，因此直接 update 就好
         else {
-            sqlName = getSqlName("update_content");
+            sqlName = getSqlName(UPDATE_CONTENT);
         }
-
-        // 准备输入流
-        byte[] content = Files.readBytes(swapFile);
 
         String objId = obj.OID().getMyId();
         WnSqlTmpl sqlt = sqls.get(sqlName);
@@ -173,7 +245,7 @@ public class SqlBM extends AbstractIoBM {
         Object[] sqlParams = WnSqls.getSqlParamsValue(cps);
 
         try {
-            SqlExecResult re = _sql_get(new SqlBMGetter<SqlExecResult>() {
+            SqlExecResult re = Sqlx.sqlGet(auth, new SqlGetter<SqlExecResult>() {
                 public SqlExecResult doGet(Connection conn) throws SQLException {
                     PreparedStatement sta = conn.prepareStatement(sql);
                     WnSqls.setParmas(sta, sqlParams);
@@ -205,9 +277,9 @@ public class SqlBM extends AbstractIoBM {
     }
 
     public int countObj(WnObj obj) {
-        return _sql_get(new SqlBMGetter<Integer>() {
+        return Sqlx.sqlGet(auth, new SqlGetter<Integer>() {
             public Integer doGet(Connection conn) throws SQLException {
-                ResultSet rs = getResultSet(conn, obj, "count_content");
+                ResultSet rs = getResultSet(conn, obj, COUNT_CONTENT);
                 if (null == rs) {
                     return -1;
                 }
@@ -218,9 +290,9 @@ public class SqlBM extends AbstractIoBM {
     }
 
     public Blob getBlob(WnObj obj) {
-        return _sql_get(new SqlBMGetter<Blob>() {
+        return Sqlx.sqlGet(auth, new SqlGetter<Blob>() {
             public Blob doGet(Connection conn) throws SQLException {
-                ResultSet rs = getResultSet(conn, obj, "fetch_content");
+                ResultSet rs = getResultSet(conn, obj, FETCH_CONTENT);
                 if (null == rs) {
                     throw Er.create("e.io.SqlBM.getBlob.FailResultSet", obj);
                 }
@@ -228,6 +300,19 @@ public class SqlBM extends AbstractIoBM {
             }
 
         });
+    }
+
+    public byte[] getContent(WnObj obj, int offset, int len) {
+        Blob blob = getBlob(obj);
+        try {
+            if (len < 0) {
+                len = ((int) blob.length()) + 1 + len;
+            }
+            return blob.getBytes(offset, len);
+        }
+        catch (SQLException e) {
+            throw Er.wrap(e);
+        }
     }
 
     private ResultSet getResultSet(Connection conn, WnObj obj, String sqlSubName)
@@ -262,33 +347,4 @@ public class SqlBM extends AbstractIoBM {
         return null;
     }
 
-    private <T> T _sql_get(SqlBMGetter<T> callback) {
-        DataSource ds = WnDaos.getDataSource(auth);
-        Connection conn = null;
-        PreparedStatement sta = null;
-        ResultSet rs = null;
-        try {
-            conn = ds.getConnection();
-            return callback.doGet(conn);
-        }
-        catch (SQLException e) {
-            throw Er.wrap(e);
-        }
-        finally {
-            try {
-                if (null != rs) {
-                    rs.close();
-                }
-                if (null != sta) {
-                    sta.close();
-                }
-                if (null != conn) {
-                    conn.close();
-                }
-            }
-            catch (SQLException e) {
-                throw Er.wrap(e);
-            }
-        }
-    }
 }

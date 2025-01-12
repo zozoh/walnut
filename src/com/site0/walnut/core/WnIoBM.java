@@ -8,7 +8,9 @@ import com.site0.walnut.api.io.WnObj;
 
 public interface WnIoBM {
 
-    void updateObjSha1(WnObj o, File swap, WnIoIndexer indexer) throws IOException;
+    void updateObjSha1(WnObj o, File swap, WnIoIndexer indexer);
+
+    void updateObjSha1(WnObj o, WnIoIndexer indexer, String sha1, long len, long lm);
 
     /**
      * @param bm

@@ -785,7 +785,9 @@ public class NutMap extends LinkedHashMap<String, Object> implements NutBean {
 
     @Override
     public NutBean setAll(Map<String, Object> map) {
-        this.putAll(map);
+        if (null != map) {
+            this.putAll(map);
+        }
         return this;
     }
 

@@ -20,7 +20,7 @@ public class LocalIoReadWriteHandle extends WnIoReadWriteSwapHandle {
 
     @Override
     protected void update_when_close(File swap) throws IOException {
-        bm.updateObjSha1(this.obj, swap, indexer);
+        bm.updateObjSha1AndSaveSwap(this.obj, swap, indexer);
     }
 
     @Override

@@ -70,6 +70,16 @@ public class WnQuery {
         return list;
     }
 
+    public Object getFilter() {
+        if (null == list || list.isEmpty()) {
+            return new NutMap();
+        }
+        if (list.size() == 1) {
+            return list.get(0);
+        }
+        return list.toArray(new NutMap[list.size()]);
+    }
+
     public boolean isEmptyMatch() {
         for (NutMap ele : list) {
             if (ele.size() > 0)
@@ -145,8 +155,10 @@ public class WnQuery {
     }
 
     public WnQuery setAll(Map<String, Object> map) {
-        NutMap ele = first();
-        ele.setAll(map);
+        if (null != map) {
+            NutMap ele = first();
+            ele.setAll(map);
+        }
         return this;
     }
 
@@ -161,11 +173,13 @@ public class WnQuery {
     }
 
     public WnQuery setAllToList(Map<String, Object> map) {
-        if (list.isEmpty()) {
-            list.add(new NutMap());
-        }
-        for (NutMap ele : list) {
-            ele.setAll(map);
+        if (null != map) {
+            if (list.isEmpty()) {
+                list.add(new NutMap());
+            }
+            for (NutMap ele : list) {
+                ele.setAll(map);
+            }
         }
         return this;
     }
