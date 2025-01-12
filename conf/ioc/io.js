@@ -108,6 +108,14 @@ var ioc = {
     type: "com.site0.walnut.core.mapping.bm.LocalFileWBMFactory",
     args: [{ refer: "ioHandleManager" }]
   },
+  sqlBMFactory: {
+    type: "com.site0.walnut.core.mapping.bm.SqlBMFactory",
+    fields: {
+      io: { refer: "io" },
+      handles: { refer: "ioHandleManager" },
+      swapPath: { java: '$conf.get("global-bm-swap")' }
+    }
+  },
   ioMappingFactory: {
     type: "com.site0.walnut.core.mapping.WnIoMappingFactoryImpl",
     fields: {
@@ -125,7 +133,8 @@ var ioc = {
         "lbm": { refer: "localIoBMFactory" },
         "redis": { refer: "redisBMFactory" },
         "file": { refer: "localFileBMFactory" },
-        "filew": { refer: "localFileWBMFactory" }
+        "filew": { refer: "localFileWBMFactory" },
+        "sql": { refer: "sqlBMFactory" },
       }
     }
   },

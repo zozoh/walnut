@@ -9,7 +9,6 @@ import org.nutz.lang.Files;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
-import org.nutz.lang.random.R;
 import org.nutz.log.Log;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.api.err.Er;
@@ -20,7 +19,7 @@ import com.site0.walnut.core.WnIoHandle;
 import com.site0.walnut.core.WnIoHandleManager;
 import com.site0.walnut.core.WnReferApi;
 import com.site0.walnut.core.bm.AbstractIoBM;
-import com.site0.walnut.core.bm.localfile.LocalFileReadWriteHandle;
+import com.site0.walnut.core.bm.BMSwapFiles;
 import com.site0.walnut.util.Wn;
 
 /**
@@ -54,7 +53,7 @@ public class LocalIoBM extends AbstractIoBM {
 
     private File dBucket;
 
-    private File dSwap;
+    private BMSwapFiles swaps;
 
     WnReferApi refers;
 
@@ -66,7 +65,7 @@ public class LocalIoBM extends AbstractIoBM {
 
     public LocalIoBM(WnIoHandleManager handles,
                      String phBucket,
-                     String phSWap,
+                     String phSwap,
                      boolean autoCreate,
                      WnReferApi refers) {
         super(handles);
@@ -86,18 +85,7 @@ public class LocalIoBM extends AbstractIoBM {
         }
 
         // 获取交换区目录
-        dSwap = new File(phSWap);
-        if (!dSwap.exists()) {
-            // 不自动创建，就自裁！！！
-            if (!autoCreate) {
-                throw Er.create("e.io.bm.local.SwapHomeNotFound", phSWap);
-            }
-            dSwap = Files.createDirIfNoExists(phBucket);
-        }
-        // 不是目录，自裁
-        if (!dSwap.isDirectory()) {
-            throw Er.create("e.io.bm.local.SwapHomeMustBeDirectory", dSwap.getAbsolutePath());
-        }
+        this.swaps = BMSwapFiles.create(phSwap, autoCreate);
 
         // 句柄管理器
         this.handles = handles;
@@ -119,7 +107,7 @@ public class LocalIoBM extends AbstractIoBM {
             LocalIoBM libm = (LocalIoBM) bm;
             if (!libm.dBucket.equals(dBucket))
                 return false;
-            if (!libm.dSwap.equals(dSwap))
+            if (!this.swaps.equals(libm.swaps))
                 return false;
             // 嗯，那就是自己了
             return true;
@@ -139,7 +127,8 @@ public class LocalIoBM extends AbstractIoBM {
         }
         // 追加
         if (Wn.S.isAppend(mode)) {
-            return new LocalFileReadWriteHandle();
+            // TODO : 是不是可以对追加模式做优化呢？
+            return new LocalIoReadWriteHandle(this);
         }
         // 修改
         if (Wn.S.canModify(mode) || Wn.S.isReadWrite(mode)) {
@@ -199,7 +188,7 @@ public class LocalIoBM extends AbstractIoBM {
         File buck = this.checkBucketFile(o.sha1());
 
         // 首先生成一个交换文件
-        File swap = this.createSwapFile();
+        File swap = this.swaps.createSwapFile();
 
         try {
             Files.copy(buck, swap);
@@ -258,7 +247,8 @@ public class LocalIoBM extends AbstractIoBM {
      * @throws IOException
      *             IO 读写发生异常
      */
-    void updateObjSha1(WnObj o, File swap, WnIoIndexer indexer) throws IOException {
+    @Override
+    public void updateObjSha1(WnObj o, File swap, WnIoIndexer indexer) throws IOException {
         // 2023-12-28: zozoh 如果传入的 o==null, swap 有，可能造成swap 丢失吧！
         // 无需更新，因为没有对象，对应的句柄肯定已经关闭了
         // if (null == o) {
@@ -275,66 +265,58 @@ public class LocalIoBM extends AbstractIoBM {
             lm = swap.lastModified();
         }
 
-        try {
-            if (null != o) {
-                if (lm <= 0) {
-                    lm = Wn.now();
-                }
-                // 如果和原来的一样,那就无语了，啥也不用做了
-                if (o.isSameSha1(sha1)) {
-                    return;
-                }
-
-                String oldSha1 = o.sha1();
-                o.sha1(sha1);
-                o.lastModified(lm);
-                o.len(olen);
-
-                // 看看目的地是否存在，如果不存在就移动过去（标记null，防止删除）
-                boolean isEmptySha1 = Wn.Io.isEmptySha1(sha1);
-                if (!isEmptySha1) {
-                    File buck = this.getBucketFile(sha1);
-
-                    if (!buck.exists()) {
-                        // OSS 映射的文件不支持 move，需要把这个开关关闭
-                        if (canMoveSwap) {
-                            Files.move(swap, buck);
-                        }
-                        // Copy 的方式移动过去
-                        else {
-                            moveSwapToBuck(swap, buck);
-                        }
-                        // 无论如何，空置一下缓冲
-                        swap = null;
-                    }
-                }
-
-                // 非空的 SHA1，增加引用计数
-                if (!isEmptySha1) {
-                    this.refers.add(sha1, o.id());
-                }
-
-                // 删除旧引用
-                if (!Wn.Io.isEmptySha1(oldSha1)) {
-                    long count = this.refers.remove(oldSha1, o.id());
-                    // 木有用了，删掉这个文件
-                    if (count <= 0) {
-                        File oldBuck = this.getBucketFile(oldSha1);
-                        Files.deleteFile(oldBuck);
-                    }
-                }
-
-                // 更新索引
-                indexer.set(o, "^(sha1|len|lm)$");
+        if (null != o) {
+            if (lm <= 0) {
+                lm = Wn.now();
+            }
+            // 如果和原来的一样,那就无语了，啥也不用做了
+            if (o.isSameSha1(sha1)) {
+                return;
             }
 
-        }
-        // 无论如何，尝试移除交换文件
-        finally {
-            if (null != swap) {
-                Files.deleteFile(swap);
+            String oldSha1 = o.sha1();
+            o.sha1(sha1);
+            o.lastModified(lm);
+            o.len(olen);
+
+            // 看看目的地是否存在，如果不存在就移动过去（标记null，防止删除）
+            boolean isEmptySha1 = Wn.Io.isEmptySha1(sha1);
+            if (!isEmptySha1) {
+                File buck = this.getBucketFile(sha1);
+
+                if (!buck.exists()) {
+                    // OSS 映射的文件不支持 move，需要把这个开关关闭
+                    if (canMoveSwap) {
+                        Files.move(swap, buck);
+                    }
+                    // Copy 的方式移动过去
+                    else {
+                        moveSwapToBuck(swap, buck);
+                    }
+                    // 无论如何，空置一下缓冲
+                    swap = null;
+                }
             }
+
+            // 非空的 SHA1，增加引用计数
+            if (!isEmptySha1) {
+                this.refers.add(sha1, o.id());
+            }
+
+            // 删除旧引用
+            if (!Wn.Io.isEmptySha1(oldSha1)) {
+                long count = this.refers.remove(oldSha1, o.id());
+                // 木有用了，删掉这个文件
+                if (count <= 0) {
+                    File oldBuck = this.getBucketFile(oldSha1);
+                    Files.deleteFile(oldBuck);
+                }
+            }
+
+            // 更新索引
+            indexer.set(o, "^(sha1|len|lm)$");
         }
+
     }
 
     private void moveSwapToBuck(File swap, File buck) throws IOException {
@@ -400,9 +382,6 @@ public class LocalIoBM extends AbstractIoBM {
     }
 
     public File createSwapFile() {
-        String nm = R.UU32();
-        File f = Files.getFile(dSwap, nm);
-        return Files.createFileIfNoExists(f);
+        return this.swaps.createSwapFile();
     }
-
 }

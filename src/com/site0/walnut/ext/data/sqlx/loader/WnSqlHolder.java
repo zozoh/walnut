@@ -46,6 +46,21 @@ public class WnSqlHolder implements SqlHolder {
         this.oDir = Wn.checkObj(sys, "~/.sqlx");
     }
 
+    @Override
+    public boolean equals(Object input) {
+        if (this == input) {
+            return true;
+        }
+        if (null == input) {
+            return false;
+        }
+        if (input instanceof WnSqlHolder) {
+            WnSqlHolder ta = (WnSqlHolder) input;
+            return ta.oDir.equals(this.oDir);
+        }
+        return false;
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder(String.format("CACHE %d Items", cache.size()));
         int i = 1;
@@ -115,7 +130,9 @@ public class WnSqlHolder implements SqlHolder {
 
     @Override
     public void reset() {
-        cache.clear();
+        synchronized (this) {
+            cache.clear();
+        }
     }
 
 }

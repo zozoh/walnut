@@ -26,7 +26,7 @@ public class sqlx_query extends SqlxFilter {
         boolean useParam = params.is("p");
 
         WnSqlTmpl sqlt = fc.sqls.get(sqlName);
-        Connection conn = fc.getConnection(sys);
+        Connection conn = fc.getConnection();
 
         NutBean context = fc.getVarMap();
         // 参数模式防止注入

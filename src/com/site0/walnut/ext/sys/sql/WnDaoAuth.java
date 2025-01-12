@@ -74,6 +74,20 @@ public class WnDaoAuth {
         this.testWhileIdle = testWhileIdle;
     }
 
+    @Override
+    public boolean equals(Object input) {
+        if (this == input) {
+            return true;
+        }
+        if (null == input) {
+            return false;
+        }
+        if (input instanceof WnDaoAuth) {
+            return ((WnDaoAuth) input).toKey().equals(this.toKey());
+        }
+        return false;
+    }
+
     public String toKey() {
         return String.format("%s%s@[%s](%d/%d)",
                              testWhileIdle ? "=" : ":",

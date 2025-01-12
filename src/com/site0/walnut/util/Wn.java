@@ -319,6 +319,7 @@ public abstract class Wn {
         NutBean vars = new NutMap();
         String homePath = Wn.getObjHomePath(obj);
         vars.put("HOME", homePath);
+        vars.put("PWD", homePath);
         return vars;
     }
 

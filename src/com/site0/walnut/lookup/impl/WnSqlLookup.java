@@ -25,7 +25,7 @@ import com.site0.walnut.util.Wlog;
 
 public class WnSqlLookup extends AbstractLookup {
 
-    private static Log log = Wlog.getCMD();
+    private static Log log = Wlog.getMAIN();
 
     /**
      * 如果类型为 SQL，则需要一个数据库连接方式
@@ -78,7 +78,7 @@ public class WnSqlLookup extends AbstractLookup {
             List<SqlParam> cps = new ArrayList<>();
             String sql = sqlT.render(context, cps);
             Object[] sqlParams = WnSqls.getSqlParamsValue(cps);
-            QueryProcessor q = new QueryProcessor();
+            QueryProcessor q = new QueryProcessor(log);
             List<NutBean> re = q.runWithParams(conn, sql, sqlParams);
             return re;
         }

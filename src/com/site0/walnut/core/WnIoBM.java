@@ -1,11 +1,14 @@
 package com.site0.walnut.core;
 
+import java.io.File;
 import java.io.IOException;
 
 import com.site0.walnut.api.io.WnIoIndexer;
 import com.site0.walnut.api.io.WnObj;
 
 public interface WnIoBM {
+
+    void updateObjSha1(WnObj o, File swap, WnIoIndexer indexer) throws IOException;
 
     /**
      * @param bm

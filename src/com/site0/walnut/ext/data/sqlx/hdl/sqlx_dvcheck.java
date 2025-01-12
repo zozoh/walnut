@@ -31,7 +31,7 @@ public class sqlx_dvcheck extends SqlxFilter {
 
         // 准备 SQL 模板
         WnSqlTmpl sqlt = fc.sqls.get(sqlName);
-        Connection conn = fc.getConnection(sys);
+        Connection conn = fc.getConnection();
 
         // 执行
         String sql = sqlt.render(vars, null);

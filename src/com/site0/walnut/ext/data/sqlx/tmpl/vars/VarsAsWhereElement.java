@@ -3,6 +3,8 @@ package com.site0.walnut.ext.data.sqlx.tmpl.vars;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.nutz.json.Json;
+
 import com.site0.walnut.ext.data.sqlx.ast.SqlCriteria;
 import com.site0.walnut.ext.data.sqlx.ast.SqlCriteriaNode;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
@@ -11,8 +13,13 @@ import com.site0.walnut.util.tmpl.WnTmplRenderContext;
 
 public class VarsAsWhereElement extends SqlVarsElement {
 
+    private Object dftInput;
+
     public VarsAsWhereElement(String content) {
         super(content);
+        if (null != this.defaultValue) {
+            this.dftInput = Json.fromJson(this.defaultValue);
+        }
     }
 
     @Override
@@ -22,6 +29,10 @@ public class VarsAsWhereElement extends SqlVarsElement {
             src = (SqlRenderContext) rc;
         }
         Object input = this.getObject(rc.context);
+        if (null == input) {
+            input = dftInput;
+        }
+
         SqlCriteriaNode cri = SqlCriteria.toCriNode(input);
 
         // 记入动态参数

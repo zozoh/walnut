@@ -52,7 +52,7 @@ public class sqlx_exec extends SqlxFilter {
         if (log.isDebugEnabled()) {
             log.debugf("sqlx.exec", sqlt.toString());
         }
-        Connection conn = fc.getConnection(sys);
+        Connection conn = fc.getConnection();
 
         SqlExecResult re;
 

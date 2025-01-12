@@ -732,66 +732,51 @@ public class Ws {
     }
 
     /**
-     * 将字符串按半角逗号，拆分成数组，空元素将被忽略
-     *
-     * @param s
-     *            字符串
-     * @return 字符串数组
+     * 相当于<code>splitIgnoreBlank(s, ",", 0)</code>
+     * 
+     * @see #splitIgnoreBlank(String, String, int)
      */
     public static String[] splitIgnoreBlank(String s) {
-        return splitIgnoreBlank(s, ",");
+        return splitIgnoreBlank(s, ",", 0);
     }
 
     /**
-     * 将字符串按半角逗号，拆分成数组，空元素将被设置为null
-     *
-     * @param s
-     *            字符串
-     * @return 字符串数组
-     */
-    public static String[] splitTrimed(String s) {
-        return splitTrimed(s, ",");
-    }
-
-    /**
-     * 将字符串按半角逗号，拆分成数组，空元素将被设置为null
-     *
-     * @param s
-     *            字符串
-     * @return 字符串数组
-     */
-    public static String[] splitTrimed(String s, String regex) {
-        String[] ss = s.split(regex);
-        for (int i = 0; i < ss.length; i++) {
-            ss[i] = ss[i].trim();
-        }
-        return ss;
-    }
-
-    /**
-     * 将字符串按半角逗号，拆分成数组，空元素将被忽略
-     *
-     * @param s
-     *            字符串
-     * @return 字符串列表
-     */
-    public static List<String> splitIgnoreBlanks(String s) {
-        return splitIgnoreBlanks(s, ",");
-    }
-
-    /**
-     * 根据一个正则式，将字符串拆分成数组，空元素将被忽略
-     *
-     * @param s
-     *            字符串
-     * @param regex
-     *            正则式
-     * @return 字符串数组
+     * 相当于<code>splitIgnoreBlank(s, regex, 0)</code>
+     * 
+     * @see #splitIgnoreBlank(String, String, int)
      */
     public static String[] splitIgnoreBlank(String s, String regex) {
+        return splitIgnoreBlank(s, regex, 0);
+    }
+
+    /**
+     * 按照指定的正则表达式和限制条件对输入字符串进行分割操作，在分割后会忽略空白（仅包含空白字符）的子字符串，
+     * 对非空白的子字符串去除首尾空白字符后，将其整合到一个新的字符串数组中返回。
+     * <p>
+     * 此方法首先会检查输入的字符串是否为null，如果是null则直接返回null。接着，
+     * 调用{@link String#split(String, int)}方法依据给定的正则表达式和限制条件来分割输入字符串，
+     * 得到一个子字符串数组。随后遍历该子字符串数组，通过{@link #isBlank(String)}方法判断每个子字符串是否仅由空白字符构成，
+     * 若是则跳过该子字符串，若不是空白字符串，则使用{@link #trim(String)}方法去除其首尾空白字符，并将处理后的子字符串添加到一个列表中。
+     * 最后，把列表中的元素转换为一个新的字符串数组并返回，该数组中仅包含经过上述处理后的非空白子字符串。
+     *
+     * @param s
+     *            要进行分割操作的原始字符串，可为null，若为null则直接返回null。
+     * @param regex
+     *            用于分割的正则表达式，用于指定按照何种模式来拆分字符串。
+     * @param limit
+     *            分割的限制条件，其含义与{@link String#split(String, int)}方法中的限制参数一致，具体解释如下：
+     *            <ul>
+     *            <li>如果为正数，模式最多应用limit -
+     *            1次，数组长度不大于limit，数组最后一项包含最后一个匹配分隔符之后的所有输入内容。</li>
+     *            <li>如果为零，模式将尽可能多地应用，数组可以有任意长度，尾部空字符串将被丢弃。</li>
+     *            <li>如果为负数，模式将尽可能多地应用，数组可以有任意长度。</li>
+     *            </ul>
+     * @return 一个字符串数组，数组中的元素为经过去除首尾空白字符处理后的非空白子字符串，若输入字符串为null，则返回null。
+     */
+    public static String[] splitIgnoreBlank(String s, String regex, int limit) {
         if (null == s)
             return null;
-        String[] ss = s.split(regex);
+        String[] ss = s.split(regex, limit);
         List<String> list = new LinkedList<String>();
         for (String st : ss) {
             if (isBlank(st))
@@ -802,18 +787,149 @@ public class Ws {
     }
 
     /**
-     * 根据一个正则式，将字符串拆分成数组，空元素将被忽略
+     * 相当于<code>splitTrimed(s, ",", 0)</code>
+     * 
+     * @see #splitTrimed(String, String, int)
+     */
+    public static String[] splitTrimed(String s) {
+        return splitTrimed(s, ",", 0);
+    }
+
+    /**
+     * 相当于<code>splitTrimed(s, regex, 0)</code>
+     * 
+     * @see #splitTrimed(String, String, int)
+     */
+    public static String[] splitTrimed(String s, String regex) {
+        return splitTrimed(s, regex, 0);
+    }
+
+    /**
+     * 对给定的字符串按照指定的正则表达式和限制条件进行分割，并对分割后的每个子字符串去除首尾空白字符。
+     * <p>
+     * 该方法首先调用{@link String#split(String, int)}方法按照传入的正则表达式和限制条件来分割输入字符串，
+     * 然后遍历分割后得到的子字符串数组，使用{@link String#trim()}方法去除每个子字符串的首尾空白字符，
+     * 最后返回处理后的子字符串数组。
      *
      * @param s
-     *            字符串
+     *            要进行分割操作的原始字符串
      * @param regex
-     *            正则式
-     * @return 字符串列表
+     *            用于分割的正则表达式，指定按照何种模式来拆分字符串
+     * @param limit
+     *            分割的限制条件，用于控制分割的次数以及结果数组的长度等情况，其含义与{@link String#split(String, int)}方法中的限制参数一致。
+     *            具体来说：
+     *            <ul>
+     *            <li>如果为正数，模式最多应用limit -
+     *            1次，数组长度不大于limit，数组最后一项包含最后一个匹配分隔符之后的所有输入内容。</li>
+     *            <li>如果为零，模式将尽可能多地应用，数组可以有任意长度，尾部空字符串将被丢弃。</li>
+     *            <li>如果为负数，模式将尽可能多地应用，数组可以有任意长度。</li>
+     *            </ul>
+     * @return 经过分割并去除首尾空白字符后的子字符串数组
+     */
+    public static String[] splitTrimed(String s, String regex, int limit) {
+        String[] ss = s.split(regex, limit);
+        for (int i = 0; i < ss.length; i++) {
+            ss[i] = ss[i].trim();
+        }
+        return ss;
+    }
+
+    /**
+     * 相当于<code>splitTrimedEmptyAsNull(s, regex, 0)</code>
+     * 
+     * @see #splitTrimedEmptyAsNull(String, String, int)
+     */
+    public static String[] splitTrimedEmptyAsNull(String s, String regex) {
+        return splitTrimedEmptyAsNull(s, regex, 0);
+    }
+
+    /**
+     * 按照指定的正则表达式和限制条件对输入字符串进行分割，然后对分割得到的每个子字符串进行首尾空白字符去除操作，
+     * 并且将去除空白字符后长度为0的子字符串设置为null，最后返回处理后的字符串数组。
+     * <p>
+     * 首先调用{@link String#split(String, int)}方法，依据传入的正则表达式和限制条件对输入的字符串进行分割，得到一个子字符串数组。
+     * 接着遍历这个子字符串数组，针对每个子字符串使用{@link String#trim()}方法去除其首尾空白字符。之后，判断经过修剪后的子字符串长度是否为0，
+     * 如果长度为0，就将该子字符串赋值为null，表示将空字符串（去除空白后无实质内容的情况）以null形式体现。最终返回经过上述处理后的字符串数组。
+     *
+     * @param s
+     *            要进行分割操作的原始字符串。
+     * @param regex
+     *            用于分割的正则表达式，指定了按照何种模式来拆分字符串。
+     * @param limit
+     *            分割的限制条件，其含义与{@link String#split(String, int)}方法中的限制参数一致，具体含义如下：
+     *            <ul>
+     *            <li>如果为正数，模式最多应用limit -
+     *            1次，数组长度不大于limit，数组最后一项包含最后一个匹配分隔符之后的所有输入内容。</li>
+     *            <li>如果为零，模式将尽可能多地应用，数组可以有任意长度，尾部空字符串将被丢弃。</li>
+     *            <li>如果为负数，模式将尽可能多地应用，数组可以有任意长度。</li>
+     *            </ul>
+     * @return 经过分割、去除首尾空白字符以及将空字符串处理为null后的字符串数组。
+     */
+    public static String[] splitTrimedEmptyAsNull(String s, String regex, int limit) {
+        String[] ss = s.split(regex, limit);
+        for (int i = 0; i < ss.length; i++) {
+            ss[i] = ss[i].trim();
+            if (ss[i].length() == 0) {
+                ss[i] = null;
+            }
+        }
+        return ss;
+    }
+
+    /**
+     * 相当于<code>splitIgnoreBlanks(s, ",", 0)</code>
+     * 
+     * @see #splitIgnoreBlanks(String, String, int)
+     */
+    public static List<String> splitIgnoreBlanks(String s) {
+        return splitIgnoreBlanks(s, ",");
+    }
+
+    /**
+     * 相当于<code>splitIgnoreBlanks(s, regex, 0)</code>
+     * 
+     * @see #splitIgnoreBlanks(String, String, int)
      */
     public static List<String> splitIgnoreBlanks(String s, String regex) {
         if (null == s)
             return null;
         String[] ss = s.split(regex);
+        List<String> list = new LinkedList<String>();
+        for (String st : ss) {
+            if (isBlank(st))
+                continue;
+            list.add(trim(st));
+        }
+        return list;
+    }
+
+    /**
+     * 按照指定的正则表达式和限制条件对输入字符串进行分割，忽略分割后为空（空白字符组成）的子字符串，
+     * 并对非空的子字符串去除首尾空白字符后添加到列表中返回。
+     * <p>
+     * 首先会判断输入的字符串是否为null，如果是则直接返回null。然后调用{@link String#split(String, int)}
+     * 方法按照给定的正则表达式和限制条件对字符串进行分割，得到一个子字符串数组。接着遍历该数组，
+     * 通过{@link #isBlank(String)}方法判断每个子字符串是否为空（仅包含空白字符），如果为空则跳过，
+     * 不为空的话使用{@link #trim(String)}方法去除首尾空白字符后添加到返回的列表中。
+     *
+     * @param s
+     *            要进行分割操作的原始字符串，可为null，如果为null则直接返回null。
+     * @param regex
+     *            用于分割的正则表达式，决定按照何种模式拆分字符串。
+     * @param limit
+     *            分割的限制条件，其含义与{@link String#split(String, int)}方法中的限制参数一致，具体如下：
+     *            <ul>
+     *            <li>如果为正数，模式最多应用limit -
+     *            1次，数组长度不大于limit，数组最后一项包含最后一个匹配分隔符之后的所有输入内容。</li>
+     *            <li>如果为零，模式将尽可能多地应用，数组可以有任意长度，尾部空字符串将被丢弃。</li>
+     *            <li>如果为负数，模式将尽可能多地应用，数组可以有任意长度。</li>
+     *            </ul>
+     * @return 一个包含经过处理后的非空白子字符串的列表，若输入字符串为null则返回null，列表中的每个元素都是去除首尾空白字符后的非空白子字符串。
+     */
+    public static List<String> splitIgnoreBlanks(String s, String regex, int limit) {
+        if (null == s)
+            return null;
+        String[] ss = s.split(regex, limit);
         List<String> list = new LinkedList<String>();
         for (String st : ss) {
             if (isBlank(st))

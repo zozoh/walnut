@@ -97,8 +97,8 @@ public class SqlxContext extends JvmFilterContext {
     public Object result;
 
     public SqlxContext() {
-        this.query = new QueryProcessor();
-        this.exec = new ExecProcessor();
+        this.query = new QueryProcessor(log);
+        this.exec = new ExecProcessor(log);
         this.pipeContext = new NutMap();
     }
 
@@ -304,8 +304,8 @@ public class SqlxContext extends JvmFilterContext {
         }
     }
 
-    public void prepareToRun(WnSystem sys) {
-        if (null == this.getConnection(sys)) {
+    public void prepareToRun() {
+        if (null == this.getConnection()) {
             throw Er.create("e.cmd.sqlx.FailToGetConnection");
         }
     }
@@ -326,7 +326,7 @@ public class SqlxContext extends JvmFilterContext {
         this.pipeContext.addv2(key, val);
     }
 
-    public Connection getConnection(WnSystem sys) {
+    public Connection getConnection() {
         if (null == conn) {
             if (null == auth) {
                 throw Er.create("e.cmd.sqlx.conn.noAuth");

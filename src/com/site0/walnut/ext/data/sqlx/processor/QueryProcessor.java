@@ -19,7 +19,11 @@ import com.site0.walnut.util.Wlog;
 
 public class QueryProcessor implements SqlProcessor<List<NutBean>> {
 
-    private static Log log = Wlog.getCMD();
+    private Log log;
+
+    public QueryProcessor(Log log) {
+        this.log = log;
+    }
 
     @Override
     public List<NutBean> run(Connection conn, String sql) {

@@ -15,7 +15,11 @@ import com.site0.walnut.util.Wlog;
 
 public class ExecProcessor implements SqlProcessor<SqlExecResult> {
 
-    private static Log log = Wlog.getCMD();
+    private Log log;
+
+    public ExecProcessor(Log log) {
+        this.log = log;
+    }
 
     @Override
     public SqlExecResult run(Connection conn, String sql) {
