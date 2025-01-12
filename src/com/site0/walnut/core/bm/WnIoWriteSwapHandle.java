@@ -42,7 +42,7 @@ public abstract class WnIoWriteSwapHandle extends WnIoWriteHandle {
         }
         // 确保删除交换文件
         finally {
-            if (swap.exists()) {
+            if (null != swap && swap.exists()) {
                 Files.deleteFile(swap);
             }
         }

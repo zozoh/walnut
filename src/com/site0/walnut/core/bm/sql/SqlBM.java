@@ -141,12 +141,13 @@ public class SqlBM extends AbstractIoBM {
         int count = countObj(obj);
 
         // 不存在，就用创建
-        if (count <= 0) {
-            sqlName = getSqlName("insert");
+        if (count == 0) {
+            sqlName = getSqlName("insert_content");
         }
-        // 存在就更新
+        // 存在就更新，当然 count==-1 表示用户并未定义 count_content 操作
+        // 因为他这时候应该希望 bm/index 在一个表里，因此直接 update 就好
         else {
-            sqlName = getSqlName("update");
+            sqlName = getSqlName("update_content");
         }
 
         // 准备输入流
@@ -206,9 +207,9 @@ public class SqlBM extends AbstractIoBM {
     public int countObj(WnObj obj) {
         return _sql_get(new SqlBMGetter<Integer>() {
             public Integer doGet(Connection conn) throws SQLException {
-                ResultSet rs = getResultSet(conn, obj, "count");
+                ResultSet rs = getResultSet(conn, obj, "count_content");
                 if (null == rs) {
-                    throw Er.create("e.io.SqlBM.countObj.FailResultSet", obj);
+                    return -1;
                 }
                 return rs.getInt("total");
             }
@@ -219,7 +220,7 @@ public class SqlBM extends AbstractIoBM {
     public Blob getBlob(WnObj obj) {
         return _sql_get(new SqlBMGetter<Blob>() {
             public Blob doGet(Connection conn) throws SQLException {
-                ResultSet rs = getResultSet(conn, obj, "fetch");
+                ResultSet rs = getResultSet(conn, obj, "fetch_content");
                 if (null == rs) {
                     throw Er.create("e.io.SqlBM.getBlob.FailResultSet", obj);
                 }
@@ -234,6 +235,9 @@ public class SqlBM extends AbstractIoBM {
         String objId = obj.OID().getMyId();
         String sqlName = getSqlName(sqlSubName);
         WnSqlTmpl sqlt = sqls.get(sqlName);
+        if (null == sqlt) {
+            return null;
+        }
 
         NutBean filter = Wlang.map("id", objId);
         List<SqlParam> cps = new ArrayList<>();
