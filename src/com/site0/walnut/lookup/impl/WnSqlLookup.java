@@ -17,7 +17,7 @@ import com.site0.walnut.ext.data.sqlx.processor.QueryProcessor;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlElementMaker;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
-import com.site0.walnut.ext.data.sqlx.tmpl.WnSqls;
+import com.site0.walnut.ext.data.sqlx.util.Sqlx;
 import com.site0.walnut.ext.sys.sql.WnDaoAuth;
 import com.site0.walnut.ext.sys.sql.WnDaos;
 import com.site0.walnut.lookup.bean.LookupConfig;
@@ -77,7 +77,7 @@ public class WnSqlLookup extends AbstractLookup {
 
             List<SqlParam> cps = new ArrayList<>();
             String sql = sqlT.render(context, cps);
-            Object[] sqlParams = WnSqls.getSqlParamsValue(cps);
+            Object[] sqlParams = Sqlx.getSqlParamsValue(cps);
             QueryProcessor q = new QueryProcessor(log);
             List<NutBean> re = q.runWithParams(conn, sql, sqlParams);
             return re;

@@ -3,9 +3,9 @@ package com.site0.walnut.ext.data.sqlx.ast.cri;
 import java.util.Arrays;
 import java.util.List;
 
-import com.site0.walnut.ext.data.sqlx.tmpl.WnSqls;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
+import com.site0.walnut.ext.data.sqlx.util.Sqlx;
 
 public class SqlCriExpEnumNode extends SqlCriExpressionNode {
 
@@ -43,7 +43,7 @@ public class SqlCriExpEnumNode extends SqlCriExpressionNode {
         else {
             String[] vs = new String[vals.length];
             for (int i = 0; i < vals.length; i++) {
-                String s = WnSqls.valueToSqlExp(vals[i]);
+                String s = Sqlx.valueToSqlExp(vals[i]);
                 vs[i] = s;
             }
             sb.append(this.name);

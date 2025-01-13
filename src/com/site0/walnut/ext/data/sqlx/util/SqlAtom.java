@@ -13,7 +13,6 @@ import org.nutz.log.Log;
 
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
-import com.site0.walnut.ext.data.sqlx.tmpl.WnSqls;
 
 public class SqlAtom {
 
@@ -27,7 +26,7 @@ public class SqlAtom {
         this.log = log;
         List<SqlParam> cps = new ArrayList<>();
         this.sql = sqlt.render(vars, cps);
-        this.params = WnSqls.getSqlParamsValue(cps);
+        this.params = Sqlx.getSqlParamsValue(cps);
     }
 
     public int exec(Connection conn) throws SQLException {
@@ -35,7 +34,7 @@ public class SqlAtom {
             log.infof("SqlFieldGetter: sql=%s, params=%s", sql, Json.toJson(params));
         }
         PreparedStatement sta = conn.prepareStatement(sql);
-        WnSqls.setParmas(sta, params);
+        Sqlx.setParmas(sta, params);
 
         sta.execute();
         return sta.getUpdateCount();

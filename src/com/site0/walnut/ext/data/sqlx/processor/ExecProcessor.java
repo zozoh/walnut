@@ -10,7 +10,7 @@ import org.nutz.lang.Nums;
 import org.nutz.log.Log;
 
 import com.site0.walnut.api.err.Er;
-import com.site0.walnut.ext.data.sqlx.tmpl.WnSqls;
+import com.site0.walnut.ext.data.sqlx.util.Sqlx;
 import com.site0.walnut.util.Wlog;
 
 public class ExecProcessor implements SqlProcessor<SqlExecResult> {
@@ -59,7 +59,7 @@ public class ExecProcessor implements SqlProcessor<SqlExecResult> {
         try {
             // 准备语句
             PreparedStatement sta = conn.prepareStatement(sql);
-            WnSqls.setParmas(sta, params);
+            Sqlx.setParmas(sta, params);
 
             // 执行
             sta.execute();
@@ -105,7 +105,7 @@ public class ExecProcessor implements SqlProcessor<SqlExecResult> {
 
             // sta.executeBatch();
             for (Object[] params : paramList) {
-                WnSqls.setParmas(sta, params);
+                Sqlx.setParmas(sta, params);
                 sta.addBatch();
             }
 

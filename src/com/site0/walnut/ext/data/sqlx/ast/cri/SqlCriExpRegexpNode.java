@@ -3,7 +3,7 @@ package com.site0.walnut.ext.data.sqlx.ast.cri;
 import java.util.List;
 
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
-import com.site0.walnut.ext.data.sqlx.tmpl.WnSqls;
+import com.site0.walnut.ext.data.sqlx.util.Sqlx;
 
 public class SqlCriExpRegexpNode extends SqlCriExpressionNode {
 
@@ -35,7 +35,7 @@ public class SqlCriExpRegexpNode extends SqlCriExpressionNode {
         }
         // 采用普通语句
         else {
-            String vs = WnSqls.valueToSqlExp(this.regex);
+            String vs = Sqlx.valueToSqlExp(this.regex);
             // 采用数据特殊方言
             if (null != this.dialect) {
                 this.dialect.joinRegexp(sb, this.name, vs);

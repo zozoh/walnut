@@ -26,7 +26,6 @@ import com.site0.walnut.ext.data.sqlx.processor.ExecProcessor;
 import com.site0.walnut.ext.data.sqlx.processor.SqlExecResult;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
-import com.site0.walnut.ext.data.sqlx.tmpl.WnSqls;
 import com.site0.walnut.ext.data.sqlx.util.SqlGetter;
 import com.site0.walnut.ext.data.sqlx.util.Sqlx;
 import com.site0.walnut.ext.sys.sql.WnDaoAuth;
@@ -146,13 +145,13 @@ public class SqlBM extends AbstractIoBM {
 
         List<SqlParam> cps = new ArrayList<>();
         String sql = sqlt.render(vars, cps);
-        Object[] sqlParams = WnSqls.getSqlParamsValue(cps);
+        Object[] sqlParams = Sqlx.getSqlParamsValue(cps);
 
         try {
             SqlExecResult re = Sqlx.sqlGet(auth, new SqlGetter<SqlExecResult>() {
                 public SqlExecResult doGet(Connection conn) throws SQLException {
                     PreparedStatement sta = conn.prepareStatement(sql);
-                    WnSqls.setParmas(sta, sqlParams);
+                    Sqlx.setParmas(sta, sqlParams);
                     return exec.runWithParams(conn, sql, sqlParams);
                 }
             });
@@ -242,13 +241,13 @@ public class SqlBM extends AbstractIoBM {
 
         List<SqlParam> cps = new ArrayList<>();
         String sql = sqlt.render(record, cps);
-        Object[] sqlParams = WnSqls.getSqlParamsValue(cps);
+        Object[] sqlParams = Sqlx.getSqlParamsValue(cps);
 
         try {
             SqlExecResult re = Sqlx.sqlGet(auth, new SqlGetter<SqlExecResult>() {
                 public SqlExecResult doGet(Connection conn) throws SQLException {
                     PreparedStatement sta = conn.prepareStatement(sql);
-                    WnSqls.setParmas(sta, sqlParams);
+                    Sqlx.setParmas(sta, sqlParams);
                     return exec.runWithParams(conn, sql, sqlParams);
                 }
             });
@@ -327,7 +326,7 @@ public class SqlBM extends AbstractIoBM {
         NutBean filter = Wlang.map("id", objId);
         List<SqlParam> cps = new ArrayList<>();
         String sql = sqlt.render(filter, cps);
-        Object[] sqlParams = WnSqls.getSqlParamsValue(cps);
+        Object[] sqlParams = Sqlx.getSqlParamsValue(cps);
 
         if (log.isInfoEnabled()) {
             log.infof("SqlBM: sqlName=%s, objId=%s, sql=%s, params=%s",
@@ -338,7 +337,7 @@ public class SqlBM extends AbstractIoBM {
         }
 
         PreparedStatement sta = conn.prepareStatement(sql);
-        WnSqls.setParmas(sta, sqlParams);
+        Sqlx.setParmas(sta, sqlParams);
 
         ResultSet rs = sta.executeQuery();
         if (rs.next()) {

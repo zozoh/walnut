@@ -3,7 +3,7 @@ package com.site0.walnut.ext.data.sqlx.ast.cri;
 import java.util.List;
 
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
-import com.site0.walnut.ext.data.sqlx.tmpl.WnSqls;
+import com.site0.walnut.ext.data.sqlx.util.Sqlx;
 
 public abstract class SqlCriExpSimpleNode extends SqlCriExpressionNode {
 
@@ -32,7 +32,7 @@ public abstract class SqlCriExpSimpleNode extends SqlCriExpressionNode {
         }
         // 采用普通语句
         else {
-            String vs = WnSqls.valueToSqlExp(this.value);
+            String vs = Sqlx.valueToSqlExp(this.value);
             sb.append(this.name);
             sb.append(operator);
             sb.append(vs);

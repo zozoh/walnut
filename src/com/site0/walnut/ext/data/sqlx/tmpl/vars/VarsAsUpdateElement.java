@@ -5,7 +5,7 @@ import java.util.Map;
 import org.nutz.lang.util.NutBean;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlRenderContext;
-import com.site0.walnut.ext.data.sqlx.tmpl.WnSqls;
+import com.site0.walnut.ext.data.sqlx.util.Sqlx;
 import com.site0.walnut.util.tmpl.WnTmplRenderContext;
 
 public class VarsAsUpdateElement extends SqlVarsElement {
@@ -41,7 +41,7 @@ public class VarsAsUpdateElement extends SqlVarsElement {
             // 采用传统的 SQL 方式
             else {
                 Object val = en.getValue();
-                String vs = WnSqls.valueToSqlExp(val);
+                String vs = Sqlx.valueToSqlExp(val);
                 rc.out.append(key).append('=').append(vs);
             }
 

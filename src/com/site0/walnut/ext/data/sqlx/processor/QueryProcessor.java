@@ -13,7 +13,7 @@ import org.nutz.lang.util.NutBean;
 import org.nutz.log.Log;
 
 import com.site0.walnut.api.err.Er;
-import com.site0.walnut.ext.data.sqlx.tmpl.WnSqls;
+import com.site0.walnut.ext.data.sqlx.util.Sqlx;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
 
@@ -42,7 +42,7 @@ public class QueryProcessor implements SqlProcessor<List<NutBean>> {
 
             // 遍历结果集
             while (rs.next()) {
-                NutBean bean = WnSqls.toBean(rs, meta);
+                NutBean bean = Sqlx.toBean(rs, meta);
                 list.add(bean);
             }
 
@@ -70,7 +70,7 @@ public class QueryProcessor implements SqlProcessor<List<NutBean>> {
         try {
             // 准备
             PreparedStatement sta = conn.prepareStatement(sql);
-            WnSqls.setParmas(sta, params);
+            Sqlx.setParmas(sta, params);
 
             // 执行
             ResultSet rs = sta.executeQuery();
@@ -78,7 +78,7 @@ public class QueryProcessor implements SqlProcessor<List<NutBean>> {
 
             // 遍历结果集
             while (rs.next()) {
-                NutBean bean = WnSqls.toBean(rs, meta);
+                NutBean bean = Sqlx.toBean(rs, meta);
                 list.add(bean);
             }
 

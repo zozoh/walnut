@@ -13,7 +13,6 @@ import org.nutz.log.Log;
 
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
-import com.site0.walnut.ext.data.sqlx.tmpl.WnSqls;
 
 public class SqlGet<T> implements SqlGetter<T> {
 
@@ -29,7 +28,7 @@ public class SqlGet<T> implements SqlGetter<T> {
         this.log = log;
         List<SqlParam> cps = new ArrayList<>();
         this.sql = sqlt.render(vars, cps);
-        this.params = WnSqls.getSqlParamsValue(cps);
+        this.params = Sqlx.getSqlParamsValue(cps);
         this.getter = getter;
     }
 
@@ -39,7 +38,7 @@ public class SqlGet<T> implements SqlGetter<T> {
             log.infof("SqlFieldGetter: sql=%s, params=%s", sql, Json.toJson(params));
         }
         PreparedStatement sta = conn.prepareStatement(sql);
-        WnSqls.setParmas(sta, params);
+        Sqlx.setParmas(sta, params);
 
         ResultSet rs = sta.executeQuery();
         if (rs.next()) {

@@ -395,7 +395,7 @@ public class DaoIndexer extends AbstractIoDataIndexer {
                 if (null == o) {
                     return;
                 }
-                // 根据父对象完成自身未设置的字段
+                // 根据父对象补完自身字段
                 o.setIndexer(indexer);
                 _complete_obj_by_parent(pHint, o);
 

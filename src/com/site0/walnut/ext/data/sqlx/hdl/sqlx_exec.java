@@ -13,7 +13,7 @@ import com.site0.walnut.ext.data.sqlx.SqlxFilter;
 import com.site0.walnut.ext.data.sqlx.processor.SqlExecResult;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
-import com.site0.walnut.ext.data.sqlx.tmpl.WnSqls;
+import com.site0.walnut.ext.data.sqlx.util.Sqlx;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
@@ -73,7 +73,7 @@ public class sqlx_exec extends SqlxFilter {
                 String sql = sqlt.render(context, cps);
 
                 // 准备参数
-                List<Object[]> paramList = WnSqls.getParams(beans, cps);
+                List<Object[]> paramList = Sqlx.getParams(beans, cps);
                 re = fc.exec.batchRun(conn, sql, paramList);
             }
             // 单个模式
@@ -82,7 +82,7 @@ public class sqlx_exec extends SqlxFilter {
                 for (NutBean context : beans) {
                     List<SqlParam> cps = new ArrayList<>();
                     String sql = sqlt.render(context, cps);
-                    Object[] sqlParams = WnSqls.getSqlParamsValue(cps);
+                    Object[] sqlParams = Sqlx.getSqlParamsValue(cps);
                     SqlExecResult updateResult = fc.exec.runWithParams(conn, sql, sqlParams);
                     re.batchTotal += updateResult.batchTotal;
                     re.updateCount += updateResult.updateCount;
@@ -105,7 +105,7 @@ public class sqlx_exec extends SqlxFilter {
 
             List<SqlParam> cps = new ArrayList<>();
             String sql = sqlt.render(record, cps);
-            Object[] sqlParams = WnSqls.getSqlParamsValue(cps);
+            Object[] sqlParams = Sqlx.getSqlParamsValue(cps);
             re = fc.exec.runWithParams(conn, sql, sqlParams);
 
             // 准备更新日志
@@ -149,7 +149,7 @@ public class sqlx_exec extends SqlxFilter {
                 List<SqlParam> cps = new ArrayList<>();
                 WnSqlTmpl fetcht = fc.sqls.get(fetch_by);
                 String fetch_sql = fetcht.render(_vars, cps);
-                Object[] fetch_params = WnSqls.getSqlParamsValue(cps);
+                Object[] fetch_params = Sqlx.getSqlParamsValue(cps);
                 re.list = fc.query.runWithParams(conn, fetch_sql, fetch_params);
 
                 if (!Ws.isBlank(fetch_save) && re.list.size() > 0) {

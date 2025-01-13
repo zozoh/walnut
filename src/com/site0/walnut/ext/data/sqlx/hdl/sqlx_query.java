@@ -9,7 +9,7 @@ import com.site0.walnut.ext.data.sqlx.SqlxContext;
 import com.site0.walnut.ext.data.sqlx.SqlxFilter;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
-import com.site0.walnut.ext.data.sqlx.tmpl.WnSqls;
+import com.site0.walnut.ext.data.sqlx.util.Sqlx;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.ZParams;
 
@@ -33,7 +33,7 @@ public class sqlx_query extends SqlxFilter {
         if (useParam) {
             List<SqlParam> cps = new ArrayList<>();
             String sql = sqlt.render(context, cps);
-            Object[] sqlParams = WnSqls.getSqlParamsValue(cps);
+            Object[] sqlParams = Sqlx.getSqlParamsValue(cps);
             fc.result = fc.query.runWithParams(conn, sql, sqlParams);
         }
         // 普通模式

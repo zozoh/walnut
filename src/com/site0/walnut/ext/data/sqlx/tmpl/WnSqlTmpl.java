@@ -5,6 +5,7 @@ import java.util.List;
 import org.nutz.lang.util.NutBean;
 import com.site0.walnut.ext.data.sqlx.loader.SqlEntry;
 import com.site0.walnut.ext.data.sqlx.loader.SqlType;
+import com.site0.walnut.ext.data.sqlx.util.Sqlx;
 import com.site0.walnut.util.tmpl.WnTmplParsing;
 import com.site0.walnut.util.tmpl.WnTmplX;
 
@@ -31,7 +32,7 @@ public class WnSqlTmpl {
         ing.setExpert(null);
         WnTmplX tmpl = ing.parse(cs);
         WnSqlTmpl re = new WnSqlTmpl(tmpl);
-        re.type = WnSqls.autoSqlType(input);
+        re.type = Sqlx.autoSqlType(input);
         return re;
     }
 
