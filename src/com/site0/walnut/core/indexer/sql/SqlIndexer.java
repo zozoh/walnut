@@ -71,13 +71,21 @@ public class SqlIndexer extends AbstractIoDataIndexer {
         this.fixedMatch = fixedMatch;
     }
 
+    private NutMap __remove_root_pid(NutMap q) {
+        String pid = q.getString("pid");
+        if (this.root.isSameId(pid)) {
+            q.remove("pid");
+        }
+        return q;
+    }
+
     private NutMap prepareQuery(WnQuery q) {
         NutMap re = new NutMap();
         re.putAll(q.first());
         if (null != this.fixedMatch) {
             re.putAll(this.fixedMatch);
         }
-        return re;
+        return __remove_root_pid(re);
     }
 
     private NutMap prepareQuery(WnObj o) {
@@ -86,7 +94,7 @@ public class SqlIndexer extends AbstractIoDataIndexer {
         if (null != this.fixedMatch) {
             re.putAll(this.fixedMatch);
         }
-        return re;
+        return __remove_root_pid(re);
     }
 
     private NutMap prepareQuery(String id) {
@@ -96,7 +104,7 @@ public class SqlIndexer extends AbstractIoDataIndexer {
         if (null != this.fixedMatch) {
             re.putAll(this.fixedMatch);
         }
-        return re;
+        return __remove_root_pid(re);
     }
 
     private NutMap prepareQuery(String pid, String nm) {
@@ -246,19 +254,32 @@ public class SqlIndexer extends AbstractIoDataIndexer {
 
     @Override
     protected WnObj _fetch_by_name(WnObj p, String name) {
-        WnSqlTmpl sqlt = getSql(SD_FETCH);
+        WnSqlTmpl sqlt = getSql(SD_SELECT);
         if (null == sqlt) {
             throw Er.create("fetch SQL without defined");
         }
-        NutMap vars = prepareQuery(p.id(), name);
+        NutMap filter = prepareQuery(p.id(), name);
+        NutMap vars = Wlang.map("filter", filter);
+        vars.put("limit", 2);
 
-        SqlGet<NutBean> get = new SqlGet<>(log, sqlt, vars, new SqlResetSetGetter<NutBean>() {
-            public NutBean getValue(ResultSet rs) throws SQLException {
-                ResultSetMetaData meta = rs.getMetaData();
-                return Sqlx.toBean(rs, meta);
-            }
-        });
-        NutBean bean = Sqlx.sqlGet(auth, get);
+        SqlGet<List<NutBean>> get = new SqlGet<>(log,
+                                                 sqlt,
+                                                 vars,
+                                                 new SqlResetSetGetter<List<NutBean>>() {
+                                                     public List<NutBean> getValue(ResultSet rs)
+                                                             throws SQLException {
+                                                         return Sqlx.toBeanList(rs);
+                                                     }
+                                                 });
+        List<NutBean> beans = Sqlx.sqlGet(auth, get);
+        if (null == beans || beans.isEmpty()) {
+            return null;
+        }
+        if (beans.size() > 1) {
+            NutMap reason = Wlang.map("name", name).setv("parent", p.toString());
+            throw Er.create("e.io.fetch.multi", reason);
+        }
+        NutBean bean = beans.get(0);
         WnObj obj = new WnIoObj();
         obj.putAll(bean);
         return obj;
@@ -290,8 +311,15 @@ public class SqlIndexer extends AbstractIoDataIndexer {
         if (null == _insert) {
             throw Er.create("insert SQL without defined");
         }
+        // 准备元数据
+        NutMap meta = new NutMap(o);
+        __remove_root_pid(meta);
+        meta.put("id", o.OID().getMyId());
+        meta.remove("ph");
+        meta.put("race", o.race().toString());
+
         // 准备插入操作
-        SqlAtom insert = new SqlAtom(log, _insert, o);
+        SqlAtom insert = new SqlAtom(log, _insert, meta);
 
         // 执行操作
         Sqlx.sqlRun(auth, insert);
@@ -367,9 +395,14 @@ public class SqlIndexer extends AbstractIoDataIndexer {
         }
         // 查询条件
         NutMap filter = prepareQuery(q);
+        // 没有查询条件，那么就给一个吧
+        if (filter.isEmpty()) {
+            filter.put("1", 1);
+        }
         NutMap vars = Wlang.map("filter", filter);
+        int limit = q.limit();
         vars.put("sorter", q.sort());
-        vars.put("limit", q.limit());
+        vars.put("limit", limit <= 0 ? 500 : limit);
         vars.put("skip", q.skip());
 
         // 渲染 SQL 和参数
@@ -378,7 +411,7 @@ public class SqlIndexer extends AbstractIoDataIndexer {
         Object[] params = Sqlx.getSqlParamsValue(cps);
 
         if (log.isInfoEnabled()) {
-            log.infof("_each: sql=%s, params=%s", sql, Json.toJson(params));
+            log.infof("_each: sql=%s; params=%s", sql, Json.toJson(params));
         }
 
         // 执行查询
