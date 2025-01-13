@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.castor.Castors;
+import org.nutz.json.Json;
 import org.nutz.lang.Each;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -57,12 +58,12 @@ public class SqlIndexer extends AbstractIoDataIndexer {
     private static final String SD_REMOVE = "remove";
     private static final String SD_INC = "inc";
 
-    protected SqlIndexer(WnObj root,
-                         MimeMap mimes,
-                         WnDaoAuth auth,
-                         SqlHolder sqls,
-                         String entityName,
-                         NutBean fixedMatch) {
+    public SqlIndexer(WnObj root,
+                      MimeMap mimes,
+                      WnDaoAuth auth,
+                      SqlHolder sqls,
+                      String entityName,
+                      NutBean fixedMatch) {
         super(root, mimes);
         this.auth = auth;
         this.sqls = sqls;
@@ -375,6 +376,10 @@ public class SqlIndexer extends AbstractIoDataIndexer {
         List<SqlParam> cps = new ArrayList<>();
         String sql = sqlt.render(vars, cps);
         Object[] params = Sqlx.getSqlParamsValue(cps);
+
+        if (log.isInfoEnabled()) {
+            log.infof("_each: sql=%s, params=%s", sql, Json.toJson(params));
+        }
 
         // 执行查询
         final WnIoIndexer indexer = this;

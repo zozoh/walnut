@@ -31,7 +31,7 @@ public class SqlAtom {
 
     public int exec(Connection conn) throws SQLException {
         if (log.isInfoEnabled()) {
-            log.infof("SqlFieldGetter: sql=%s, params=%s", sql, Json.toJson(params));
+            log.infof("SqlAtom: sql=%s, params=%s", sql, Json.toJson(params));
         }
         PreparedStatement sta = conn.prepareStatement(sql);
         Sqlx.setParmas(sta, params);

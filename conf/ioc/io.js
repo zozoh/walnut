@@ -85,6 +85,13 @@ var ioc = {
       }
     }
   },
+  sqlIndexerFactory: {
+    type: "com.site0.walnut.core.mapping.indexer.SqlIndexerFactory",
+    fields: {
+      io: { refer: "io" },
+      mimes: { refer: "mimes" }
+    }
+  },
   localIoBMFactory: {
     type: "com.site0.walnut.core.mapping.bm.LocalIoBMFactory",
     fields: {
@@ -126,6 +133,7 @@ var ioc = {
         "file": { refer: "localFileIndexerFactory" },
         "filew": { refer: "localFileWIndexerFactory" },
         "dao": { refer: "daoIndexerFactory" },
+        "sql": { refer: "sqlIndexerFactory" },
         "mem": null,
         "redis": null
       },
@@ -134,7 +142,7 @@ var ioc = {
         "redis": { refer: "redisBMFactory" },
         "file": { refer: "localFileBMFactory" },
         "filew": { refer: "localFileWBMFactory" },
-        "sql": { refer: "sqlBMFactory" },
+        "sql": { refer: "sqlBMFactory" }
       }
     }
   },

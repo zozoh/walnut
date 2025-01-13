@@ -35,7 +35,7 @@ public class SqlGet<T> implements SqlGetter<T> {
     @Override
     public T doGet(Connection conn) throws SQLException {
         if (log.isInfoEnabled()) {
-            log.infof("SqlFieldGetter: sql=%s, params=%s", sql, Json.toJson(params));
+            log.infof("SqlGet: sql=%s, params=%s", sql, Json.toJson(params));
         }
         PreparedStatement sta = conn.prepareStatement(sql);
         Sqlx.setParmas(sta, params);

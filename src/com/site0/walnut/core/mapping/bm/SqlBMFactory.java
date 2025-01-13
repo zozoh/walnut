@@ -1,22 +1,18 @@
 package com.site0.walnut.core.mapping.bm;
 
-import org.nutz.json.Json;
 import org.nutz.lang.util.NutBean;
-import org.nutz.lang.util.NutMap;
-
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.core.WnIoBM;
 import com.site0.walnut.core.WnIoHandleManager;
 import com.site0.walnut.core.bm.sql.SqlBM;
 import com.site0.walnut.core.mapping.WnBMFactory;
+import com.site0.walnut.core.mapping.support.SqlMappingArgs;
 import com.site0.walnut.ext.data.sqlx.loader.SqlHolder;
 import com.site0.walnut.ext.data.sqlx.util.Sqlx;
 import com.site0.walnut.ext.sys.sql.WnDaoAuth;
 import com.site0.walnut.ext.sys.sql.WnDaos;
-import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.util.Ws;
 
 /**
  * 输入的配置为: <code>sql({?daoName}:{entityName}:{?filter})</code>
@@ -83,49 +79,16 @@ public class SqlBMFactory implements WnBMFactory {
 
     @Override
     public WnIoBM load(WnObj oHome, String args) {
-        SqlBMArgs bminfo = new SqlBMArgs(args);
+        SqlMappingArgs _args = new SqlMappingArgs(args);
 
         // 读取数据源的配置信息
-
         NutBean vars = Wn.getVarsByObj(oHome);
-        WnDaoAuth auth = WnDaos.loadAuth(io, bminfo.daoName, vars);
+        WnDaoAuth auth = WnDaos.loadAuth(io, _args.daoName, vars);
 
         // 获取 SQL 模板管理器
         SqlHolder sqls = Sqlx.getSqlHolderByPath(io, vars, null);
 
-        return new SqlBM(handles, swapPath, auth, sqls, bminfo.entityName);
-    }
-
-    static class SqlBMArgs {
-        String daoName;
-        String entityName;
-        Object filter;
-
-        SqlBMArgs(String str) {
-            String[] ss = Ws.splitTrimedEmptyAsNull(str, ":", 3);
-            this.daoName = Ws.sBlank(ss[0], "default");
-            this.entityName = ss[1];
-
-            String flt = ss.length >= 3 ? ss[2] : null;
-            if (!Ws.isBlank(flt)) {
-                // 数组的话，就是并联条件
-                if (Ws.isQuoteBy(flt, '[', ']')) {
-                    this.filter = Json.fromJson(flt);
-                }
-                // 否则尝试给一个条件
-                else {
-                    NutMap map = Wlang.map(flt);
-                    if (map.isEmpty()) {
-                        map.put("1", 1);
-                    }
-                }
-            }
-            // 总之不能让条件为空
-            else {
-                this.filter = Wlang.map("1", 1);
-            }
-
-        }
+        return new SqlBM(handles, swapPath, auth, sqls, _args.entityName);
     }
 
 }
