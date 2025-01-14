@@ -7,7 +7,7 @@ import com.site0.walnut.core.WnIoBM;
 import com.site0.walnut.core.WnIoHandleManager;
 import com.site0.walnut.core.bm.sql.SqlBM;
 import com.site0.walnut.core.mapping.WnBMFactory;
-import com.site0.walnut.core.mapping.support.SqlMappingArgs;
+import com.site0.walnut.core.mapping.support.SqlIoArgs;
 import com.site0.walnut.ext.data.sqlx.loader.SqlHolder;
 import com.site0.walnut.ext.data.sqlx.util.Sqlx;
 import com.site0.walnut.ext.sys.sql.WnDaoAuth;
@@ -79,7 +79,7 @@ public class SqlBMFactory implements WnBMFactory {
 
     @Override
     public WnIoBM load(WnObj oHome, String args) {
-        SqlMappingArgs _args = new SqlMappingArgs(args);
+        SqlIoArgs _args = new SqlIoArgs(args);
 
         // 读取数据源的配置信息
         NutBean vars = Wn.getVarsByObj(oHome);

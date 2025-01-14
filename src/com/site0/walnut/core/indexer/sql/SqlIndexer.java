@@ -25,6 +25,9 @@ import com.site0.walnut.api.io.agg.WnAggResult;
 import com.site0.walnut.core.bean.WnIoObj;
 import com.site0.walnut.core.bean.WnObjId;
 import com.site0.walnut.core.indexer.AbstractIoDataIndexer;
+import com.site0.walnut.core.mapping.support.SqlIoArgs;
+import com.site0.walnut.core.mapping.support.SqlIoOptions;
+import com.site0.walnut.core.mapping.support.SqlIoSupport;
 import com.site0.walnut.ext.data.sqlx.loader.SqlHolder;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
@@ -47,28 +50,24 @@ public class SqlIndexer extends AbstractIoDataIndexer {
 
     private String entityName;
 
+    private SqlIoOptions options;
+
     private NutBean fixedMatch;
 
     private static final String SD_INSERT = "insert";
-    private static final String SD_UPDATE = "update";
     private static final String SD_UPDATE_BY = "update_by";
     private static final String SD_COUNT = "count";
     private static final String SD_SELECT = "select";
-    private static final String SD_FETCH = "fetch";
     private static final String SD_REMOVE = "remove";
     private static final String SD_INC = "inc";
 
-    public SqlIndexer(WnObj root,
-                      MimeMap mimes,
-                      WnDaoAuth auth,
-                      SqlHolder sqls,
-                      String entityName,
-                      NutBean fixedMatch) {
+    public SqlIndexer(WnObj root, MimeMap mimes, WnDaoAuth auth, SqlHolder sqls, SqlIoArgs args) {
         super(root, mimes);
         this.auth = auth;
         this.sqls = sqls;
-        this.entityName = entityName;
-        this.fixedMatch = fixedMatch;
+        this.entityName = args.entityName;
+        this.options = args.options;
+        this.fixedMatch = args.filter;
     }
 
     private NutMap __remove_root_pid(NutMap q) {
@@ -137,24 +136,14 @@ public class SqlIndexer extends AbstractIoDataIndexer {
         if (null == _inc) {
             throw Er.create("inc SQL without defined");
         }
-        WnSqlTmpl _get = getSql(SD_FETCH);
-        if (null == _get) {
-            throw Er.create("fetch SQL without defined");
-        }
 
-        // 准备条件以及上下文变量
-        NutMap v_get = prepareQuery(q);
-        v_get.put("columns", "id," + key);
+        // 准备上下文变量
         NutMap v_exec = prepareQuery(q);
         v_exec.put("key", key);
         v_exec.put("val", val);
 
-        // 执行获取值的操作
-        SqlGet<Integer> get = new SqlGet<>(log, _get, v_get, new SqlResetSetGetter<Integer>() {
-            public Integer getValue(ResultSet rs) throws SQLException {
-                return rs.getInt(key);
-            }
-        }, true);
+        NutMap filter = prepareQuery(q);
+        SqlGet<Integer> get = _gen_val_getter(filter, key, Integer.class, rs -> rs.getInt(key));
 
         // 执行更新的操作
         SqlAtom inc = new SqlAtom(log, _inc, v_exec);
@@ -178,22 +167,35 @@ public class SqlIndexer extends AbstractIoDataIndexer {
 
     }
 
-    @Override
-    public <T> T getAs(String id, String key, Class<T> classOfT, T dft) {
-        WnSqlTmpl sqlt = getSql(SD_FETCH);
+    private <T> SqlGet<T> _gen_val_getter(NutMap filter,
+                                          String key,
+                                          Class<T> classOfT,
+                                          SqlResetSetGetter<T> getter) {
+        WnSqlTmpl sqlt = getSql(SD_SELECT);
         if (null == sqlt) {
             throw Er.create("fetch SQL without defined");
         }
-        NutMap vars = prepareQuery(id);
-        vars.put("columns", "id," + key);
+        NutMap vars = Wlang.map("filter", filter);
+        vars.put("limit", 1);
+        vars.put("columns", key);
 
-        SqlGet<Object> get = new SqlGet<>(log, sqlt, vars, new SqlResetSetGetter<Object>() {
-            public Object getValue(ResultSet rs) throws SQLException {
-                return rs.getObject(key);
-            }
-        }, true);
-        Object re = Sqlx.sqlGet(auth, get);
-        return Castors.me().castTo(re, classOfT);
+        if (null == getter) {
+            getter = new SqlResetSetGetter<T>() {
+                public T getValue(ResultSet rs) throws SQLException {
+                    Object v = rs.getObject(key);
+                    return Castors.me().castTo(v, classOfT);
+                }
+            };
+        }
+
+        return new SqlGet<>(log, sqlt, vars, getter, true);
+    }
+
+    @Override
+    public <T> T getAs(String id, String key, Class<T> classOfT, T dft) {
+        NutMap filter = prepareQuery(id);
+        SqlGet<T> get = _gen_val_getter(filter, key, classOfT, null);
+        return Sqlx.sqlGet(auth, get);
     }
 
     @Override
@@ -212,23 +214,6 @@ public class SqlIndexer extends AbstractIoDataIndexer {
 
         // 执行
         Sqlx.sqlRun(auth, atom);
-    }
-
-    @Override
-    public long count(WnQuery q) {
-        WnSqlTmpl sqlt = getSql(SD_COUNT);
-        if (null == sqlt) {
-            throw Er.create("fetch SQL without defined");
-        }
-        NutMap vars = prepareQuery(q);
-
-        SqlGet<Long> get = new SqlGet<>(log, sqlt, vars, new SqlResetSetGetter<Long>() {
-            public Long getValue(ResultSet rs) throws SQLException {
-                return rs.getLong(1);
-            }
-        }, true);
-        long N = Sqlx.sqlGet(auth, get);
-        return N;
     }
 
     @Override
@@ -252,58 +237,44 @@ public class SqlIndexer extends AbstractIoDataIndexer {
         throw Wlang.noImplement();
     }
 
-    @Override
-    protected WnObj _fetch_by_name(WnObj p, String name) {
+    private SqlGet<WnIoObj> _gen_obj_getter(NutMap filter) {
         WnSqlTmpl sqlt = getSql(SD_SELECT);
         if (null == sqlt) {
             throw Er.create("fetch SQL without defined");
         }
-        NutMap filter = prepareQuery(p.id(), name);
         NutMap vars = Wlang.map("filter", filter);
         vars.put("limit", 2);
 
-        SqlGet<List<NutBean>> get = new SqlGet<>(log,
-                                                 sqlt,
-                                                 vars,
-                                                 new SqlResetSetGetter<List<NutBean>>() {
-                                                     public List<NutBean> getValue(ResultSet rs)
-                                                             throws SQLException {
-                                                         return Sqlx.toBeanList(rs);
-                                                     }
-                                                 },
-                                                 false);
-        List<NutBean> beans = Sqlx.sqlGet(auth, get);
-        if (null == beans || beans.isEmpty()) {
-            return null;
-        }
-        if (beans.size() > 1) {
-            NutMap reason = Wlang.map("name", name).setv("parent", p.toString());
-            throw Er.create("e.io.fetch.multi", reason);
-        }
-        NutBean bean = beans.get(0);
-        WnObj obj = new WnIoObj();
-        obj.putAll(bean);
-        return obj;
+        return new SqlGet<>(log, sqlt, vars, new SqlResetSetGetter<WnIoObj>() {
+            public WnIoObj getValue(ResultSet rs) throws SQLException {
+                List<NutBean> beans = Sqlx.toBeanList(rs);
+                if (null == beans || beans.isEmpty()) {
+                    return null;
+                }
+                if (beans.size() > 1) {
+                    String msg = String.format("obj multi exists in '%s'", Json.toJson(filter));
+                    new SQLException(msg);
+                }
+                NutBean bean = beans.get(0);
+                WnIoObj obj = new WnIoObj();
+                obj.putAll(bean);
+                return obj;
+            }
+        }, false);
+    }
+
+    @Override
+    protected WnObj _fetch_by_name(WnObj p, String name) {
+        NutMap filter = prepareQuery(p.id(), name);
+        SqlGet<WnIoObj> get = _gen_obj_getter(filter);
+        return Sqlx.sqlGet(auth, get);
     }
 
     @Override
     protected WnIoObj _get_by_id(String id) {
-        WnSqlTmpl sqlt = getSql(SD_FETCH);
-        if (null == sqlt) {
-            throw Er.create("fetch SQL without defined");
-        }
-        NutMap vars = prepareQuery(id);
-
-        SqlGet<NutBean> get = new SqlGet<>(log, sqlt, vars, new SqlResetSetGetter<NutBean>() {
-            public NutBean getValue(ResultSet rs) throws SQLException {
-                ResultSetMetaData meta = rs.getMetaData();
-                return Sqlx.toBean(rs, meta);
-            }
-        }, true);
-        NutBean bean = Sqlx.sqlGet(auth, get);
-        WnIoObj obj = new WnIoObj();
-        obj.putAll(bean);
-        return obj;
+        NutMap filter = prepareQuery(id);
+        SqlGet<WnIoObj> get = _gen_obj_getter(filter);
+        return Sqlx.sqlGet(auth, get);
     }
 
     @Override
@@ -319,6 +290,9 @@ public class SqlIndexer extends AbstractIoDataIndexer {
         meta.remove("ph");
         meta.put("race", o.race().toString());
 
+        // 修改时间字段格式
+        __tidy_fields(meta);
+
         // 准备插入操作
         SqlAtom insert = new SqlAtom(log, _insert, meta);
 
@@ -329,15 +303,55 @@ public class SqlIndexer extends AbstractIoDataIndexer {
         return _get_by_id(o.id());
     }
 
+    private void __tidy_fields(NutBean map) {
+        __tidy_time_fields(map);
+        __tidy_builtin_fields(map);
+    }
+
+    private void __tidy_time_fields(NutBean map) {
+        if (!options.isUseTimestamp()) {
+            SqlIoSupport.tidyTimeField(map, "ct");
+            SqlIoSupport.tidyTimeField(map, "lm");
+            SqlIoSupport.tidyTimeField(map, "expi");
+            SqlIoSupport.tidyTimeField(map, "synt");
+        }
+    }
+
+    private void __tidy_builtin_fields(NutBean map) {
+        if (!options.isUseD0D1()) {
+            map.remove("d0");
+            map.remove("d1");
+        }
+        if (!options.isUseCreator()) {
+            map.remove("c");
+        }
+        if (!options.isUseMender()) {
+            map.remove("m");
+        }
+        if (!options.isUseGroup()) {
+            map.remove("g");
+        }
+        if (!options.isUseMode()) {
+            map.remove("md");
+        }
+        if (!options.isUseParentId()) {
+            map.remove("pid");
+        }
+    }
+
     @Override
     protected void _set(String id, NutBean map) {
-        WnSqlTmpl _update = getSql(SD_UPDATE);
+        WnSqlTmpl _update = getSql(SD_UPDATE_BY);
         if (null == _update) {
             throw Er.create("update SQL without defined");
         }
+        // 修改时间字段格式
+        __tidy_fields(map);
         // 准备插入操作
-        map.put("id", id);
-        SqlAtom update = new SqlAtom(log, _update, map);
+        NutMap filter = prepareQuery(id);
+        NutMap vars = Wlang.map("filter", filter);
+        vars.put("meta", map);
+        SqlAtom update = new SqlAtom(log, _update, vars);
 
         // 执行操作
         Sqlx.sqlRun(auth, update);
@@ -350,6 +364,8 @@ public class SqlIndexer extends AbstractIoDataIndexer {
         if (null == _update) {
             throw Er.create("update SQL without defined");
         }
+        // 修改时间字段格式
+        __tidy_fields(map);
         // 准备插入操作
         NutMap filter = prepareQuery(q);
         NutMap vars = Wlang.map("filter", filter);
@@ -388,6 +404,28 @@ public class SqlIndexer extends AbstractIoDataIndexer {
     }
 
     @Override
+    public long count(WnQuery q) {
+        WnSqlTmpl sqlt = getSql(SD_COUNT);
+        if (null == sqlt) {
+            throw Er.create("fetch SQL without defined");
+        }
+        NutMap vars = prepareQuery(q);
+        __tidy_builtin_fields(vars);
+        // 没有查询条件，那么就给一个吧
+        if (vars.isEmpty()) {
+            vars.put("1", 1);
+        }
+
+        SqlGet<Long> get = new SqlGet<>(log, sqlt, vars, new SqlResetSetGetter<Long>() {
+            public Long getValue(ResultSet rs) throws SQLException {
+                return rs.getLong(1);
+            }
+        }, true);
+        long N = Sqlx.sqlGet(auth, get);
+        return N;
+    }
+
+    @Override
     protected int _each(WnQuery q, WnObj pHint, Each<WnObj> callback) {
         // 准备查询语句
         WnSqlTmpl sqlt = getSql(SD_SELECT);
@@ -396,6 +434,7 @@ public class SqlIndexer extends AbstractIoDataIndexer {
         }
         // 查询条件
         NutMap filter = prepareQuery(q);
+        __tidy_builtin_fields(filter);
         // 没有查询条件，那么就给一个吧
         if (filter.isEmpty()) {
             filter.put("1", 1);

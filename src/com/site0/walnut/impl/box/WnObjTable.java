@@ -63,7 +63,8 @@ public class WnObjTable {
             }
             // 日期时间
             else if (key.matches("^lm|ct|expi$")) {
-                cells.add(__tm((Long) val));
+                long ams = Wtime.parseAnyAMS(val);
+                cells.add(__tm((ams)));
             }
             // 值是日期对象
             else if (mi.isDateTimeLike()) {
