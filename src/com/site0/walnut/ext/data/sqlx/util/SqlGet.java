@@ -24,12 +24,19 @@ public class SqlGet<T> implements SqlGetter<T> {
 
     private SqlResetSetGetter<T> getter;
 
-    public SqlGet(Log log, WnSqlTmpl sqlt, NutBean vars, SqlResetSetGetter<T> getter) {
+    private boolean autoFind;
+
+    public SqlGet(Log log,
+                  WnSqlTmpl sqlt,
+                  NutBean vars,
+                  SqlResetSetGetter<T> getter,
+                  boolean autoFind) {
         this.log = log;
         List<SqlParam> cps = new ArrayList<>();
         this.sql = sqlt.render(vars, cps);
         this.params = Sqlx.getSqlParamsValue(cps);
         this.getter = getter;
+        this.autoFind = autoFind;
     }
 
     @Override
@@ -41,10 +48,15 @@ public class SqlGet<T> implements SqlGetter<T> {
         Sqlx.setParmas(sta, params);
 
         ResultSet rs = sta.executeQuery();
-        if (rs.next()) {
+        if (autoFind) {
+            if (rs.next()) {
+                return this.getter.getValue(rs);
+            }
+            return null;
+        } else {
             return this.getter.getValue(rs);
         }
-        return null;
+
     }
 
 }

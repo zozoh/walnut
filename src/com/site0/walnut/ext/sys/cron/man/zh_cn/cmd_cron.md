@@ -18,4 +18,5 @@ cron list        # 列出所有的定期任务（非root组成员仅能看自己
 cron add         # 添加一个定期任务
 cron remove      # 删除一个定期任务
 cron preview     # 预览指定定期任务的计划表
+cron explain     # 解释一个 cron 表达式
 ```

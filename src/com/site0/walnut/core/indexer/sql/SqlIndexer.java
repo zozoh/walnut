@@ -154,7 +154,7 @@ public class SqlIndexer extends AbstractIoDataIndexer {
             public Integer getValue(ResultSet rs) throws SQLException {
                 return rs.getInt(key);
             }
-        });
+        }, true);
 
         // 执行更新的操作
         SqlAtom inc = new SqlAtom(log, _inc, v_exec);
@@ -191,7 +191,7 @@ public class SqlIndexer extends AbstractIoDataIndexer {
             public Object getValue(ResultSet rs) throws SQLException {
                 return rs.getObject(key);
             }
-        });
+        }, true);
         Object re = Sqlx.sqlGet(auth, get);
         return Castors.me().castTo(re, classOfT);
     }
@@ -226,7 +226,7 @@ public class SqlIndexer extends AbstractIoDataIndexer {
             public Long getValue(ResultSet rs) throws SQLException {
                 return rs.getLong(1);
             }
-        });
+        }, true);
         long N = Sqlx.sqlGet(auth, get);
         return N;
     }
@@ -270,7 +270,8 @@ public class SqlIndexer extends AbstractIoDataIndexer {
                                                              throws SQLException {
                                                          return Sqlx.toBeanList(rs);
                                                      }
-                                                 });
+                                                 },
+                                                 false);
         List<NutBean> beans = Sqlx.sqlGet(auth, get);
         if (null == beans || beans.isEmpty()) {
             return null;
@@ -298,7 +299,7 @@ public class SqlIndexer extends AbstractIoDataIndexer {
                 ResultSetMetaData meta = rs.getMetaData();
                 return Sqlx.toBean(rs, meta);
             }
-        });
+        }, true);
         NutBean bean = Sqlx.sqlGet(auth, get);
         WnIoObj obj = new WnIoObj();
         obj.putAll(bean);
@@ -368,7 +369,7 @@ public class SqlIndexer extends AbstractIoDataIndexer {
                 obj.putAll(bean);
                 return obj;
             }
-        });
+        }, true);
 
         // 执行
         return Sqlx.sqlGet(auth, new SqlGetter<WnIoObj>() {
