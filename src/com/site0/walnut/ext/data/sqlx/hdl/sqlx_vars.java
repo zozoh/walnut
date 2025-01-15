@@ -23,7 +23,7 @@ public class sqlx_vars extends SqlxFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "^(explain|reset|merge)$");
+        return ZParams.parse(args, "^(explain|reset|merge|view)$");
     }
 
     @Override
@@ -75,6 +75,10 @@ public class sqlx_vars extends SqlxFilter {
 
         if (params.is("explain")) {
             fc.explainVars();
+        }
+
+        if (params.is("view")) {
+            fc.result = Wlang.map("map", fc.getVarMap()).setv("list", fc.getVarList());
         }
     }
 
