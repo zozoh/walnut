@@ -12,7 +12,7 @@ public class SqlIoSupport {
         if (bean.has(key)) {
             long ams = bean.getLong(key);
             Date d = new Date(ams);
-            String ds = Wtime.format(d, "yyyy-MM-dd HH:mm:ss.SSS");
+            String ds = Wtime.formatUTC(d, "yyyy-MM-dd HH:mm:ss.SSS");
             bean.put(key, ds);
         }
     }

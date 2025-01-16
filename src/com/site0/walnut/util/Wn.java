@@ -1579,7 +1579,7 @@ public abstract class Wn {
             String str = Strings.trim(s.substring("%date:".length()));
             long ms = Wtime.valueOf(str);
             Date d = new Date(ms);
-            v2 = Wtime.format(d, "yyyy-MM-dd HH:mm:ss.SSS");
+            v2 = Wtime.formatUTC(d, "yyyy-MM-dd HH:mm:ss.SSS");
         }
         // 毫秒数
         else if (s.startsWith("%ms:")) {

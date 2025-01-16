@@ -62,6 +62,18 @@ public abstract class Wtime {
         return formater.format(d);
     }
 
+    private static final TimeZone tz_utc = TimeZone.getTimeZone("UTC");
+
+    public static String formatUTC(Calendar c, String fmt) {
+        return formatUTC(c.getTime(), fmt);
+    }
+
+    public static String formatUTC(Date d, String fmt) {
+        SimpleDateFormat formater = new SimpleDateFormat(fmt, Locale.ENGLISH);
+        formater.setTimeZone(tz_utc);
+        return formater.format(d);
+    }
+
     public static long parseAMS(String ds) {
         return parseAMS(ds, null);
     }
