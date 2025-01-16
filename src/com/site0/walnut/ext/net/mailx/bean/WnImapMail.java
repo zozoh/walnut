@@ -338,7 +338,7 @@ public class WnImapMail extends WnMail {
 
     public String getReceiveAtDateStr() {
         Date d = getReceiveAtDate();
-        return Wtime.format(d, "yyyy-MM-dd HH:mm:ss");
+        return Wtime.formatUTC(d, "yyyy-MM-dd HH:mm:ss");
     }
 
     public Date getReceiveAtDate() {

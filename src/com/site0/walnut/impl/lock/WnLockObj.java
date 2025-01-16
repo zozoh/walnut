@@ -105,7 +105,7 @@ public class WnLockObj implements WnLock {
 
     public void setHoldTime(long holdTime) {
         Date d = new Date(holdTime);
-        this.hold = Wtime.format(d, "yyyy-MM-dd HH:mm:ss.SSS");
+        this.hold = Wtime.formatUTC(d, "yyyy-MM-dd HH:mm:ss.SSS");
     }
 
     public long getExpiTime() {
@@ -117,7 +117,7 @@ public class WnLockObj implements WnLock {
 
     public void setExpiTime(long expiTime) {
         Date d = new Date(expiTime);
-        this.expi = Wtime.format(d, "yyyy-MM-dd HH:mm:ss.SSS");
+        this.expi = Wtime.formatUTC(d, "yyyy-MM-dd HH:mm:ss.SSS");
     }
 
     public String getHold() {

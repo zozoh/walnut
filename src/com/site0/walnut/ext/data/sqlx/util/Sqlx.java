@@ -227,7 +227,7 @@ public abstract class Sqlx {
         // 日期时间
         if (mi.isDateTimeLike()) {
             Calendar c = Wtime.parseAnyCalendar(val);
-            return Wtime.format(c, "''yyyy-MM-dd HH:mm:ss''");
+            return Wtime.formatUTC(c, "''yyyy-MM-dd HH:mm:ss''");
         }
     
         // 下面就用字符串来处理

@@ -506,6 +506,8 @@ public class WnContext extends NutMap {
         if (null != se) {
             this.ticket = se.getTicket();
             this.account = se.getMe();
+            TimeZone tz = Wtime.getSessionTimeZone(se);
+            this.setTimeZone(tz);
         }
         // 删除
         else {
@@ -515,6 +517,7 @@ public class WnContext extends NutMap {
                 && this.account.isSame(this.session.getMe())) {
                 this.account = null;
             }
+            this.setTimeZone(null);
         }
     }
 

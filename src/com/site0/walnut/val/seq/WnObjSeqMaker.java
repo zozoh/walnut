@@ -29,7 +29,7 @@ public class WnObjSeqMaker implements SeqMaker {
         String fname;
         // ~/path/to/d=yyyy-MM-dd#key
         if (format.startsWith("d=")) {
-            fname = Wtime.format(hint, format);
+            fname = Wtime.formatUTC(hint, format);
         }
         // ~/path/to/global#key
         else {

@@ -13,6 +13,7 @@ import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wtime;
 
 class JvmAtom extends JvmCmd implements Atom {
 
@@ -116,13 +117,8 @@ class JvmAtom extends JvmCmd implements Atom {
         }
 
         // 从会话中获得时区
-        String tzName = sys.session.getVars().getString("TIMEZONE", "GMT+8").toUpperCase();
-        TimeZone tZone = null;
-        // 检查一下必须是标准时区 GMT[+-]8
-        if (tzName.matches("^GMT[+-]1?[0-9]$")) {
-            tZone = TimeZone.getTimeZone(tzName);
-        }
-        if(null!=tZone) {
+        TimeZone tZone = Wtime.getSessionTimeZone(sys.session);
+        if (null != tZone) {
             wc.setTimeZone(tZone);
         }
 

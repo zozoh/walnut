@@ -8,7 +8,6 @@ import org.nutz.lang.Strings;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.util.WnContext;
 import com.site0.walnut.util.ZParams;
 import com.site0.walnut.util.Wtime;
 
@@ -17,7 +16,17 @@ public class cmd_date extends JvmExecutor {
     @Override
     public void exec(WnSystem sys, String[] args) {
         // 分析参数
-        ZParams params = ZParams.parse(args, "n");
+        ZParams params = ZParams.parse(args, "n", "^(myzone|syszone)$");
+
+        // 获取时区
+        TimeZone tz;
+        if (params.has("tz")) {
+            tz = Wtime.toTimeZone(params.getString("tz"));
+        }
+        // 获取会话时区
+        else {
+            tz = Wtime.getSessionTimeZone(sys.session);
+        }
 
         // 将显示这个时间
         long now;
@@ -48,7 +57,7 @@ public class cmd_date extends JvmExecutor {
         if (params.has("fmt")) {
             String fmt = params.getString("fmt");
             Date d = new Date(now);
-            sys.out.print(Wtime.format(d, fmt));
+            sys.out.print(Wtime.format(d, fmt, tz));
         }
         // -ss
         else if (params.is("ss")) {
@@ -70,37 +79,35 @@ public class cmd_date extends JvmExecutor {
         // -dt
         else if (params.is("dt")) {
             Date d = new Date(now);
-            sys.out.print(Wtime.format(d, "yyyy-MM-dd HH:mm:ss"));
+            sys.out.print(Wtime.format(d, "yyyy-MM-dd HH:mm:ss", tz));
         }
         // -dtms
         else if (params.is("dtms")) {
             Date d = new Date(now);
-            sys.out.print(Wtime.format(d, "yyyy-MM-dd HH:mm:ss.SSS"));
+            sys.out.print(Wtime.format(d, "yyyy-MM-dd HH:mm:ss.SSS", tz));
         }
         // -dtt
         else if (params.is("dtt")) {
             Date d = new Date(now);
-            sys.out.print(Wtime.format(d, "yyyy-MM-dd'T'HH:mm:ss"));
+            sys.out.print(Wtime.format(d, "yyyy-MM-dd'T'HH:mm:ss", tz));
         }
         // -dtms
         else if (params.is("dtmst")) {
             Date d = new Date(now);
-            sys.out.print(Wtime.format(d, "yyyy-MM-dd'T'HH:mm:ss.SSS"));
+            sys.out.print(Wtime.format(d, "yyyy-MM-dd'T'HH:mm:ss.SSS", tz));
         }
         // -time
         else if (params.is("time")) {
             Date d = new Date(now);
-            sys.out.print(Wtime.format(d, "HH:mm:ss"));
+            sys.out.print(Wtime.format(d, "HH:mm:ss", tz));
         }
         // -timems
         else if (params.is("timems")) {
             Date d = new Date(now);
-            sys.out.print(Wtime.format(d, "HH:mm:ss.SSS"));
+            sys.out.print(Wtime.format(d, "HH:mm:ss.SSS", tz));
         }
         // -zone
-        else if (params.is("zone")) {
-            WnContext wc = Wn.WC();
-            TimeZone tz = wc.getTimeZone();
+        else if (params.is("myzone")) {
             if (null == tz) {
                 sys.out.print("-no-set-");
             } else {
@@ -108,7 +115,7 @@ public class cmd_date extends JvmExecutor {
             }
 
         }
-        // -zone
+        // -syszone
         else if (params.is("syszone")) {
             Calendar c = Calendar.getInstance();
             TimeZone zo = c.getTimeZone();
@@ -117,7 +124,7 @@ public class cmd_date extends JvmExecutor {
         // 默认
         else {
             Date d = new Date(now);
-            sys.out.print(Wtime.format(d, "yy-MM-dd HH:mm:ss"));
+            sys.out.print(Wtime.format(d, "yy-MM-dd HH:mm:ss", tz));
         }
 
         if (!params.is("n"))

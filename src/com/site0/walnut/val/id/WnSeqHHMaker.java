@@ -33,7 +33,7 @@ public class WnSeqHHMaker implements ValueMaker {
         }
 
         // 生成时间戳
-        String dst = Wtime.format(hint, "yyMMddHH");
+        String dst = Wtime.formatUTC(hint, "yyMMddHH");
         sb.append(dst);
 
         // 获取序号

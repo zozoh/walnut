@@ -30,7 +30,7 @@ public class WnSnowQDMaker implements ValueMaker {
             sb.append(prefix);
         }
         // 生成时间戳
-        String dst = Wtime.format(hint, "yyMMddHHmmssSSS");
+        String dst = Wtime.formatUTC(hint, "yyMMddHHmmssSSS");
         sb.append(dst);
 
         // 生成随机数

@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import org.nutz.lang.Strings;
 
+import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.ext.sys.datex.bean.WnHolidays;
 
@@ -55,6 +56,10 @@ public abstract class Wtime {
     public static String format(Date d, String fmt) {
         WnContext wc = Wn.WC();
         TimeZone tz = wc.getTimeZone();
+        return format(d, fmt, tz);
+    }
+
+    public static String format(Date d, String fmt, TimeZone tz) {
         SimpleDateFormat formater = new SimpleDateFormat(fmt, Locale.ENGLISH);
         if (null != tz) {
             formater.setTimeZone(tz);
@@ -72,6 +77,27 @@ public abstract class Wtime {
         SimpleDateFormat formater = new SimpleDateFormat(fmt, Locale.ENGLISH);
         formater.setTimeZone(tz_utc);
         return formater.format(d);
+    }
+
+    public static TimeZone getSessionTimeZone(WnAuthSession session) {
+        String tzName = session.getVars().getString("TIMEZONE", "GMT+8").toUpperCase();
+        return toTimeZone(tzName);
+    }
+
+    public static TimeZone toTimeZone(String tzName) {
+        if(null==tzName) {
+            return Wn.WC().getTimeZone();
+        }
+        TimeZone tZone = null;
+        // 检查一下必须是标准时区 GMT[+-]8
+        if (tzName.matches("^(Z|GMT|UTC)$")) {
+            tZone = TimeZone.getTimeZone("GMT+0");
+        }
+        // 有偏移量？
+        else if (tzName.matches("^(GMT|UTC)([+-]1?[0-9])$")) {
+            tZone = TimeZone.getTimeZone(tzName);
+        }
+        return tZone;
     }
 
     public static long parseAMS(String ds) {
@@ -122,6 +148,7 @@ public abstract class Wtime {
      * </pre>
      * 
      * 时间字符串后面可以跟 +8 或者 +8:00 表示 GMT+8:00 时区。 同理 -9 或者 -9:00 表示 GMT-9:00 时区
+     * 也可以跟随一个"Z" 表示 UTC+0 标准时间，否则 就会采用当前会话时区来解析
      * 
      * @param ds
      *            时间字符串
@@ -140,6 +167,11 @@ public abstract class Wtime {
         if (null == tz) {
             WnContext wc = Wn.WC();
             tz = wc.getTimeZone();
+        }
+        // 指定了 'Z' 表示采用标准 UTC+0 时区
+        if (ds.endsWith("Z")) {
+            tz = TimeZone.getTimeZone("GMT+0");
+            ds = ds.substring(0, ds.length() - 1).trim();
         }
 
         Matcher m;

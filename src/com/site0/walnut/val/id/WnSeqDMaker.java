@@ -43,7 +43,7 @@ public class WnSeqDMaker implements ValueMaker {
 
         // 生成时间戳
         Calendar now = Calendar.getInstance();
-        String dst = Wtime.format(now, "yyMMdd");
+        String dst = Wtime.formatUTC(now, "yyMMdd");
         sb.append(dst);
 
         // 获取序号
