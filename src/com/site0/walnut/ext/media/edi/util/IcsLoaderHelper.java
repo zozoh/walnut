@@ -15,8 +15,7 @@ public class IcsLoaderHelper {
         NutMap rff = new NutMap();
         finder.reset();
         EdiSegment seg = finder.next("BGM");
-        seg.fillBean(rff, null, null, ",verionNum", "funcCode");
-        re.setRefVer(rff.getInt("verionNum", 0));
+        seg.fillBean(rff, null, null, null, "funcCode");
         re.setFuncCode(rff.getInt("funcCode"));
     }
 
