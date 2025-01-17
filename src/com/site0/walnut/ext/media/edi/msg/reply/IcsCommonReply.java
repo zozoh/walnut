@@ -19,17 +19,16 @@ public abstract class IcsCommonReply {
 
     private int refVer;
 
-
     /**
-     * 11: Response
-     * 8: Status
+     * 11: Response 8: Status
      */
     private int funcCode;
 
     public IcsCommonReply(String msgType) {
         this.msgType = msgType;
+        this.refVer = -1;
+        this.funcCode = -1;
     }
-
 
     public String getMsgType() {
         return msgType;

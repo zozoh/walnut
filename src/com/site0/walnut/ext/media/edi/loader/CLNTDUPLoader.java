@@ -1,6 +1,5 @@
 package com.site0.walnut.ext.media.edi.loader;
 
-
 import com.site0.walnut.ext.media.edi.bean.EdiMessage;
 import com.site0.walnut.ext.media.edi.bean.EdiSegment;
 import com.site0.walnut.ext.media.edi.msg.reply.clreg.IcsReplyCLNTDUP;
@@ -28,19 +27,16 @@ public class CLNTDUPLoader implements EdiMsgLoader<IcsReplyCLNTDUP> {
         NutMap rff = new NutMap();
 
         /**
-         * 定位到 BGM 报文行
-         * BGM+961:::CLREGR+36F4 EFFC F764:001+11'
-         * */
+         * 定位到 BGM 报文行 BGM+961:::CLREGR+36F4 EFFC F764:001+11'
+         */
         seg = finder.next("BGM");
         rff.clear();
         seg.fillBean(rff, null, null, null, "funcCode");
         re.setFuncCode(rff.getInt("funcCode"));
 
-
         /**
-         * 解析 refId, 就是 RFF+ABO 后面的字符串
-         * RFF+ABO:M2E56QYLSZARUQCJSO::1'
-         * */
+         * 解析 refId, 就是 RFF+ABO 后面的字符串 RFF+ABO:M2E56QYLSZARUQCJSO::1'
+         */
         seg = finder.next("RFF", "ABO");
         if (null != seg) {
             rff.clear();
@@ -52,9 +48,8 @@ public class CLNTDUPLoader implements EdiMsgLoader<IcsReplyCLNTDUP> {
         }
         /**
          *
-         * 若能找到 ABN 或者 CCID 就算成功
-         * DOC+CCI:::AAA3437644L'
-         * */
+         * 若能找到 ABN 或者 CCID 就算成功 DOC+CCI:::AAA3437644L'
+         */
         seg = finder.next("DOC", "^(ABN|CCI)$");
         if (null != seg) {
             rff.clear();
@@ -69,11 +64,10 @@ public class CLNTDUPLoader implements EdiMsgLoader<IcsReplyCLNTDUP> {
         }
 
         /**
-         * 解析 重复的 Client 的 Name , Address 和 RoleNames
-         * LOC+ZZZ+:::XIAMEN NEW HAOXIN TRADING CO., LTD'
-         * FTX+BA+++NO,604, 4-4 HAITIAN ROAD::XIAMEN:361000:FJ+CN'
-         * TAX+RN+:::SUPPLIER'
-         * */
+         * 解析 重复的 Client 的 Name , Address 和 RoleNames LOC+ZZZ+:::XIAMEN NEW
+         * HAOXIN TRADING CO., LTD' FTX+BA+++NO,604, 4-4 HAITIAN
+         * ROAD::XIAMEN:361000:FJ+CN' TAX+RN+:::SUPPLIER'
+         */
         if (re.isSuccess()) {
 
             // 解析 重复的 Client 的 Name
@@ -90,7 +84,13 @@ public class CLNTDUPLoader implements EdiMsgLoader<IcsReplyCLNTDUP> {
             seg = finder.next("FTX", "BA");
             if (seg != null) {
                 rff.clear();
-                seg.fillBean(rff, null, "addrType", null, null, "addr1,addr2,locality,postcode,state", "country");
+                seg.fillBean(rff,
+                             null,
+                             "addrType",
+                             null,
+                             null,
+                             "addr1,addr2,locality,postcode,state",
+                             "country");
                 re.setAddrType(rff.getString("addrType"));
                 List<String> addrs = new ArrayList<>() {
                     {
