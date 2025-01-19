@@ -54,11 +54,12 @@
       }
     },
     
-    checkExecReturnAndParseJson: function (re) {
+    checkExecReturnAndParseJson: function (re, returnError) {
       var reo = this.checkExecReturn(re);
       if(!reo){
 		  return JSON.parse(re);
 	  }
+	  if(returnError)return reo
     },
 
     exec: function (cmdText, input) {

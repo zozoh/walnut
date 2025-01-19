@@ -122,7 +122,14 @@ public class sqlx_exec extends SqlxFilter {
 
         // 记录结果对象
         if (!params.is("noresult")) {
-            fc.result = re;
+            // 合并
+            if (fc.result instanceof SqlExecResult) {
+                ((SqlExecResult) fc.result).mergeWith(re);
+            }
+            // 直接替换
+            else {
+                fc.result = re;
+            }
 
             // 后续回查
             String fetch_by = params.get("fetch_by");

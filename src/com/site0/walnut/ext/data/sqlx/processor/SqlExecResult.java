@@ -25,4 +25,9 @@ public class SqlExecResult {
         return bean;
     }
 
+    public void mergeWith(SqlExecResult re) {
+        this.updateCount += re.updateCount;
+        this.batchTotal += re.batchTotal;
+    }
+
 }
