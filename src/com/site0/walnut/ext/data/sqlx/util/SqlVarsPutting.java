@@ -52,31 +52,39 @@ public class SqlVarsPutting {
      */
     public SqlVarsPutting(String input) {
         int pos = input.indexOf('=');
+        String from;
+        String to;
         if (pos > 0) {
-            String from = input.substring(0, pos).trim();
-            String to = input.substring(pos + 1).trim();
-
-            forceSetBean = false;
-            if (from.startsWith("?")) {
-                forceSetBean = false;
-                from = from.substring(1).trim();
-            } else if (from.startsWith("!")) {
-                forceSetBean = true;
-                from = from.substring(1).trim();
-            }
-
-            forceGetPipe = false;
-            if (to.startsWith("?")) {
-                forceGetPipe = false;
-                to = to.substring(1).trim();
-            } else if (to.startsWith("!")) {
-                forceGetPipe = true;
-                to = to.substring(1).trim();
-            }
-
-            beanKey = WnTmplX.parse(from);
-            pipeKey = WnTmplX.parse(to);
+            from = input.substring(0, pos).trim();
+            to = input.substring(pos + 1).trim();
         }
+        // 默认补全
+        else {
+            from = input.trim();
+            to = input.trim();
+        }
+        
+        // 继续解析
+        forceSetBean = false;
+        if (from.startsWith("?")) {
+            forceSetBean = false;
+            from = from.substring(1).trim();
+        } else if (from.startsWith("!")) {
+            forceSetBean = true;
+            from = from.substring(1).trim();
+        }
+
+        forceGetPipe = false;
+        if (to.startsWith("?")) {
+            forceGetPipe = false;
+            to = to.substring(1).trim();
+        } else if (to.startsWith("!")) {
+            forceGetPipe = true;
+            to = to.substring(1).trim();
+        }
+
+        beanKey = WnTmplX.parse(from);
+        pipeKey = WnTmplX.parse(to);
     }
 
     public void putToBean(NutBean bean, NutBean pipeContext) {
@@ -95,7 +103,7 @@ public class SqlVarsPutting {
             if (!forceGetPipe && null == pipe_val) {
                 return;
             }
-            
+
             // 设置
             Mapl.put(bean, bean_key, pipe_val);
         }

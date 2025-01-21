@@ -6,7 +6,7 @@
 	<packaging>jar</packaging>
 	<name>walnut</name>
 	<version>14.38</version>
-	<description>LOONG[UTC]</description>
+	<description>LOONG[SQLXQ]</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<elasticsearch.version>6.3.2</elasticsearch.version>

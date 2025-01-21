@@ -204,10 +204,13 @@ sqlx @vars
                      #    > 只要对象没值，无论上下文是否有值都设置
                      #  - "!code=?pet.id"
                      #    > 无论对象是否有值，只要上下文有值就设置
-                     #  - "?code=!pet.id"
+                     #  - "!code=!pet.id"
                      #    > 无论对象是否有值，也无论上下文是否有值都设置
-                     #  如果 "code=pet.id"
-                     #  相当于 "?code=?pet.id"
+                     # 如果 "code=pet.id"
+                     # 相当于 "?code=?pet.id"
+                     # 如果 "code" 就相当于 "code=code"
+                     # 如果 "?code" 就相当于 "?code=?code"
+                     # 如果 "!code" 就相当于 "!code=!code"
   [-omit k1,k2..]    # 在输入的变量集中移除指定的变量
   [-pick k1,k2..]    # 在输入的变量集中仅挑选指定的变量
   [-fake {FAKER}]    # 伪造上下文变量，主要用于生成测试数据
