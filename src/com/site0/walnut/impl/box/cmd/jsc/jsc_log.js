@@ -71,6 +71,10 @@
       }
     },
     ajax_error: function (errCode, reason) {
+      if (errCode instanceof Error) {
+        errCode = errCode.code;
+        reason = errCode.reason || reason || null;
+      }
       var json = JSON.stringify({
         ok: false,
         errCode: errCode,
