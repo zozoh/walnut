@@ -42,6 +42,7 @@
       if (/^e\./.test(re)) {
         var pos = re.indexOf(":");
         var err = new Error(re);
+        err.__is_error = true;
         err.ok = false;
         if (pos > 0) {
           err.code = re.substring(0, pos).trim();
@@ -72,6 +73,11 @@
       var err = this.checkExecReturn(re);
       if (err) throw err;
       return re;
+    },
+    
+    execAsJson: function (cmdText, input) {
+      var re = this.exec(cmdText, input);
+      return JSON.parse(re)
     },
   };
 });
