@@ -6,8 +6,8 @@
 
 ```bash
 datex @format
-  [$Format]     # 默认就是 "yyyy-MM-dd HH:mm:ss"
-                # 如果是 "AMS" 则表示绝对毫秒数
+  [$Format]       # 默认就是 "yyyy-MM-dd HH:mm:ss"
+                  # 如果是 "AMS" 则表示绝对毫秒数
 ```
 # 示例
 

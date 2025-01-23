@@ -1,6 +1,7 @@
 package com.site0.walnut.ext.sys.datex;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 
 import com.site0.walnut.ext.sys.datex.bean.WnHolidays;
@@ -39,13 +40,26 @@ public class cmd_datex extends JvmFilterExecutor<DatexContext, DatexFilter> {
 
     @Override
     protected void output(WnSystem sys, DatexContext fc) {
+        if (fc.quiet) {
+            return;
+        }
         // 输出毫秒数
         if ("AMS".equalsIgnoreCase(fc.fmt)) {
             sys.out.println(fc.now.getTimeInMillis());
         }
         // 格式化日期
         else {
-            sys.out.println(Wtime.format(fc.now.getTime(), fc.fmt));
+            Date d = fc.now.getTime();
+            String str;
+            // 指定了时区
+            if (null != fc.outputTimeZone) {
+                str = Wtime.format(d, fc.fmt, fc.outputTimeZone);
+            }
+            // 默认会采用当前线程时区（也就是会话时区）
+            else {
+                str = Wtime.format(d, fc.fmt);
+            }
+            sys.out.println(str);
         }
     }
 

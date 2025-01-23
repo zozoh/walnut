@@ -85,7 +85,7 @@ public abstract class Wtime {
     }
 
     public static TimeZone toTimeZone(String tzName) {
-        if(null==tzName) {
+        if (null == tzName) {
             return Wn.WC().getTimeZone();
         }
         TimeZone tZone = null;
@@ -293,6 +293,10 @@ public abstract class Wtime {
     }
 
     public static long parseAnyAMS(Object input) {
+        return parseAnyAMS(input, null);
+    }
+
+    public static long parseAnyAMS(Object input, TimeZone tz) {
         if (null == input) {
             return 0;
         }
@@ -309,10 +313,14 @@ public abstract class Wtime {
         }
         // 解析
         String s = input.toString();
-        return parseAMS(s);
+        return parseAMS(s, tz);
     }
 
     public static Calendar parseAnyCalendar(Object input) {
+        return parseAnyCalendar(input, null);
+    }
+
+    public static Calendar parseAnyCalendar(Object input, TimeZone tz) {
         if (null == input) {
             return null;
         }
@@ -334,10 +342,14 @@ public abstract class Wtime {
         }
         // 解析
         String s = input.toString();
-        return parseCalendar(s);
+        return parseCalendar(s, tz);
     }
 
     public static Date parseAnyDate(Object input) {
+        return parseAnyDate(input, null);
+    }
+
+    public static Date parseAnyDate(Object input, TimeZone tz) {
         if (null == input) {
             return null;
         }
@@ -355,7 +367,7 @@ public abstract class Wtime {
         }
         // 解析
         String s = input.toString();
-        return parseDate(s);
+        return parseDate(s, tz);
     }
 
     /**
