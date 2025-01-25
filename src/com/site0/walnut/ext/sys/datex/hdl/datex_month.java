@@ -16,8 +16,6 @@ public class datex_month extends DatexFilter {
 
     @Override
     protected void process(WnSystem sys, DatexContext fc, ZParams params) {
-        boolean inMonth = params.is("inmonth");
-
         int expectY = -1;
         int expectM = -1;
 
@@ -36,14 +34,6 @@ public class datex_month extends DatexFilter {
             expectM = fc.now.get(Calendar.MONTH) + off;
             int day = fc.now.get(Calendar.DAY_OF_MONTH);
             fc.now.set(expectY, expectM, day);
-        }
-
-        if (inMonth && expectY > 0) {
-            int realY = fc.now.get(Calendar.YEAR);
-            int realM = fc.now.get(Calendar.MONTH);
-            if (realM != expectM || realY != expectY) {
-                fc.now.set(expectY, expectM + 1, 0);
-            }
         }
     }
 
