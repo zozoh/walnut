@@ -45,6 +45,11 @@ public class CreateWnContext extends AbstractProcessor {
         if (null != req) {
             // 从 header 里获取 Session 的 ID
             String ticket = req.getHeader("X-Walnut-Ticket");
+            // GET 请求尝试从 query string 里获取 ticket
+            // 因为有可能是跨域来的图片等资源请求
+            if (Ws.isBlank(ticket)) {
+                ticket = req.getParameter("_wn_ticket_");
+            }
             // System.out.printf("Initial ticket=%s\n", ticket);
             // Enumeration<String> hnms = req.getHeaderNames();
             // while (hnms.hasMoreElements()) {
