@@ -1893,8 +1893,8 @@ var Wn = {
         else {
             $.ajax({
                 type: "POST",
-                url: "/o/write/id:" + obj.id,
-                data: content
+                url: "/o/save/text?str=id:" + obj.id,
+                data: { content: content }
             }).done(function (re) {
                 if (readS) {
                     readS.call(UI);
