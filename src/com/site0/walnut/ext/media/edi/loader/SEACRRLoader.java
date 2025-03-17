@@ -140,6 +140,30 @@ public class SEACRRLoader implements EdiMsgLoader<IcsReplySEACRR> {
             re.setErrCount(errNum);
         }
 
+        // (1)有时, 虽然 ErrCount = 0, 但是错误报文的信息包含 "THIS TRANSACTION WAS REJECTED" 文本，这种情况属于报文被拒绝(Success = false)
+        // (2)有时, 虽然 ErrCount > 0, 但是错误报文的信息包含 "THIS TRANSACTION WAS ACCEPTED" 文本，这种情况属于报文被接受(Success = true)
+        boolean hasRejectedContent = false;
+        boolean hasAcceptedContent = false;
+        String rejectedContent = "THIS TRANSACTION WAS REJECTED";
+        String acceptedContent = "THIS TRANSACTION WAS ACCEPTED";
+        for (EdiReplyError item : re.getErrs()) {
+            String content = item.getContent() == null ? "" : item.getContent();
+            if (content.contains(acceptedContent)) {
+                hasAcceptedContent = true;
+            } else if (content.contains(rejectedContent)) {
+                hasRejectedContent = true;
+            }
+            if (hasAcceptedContent || hasRejectedContent) {
+                break;
+            }
+        }
+        if (re.isSuccess() && hasRejectedContent) {
+            re.setSuccess(false);
+        }
+        if (!re.isSuccess() && hasAcceptedContent) {
+            re.setSuccess(true);
+        }
+
         // 返回解析结果
         return re;
     }
