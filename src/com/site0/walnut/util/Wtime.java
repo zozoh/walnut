@@ -163,11 +163,6 @@ public abstract class Wtime {
             return null;
         }
 
-        // 采用默认时区
-        if (null == tz) {
-            WnContext wc = Wn.WC();
-            tz = wc.getTimeZone();
-        }
         // 指定了 'Z' 表示采用标准 UTC+0 时区
         if (ds.endsWith("Z")) {
             tz = TimeZone.getTimeZone("GMT+0");
@@ -264,13 +259,21 @@ public abstract class Wtime {
                  */
                 String fmt = "%04d-%02d-%02d %02d:%02d:%02d.%03d";
                 str = String.format(fmt, yy, MM, dd, HH, mm, ss, ms);
-                if (null == tz && !Ws.isBlank(m.group(15))) {
+                if (!Ws.isBlank(m.group(15))) {
                     tz = TimeZone.getTimeZone(String.format("GMT%s%s:00",
                                                             m.group(16),
                                                             m.group(17)));
                 }
+
             }
         }
+
+        // 采用默认时区
+        if (null == tz) {
+            WnContext wc = Wn.WC();
+            tz = wc.getTimeZone();
+        }
+
         //
         // 采用标准格式化器来解析
         //
