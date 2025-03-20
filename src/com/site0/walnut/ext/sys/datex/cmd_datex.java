@@ -52,8 +52,8 @@ public class cmd_datex extends JvmFilterExecutor<DatexContext, DatexFilter> {
             Date d = fc.now.getTime();
             String str;
             // 指定了时区
-            if (null != fc.outputTimeZone) {
-                str = Wtime.format(d, fc.fmt, fc.outputTimeZone);
+            if (null != fc.displayTimeZone) {
+                str = Wtime.format(d, fc.fmt, fc.displayTimeZone);
             }
             // 默认会采用当前线程时区（也就是会话时区）
             else {

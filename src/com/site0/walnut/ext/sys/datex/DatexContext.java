@@ -14,7 +14,7 @@ public class DatexContext extends JvmFilterContext {
 
     public WnHolidays holidays;
 
-    public TimeZone outputTimeZone;
+    public TimeZone displayTimeZone;
     
     public boolean quiet;
 }
