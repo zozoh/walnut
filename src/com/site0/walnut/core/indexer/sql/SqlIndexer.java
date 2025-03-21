@@ -445,7 +445,6 @@ public class SqlIndexer extends AbstractIoDataIndexer {
         // vars.put("sorter", q.sort());
         // vars.put("limit", limit <= 0 ? 500 : limit);
         // vars.put("skip", q.skip());
-
         NutMap vars = q.toSqlVars(new Callback<NutMap>() {
             public void invoke(NutMap filter) {
                 if (null != fixedMatch) {

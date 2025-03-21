@@ -52,7 +52,6 @@ public class WnAccountLoaderImpl implements WnAccountLoader {
         }
 
         return list;
-
     }
 
     @Override
