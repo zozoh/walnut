@@ -11,6 +11,7 @@ import java.util.List;
 import org.nutz.castor.Castors;
 import org.nutz.json.Json;
 import org.nutz.lang.Each;
+import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
@@ -433,17 +434,27 @@ public class SqlIndexer extends AbstractIoDataIndexer {
             throw Er.create("select SQL without defined");
         }
         // 查询条件
-        NutMap filter = prepareQuery(q);
-        __tidy_builtin_fields(filter);
-        // 没有查询条件，那么就给一个吧
-        if (filter.isEmpty()) {
-            filter.put("1", 1);
-        }
-        NutMap vars = Wlang.map("filter", filter);
-        int limit = q.limit();
-        vars.put("sorter", q.sort());
-        vars.put("limit", limit <= 0 ? 500 : limit);
-        vars.put("skip", q.skip());
+        // NutMap filter = prepareQuery(q);
+        // __tidy_builtin_fields(filter);
+        // // 没有查询条件，那么就给一个吧
+        // if (filter.isEmpty()) {
+        // filter.put("1", 1);
+        // }
+        // NutMap vars = Wlang.map("filter", filter);
+        // int limit = q.limit();
+        // vars.put("sorter", q.sort());
+        // vars.put("limit", limit <= 0 ? 500 : limit);
+        // vars.put("skip", q.skip());
+
+        NutMap vars = q.toSqlVars(new Callback<NutMap>() {
+            public void invoke(NutMap filter) {
+                if (null != fixedMatch) {
+                    filter.putAll(fixedMatch);
+                }
+                __remove_root_pid(filter);
+                __tidy_builtin_fields(filter);
+            }
+        });
 
         // 渲染 SQL 和参数
         List<SqlParam> cps = new ArrayList<>();

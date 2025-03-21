@@ -7,7 +7,9 @@ import java.util.Map;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import com.site0.walnut.util.Wlang;
+
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 
 public class WnQuery {
@@ -262,6 +264,34 @@ public class WnQuery {
 
     public WnQuery exists(String nm, boolean isExist) {
         return setv(nm, new NutMap("$exists", isExist));
+    }
+
+    /**
+     * 将自身变成一个 SQL 查询的标准上下文变量集合
+     * 
+     * @param tidyFilter
+     *            回调用来处理 filter，譬如为它添加固定条件，移除一些条件等. 这个回调会在生成 filter 以后调用
+     *            <code>(filter:NutMap)=>>void</code>
+     * 
+     * @return <code>{filter,sorter,limit,skip}</code>
+     */
+    public NutMap toSqlVars(Callback<NutMap> tidyFilter) {
+        NutMap filter = new NutMap();
+        filter.putAll(this.first());
+        if (null != tidyFilter) {
+            tidyFilter.invoke(filter);
+        }
+        // 没有查询条件，那么就给一个吧
+        if (filter.isEmpty()) {
+            filter.put("1", 1);
+        }
+
+        NutMap vars = Wlang.map("filter", filter);
+        vars.put("sorter", sort());
+        vars.put("limit", limit <= 0 ? 500 : limit);
+        vars.put("skip", skip);
+
+        return vars;
     }
 
     public String toString() {
