@@ -26,6 +26,8 @@ import org.nutz.lang.Mirror;
 import org.nutz.lang.Streams;
 import org.nutz.lang.stream.ComboOutputStream;
 import com.site0.walnut.util.tmpl.WnTmpl;
+import com.site0.walnut.util.tmpl.WnTmplX;
+
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Callback2;
 import org.nutz.lang.util.NutMap;
@@ -465,7 +467,7 @@ public class HttpApiModule extends AbstractWnModule {
         else {
             cmdPattern = io().readText(apc.oApi);
         }
-        apc.cmdText = WnTmpl.exec(cmdPattern, apc.oReq);
+        apc.cmdText = WnTmplX.exec(cmdPattern, apc.oReq);
 
         // 如果是 API 的执行是自动决定的文本
         if (apc.oApi.getBoolean("http-dynamic-header")) {
