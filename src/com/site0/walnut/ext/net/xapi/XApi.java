@@ -28,6 +28,8 @@ public interface XApi {
      */
     boolean hasValidAccessKey(String apiName, String account);
 
+    NutBean loadConfig(String apiName, String account);
+
     /**
      * 准备一个第三方平台的接口请求对象，其中参数和请求头已经根据传入的变量上下文展开。<br>
      * 调用者可以根据需要继续设置 body 等属性，或者特殊的调整参数表和请求头。<br>

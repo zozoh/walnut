@@ -1,75 +1,75 @@
 {
-    "base": "https://api.weixin.qq.com/",
-    "timeout": 3000,
-    "connectTimeout": 1000,
-    "home": "~/.weixin",
-    "apiCachePath": "api-cache",
-    "configFilePath": "wxconf",
-    "accessKeyFilePath": "access_token",
-    "accessKeyRequest": {
-        "path": "cgi-bin/token",
-        "method": "GET",
-        "params": {
-            "appid": "=appID",
-            "secret": "=appsecret",
-            "grant_type": "=grant_type?client_credential"
-        },
-        "dataType": "json"
-    },
-    "accessKeyObj": {
-        "ticket": "=access_token",
-        "expiTime": "=expires_in?7200",
-        "expiTimeUnit": "s"
-    },
-    "requests": {
-        "gh_user_info": {
-            "path": "cgi-bin/user/info",
-            "method": "GET",
-            "headers": {},
-            "params": {
-                "access_token": "=@AK",
-                "openid": "=openid",
-                "lang": "=lang?zh_CN"
-            },
-            "dataType": "json"
-        },
-        "wxacode_get_unlimited": {
-            "path": "wxa/getwxacodeunlimit",
-            "method": "POST",
-            "headers": {},
-            "params": {
-                "access_token": "=@AK"
-            },
-            "bodyType": "json",
-            "body": {
-                "scene": "=scene",
-                "page": "=page",
-                "width": "=width",
-                "auto_color": "=auto_color",
-                "line_color": "=line_color",
-                "is_hyaline": "=is_hyaline"
-            },
-            "dataType": "jpeg",
-            "acceptHeader": {
-                "Content-Type": "image/jpeg"
-            }
-        },
-        "jssdk": {
-            "path": "cgi-bin/ticket/getticket",
-            "method": "GET",
-            "headers": {},
-            "params": {
-                "access_token": "=@AK",
-                "type": "jsapi"
-            },
-            "dataType": "json",
-            "cache": {
-                "path":true,
-                "headers":false,
-                "params":true,
-                "expiIn":"=expires_in?3600",
-                "expiUnit":"s"
-            }
-        }
-    }
+	"base": "https://api.weixin.qq.com/",
+	"timeout": 3000,
+	"connectTimeout": 1000,
+	"home": "~/.xapi/wechat-gh",
+	"apiCachePath": "api-cache",
+	"configFilePath": "config.json5",
+	"accessKeyFilePath": "access_token",
+	"accessKeyRequest": {
+		"path": "cgi-bin/token",
+		"method": "GET",
+		"params": {
+			"appid": "=appID",
+			"secret": "=appsecret",
+			"grant_type": "=grant_type?client_credential"
+		},
+		"dataType": "json"
+	},
+	"accessKeyObj": {
+		"ticket": "=access_token",
+		"expiTime": "=expires_in?7200",
+		"expiTimeUnit": "s"
+	},
+	"requests": {
+		"gh_user_info": {
+			"path": "cgi-bin/user/info",
+			"method": "GET",
+			"headers": {},
+			"params": {
+				"access_token": "=@AK",
+				"openid": "=openid",
+				"lang": "=lang?zh_CN"
+			},
+			"dataType": "json"
+		},
+		"wxacode_get_unlimited": {
+			"path": "wxa/getwxacodeunlimit",
+			"method": "POST",
+			"headers": {},
+			"params": {
+				"access_token": "=@AK"
+			},
+			"bodyType": "json",
+			"body": {
+				"scene": "=scene",
+				"page": "=page",
+				"width": "=width",
+				"auto_color": "=auto_color",
+				"line_color": "=line_color",
+				"is_hyaline": "=is_hyaline"
+			},
+			"dataType": "jpeg",
+			"acceptHeader": {
+				"Content-Type": "image/jpeg"
+			}
+		},
+		"jssdk": {
+			"path": "cgi-bin/ticket/getticket",
+			"method": "GET",
+			"headers": {},
+			"params": {
+				"access_token": "=@AK",
+				"type": "jsapi"
+			},
+			"dataType": "json",
+			"cache": {
+				"path": true,
+				"headers": false,
+				"params": true,
+				"expiIn": "=expires_in?3600",
+				"expiUnit": "s"
+			}
+		}
+	}
 }

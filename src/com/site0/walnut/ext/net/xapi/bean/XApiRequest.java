@@ -45,6 +45,11 @@ public class XApiRequest {
     private String key;
 
     /**
+     * 如果标识了它为 false， 执行请求的时候，将不会请求 `@AT`
+     */
+    private boolean needAccountToken;
+
+    /**
      * 接口的公共起始路径
      */
     private String base;
@@ -85,6 +90,7 @@ public class XApiRequest {
         method = HttpMethod.GET;
         headers = new NutMap();
         params = new NutMap();
+        needAccountToken = true;
     }
 
     public String toString() {
@@ -128,6 +134,7 @@ public class XApiRequest {
         req.cache = cache;
         req.acceptHeader = acceptHeader;
         req.matchHeader = matchHeader;
+        req.needAccountToken = needAccountToken;
         return req;
     }
 
@@ -630,6 +637,14 @@ public class XApiRequest {
 
     public void setMatchHeader(WnMatch matchHeader) {
         this.matchHeader = matchHeader;
+    }
+
+    public boolean isNeedAccountToken() {
+        return needAccountToken;
+    }
+
+    public void setNeedAccountToken(boolean needAccountToken) {
+        this.needAccountToken = needAccountToken;
     }
 
 }

@@ -38,6 +38,10 @@ public abstract class AbstractThirdXApi implements XApi {
         return configs.hasValidAccessKey(apiName, account);
     }
 
+    public NutBean loadConfig(String apiName, String account) {
+        return configs.loadConfig(apiName, account);
+    }
+
     public XApiRequest prepare(String apiName,
                                String account,
                                String path,
@@ -52,8 +56,10 @@ public abstract class AbstractThirdXApi implements XApi {
         }
 
         // 读取密钥
-        String ak = configs.loadAccessKey(apiName, account, vars, force);
-        vars.put("@AK", ak);
+        if (req.isNeedAccountToken()) {
+            String ak = configs.loadAccessKey(apiName, account, vars, force);
+            vars.put("@AK", ak);
+        }
 
         // 设置请求信息
         req.setApiName(apiName);

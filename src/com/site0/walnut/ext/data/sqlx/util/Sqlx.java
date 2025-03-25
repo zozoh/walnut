@@ -172,7 +172,7 @@ public abstract class Sqlx {
             list.add(bean);
         }
         return list;
-    
+
     }
 
     public static NutBean toBean(ResultSet rs, ResultSetMetaData meta) throws SQLException {
@@ -213,26 +213,26 @@ public abstract class Sqlx {
             return "NULL";
         }
         Mirror<?> mi = Mirror.me(val);
-    
+
         // 布尔
         if (mi.isBoolean()) {
             return ((Boolean) val).booleanValue() ? "1" : "0";
         }
-    
+
         // 数字
         if (mi.isNumber()) {
             return val.toString();
         }
-    
+
         // 日期时间
         if (mi.isDateTimeLike()) {
             Calendar c = Wtime.parseAnyCalendar(val);
             return Wtime.formatUTC(c, "''yyyy-MM-dd HH:mm:ss''");
         }
-    
+
         // 下面就用字符串来处理
         String str;
-    
+
         // 数组
         if (mi.isArray()) {
             str = Ws.join((Object[]) val, ",");
@@ -249,7 +249,7 @@ public abstract class Sqlx {
         else {
             str = val.toString();
         }
-    
+
         // 最后逃逸一下
         return "'" + escapeSqlValue(str) + "'";
     }

@@ -1,10 +1,18 @@
 package com.site0.walnut.ext.net.webx;
 
-import com.site0.walnut.ext.net.webx.website.WnWebxService;
+import org.nutz.web.WebException;
+
 import com.site0.walnut.impl.box.JvmFilterContext;
+import com.site0.walnut.login.WnLoginApi;
 
 public class WebxContext extends JvmFilterContext {
 
-    public WnWebxService web;
+    public WnLoginApi api;
+
+    public Object result;
+
+    public WebException error;
+
+    public boolean quiet;
 
 }

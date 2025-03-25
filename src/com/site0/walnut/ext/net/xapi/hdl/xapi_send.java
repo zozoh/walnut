@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.net.xapi.XApi;
@@ -34,6 +35,10 @@ public class xapi_send implements JvmHdl {
 
         // 准备 API
         XApi api = new WnXApi(sys);
+
+        // 将配置文件也加载到上下文里面
+        NutBean config = api.loadConfig(apiName, account);
+        vars.put("config", config);
 
         // 准备代理
         setupProxy(sys, proxyPath, api);

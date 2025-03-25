@@ -20,6 +20,7 @@ public class DefaultXApiExpertManager extends AbstractXApiExpertManager {
                     List<File> files = new LinkedList<>();
                     files.add(Files.findFile(base + "tianyancha.json"));
                     files.add(Files.findFile(base + "wxgh.json"));
+                    files.add(Files.findFile(base + "wxmp.json"));
                     files.add(Files.findFile(base + "youtube.json"));
                     files.add(Files.findFile(base + "fb-graph.json"));
                     files.add(Files.findFile(base + "chatgpt.json"));
