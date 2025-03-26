@@ -131,6 +131,9 @@ public class WnSqlSessionStore extends AbstractWnSessionStore {
         // 获取用户
         WnUser u = se.getUser();
 
+        Date now = new Date();
+        String fmt = "yyyy-MM-dd HH:mm:ss";
+
         // 转换为一个 Bean
         NutMap bean = new NutMap();
         bean.put("id", se.getTicket());
@@ -139,7 +142,9 @@ public class WnSqlSessionStore extends AbstractWnSessionStore {
         bean.put("u_name", u.getName());
         bean.put("email", u.getEmail());
         bean.put("phone", u.getPhone());
-        bean.put("env", se.getEnv());
+        bean.put("env", se.getEnvAsStr());
+        bean.put("ct", Wtime.formatUTC(now, fmt));
+        bean.put("lm", Wtime.formatUTC(now, fmt));
 
         // 获取 SQL
         WnSqlTmpl sql = sqls.get(sqlInsert);

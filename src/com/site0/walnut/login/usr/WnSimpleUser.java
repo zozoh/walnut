@@ -155,7 +155,7 @@ public class WnSimpleUser implements WnUser {
     public void mergeToBean(NutBean bean) {
         // 合并其他元数据
         if (null != this.meta) {
-            bean.putAll(bean);
+            bean.putAll(this.meta);
         }
 
         // ID

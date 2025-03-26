@@ -6,8 +6,10 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.lang.util.Callback;
@@ -31,9 +33,13 @@ import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wtime;
 import com.site0.walnut.util.Wuu;
+import com.site0.walnut.val.id.WnSnowQMaker;
 
 public class WnSqlUserStore extends AbstractWnUserStore {
+
+    private static final WnSnowQMaker UidMaker = new WnSnowQMaker(null, 10);
 
     private static final Log log = Wlog.getAUTH();
 
@@ -69,7 +75,13 @@ public class WnSqlUserStore extends AbstractWnUserStore {
         this.sqls = Sqlx.getSqlHolderByPath(io, sessionVars, setup.sqlHome);
     }
 
-    public void addUser(WnUser u) {
+    public WnUser addUser(WnUser u) {
+        String uid = u.getId();
+        Date now = new Date();
+        String fmt = "yyyy-MM-dd HH:mm:ss";
+        if (Ws.isBlank(uid)) {
+            uid = UidMaker.make(now, null);
+        }
         // 转换为一个 Bean
         NutMap bean = new NutMap();
         bean.put("id", u.getId());
@@ -81,7 +93,9 @@ public class WnSqlUserStore extends AbstractWnUserStore {
         bean.put("last_login_at", u.getLastLoginAtInUTC());
         bean.put("salt", u.getSalt());
         bean.put("passwd", u.getPasswd());
-        join_user_meta_to_bean(u, bean);
+        bean.put("ct", Wtime.formatUTC(now, fmt));
+        bean.put("lm", Wtime.formatUTC(now, fmt));
+        __join_user_meta_to_bean(u, bean);
 
         // 获取 SQL
         WnSqlTmpl sql = sqls.get(sqlInsert);
@@ -91,6 +105,9 @@ public class WnSqlUserStore extends AbstractWnUserStore {
         if (count <= 0) {
             throw Er.create("e.auth.user.FailToAdd", Json.toJson(bean));
         }
+
+        // 返回
+        return toWnUser(bean);
     }
 
     public void saveUserMeta(WnUser u) {
@@ -99,7 +116,7 @@ public class WnSqlUserStore extends AbstractWnUserStore {
         }
         NutMap delta = new NutMap();
         delta.put("id", u.getId());
-        join_user_meta_to_bean(u, delta);
+        __join_user_meta_to_bean(u, delta);
 
         // 获取 SQL
         WnSqlTmpl sql = sqls.get(sqlUpdate);
@@ -245,6 +262,16 @@ public class WnSqlUserStore extends AbstractWnUserStore {
         List<WnUser> list = this.queryUser(q);
 
         return __get_one_account_from_list(list, "getAccountById:" + uid);
+    }
+    
+    private void __join_user_meta_to_bean(WnUser u, NutMap bean) {
+        if (null != u.getMeta()) {
+            for (Map.Entry<String, Object> en : u.getMeta().entrySet()) {
+                String key = Ws.snakeCase(en.getKey());
+                Object val = en.getValue();
+                bean.put(key, val);
+            }
+        }
     }
 
     private WnUser __fetch_account_by_id(String uid) {

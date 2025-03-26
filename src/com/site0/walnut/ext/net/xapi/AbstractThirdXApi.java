@@ -55,6 +55,9 @@ public abstract class AbstractThirdXApi implements XApi {
             vars = new NutMap();
         }
 
+        NutBean config = this.loadConfig(apiName, account);
+        vars.put("config", config);
+
         // 读取密钥
         if (req.isNeedAccountToken()) {
             String ak = configs.loadAccessKey(apiName, account, vars, force);

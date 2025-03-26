@@ -1,12 +1,11 @@
 package org.nutz.web;
 
 import org.nutz.json.Json;
-import org.nutz.json.JsonFormat;
 import org.nutz.json.ToJson;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 
-@ToJson("toJson")
+@ToJson
 public class WebException extends RuntimeException {
 
     private static final long serialVersionUID = 3343036182101828118L;
@@ -54,11 +53,11 @@ public class WebException extends RuntimeException {
         return this;
     }
 
-    public String toJson(JsonFormat jfmt) {
+    public String toJson() {
         NutMap map = new NutMap();
         map.put("key", key);
         map.put("reason", reason);
-        return Json.toJson(map, jfmt);
+        return Json.toJson(map);
     }
 
     public String toString() {

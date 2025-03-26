@@ -29,12 +29,14 @@ public class WnStdUserStore extends AbstractWnUserStore {
     }
 
     @Override
-    public void addUser(WnUser u) {
+    public WnUser addUser(WnUser u) {
         NutMap bean = u.toBean();
         WnIoObj obj = new WnIoObj();
         obj.update(bean);
 
-        io.create(oHome, obj);
+        WnObj oU = io.create(oHome, obj);
+
+        return toWnUser(oU);
     }
 
     @Override
@@ -44,7 +46,9 @@ public class WnStdUserStore extends AbstractWnUserStore {
             throw Er.create("e.auth.user.UserNoExistsWhenSaveUserMeta", u.toString());
         }
         NutMap delta = new NutMap();
-        join_user_meta_to_bean(u, delta);
+        if(u.hasMeta()) {
+            delta.putAll(u.getMeta());
+        }
 
         io.appendMeta(oU, delta);
 

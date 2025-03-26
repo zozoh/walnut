@@ -71,8 +71,6 @@ public class WnLoginApi {
         // boolean force = false;
 
         NutMap vars = Wlang.map("code", code);
-        xapi.prepare("wxmp", code, code, null, autoCreateUser);
-
         XApiRequest req = xapi.prepare(apiName, account, path, vars, false);
         req.setDisableCache(true);
 
@@ -106,7 +104,7 @@ public class WnLoginApi {
 
         // 是否自动创建账号
         if (null == u && null != autoUser) {
-            users.addUser(u);
+            u = users.addUser(autoUser);
         }
 
         // 账号不存在

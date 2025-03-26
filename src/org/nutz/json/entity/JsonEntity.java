@@ -14,6 +14,8 @@ import org.nutz.json.JsonEntityFieldMaker;
 import org.nutz.json.JsonException;
 import org.nutz.json.JsonFormat;
 import org.nutz.json.ToJson;
+
+import com.site0.walnut.api.err.Er;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
@@ -33,7 +35,9 @@ public class JsonEntity {
 
     private Borning<?> borning;
 
-    private BorningException err;
+    private BorningException bornErr;
+
+    private Throwable mirrorErr;
 
     private Map<String, Integer> typeParams; // 如果本类型是范型，存放范型标识的下标
 
@@ -57,15 +61,20 @@ public class JsonEntity {
             }
         }
         // 开始解析
-        fields = fieldMaker.make(mirror);
-        for (JsonEntityField ef : fields)
-            fieldMap.put(ef.getName(), ef);
+        try {
+            fields = fieldMaker.make(mirror);
+            for (JsonEntityField ef : fields)
+                fieldMap.put(ef.getName(), ef);
+        }
+        catch (Throwable e) {
+            this.mirrorErr = e;
+        }
 
         try {
             borning = mirror.getBorning();
         }
         catch (BorningException e) {
-            err = e;
+            bornErr = e;
         }
 
         Class<? extends Object> klass = mirror.getType();
@@ -109,12 +118,12 @@ public class JsonEntity {
                     }
                     catch (Exception e) {
                         // born success, but toJson fail
-                        if (err == null) {
+                        if (bornErr == null) {
                             RuntimeException cause = Wlang.wrapThrow(e);
                             throw new JsonException(cause.getMessage(), cause);
                             // born fail
                         } else {
-                            throw new JsonException(err);
+                            throw new JsonException(bornErr);
                         }
                     }
                     return true;
@@ -128,16 +137,22 @@ public class JsonEntity {
     }
 
     public List<JsonEntityField> getFields() {
+        if (null != this.mirrorErr) {
+            throw Er.wrap(this.mirrorErr);
+        }
         return fields;
     }
 
     public Object born() {
         if (null == borning)
-            throw err;
+            throw bornErr;
         return borning.born(new Object[0]);
     }
 
     public JsonEntityField getField(String name) {
+        if (null != this.mirrorErr) {
+            throw Er.wrap(this.mirrorErr);
+        }
         return fieldMap.get(name);
     }
 
@@ -159,6 +174,9 @@ public class JsonEntity {
     }
 
     public Map<String, JsonEntityField> getFieldMap() {
+        if (null != this.mirrorErr) {
+            throw Er.wrap(this.mirrorErr);
+        }
         return fieldMap;
     }
 }

@@ -10,7 +10,7 @@ public interface WnUserStore {
 
     void patchDefaultEnv(WnUser u);
 
-    void addUser(WnUser u);
+    WnUser addUser(WnUser u);
 
     void saveUserMeta(WnUser u);
 

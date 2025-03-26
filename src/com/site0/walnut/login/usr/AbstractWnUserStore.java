@@ -1,7 +1,6 @@
 package com.site0.walnut.login.usr;
 
 import java.util.List;
-import java.util.Map;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -32,16 +31,6 @@ public abstract class AbstractWnUserStore implements WnUserStore {
         // 融合
         else {
             u.getMeta().putAll(meta);
-        }
-    }
-
-    protected void join_user_meta_to_bean(WnUser u, NutMap bean) {
-        if (null != u.getMeta()) {
-            for (Map.Entry<String, Object> en : u.getMeta().entrySet()) {
-                String key = Ws.snakeCase(en.getKey());
-                Object val = en.getValue();
-                bean.put(key, val);
-            }
         }
     }
 
