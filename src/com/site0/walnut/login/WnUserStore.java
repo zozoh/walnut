@@ -8,6 +8,8 @@ public interface WnUserStore {
 
     UserRace getUserRace();
 
+    void patchDefaultEnv(WnUser u);
+
     void addUser(WnUser u);
 
     void saveUserMeta(WnUser u);

@@ -11,9 +11,11 @@ import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.ext.net.xapi.bean.XApiRequest;
 import com.site0.walnut.ext.net.xapi.impl.WnXApi;
 import com.site0.walnut.login.session.WnSimpleSession;
+import com.site0.walnut.login.usr.WnSimpleUser;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wuu;
 import com.site0.walnut.val.id.WnSnowQMaker;
 
 public class WnLoginApi {
@@ -55,7 +57,7 @@ public class WnLoginApi {
         }
         String saltedPassword = Wn.genSaltPassword(rawPassword, u.getSalt());
         if (saltedPassword.equals(u.getPasswd())) {
-            WnSession se = createSession(u);
+            WnSession se = __create_session_by_user(u);
             sessions.addSession(se);
             return se;
         }
@@ -86,15 +88,25 @@ public class WnLoginApi {
         // 根据用户的 openid 找回账号
         WnQuery q = new WnQuery();
         q.setv(this.wechatMpOpenIdKey, openid);
-        return __create_session_by_openid(q, autoCreateUser);
+
+        // 自动创建用户
+        WnUser autoUser = null;
+        if (autoCreateUser) {
+            autoUser = new WnSimpleUser();
+            autoUser.setName("bywxmp_" + Wuu.UU32());
+            users.patchDefaultEnv(autoUser);
+            autoUser.putMetas(Wlang.map(this.wechatMpOpenIdKey, openid));
+        }
+
+        return add_session_by_openid(q, autoUser);
     }
 
-    private WnSession __create_session_by_openid(WnQuery q, boolean autoCreateUser) {
+    private WnSession add_session_by_openid(WnQuery q, WnUser autoUser) {
         WnUser u = users.getUser(q);
 
         // 是否自动创建账号
-        if (autoCreateUser) {
-
+        if (null == u && null != autoUser) {
+            users.addUser(u);
         }
 
         // 账号不存在
@@ -110,11 +122,19 @@ public class WnLoginApi {
         return se;
     }
 
-    private WnSession createSession(WnUser u) {
+    private WnSession __create_session_by_user(WnUser u) {
         WnSimpleSession se = new WnSimpleSession();
         se.setExpiAt(System.currentTimeMillis() + sessionDuration);
         se.setUser(u);
         se.setTicket(TicketMaker.make(new Date(), null));
+        return se;
+    }
+
+    public WnSession logout(String ticket) {
+        WnSession se = sessions.getSession(ticket, users);
+        if (null != se) {
+            sessions.reomveSession(se);
+        }
         return se;
     }
 
@@ -152,6 +172,14 @@ public class WnLoginApi {
 
     public WnSession getSession(String ticket) {
         return sessions.getSession(ticket, users);
+    }
+
+    public WnSession checkSession(String ticket) {
+        WnSession se = sessions.getSession(ticket, users);
+        if (null == se) {
+            throw Er.create("e.auth.session.NoExists", ticket);
+        }
+        return se;
     }
 
     public void saveSessionEnv(WnSession se) {

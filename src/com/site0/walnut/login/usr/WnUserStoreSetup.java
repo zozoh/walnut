@@ -1,6 +1,7 @@
 package com.site0.walnut.login.usr;
 
 import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.login.UserRace;
@@ -14,7 +15,7 @@ public class WnUserStoreSetup extends WnLoginUserOptions {
     /**
      * 默认用户元数据
      */
-    public NutBean defaultMeta;
+    public NutMap defaultMeta;
 
     public WnUserStoreSetup(UserRace userRace) {
         this.userRace = userRace;

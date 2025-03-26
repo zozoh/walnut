@@ -17,11 +17,22 @@ public abstract class AbstractWnUserStore implements WnUserStore {
 
     protected UserRace userRace;
 
-    protected NutBean defaultMeta;
+    protected NutMap defaultMeta;
 
     @Override
     public UserRace getUserRace() {
         return userRace;
+    }
+
+    public void patchDefaultEnv(WnUser u) {
+        NutBean meta = null == this.defaultMeta ? new NutMap() : this.defaultMeta.duplicate();
+        if (null == u.getMeta()) {
+            u.setMeta(meta);
+        }
+        // 融合
+        else {
+            u.getMeta().putAll(meta);
+        }
     }
 
     protected void join_user_meta_to_bean(WnUser u, NutMap bean) {
@@ -37,7 +48,9 @@ public abstract class AbstractWnUserStore implements WnUserStore {
     protected WnSimpleUser toWnUser(NutBean bean) {
         WnSimpleUser u = new WnSimpleUser(bean);
         u.setUserRace(this.userRace);
-        u.putMetas(this.defaultMeta);
+        if (null != this.defaultMeta) {
+            u.putMetas(this.defaultMeta);
+        }
         return u;
     }
 
@@ -81,9 +94,29 @@ public abstract class AbstractWnUserStore implements WnUserStore {
         }
         // 将信息转换为查询条件
         // 通常这个信息是手机号/邮箱/登录名等
-        NutMap qmap = info.toBean();
         WnQuery q = new WnQuery();
-        q.setAll(qmap);
+
+        // Name
+        String name = info.getName();
+        if (!Ws.isBlank(name))
+            q.setv("nm", name);
+
+        // 电话
+        String phone = info.getPhone();
+        if (!Ws.isBlank(phone))
+            q.setv("phone", phone);
+
+        // 邮箱
+        String email = info.getEmail();
+        if (!Ws.isBlank(email))
+            q.setv("email", email);
+
+        // 其他元数据
+        if (info.hasMeta()) {
+            q.setAll(info.getMeta());
+        }
+
+        // 查询超过2个就没意义了
         q.limit(2);
 
         List<WnUser> list = queryUser(q);

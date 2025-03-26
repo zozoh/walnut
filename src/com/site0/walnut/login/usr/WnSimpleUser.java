@@ -2,6 +2,7 @@ package com.site0.walnut.login.usr;
 
 import java.util.Date;
 
+import org.nutz.json.Json;
 import org.nutz.json.JsonIgnore;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
@@ -11,6 +12,7 @@ import com.site0.walnut.api.auth.WnAuths;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.login.UserRace;
 import com.site0.walnut.login.WnUser;
+import com.site0.walnut.util.Wobj;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wtime;
 
@@ -137,7 +139,10 @@ public class WnSimpleUser implements WnUser {
             else if ("salt".equals(key)) {
                 this.setSalt(bean.getString(key));
             }
-
+            // 忽略标准字段
+            else if (Wobj.isReserveKey(key)) {
+                continue;
+            }
             // Others put to "meta"
             else {
                 Object val = bean.get(key);
@@ -200,12 +205,13 @@ public class WnSimpleUser implements WnUser {
 
     @Override
     public String toString() {
-        return String.format("[%s]%s, id=%s",
+        return String.format("[%s]%s, id=%s %s",
                              this.userRace,
                              this.name,
                              this.phone,
                              this.email,
-                             this.id);
+                             this.id,
+                             Json.toJson(this.meta));
     }
 
     @Override
