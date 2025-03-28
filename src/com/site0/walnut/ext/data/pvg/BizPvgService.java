@@ -50,6 +50,31 @@ public class BizPvgService {
     }
 
     /**
+     * 检查给定的角色列表中是否至少拥有一个指定动作的权限
+     * 
+     * @param role
+     *            要检查的角色
+     * @param actions
+     *            动作名列表
+     * @return
+     *         <ul>
+     *         <li><code>true</code> : 当前角色列表至少有一个满足权限
+     *         <li><code>false</code> : 当前角色色列表均满足权限
+     *         </ul>
+     */
+    public boolean canOneOf(String[] roles, String... actions) {
+        if (null == roles || roles.length == 0) {
+            return false;
+        }
+        for (String role : roles) {
+            if (canOne(role, actions)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 检查角色是否拥有指定动作的权限
      * 
      * @param isOr
@@ -156,7 +181,5 @@ public class BizPvgService {
         list.addAll(map.keySet());
         return list;
     }
-    
-    
 
 }

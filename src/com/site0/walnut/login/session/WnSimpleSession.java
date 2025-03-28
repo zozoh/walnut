@@ -22,6 +22,10 @@ public class WnSimpleSession implements WnSession {
 
     private long expiAt;
 
+    private long createTime;
+
+    private long lastModified;
+
     private NutBean env;
 
     public WnSimpleSession() {
@@ -30,10 +34,18 @@ public class WnSimpleSession implements WnSession {
 
     public WnSimpleSession(WnUser u, long duInMs) {
         this();
+        long now = System.currentTimeMillis();
         this.ticket = TicketMaker.make(new Date(), null);
         this.user = u;
-        this.expiAt = System.currentTimeMillis() + duInMs;
+        this.expiAt = now + duInMs;
+        this.createTime = now;
+        this.lastModified = now;
         this.env.putAll(u.getMeta());
+    }
+
+    public String toJson(JsonFormat fmt) {
+        NutMap map = this.toBean();
+        return Json.toJson(map, fmt);
     }
 
     public NutMap toBean() {
@@ -45,6 +57,8 @@ public class WnSimpleSession implements WnSession {
     public void mergeToBean(NutBean bean) {
         bean.put("ticket", this.ticket);
         bean.put("expiAt", this.getExpiAtInUTC());
+        bean.put("createTime", this.getCreateTimeInUTC());
+        bean.put("lastModified", this.getLastModifiedInUTC());
         bean.put("user", user.toBean());
         bean.put("env", env);
     }
@@ -87,8 +101,55 @@ public class WnSimpleSession implements WnSession {
     }
 
     public String getExpiAtInUTC() {
+        if (this.expiAt <= 0) {
+            return null;
+        }
         Date d = new Date(expiAt);
         return Wtime.formatUTC(d, "yyyy-MM-dd HH:mm:ss");
+    }
+
+    public void setExpiAtInUTC(Object utcTime) {
+        this.expiAt = Wtime.parseAnyAMSUTC(utcTime);
+    }
+
+    public long getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(long createTime) {
+        this.createTime = createTime;
+    }
+
+    public String getCreateTimeInUTC() {
+        if (this.createTime <= 0) {
+            return null;
+        }
+        Date d = new Date(this.createTime);
+        return Wtime.formatUTC(d, "yyyy-MM-dd HH:mm:ss");
+    }
+
+    public void setCreateTimeInUTC(Object utcTime) {
+        this.createTime = Wtime.parseAnyAMSUTC(utcTime);
+    }
+
+    public long getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(long lastModified) {
+        this.lastModified = lastModified;
+    }
+
+    public String getLastModifiedInUTC() {
+        if (this.lastModified <= 0) {
+            return null;
+        }
+        Date d = new Date(this.lastModified);
+        return Wtime.formatUTC(d, "yyyy-MM-dd HH:mm:ss");
+    }
+
+    public void setLastModifiedInUTC(Object utcTime) {
+        this.lastModified = Wtime.parseAnyAMSUTC(utcTime);
     }
 
     public NutBean getEnv() {

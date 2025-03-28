@@ -4,17 +4,35 @@ import org.nutz.lang.util.NutBean;
 
 public interface WnSession {
 
-    WnUser getUser();
-
     String getTicket();
-
-    String getExpiAtInUTC();
-
-    long getExpiAt();
 
     boolean isExpired();
 
+    long getExpiAt();
+
     void setExpiAt(long expiAt);
+
+    String getExpiAtInUTC();
+
+    void setExpiAtInUTC(Object utcTime);
+
+    long getCreateTime();
+
+    void setCreateTime(long createTime);
+
+    String getCreateTimeInUTC();
+
+    void setCreateTimeInUTC(Object utcTime);
+
+    long getLastModified();
+
+    void setLastModified(long lastModified);
+
+    String getLastModifiedInUTC();
+
+    void setLastModifiedInUTC(Object utcTime);
+
+    WnUser getUser();
 
     NutBean getEnv();
 

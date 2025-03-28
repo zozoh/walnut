@@ -7,7 +7,6 @@ import org.nutz.web.ajax.Ajax;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmFilterExecutor;
 import com.site0.walnut.impl.box.WnSystem;
-import com.site0.walnut.login.UserRace;
 import com.site0.walnut.login.WnLoginOptions;
 import com.site0.walnut.login.maker.WnLoginApiMaker;
 import com.site0.walnut.util.Cmds;
@@ -18,8 +17,6 @@ import com.site0.walnut.util.ZParams;
 public class cmd_webx extends JvmFilterExecutor<WebxContext, WebxFilter> {
 
     // private static final Log log = Wlog.getCMD();
-
-    private static final WnLoginApiMaker maker = new WnLoginApiMaker(UserRace.DOMAIN);
 
     public cmd_webx() {
         super(WebxContext.class, WebxFilter.class);
@@ -53,7 +50,7 @@ public class cmd_webx extends JvmFilterExecutor<WebxContext, WebxFilter> {
         }
 
         // 创建权鉴接口
-        fc.api = maker.make(sys.io, sys.session.getVars(), options);
+        fc.api = WnLoginApiMaker.forDomain().make(sys.io, sys.session.getVars(), options);
     }
 
     @Override

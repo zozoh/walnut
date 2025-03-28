@@ -77,6 +77,9 @@ public class WnSqlUserStore extends AbstractWnUserStore {
 
     public WnUser addUser(WnUser u) {
         String uid = u.getId();
+        if (Ws.isBlank(uid)) {
+            u.setId(UidMaker.make(new Date(), null));
+        }
         Date now = new Date();
         String fmt = "yyyy-MM-dd HH:mm:ss";
         if (Ws.isBlank(uid)) {
@@ -263,7 +266,7 @@ public class WnSqlUserStore extends AbstractWnUserStore {
 
         return __get_one_account_from_list(list, "getAccountById:" + uid);
     }
-    
+
     private void __join_user_meta_to_bean(WnUser u, NutMap bean) {
         if (null != u.getMeta()) {
             for (Map.Entry<String, Object> en : u.getMeta().entrySet()) {

@@ -129,7 +129,16 @@ public class WnSimpleUser implements WnUser {
             }
             // loginAt
             else if ("lastLoginAt".equals(stdKey)) {
-                this.setLastLoginAt(bean.getLong(key));
+                Object str = bean.getString(key);
+                // 空
+                if (null == str) {
+                    this.setLastLoginAt(0);
+                }
+                // 字符串或者时间戳
+                else {
+                    long ams = Wtime.parseAnyAMSUTC(str);
+                    this.setLastLoginAt(ams);
+                }
             }
             // passwd
             else if ("passwd".equals(key)) {
@@ -283,6 +292,9 @@ public class WnSimpleUser implements WnUser {
 
     @Override
     public String getLastLoginAtInUTC() {
+        if (this.lastLoginAt <= 0) {
+            return null;
+        }
         Date d = new Date(this.lastLoginAt);
         return Wtime.formatUTC(d, "yyyy-MM-dd HH:mm:ss");
     }

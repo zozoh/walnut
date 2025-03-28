@@ -10,7 +10,10 @@ import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.pvg.BizPvgService;
-import com.site0.walnut.ext.data.www.impl.WnWebService;
+import com.site0.walnut.ext.data.pvg.WnAuthOptions;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.WnContext;
 
 /**
@@ -137,15 +140,19 @@ public class WnHttpApiContext {
      */
     WnObj oWWW;
 
-    /**
-     * WWW 对于接口，声明了 oWWW 才会生成
-     */
-    WnWebService webs;
-
-    /**
-     * API 对应网站当前的用户登录会话
-     */
-    WnAuthSession wwwSe;
+    // /**
+    // * WWW 对于接口，声明了 oWWW 才会生成
+    // */
+    // WnWebService webs;
+    //
+    // /**
+    // * API 对应网站当前的用户登录会话
+    // */
+    // WnAuthSession wwwSe;
+    WnAuthOptions authOptions;
+    WnLoginApi loginApi;
+    WnSession wwwSe;
+    WnUser wwwMe;
 
     /**
      * 是否要进行站点登录会话校验

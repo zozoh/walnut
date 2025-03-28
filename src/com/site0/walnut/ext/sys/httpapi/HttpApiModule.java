@@ -21,25 +21,21 @@ import javax.servlet.http.HttpServletResponse;
 import org.nutz.dao.Dao;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
-import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Streams;
 import org.nutz.lang.stream.ComboOutputStream;
-import com.site0.walnut.util.tmpl.WnTmpl;
-import com.site0.walnut.util.tmpl.WnTmplX;
-
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Callback2;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import org.nutz.log.Log;
-import com.site0.walnut.util.Wlog;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.By;
 import org.nutz.mvc.annotation.Fail;
 import org.nutz.mvc.annotation.Filters;
 import org.nutz.mvc.annotation.Ok;
-import com.site0.walnut.api.auth.WnAccount;
+import org.nutz.web.WebException;
+
 import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.box.WnBox;
 import com.site0.walnut.api.box.WnBoxContext;
@@ -51,11 +47,17 @@ import com.site0.walnut.ext.data.entity.history.HistoryConfig;
 import com.site0.walnut.ext.data.entity.history.HistoryRecord;
 import com.site0.walnut.ext.data.entity.history.WnHistoryService;
 import com.site0.walnut.ext.data.pvg.BizPvgService;
-import com.site0.walnut.ext.data.www.impl.WnWebService;
+import com.site0.walnut.ext.data.pvg.WnAuthOptions;
 import com.site0.walnut.ext.sys.sql.WnDaos;
+import com.site0.walnut.login.maker.WnLoginApiMaker;
+import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnStr;
 import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wsum;
+import com.site0.walnut.util.tmpl.WnTmpl;
+import com.site0.walnut.util.tmpl.WnTmplX;
 import com.site0.walnut.util.validate.WnMatch;
 import com.site0.walnut.util.validate.impl.AutoMatch;
 import com.site0.walnut.web.filter.WnAsUsr;
@@ -63,8 +65,6 @@ import com.site0.walnut.web.module.AbstractWnModule;
 import com.site0.walnut.web.module.AppRespOpsWrapper;
 import com.site0.walnut.web.module.HttpRespStatusSetter;
 import com.site0.walnut.web.util.WnWeb;
-import com.site0.walnut.util.Wsum;
-import org.nutz.web.WebException;
 
 @IocBean
 @At("/api")
@@ -285,17 +285,7 @@ public class HttpApiModule extends AbstractWnModule {
     }
 
     private void __do_www_check_pvg(final WnHttpApiContext apc) {
-        String phPvg = apc.oApi.getString("pvg-setup");
-        // 如果木有设置，那么看看站点有没有设置
-        if (Ws.isBlank(phPvg)) {
-            phPvg = apc.oWWW.getString("pvg_setup");
-        }
         String[] assActions = apc.oApi.getArray("pvg-assert", String.class);
-
-        // 没设置不检
-        if (Ws.isBlank(phPvg)) {
-            return;
-        }
 
         // 没有声明检查项，不捡
         if (null == assActions) {
@@ -307,18 +297,35 @@ public class HttpApiModule extends AbstractWnModule {
             throw Er.create("e.api.forbid");
         }
 
+        // 防空
+        if (!apc.isNeedWWWAuth || null != apc.authOptions) {
+            return;
+        }
+
+        String phPvg = apc.oApi.getString("pvg-setup");
+        // 如果木有设置，那么看看站点有没有设置
+        if (Ws.isBlank(phPvg)) {
+            phPvg = apc.authOptions.pvgSetup;
+        }
+
+        // 没设置不检
+        if (Ws.isBlank(phPvg)) {
+            return;
+        }
+
         // 读一下设置
         apc.oPvgSetup = Wn.checkObj(io(), apc.se, phPvg);
         NutMap setup = io().readJson(apc.oPvgSetup, NutMap.class);
         apc.bizPvgs = new BizPvgService(setup);
 
         // 得到当前账户的角色
-        String roleName = apc.wwwSe.getMe().getRoleName("user");
+        String[] roleNames = apc.wwwMe.getRoles();
+        ;
 
         // 开始检查咯
         for (String assA : assActions) {
             String[] actions = Ws.splitIgnoreBlank(assA, "[|]+");
-            if (!apc.bizPvgs.canOne(roleName, actions)) {
+            if (!apc.bizPvgs.canOneOf(roleNames, actions)) {
                 throw Er.create("e.api.forbid");
             }
         }
@@ -879,26 +886,30 @@ public class HttpApiModule extends AbstractWnModule {
             String ticket = apc.reqMeta.getString(ticketBy);
             if (!Ws.isBlank(ticket)) {
                 apc.oWWW = Wn.checkObj(io(), apc.se, phWWW);
-                String homePath = apc.se.getMe().getHomePath();
-                apc.webs = new WnWebService(io(), homePath, apc.oWWW);
-                apc.wwwSe = apc.webs.getAuthApi().getSession(ticket);
-                if (null != apc.wwwSe) {
-                    WnAccount wwwMe = apc.wwwSe.getMe();
-                    // 会话信息
-                    apc.reqMeta.put("http-www-se-id", apc.wwwSe.getId());
-                    apc.reqMeta.put("http-www-se-ticket", apc.wwwSe.getTicket());
-                    // 用户信息
-                    apc.reqMeta.put("http-www-me-id", wwwMe.getId());
-                    apc.reqMeta.put("http-www-me-id-home", wwwMe.OID().getHomeId());
-                    apc.reqMeta.put("http-www-me-id-my", wwwMe.OID().getMyId());
-                    apc.reqMeta.put("http-www-me-nm", wwwMe.getName());
-                    apc.reqMeta.put("http-www-me-nickname", wwwMe.getNickname());
-                    apc.reqMeta.put("http-www-me-thumb", wwwMe.getThumb());
-                    apc.reqMeta.put("http-www-me-phone", wwwMe.getPhone());
-                    apc.reqMeta.put("http-www-me-email", wwwMe.getEmail());
-                    apc.reqMeta.put("http-www-me-role", wwwMe.getRoleName());
-                    apc.reqMeta.put("http-www-me-nickname", wwwMe.getNickname());
+                // 准备站点: 文件模式
+                if (apc.oWWW.isFILE()) {
+                    apc.authOptions = io().readJson(apc.oWWW, WnAuthOptions.class);
                 }
+                // 准备站点: 目录模式
+                else {
+                    apc.authOptions = Wlang.map2Object(apc.oWWW, WnAuthOptions.class);
+                }
+                // 创建权鉴接口
+                apc.loginApi = WnLoginApiMaker.forDomain()
+                                              .make(io(), apc.se.getVars(), apc.authOptions);
+                apc.wwwSe = apc.loginApi.checkSession(ticket);
+                apc.wwwMe = apc.wwwSe.getUser();
+
+                // 会话信息
+                apc.reqMeta.put("http-www-se-ticket", apc.wwwSe.getTicket());
+                // 用户信息
+                apc.reqMeta.put("http-www-me-id", apc.wwwMe.getId());
+                apc.reqMeta.put("http-www-me-nm", apc.wwwMe.getName());
+                apc.reqMeta.put("http-www-me", apc.wwwMe.getMeta());
+                apc.reqMeta.put("http-www-me-phone", apc.wwwMe.getPhone());
+                apc.reqMeta.put("http-www-me-email", apc.wwwMe.getEmail());
+                apc.reqMeta.put("http-www-me-roles", apc.wwwMe.getRoles());
+                apc.reqMeta.put("http-www-me-mainGroup", apc.wwwMe.getMainGroup());
             }
         }
         // 检查一下权限

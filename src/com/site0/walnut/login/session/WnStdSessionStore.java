@@ -88,7 +88,10 @@ public class WnStdSessionStore extends AbstractWnSessionStore {
         bean.put("env", se.getEnv());
 
         // 保存
-        io.create(oHome, bean);
+        WnObj oSe = io.create(oHome, bean);
+        se.setCreateTime(oSe.createTime());
+        se.setLastModified(oSe.lastModified());
+
     }
 
     public boolean reomveSession(WnSession se) {

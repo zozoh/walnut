@@ -22,6 +22,8 @@ import com.site0.walnut.ext.sys.datex.bean.WnHolidays;
  */
 public abstract class Wtime {
 
+    private static final TimeZone TZ_UTC = TimeZone.getTimeZone("GMT+0");
+
     static String REG = "^(\\d{2,4})([^\\d]*)" // 年 1,2
                         + "(\\d{1,2})([^\\d]*)" // 月 3,4
                         + "(\\d{1,2})([^\\d]*)" // 日 5,6
@@ -91,7 +93,7 @@ public abstract class Wtime {
         TimeZone tZone = null;
         // 检查一下必须是标准时区 GMT[+-]8
         if (tzName.matches("^(Z|GMT|UTC)$")) {
-            tZone = TimeZone.getTimeZone("GMT+0");
+            tZone = TZ_UTC;
         }
         // 有偏移量？
         else if (tzName.matches("^(GMT|UTC)([+-]1?[0-9])$")) {
@@ -120,6 +122,10 @@ public abstract class Wtime {
         Date t = parseDate(ds, tz);
         c.setTime(t);
         return c;
+    }
+
+    public static Date parseDateUTC(String ds) {
+        return parseDate(ds, TZ_UTC);
     }
 
     /**
@@ -165,7 +171,7 @@ public abstract class Wtime {
 
         // 指定了 'Z' 表示采用标准 UTC+0 时区
         if (ds.endsWith("Z")) {
-            tz = TimeZone.getTimeZone("GMT+0");
+            tz = TZ_UTC;
             ds = ds.substring(0, ds.length() - 1).trim();
         }
 
@@ -295,6 +301,10 @@ public abstract class Wtime {
         throw Er.createf("e.time.invalid.format", "Unexpect date format '%s'", ds);
     }
 
+    public static long parseAnyAMSUTC(Object input) {
+        return parseAnyAMS(input, TZ_UTC);
+    }
+
     public static long parseAnyAMS(Object input) {
         return parseAnyAMS(input, null);
     }
@@ -317,6 +327,10 @@ public abstract class Wtime {
         // 解析
         String s = input.toString();
         return parseAMS(s, tz);
+    }
+
+    public static Calendar parseAnyCalendarUTC(Object input) {
+        return parseAnyCalendar(input, TZ_UTC);
     }
 
     public static Calendar parseAnyCalendar(Object input) {
