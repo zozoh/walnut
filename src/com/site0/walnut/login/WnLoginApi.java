@@ -80,7 +80,7 @@ public class WnLoginApi {
         // 看看是否成功的获取了用户的 openid
         // 没有 open id，那么必然是错误
         if (Ws.isBlank(openid)) {
-            throw Er.create("e.auth.session.loginByWechatMPCode.Faild", Json.toJson(result));
+            throw Er.create("e.auth.session.loginByWechatMPCode.Faild", result);
         }
 
         // 根据用户的 openid 找回账号
