@@ -1,6 +1,8 @@
 package com.site0.walnut.ext.util.jsonx.hdl;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutMap;
@@ -11,8 +13,11 @@ import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
+import com.site0.walnut.util.validate.WnMatch;
+import com.site0.walnut.util.validate.impl.AutoMatch;
 import com.site0.walnut.util.validate.impl.MapMatch;
 import org.nutz.web.WebException;
+import org.nutz.web.ajax.Ajax;
 
 public class jsonx_validate extends JsonXFilter {
 
@@ -21,6 +26,7 @@ public class jsonx_validate extends JsonXFilter {
         return ZParams.parse(args, "^(only|igoreNil)$");
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void process(WnSystem sys, JsonXContext fc, ZParams params) {
         // 分析参数
@@ -38,29 +44,34 @@ public class jsonx_validate extends JsonXFilter {
         }
 
         // 解析
-        NutMap vmap = Json.fromJson(NutMap.class, json);
-        MapMatch m = new MapMatch(vmap);
-        m.setIgnoreNil(ignoreNil);
-        m.setOnlyFields(only);
+        Object match = Json.fromJson(json);
+        WnMatch m;
+        if (match instanceof Map<?, ?>) {
+            NutMap vmap = NutMap.WRAP((Map<String, Object>) match);
+            MapMatch mm = new MapMatch(vmap);
+            mm.setIgnoreNil(ignoreNil);
+            mm.setOnlyFields(only);
+            m = mm;
+        } else {
+            m = AutoMatch.parse(match);
+        }
 
         // 检查列表
-        WebException err= null;
-        if (fc.obj instanceof Collection<?>) {
-            Collection<?> col = (Collection<?>) fc.obj;
-            for (Object ele : col) {
-                err = m.matchErr(ele);
-                if (null != err) {
-                    break;
-                }
+        List<WebException> errs = AutoMatch.matchErrors(m, fc.obj);
+        List<NutMap> errList = new ArrayList<NutMap>();
+        for (WebException err : errs) {
+            if (null != err) {
+                errList.add(err.toBean());
             }
         }
-        // 检查单个对象
-        else {
-            err = m.matchErr(fc.obj);
-        }
 
-        if (null != err) {
-            throw err;
+        // 成功
+        if (errList.isEmpty()) {
+            fc.obj = Ajax.ok();
+        }
+        // 失败
+        else {
+            fc.obj = Ajax.fail().setData(errList);
         }
     }
 

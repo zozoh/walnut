@@ -1,10 +1,13 @@
 package com.site0.walnut.util.validate.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.nutz.mapl.Mapl;
 import com.site0.walnut.api.err.Er;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.validate.WnMatch;
 import org.nutz.web.WebException;
 
@@ -57,18 +60,21 @@ public class MapMatch implements WnMatch {
 
     @Override
     public boolean match(Object val) {
-        WebException err = this.matchErr(val);
-        return null == err;
+        List<WebException> err = this.matchErr(val);
+        return err.isEmpty();
     }
 
     @SuppressWarnings("unchecked")
-    public WebException matchErr(Object val) {
+    public List<WebException> matchErr(Object val) {
+
         if (null == val)
-            return Er.create("e.v.isNil");
+            return Wlang.list(Er.create("e.v.isNil"));
         if (!(val instanceof Map<?, ?>)) {
-            return Er.create("e.v.shouldBeMap");
+            return Wlang.list(Er.create("e.v.shouldBeMap"));
         }
         Map<String, Object> map = ((Map<String, Object>) val);
+
+        List<WebException> re = new ArrayList<>();
 
         // 看看有没有字段超范围
         if (this.onlyFields) {
@@ -76,7 +82,7 @@ public class MapMatch implements WnMatch {
                 String key = en.getKey();
                 WnMatch m = matchs.get(key);
                 if (null == m) {
-                    return Er.create("e.v.unkownKey", key);
+                    re.add(Er.create("e.v.unkownKey", key));
                 }
             }
         }
@@ -94,10 +100,10 @@ public class MapMatch implements WnMatch {
                 continue;
             }
             if (!m.match(v)) {
-                return Er.create("e.v.invalid", key);
+                re.add(Er.create("e.v.invalid", key));
             }
         }
-        return null;
+        return re;
     }
 
     public boolean isOnlyFields() {

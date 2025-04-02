@@ -1,7 +1,13 @@
 package com.site0.walnut.util.validate.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+
+import org.nutz.web.WebException;
+
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 
@@ -40,6 +46,35 @@ public class AutoMatch implements WnMatch {
             ((ParallelMatch) am.m).setDefaultMatch(dft);
         }
         return am;
+    }
+
+    public static List<WebException> matchErrors(WnMatch m, Object src) {
+        // 防空
+        if (null == src) {
+            return new LinkedList<>();
+        }
+        // 集合就循环递归
+        if (src instanceof Collection<?>) {
+            List<WebException> errList = new ArrayList<WebException>();
+            Collection<?> col = (Collection<?>) src;
+            for (Object ele : col) {
+                List<WebException> errors = matchErrors(m, ele);
+                if (null != errors) {
+                    errList.addAll(errors);
+                }
+            }
+            return errList;
+        }
+        // 详细判断
+        if (m instanceof MapMatch) {
+            return ((MapMatch) m).matchErr(src);
+        }
+        // 获取错误列表
+        List<WebException> errList = new ArrayList<WebException>();
+        if (!m.match(src)) {
+            errList.add(Er.create("e.obj.Invalid", src));
+        }
+        return errList;
     }
 
     private WnMatch m;

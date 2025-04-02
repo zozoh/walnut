@@ -8,19 +8,22 @@
 jsonx @validate
   [WnMatch]    # 指定检查的约束
   [-f v.json]  # 约束来自一个文件【更高优先级】
-  [-only]      #【选】输入对象必须在集合内
-  [-ignoreNil] #【选】空值不检查
+  [-only]      #【选】输入对象必须在集合内(仅MapMatch)
+  [-ignoreNil] #【选】空值不检查(仅MapMatch)
 ```
 
 # 示例
 
 ```bash
-# 按照正则表达式过滤
-jsonx @remove '^(a|b|c)$'
+# 判断一个数字范围
+jsonx '{x:100,y:99}' @validate '{x:"[99,101]"}'
+> 
 
-# 直接过滤键名
-jsonx @remove key1 key2 key3
+# 采用正则表达式判断
+jsonx -c '{name:"xiaobai",age:20}' @validate '{name:"^m"}'
+> {ok:false,data:[{key:"e.v.invalid",reason:"name"}]}
 
-# 混合模式
-jsonx @remove key1 "^(a|b|c)" key3
+# 多个条件【或】判断
+jsonx -c '{name:"xiaobai",age:20}' @validate '[{name:"^m"},{age:20}]'
+> {ok:true}
 ```

@@ -39,6 +39,7 @@ jsonx [options] [[@filter filter-args...]...]
 @validate   # 检查对象的键是否符合约束
 @transkey   # 转换上下文对象的键
 @translate  # 转换上下文对象的值
+@match      # 判断上下文是否符合指定条件
 #
 # 读取&过滤
 #

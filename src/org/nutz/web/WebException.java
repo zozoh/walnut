@@ -1,6 +1,7 @@
 package org.nutz.web;
 
 import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.json.ToJson;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
@@ -53,11 +54,18 @@ public class WebException extends RuntimeException {
         return this;
     }
 
-    public String toJson() {
+    public NutMap toBean() {
         NutMap map = new NutMap();
         map.put("key", key);
         map.put("reason", reason);
-        return Json.toJson(map);
+        return map;
+    }
+
+    public String toJson(JsonFormat jfmt) {
+        NutMap map = new NutMap();
+        map.put("key", key);
+        map.put("reason", reason);
+        return Json.toJson(map, jfmt);
     }
 
     public String toString() {
