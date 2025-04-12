@@ -567,7 +567,7 @@ public class AppModule extends AbstractWnModule {
                 WnAuthSession se = auth().loginByPasswd(name, passwd);
                 String appName = se.getVars().getString("OPEN", "wn.console");
                 redirectPath = "/a/open/" + appName;
-                reo = se;
+                reo = se.toMapForClient();
             }
             // 采用域用户库来登陆
             else {
