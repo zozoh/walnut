@@ -71,17 +71,23 @@
       }
     },
     ajax_error: function (errCode, reason) {
-      if (errCode instanceof Error) {
-        errCode = errCode.code;
-        reason = errCode.reason || reason || null;
+      if ((errCode instanceof Error)|| errCode.reason) {
+	    reason = errCode.reason || reason || null;
+	    errCode = errCode.code || errCode.toString() || "Unknown Error";
+	  } else {
+		errCode = errCode.toString();
+	  }
+	  var m = /^[Ee]rror: *(.+)$/.exec(errCode);
+      if (m) {
+         errCode = m[1].trim();
       }
-      var json = JSON.stringify({
-        ok: false,
-        errCode: errCode,
-        data: reason,
-      });
-      logx.print("error", "AJAX ERROR: %s", [json]);
-      sys.out.println(json);
+	  var json = JSON.stringify({
+	    ok: false,
+	    errCode: errCode,
+	    data: reason,
+	  });
+	  logx.print("error", "AJAX ERROR: %s", [json]);
+	  sys.out.println(json);
     },
     ajax_re: function (obj) {
       var json;

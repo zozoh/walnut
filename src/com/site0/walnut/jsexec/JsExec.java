@@ -179,7 +179,7 @@ public class JsExec {
             jsStr = "var "
                     + "$wn=__use_wn(sys),"
                     + "$log=__use_log(sys,logx,_TRACE_ID),"
-                    + "$g=__g(sys, $log, $wn);"
+                    + "$g=__g(sys, $log, $wn, _);"
                     + jsStr;
         }
 
