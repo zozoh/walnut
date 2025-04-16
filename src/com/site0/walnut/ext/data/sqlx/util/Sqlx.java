@@ -16,6 +16,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -195,11 +196,19 @@ public abstract class Sqlx {
         return re;
     }
 
+    private static final JsonFormat jfmt = JsonFormat.compact().setQuoteName(true);
+
     public static Object[] getSqlParamsValue(List<SqlParam> list) {
         Object[] re = new Object[list.size()];
         int i = 0;
         for (SqlParam li : list) {
-            re[i++] = li.getValue();
+            Object v = li.getValue();
+            Mirror<Object> mi = Mirror.me(v);
+            // 将复杂对象的值转换为 JSON 字符串
+            if (!mi.isSimple()) {
+                v = Json.toJson(v, jfmt);
+            }
+            re[i++] = v;
         }
         return re;
     }

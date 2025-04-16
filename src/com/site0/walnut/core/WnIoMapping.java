@@ -60,9 +60,6 @@ public class WnIoMapping {
     public void delete(WnObj o, boolean r, WnIoActionCallback callback) {
         // 仅仅是文件
         if (o.isFILE()) {
-            if (o.hasSha1()) {
-                bm.remove(o);
-            }
             //
             // 删除存储
             //
