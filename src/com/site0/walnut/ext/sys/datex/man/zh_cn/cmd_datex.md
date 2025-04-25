@@ -17,5 +17,5 @@ datex [[@filter filter-args...]...]
 @time     # 为上下文设置时间
 @month    # 修改日期的月份
 @day      # 修改日期的天，支持工作日和节假日模式
-@format   # 指定日期格式化方式
+@fmt      # 指定日期格式化方式
 ```
