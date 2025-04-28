@@ -74,7 +74,12 @@ public class SqlIndexer extends AbstractIoDataIndexer {
     private NutMap __remove_root_pid(NutMap q) {
         String pid = q.getString("pid");
         if (this.root.isSameId(pid)) {
-            q.remove("pid");
+            q.setv("pid", null);
+        }
+        // 否则就要尝试仅仅获取 pid::myId
+        else if (null != pid) {
+            WnObjId objPID = new WnObjId(pid);
+            q.setv("pid", objPID.getMyId());
         }
         return q;
     }

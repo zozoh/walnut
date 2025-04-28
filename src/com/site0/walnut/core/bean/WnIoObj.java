@@ -907,6 +907,10 @@ public class WnIoObj extends NutMap implements WnObj {
     }
 
     public boolean isMyParent(WnObj p) {
+        WnObjId myParentId = new WnObjId(this.parentId());
+        if (myParentId.isInSubMapping()) {
+            return Wlang.isEqual(myParentId.getMyId(), p.myId());
+        }
         return Wlang.isEqual(this.parentId(), p.myId());
     }
 

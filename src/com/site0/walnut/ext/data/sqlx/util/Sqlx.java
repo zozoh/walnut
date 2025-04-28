@@ -205,7 +205,7 @@ public abstract class Sqlx {
             Object v = li.getValue();
             Mirror<Object> mi = Mirror.me(v);
             // 将复杂对象的值转换为 JSON 字符串
-            if (!mi.isSimple()) {
+            if (null != mi && !mi.isSimple()) {
                 v = Json.toJson(v, jfmt);
             }
             re[i++] = v;
