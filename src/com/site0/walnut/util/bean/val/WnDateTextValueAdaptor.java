@@ -16,9 +16,9 @@ public class WnDateTextValueAdaptor implements WnValueAdaptor {
         if (null == input) {
             return null;
         }
-        Date d = WnValues.parseDate(input, vd.getDatePrefix());
+        Date d = WnValues.parseDate(input, vd.getDatePrefix(), vd.getFromTimeZone());
         String fmt = Ws.sBlank(vd.getFormat(), "yyyy-MM-dd");
-        return Wtime.format(d, fmt);
+        return Wtime.format(d, fmt, vd.getToTimeZone());
     }
 
     // @Override

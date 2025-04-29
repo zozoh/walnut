@@ -10,7 +10,7 @@ import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
 
 public class WnTmplTest {
-    
+
     @Test
     public void test_uppercase() {
         NutMap context = Wlang.map("s", "abc");
@@ -48,7 +48,8 @@ public class WnTmplTest {
 
     @Test
     public void test_customized_a() {
-        assertEquals("A100C", WnTmpl.exec("A@<b(int)?89>C", "@", "<", ">", Wlang.map("b:100"), true));
+        assertEquals("A100C",
+                     WnTmpl.exec("A@<b(int)?89>C", "@", "<", ">", Wlang.map("b:100"), true));
         assertEquals("A100C", WnTmpl.exec("A@{b(int)?89}C", "@", Wlang.map("b:100"), true));
     }
 
@@ -101,8 +102,10 @@ public class WnTmplTest {
     public void test_special_key() {
         assertEquals("ABC", WnTmpl.exec("A${a-b}C", Wlang.map("'a-b':'B'}")));
         assertEquals("ABC", WnTmpl.exec("A${'a.b'}C", Wlang.map("'a.b':'B'}")));
-        assertEquals("A1C", WnTmpl.exec("A${pos[0].'x.x'}C", Wlang.map("pos:[{'x.x':1},{'y.y':2}]}")));
-        assertEquals("A2C", WnTmpl.exec("A${pos[1].'y.y'}C", Wlang.map("pos:[{'x.x':1},{'y.y':2}]}")));
+        assertEquals("A1C",
+                     WnTmpl.exec("A${pos[0].'x.x'}C", Wlang.map("pos:[{'x.x':1},{'y.y':2}]}")));
+        assertEquals("A2C",
+                     WnTmpl.exec("A${pos[1].'y.y'}C", Wlang.map("pos:[{'x.x':1},{'y.y':2}]}")));
     }
 
     @Test
@@ -119,9 +122,37 @@ public class WnTmplTest {
     }
 
     @Test
-    public void test_simple_float() {
+    public void test_float() {
         assertEquals("3", WnTmpl.exec("${n<float>}", Wlang.map("n:3")));
         assertEquals("0.98", WnTmpl.exec("${n<float>?.984}", null));
+        assertEquals("0.25", WnTmpl.exec("${n<float>}", Wlang.map("n:0.249")));
+        // TODO 非常神奇，如果是 2.495，经过 0.## 结果竟然是 2.49
+        // 但是如果我直接 new DecimalFormat("0.##").format(2.495) 结果就是 2.5
+        // 怀疑还是精度的问题，在一个main函数里用 double 就没问题如果 float 就不行
+        // 看来还是要多用 double 去格式化
+        assertEquals("2.5", WnTmpl.exec("${n<float:0.##>}", Wlang.map("n", 2.496)));
+    }
+
+    @Test
+    public void test_float_fixed() {
+        assertEquals("3.000", WnTmpl.exec("${n<float:0.000>}", Wlang.map("n:3")));
+        assertEquals("1.0", WnTmpl.exec("${n<float:0.0>?.984}", null));
+    }
+
+    @Test
+    public void test_float_precision() {
+        assertEquals("3", WnTmpl.exec("${n<float:0.###>}", Wlang.map("n:3")));
+        assertEquals("1", WnTmpl.exec("${n<float:0.#>?.984}", null));
+        assertEquals("0.4", WnTmpl.exec("${n<float:0.##>?.396}", null));
+    }
+
+    @Test
+    public void test_fs() {
+        assertEquals("1234567", WnTmpl.exec("${n<:@fs=7.2>}", Wlang.map("n:12345678.45")));
+        assertEquals("1234567", WnTmpl.exec("${n<:@fs=7.2>}", Wlang.map("n:1234567.85")));
+        assertEquals("123456", WnTmpl.exec("${n<:@fs=7.2>}", Wlang.map("n:123456.85")));
+        assertEquals("12348.4", WnTmpl.exec("${n<:@fs=7.2>}", Wlang.map("n:12348.45342")));
+        assertEquals("0.01", WnTmpl.exec("${n<:@fs=7.2>}", Wlang.map("n:0.00000001")));
     }
 
     @Test

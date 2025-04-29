@@ -18,7 +18,6 @@ public class TmplFloatEle extends TmplDynamicEle {
         } else {
             this.decFormat = new DecimalFormat(this.fmt);
         }
-
     }
 
     @Override

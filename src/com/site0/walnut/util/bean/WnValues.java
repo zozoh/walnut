@@ -3,6 +3,7 @@ package com.site0.walnut.util.bean;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.nutz.lang.util.NutBean;
 
@@ -43,7 +44,7 @@ public class WnValues {
         return wv.toValue(fld, input, bean);
     }
 
-    public static Date parseDate(Object input, String datePrefix) {
+    public static Date parseDate(Object input, String datePrefix, TimeZone tz) {
         if (null == input) {
             return null;
         }
@@ -61,6 +62,6 @@ public class WnValues {
                 return Wtime.parseDate(in2);
             }
         }
-        return Wtime.parseAnyDate(input);
+        return Wtime.parseAnyDate(input, tz);
     }
 }

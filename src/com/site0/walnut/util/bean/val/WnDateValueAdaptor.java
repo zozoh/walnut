@@ -24,9 +24,9 @@ public class WnDateValueAdaptor implements WnValueAdaptor {
         }
         // 尝试解析
         try {
-            Date d = WnValues.parseDate(input, vd.getDatePrefix());
+            Date d = WnValues.parseDate(input, vd.getDatePrefix(), vd.getFromTimeZone());
             String fmt = Ws.sBlank(vd.getFormat(), "yyyy-MM-dd");
-            return Wtime.format(d, fmt);
+            return Wtime.format(d, fmt, vd.getToTimeZone());
         }
         // 解析不成功！ 当作不存在
         catch (Throwable e) {

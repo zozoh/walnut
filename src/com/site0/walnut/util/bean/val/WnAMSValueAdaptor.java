@@ -23,7 +23,7 @@ public class WnAMSValueAdaptor implements WnValueAdaptor {
         // 尝试解析
         try {
             String datePrefix = vd.getDatePrefix();
-            Date d = WnValues.parseDate(input, datePrefix);
+            Date d = WnValues.parseDate(input, datePrefix, vd.getFromTimeZone());
             return d.getTime();
         }
         // 解析不成功！ 当作不存在

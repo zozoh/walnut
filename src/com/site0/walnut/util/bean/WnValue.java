@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.nutz.lang.Each;
 import org.nutz.lang.util.NutBean;
@@ -52,6 +53,33 @@ public class WnValue {
     private String datePrefix;
 
     private String format;
+
+    /**
+     * 指定转换时，读取源数据（如果是字符串）到标准日期对象时，需要采用的时区
+     * <p>
+     * 如果不指定，则采用线程上下文时区
+     * 
+     * 
+     * 如果类型为 `Date` 相关的字段映射，格式化时，可以指定时区，譬如:
+     * 
+     * <ul>
+     * <li><code>US/Arizona</code> 北美山区标准时间
+     * <li><code>Antarctica/Macquarie</code> 澳大利亚东部标准时间
+     * <li><code>Asia/Shanghai</code> 中国标准时间
+     * <li><code>GMT+8</code> 直接写时区偏移
+     * <li><code>UTC</code> 协调世界时
+     * </ul>
+     * 
+     * 更多时区信息，可以通过 <code>datex @timezone -list</code>查看
+     */
+    private String fromTimeZoneId;
+
+    /**
+     * 指定转换时，输出目标日期时间字符串，需要采用的时区.
+     * <p>
+     * 如果不指定，则采用线程上下文时区
+     */
+    private String toTimeZoneId;
 
     /**
      * 输出的时候用字符串模板转换,模板的上下文就是整个 Bean
@@ -338,6 +366,52 @@ public class WnValue {
             this._tmpl = WnTmplX.parse(tmpl);
         } else {
             this._tmpl = null;
+        }
+    }
+
+    private TimeZone _from_time_zone;
+
+    public boolean hasFromTimeZone() {
+        return null != _from_time_zone;
+    }
+
+    public TimeZone getFromTimeZone() {
+        return this._from_time_zone;
+    }
+
+    private TimeZone _to_time_zone;
+
+    public boolean hasToTimeZone() {
+        return null != this._to_time_zone;
+    }
+
+    public TimeZone getToTimeZone() {
+        return this._to_time_zone;
+    }
+
+    public String getFromTimeZoneId() {
+        return fromTimeZoneId;
+    }
+
+    public void setFromTimeZoneId(String fromTimeZoneId) {
+        this.fromTimeZoneId = fromTimeZoneId;
+        if (null == fromTimeZoneId) {
+            this._from_time_zone = null;
+        } else {
+            this._from_time_zone = TimeZone.getTimeZone(fromTimeZoneId);
+        }
+    }
+
+    public String getToTimeZoneId() {
+        return toTimeZoneId;
+    }
+
+    public void setToTimeZoneId(String toTimeZoneId) {
+        this.toTimeZoneId = toTimeZoneId;
+        if (null == toTimeZoneId) {
+            this._to_time_zone = null;
+        } else {
+            this._to_time_zone = TimeZone.getTimeZone(toTimeZoneId);
         }
     }
 

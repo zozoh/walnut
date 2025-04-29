@@ -63,6 +63,9 @@ public abstract class Wtime {
 
     public static String format(Date d, String fmt, TimeZone tz) {
         SimpleDateFormat formater = new SimpleDateFormat(fmt, Locale.ENGLISH);
+        if (null == tz) {
+            tz = Wn.WC().getTimeZone();
+        }
         if (null != tz) {
             formater.setTimeZone(tz);
         }
