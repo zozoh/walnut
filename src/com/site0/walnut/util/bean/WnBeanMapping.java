@@ -12,6 +12,8 @@ import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.mapl.Mapl;
+
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
@@ -221,12 +223,12 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
         Object v = null;
         String[] ks = Ws.splitIgnoreBlank(key, "[|,;]");
         if (ks.length == 1) {
-            v = bean.get(ks[0]);
+            v = Mapl.cell(bean, ks[0]);
         }
         // 依次重试
         else if (ks.length > 1) {
             for (String k : ks) {
-                v = bean.get(k);
+                v = Mapl.cell(bean, k);
                 if (null != v) {
                     return v;
                 }
