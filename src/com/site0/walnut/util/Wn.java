@@ -490,6 +490,16 @@ public abstract class Wn {
         return normalizeStr(str, se.getVars());
     }
 
+    
+    /**
+     * 展开命令行的环境变量 
+     * 
+     * @param str 命令行
+     * @param env 环境变量
+     * @return 处理后的命令行
+     * @deprecated As of v14.59 推荐采用 WnTmplX 以便获取最大兼容性 
+     */
+    @Deprecated
     public static String normalizeStr(String str, NutBean env) {
         char[] cs = str.toCharArray();
         StringBuilder var = new StringBuilder();

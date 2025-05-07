@@ -27,6 +27,8 @@ import com.site0.walnut.util.SyncWnTunnel;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.tmpl.WnTmplX;
+
 import org.nutz.web.WebException;
 
 public class JvmAtomRunner {
@@ -110,8 +112,9 @@ public class JvmAtomRunner {
         if (Strings.isBlank(cmdLine))
             return;
 
-        // 执行预处理
-        cmdLine = Wn.normalizeStr(cmdLine, bc.session.getVars());
+        // 执行预处理环境变量
+        // cmdLine = Wn.normalizeStr(cmdLine, bc.session.getVars());
+        cmdLine = WnTmplX.exec(cmdLine, bc.session.getVars());
 
         // 执行处理后的命令行（不再处理预处理指令了）
         try {
@@ -237,7 +240,7 @@ public class JvmAtomRunner {
         a = atoms[lastIndex];
         if (null == a.redirectPath) {
             a.sys.out = new JvmBoxOutput(out);
-         // 指明将错误输出流合并到标准输出
+            // 指明将错误输出流合并到标准输出
             if (a.redirectErrToStd) {
                 a.sys.err = a.sys.out;
             }
