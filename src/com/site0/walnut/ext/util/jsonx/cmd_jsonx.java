@@ -5,6 +5,7 @@ import org.nutz.json.JsonException;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.impl.box.JvmFilterExecutor;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Ws;
 
 public class cmd_jsonx extends JvmFilterExecutor<JsonXContext, JsonXFilter> {
@@ -19,24 +20,30 @@ public class cmd_jsonx extends JvmFilterExecutor<JsonXContext, JsonXFilter> {
     }
 
     @Override
-    protected void prepare(WnSystem sys, JsonXContext ctx) {
-        String json;
-        if (ctx.params.vals.length > 0) {
-            json = ctx.params.val(0);
+    protected void prepare(WnSystem sys, JsonXContext fc) {
+        String input;
+        if (fc.params.vals.length > 0) {
+            input = fc.params.val(0);
         }
         // 来自标准输入
         else {
-            json = sys.in.readAll();
+            input = sys.in.readAll();
         }
 
-        if (!Ws.isBlank(json)) {
+        // 包裹为对象，这样输入为任意字符串都可以
+        String wrapKey = fc.params.getString("wrap");
+        if (!Ws.isBlank(wrapKey)) {
+            fc.obj = Wlang.map(wrapKey, input);
+        }
+        // 输入必然是 JSON
+        else if (!Ws.isBlank(input)) {
             // 错误字符串，打印到错误输出流
-            if (json.startsWith("e.")) {
-                sys.err.print(json);
+            if (input.startsWith("e.")) {
+                sys.err.print(input);
                 return;
             }
             try {
-                ctx.obj = Json.fromJson(json);
+                fc.obj = Json.fromJson(input);
             }
             catch (JsonException e) {
                 throw Er.create("e.json.InvalidFormat", e.getMessage());

@@ -12,7 +12,10 @@ jsonx [options] [[@filter filter-args...]...]
 它支持的`options`有
 
 ```bash
--cqn       # JSON 格式化参数
+[-wrap KEY]  # 将输入的内容，作为字符串包裹在一个 JSON 对象里
+             # echo 'hello' -n | jsonx -wrap say
+             # > {say: "hello"}
+-cqn         # JSON 格式化参数
 ```
 
 它支持的过滤器有：
@@ -36,9 +39,10 @@ jsonx [options] [[@filter filter-args...]...]
 @set        # 将输入的JSON设置到上下文中（非合并）
 @nil        # 如果上下为空，设置一个默认 JSON 对象
 @flatten    # 将一个树型结构的 JSON 数据转换为一个列表
-@validate   # 检查对象的键是否符合约束
 @transkey   # 转换上下文对象的键
 @translate  # 转换上下文对象的值
+# 判断
+@validate   # 检查对象的键是否符合约束
 @match      # 判断上下文是否符合指定条件
 #
 # 读取&过滤
