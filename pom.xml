@@ -5,8 +5,8 @@
 	<groupId>com.site0</groupId>
 	<packaging>jar</packaging>
 	<name>walnut</name>
-	<version>14.61</version>
-	<description>LOONG[CMD_VAR]</description>
+	<version>14.62</version>
+	<description>LOONG[QS]</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<elasticsearch.version>6.3.2</elasticsearch.version>

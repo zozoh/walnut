@@ -1,8 +1,13 @@
 package com.site0.walnut.web.processor;
 
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.nutz.log.Log;
 import org.nutz.mvc.ActionContext;
 import org.nutz.mvc.impl.processor.AbstractProcessor;
@@ -48,7 +53,18 @@ public class CreateWnContext extends AbstractProcessor {
             // GET 请求尝试从 query string 里获取 ticket
             // 因为有可能是跨域来的图片等资源请求
             if (Ws.isBlank(ticket)) {
-                ticket = req.getParameter("_wn_ticket_");
+                String qs = req.getQueryString();
+                if (!Ws.isBlank(qs)) {
+                    List<NameValuePair> pairs = URLEncodedUtils.parse(qs, StandardCharsets.UTF_8);
+                    if (null != pairs) {
+                        for (NameValuePair pair : pairs) {
+                            if ("_wn_ticket_".equals(pair.getName())) {
+                                ticket = pair.getValue();
+                            }
+                        }
+                    }
+                }
+                // ticket = req.getParameter("_wn_ticket_");
             }
             // System.out.printf("Initial ticket=%s\n", ticket);
             // Enumeration<String> hnms = req.getHeaderNames();
