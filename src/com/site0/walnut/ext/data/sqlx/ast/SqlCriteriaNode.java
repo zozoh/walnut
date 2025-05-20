@@ -19,6 +19,8 @@ public abstract class SqlCriteriaNode {
 
     private SqlCriJoin nextJoin;
 
+    public abstract boolean isEmpty();
+
     protected abstract void _join_self_params(List<SqlParam> params);
 
     protected abstract void _join_self(StringBuilder sb, boolean useParams);

@@ -16,6 +16,11 @@ public class SqlCriGroupNode extends SqlCriteriaNode {
     }
 
     @Override
+    public boolean isEmpty() {
+        return null == headNode || headNode.isEmpty();
+    }
+
+    @Override
     protected void _join_self(StringBuilder sb, boolean useParams) {
         throw Wlang.noImplement();
     }

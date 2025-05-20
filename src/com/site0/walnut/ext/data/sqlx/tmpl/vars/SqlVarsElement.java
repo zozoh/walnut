@@ -26,6 +26,8 @@ public abstract class SqlVarsElement implements TmplEle {
 
     protected String defaultValue;
 
+    protected String prefix;
+
     /**
      * 处理这样的占位符:
      * 
@@ -75,6 +77,10 @@ public abstract class SqlVarsElement implements TmplEle {
                 // dft=xxxx
                 else if ("dft".equalsIgnoreCase(key)) {
                     this.defaultValue = val;
+                }
+                // prefix=WHERE
+                else if ("prefix".equalsIgnoreCase(key)) {
+                    this.prefix = val;
                 }
                 // 错误
                 else if (!acceptSetup(key, val)) {

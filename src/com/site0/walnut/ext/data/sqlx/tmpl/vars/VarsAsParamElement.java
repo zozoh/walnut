@@ -1,6 +1,7 @@
 package com.site0.walnut.ext.data.sqlx.tmpl.vars;
 
 import org.nutz.lang.util.NutBean;
+import org.nutz.mapl.Mapl;
 
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlRenderContext;
@@ -63,7 +64,7 @@ public class VarsAsParamElement extends SqlVarsElement {
         }
         // 直接获取值
         else if (null != name) {
-            val = bean.get(name);
+            val = Mapl.cell(bean, name);
         }
 
         // 记入模板字段和动态参数

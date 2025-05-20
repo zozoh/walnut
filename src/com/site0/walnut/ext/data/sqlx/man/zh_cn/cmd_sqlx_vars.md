@@ -114,19 +114,19 @@ SELECT * FROM t_pets WHERE name=? AND color=? AND age=?
 
 ```bash
 # AST of WHERE
-|-- Node1         # 语法树的根节点
+|-- Exp   # 语法树的起始节点
      |
-   <AND>
-     |
-    Node2 --> Node2.1
+   <AND> # nextJoin
+     |   # nextNode
+    Group ---> Exp
      |          |
    <AND>       <OR>
      |          |
-    Node3     Node2.2
+    Exp        Exp
                 |
                <OR>
                 |
-              Node2.3
+               Exp
 
 ```
 

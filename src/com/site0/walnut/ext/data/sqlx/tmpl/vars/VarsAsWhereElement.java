@@ -9,6 +9,7 @@ import com.site0.walnut.ext.data.sqlx.ast.SqlCriteria;
 import com.site0.walnut.ext.data.sqlx.ast.SqlCriteriaNode;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlRenderContext;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmplRenderContext;
 
 public class VarsAsWhereElement extends SqlVarsElement {
@@ -34,6 +35,15 @@ public class VarsAsWhereElement extends SqlVarsElement {
         }
 
         SqlCriteriaNode cri = SqlCriteria.toCriNode(input);
+        // 防空
+        if (cri.isEmpty()) {
+            return;
+        }
+
+        // 计入前缀
+        if (!Ws.isBlank(this.prefix)) {
+            src.out.append(' ').append(this.prefix).append(' ');
+        }
 
         // 记入动态参数
         if (null != src && null != src.params) {
