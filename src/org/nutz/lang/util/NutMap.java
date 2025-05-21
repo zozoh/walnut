@@ -143,7 +143,7 @@ public class NutMap extends LinkedHashMap<String, Object> implements NutBean {
     }
 
     /**
-     * 从 Map 里挑选一些键生成一个新的 Map
+     * 从 Map 里挑选一些键生成一个新的 Map，如果值为 null 则忽略
      * 
      * @param keys
      *            键
@@ -157,6 +157,26 @@ public class NutMap extends LinkedHashMap<String, Object> implements NutBean {
         for (String key : keys) {
             Object val = this.get(key);
             if (null != val)
+                re.put(key, val);
+        }
+        return re;
+    }
+
+    /**
+     * 从 Map 里挑选一些键生成一个新的 Map，如果值为 null 也强制保留
+     * 
+     * @param keys
+     *            键
+     * @return 新 Map
+     */
+    @Override
+    public NutMap pickWithNil(String... keys) {
+        if (keys.length == 0)
+            return new NutMap();
+        NutMap re = new NutMap();
+        for (String key : keys) {
+            Object val = this.get(key);
+            if (null != val || this.containsKey(key))
                 re.put(key, val);
         }
         return re;

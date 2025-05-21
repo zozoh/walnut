@@ -168,7 +168,7 @@ public abstract class SqlVarsElement implements TmplEle {
     private Object __apply_bean(Map<String, Object> val) {
         NutBean bean = NutMap.WRAP(val);
         if (this.pick != null && pick.length > 0) {
-            bean = bean.pick(pick);
+            bean = bean.pickWithNil(pick);
         }
         if (this.omit != null && omit.length > 0) {
             bean = bean.omit(omit);

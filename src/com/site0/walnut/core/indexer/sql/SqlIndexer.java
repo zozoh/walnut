@@ -415,12 +415,15 @@ public class SqlIndexer extends AbstractIoDataIndexer {
         if (null == sqlt) {
             throw Er.create("fetch SQL without defined");
         }
-        NutMap vars = prepareQuery(q);
-        __tidy_builtin_fields(vars);
-        // 没有查询条件，那么就给一个吧
-        if (vars.isEmpty()) {
-            vars.put("1", 1);
-        }
+        NutMap vars = q.toSqlVars(new Callback<NutMap>() {
+            public void invoke(NutMap filter) {
+                if (null != fixedMatch) {
+                    filter.putAll(fixedMatch);
+                }
+                __remove_root_pid(filter);
+                __tidy_builtin_fields(filter);
+            }
+        });
 
         SqlGet<Long> get = new SqlGet<>(log, sqlt, vars, new SqlResetSetGetter<Long>() {
             public Long getValue(ResultSet rs) throws SQLException {

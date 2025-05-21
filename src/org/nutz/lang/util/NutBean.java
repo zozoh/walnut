@@ -123,6 +123,15 @@ public interface NutBean extends Map<String, Object> {
      * @return 新 Map
      */
     NutBean pick(String... keys);
+    
+    /**
+     * 从 Map 里挑选一些键生成一个新的 Map
+     * 
+     * @param keys
+     *            键
+     * @return 新 Map
+     */
+    NutBean pickWithNil(String... keys);
 
     /**
      * 从 Map 里挑选一些键生成一个新的 Map，自己同时删除这些键

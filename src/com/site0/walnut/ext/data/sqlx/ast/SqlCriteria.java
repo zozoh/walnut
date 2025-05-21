@@ -74,7 +74,7 @@ public abstract class SqlCriteria {
         SqlCriteriaNode ex = null;
 
         // 按条件判断值，决定采用哪种表达式
-        if (null == val) {
+        if (null == val || "<NULL>".equalsIgnoreCase(val.toString())) {
             ex = new SqlCriExpNullNode(key);
         }
         // 如果是空串
