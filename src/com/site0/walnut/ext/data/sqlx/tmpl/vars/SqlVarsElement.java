@@ -26,7 +26,15 @@ public abstract class SqlVarsElement implements TmplEle {
 
     protected String defaultValue;
 
+    /**
+     * 动态前缀，对于 WHERE 条件特别合适
+     */
     protected String prefix;
+
+    /**
+     * 输出的字段前缀，对于联合查询时特别适用
+     */
+    protected String fieldPrefix;
 
     /**
      * 处理这样的占位符:
@@ -81,6 +89,10 @@ public abstract class SqlVarsElement implements TmplEle {
                 // prefix=WHERE
                 else if ("prefix".equalsIgnoreCase(key)) {
                     this.prefix = val;
+                }
+                // fpref=P.
+                else if ("fpref".equalsIgnoreCase(key)) {
+                    this.fieldPrefix = val;
                 }
                 // 错误
                 else if (!acceptSetup(key, val)) {

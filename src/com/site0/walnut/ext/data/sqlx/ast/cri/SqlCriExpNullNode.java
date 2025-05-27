@@ -15,7 +15,7 @@ public class SqlCriExpNullNode extends SqlCriExpressionNode {
 
     @Override
     protected void _join_self(StringBuilder sb, boolean useParams) {
-        sb.append(this.name).append(" IS NULL");
+        sb.append(this.getName()).append(" IS NULL");
     }
 
 }

@@ -25,6 +25,12 @@ public abstract class SqlCriteriaNode {
 
     protected abstract void _join_self(StringBuilder sb, boolean useParams);
 
+    public void setFieldPrefix(String fieldPrefix) {
+        if (null != this.nextNode) {
+            this.nextNode.setFieldPrefix(fieldPrefix);
+        }
+    }
+
     public void joinParams(List<SqlParam> params) {
         _join_self_params(params);
         if (null != nextNode) {

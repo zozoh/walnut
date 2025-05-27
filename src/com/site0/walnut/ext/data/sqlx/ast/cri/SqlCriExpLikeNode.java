@@ -16,7 +16,7 @@ public class SqlCriExpLikeNode extends SqlCriExpressionNode {
 
     @Override
     protected void _join_self_params(List<SqlParam> params) {
-        params.add(new SqlParam(name, like, null));
+        params.add(new SqlParam(this.getName(), like, null));
     }
 
     @Override
@@ -25,11 +25,11 @@ public class SqlCriExpLikeNode extends SqlCriExpressionNode {
         if (useParams) {
             // 采用数据特殊方言
             if (null != this.dialect) {
-                this.dialect.joinRegexp(sb, this.name, "?");
+                this.dialect.joinRegexp(sb, this.getName(), "?");
             }
             // 采用标准写法
             else {
-                sb.append(this.name);
+                sb.append(this.getName());
                 sb.append(" LIKE ?");
             }
         }
@@ -38,11 +38,11 @@ public class SqlCriExpLikeNode extends SqlCriExpressionNode {
             String vs = Sqlx.valueToSqlExp(this.like);
             // 采用数据特殊方言
             if (null != this.dialect) {
-                this.dialect.joinRegexp(sb, this.name, vs);
+                this.dialect.joinRegexp(sb, this.getName(), vs);
             }
             // 采用标准写法
             else {
-                sb.append(this.name);
+                sb.append(this.getName());
                 sb.append(" LIKE ");
                 sb.append(vs);
             }

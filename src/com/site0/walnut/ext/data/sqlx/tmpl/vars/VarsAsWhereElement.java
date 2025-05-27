@@ -39,8 +39,12 @@ public class VarsAsWhereElement extends SqlVarsElement {
         if (cri.isEmpty()) {
             return;
         }
+        // 设置前缀，如果有的话
+        if (!Ws.isBlank(this.fieldPrefix)) {
+            cri.setFieldPrefix(fieldPrefix);
+        }
 
-        // 计入前缀
+        // 计入整体动态前缀
         if (!Ws.isBlank(this.prefix)) {
             src.out.append(' ').append(this.prefix).append(' ');
         }

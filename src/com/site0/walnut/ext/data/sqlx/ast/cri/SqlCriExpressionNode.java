@@ -5,13 +5,24 @@ import com.site0.walnut.util.Ws;
 
 public abstract class SqlCriExpressionNode extends SqlCriteriaNode {
 
-    protected String name;
+    private String name;
+
+    private String fieldPrefix;
 
     protected SqlCriExpressionNode(String name) {
         this.name = name;
     }
 
+    @Override
+    public void setFieldPrefix(String fieldPrefix) {
+        this.fieldPrefix = fieldPrefix;
+        super.setFieldPrefix(fieldPrefix);
+    }
+
     public String getName() {
+        if (null != this.fieldPrefix) {
+            return this.fieldPrefix + this.name;
+        }
         return name;
     }
 

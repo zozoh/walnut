@@ -25,6 +25,14 @@ public class SqlCriGroupNode extends SqlCriteriaNode {
         throw Wlang.noImplement();
     }
 
+    @Override
+    public void setFieldPrefix(String fieldPrefis) {
+        if (null != this.headNode) {
+            this.headNode.setFieldPrefix(fieldPrefis);
+        }
+        super.setFieldPrefix(fieldPrefis);
+    }
+
     private void __join_not(StringBuilder sb) {
         sb.append("NOT ");
     }

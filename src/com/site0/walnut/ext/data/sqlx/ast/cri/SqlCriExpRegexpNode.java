@@ -16,7 +16,7 @@ public class SqlCriExpRegexpNode extends SqlCriExpressionNode {
 
     @Override
     protected void _join_self_params(List<SqlParam> params) {
-        params.add(new SqlParam(name, regex, null));
+        params.add(new SqlParam(this.getName(), regex, null));
     }
 
     @Override
@@ -25,11 +25,11 @@ public class SqlCriExpRegexpNode extends SqlCriExpressionNode {
         if (useParams) {
             // 采用数据特殊方言
             if (null != this.dialect) {
-                this.dialect.joinRegexp(sb, this.name, "?");
+                this.dialect.joinRegexp(sb, this.getName(), "?");
             }
             // 采用标准写法
             else {
-                sb.append(this.name);
+                sb.append(this.getName());
                 sb.append(" REGEXP ?");
             }
         }
@@ -38,11 +38,11 @@ public class SqlCriExpRegexpNode extends SqlCriExpressionNode {
             String vs = Sqlx.valueToSqlExp(this.regex);
             // 采用数据特殊方言
             if (null != this.dialect) {
-                this.dialect.joinRegexp(sb, this.name, vs);
+                this.dialect.joinRegexp(sb, this.getName(), vs);
             }
             // 采用标准写法
             else {
-                sb.append(this.name);
+                sb.append(this.getName());
                 sb.append(" REGEXP ");
                 sb.append(vs);
             }

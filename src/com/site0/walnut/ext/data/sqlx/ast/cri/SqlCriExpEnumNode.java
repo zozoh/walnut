@@ -21,7 +21,7 @@ public class SqlCriExpEnumNode extends SqlCriExpressionNode {
         if (null != vals) {
             for (int i = 0; i < vals.length; i++) {
                 Object v = vals[i];
-                String k = name + "." + i;
+                String k = this.getName() + "." + i;
                 params.add(new SqlParam(k, v, null));
             }
         }
@@ -36,7 +36,7 @@ public class SqlCriExpEnumNode extends SqlCriExpressionNode {
         if (useParams) {
             String[] vs = new String[vals.length];
             Arrays.fill(vs, "?");
-            sb.append(this.name);
+            sb.append(this.getName());
             sb.append(" IN (").append(Ws.join(vs, ",")).append(")");
         }
         // 采用普通语句
@@ -46,7 +46,7 @@ public class SqlCriExpEnumNode extends SqlCriExpressionNode {
                 String s = Sqlx.valueToSqlExp(vals[i]);
                 vs[i] = s;
             }
-            sb.append(this.name);
+            sb.append(this.getName());
             sb.append(" IN (").append(Ws.join(vs, ",")).append(")");
         }
     }

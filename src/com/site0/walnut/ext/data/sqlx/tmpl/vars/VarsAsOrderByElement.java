@@ -22,10 +22,22 @@ public class VarsAsOrderByElement extends SqlVarsElement {
 
         // 排序无需参数
         List<String> sorts = new ArrayList<>(bean.size());
+
+        // 计入整体动态前缀
+        if (!Ws.isBlank(this.prefix) && !sorts.isEmpty()) {
+            rc.out.append(' ').append(this.prefix).append(' ');
+        }
+
+        // 增加排序字段
         for (Map.Entry<String, Object> en : bean.entrySet()) {
             String key = en.getKey();
+            // 忽略上下文里的隐藏字段
             if (key.startsWith("__") || key.startsWith("$")) {
                 continue;
+            }
+            // 增加字段前缀
+            if (null != this.fieldPrefix) {
+                key = this.fieldPrefix + key;
             }
             Object val = en.getValue();
             String srt = "ASC";

@@ -19,21 +19,21 @@ public abstract class SqlCriExpSimpleNode extends SqlCriExpressionNode {
 
     @Override
     protected void _join_self_params(List<SqlParam> params) {
-        params.add(new SqlParam(name, value, null));
+        params.add(new SqlParam(this.getName(), value, null));
     }
 
     @Override
     protected void _join_self(StringBuilder sb, boolean useParams) {
         // 采用语句参数
         if (useParams) {
-            sb.append(this.name);
+            sb.append(this.getName());
             sb.append(operator);
             sb.append("?");
         }
         // 采用普通语句
         else {
             String vs = Sqlx.valueToSqlExp(this.value);
-            sb.append(this.name);
+            sb.append(this.getName());
             sb.append(operator);
             sb.append(vs);
         }
