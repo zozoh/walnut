@@ -18,7 +18,7 @@ datex @set
 datex @set 2023-09-21
 
 # 直接将上下当前时间设置为当前时间之后的1天
-datex @set '%ms:now+1d'
+datex @set 'now+1d'
 
 # 直接将指定当前时间的绝对毫秒数
 datex @set 1694368557435

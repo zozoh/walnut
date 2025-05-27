@@ -19,7 +19,7 @@ public class datex_day extends DatexFilter {
     @Override
     protected void process(WnSystem sys, DatexContext fc, ZParams params) {
         boolean inMonth = params.is("inmonth");
-        String mode = params.get("mode", "auto");
+        String mode = params.get("mode", "d");
 
         // 确保在月内
         int expectY = -1;
@@ -46,7 +46,11 @@ public class datex_day extends DatexFilter {
             int realY = fc.now.get(Calendar.YEAR);
             int realM = fc.now.get(Calendar.MONTH);
             if (realM != expectM || realY != expectY) {
-                fc.now.set(expectY, expectM + 1, 0);
+                if (off > 0) {
+                    fc.now.set(expectY, expectM + 1, 0);
+                } else {
+                    fc.now.set(expectY, expectM, 1);
+                }
             }
         }
     }

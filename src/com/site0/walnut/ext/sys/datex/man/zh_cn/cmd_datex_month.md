@@ -15,6 +15,6 @@ datex @month
 # 直接将上下的月份设置为 3 月
 datex @month 3
 
-# 直接将上下的月份向后偏倚 3 个月
+# 直接将上下的月份向后偏移 3 个月
 datex @month -i 3
 ```
