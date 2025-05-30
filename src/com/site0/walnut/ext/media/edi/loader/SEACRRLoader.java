@@ -1,5 +1,6 @@
 package com.site0.walnut.ext.media.edi.loader;
 
+import com.site0.walnut.ext.media.edi.bean.EdiErrSum;
 import com.site0.walnut.ext.media.edi.bean.EdiMessage;
 import com.site0.walnut.ext.media.edi.bean.EdiSegment;
 import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyError;
@@ -98,71 +99,11 @@ public class SEACRRLoader implements EdiMsgLoader<IcsReplySEACRR> {
             }
         }
 
-        // 解析 SG4: ERP-ERC-FTX 报文组
-        EdiReplyError[] errors = IcsLoaderHelper.parseERPErrs(finder);
-        re.setErrs(errors);
-        re.setErrCount(IcsLoaderHelper.errCount(errors));
-
-        // 判断本次 CargoReport 是否成功
-        int errNum = -1;
-        segs = finder.nextAllUtilNoMatch(false, "CNT");
-        if (segs != null && segs.size() > 0) {
-            for (EdiSegment item : segs) {
-                rff.clear();
-                item.fillBean(rff, null, "typeCode,errNum,");
-                if (rff.is("typeCode", "55")) {
-                    errNum = rff.getInt("errNum", 0);
-                    break;
-                }
-            }
-        }
-        if (errNum > 0) {
-            re.setSuccess(false);
-        } else if (errNum == 0) {
-            re.setSuccess(true);
-        } else if (errNum == -1) {
-            // 若未返回 errNum 报文，则根据是否有 error/warn 数据来判断
-            boolean msgSuccess = true;
-            EdiReplyError[] errArr = re.getErrs();
-            if (errArr != null && errArr.length > 0) {
-                for (EdiReplyError item : errArr) {
-                    String lowerType = item.getType() == null ? "" : item.getType().toLowerCase();
-                    if (lowerType.contains("error") || lowerType.contains("warn")) {
-                        msgSuccess = false;
-                        break;
-                    }
-                }
-            }
-            re.setSuccess(msgSuccess);
-        }
-        // 如果报文回复了错误的数量，那么覆盖计算出来的错误数量
-        if (errNum >= 0) {
-            re.setErrCount(errNum);
-        }
-
-        // (1)有时, 虽然 ErrCount = 0, 但是错误报文的信息包含 "THIS TRANSACTION WAS REJECTED" 文本，这种情况属于报文被拒绝(Success = false)
-        // (2)有时, 虽然 ErrCount > 0, 但是错误报文的信息包含 "THIS TRANSACTION WAS ACCEPTED" 文本，这种情况属于报文被接受(Success = true)
-        boolean hasRejectedContent = false;
-        boolean hasAcceptedContent = false;
-        String rejectedContent = "THIS TRANSACTION WAS REJECTED";
-        String acceptedContent = "THIS TRANSACTION WAS ACCEPTED";
-        for (EdiReplyError item : re.getErrs()) {
-            String content = item.getContent() == null ? "" : item.getContent();
-            if (content.contains(acceptedContent)) {
-                hasAcceptedContent = true;
-            } else if (content.contains(rejectedContent)) {
-                hasRejectedContent = true;
-            }
-            if (hasAcceptedContent || hasRejectedContent) {
-                break;
-            }
-        }
-        if (re.isSuccess() && hasRejectedContent) {
-            re.setSuccess(false);
-        }
-        if (!re.isSuccess() && hasAcceptedContent) {
-            re.setSuccess(true);
-        }
+        // 解析错误信息:  解析 SG4: ERP-ERC-FTX 报文组 , 以及 CNT+55:${CountNum}' 报文行
+        EdiErrSum ediErrSum = IcsLoaderHelper.collectEdiErrSum(finder);
+        re.setErrs(ediErrSum.getErrs());
+        re.setErrCount(ediErrSum.getErrCount());
+        re.setSuccess(ediErrSum.isSuccess());
 
         // 返回解析结果
         return re;

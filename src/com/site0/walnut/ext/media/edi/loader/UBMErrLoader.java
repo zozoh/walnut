@@ -1,5 +1,6 @@
 package com.site0.walnut.ext.media.edi.loader;
 
+import com.site0.walnut.ext.media.edi.bean.EdiErrSum;
 import com.site0.walnut.ext.media.edi.bean.EdiMessage;
 import com.site0.walnut.ext.media.edi.bean.EdiSegment;
 import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyError;
@@ -87,18 +88,11 @@ public class UBMErrLoader implements EdiMsgLoader<IcsReplyUbmErr> {
             re.setMsgRcvTime(rff.getString("dateTime"));
         }
 
-        // 解析 SG4: ERP-ERC-FTX 报文组
-        EdiReplyError[] errors = IcsLoaderHelper.parseERPErrs(finder);
-        re.setErrs(errors);
-        re.setErrCount(IcsLoaderHelper.errCount(errors));
-
-        // 判断本次 UBM 是否成功
-
-        // todo  判断是否有错误的例外情况的时候，参考 cargoreport 的判断方式
-//        boolean hasRejectedContent = false;
-//        boolean hasAcceptedContent = false;
-//        String rejectedContent = "THIS TRANSACTION WAS REJECTED";
-//        String acceptedContent = "THIS TRANSACTION WAS ACCEPTED";
+        // 解析错误信息:  解析 SG4: ERP-ERC-FTX 报文组 , 以及 CNT+55:${CountNum}' 报文行
+        EdiErrSum ediErrSum = IcsLoaderHelper.collectEdiErrSum(finder);
+        re.setErrs(ediErrSum.getErrs());
+        re.setErrCount(ediErrSum.getErrCount());
+        re.setSuccess(ediErrSum.isSuccess());
 
         return re;
     }

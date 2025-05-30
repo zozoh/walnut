@@ -1,12 +1,16 @@
 package com.site0.walnut.ext.media.edi.util;
 
+import com.site0.walnut.ext.media.edi.bean.EdiErrSum;
 import com.site0.walnut.ext.media.edi.bean.EdiSegment;
 import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyError;
 import com.site0.walnut.ext.media.edi.msg.reply.IcsCommonReply;
+import org.nutz.lang.segment.Segment;
 import org.nutz.lang.util.NutMap;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class IcsLoaderHelper {
 
@@ -66,6 +70,82 @@ public class IcsLoaderHelper {
             }
         }
         return errCount;
+    }
+
+
+    public static EdiErrSum collectEdiErrSum(EdiSegmentFinder finder) {
+        EdiErrSum re = new EdiErrSum();
+        NutMap rff = new NutMap();
+
+        // 1. 解析 SG4: ERP-ERC-FTX 报文组
+        EdiReplyError[] errors = IcsLoaderHelper.parseERPErrs(finder);
+        re.setErrs(errors);
+
+        // 2. 解析 cnt 报文中的错误数量
+        int cntErrNum = -1;
+        List<EdiSegment> segmentList = finder.nextAll(true, "CNT");
+        if (segmentList != null && segmentList.size() > 0) {
+            for (EdiSegment item : segmentList) {
+                rff.clear();
+                item.fillBean(rff, null, "typeCode,errNum,");
+                if (rff.is("typeCode", "55")) {
+                    cntErrNum = rff.getInt("errNum", 0);
+                    break;
+                }
+            }
+        }
+        if (cntErrNum > 0) {
+            re.setSuccess(false);
+        } else if (cntErrNum == 0) {
+            re.setSuccess(true);
+        } else if (cntErrNum == -1) {
+            // 若未返回 errNum 报文，则根据是否有 error/warn 数据来判断
+            boolean msgSuccess = true;
+            if (errors != null && errors.length > 0) {
+                for (EdiReplyError item : errors) {
+                    String lowerType = item.getType() == null ? "" : item.getType().toLowerCase();
+                    if (lowerType.contains("error") || lowerType.contains("warn")) {
+                        msgSuccess = false;
+                        break;
+                    }
+                }
+            }
+            re.setSuccess(msgSuccess);
+        }
+
+        // 3. 填充错误数量
+        if (cntErrNum >= 0) {
+            re.setErrCount(cntErrNum);
+        } else {
+            re.setErrCount(IcsLoaderHelper.errCount(errors));
+        }
+
+        // 4. 处理特殊情况
+        // (1)有时, 虽然 ErrCount = 0, 但是错误报文的信息包含 "THIS TRANSACTION WAS REJECTED" 文本，这种情况属于报文被拒绝(Success = false)
+        // (2)有时, 虽然 ErrCount > 0, 但是错误报文的信息包含 "THIS TRANSACTION WAS ACCEPTED" 文本，这种情况属于报文被接受(Success = true)
+        boolean hasRejectedContent = false;
+        boolean hasAcceptedContent = false;
+        String rejectedContent = "THIS TRANSACTION WAS REJECTED";
+        String acceptedContent = "THIS TRANSACTION WAS ACCEPTED";
+        for (EdiReplyError item : re.getErrs()) {
+            String content = item.getContent() == null ? "" : item.getContent();
+            if (content.contains(acceptedContent)) {
+                hasAcceptedContent = true;
+            } else if (content.contains(rejectedContent)) {
+                hasRejectedContent = true;
+            }
+            if (hasAcceptedContent || hasRejectedContent) {
+                break;
+            }
+        }
+        if (re.isSuccess() && hasRejectedContent) {
+            re.setSuccess(false);
+        }
+        if (!re.isSuccess() && hasAcceptedContent) {
+            re.setSuccess(true);
+        }
+
+        return re;
     }
 
 }
