@@ -20,7 +20,7 @@ public abstract class IcsCommonReply {
     private int refVer;
 
     /**
-     * 11: Response 8: Status
+     * 11: Response, 8: Status, 32: Approval
      */
     private int funcCode;
 

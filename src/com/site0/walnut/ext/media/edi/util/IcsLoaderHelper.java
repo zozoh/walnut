@@ -4,18 +4,15 @@ import com.site0.walnut.ext.media.edi.bean.EdiErrSum;
 import com.site0.walnut.ext.media.edi.bean.EdiSegment;
 import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyError;
 import com.site0.walnut.ext.media.edi.msg.reply.IcsCommonReply;
-import org.nutz.lang.segment.Segment;
 import org.nutz.lang.util.NutMap;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class IcsLoaderHelper {
 
 
-    public static void fillVerAndFuncCode(IcsCommonReply re, EdiSegmentFinder finder) {
+    public static void fillResFuncCode(IcsCommonReply re, EdiSegmentFinder finder) {
         NutMap rff = new NutMap();
         finder.reset();
         EdiSegment seg = finder.next("BGM");
