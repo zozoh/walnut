@@ -98,7 +98,7 @@ public class UBMResLoader implements EdiMsgLoader<IcsReplyUbmRes> {
                     item.fillBean(rff, null, null, null, null, "transType");
                     if (rff.is("transType", "6")) {
                         rff.clear();
-                        item.fillBean(rff, null, null, "fltNum", null, "transType","airlineCode");
+                        item.fillBean(rff, null, null, "fltNum", null, "transType", "airlineCode");
                         mainTrans.put("fltNum", rff.getString("fltNum"));
                         mainTrans.put("transType", rff.getString("transType"));
                         mainTrans.put("airlineCode", rff.getString("airlineCode"));
@@ -112,6 +112,58 @@ public class UBMResLoader implements EdiMsgLoader<IcsReplyUbmRes> {
                 }
             }
         }
+
+        // 解析 LOC 报文行, 示例: LOC+5+FM27N::95' , LOC+4+GE65A::95'
+        find = finder.moveTo(true, "LOC", "RFF", "DOC");
+        if (find) {
+            segs = finder.nextAll(true, "LOC");
+            for (EdiSegment item : segs) {
+                rff.clear();
+                item.fillBean(rff, null, "locType", "locCode");
+                String locType = rff.getString("locType");
+                String locCode = rff.getString("locCode");
+                if ("4".equals(locType)) {
+                    re.getLocInfo().put("discEstId", locCode);
+                } else if ("5".equals(locType)) {
+                    re.getLocInfo().put("oriEstId", locCode);
+                } else if ("6".equals(locType)) {
+                    re.getLocInfo().put("destNextPort", locCode);
+                }
+            }
+        }
+
+        // 略过 解析 NAD 报文行, 示例: NAD+MR+FJM396H::95' , NAD+UD+74609780707::95'
+        find = finder.moveTo(true, "NAD", "RFF", "DOC");
+        if (find) {
+            finder.nextAll(true, "NAD");
+        }
+
+        // 解析 RFF 报文行, 示例: RFF+ACW:UBMREQ', 示例: RFF+ABO:U00000337/PRD1::1', RFF+ANX:UNDERBOND APPROVAL', RFF+ACD:DCL'
+        find = finder.moveTo(true, "RFF", "DOC");
+        if (find) {
+            segs = finder.nextAll(true, "RFF");
+            for (EdiSegment item : segs) {
+                rff.clear();
+                item.fillBean(rff, null, "refCode,refVal,,refVer");
+                String refCode = rff.getString("refCode");
+                String refVal = rff.getString("refVal");
+                if ("ABO".equals(refCode)) {
+                    if (Strings.isNotBlank(refVal)) {
+                        re.setRefId(refVal);
+                        re.setRefIdInLower(refVal.toLowerCase());
+                        re.setRefVer(rff.getInt("refVer"));
+                    }
+                } else if ("ACD".equals(refCode)) {
+                    re.setReqReason(refVal);
+                } else if ("AIO".equals(refCode)) {
+                    re.setTransShipNum(refVal);
+                } else if ("ANX".equals(refCode)) {
+                    re.setUbmNotice(refVal);
+                }
+            }
+        }
+
+        // 查找
 
 
         return null;

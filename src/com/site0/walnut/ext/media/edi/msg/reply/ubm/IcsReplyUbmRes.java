@@ -18,11 +18,23 @@ public class IcsReplyUbmRes extends IcsCommonReply {
 
     private Map<String, String> mainTrans;
 
+    private Map<String, String> locInfo;
+
+    // RequestReason
+    private String reqReason;
+
+    // 转运编号
+    private String transShipNum;
+
+    // 转移请求的结果: "Underbond Approval" 或 "Underbond Approval Rescind Notice"
+    private String ubmNotice;
+
 
     public IcsReplyUbmRes() {
         super("UBMREQR");
         inTrans = new HashMap<>();
         mainTrans = new HashMap<>();
+        locInfo = new HashMap<>();
     }
 
     public String getTxnTime() {
@@ -63,5 +75,37 @@ public class IcsReplyUbmRes extends IcsCommonReply {
 
     public void setMainTrans(Map<String, String> mainTrans) {
         this.mainTrans = mainTrans;
+    }
+
+    public Map<String, String> getLocInfo() {
+        return locInfo;
+    }
+
+    public void setLocInfo(Map<String, String> locInfo) {
+        this.locInfo = locInfo;
+    }
+
+    public String getReqReason() {
+        return reqReason;
+    }
+
+    public void setReqReason(String reqReason) {
+        this.reqReason = reqReason;
+    }
+
+    public String getTransShipNum() {
+        return transShipNum;
+    }
+
+    public void setTransShipNum(String transShipNum) {
+        this.transShipNum = transShipNum;
+    }
+
+    public String getUbmNotice() {
+        return ubmNotice;
+    }
+
+    public void setUbmNotice(String ubmNotice) {
+        this.ubmNotice = ubmNotice;
     }
 }
