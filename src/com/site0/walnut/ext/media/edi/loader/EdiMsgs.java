@@ -27,6 +27,8 @@ public abstract class EdiMsgs {
         loaders.put("AIRCRR", new AIRCRRLoader());
         loaders.put("SEACRR", new SEACRRLoader());
         loaders.put("CARST", new CARSTLoader());
+        loaders.put("UBMREQE", new UBMErrLoader());
+        loaders.put("UBMREQR", new UBMResLoader());
     }
 
     public static String getLoaderType(EdiMessage msg) {
@@ -69,6 +71,14 @@ public abstract class EdiMsgs {
 
     public static CLNTDUPLoader getCLNTDUPLoader() {
         return (CLNTDUPLoader) loaders.get("CLNTDUP");
+    }
+
+    public static UBMErrLoader getUBMErrLoader() {
+        return (UBMErrLoader) loaders.get("UBMREQE");
+    }
+
+    public static UBMResLoader getUBMResLoader() {
+        return (UBMResLoader) loaders.get("UBMREQR");
     }
 
 }

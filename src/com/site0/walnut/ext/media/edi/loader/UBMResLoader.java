@@ -3,11 +3,13 @@ package com.site0.walnut.ext.media.edi.loader;
 import com.site0.walnut.ext.media.edi.bean.EdiMessage;
 import com.site0.walnut.ext.media.edi.bean.EdiSegment;
 import com.site0.walnut.ext.media.edi.msg.reply.ubm.IcsReplyUbmRes;
+import com.site0.walnut.ext.media.edi.msg.reply.ubm.UbmLineRst;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
 import com.site0.walnut.ext.media.edi.util.IcsLoaderHelper;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,13 +23,13 @@ public class UBMResLoader implements EdiMsgLoader<IcsReplyUbmRes> {
     public IcsReplyUbmRes load(EdiMessage msg) {
         IcsReplyUbmRes re = new IcsReplyUbmRes();
 
+        re.setRstVer(0);
         // BGM 报文中的 FUNCTION CODE, 此报文固定为 32: Approval
         re.setFuncCode(32);
 
         EdiSegmentFinder finder = msg.getFinder();
         NutMap rff = new NutMap();
         List<EdiSegment> segs;
-
 
         /**
          * 定位到 BGM 报文行，解析 FuncCode
@@ -67,12 +69,10 @@ public class UBMResLoader implements EdiMsgLoader<IcsReplyUbmRes> {
         find = finder.moveTo(true, "TDT", "RFF", "DOC");
         if (find) {
             segs = finder.nextAll(true, "TDT");
-            // todo 能否再 segment 中给出该报文行的字符串,方便这里的匹配操作???
             for (EdiSegment item : segs) {
                 rff.clear();
-                item.fillBean(rff, null, "stageCode");
                 // 1: Inland transport , 20: Main-carriage transport
-                if (rff.is("stageCode", "1")) {
+                if (item.isRawContentStartsWith("TDT+1+")) {
                     rff.clear();
                     // TDT+1++{MoveMode}', 示例: TDT+1++ROA'
                     // TDT+1+{UnderbondVoyNum}+{MoveMode}+++++{UnderbondSeaId}::11', 无示例
@@ -90,7 +90,7 @@ public class UBMResLoader implements EdiMsgLoader<IcsReplyUbmRes> {
                     if (Strings.isNotBlank(ubmSeaId)) {
                         inTrans.put("ubmSeaId", ubmSeaId);
                     }
-                } else if (rff.is("stageCode", "20")) {
+                } else if (item.isRawContentStartsWith("TDT+20+")) {
                     Map<String, String> mainTrans = re.getMainTrans();
                     // TDT+20+{FltNum}++6+{AirlineCode}::3'
                     // TDT+20+{VoyNum}++11++++{VesselId}::11'
@@ -163,9 +163,41 @@ public class UBMResLoader implements EdiMsgLoader<IcsReplyUbmRes> {
             }
         }
 
-        // 查找
-
-
-        return null;
+        // 查找 Segment Group 6: DOC-PAC-RFF-PCI-FTX
+        List<UbmLineRst> lineList = new ArrayList<>();
+        while (!finder.isEnd()) {
+            List<EdiSegment> lines = finder.findContinueSegments("DOC", "^(PAC|RFF|PCI|FTX)$", "^(DOC|UNT)$");
+            if (lines.isEmpty()) {
+                break;
+            }
+            UbmLineRst lineRst = new UbmLineRst(lines);
+            lineList.add(lineRst);
+        }
+        re.setLineRsts(lineList);
+        return re;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

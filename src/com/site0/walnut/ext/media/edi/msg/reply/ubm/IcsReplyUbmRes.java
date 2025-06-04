@@ -3,6 +3,7 @@ package com.site0.walnut.ext.media.edi.msg.reply.ubm;
 import com.site0.walnut.ext.media.edi.msg.reply.IcsCommonReply;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class IcsReplyUbmRes extends IcsCommonReply {
@@ -28,6 +29,8 @@ public class IcsReplyUbmRes extends IcsCommonReply {
 
     // 转移请求的结果: "Underbond Approval" 或 "Underbond Approval Rescind Notice"
     private String ubmNotice;
+
+    private List<UbmLineRst> lineRsts;
 
 
     public IcsReplyUbmRes() {
@@ -107,5 +110,13 @@ public class IcsReplyUbmRes extends IcsCommonReply {
 
     public void setUbmNotice(String ubmNotice) {
         this.ubmNotice = ubmNotice;
+    }
+
+    public List<UbmLineRst> getLineRsts() {
+        return lineRsts;
+    }
+
+    public void setLineRsts(List<UbmLineRst> lineRsts) {
+        this.lineRsts = lineRsts;
     }
 }

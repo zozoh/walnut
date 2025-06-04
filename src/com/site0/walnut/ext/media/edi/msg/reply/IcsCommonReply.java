@@ -2,6 +2,9 @@ package com.site0.walnut.ext.media.edi.msg.reply;
 
 public abstract class IcsCommonReply {
 
+    // 返回消息解析结果的结构版本, 默认是0, 若后续有修改, 则会增加版本号，用于区分新老结构
+    private int rstVer = 0;
+
     // 返回的消息类型
     protected String msgType;
 
@@ -28,6 +31,14 @@ public abstract class IcsCommonReply {
         this.msgType = msgType;
         this.refVer = -1;
         this.funcCode = -1;
+    }
+
+    public int getRstVer() {
+        return rstVer;
+    }
+
+    public void setRstVer(int rstVer) {
+        this.rstVer = rstVer;
     }
 
     public String getMsgType() {
