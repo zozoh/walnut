@@ -22,6 +22,7 @@ public class IcsReplyUbmErr extends IcsCommonReply {
 
     private String inDocName;
 
+    // 发送的 Request 报文的 Function Code
     private String inMsgFuncCode;
 
     private String msgRcvTime;

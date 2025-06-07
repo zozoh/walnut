@@ -50,9 +50,8 @@ public class UBMErrLoader implements EdiMsgLoader<IcsReplyUbmErr> {
             re.setStInfo(stMap);
         }
 
-        // 定位到 NAD 报文行
+        // 定位到 RFF 报文行
         finder.moveTo(true, "RFF");
-
         /*
          * 解析 RFF 报文行
          * RFF+ACW:UBMREQ'
@@ -63,12 +62,11 @@ public class UBMErrLoader implements EdiMsgLoader<IcsReplyUbmErr> {
         for (EdiSegment item : segmentList) {
             rff.clear();
             item.fillBean(rff, null, "refCode,refVal,,refVer");
-            String refCode = rff.getString("refCode");
-            if (rff.is("funcCode", "ACW")) {
+            if (rff.is("refCode", "ACW")) {
                 re.setInDocName(rff.getString("refVal"));
-            } else if (rff.is("funcCode", "AFM")) {
+            } else if (rff.is("refCode", "AFM")) {
                 re.setInMsgFuncCode(rff.getString("refVal"));
-            } else if (rff.is("funcCode", "ABO")) {
+            } else if (rff.is("refCode", "ABO")) {
                 String referId = rff.getString("refVal");
                 if (referId != null) {
                     re.setRefId(referId);
