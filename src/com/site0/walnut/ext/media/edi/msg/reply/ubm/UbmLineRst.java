@@ -45,7 +45,8 @@ public class UbmLineRst {
                     this.cargoTp = rff.getString("code");
                 } else if (rff.is("codeType", "185")) {
                     this.pkgTp = rff.getString("code");
-                } else if (Strings.isBlank(rff.getString("codeType"))) {
+                }
+                if (Strings.isNotBlank(rff.getString("pkgNum"))) {
                     this.pkgNum = rff.getString("pkgNum");
                 }
             } else if (seg.isTag("RFF")) {

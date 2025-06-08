@@ -26,6 +26,8 @@ public class UBMResLoader implements EdiMsgLoader<IcsReplyUbmRes> {
         re.setRstVer(0);
         // BGM 报文中的 FUNCTION CODE, 此报文固定为 32: Approval
         re.setFuncCode(32);
+        // 改报文固定为 true
+        re.setSuccess(true);
 
         EdiSegmentFinder finder = msg.getFinder();
         NutMap rff = new NutMap();
@@ -104,7 +106,7 @@ public class UBMResLoader implements EdiMsgLoader<IcsReplyUbmRes> {
                         mainTrans.put("airlineCode", rff.getString("airlineCode"));
                     } else if (rff.is("transType", "11")) {
                         rff.clear();
-                        item.fillBean(rff, null, null, "voyNum", null, "transType", "vesselId");
+                        item.fillBean(rff, null, null, "voyNum", null, "transType", null, null, null, "vesselId");
                         mainTrans.put("voyNum", rff.getString("voyNum"));
                         mainTrans.put("transType", rff.getString("transType"));
                         mainTrans.put("vesselId", rff.getString("vesselId"));

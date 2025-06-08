@@ -8,10 +8,13 @@ import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyError;
 import com.site0.walnut.ext.media.edi.msg.reply.clreg.IcsReplyCLNTDUP;
 import com.site0.walnut.ext.media.edi.msg.reply.ubm.IcsReplyUbmErr;
 import com.site0.walnut.ext.media.edi.msg.reply.ubm.IcsReplyUbmRes;
+import com.site0.walnut.ext.media.edi.msg.reply.ubm.UbmLineRst;
 import org.junit.Test;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
+
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -63,6 +66,37 @@ public class UbmInterchangeTest {
         UBMResLoader loader = EdiMsgs.getUBMResLoader();
         IcsReplyUbmRes re = loader.load(msg);
         System.out.println(Json.toJson(re, JsonFormat.full()) );
+
+        assertEquals("UBMREQR", re.getMsgType());
+        assertEquals(true, re.isSuccess());
+        assertEquals("U00000337/PRD1", re.getRefId());
+        assertEquals("u00000337/prd1", re.getRefIdInLower());
+        assertEquals(1, re.getRefVer());
+        // 对应 BGM 报文行,  11: Response, 8: Status, 32: Approval
+        assertEquals(32, re.getFuncCode());
+
+        assertEquals("20240612215114156647", re.getTxnTime());
+        assertEquals("FJM396HU00000337/PRD1", re.getCargoMsgId());
+        assertEquals("ROA", re.getInTrans().get("mvMode"));
+        assertEquals("2403S", re.getMainTrans().get("voyNum"));
+        assertEquals("9953846", re.getMainTrans().get("vesselId"));
+        assertEquals("11", re.getMainTrans().get("transType"));
+
+        assertEquals("GE65A", re.getLocInfo().get("discEstId"));
+        assertEquals("FM27N", re.getLocInfo().get("oriEstId"));
+
+        assertEquals("UNDERBOND APPROVAL", re.getUbmNotice());
+        assertEquals("DCL", re.getReqReason());
+
+        List<UbmLineRst> lineRsts = re.getLineRsts();
+        assertEquals(1, lineRsts.size());
+
+        UbmLineRst ubmLineRst = lineRsts.get(0);
+        assertEquals("FCL", ubmLineRst.getCargoTp());
+        assertEquals("YC", ubmLineRst.getPkgTp());
+        assertEquals("0000001", ubmLineRst.getPkgNum());
+        assertEquals("FBLU0238434", ubmLineRst.getCntrNum());
+
     }
 
 }
