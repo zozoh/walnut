@@ -3,11 +3,9 @@ package com.site0.walnut.ext.media.edi.loader;
 import com.site0.walnut.ext.media.edi.bean.EdiErrSum;
 import com.site0.walnut.ext.media.edi.bean.EdiMessage;
 import com.site0.walnut.ext.media.edi.bean.EdiSegment;
-import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyError;
 import com.site0.walnut.ext.media.edi.msg.reply.ubm.IcsReplyUbmErr;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
 import com.site0.walnut.ext.media.edi.util.IcsLoaderHelper;
-import org.apache.commons.lang3.StringUtils;
 import org.nutz.lang.util.NutMap;
 
 import java.util.LinkedHashMap;
@@ -35,7 +33,7 @@ public class UBMErrLoader implements EdiMsgLoader<IcsReplyUbmErr> {
          * 定位到 BGM 报文行，解析 Version 和 FuncCode
          * BGM+961:::UBMREQE+1812 F23I 46AE:001+11'
          */
-        IcsLoaderHelper.fillVerAndFuncCode(re, finder);
+        IcsLoaderHelper.fillResFuncCode(re, finder);
 
         // 解析 FTX 报文行 (根据目前的样例，这个报文行是不会出现在 UBMREQE 中的)
         segmentList = finder.nextAll(true, "FTX");
@@ -52,9 +50,8 @@ public class UBMErrLoader implements EdiMsgLoader<IcsReplyUbmErr> {
             re.setStInfo(stMap);
         }
 
-        // 定位到 NAD 报文行
+        // 定位到 RFF 报文行
         finder.moveTo(true, "RFF");
-
         /*
          * 解析 RFF 报文行
          * RFF+ACW:UBMREQ'
@@ -65,12 +62,11 @@ public class UBMErrLoader implements EdiMsgLoader<IcsReplyUbmErr> {
         for (EdiSegment item : segmentList) {
             rff.clear();
             item.fillBean(rff, null, "refCode,refVal,,refVer");
-            String refCode = rff.getString("refCode");
-            if (rff.is("funcCode", "ACW")) {
+            if (rff.is("refCode", "ACW")) {
                 re.setInDocName(rff.getString("refVal"));
-            } else if (rff.is("funcCode", "AFM")) {
+            } else if (rff.is("refCode", "AFM")) {
                 re.setInMsgFuncCode(rff.getString("refVal"));
-            } else if (rff.is("funcCode", "ABO")) {
+            } else if (rff.is("refCode", "ABO")) {
                 String referId = rff.getString("refVal");
                 if (referId != null) {
                     re.setRefId(referId);

@@ -1,7 +1,9 @@
 package com.site0.walnut.ext.media.edi.bean;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
@@ -16,6 +18,8 @@ import com.site0.walnut.util.Ws;
  */
 public class EdiSegment extends EdiItem {
 
+    private String rawContent;
+
     private List<EdiComponent> components;
 
     public EdiSegment(EdiAdvice advice) {
@@ -25,6 +29,7 @@ public class EdiSegment extends EdiItem {
     public EdiSegment(EdiAdvice advice, List<EdiComponent> components) {
         this(advice);
         this.components = components;
+        this.rawContent = Ws.join(components, Character.toString(advice.component));
     }
 
     @Override
@@ -188,4 +193,24 @@ public class EdiSegment extends EdiItem {
         this.components = components;
     }
 
+    public String getRawContent() {
+        return rawContent;
+    }
+
+    public boolean isRawContentMatch(String regex) {
+        return this.rawContent.matches(regex);
+    }
+
+    public boolean isRawContentContains(String regex) {
+        Pattern p = Pattern.compile(regex);
+        return p.matcher(this.rawContent).find();
+    }
+
+    public boolean isRawContentStartsWith(String txt) {
+        return this.rawContent.startsWith(txt);
+    }
+
+    public boolean isRawContentEndsWith(String txt) {
+        return this.rawContent.endsWith(txt);
+    }
 }
