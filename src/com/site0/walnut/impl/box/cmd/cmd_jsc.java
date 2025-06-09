@@ -39,7 +39,7 @@ public class cmd_jsc extends JvmExecutor {
         JsExec JE = JsExec.me();
 
         // 分析参数
-        ZParams params = ZParams.parse(args, "^(debug|clear)$");
+        ZParams params = ZParams.parse(args, "^(debug|clear|merge)$");
         boolean debug = params.is("debug");
 
         // 查看所有可用引擎
@@ -74,8 +74,20 @@ public class cmd_jsc extends JvmExecutor {
             // 从管道读取
             if ("~pipe".equals(vstr) || "true".equals(vstr)) {
                 vstr = sys.in.readAll();
+                vars = Wlang.map(vstr);
             }
-            vars = Wlang.map(vstr);
+            // 那么就认为是参数
+            else {
+                vars = Wlang.map(vstr);
+            }
+            // 融合模式，还是要从标准输入读取一遍
+            if (params.is("merge")) {
+                String input = sys.in.readAll();
+                NutMap inputMap = Wlang.map(input);
+                inputMap.putAll(vars);
+                vars = inputMap;
+
+            }
         }
         // 预防null
         if (vars == null) {
