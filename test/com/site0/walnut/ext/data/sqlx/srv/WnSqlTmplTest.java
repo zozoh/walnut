@@ -69,6 +69,23 @@ public class WnSqlTmplTest {
     }
 
     @Test
+    public void test_var_as_where_or() {
+        String s = "SELECT * FROM t_pet WHERE ${@vars=where;}";
+        NutMap context = NutMap.WRAP("{a:'A',$and:[{x:100},{y:99}]}");
+        WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
+        List<SqlParam> params = new ArrayList<>(2);
+        String sql = sqlt.render(context, params);
+        assertEquals("SELECT * FROM t_pet WHERE a=? AND (x=? OR y=?)", sql);
+        assertEquals(3, params.size());
+        assertEquals("a=\"A\"", params.get(0).toString());
+        assertEquals("x=100", params.get(1).toString());
+        assertEquals("y=99", params.get(2).toString());
+
+        sql = sqlt.render(context, null);
+        assertEquals("SELECT * FROM t_pet WHERE a='A' AND (x=100 OR y=99)", sql);
+    }
+
+    @Test
     public void test_var_as_where() {
         String s = "SELECT * FROM t_pet WHERE ${@vars=where; pick=a,b}";
         NutMap context = NutMap.WRAP("{a:'A',b:100}");

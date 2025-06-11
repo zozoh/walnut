@@ -11,6 +11,27 @@ import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.util.Wlang;
 
 public class SqlCriteriaNodeTest {
+    
+    @Test
+    public void test_and_or_list() {
+        NutMap q = NutMap.WRAP("{a:'A',$and:[{x:100},{y:99}]}");
+        SqlCriteriaNode cri = SqlCriteria.toCriNode(q);
+
+        assertEquals("a='A' AND (x=100 OR y=99)", cri.toSql(false));
+        assertEquals("a=? AND (x=? OR y=?)", cri.toSql(true));
+
+        cri.setNot(true);
+        assertEquals("NOT (a='A' AND (x=100 OR y=99))", cri.toSql(false));
+        assertEquals("NOT (a=? AND (x=? OR y=?))", cri.toSql(true));
+
+        List<SqlParam> params = new ArrayList<>(5);
+        params.clear();
+        cri.joinParams(params);
+        assertEquals(3, params.size());
+        assertEquals("a=\"A\"", params.get(0).toString());
+        assertEquals("x=100", params.get(1).toString());
+        assertEquals("y=99", params.get(2).toString());
+    }
 
     @Test
     public void test_true() {

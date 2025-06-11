@@ -47,17 +47,58 @@ public abstract class SqlCriteria {
         if (input instanceof Map) {
             @SuppressWarnings("unchecked")
             NutMap map = NutMap.WRAP((Map<String, Object>) input);
-            List<SqlCriteriaNode> nodes = new ArrayList<>(map.size());
+            // List<SqlCriteriaNode> nodes = new ArrayList<>(map.size());
+            // for (Map.Entry<String, Object> en : map.entrySet()) {
+            // String k = en.getKey();
+            // if (k.startsWith("__") || k.matches("^[$](io|sys|vars)$")) {
+            // continue;
+            // }
+            // Object v = en.getValue();
+            // SqlCriteriaNode node = anyToExp(k, v);
+            // nodes.add(node);
+            // }
+            // return and(nodes);
+            SqlCriGroupNode grp = new SqlCriGroupNode();
+            SqlCriteriaNode head = null;
             for (Map.Entry<String, Object> en : map.entrySet()) {
                 String k = en.getKey();
                 if (k.startsWith("__") || k.matches("^[$](io|sys|vars)$")) {
                     continue;
                 }
                 Object v = en.getValue();
-                SqlCriteriaNode node = anyToExp(k, v);
-                nodes.add(node);
+
+                // 准备渲染节点
+                SqlCriteriaNode node;
+                SqlCriJoin join = SqlCriJoin.AND;
+
+                // 特殊 $and: ...
+                if ("$and".equals(k) || "#and".equals(k)) {
+                    node = toCriNode(v);
+                }
+                // 特殊 $or: ...
+                else if ("$or".equals(k) || "#or".equals(k)) {
+                    node = toCriNode(v);
+                    join = SqlCriJoin.OR;
+                }
+                // 普通表达式
+                else {
+                    node = anyToExp(k, v);
+                }
+
+                // 第一个节点
+                if (null == head) {
+                    head = node;
+                    grp.setHeadNode(head);
+                }
+                // 后续节点
+                else {
+                    head.setNextJoin(join);
+                    head.setNextNode(node);
+                    head = node;
+                }
             }
-            return and(nodes);
+            return grp;
+
         }
 
         // 不支持的输入
