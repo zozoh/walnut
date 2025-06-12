@@ -3,7 +3,6 @@ package com.site0.walnut.ext.media.edi.bean;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
