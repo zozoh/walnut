@@ -490,14 +490,15 @@ public abstract class Wn {
         return normalizeStr(str, se.getVars());
     }
 
-    
     /**
-     * 展开命令行的环境变量 
+     * 展开命令行的环境变量
      * 
-     * @param str 命令行
-     * @param env 环境变量
+     * @param str
+     *            命令行
+     * @param env
+     *            环境变量
      * @return 处理后的命令行
-     * @deprecated As of v14.59 推荐采用 WnTmplX 以便获取最大兼容性 
+     * @deprecated As of v14.59 推荐采用 WnTmplX 以便获取最大兼容性
      */
     @Deprecated
     public static String normalizeStr(String str, NutBean env) {
@@ -1554,6 +1555,88 @@ public abstract class Wn {
                     en.setValue(v2);
                 }
             }
+        }
+    }
+
+    /**
+     * 深层自动展开要更新元数据的【宏】
+     * 
+     * @param meta
+     *            要更新的元数据
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T explainMetaMacroDeeply(T input) {
+        // 防空
+        if (null == input) {
+            return input;
+        }
+        Mirror<T> mi = Mirror.me(input);
+        if (mi.isStringLike()) {
+            String s = input.toString();
+            return (T) Wn.fmt_str_macro(s);
+        }
+
+        // 对于集合/数组/Map 深层递归
+        if (mi.isMap()) {
+            Map<String, Object> map = (Map<String, Object>) input;
+            NutMap re = new NutMap();
+            for (Map.Entry<String, Object> en : map.entrySet()) {
+                String key = en.getKey();
+                Object val = en.getValue();
+                Object v2 = explainMetaMacroDeeply(val);
+                re.put(key, v2);
+            }
+            return (T) re;
+        }
+        // 对于集合深层递归
+        if (mi.isCollection()) {
+            Collection<?> col = (Collection<?>) input;
+            List<Object> re = new ArrayList<>(col.size());
+            for (Object ele : col) {
+                Object val = explainMetaMacroDeeply(ele);
+                re.add(val);
+            }
+            return (T) re;
+        }
+        // 对于数组深层递归
+        if (mi.isArray()) {
+            int n = Array.getLength(input);
+            Object[] re = new Object[n];
+            for (int i = 0; i < n; i++) {
+                Object ele = Array.get(input, i);
+                re[i] = explainMetaMacroDeeply(ele);
+            }
+            return (T) re;
+        }
+        // 其他值就直接返回了
+        return input;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void explainMetaMacroInPlaceDeeply(Object input) {
+        // 防空
+        if (null == input) {
+            return;
+        }
+        // 对于集合/数组/Map 深层递归
+        if (input instanceof Map<?, ?>) {
+            Map<String, Object> map = (Map<String, Object>) input;
+            Map<String, Object> m2 = explainMetaMacroDeeply(map);
+            map.clear();
+            map.putAll(m2);
+        }
+        // 对于集合深层递归
+        else if (input instanceof Collection<?>) {
+            Collection<Object> col = (Collection<Object>) input;
+            Collection<Object> c2 = explainMetaMacroDeeply(col);
+            col.clear();
+            col.addAll(c2);
+        }
+        // 对于数组深层递归
+        else if (input.getClass().isArray()) {
+            Object[] arr = (Object[]) input;
+            Object[] re = explainMetaMacroDeeply(arr);
+            System.arraycopy(re, 0, arr, 0, arr.length);
         }
     }
 

@@ -125,13 +125,20 @@ public class SqlxContext extends JvmFilterContext {
         return re;
     }
 
+    @SuppressWarnings("unchecked")
     public NutMap getInputOrPipeVarAsMap(String key) {
         NutMap re = null;
         if (null != input) {
-            re = input.getAs(key, NutMap.class);
+            Map<String, Object> subMap = (Map<String, Object>) Mapl.cell(input, key);
+            if (null != subMap) {
+                re = NutMap.WRAP(subMap);
+            }
         }
         if (null == re) {
-            re = pipeContext.getAs(key, NutMap.class);
+            Map<String, Object> subMap = (Map<String, Object>) Mapl.cell(pipeContext, key);
+            if (null != subMap) {
+                re = NutMap.WRAP(subMap);
+            }
         }
         return re;
     }
@@ -179,11 +186,11 @@ public class SqlxContext extends JvmFilterContext {
 
     public void explainVars() {
         if (null != varMap) {
-            Wn.explainMetaMacro(varMap);
+            Wn.explainMetaMacroInPlaceDeeply(varMap);
         }
         if (null != varList) {
             for (NutBean li : varList) {
-                Wn.explainMetaMacro(li);
+                Wn.explainMetaMacroInPlaceDeeply(li);
             }
         }
         // 如果返回的结果有内容，也尝试做一下 explain
