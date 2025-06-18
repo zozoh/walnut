@@ -27,22 +27,29 @@ public class VarsAsUpdateElement extends SqlVarsElement {
             if (key.startsWith("__") || key.startsWith("$")) {
                 continue;
             }
-            
+            Object val = en.getValue();
+            String vs = null == val ? null : val.toString();
+
             // 模板字段分隔符
             if (i > 0) {
                 rc.out.append(",");
             }
 
+            // 对于直接设置的值
+            if (null != vs && vs.startsWith(":=>")) {
+                String str = vs.substring(3).trim();
+                str = Sqlx.escapeSqlValue(str);
+                rc.out.append(key).append('=').append(str);
+            }
             // 记入动态参数
-            if (null != src && null != src.params) {
-                src.params.add(new SqlParam(en, this.scope));
+            else if (null != src && null != src.params) {
+                src.params.add(new SqlParam(key, val, this.scope));
                 src.out.append(key).append("=?");
             }
             // 采用传统的 SQL 方式
             else {
-                Object val = en.getValue();
-                String vs = Sqlx.valueToSqlExp(val);
-                rc.out.append(key).append('=').append(vs);
+                String vexs = Sqlx.valueToSqlExp(val);
+                rc.out.append(key).append('=').append(vexs);
             }
 
             // 计数
