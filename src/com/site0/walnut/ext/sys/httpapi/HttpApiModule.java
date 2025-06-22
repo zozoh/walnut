@@ -177,54 +177,26 @@ public class HttpApiModule extends AbstractWnModule {
 
             // .........................................
             // 执行 API 文件
-            try {
-                // 带钩子方式的运行
-                if (apc.oApi.getBoolean("run-with-hook")) {
-                    _do_api_with_hook(apc);
-                }
-                // 不带钩子
-                else {
-                    _do_api(apc);
-                }
-
-                // 执行历史记录
-                _record_history(apc);
+            // 带钩子方式的运行
+            if (apc.oApi.getBoolean("run-with-hook")) {
+                _do_api_with_hook(apc);
             }
-            // 确保退出登录
-            finally {
-                // 将请求的对象设置一下清除标志（默认缓存 1 分钟)
-                if (null != apc.oReq) {
-                    long dftDu = this.conf.getLong("http-api-tmp-duration", 60000L);
-                    // 如果有站点的话，则看看站点的默认会话设定
-                    if (null != apc.oWWW) {
-                        int duInS = apc.oWWW.getInt("api_req_du", -1);
-                        if (duInS >= 0) {
-                            dftDu = duInS * 1000L;
-                        }
-                    }
-                    long tmpDu = apc.oApi.getLong("http-tmp-duraion", dftDu);
-                    // 如果时间短于 1 秒，就直接删除了
-                    if (tmpDu < 1000) {
-                        io().delete(apc.oReq);
-                    }
-                    // 否则，让清理进程删除
-                    else {
-                        long expi = Wn.now() + tmpDu;
-                        apc.oReq.expireTime(expi);
-                        io().set(apc.oReq, "^(expi)$");
-                    }
-                }
-
-                // 注销会话
-                auth().removeSession(apc.se, 0);
-                apc.wc.setSession(null);
+            // 不带钩子
+            else {
+                _do_api(apc);
             }
+
+            // 执行历史记录
+            _record_history(apc);
         }
         catch (Exception e) {
             // .........................................
             // 根据类型，设置 HTTP 错误码
             if (e instanceof WebException) {
                 String ek = ((WebException) e).getKey();
+                if (log.isWarnEnabled()) {
+                    log.infof("API %s : '%s'", apc.api, e.toString());
+                }
                 // 有东西木有找到
                 if ("e.io.obj.noexists".equals(ek)) {
                     apc.respCode = 404;
@@ -249,6 +221,37 @@ public class HttpApiModule extends AbstractWnModule {
             resp.sendError(apc.respCode);
             resp.flushBuffer();
             return;
+        }
+        // 确保退出登录
+        finally {
+            // 将请求的对象设置一下清除标志（默认缓存 1 分钟)
+            if (null != apc.oReq) {
+                long dftDu = this.conf.getLong("http-api-tmp-duration", 60000L);
+                // 如果有站点的话，则看看站点的默认会话设定
+                if (null != apc.oWWW) {
+                    int duInS = apc.oWWW.getInt("api_req_du", -1);
+                    if (duInS >= 0) {
+                        dftDu = duInS * 1000L;
+                    }
+                }
+                long tmpDu = apc.oApi.getLong("http-tmp-duraion", dftDu);
+                // 如果时间短于 1 秒，就直接删除了
+                if (tmpDu < 1000) {
+                    io().delete(apc.oReq);
+                }
+                // 否则，让清理进程删除
+                else {
+                    long expi = Wn.now() + tmpDu;
+                    apc.oReq.expireTime(expi);
+                    io().set(apc.oReq, "^(expi)$");
+                }
+            }
+
+            // 注销会话
+            if (null != apc.se) {
+                auth().removeSession(apc.se, 0);
+            }
+            apc.wc.setSession(null);
         }
 
     }
@@ -279,7 +282,7 @@ public class HttpApiModule extends AbstractWnModule {
             }
             String atDmnKey = io().readText(oDmnKey).trim();
             if (!atClientKey.equals(atDmnKey)) {
-                throw Er.create("e.api.forbid");
+                throw Er.create("e.api.forbid", atClientKey);
             }
         }
     }
