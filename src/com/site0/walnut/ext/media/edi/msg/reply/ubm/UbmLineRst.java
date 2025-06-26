@@ -18,6 +18,8 @@ public class UbmLineRst {
 
     private String hbl;
 
+    private String ucn;
+
     private String pkgNum;
 
     private String cargoTp;
@@ -58,7 +60,6 @@ public class UbmLineRst {
                 // RFF+UCN:{ConsignRefNumber}'
                 rff.clear();
                 seg.fillBean(rff, null, "refCode,refVal");
-                String refCode = rff.getString("refCode");
                 String refVal = rff.getString("refVal");
                 if (rff.is("refCode", "AAQ")) {
                     this.cntrNum = refVal;
@@ -66,6 +67,8 @@ public class UbmLineRst {
                     this.hbl = refVal;
                 } else if (rff.is("refCode", "MB") || rff.is("refCode", "MWB")) {
                     this.mbl = refVal;
+                } else if (rff.is("refCode", "UCN")) {
+                    this.ucn = refVal;
                 }
             } else if (seg.isTag("PCI")) {
                 rff.clear();
@@ -105,6 +108,14 @@ public class UbmLineRst {
 
     public String getHbl() {
         return hbl;
+    }
+
+    public String getUcn() {
+        return ucn;
+    }
+
+    public void setUcn(String ucn) {
+        this.ucn = ucn;
     }
 
     public void setHbl(String hbl) {
