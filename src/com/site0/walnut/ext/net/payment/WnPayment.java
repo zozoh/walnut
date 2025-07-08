@@ -74,7 +74,7 @@ public class WnPayment {
         // 权限检查
         // 如果不是 root/op 组成员只能设置自己域的支付单
         if (!po.isTheSeller(me)) {
-            if (!run.auth().isMemberOfGroup(me, "root", "op")) {
+            if (!run.login().isMemberOfGroup(me, "root", "op")) {
                 throw Er.create("e.pay.nopvg");
             }
         }
@@ -243,7 +243,7 @@ public class WnPayment {
         wpi.assertBuyerPerfect();
 
         // 确保卖家的信息完备
-        WnAccount seller = wpi.checkSeller(run.auth(), me);
+        WnAccount seller = wpi.checkSeller(run.login(), me);
 
         // 确保有简介
         wpi.checkBrief();
@@ -252,7 +252,7 @@ public class WnPayment {
         // 权限检查
         // 执行操作的如果不是 root 组管理员，那么标定的卖家必须是自己
         if (!me.isSameId(wpi.seller_id)) {
-            if (!run.auth().isAdminOfGroup(me, "root")) {
+            if (!run.login().isAdminOfGroup(me, "root")) {
                 throw Er.create("e.pay.nopvg");
             }
         }
@@ -336,7 +336,7 @@ public class WnPayment {
         // 权限检查
         // 如果不是 root/op 组成员只能获取自己域的支付单
         if (!po.isTheSeller(me)) {
-            if (!run.auth().isMemberOfGroup(me, "root", "op")) {
+            if (!run.login().isMemberOfGroup(me, "root", "op")) {
                 if (quiet)
                     return null;
                 throw Er.create("e.pay.nopvg");
@@ -354,7 +354,7 @@ public class WnPayment {
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // 权限检查
         // 如果不是 root/op 组成员只能查询自己的域
-        if (!run.auth().isMemberOfGroup(me, "root", "op")) {
+        if (!run.login().isMemberOfGroup(me, "root", "op")) {
             q.setv(WnPays.KEY_SELLER_ID, me.getId());
             q.unset(WnPays.KEY_SELLER_NM);
         }

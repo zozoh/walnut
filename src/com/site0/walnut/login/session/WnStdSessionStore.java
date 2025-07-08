@@ -1,6 +1,5 @@
 package com.site0.walnut.login.session;
 
-import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 
@@ -22,16 +21,22 @@ public class WnStdSessionStore extends AbstractWnSessionStore {
     private static final Log log = Wlog.getAUTH();
 
     private WnIo io;
-    private NutBean sessionVars;
     private WnObj oHome;
 
     public WnStdSessionStore(WnSessionStoreSetup setup) {
-        this.defaultEnv = setup.defaultEnv;
         this.io = setup.io;
-        this.sessionVars = setup.sessionVars;
+        this.defaultEnv = setup.defaultEnv;
 
         // 获取会话主目录
-        this.oHome = Wn.checkObj(io, sessionVars, setup.path);
+        this.oHome = Wn.checkObj(io, setup.sessionVars, setup.path);
+    }
+
+    public WnStdSessionStore(WnIo io) {
+        this.io = io;
+        // defaultEnv 会在构造的时候设置
+
+        // 获取会话主目录
+        this.oHome = io.check(null, "/var/session");
     }
 
     @Override

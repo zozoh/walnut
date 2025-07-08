@@ -24,7 +24,7 @@ public class WnFtpFileSystem implements FileSystemView {
         super();
         this.run = run;
         this.io = run.io();
-        this.auth = run.auth();
+        this.auth = run.login();
         this.u = u;
         homeDir = home;
         currentDir = homeDir;

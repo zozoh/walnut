@@ -49,6 +49,18 @@ public class WnLoginApi {
         users.updateUserPassword(u, rawPassword);
     }
 
+    public WnSession createSession(WnUser u, long duration) {
+        WnSession se = __create_session_by_user(u);
+        sessions.addSession(se);
+        return se;
+    }
+
+    public void removeSession(WnSession se) {
+        if (null != se) {
+            sessions.reomveSession(se);
+        }
+    }
+
     public WnSession loginByPassword(String nameOrPhoneOrEmail, String rawPassword) {
         WnUser u = users.getUser(nameOrPhoneOrEmail);
         if (null == u) {
@@ -185,6 +197,17 @@ public class WnLoginApi {
 
     public void touchSession(WnSession se, long sessionDuration) {
         sessions.touchSession(se, sessionDuration);
+    }
+
+    public long getSessionDuration() {
+        return sessionDuration;
+    }
+
+    public long getSessionDuration(boolean longSession) {
+        if (longSession) {
+            return sessionDuration;
+        }
+        return 3000L;
     }
 
 }

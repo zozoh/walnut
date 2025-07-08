@@ -72,7 +72,7 @@ public class WnMainModule extends AbstractWnModule {
 
         if (Wn.WC().hasTicket()) {
             String ticket = Wn.WC().getTicket();
-            se = auth().getSession(ticket);
+            se = login().getSession(ticket);
 
             // 有会话的话，转到默认打开应用
             if (null != se && !se.isDead()) {

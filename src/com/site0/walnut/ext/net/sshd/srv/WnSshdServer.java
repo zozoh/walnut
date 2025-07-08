@@ -41,7 +41,7 @@ public class WnSshdServer extends WnRun {
             return;
         sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(new File("/tmp/hostkey.ser")));
         sshd.setPasswordAuthenticator((String username, String password, ServerSession session) -> {
-            WnAccount usr = auth().getAccount(username);
+            WnAccount usr = login().getAccount(username);
             if (usr == null)
                 return false;
             boolean re = usr.isMatchedRawPasswd(password);
@@ -54,13 +54,13 @@ public class WnSshdServer extends WnRun {
                 }
             }
             if (re) {
-                WnAuthSession se = auth().createSession(usr, true);
+                WnAuthSession se = login().createSession(usr, true);
                 session.setAttribute(WnSshd.KEY_WN_SESSION, se);
             }
             return re;
         });
         sshd.setPublickeyAuthenticator((username, key, session) -> {
-            WnAccount usr = auth().getAccount(username);
+            WnAccount usr = login().getAccount(username);
             if (usr == null)
                 return false;
             String aph = usr.getHomePath() + "/.ssh/authorized_keys";
@@ -74,7 +74,7 @@ public class WnSshdServer extends WnRun {
                                                                           entries)
                                                    .authenticate(username, key, session);
                     if (re) {
-                        WnAuthSession se = auth().createSession(usr, true);
+                        WnAuthSession se = login().createSession(usr, true);
                         session.setAttribute(WnSshd.KEY_WN_SESSION, se);
                     }
                     return re;

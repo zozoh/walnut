@@ -150,7 +150,7 @@ public class WnWebSocket extends Endpoint {
                 break;
             }
             case "cmd": {
-                WnAccount usr = wnRun.auth().getAccount(user);
+                WnAccount usr = wnRun.login().getAccount(user);
                 if (usr == null) {
                     log.debugf("not such websocket user=%s", user);
                     break;

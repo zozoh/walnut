@@ -95,7 +95,7 @@ public class HttpApiModule extends AbstractWnModule {
 
             // .........................................
             // 得到用户和主目录
-            apc.u = auth().checkAccount(usr);
+            apc.u = login().checkAccount(usr);
             String homePath = apc.u.getHomePath();
             apc.oHome = io().check(null, homePath);
 
@@ -115,7 +115,7 @@ public class HttpApiModule extends AbstractWnModule {
             apc.oldSe = null;
             String ticket = Wn.WC().getTicket();
             if (!Ws.isBlank(ticket)) {
-                apc.oldSe = this.auth().getSession(ticket);
+                apc.oldSe = this.login().getSession(ticket);
             }
 
             // .........................................
@@ -249,7 +249,7 @@ public class HttpApiModule extends AbstractWnModule {
 
             // 注销会话
             if (null != apc.se) {
-                auth().removeSession(apc.se, 0);
+                login().removeSession(apc.se, 0);
             }
             apc.wc.setSession(null);
         }
@@ -337,7 +337,7 @@ public class HttpApiModule extends AbstractWnModule {
 
     private WnAuthSession __switch_op_user(final WnHttpApiContext apc) {
         apc.wc = Wn.WC();
-        WnAuthSession se = auth().createSession(apc.u, false);
+        WnAuthSession se = login().createSession(apc.u, false);
         apc.wc.setSession(se);
         return se;
     }

@@ -20,6 +20,22 @@ public class WnLazyUser implements WnUser {
         this.fullLoaded = false;
     }
 
+    @Override
+    public boolean isSame(WnUser u) {
+        if (null == u) {
+            return false;
+        }
+        return _user.isSame(u);
+    }
+
+    @Override
+    public WnLazyUser clone() {
+        WnLazyUser re = new WnLazyUser(loader);
+        re.fullLoaded = this.fullLoaded;
+        re._user = this._user.clone();
+        return re;
+    }
+
     public void setInnerUser(WnUser u) {
         this.fullLoaded = false;
         this._user = u;

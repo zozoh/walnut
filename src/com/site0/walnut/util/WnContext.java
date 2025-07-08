@@ -14,9 +14,6 @@ import org.nutz.log.Log;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.hook.WnHook;
 import com.site0.walnut.api.hook.WnHookBreak;
@@ -27,6 +24,9 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnSecurity;
 import com.site0.walnut.impl.io.WnEvalLink;
 import com.site0.walnut.impl.io.WnSecurityImpl;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.WnUser;
 
 /**
  * 这个是 ThreadLocal 的上下文
@@ -37,9 +37,9 @@ public class WnContext extends NutMap {
 
     private String ticket;
 
-    private WnAuthSession session;
+    private WnSession session;
 
-    private WnAccount account;
+    private WnUser account;
 
     private WnSecurity security;
 
@@ -125,7 +125,7 @@ public class WnContext extends NutMap {
                             // 切换用户
                             else {
                                 this.security(new WnEvalLink(hc.io()), () -> {
-                                    WnAccount usr = hc.auth().checkAccount(runby);
+                                    WnUser usr = hc.login().checkUser(runby);
                                     this.su(usr, new Atom() {
                                         public void run() {
                                             hook.invoke(hc, o);
@@ -286,9 +286,9 @@ public class WnContext extends NutMap {
         return proton.get();
     }
 
-    public void suCore(WnAccount user, WnSecurity secu, WnHookContext hc, Atom atom) {
+    public void suCore(WnUser user, WnSecurity secu, WnHookContext hc, Atom atom) {
         // 记录旧的值
-        WnAccount old_me = this.account;
+        WnUser old_me = this.account;
         WnSecurity old_secu = this.security;
         WnHookContext old_hc = this.hookContext;
         // 执行
@@ -306,16 +306,16 @@ public class WnContext extends NutMap {
         }
     }
 
-    public <T> T suCore(WnAccount user, WnSecurity secu, WnHookContext hc, Proton<T> proton) {
+    public <T> T suCore(WnUser user, WnSecurity secu, WnHookContext hc, Proton<T> proton) {
         suCore(user, secu, hc, (Atom) proton);
         return proton.get();
     }
 
-    public void suCoreNoSecurity(WnIo io, WnAccount user, Atom atom) {
+    public void suCoreNoSecurity(WnIo io, WnUser user, Atom atom) {
         suCore(user, new WnEvalLink(io), null, atom);
     }
 
-    public <T> T suCoreNoSecurity(WnIo io, WnAccount user, Proton<T> proton) {
+    public <T> T suCoreNoSecurity(WnIo io, WnUser user, Proton<T> proton) {
         return suCore(user, new WnEvalLink(io), null, proton);
     }
 
@@ -361,8 +361,8 @@ public class WnContext extends NutMap {
         return true;
     }
 
-    public <T> T su(WnAccount u, Proton<T> proton) {
-        WnAccount old_u = this.getMe();
+    public <T> T su(WnUser u, Proton<T> proton) {
+        WnUser old_u = this.getMe();
         try {
             this.setMe(u);
             proton.run();
@@ -374,8 +374,8 @@ public class WnContext extends NutMap {
 
     }
 
-    public void su(WnAccount u, Atom atom) {
-        WnAccount old_u = this.getMe();
+    public void su(WnUser u, Atom atom) {
+        WnUser old_u = this.getMe();
         try {
             this.setMe(u);
             atom.run();
@@ -404,30 +404,30 @@ public class WnContext extends NutMap {
         this.ticket = ticket;
     }
 
-    public WnAccount getMe() {
+    public WnUser getMe() {
         if (null != this.account) {
             return this.account;
         }
         if (null != this.session) {
-            return this.session.getMe();
+            return this.session.getUser();
         }
         return null;
     }
 
-    public WnAccount checkMe() {
-        WnAccount me = this.getMe();
+    public WnUser checkMe() {
+        WnUser me = this.getMe();
         if (null == me) {
             throw Er.create("e.wc.null.me");
         }
         return me;
     }
 
-    public void setMe(WnAccount me) {
+    public void setMe(WnUser me) {
         this.account = me;
     }
 
     public String getMyId() {
-        WnAccount me = this.getMe();
+        WnUser me = this.getMe();
         if (null != me) {
             return me.getId();
         }
@@ -439,7 +439,7 @@ public class WnContext extends NutMap {
     }
 
     public String getMyName() {
-        WnAccount me = this.getMe();
+        WnUser me = this.getMe();
         if (null != me) {
             return me.getName();
         }
@@ -451,32 +451,33 @@ public class WnContext extends NutMap {
     }
 
     public String getMyGroup() {
-        WnAccount me = this.getMe();
+        WnUser me = this.getMe();
         if (null != me) {
-            return me.getGroupName();
+            return me.getMainGroup();
         }
         return null;
     }
 
     public String checkMyGroup() {
-        return this.checkMe().getGroupName();
+        return this.checkMe().getMainGroup();
     }
 
-    public WnAuthSession getSession() {
+    public WnSession getSession() {
         // 防守一下，怕有其他的线程污染了这个上下文
         if (null != session) {
-            if (!session.isSameId(ticket))
+            if (!session.isSameTicket(ticket)) {
                 return null;
+            }
         }
         // 返回
         return session;
     }
 
-    public WnAuthSession checkSession() {
+    public WnSession checkSession() {
         return checkSession(null);
     }
 
-    public WnAuthSession checkSession(WnAuthService auth) {
+    public WnSession checkSession(WnLoginApi auth) {
         // 必须有 Session ID
         if (null == ticket) {
             throw Er.create("e.wc.null.ticket");
@@ -500,12 +501,12 @@ public class WnContext extends NutMap {
         return session;
     }
 
-    public void setSession(WnAuthSession se) {
+    public void setSession(WnSession se) {
         this.session = se;
         // 设置
         if (null != se) {
             this.ticket = se.getTicket();
-            this.account = se.getMe();
+            this.account = se.getUser();
             TimeZone tz = Wtime.getSessionTimeZone(se);
             this.setTimeZone(tz);
         }
@@ -514,7 +515,7 @@ public class WnContext extends NutMap {
             this.ticket = null;
             if (null != this.account
                 && null != this.session
-                && this.account.isSame(this.session.getMe())) {
+                && this.account.isSame(this.session.getUser())) {
                 this.account = null;
             }
             this.setTimeZone(null);

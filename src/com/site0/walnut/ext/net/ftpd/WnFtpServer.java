@@ -42,7 +42,7 @@ public class WnFtpServer {
         FtpServerFactory serverFactory = new FtpServerFactory();
         serverFactory.setFileSystem(new FileSystemFactory() {
             public FileSystemView createFileSystemView(User user) throws FtpException {
-                WnAccount u = wnRun.auth().checkAccount(user.getName());
+                WnAccount u = wnRun.login().checkAccount(user.getName());
                 WnObj oHome = wnRun.io().check(null, user.getHomeDirectory());
                 return new WnFtpFileSystem(wnRun, u, oHome);
             }

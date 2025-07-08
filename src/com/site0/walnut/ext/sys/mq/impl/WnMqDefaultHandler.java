@@ -32,7 +32,7 @@ public class WnMqDefaultHandler extends WnRun implements WnMqHandler {
             return;
 
         // 首先获取用户
-        WnAccount u = this.auth().checkAccount(msg.getUser());
+        WnAccount u = this.login().checkAccount(msg.getUser());
 
         // 得到权鉴密钥
         WnIo io = this.io();

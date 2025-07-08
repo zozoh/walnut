@@ -4,6 +4,8 @@ import org.nutz.lang.util.NutBean;
 
 public interface WnSession {
 
+    boolean isSameTicket(String ticket);
+
     String getTicket();
 
     boolean isExpired();
@@ -43,5 +45,7 @@ public interface WnSession {
     void updateEnv(String key, Object val);
 
     void updateEnv(NutBean delta);
+
+    WnSession clone();
 
 }

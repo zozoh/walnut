@@ -53,6 +53,31 @@ public class WnSimpleUser implements WnUser {
     }
 
     @Override
+    public boolean isSame(WnUser u) {
+        if (null == u) {
+            return false;
+        }
+        return id.equals(u.getId());
+    }
+
+    @Override
+    public WnSimpleUser clone() {
+        WnSimpleUser re = new WnSimpleUser();
+        re.userRace = this.userRace;
+        re.id = this.id;
+        re.name = this.name;
+        re.phone = this.phone;
+        re.email = this.email;
+        re.lastLoginAt = this.lastLoginAt;
+        re.mainGroup = this.mainGroup;
+        re.roles = this.roles;
+        re.meta = this.meta;
+        re.passwd = this.passwd;
+        re.salt = this.salt;
+        return re;
+    }
+
+    @Override
     public void setLoginStr(String str) {
         if (Ws.isBlank(str))
             throw Er.create("e.auth.loginstr.blank");

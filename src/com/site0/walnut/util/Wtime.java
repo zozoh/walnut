@@ -10,10 +10,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.Strings;
-
-import com.site0.walnut.api.auth.WnAuthSession;
+import org.nutz.lang.util.NutBean;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.ext.sys.datex.bean.WnHolidays;
+import com.site0.walnut.login.WnSession;
 
 /**
  * 日期时间相关的帮助函数
@@ -84,9 +84,22 @@ public abstract class Wtime {
         return formater.format(d);
     }
 
-    public static TimeZone getSessionTimeZone(WnAuthSession session) {
-        String tzName = session.getVars().getString("TIMEZONE", "GMT+8").toUpperCase();
-        return toTimeZone(tzName);
+    public static TimeZone getSessionTimeZone(WnSession session) {
+        NutBean env = session.getEnv();
+        String tzName = null;
+        if (null != env) {
+            tzName = env.getString("TIMEZONE");
+        }
+        // 环境变量没有，那么就从线程上下文尝试获取
+        // 如果线程上下文没有，就默认采用 GMT+8
+        if (null == tzName) {
+            TimeZone tz = Wn.WC().getTimeZone();
+            if (null != tz) {
+                return tz;
+            }
+            tzName = "GMT+8";
+        }
+        return toTimeZone(tzName.toUpperCase());
     }
 
     public static TimeZone toTimeZone(String tzName) {

@@ -17,6 +17,8 @@ import org.nutz.lang.util.NutMap;
  */
 public interface WnUser {
 
+    boolean isSame(WnUser u);
+
     void updateBy(NutBean bean);
 
     void setLoginStr(String str);
@@ -62,7 +64,7 @@ public interface WnUser {
     String[] getRoles();
 
     void setRoles(String[] roleNames);
-    
+
     boolean hasMeta();
 
     NutBean getMeta();
@@ -78,5 +80,7 @@ public interface WnUser {
     String getSalt();
 
     void setSalt(String salt);
+
+    WnUser clone();
 
 }

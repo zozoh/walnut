@@ -21,4 +21,12 @@ public abstract class AbstractWnSessionStore implements WnSessionStore {
         }
     }
 
+    public NutMap getDefaultEnv() {
+        return defaultEnv;
+    }
+
+    public void setDefaultEnv(NutMap defaultEnv) {
+        this.defaultEnv = defaultEnv;
+    }
+
 }

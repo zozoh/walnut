@@ -11,23 +11,20 @@ import com.site0.walnut.login.WnLoginSetup;
 
 public class WnLoginApiMaker {
 
-    private static final WnLoginApiMaker for_domain = new WnLoginApiMaker(UserRace.DOMAIN);
-    private static final WnLoginApiMaker for_sys = new WnLoginApiMaker(UserRace.SYS);
+    private static final WnLoginApiMaker for_domain = new WnLoginApiMaker();
+    // private static final WnLoginApiMaker for_sys = new
+    // WnLoginApiMaker(UserRace.SYS);
 
     public static WnLoginApiMaker forDomain() {
         return for_domain;
-    }
-
-    public static WnLoginApiMaker forSys() {
-        return for_sys;
     }
 
     private WnSessionStoreMaker sessionStoreMaker;
 
     private WnUserStoreMaker userStoreMaker;
 
-    public WnLoginApiMaker(UserRace userRace) {
-        userStoreMaker = new WnUserStoreMaker(userRace);
+    public WnLoginApiMaker() {
+        userStoreMaker = new WnUserStoreMaker(UserRace.DOMAIN);
         sessionStoreMaker = new WnSessionStoreMaker();
     }
 

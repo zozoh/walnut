@@ -1,9 +1,9 @@
 package com.site0.walnut.impl.io;
 
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.AbstractWnSecurity;
+import com.site0.walnut.login.WnUser;
 
 public class WnEvalLink extends AbstractWnSecurity {
 
@@ -47,7 +47,7 @@ public class WnEvalLink extends AbstractWnSecurity {
     }
 
     @Override
-    public boolean test(WnObj nd, int mode, WnAccount user) {
+    public boolean test(WnObj nd, int mode, WnUser user) {
         return true;
     }
 

@@ -15,8 +15,6 @@ import org.nutz.log.impl.AbstractLog;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import com.site0.walnut.api.WnAuthExecutable;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
 import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.box.WnServiceFactory;
 import com.site0.walnut.api.err.Er;
@@ -25,6 +23,9 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.www.bean.WnWebSite;
 import com.site0.walnut.ext.data.www.impl.WnWebService;
 import com.site0.walnut.impl.io.WnEvalLink;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Cmds;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
@@ -57,27 +58,28 @@ public class WnSystem implements WnAuthExecutable {
 
     public WnIo io;
 
-    public WnAuthService auth;
-
-    public WnAuthSession session;
+    public WnSession session;
 
     public JvmExecutorFactory jef;
+    
+    public WnLoginApi auth;
 
     JvmAtomRunner _runner;
 
     public WnSystem(WnServiceFactory services) {
         this.services = services;
+        this.auth = services.getLoginApi();
     }
 
-    public WnAccount getMe() {
+    public WnUser getMe() {
         if (null != this.session) {
-            return this.session.getMe();
+            return this.session.getUser();
         }
         return null;
     }
 
     public String getMyId() {
-        WnAccount me = this.getMe();
+        WnUser me = this.getMe();
         if (null != me) {
             return me.getId();
         }
@@ -85,7 +87,7 @@ public class WnSystem implements WnAuthExecutable {
     }
 
     public String getMyName() {
-        WnAccount me = this.getMe();
+        WnUser me = this.getMe();
         if (null != me) {
             return me.getName();
         }
@@ -93,9 +95,9 @@ public class WnSystem implements WnAuthExecutable {
     }
 
     public String getMyGroup() {
-        WnAccount me = this.getMe();
+        WnUser me = this.getMe();
         if (null != me) {
-            return me.getGroupName();
+            return me.getMainGroup();
         }
         return null;
     }
@@ -106,7 +108,7 @@ public class WnSystem implements WnAuthExecutable {
      * @return HOME 对象
      */
     public WnObj getHome() {
-        String home = this.session.getVars().getString("HOME");
+        String home = this.session.getEnv().getString("HOME");
         String path = Wn.normalizePath(home, this);
         return this.io.check(null, path);
     }
@@ -117,7 +119,7 @@ public class WnSystem implements WnAuthExecutable {
      * @return 当前的语言
      */
     public String getLang(String dft) {
-        return this.session.getVars().getString("LANG", dft);
+        return this.session.getEnv().getString("LANG", dft);
     }
 
     /**
@@ -134,7 +136,7 @@ public class WnSystem implements WnAuthExecutable {
      * @return 对象
      */
     public WnObj getCurrentObj() {
-        String pwd = this.session.getVars().getString("PWD");
+        String pwd = this.session.getEnv().getString("PWD");
         String path = Wn.normalizePath(pwd, this);
         WnObj re = this.io.check(null, path);
         return Wn.WC().whenEnter(re, false);
@@ -273,7 +275,7 @@ public class WnSystem implements WnAuthExecutable {
      * @param callback
      *            回调，参数为当前 WnSystem
      */
-    public void switchUser(WnAccount newUsr, Callback<WnAuthExecutable> callback) {
+    public void switchUser(WnUser newUsr, Callback<WnAuthExecutable> callback) {
         final WnSystem sys = this;
         // 检查权限
         if (!this.auth.isMemberOfGroup(this.getMe(), "root")) {
@@ -281,10 +283,11 @@ public class WnSystem implements WnAuthExecutable {
         }
 
         // 创建新会话
-        WnAuthSession newSession = this.auth.createSession(newUsr, true);
+        long du = auth.getSessionDuration(true);
+        WnSession newSession = auth.createSession(newUsr, du);
 
         // 记录旧的 Session
-        WnAuthSession old_se = this.session;
+        WnSession old_se = this.session;
         this.session = newSession;
         WnContext wc = Wn.WC();
         try {
@@ -305,7 +308,7 @@ public class WnSystem implements WnAuthExecutable {
             // 切换 session
             this.session = old_se;
             wc.setSession(old_se);
-            this.auth.removeSession(newSession, 0);
+            auth.removeSession(newSession);
         }
     }
 
@@ -349,7 +352,7 @@ public class WnSystem implements WnAuthExecutable {
      */
     public NutBean getAllMyPvg() {
         // 得到当前用户
-        WnAccount me = this.getMe();
+        WnUser me = this.getMe();
 
         // 权限表
         NutMap myAvaPvg = new NutMap();

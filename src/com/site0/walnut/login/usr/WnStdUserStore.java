@@ -11,6 +11,7 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.core.bean.WnIoObj;
 import com.site0.walnut.core.bean.WnObjId;
+import com.site0.walnut.login.UserRace;
 import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Wuu;
@@ -26,6 +27,13 @@ public class WnStdUserStore extends AbstractWnUserStore {
         this.oHome = Wn.checkObj(io, options.sessionVars, options.path);
         this.defaultMeta = options.defaultMeta;
         this.userRace = options.userRace;
+    }
+
+    public WnStdUserStore(WnIo io) {
+        this.io = io;
+        this.oHome = io.check(null, "/sys/usr");
+        this.defaultMeta = new NutMap();
+        this.userRace = UserRace.SYS;
     }
 
     @Override
@@ -46,7 +54,7 @@ public class WnStdUserStore extends AbstractWnUserStore {
             throw Er.create("e.auth.user.UserNoExistsWhenSaveUserMeta", u.toString());
         }
         NutMap delta = new NutMap();
-        if(u.hasMeta()) {
+        if (u.hasMeta()) {
             delta.putAll(u.getMeta());
         }
 

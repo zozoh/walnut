@@ -105,7 +105,7 @@ public class UsrModule extends AbstractWnModule {
         if (Wn.WC().hasTicket()) {
             try {
                 String ticket = Wn.WC().getTicket();
-                auth().checkSession(ticket);
+                login().checkSession(ticket);
                 throw Wlang.makeThrow("already login, go to /");
             }
             catch (WebException e) {}
@@ -129,7 +129,7 @@ public class UsrModule extends AbstractWnModule {
         if (wc.hasTicket() && "login.html".equals(rph)) {
             try {
                 String ticket = wc.getTicket();
-                WnAuthSession se = auth().checkSession(ticket);
+                WnAuthSession se = login().checkSession(ticket);
                 if (!se.isDead()) {
                     throw Wlang.makeThrow("already login, go to /");
                 }
@@ -196,7 +196,7 @@ public class UsrModule extends AbstractWnModule {
 
                     // 得到会话信息
                     String ticket = wc.getTicket();
-                    WnAuthSession se = auth().checkSession(ticket);
+                    WnAuthSession se = login().checkSession(ticket);
                     wc.setSession(se);
                     WnAccount me = se.getMe();
 
@@ -400,7 +400,7 @@ public class UsrModule extends AbstractWnModule {
 
         // 创建账户
         info.setRawPasswd(passwd);
-        WnAccount u = auth().createAccount(info);
+        WnAccount u = login().createAccount(info);
 
         // 执行创建后初始化脚本
         String cmd = "setup -quiet -u '" + u.getName() + "' usr/create";
@@ -439,7 +439,7 @@ public class UsrModule extends AbstractWnModule {
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root"}))
     public NutMap do_login(@Param("nm") String nm, @Param("passwd") String passwd) {
-        WnAuthSession se = auth().loginByPasswd(nm, passwd);
+        WnAuthSession se = login().loginByPasswd(nm, passwd);
         Wn.WC().setSession(se);
 
         // 执行登录后初始化脚本
@@ -470,7 +470,7 @@ public class UsrModule extends AbstractWnModule {
         if (wc.hasTicket()) {
             String ticket = wc.getTicket();
             // 退出登录：延迟几秒以便给后续操作机会
-            WnAuthSession pse = auth().logout(ticket, WnAuths.LOGOUT_DELAY);
+            WnAuthSession pse = login().logout(ticket, WnAuths.LOGOUT_DELAY);
             if (null != pse)
                 return pse.toMapForClient();
         }
@@ -487,7 +487,7 @@ public class UsrModule extends AbstractWnModule {
         if (wc.hasTicket()) {
             String ticket = wc.getTicket();
             // 退出登录：延迟几秒以便给后续操作机会
-            auth().logout(ticket, WnAuths.LOGOUT_DELAY);
+            login().logout(ticket, WnAuths.LOGOUT_DELAY);
             return true;
         }
         return false;
@@ -509,7 +509,7 @@ public class UsrModule extends AbstractWnModule {
         if (Strings.isBlank(passwd))
             throw Er.create("e.usr.blank.passwd");
 
-        WnAccount u = auth().getAccount(nm);
+        WnAccount u = login().getAccount(nm);
 
         if (null == u || !u.isMatchedRawPasswd(passwd)) {
             throw Er.create("e.usr.invalid.login");
@@ -526,7 +526,7 @@ public class UsrModule extends AbstractWnModule {
                                      @Param("passwd") String passwd) {
         // 得到会话和用户
         String ticket = Wn.WC().getTicket();
-        WnAuthSession se = auth().checkSession(ticket);
+        WnAuthSession se = login().checkSession(ticket);
         WnAccount me = se.getMe();
 
         if (Strings.isBlank(passwd)) {
@@ -543,7 +543,7 @@ public class UsrModule extends AbstractWnModule {
 
         // 设置新密码
         me.setRawPasswd(passwd);
-        auth().saveAccount(me, WnAuths.ABMM.PASSWD);
+        login().saveAccount(me, WnAuths.ABMM.PASSWD);
         return Ajax.ok();
     }
 
@@ -614,11 +614,11 @@ public class UsrModule extends AbstractWnModule {
         }
 
         // 得到用户
-        WnAccount u = auth().checkAccount(info);
+        WnAccount u = login().checkAccount(info);
 
         // 修改密码
         u.setRawPasswd(passwd);
-        auth().saveAccount(u, WnAuths.ABMM.PASSWD);
+        login().saveAccount(u, WnAuths.ABMM.PASSWD);
 
         // 返回
         return true;
@@ -650,7 +650,7 @@ public class UsrModule extends AbstractWnModule {
         }
 
         // 看看是否存在
-        WnAccount u = auth().getAccount(info);
+        WnAccount u = login().getAccount(info);
 
         // 如果用户存在，那么则必须要检查一下密码
         if (null != u) {
@@ -660,23 +660,23 @@ public class UsrModule extends AbstractWnModule {
 
             // 更新一下用户的登录信息
             me.mergeTo(u);
-            auth().saveAccount(u);
+            login().saveAccount(u);
 
             // 切换当前会话到新用户
             se.setMe(u);
-            auth().saveSession(se);
+            login().saveSession(se);
 
             // 原来那个用户就不要了
-            auth().deleteAccount(me);
+            login().deleteAccount(me);
         }
         // 不存在，则搞一下
         else {
             // 正式执行改名
-            auth().renameAccount(me, newName);
+            login().renameAccount(me, newName);
 
             // 更新 Session
             se.setMe(me);
-            auth().saveSessionVars(se);
+            login().saveSessionVars(se);
         }
     }
 
@@ -688,7 +688,7 @@ public class UsrModule extends AbstractWnModule {
     @Ok("raw")
     public Object usrAvatar() {
         WnContext wc = Wn.WC();
-        WnAuthSession se = wc.checkSession(auth());
+        WnAuthSession se = wc.checkSession(login());
         String avatarPath = Wn.normalizeFullPath("~/.avatar", se);
         WnObj oAvatar = io().fetch(null, avatarPath);
         // 有自定义的
@@ -719,7 +719,7 @@ public class UsrModule extends AbstractWnModule {
             return io().getInputStream(avatarObj, 0);
         } else {
             // 尝试查找用户
-            WnAccount fUsr = auth().getAccount(nm);
+            WnAccount fUsr = login().getAccount(nm);
             if (fUsr != null) {
                 avatarPath = Wn.appendPath(fUsr.getHomePath(), ".avatar");
                 avatarObj = io().fetch(null, avatarPath);
@@ -736,7 +736,7 @@ public class UsrModule extends AbstractWnModule {
     @Ok("ajax")
     @Fail("ajax")
     public boolean usrExists(@Param("str") String str) {
-        WnAccount u = auth().getAccount(str);
+        WnAccount u = login().getAccount(str);
         return u == null ? false : true;
     }
 
@@ -753,7 +753,7 @@ public class UsrModule extends AbstractWnModule {
             return true;
 
         // 已经存在这个用户
-        WnAccount u = auth().getAccount(str);
+        WnAccount u = login().getAccount(str);
 
         // 已存在
         if (null != u)
@@ -812,7 +812,7 @@ public class UsrModule extends AbstractWnModule {
             @Override
             public void run() {
                 // 查询
-                List<WnAccount> us = auth().queryAccount(q);
+                List<WnAccount> us = login().queryAccount(q);
                 // 提取内容
                 for (WnAccount u : us) {
                     list.add(u.toBeanOf("nm", "nickname"));
@@ -857,7 +857,7 @@ public class UsrModule extends AbstractWnModule {
         // 会话是域的子账号
 
         // 得到新会话:系统会话
-        WnAuthSession seNew = auth().checkSession(ticket);
+        WnAuthSession seNew = login().checkSession(ticket);
 
         // 退出: 这个新会话必须是当前会话的父会话
         if (isExit) {
@@ -896,7 +896,7 @@ public class UsrModule extends AbstractWnModule {
         if (Strings.isBlank(nm)) {
             return new HttpStatusView(403);
         }
-        WnAccount usr = auth().getAccount(nm);
+        WnAccount usr = login().getAccount(nm);
         if (usr == null) {
             return new HttpStatusView(403);
         }
@@ -917,7 +917,7 @@ public class UsrModule extends AbstractWnModule {
             return new HttpStatusView(403);
         }
 
-        WnAuthSession se = auth().createSession(usr, true);
+        WnAuthSession se = login().createSession(usr, true);
         Wn.WC().setSession(se);
 
         // 执行登录后初始化脚本
@@ -965,10 +965,10 @@ public class UsrModule extends AbstractWnModule {
         io().delete(obj);
 
         // 扫码成功，看看给出 uid 是否正确
-        WnAccount usr = auth().checkAccountById(uid);
+        WnAccount usr = login().checkAccountById(uid);
 
         // 为这个用户创建一个会话
-        WnAuthSession se = auth().createSession(usr, true);
+        WnAuthSession se = login().createSession(usr, true);
         Wn.WC().setSession(se);
 
         // 执行登录后初始化脚本

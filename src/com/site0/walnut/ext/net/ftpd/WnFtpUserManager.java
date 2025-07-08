@@ -73,7 +73,7 @@ public class WnFtpUserManager extends AbstractUserManager {
 
     public boolean doesExist(String username) throws FtpException {
         try {
-            return wnRun.auth().getAccount(username) != null;
+            return wnRun.login().getAccount(username) != null;
         }
         catch (Exception e) {
             return false;

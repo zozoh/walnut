@@ -1,23 +1,23 @@
 package com.site0.walnut.impl.io;
 
 import org.nutz.trans.Proton;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
 import com.site0.walnut.api.auth.WnGroupRole;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.AbstractWnSecurity;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 
 public class WnSecurityImpl extends AbstractWnSecurity {
 
-    private WnAuthService auth;
+    private WnLoginApi auth;
 
     private WnEvalLink _eval_link;
 
-    public WnSecurityImpl(WnIo io, WnAuthService auth) {
+    public WnSecurityImpl(WnIo io, WnLoginApi auth) {
         super(io);
         this.auth = auth;
         this._eval_link = new WnEvalLink(io);
@@ -100,7 +100,7 @@ public class WnSecurityImpl extends AbstractWnSecurity {
         // 当前的线程上下文
         // 我是谁？
         WnContext wc = Wn.WC();
-        WnAccount u = wc.getMe();
+        WnUser u = wc.getMe();
 
         // // 对于 root 用户，啥都不检查
         // if ("root".equals(u.name()))
@@ -110,7 +110,7 @@ public class WnSecurityImpl extends AbstractWnSecurity {
         return __do_check_node(o, mask, asNull, u);
     }
 
-    private WnObj __do_check_node(WnObj o, int mask, boolean asNull, WnAccount u) {
+    private WnObj __do_check_node(WnObj o, int mask, boolean asNull, WnUser u) {
         // 对于 root 组成员，啥都不检查
         if (auth.isMemberOfGroup(u, "root"))
             return o;
@@ -183,7 +183,7 @@ public class WnSecurityImpl extends AbstractWnSecurity {
     }
 
     @Override
-    public boolean test(WnObj nd, int mode, WnAccount user) {
+    public boolean test(WnObj nd, int mode, WnUser user) {
         WnObj nd2 = __eval_obj(nd);
 
         // 防止空指针

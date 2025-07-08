@@ -129,7 +129,7 @@ public class AppModule extends AbstractWnModule {
 
         // 看看是否已经登录了
         String ticket = Wn.WC().getTicket();
-        WnAuthSession se = auth().getSession(ticket);
+        WnAuthSession se = login().getSession(ticket);
         if (null != se && !se.isDead()) {
             return __get_session_default_view(se);
         }
@@ -137,7 +137,7 @@ public class AppModule extends AbstractWnModule {
         // 已经得到域用户
         WnAccount domainUser = null;
         if (null != domainName) {
-            domainUser = auth().getAccount(domainName);
+            domainUser = login().getAccount(domainName);
         }
 
         // 渲染登陆页面
@@ -210,12 +210,12 @@ public class AppModule extends AbstractWnModule {
             // 检查应用权限: root 组成员免查，可以打开任何 app
             WnAuthSession se = app.getSession();
             WnObj oAppHome = app.getHome();
-            if (!this.auth().isMemberOfGroup(se.getMe(), "root")) {
+            if (!this.login().isMemberOfGroup(se.getMe(), "root")) {
                 WnIo io = io();
                 WnObj oCheckAccess = io.fetch(oAppHome, "check_access.json");
                 if (null != oCheckAccess) {
                     AppCheckAccess ca = io.readJson(oCheckAccess, AppCheckAccess.class);
-                    WnAuthService auth = auth();
+                    WnAuthService auth = login();
                     WnBoxRunning run = this.createRunning(false);
                     if (!ca.doCheck(io, se, auth, run)) {
                         return new HttpStatusView(403);
@@ -424,7 +424,7 @@ public class AppModule extends AbstractWnModule {
                                     @ReqHeader("Referer") String referer) {
         referer = Strings.sBlank(referer, "/");
         try {
-            WnAuthSession se = auth().loginByPasswd(name, passwd);
+            WnAuthSession se = login().loginByPasswd(name, passwd);
             // 如果是 Ajax 视图
             if (ajax) {
                 // 获取 cookie 模板
@@ -474,7 +474,7 @@ public class AppModule extends AbstractWnModule {
         if (wc.hasTicket()) {
             String ticket = wc.getTicket();
             // 退出登录
-            WnAuthSession pse = auth().logout(ticket, 0);
+            WnAuthSession pse = login().logout(ticket, 0);
 
             // 退到父会话
             if (null != pse && !pse.isDead()) {
@@ -564,7 +564,7 @@ public class AppModule extends AbstractWnModule {
                 if (log.isInfoEnabled()) {
                     log.infof("Login as domain-user: %s", name);
                 }
-                WnAuthSession se = auth().loginByPasswd(name, passwd);
+                WnAuthSession se = login().loginByPasswd(name, passwd);
                 String appName = se.getVars().getString("OPEN", "wn.console");
                 redirectPath = "/a/open/" + appName;
                 reo = se.toMapForClient();
@@ -585,7 +585,7 @@ public class AppModule extends AbstractWnModule {
                         log.infof("OK: check passwd");
                     }
                     // 确保用户是可以访问域主目录的
-                    Session.checkHomeAccessable(io(), auth(), si.oHome, user);
+                    Session.checkHomeAccessable(io(), login(), si.oHome, user);
                     if (log.isInfoEnabled()) {
                         log.infof("OK: check_home_accessable");
                     }
@@ -598,10 +598,10 @@ public class AppModule extends AbstractWnModule {
                     int se_du = si.webs.getSite().getSeDftDu();
 
                     // 注册新会话
-                    WnAuthSession se = auth().createSession(user, se_du);
+                    WnAuthSession se = login().createSession(user, se_du);
 
                     // 更新会话元数据
-                    Session.updateAuthSession(auth(),
+                    Session.updateAuthSession(login(),
                                               conf.getInitUsrEnvs(),
                                               se,
                                               si.webs,
@@ -707,7 +707,7 @@ public class AppModule extends AbstractWnModule {
 
             // -------------------------------
             // 查找之前的会话
-            WnAuthSession seSys = auth().getSession(byType, byValue);
+            WnAuthSession seSys = login().getSession(byType, byValue);
 
             // -------------------------------
             // 嗯，看来要自动创建一个新的咯
@@ -720,13 +720,13 @@ public class AppModule extends AbstractWnModule {
                 WnAccount u = seDmn.getMe();
 
                 // 确保用户是可以访问域主目录的
-                Session.checkHomeAccessable(io(), auth(), si.oHome, u);
+                Session.checkHomeAccessable(io(), login(), si.oHome, u);
 
                 // 注册新会话
-                seSys = auth().createSession(u, true);
+                seSys = login().createSession(u, true);
 
                 // 更新会话元数据
-                Session.updateAuthSession(auth(),
+                Session.updateAuthSession(login(),
                                           conf.getInitUsrEnvs(),
                                           seSys,
                                           si.webs,
@@ -777,7 +777,7 @@ public class AppModule extends AbstractWnModule {
         if (WnWeb.isRequestOptions(req)) {
             return null;
         }
-        WnAuthSession se = Wn.WC().checkSession(auth());
+        WnAuthSession se = Wn.WC().checkSession(login());
         return se.toMapForClient();
     }
 
@@ -805,7 +805,7 @@ public class AppModule extends AbstractWnModule {
             String ticket = wc.getTicket();
             re.put("ticket", ticket);
             // 退出登录
-            WnAuthSession pse = auth().logout(ticket, 0);
+            WnAuthSession pse = login().logout(ticket, 0);
 
             // 退到父会话
             if (null != pse && !pse.isDead()) {

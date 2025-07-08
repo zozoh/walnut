@@ -117,7 +117,7 @@ public class WWWModule extends AbstractWnModule {
 
         // ..............................................
         // 找到用户
-        WnAccount u = auth().checkAccount(usr);
+        WnAccount u = login().checkAccount(usr);
         String homePath = u.getHomePath();
         WnObj oHome = io().fetch(null, homePath);
 

@@ -43,6 +43,27 @@ public class WnSimpleSession implements WnSession {
         this.env.putAll(u.getMeta());
     }
 
+    @Override
+    public WnSimpleSession clone() {
+        WnSimpleSession re = new WnSimpleSession();
+        re.ticket = this.ticket;
+        re.user = this.user.clone();
+        re.expiAt = this.expiAt;
+        re.createTime = this.createTime;
+        re.lastModified = this.lastModified;
+        re.env = new NutMap();
+        re.env.putAll(this.env);
+        return re;
+    }
+
+    @Override
+    public boolean isSameTicket(String ticket) {
+        if (null == ticket) {
+            return false;
+        }
+        return ticket.equals(this.ticket);
+    }
+
     public String toJson(JsonFormat fmt) {
         NutMap map = this.toBean();
         return Json.toJson(map, fmt);
