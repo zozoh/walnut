@@ -4,12 +4,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.WnSession;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 
@@ -34,7 +34,7 @@ public class WnSqlHolder implements SqlHolder {
         this.oDir = oHome;
     }
 
-    public WnSqlHolder(WnIo io, WnAuthSession session) {
+    public WnSqlHolder(WnIo io, WnSession session) {
         this();
         this.io = io;
         this.oDir = Wn.checkObj(io, session, "~/.sqlx");

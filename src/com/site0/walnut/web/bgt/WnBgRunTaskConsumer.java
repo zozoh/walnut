@@ -11,9 +11,6 @@ import org.nutz.lang.util.ByteInputStream;
 import org.nutz.log.Log;
 import org.nutz.trans.Atom;
 
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.box.WnServiceFactory;
 import com.site0.walnut.api.lock.WnLockBusyException;
 import com.site0.walnut.api.lock.WnLockFailException;
@@ -22,6 +19,9 @@ import com.site0.walnut.ext.sys.task.WnSysTaskApi;
 import com.site0.walnut.ext.sys.task.WnSysTaskException;
 import com.site0.walnut.ext.sys.task.WnSysTaskQuery;
 import com.site0.walnut.impl.srv.WnBoxRunning;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
@@ -33,19 +33,16 @@ public class WnBgRunTaskConsumer implements Runnable {
     private static final Log log = Wlog.getBG_TASK();
 
     private WnSysTaskApi taskApi;
-    private WnAuthService auth;
+    private WnLoginApi auth;
     private WnBoxRunning running;
-    private WnAuthSession rootSession;
+    private WnSession rootSession;
 
     // 创建一个固定大小为 3 的线程池
     private ThreadPoolExecutor execPool;
 
-    public WnBgRunTaskConsumer(WnConfig config,
-                               WnServiceFactory sf,
-                               WnRun _run,
-                               WnAuthSession rootSe) {
+    public WnBgRunTaskConsumer(WnConfig config, WnServiceFactory sf, WnRun _run, WnSession rootSe) {
         this.taskApi = sf.getTaskApi();
-        this.auth = sf.getAuthApi();
+        this.auth = sf.getLoginApi();
         this.running = _run.createRunning(true);
         this.rootSession = rootSe;
 
@@ -93,7 +90,7 @@ public class WnBgRunTaskConsumer implements Runnable {
 
                 // 得到任务的用户
                 String userName = task.meta.getString("user");
-                WnAccount user = auth.checkAccount(userName);
+                WnUser user = auth.checkUser(userName);
 
                 // 执行
                 InputStream ins = new ByteInputStream(task.input);

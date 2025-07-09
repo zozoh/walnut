@@ -2,7 +2,6 @@ package com.site0.walnut.ext.sys.schedule.hdl;
 
 import java.util.List;
 
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.ext.sys.schedule.WnCronSlot;
 import com.site0.walnut.ext.sys.schedule.WnSysScheduleApi;
@@ -12,6 +11,8 @@ import com.site0.walnut.impl.box.JvmHdl;
 import com.site0.walnut.impl.box.JvmHdlContext;
 import com.site0.walnut.impl.box.JvmHdlParamArgs;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.WnRoleList;
+import com.site0.walnut.login.WnUser;
 
 @JvmHdlParamArgs(value = "cqn", regex = "^(keep)$")
 public class schedule_push implements JvmHdl {
@@ -19,8 +20,9 @@ public class schedule_push implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // 只有系统管理员才能执行
-        WnAccount me = sys.getMe();
-        if (!sys.auth.isMemberOfGroup(me, "root")) {
+        WnUser me = sys.getMe();
+        WnRoleList roles = sys.auth.getRoles(me);
+        if (!roles.isMemberOfRole("root")) {
             throw Er.create("e.cmd.schedule.load", "You must be admin!");
         }
 

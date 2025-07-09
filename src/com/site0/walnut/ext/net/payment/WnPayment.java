@@ -14,7 +14,6 @@ import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Proton;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
@@ -23,6 +22,8 @@ import com.site0.walnut.ext.net.payment.alipay.ZfbQrcodePay3x;
 import com.site0.walnut.ext.net.payment.alipay.ZfbScanPay3x;
 import com.site0.walnut.ext.net.payment.free.FreePay3x;
 import com.site0.walnut.ext.net.payment.paypal.PaypalPay3x;
+import com.site0.walnut.login.WnRoleList;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnRun;
 
@@ -68,13 +69,14 @@ public class WnPayment {
 
     private void __assert_the_seller(WnPayObj po) {
         // 得到当前操作用户
-        WnAccount me = Wn.WC().getMe();
+        WnUser me = Wn.WC().getMe();
+        WnRoleList roles = run.auth().getRoles(me);
 
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // 权限检查
         // 如果不是 root/op 组成员只能设置自己域的支付单
         if (!po.isTheSeller(me)) {
-            if (!run.login().isMemberOfGroup(me, "root", "op")) {
+            if (!roles.isMemberOfRole("root", "op")) {
                 throw Er.create("e.pay.nopvg");
             }
         }
@@ -237,22 +239,24 @@ public class WnPayment {
 
     private WnPayObj __do_create(WnPayInfo wpi) {
         // 得到当前操作用户
-        WnAccount me = Wn.WC().getMe();
+        WnUser me = Wn.WC().getMe();
 
         // 确保买家的信息完备
         wpi.assertBuyerPerfect();
 
         // 确保卖家的信息完备
-        WnAccount seller = wpi.checkSeller(run.login(), me);
+        WnUser seller = wpi.checkSeller(run.auth(), me);
 
         // 确保有简介
         wpi.checkBrief();
 
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // 权限检查
+        WnRoleList roles = run.auth().getRoles(me);
+
         // 执行操作的如果不是 root 组管理员，那么标定的卖家必须是自己
         if (!me.isSameId(wpi.seller_id)) {
-            if (!run.login().isAdminOfGroup(me, "root")) {
+            if (!roles.isAdminOfRole("root")) {
                 throw Er.create("e.pay.nopvg");
             }
         }
@@ -311,7 +315,7 @@ public class WnPayment {
 
     private WnPayObj __do_get(String poId, boolean quiet) {
         // 得到当前操作用户
-        WnAccount me = Wn.WC().getMe();
+        WnUser me = Wn.WC().getMe();
 
         // 执行获取
         WnObj o = run.io().get(poId);
@@ -334,9 +338,11 @@ public class WnPayment {
 
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // 权限检查
+        WnRoleList roles = run.auth().getRoles(me);
+
         // 如果不是 root/op 组成员只能获取自己域的支付单
         if (!po.isTheSeller(me)) {
-            if (!run.login().isMemberOfGroup(me, "root", "op")) {
+            if (!roles.isMemberOfRole("root", "op")) {
                 if (quiet)
                     return null;
                 throw Er.create("e.pay.nopvg");
@@ -349,12 +355,14 @@ public class WnPayment {
 
     private List<WnPayObj> __do_query(WnQuery q) {
         // 得到当前操作用户
-        WnAccount me = Wn.WC().getMe();
+        WnUser me = Wn.WC().getMe();
 
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // 权限检查
+        WnRoleList roles = run.auth().getRoles(me);
+
         // 如果不是 root/op 组成员只能查询自己的域
-        if (!run.login().isMemberOfGroup(me, "root", "op")) {
+        if (!roles.isMemberOfRole("root", "op")) {
             q.setv(WnPays.KEY_SELLER_ID, me.getId());
             q.unset(WnPays.KEY_SELLER_NM);
         }

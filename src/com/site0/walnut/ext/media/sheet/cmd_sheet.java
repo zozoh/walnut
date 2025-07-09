@@ -99,7 +99,7 @@ public class cmd_sheet extends JvmExecutor {
                 NutMap map = Json.fromJson(NutMap.class, json);
                 WnBeanMapping bm = new WnBeanMapping();
                 Map<String, NutMap[]> caches = new HashMap<>();
-                NutMap vars = sys.session.getVars();
+                NutBean vars = sys.session.getEnv();
                 bm.setFields(map, sys.io, vars, caches);
                 mapping.setBeanMapping(bm);
             }

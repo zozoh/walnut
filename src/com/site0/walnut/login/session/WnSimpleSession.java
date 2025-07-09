@@ -7,10 +7,12 @@ import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.login.WnSession;
 import com.site0.walnut.login.WnUser;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wtime;
 import com.site0.walnut.val.id.WnSnowQMaker;
 
 import java.util.Date;
+import java.util.Map;
 
 public class WnSimpleSession implements WnSession {
 
@@ -18,7 +20,15 @@ public class WnSimpleSession implements WnSession {
 
     private WnUser user;
 
+    /**
+     * 会话票据
+     */
     private String ticket;
+
+    /**
+     * 父会话票据
+     */
+    private String parentTicket;
 
     private long expiAt;
 
@@ -44,7 +54,7 @@ public class WnSimpleSession implements WnSession {
     }
 
     @Override
-    public WnSimpleSession clone() {
+    public WnSession clone() {
         WnSimpleSession re = new WnSimpleSession();
         re.ticket = this.ticket;
         re.user = this.user.clone();
@@ -54,6 +64,22 @@ public class WnSimpleSession implements WnSession {
         re.env = new NutMap();
         re.env.putAll(this.env);
         return re;
+    }
+
+    @Override
+    public String getMyName() {
+        if (null == this.user) {
+            return null;
+        }
+        return this.user.getName();
+    }
+
+    @Override
+    public String getMyGroup() {
+        if (null == this.user) {
+            return null;
+        }
+        return this.user.getMainGroup();
     }
 
     @Override
@@ -69,6 +95,7 @@ public class WnSimpleSession implements WnSession {
         return Json.toJson(map, fmt);
     }
 
+    @Override
     public NutMap toBean() {
         NutMap re = new NutMap();
         this.mergeToBean(re);
@@ -106,6 +133,21 @@ public class WnSimpleSession implements WnSession {
 
     public void setTicket(String ticket) {
         this.ticket = ticket;
+    }
+
+    @Override
+    public boolean hasParentTicket() {
+        return !Ws.isBlank(parentTicket);
+    }
+
+    @Override
+    public String getParentTicket() {
+        return parentTicket;
+    }
+
+    @Override
+    public void setParentTicket(String parentTicket) {
+        this.parentTicket = parentTicket;
     }
 
     public boolean isExpired() {
@@ -171,6 +213,17 @@ public class WnSimpleSession implements WnSession {
 
     public void setLastModifiedInUTC(Object utcTime) {
         this.lastModified = Wtime.parseAnyAMSUTC(utcTime);
+    }
+
+    @Override
+    public void loadEnvFromUser(WnUser u) {
+        if (u.hasMeta()) {
+            for (Map.Entry<String, Object> en : u.getMeta().entrySet()) {
+                String key = en.getKey();
+                Object val = en.getValue();
+                this.env.put(key, val);
+            }
+        }
     }
 
     public NutBean getEnv() {

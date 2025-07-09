@@ -8,6 +8,7 @@ import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.tmpl.WnTmplX;
 
 public class TiSidebarOutputItem {
 
@@ -105,7 +106,7 @@ public class TiSidebarOutputItem {
         String title = it.getTitle();
         // 这里需要支持一下 Session 的变量，以便扩展多语言的支持
         if (null != title) {
-            title = Wn.normalizeStr(title, vars);
+            title = WnTmplX.exec(title, vars);
         }
         // 展开表达式
         if (!Strings.isBlank(title)) {
@@ -119,7 +120,7 @@ public class TiSidebarOutputItem {
         String tip = it.getTip();
         // 这里需要支持一下 Session 的变量，以便扩展多语言的支持
         if (null != tip) {
-            tip = Wn.normalizeStr(tip, vars);
+            tip  = WnTmplX.exec(tip, vars);
         }
         // 展开表达式
         if (!Strings.isBlank(tip)) {

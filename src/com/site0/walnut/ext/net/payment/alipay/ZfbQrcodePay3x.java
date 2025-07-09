@@ -8,7 +8,6 @@ import java.util.Map.Entry;
 
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.net.alipay.AlipayConfig;
 import com.site0.walnut.ext.net.alipay.AlipayNotify;
@@ -18,6 +17,7 @@ import com.site0.walnut.ext.net.payment.WnPay3xDataType;
 import com.site0.walnut.ext.net.payment.WnPay3xRe;
 import com.site0.walnut.ext.net.payment.WnPay3xStatus;
 import com.site0.walnut.ext.net.payment.WnPayObj;
+import com.site0.walnut.login.WnUser;
 
 /**
  * 支付宝主动扫二维码付款
@@ -125,7 +125,7 @@ public class ZfbQrcodePay3x extends WnPay3x {
     }
 
     public AlipayConfig getConfig(WnPayObj po) {
-        WnAccount seller = run.login().checkAccountById(po.getSellerId());
+        WnUser seller = run.auth().checkUserById(po.getSellerId());
         String aph = seller.getHomePath() + "/.alipay/" + po.getPayTarget() + "/alipayconf";
         WnObj conf = io.check(null, aph);
         return io.readJson(conf, AlipayConfig.class);

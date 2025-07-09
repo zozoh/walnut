@@ -10,7 +10,6 @@ import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import com.site0.walnut.util.Wlog;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIoIndexer;
 import com.site0.walnut.api.io.WnObj;
@@ -770,17 +769,13 @@ public class WnIoObj extends NutMap implements WnObj {
      * 
      * @return 一个十进制的权限码
      */
-    public int getCustomizedPrivilege(WnAccount u, int dftMode) {
-        // 防守: 没有指定账户
-        if (null == u) {
-            return dftMode;
-        }
+    public NutBean getCustomizedPrivilege() {
         // 防守: 没有指定自定义权限集合
         NutBean pvg = this.getAs("pvg", NutMap.class);
         if (this.hasParent()) {
             pvg = this.parent().joinCustomizedPrivilege(pvg);
         }
-        return u.evalPvgMode(pvg, dftMode);
+        return pvg;
     }
 
     @Override

@@ -25,6 +25,8 @@ public class WnLoginApi {
 
     private WnSessionStore sessions;
 
+    private WnRoleStore roles;
+
     private WnXApi xapi;
 
     private String domain;
@@ -36,17 +38,61 @@ public class WnLoginApi {
     // TODO 这里是微信公众号页面的获取 openid 方式，暂时还未实现
     // private String wechatGhOpenIdKey;
 
-    public WnLoginApi(WnLoginSetup options) {
-        this.users = options.users;
-        this.sessions = options.sessions;
-        this.sessionDuration = options.sessionDuration;
-        this.xapi = options.xapi;
-        this.domain = options.domain;
-        this.wechatMpOpenIdKey = options.wechatMpOpenIdKey;
+    public WnLoginApi(WnLoginSetup setup) {
+        this.users = setup.users;
+        this.sessions = setup.sessions;
+        this.roles = setup.roles;
+        this.sessionDuration = setup.sessionDuration;
+        this.xapi = setup.xapi;
+        this.domain = setup.domain;
+        this.wechatMpOpenIdKey = setup.wechatMpOpenIdKey;
+    }
+
+    public WnRoleList getRoles(WnUser u) {
+        WnRoleList list = roles.getRoles(u);
+        for (WnRole r : list) {
+            if (!r.hasUserName()) {
+                r.setUserName(u.getName());
+            }
+        }
+        return list;
+    }
+
+    public WnRoleList queryRolesOf(String name) {
+        WnRoleList list = roles.queryRolesOf(name);
+        for (WnRole r : list) {
+            if (!r.hasUserName()) {
+                WnUser u = users.getUserById(r.getUserId());
+                if (null != u) {
+                    r.setUserName(u.getName());
+                }
+            }
+        }
+        return list;
+    }
+
+    public WnRole addRole(WnUser u, String name, WnRoleType type) {
+        WnRole role = this.roles.addRole(u.getId(), name, type);
+        if (!role.hasUserName()) {
+            role.setUserName(u.getName());
+        }
+        return role;
     }
 
     public void changePassword(WnUser u, String rawPassword) {
         users.updateUserPassword(u, rawPassword);
+    }
+
+    public void removeRole(WnRole role) {
+        roles.removeRole(role);
+    }
+
+    public void removeRole(String uid, String name) {
+        roles.removeRole(uid, name);
+    }
+
+    public WnSession createSession(WnUser u) {
+        return createSession(u, this.getSessionDuration());
     }
 
     public WnSession createSession(WnUser u, long duration) {
@@ -55,10 +101,18 @@ public class WnLoginApi {
         return se;
     }
 
-    public void removeSession(WnSession se) {
-        if (null != se) {
-            sessions.reomveSession(se);
+    public WnSession createSession(WnSession parentSe, WnUser u, long duration) {
+        WnSession se = __create_session_by_user(u);
+        se.setParentTicket(parentSe.getTicket());
+        sessions.addSession(se);
+        return se;
+    }
+
+    public WnSession removeSession(WnSession se) {
+        if (null == se) {
+            return se;
         }
+        return sessions.reomveSession(se, users);
     }
 
     public WnSession loginByPassword(String nameOrPhoneOrEmail, String rawPassword) {
@@ -141,14 +195,15 @@ public class WnLoginApi {
 
     public WnSession logout(String ticket) {
         WnSession se = sessions.getSession(ticket, users);
-        if (null != se) {
-            sessions.reomveSession(se);
-        }
-        return se;
+        return removeSession(se);
     }
 
     public UserRace getUserRace() {
         return users.getUserRace();
+    }
+
+    public WnUser addUser(WnUser u) {
+        return users.addUser(u);
     }
 
     public List<WnUser> queryUser(WnQuery q) {
@@ -177,6 +232,30 @@ public class WnLoginApi {
 
     public WnUser checkUserById(String uid) {
         return users.checkUserById(uid);
+    }
+
+    public void saveUserMeta(WnUser u) {
+        users.saveUserMeta(u);
+    }
+
+    public void updateUserName(WnUser u) {
+        users.updateUserName(u);
+    }
+
+    public void updateUserPhone(WnUser u) {
+        users.updateUserPhone(u);
+    }
+
+    public void updateUserEmail(WnUser u) {
+        users.updateUserEmail(u);
+    }
+
+    public void updateUserLastLoginAt(WnUser u) {
+        users.updateUserLastLoginAt(u);
+    }
+
+    public void updateUserPassword(WnUser u, String rawPassword) {
+        users.updateUserPassword(u, rawPassword);
     }
 
     public WnSession getSession(String ticket) {

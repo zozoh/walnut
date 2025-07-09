@@ -1,7 +1,7 @@
 package com.site0.walnut.ext.net.xapi.hdl;
 
 import org.nutz.json.Json;
-import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.NutBean;
 import com.site0.walnut.ext.net.xapi.XApi;
 import com.site0.walnut.ext.net.xapi.cmd_xapi;
 import com.site0.walnut.ext.net.xapi.bean.XApiRequest;
@@ -18,7 +18,7 @@ public class xapi_req implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // 首先读取变量，变量与会话的变量合并，给上下文更多的信息
-        NutMap vars = cmd_xapi.loadVars(sys, hc);
+        NutBean vars = cmd_xapi.loadVars(sys, hc);
 
         // 准备请求路径
         String apiName = hc.params.val_check(0);

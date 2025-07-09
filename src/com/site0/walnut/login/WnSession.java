@@ -1,6 +1,7 @@
 package com.site0.walnut.login;
 
 import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
 
 public interface WnSession {
 
@@ -47,5 +48,19 @@ public interface WnSession {
     void updateEnv(NutBean delta);
 
     WnSession clone();
+
+    String getMyName();
+
+    NutMap toBean();
+
+    String getMyGroup();
+
+    void setParentTicket(String parentTicket);
+
+    String getParentTicket();
+
+    boolean hasParentTicket();
+
+    void loadEnvFromUser(WnUser u);
 
 }

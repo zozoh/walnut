@@ -6,8 +6,10 @@ import org.nutz.log.Log;
 import com.site0.walnut.util.Wlog;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnRoleType;
+import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.usr.WnSimpleUser;
 import com.site0.walnut.web.WnConfig;
 
 public class WnCheckRootSetup implements Setup {
@@ -21,19 +23,22 @@ public class WnCheckRootSetup implements Setup {
         WnConfig conf = ioc.get(WnConfig.class, "conf");
 
         // 确保有 ROOT 用户
-        WnAuthService auth = ioc.get(WnAuthService.class, "sysAuthService");
-        WnAccount root = auth.getAccount("root");
+        WnLoginApi auth = ioc.get(WnLoginApi.class, "sysLoginApi");
+        WnUser root = auth.getUser("root");
         if (root == null) {
             String passwd = conf.get("root-init-passwd", "123456");
-            root = new WnAccount("root", passwd);
-            auth.createAccount(root);
+            root = new WnSimpleUser("root");
+            root.genSaltAndRawPasswd(passwd);
+            auth.addUser(root);
+            auth.addRole(root, "root", WnRoleType.ADMIN);
             log.infof("init root usr: %s", root.getId());
         }
-        WnAccount guest = auth.getAccount("guest");
+        WnUser guest = auth.getUser("guest");
         if (guest == null) {
             String passwd = conf.get("guest-init-passwd", R.UU32());
-            guest = new WnAccount("guest", passwd);
-            auth.createAccount(guest);
+            guest = new WnSimpleUser("guest");
+            guest.genSaltAndRawPasswd(passwd);
+            auth.addUser(guest);
             log.infof("init guest usr: %s", guest.getId());
         }
     }

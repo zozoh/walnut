@@ -7,14 +7,14 @@ import java.util.Set;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.nutz.lang.Strings;
-import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.NutBean;
 import org.nutz.log.Log;
 import com.site0.walnut.util.Wlog;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.WnSession;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 
@@ -139,10 +139,10 @@ public abstract class Wedis {
     }
 
     public static WedisConfig loadConfigByName(WnSystem sys, String confPath) {
-        return loadConfigByName(sys.io, confPath, sys.session.getVars());
+        return loadConfigByName(sys.io, confPath, sys.session.getEnv());
     }
 
-    public static WedisConfig loadConfigByName(WnIo io, String confPath, NutMap vars) {
+    public static WedisConfig loadConfigByName(WnIo io, String confPath, NutBean vars) {
         confPath = Ws.sBlank(confPath, "default");
         if (!confPath.endsWith(".json")) {
             confPath += ".json";
@@ -155,7 +155,7 @@ public abstract class Wedis {
         return loadConfig(io, confPath, vars);
     }
 
-    public static WedisConfig loadConfig(WnIo io, String path, NutMap vars) {
+    public static WedisConfig loadConfig(WnIo io, String path, NutBean vars) {
         String aph = Wn.normalizeFullPath(path, vars);
         WnObj oConf = io.check(null, aph);
         return loadConfig(io, oConf);
@@ -165,15 +165,15 @@ public abstract class Wedis {
         return io.readJson(oConf, WedisConfig.class);
     }
 
-    public static WedisConfig loadConfig(WnIo io, String path, WnAuthSession se) {
-        return loadConfig(io, path, se.getVars());
+    public static WedisConfig loadConfig(WnIo io, String path, WnSession se) {
+        return loadConfig(io, path, se.getEnv());
     }
 
     public static WedisConfig loadConfig(WnSystem sys, String path) {
         return loadConfig(sys.io, path, sys.session);
     }
 
-    public static WedisConfig loadConfig(WnIo io, WnObj oConf, WnAuthSession se) {
+    public static WedisConfig loadConfig(WnIo io, WnObj oConf, WnSession se) {
         return loadConfig(io, oConf);
     }
 

@@ -4,8 +4,8 @@ import org.nutz.ioc.Ioc;
 import org.nutz.mvc.ActionContext;
 import org.nutz.mvc.ActionFilter;
 import org.nutz.mvc.View;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Wn;
 
 public class WnAsUsr implements ActionFilter {
@@ -19,8 +19,8 @@ public class WnAsUsr implements ActionFilter {
     @Override
     public View match(ActionContext ac) {
         Ioc ioc = ac.getIoc();
-        WnAuthService auth = Wn.Service.auth(ioc);
-        WnAccount me = auth.checkAccount(name);
+        WnLoginApi auth = Wn.Service.auth(ioc);
+        WnUser me = auth.checkUser(name);
         Wn.WC().setMe(me);
         return null;
     }

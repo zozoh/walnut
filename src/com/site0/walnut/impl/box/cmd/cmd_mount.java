@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Strings;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
@@ -12,6 +11,8 @@ import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.core.mapping.MountInfo;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.WnRoleList;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Cmds;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnPager;
@@ -24,8 +25,9 @@ public class cmd_mount extends JvmExecutor {
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         ZParams params = ZParams.parse(args, "cqnbishp", "^(init)$");
-        WnAccount me = sys.getMe();
-        boolean isSysAdmin = sys.auth.isMemberOfGroup(me, "root");
+        WnUser me = sys.getMe();
+        WnRoleList roles = sys.auth.getRoles(me);
+        boolean isSysAdmin = roles.isMemberOfRole("root");
         // 初始化映射的再次检查
         if (params.is("init")) {
             if (!isSysAdmin) {
@@ -52,7 +54,7 @@ public class cmd_mount extends JvmExecutor {
         WnObj o = Wn.checkObj(sys, ph);
 
         // 必须为对应域的管理员，才能执行
-        if (!sys.auth.isAdminOfGroup(me, "root", o.group())) {
+        if (!roles.isAdminOfRole("root", o.group())) {
             throw Er.create("e.cmd.mount.NotAdmin");
         }
 

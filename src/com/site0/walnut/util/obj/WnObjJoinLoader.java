@@ -28,11 +28,11 @@ public class WnObjJoinLoader {
     }
 
     public WnObjJoinLoader(WnSystem sys) {
-        this(sys.io, sys.session.getVars(), null, null);
+        this(sys.io, sys.session.getEnv(), null, null);
     }
 
     public WnObjJoinLoader(WnSystem sys, WnObjJoinFields join, WnObjCache cache) {
-        this(sys.io, sys.session.getVars(), join, cache);
+        this(sys.io, sys.session.getEnv(), join, cache);
     }
 
     public void loadMeta(WnObj o, NutBean meta) {

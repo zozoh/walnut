@@ -5,10 +5,11 @@ import java.util.List;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Proton;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.WnRoleList;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Wn;
 
 public abstract class WnApps {
@@ -52,24 +53,25 @@ public abstract class WnApps {
      *            角色列表
      * @return 当前用户是否匹配用户列表
      */
-    public static boolean checkMatchRoleOrNot(WnSystem sys, String[] roles) {
+    public static boolean checkMatchRoleOrNot(WnSystem sys, String[] roleNames) {
         return sys.nosecurity(new Proton<Boolean>() {
             protected Boolean exec() {
-                if (null != roles && roles.length > 0) {
-                    WnAccount me = sys.getMe();
-                    for (String role : roles) {
+                if (null != roleNames && roleNames.length > 0) {
+                    WnUser me = sys.getMe();
+                    WnRoleList roles = sys.auth.getRoles(me);
+                    for (String role : roleNames) {
                         String[] ss = Strings.splitIgnoreBlank(role, ":");
                         String roleName = ss[0];
                         String[] grps = Strings.splitIgnoreBlank(ss[1]);
                         for (String grp : grps) {
                             // 管理员
                             if ("ADMIN".equals(roleName)) {
-                                if (sys.auth.isAdminOfGroup(me, grp))
+                                if (roles.isAdminOfRole(grp))
                                     return true;
                             }
                             // 成员
                             else if ("MEMBER".equals(roleName)) {
-                                if (sys.auth.isMemberOfGroup(me, grp))
+                                if (roles.isMemberOfRole(grp))
                                     return true;
                             }
                             // 角色名称错误

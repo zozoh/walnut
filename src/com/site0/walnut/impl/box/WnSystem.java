@@ -15,15 +15,13 @@ import org.nutz.log.impl.AbstractLog;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import com.site0.walnut.api.WnAuthExecutable;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.box.WnServiceFactory;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
-import com.site0.walnut.ext.data.www.bean.WnWebSite;
-import com.site0.walnut.ext.data.www.impl.WnWebService;
 import com.site0.walnut.impl.io.WnEvalLink;
 import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnRoleList;
 import com.site0.walnut.login.WnSession;
 import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Cmds;
@@ -61,7 +59,7 @@ public class WnSystem implements WnAuthExecutable {
     public WnSession session;
 
     public JvmExecutorFactory jef;
-    
+
     public WnLoginApi auth;
 
     JvmAtomRunner _runner;
@@ -278,7 +276,9 @@ public class WnSystem implements WnAuthExecutable {
     public void switchUser(WnUser newUsr, Callback<WnAuthExecutable> callback) {
         final WnSystem sys = this;
         // 检查权限
-        if (!this.auth.isMemberOfGroup(this.getMe(), "root")) {
+        WnUser me = this.getMe();
+        WnRoleList roles = auth.getRoles(me);
+        if (!roles.isMemberOfRole("root")) {
             throw Er.create("e.sys.switchUser.nopvg");
         }
 
@@ -344,7 +344,7 @@ public class WnSystem implements WnAuthExecutable {
     public WnSysConf getSysConf() {
         return Wn.getSysConf(io);
     }
-
+    
     /**
      * 读取当前账户对应角色的所有自定义权限表
      * 
@@ -358,8 +358,8 @@ public class WnSystem implements WnAuthExecutable {
         NutMap myAvaPvg = new NutMap();
 
         // 看看是否需要读取: 只有域用户才需要读取，系统用户不用管
-        if (WnAuthSession.V_BT_AUTH_BY_DOMAIN.equals(this.session.getByType())) {
-            String siteId = this.session.getVars().getString(WnAuthSession.V_WWW_SITE_ID);
+        if (me.isDomainUser()) {
+            String siteId = this.session.getEnv().getString(WnAuthSession.V_WWW_SITE_ID);
             WnObj oWWW = this.io.get(siteId);
             if (null != oWWW) {
                 WnWebService webs = new WnWebService(this, oWWW);
@@ -391,7 +391,7 @@ public class WnSystem implements WnAuthExecutable {
             }
         }
         // 系统用户，做一个标识
-        else if (me.isSysAccount()) {
+        else if (me.isSysUser()) {
             myAvaPvg.put("$SYS_USR", true);
         }
 
@@ -405,4 +405,5 @@ public class WnSystem implements WnAuthExecutable {
             }
         }
     }
+
 }

@@ -77,7 +77,7 @@ public class WnObjTrans {
             }
             WnBeanMapping bm = new WnBeanMapping();
             Map<String, NutMap[]> caches = new HashMap<>();
-            NutMap vars = sys.session.getVars();
+            NutBean vars = sys.session.getEnv();
             bm.setFields(map, sys.io, vars, caches);
 
             this.mapping = bm;

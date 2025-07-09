@@ -24,9 +24,9 @@ import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.web.ajax.AjaxViewMaker;
 
 import com.site0.walnut.WnVersion;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
+import com.site0.walnut.login.WnSession;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnSysRuntime;
@@ -68,15 +68,15 @@ public class WnMainModule extends AbstractWnModule {
         }
 
         // 看看有木有会话
-        WnAuthSession se = null;
+        WnSession se = null;
 
         if (Wn.WC().hasTicket()) {
             String ticket = Wn.WC().getTicket();
-            se = login().getSession(ticket);
+            se = auth().getSession(ticket);
 
             // 有会话的话，转到默认打开应用
-            if (null != se && !se.isDead()) {
-                String appName = se.getVars().getString("OPEN", "wn.console");
+            if (null != se && !se.isExpired()) {
+                String appName = se.getEnv().getString("OPEN", "wn.console");
                 return new ServerRedirectView("/a/open/" + appName);
             }
         }

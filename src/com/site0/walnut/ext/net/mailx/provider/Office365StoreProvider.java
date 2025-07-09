@@ -36,7 +36,7 @@ public class Office365StoreProvider implements MailStoreProvider {
     private NutBean vars;
 
     public Office365StoreProvider(WnSystem sys) {
-        this(sys.io, sys.session.getVars());
+        this(sys.io, sys.session.getEnv());
     }
 
     public Office365StoreProvider(WnIo io, NutBean vars) {

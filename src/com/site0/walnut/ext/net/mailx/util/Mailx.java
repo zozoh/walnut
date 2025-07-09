@@ -55,7 +55,7 @@ public abstract class Mailx {
     }
 
     public static Pkcs12Config createPkcs12Config(WnSystem sys, WnMailSecurity secu) {
-        return createPkcs12Config(sys.io, sys.session.getVars(), secu);
+        return createPkcs12Config(sys.io, sys.session.getEnv(), secu);
     }
 
     public static Pkcs12Config createPkcs12Config(WnIo io,

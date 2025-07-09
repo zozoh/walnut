@@ -8,12 +8,12 @@ import org.nutz.json.JsonFormat;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.WnSession;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Wobj;
 import com.site0.walnut.util.Ws;
@@ -75,8 +75,8 @@ public class WnDataSyncItem {
         return this.obj;
     }
 
-    public WnObj loadObj(WnIo io, WnAuthSession se) {
-        NutBean vars = se.getVars();
+    public WnObj loadObj(WnIo io, WnSession se) {
+        NutBean vars = se.getEnv();
         return loadObj(io, vars);
     }
 

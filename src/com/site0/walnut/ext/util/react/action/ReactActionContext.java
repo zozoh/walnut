@@ -3,9 +3,9 @@ package com.site0.walnut.ext.util.react.action;
 import org.nutz.lang.util.NutBean;
 import com.site0.walnut.api.WnAuthExecutable;
 import com.site0.walnut.api.WnOutputable;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.WnSession;
 
 public class ReactActionContext {
 
@@ -15,7 +15,7 @@ public class ReactActionContext {
 
     public WnIo io;
 
-    public WnAuthSession session;
+    public WnSession session;
 
     public NutBean vars;
 
@@ -28,6 +28,5 @@ public class ReactActionContext {
         this.session = sys.session;
         this.vars = vars;
     }
-
 
 }

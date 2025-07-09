@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.core.bean.WnObjId;
 
 public interface WnObj extends NutBean, Comparable<WnObj> {
@@ -102,7 +101,7 @@ public interface WnObj extends NutBean, Comparable<WnObj> {
 
     List<WnObj> parents();
 
-    int getCustomizedPrivilege(WnAccount u, int dftMode);
+    NutBean getCustomizedPrivilege();
 
     /**
      * 将自己以及自己所有的祖先与给定的自定义权限融合
@@ -117,7 +116,7 @@ public interface WnObj extends NutBean, Comparable<WnObj> {
      * 
      * 值可以是
      * <ul>
-     * <li><code>"0777"</code> :  八进制
+     * <li><code>"0777"</code> : 八进制
      * <li><code>511</code> : 十进制
      * <li><code>"rwxr-xr-x"</code> : 全文本
      * <li><code>"rwx"</code> : 文本，相当于 "rwxrwxrwx"

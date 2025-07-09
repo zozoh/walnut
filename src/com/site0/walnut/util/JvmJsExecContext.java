@@ -14,7 +14,6 @@ import org.nutz.log.Log;
 
 import com.site0.walnut.api.WnAuthExecutable;
 import com.site0.walnut.api.WnOutputable;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.core.WnIoHandle;
@@ -22,6 +21,7 @@ import com.site0.walnut.core.WnIoHandleMutexException;
 import com.site0.walnut.impl.box.JvmBoxInput;
 import com.site0.walnut.impl.box.JvmBoxOutput;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.WnSession;
 
 /**
  * 给 JsExec 用的运行时接口
@@ -38,7 +38,7 @@ public class JvmJsExecContext implements JsExecContext {
 
     public WnOutputable err;
 
-    public WnAuthSession se;
+    public WnSession se;
 
     public JvmBoxInput in;
 
@@ -65,7 +65,7 @@ public class JvmJsExecContext implements JsExecContext {
     }
 
     public JvmJsExecContext(WnIo io,
-                            WnAuthSession session,
+                            WnSession session,
                             WnAuthExecutable runner,
                             JvmBoxInput in,
                             WnOutputable out,
@@ -79,7 +79,7 @@ public class JvmJsExecContext implements JsExecContext {
     }
 
     public JvmJsExecContext(WnIo io,
-                            WnAuthSession session,
+                            WnSession session,
                             WnAuthExecutable runner,
                             String input,
                             StringBuilder sbOut,
@@ -93,7 +93,7 @@ public class JvmJsExecContext implements JsExecContext {
     }
 
     public JvmJsExecContext(WnIo io,
-                            WnAuthSession session,
+                            WnSession session,
                             WnAuthExecutable runner,
                             StringBuilder sbOut,
                             StringBuilder sbErr) {

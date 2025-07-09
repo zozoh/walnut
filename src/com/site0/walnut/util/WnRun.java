@@ -12,9 +12,6 @@ import org.nutz.log.Log;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.box.WnBox;
 import com.site0.walnut.api.box.WnBoxContext;
 import com.site0.walnut.api.box.WnBoxService;
@@ -56,7 +53,7 @@ public class WnRun {
     private WnSysScheduleApi scheduleApi;
 
     @Inject("refer:sysLoginService")
-    private WnLoginApi login;
+    private WnLoginApi auth;
 
     // @Inject("refer:sysAuthService")
     // private WnAuthService auth;
@@ -84,8 +81,8 @@ public class WnRun {
         return io;
     }
 
-    public WnLoginApi login() {
-        return this.login;
+    public WnLoginApi auth() {
+        return this.auth;
     }
 
     public WnBoxService boxes() {
@@ -106,9 +103,9 @@ public class WnRun {
 
     public String exec(String logPrefix, String unm, String input, String cmdText) {
         // 检查用户和会话
-        WnUser u = login.checkUser(unm);
-        long du = login.getSessionDuration(false);
-        final WnSession se = login.createSession(u, du);
+        WnUser u = auth.checkUser(unm);
+        long du = auth.getSessionDuration(false);
+        final WnSession se = auth.createSession(u, du);
 
         // 执行命令
         try {
@@ -116,7 +113,7 @@ public class WnRun {
         }
         // 退出会话
         finally {
-            login.removeSession(se);
+            auth.removeSession(se);
         }
     }
 
@@ -137,12 +134,12 @@ public class WnRun {
         }
         // 退出会话
         finally {
-            login.removeSession(se);
+            auth.removeSession(se);
         }
     }
 
     public WnSession creatSession(String unm, boolean longSession) {
-        WnUser u = login.checkUser(unm);
+        WnUser u = auth.checkUser(unm);
 
         // zozoh: 为啥？考，应该直接创建就好了吧 ...
         // return Wn.WC().su(u, new Proton<WnSession>() {
@@ -150,15 +147,15 @@ public class WnRun {
         // return sess.create(u);
         // }
         // });
-
-        return auth.createSession(u, longSession);
+        long du = auth.getSessionDuration(longSession);
+        return auth.createSession(u, du);
     }
 
-    public String exec(String logPrefix, WnAuthSession se, String cmdText) {
+    public String exec(String logPrefix, WnSession se, String cmdText) {
         return exec(logPrefix, se, null, cmdText);
     }
 
-    public String exec(String logPrefix, WnAuthSession se, String input, String cmdText) {
+    public String exec(String logPrefix, WnSession se, String input, String cmdText) {
         StringBuilder sbOut = new StringBuilder();
         StringBuilder sbErr = new StringBuilder();
         OutputStream out = Wlang.ops(sbOut);
@@ -190,7 +187,7 @@ public class WnRun {
     }
 
     public void exec(String logPrefix,
-                     WnAuthSession se,
+                     WnSession se,
                      String cmdText,
                      OutputStream out,
                      OutputStream err,
@@ -254,8 +251,8 @@ public class WnRun {
     }
 
     public void runWithHook(WnUser usr, String grp, NutMap env, Callback<WnSession> callback) {
-        long du = login.getSessionDuration(false);
-        WnSession se = login.createSession(usr, du);
+        long du = auth.getSessionDuration(false);
+        WnSession se = auth.createSession(usr, du);
         try {
             // 附加环境变量
             if (env != null) {
@@ -265,7 +262,7 @@ public class WnRun {
             this.runWithHook(se, callback);
         }
         finally {
-            login.removeSession(se);
+            auth.removeSession(se);
         }
     }
 

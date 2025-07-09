@@ -34,7 +34,6 @@ import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wtime;
-import com.site0.walnut.util.Wuu;
 import com.site0.walnut.val.id.WnSnowQMaker;
 
 public class WnSqlUserStore extends AbstractWnUserStore {
@@ -192,14 +191,11 @@ public class WnSqlUserStore extends AbstractWnUserStore {
     }
 
     public void updateUserPassword(WnUser u, String rawPassword) {
-        String salt = Wuu.UU32();
-        String passwd = Wn.genSaltPassword(rawPassword, salt);
-        u.setSalt(salt);
-        u.setPasswd(passwd);
+        u.genSaltAndRawPasswd(rawPassword);
         NutMap delta = new NutMap();
         delta.put("id", u.getId());
-        delta.put("salt", salt);
-        delta.put("passwd", passwd);
+        delta.put("salt", u.getSalt());
+        delta.put("passwd", u.getPasswd());
 
         // 获取 SQL
         WnSqlTmpl sql = sqls.get(sqlUpdate);
@@ -244,7 +240,7 @@ public class WnSqlUserStore extends AbstractWnUserStore {
                 // 遍历结果集
                 while (rs.next()) {
                     NutBean bean = Sqlx.toBean(rs, meta);
-                    WnSimpleUser u = toWnUser(bean);
+                    WnUser u = toWnUser(bean);
                     list.add(u);
                 }
 

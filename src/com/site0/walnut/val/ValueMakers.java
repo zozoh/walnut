@@ -20,7 +20,7 @@ import com.site0.walnut.val.util.WnSeqInfo;
 public abstract class ValueMakers {
 
     public static SeqMaker getSeqMaker(WnSystem sys, WnSeqInfo info) {
-        return getSeqMaker(sys.io, sys.session.getVars(), info);
+        return getSeqMaker(sys.io, sys.session.getEnv(), info);
     }
 
     public static SeqMaker getSeqMaker(WnIo io, NutBean vars, WnSeqInfo info) {

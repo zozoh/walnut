@@ -8,6 +8,8 @@ public class WnLoginSetup {
 
     public WnSessionStore sessions;
 
+    public WnRoleStore roles;
+
     public WnXApi xapi;
 
     public String domain;

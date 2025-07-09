@@ -40,9 +40,6 @@ import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.web.Webs.Err;
 
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.box.WnBoxService;
 import com.site0.walnut.api.box.WnServiceFactory;
 import com.site0.walnut.api.err.Er;
@@ -51,16 +48,18 @@ import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.api.io.WnRace;
-import com.site0.walnut.api.io.WnSecurity;
-import com.site0.walnut.ext.data.www.impl.WnWebService;
 import com.site0.walnut.ext.sys.cron.WnSysCronApi;
 import com.site0.walnut.ext.sys.schedule.WnSysScheduleApi;
 import com.site0.walnut.ext.sys.task.WnSysTaskApi;
 import com.site0.walnut.impl.box.WnSystem;
-import com.site0.walnut.impl.io.WnSecurityImpl;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnRoleList;
+import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.each.WnEachIteratee;
 import com.site0.walnut.util.explain.WnExplain;
 import com.site0.walnut.util.explain.WnExplains;
+import com.site0.walnut.web.WnConfig;
 
 /**
  * Walnut 系统的各种帮助函数集合
@@ -139,8 +138,8 @@ public abstract class Wn {
 
     }
 
-    public static WnObj getObj(WnIo io, WnAuthSession se, String str) {
-        return getObj(io, se.getVars(), str);
+    public static WnObj getObj(WnIo io, WnSession se, String str) {
+        return getObj(io, se.getEnv(), str);
 
     }
 
@@ -185,7 +184,7 @@ public abstract class Wn {
 
     }
 
-    public static WnObj checkObj(WnIo io, WnAuthSession se, String str) {
+    public static WnObj checkObj(WnIo io, WnSession se, String str) {
         WnObj o = getObj(io, se, str);
         if (null == o)
             throw Er.create("e.io.obj.noexists", str);
@@ -205,7 +204,7 @@ public abstract class Wn {
      * @return 列表
      */
     public static List<WnObj> getPathObjList(WnSystem sys, String varName, String dftPh) {
-        NutMap vars = sys.session.getVars();
+        NutBean vars = sys.session.getEnv();
         String paths = vars.getString(varName, dftPh);
         String[] phs = Strings.splitIgnoreBlank(paths, ":");
 
@@ -355,7 +354,7 @@ public abstract class Wn {
         return normalizePath(ph, sys, true);
     }
 
-    public static String normalizePath(String ph, WnAuthSession se) {
+    public static String normalizePath(String ph, WnSession se) {
         return normalizePath(ph, se, true);
     }
 
@@ -367,8 +366,8 @@ public abstract class Wn {
         return normalizePath(ph, sys.session, applyEnv);
     }
 
-    public static String normalizePath(String ph, WnAuthSession se, boolean applyEnv) {
-        return normalizePath(ph, se.getVars(), applyEnv);
+    public static String normalizePath(String ph, WnSession se, boolean applyEnv) {
+        return normalizePath(ph, se.getEnv(), applyEnv);
     }
 
     public static String normalizePath(String ph, NutBean vars, boolean applyEnv) {
@@ -394,7 +393,7 @@ public abstract class Wn {
         return normalizeFullPath(ph, sys, true);
     }
 
-    public static String normalizeFullPath(String ph, WnAuthSession se) {
+    public static String normalizeFullPath(String ph, WnSession se) {
         return normalizeFullPath(ph, se, true);
     }
 
@@ -434,8 +433,8 @@ public abstract class Wn {
         return ph;
     }
 
-    public static String normalizeFullPath(String ph, WnAuthSession se, boolean applyEnv) {
-        return normalizeFullPath(ph, se.getVars(), applyEnv);
+    public static String normalizeFullPath(String ph, WnSession se, boolean applyEnv) {
+        return normalizeFullPath(ph, se.getEnv(), applyEnv);
     }
 
     public static String normalizeFullPath(String ph, NutBean vars, boolean applyEnv) {
@@ -486,8 +485,8 @@ public abstract class Wn {
         return normalizeStr(str, sys.session);
     }
 
-    public static String normalizeStr(String str, WnAuthSession se) {
-        return normalizeStr(str, se.getVars());
+    public static String normalizeStr(String str, WnSession se) {
+        return normalizeStr(str, se.getEnv());
     }
 
     /**
@@ -650,77 +649,18 @@ public abstract class Wn {
         return wc;
     }
 
-    public static class Session {
-
-        public static void updateAuthSession(WnAuthService auth,
-                                             NutBean initUsrEnvs,
-                                             WnAuthSession se,
-                                             WnWebService webs,
-                                             WnObj oWWW,
-                                             String byType,
-                                             String byValue) {
-            // 标注新会话的类型，以便指明用户来源
-            if (!Ws.isBlank(byType))
-                se.setByType(byType);
-            if (!Ws.isBlank(byValue))
-                se.setByValue(byValue);
-
-            // 确保用户会话有足够的环境变量
-            NutMap vars = se.getVars();
-
-            // 先搞一轮站点的环境变量，这个要强制加上
-            for (Map.Entry<String, Object> en : webs.getSite().getVars().entrySet()) {
-                String key = en.getKey();
-                Object val = en.getValue();
-                boolean force = key.startsWith("!");
-                // 有些时候，站点这边希望强制用户设置某些环境变量，譬如 HOME,THEME等
-                // 这样就不用为每个用户设置了。有些时候又希望千人千面。
-                // 所以我们把决定权交给配置，前面声明了 ! 的键，表示要强制设置的项目
-                if (force) {
-                    key = key.substring(1).trim();
-                    vars.put(key, val);
-                }
-                // 弱弱的补充一下
-                else {
-                    vars.putDefault(key, val);
-                }
-            }
-            // 再搞一轮系统的默认环境变量，系统的，自然就都是弱弱的补充了，嗯，我看没什么问题
-            if (null != initUsrEnvs) {
-                for (Map.Entry<String, Object> en : initUsrEnvs.entrySet()) {
-                    vars.putDefault(en.getKey(), en.getValue());
-                }
-            }
-
-            // 最后，设置一下所属站点，以备之后的权限检查相关的逻辑读取
-            vars.put(WnAuthSession.V_WWW_SITE_ID, oWWW.id());
-            vars.put(WnAuthSession.V_ROLE, se.getMe().getRoleName());
-
-            // 保存会话
-            auth.saveSession(se);
-        }
-
-        public static void checkHomeAccessable(WnIo io,
-                                               WnAuthService auth,
-                                               WnObj oHome,
-                                               WnAccount user) {
-            WnSecurity secu = new WnSecurityImpl(io, auth);
-            // 不能读，那么注销会话，并返回错误
-            if (!secu.test(oHome, Wn.Io.R, user)) {
-                throw Er.create("e.auth.home.forbidden");
-            }
-        }
-
-    }
-
     public static class Service {
+
+        public static WnConfig config(Ioc ioc) {
+            return ioc.get(WnConfig.class, "conf");
+        }
 
         public static WnServiceFactory services(Ioc ioc) {
             return ioc.get(WnServiceFactory.class, "serviceFactory");
         }
 
-        public static WnAuthService auth(Ioc ioc) {
-            return ioc.get(WnAuthService.class, "sysAuthService");
+        public static WnLoginApi auth(Ioc ioc) {
+            return ioc.get(WnLoginApi.class, "sysLoginApi");
         }
 
         public static WnSysTaskApi tasks(Ioc ioc) {
@@ -1869,8 +1809,9 @@ public abstract class Wn {
         // 检查权限: root 组管理员才能操作
         sys.nosecurity(new Atom() {
             public void run() {
-                WnAccount me = Wn.WC().getMe();
-                if (sys.auth.isAdminOfGroup(me, "root")) {
+                WnUser me = Wn.WC().getMe();
+                WnRoleList roles = sys.auth.getRoles(me);
+                if (roles.isAdminOfRole("root")) {
                     throw Er.create("e.cmd.mgadmin.only_for_root_admin");
                 }
             }

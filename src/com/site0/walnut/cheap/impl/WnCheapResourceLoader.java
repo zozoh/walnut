@@ -16,7 +16,7 @@ public class WnCheapResourceLoader implements CheapResourceLoader {
 
     public WnCheapResourceLoader(WnSystem sys) {
         this.io = sys.io;
-        this.vars = sys.session.getVars();
+        this.vars = sys.session.getEnv();
     }
 
     public WnCheapResourceLoader(WnIo io, NutBean vars) {

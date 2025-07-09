@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Strings;
-import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.NutBean;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIoIndexer;
 import com.site0.walnut.api.io.WnObj;
@@ -28,7 +28,7 @@ public class app_sidebar implements JvmHdl {
     public void invoke(WnSystem sys, JvmHdlContext hc) {
 
         // 确保会话有关键变量,自己的域名
-        NutMap vars = sys.session.getVars();
+        NutBean vars = sys.session.getEnv();
         if (!vars.has("SIDEBAR_DOMAIN"))
             vars.put("SIDEBAR_DOMAIN", sys.getMyGroup());
 
@@ -126,7 +126,7 @@ public class app_sidebar implements JvmHdl {
 
         // 环境变量次优
         if (Strings.isBlank(phConf)) {
-            NutMap vars = sys.session.getVars();
+            NutBean vars = sys.session.getEnv();
             phConf = vars.getString("SIDEBAR");
 
             // 否则看看是否指定了默认配置的位置

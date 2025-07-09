@@ -3,21 +3,22 @@ package com.site0.walnut.web.impl;
 import java.util.Map;
 
 import org.nutz.lang.util.NutMap;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
-import com.site0.walnut.api.auth.WnAuthSession;
-import com.site0.walnut.api.auth.WnGroupRole;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.io.WnSecurityImpl;
 import com.site0.walnut.impl.srv.WnBoxRunning;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnRoleList;
+import com.site0.walnut.login.WnRoleType;
+import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Wn;
 
 public class AppCheckAccess {
 
     private NutMap roles;
 
-    public boolean doCheck(WnIo io, WnAuthSession se, WnAuthService auth, WnBoxRunning run) {
+    public boolean doCheck(WnIo io, WnSession se, WnLoginApi auth, WnBoxRunning run) {
         WnSecurityImpl secur = new WnSecurityImpl(io, auth);
         // 检查角色
         if (null != roles) {
@@ -40,8 +41,8 @@ public class AppCheckAccess {
     private boolean checkRole(String roleName,
                               String path,
                               WnIo io,
-                              WnAuthSession se,
-                              WnAuthService auth,
+                              WnSession se,
+                              WnLoginApi auth,
                               WnSecurityImpl secur) {
         String ta_grp;
         // @XXX 直接表示组名
@@ -59,15 +60,16 @@ public class AppCheckAccess {
             // 根据角色
             ta_grp = oTa.group();
         }
-        WnGroupRole shouldBeRole = WnGroupRole.valueOf(roleName);
+        WnRoleType shouldBeRole = WnRoleType.valueOf(roleName.toUpperCase());
         // 管理员
-        WnAccount me = se.getMe();
-        if (WnGroupRole.ADMIN == shouldBeRole) {
-            return auth.isAdminOfGroup(me, ta_grp);
+        WnUser me = se.getUser();
+        WnRoleList roles = auth.getRoles(me);
+        if (WnRoleType.ADMIN == shouldBeRole) {
+            return roles.isAdminOfRole(ta_grp);
         }
         // 成员
-        if (WnGroupRole.MEMBER == shouldBeRole) {
-            return auth.isMemberOfGroup(me, ta_grp);
+        if (WnRoleType.MEMBER == shouldBeRole) {
+            return roles.isMemberOfRole(ta_grp);
         }
         // 权限写的不对，禁止
         return false;

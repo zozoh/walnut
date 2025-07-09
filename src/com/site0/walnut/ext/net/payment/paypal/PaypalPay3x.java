@@ -8,14 +8,13 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import com.site0.walnut.util.Wlog;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.net.payment.WnPay3x;
 import com.site0.walnut.ext.net.payment.WnPay3xDataType;
 import com.site0.walnut.ext.net.payment.WnPay3xRe;
 import com.site0.walnut.ext.net.payment.WnPay3xStatus;
 import com.site0.walnut.ext.net.payment.WnPayObj;
-
+import com.site0.walnut.login.WnUser;
 import com.paypal.core.PayPalEnvironment;
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;
@@ -156,7 +155,7 @@ public class PaypalPay3x extends WnPay3x {
     }
 
     protected PaypalConfig createConfig(WnPayObj po) {
-        WnAccount seller = run.login().checkAccountById(po.getSellerId());
+        WnUser seller = run.auth().checkUserById(po.getSellerId());
         String aph = seller.getHomePath() + "/.paypal/" + po.getPayTarget() + "/ppconf";
         WnObj conf = io.check(null, aph);
         return io.readJson(conf, PaypalConfig.class);

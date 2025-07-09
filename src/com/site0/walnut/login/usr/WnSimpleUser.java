@@ -8,13 +8,16 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
-import com.site0.walnut.api.auth.WnAuths;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.login.UserRace;
+import com.site0.walnut.login.WnRoleList;
 import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.WnUserRank;
+import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Wobj;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wtime;
+import com.site0.walnut.util.Wuu;
 
 public class WnSimpleUser implements WnUser {
 
@@ -53,15 +56,53 @@ public class WnSimpleUser implements WnUser {
     }
 
     @Override
+    public WnUserRank getRank(WnRoleList roles) {
+        WnUserRank rank = new WnUserRank();
+        rank.setRoles(roles);
+        rank.setUserId(id);
+        rank.setUserName(name);
+        return rank;
+    }
+
+    @Override
     public boolean isSame(WnUser u) {
         if (null == u) {
             return false;
         }
         return id.equals(u.getId());
     }
+    
+    @Override
+    public boolean isSameId(String userId) {
+        return id.equals(userId);
+    }
 
     @Override
-    public WnSimpleUser clone() {
+    public boolean isSameName(String userName) {
+        return this.name.equals(userName);
+    }
+
+    @Override
+    public boolean isSysUser() {
+        return UserRace.SYS == this.getUserRace();
+    }
+
+    @Override
+    public boolean isDomainUser() {
+        return UserRace.DOMAIN == this.getUserRace();
+    }
+
+    @Override
+    public String getHomePath() {
+        String dftHome = "/home/" + this.getMainGroup();
+        if (isSysUser() && "root".equals(this.name)) {
+            dftHome = "/root";
+        }
+        return this.getMetaString("HOME", dftHome);
+    }
+
+    @Override
+    public WnUser clone() {
         WnSimpleUser re = new WnSimpleUser();
         re.userRace = this.userRace;
         re.id = this.id;
@@ -107,7 +148,7 @@ public class WnSimpleUser implements WnUser {
             email = str;
         }
         // 登录名
-        else if (WnAuths.isValidAccountName(str)) {
+        else if (WnUsers.isValidAccountName(str)) {
             name = str;
         }
         // 错误的登录字符串
@@ -350,6 +391,61 @@ public class WnSimpleUser implements WnUser {
     }
 
     @Override
+    public String getSalt() {
+        return salt;
+    }
+
+    @Override
+    public void setSalt(String salt) {
+        this.salt = salt;
+    }
+
+    @Override
+    public String getPasswd() {
+        return passwd;
+    }
+
+    @Override
+    public void setPasswd(String passwd) {
+        this.passwd = passwd;
+    }
+
+    @Override
+    public void genSaltAndRawPasswd(String rawPasswd) {
+        String salt = Wuu.UU32();
+        String passwd = Wn.genSaltPassword(rawPasswd, salt);
+        setSalt(salt);
+        setPasswd(passwd);
+    }
+
+    @Override
+    public boolean hasSaltedPasswd() {
+        return !Ws.isBlank(this.salt) && !Ws.isBlank(this.passwd);
+    }
+
+    @Override
+    public void setRawPasswd(String passwd) {
+        if (!Ws.isBlank(passwd)) {
+            if (Ws.isBlank(this.salt)) {
+                this.salt = Wuu.UU32();
+            }
+            this.passwd = Wn.genSaltPassword(passwd, salt);
+        }
+    }
+
+    @Override
+    public boolean isMatchedRawPasswd(String passwd) {
+        if (null == this.passwd) {
+            return false;
+        }
+        if (Ws.isBlank(salt)) {
+            return this.passwd.equals(passwd);
+        }
+        String pwd = Wn.genSaltPassword(passwd, salt);
+        return this.passwd.equals(pwd);
+    }
+
+    @Override
     public boolean hasMeta() {
         return null != meta && !meta.isEmpty();
     }
@@ -357,6 +453,19 @@ public class WnSimpleUser implements WnUser {
     @Override
     public NutBean getMeta() {
         return meta;
+    }
+
+    @Override
+    public String getMetaString(String key) {
+        return getMetaString(key, null);
+    }
+
+    @Override
+    public String getMetaString(String key, String dft) {
+        if (null != meta) {
+            return meta.getString(key, dft);
+        }
+        return dft;
     }
 
     @Override
@@ -373,23 +482,21 @@ public class WnSimpleUser implements WnUser {
     }
 
     @Override
-    public String getPasswd() {
-        return passwd;
+    public void setMeta(String key, Object val) {
+        if (null == this.meta) {
+            this.meta = new NutMap();
+        }
+        this.meta.put(key, val);
     }
 
     @Override
-    public void setPasswd(String passwd) {
-        this.passwd = passwd;
-    }
-
-    @Override
-    public String getSalt() {
-        return salt;
-    }
-
-    @Override
-    public void setSalt(String salt) {
-        this.salt = salt;
+    public void removeMeta(String... keys) {
+        if (null == this.meta) {
+            return;
+        }
+        for (String key : keys) {
+            this.meta.remove(key);
+        }
     }
 
 }

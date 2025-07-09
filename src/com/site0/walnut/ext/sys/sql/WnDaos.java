@@ -13,13 +13,12 @@ import org.nutz.dao.impl.NutDao;
 import org.nutz.json.Json;
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutBean;
-import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import com.site0.walnut.util.Wlog;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.WnSession;
 import com.site0.walnut.util.Wn;
 
 import com.alibaba.druid.pool.DruidDataSource;
@@ -110,7 +109,7 @@ public abstract class WnDaos {
     public static <T extends WnDaoConfig> T loadConfig(Class<T> configType,
                                                        WnIo io,
                                                        String path,
-                                                       NutMap vars) {
+                                                       NutBean vars) {
         String aph = Wn.normalizeFullPath(path, vars);
         WnObj oConf = io.check(null, aph);
         return loadConfig(configType, io, oConf, vars);
@@ -119,7 +118,7 @@ public abstract class WnDaos {
     public static <T extends WnDaoConfig> T loadConfig(Class<T> configType,
                                                        WnIo io,
                                                        WnObj oConf,
-                                                       NutMap vars) {
+                                                       NutBean vars) {
         String json = io.readText(oConf);
         T conf = Json.fromJson(configType, json);
         String ph = "~/.dao/" + conf.getDaoName() + ".dao.json";
@@ -138,14 +137,14 @@ public abstract class WnDaos {
     }
 
     public static WnDaoAuth loadAuth(WnSystem sys, String daoName) {
-        return loadAuth(sys.io, daoName, sys.session.getVars());
+        return loadAuth(sys.io, daoName, sys.session.getEnv());
     }
 
     public static <T extends WnDaoConfig> T loadConfig(Class<T> configType,
                                                        WnIo io,
                                                        String path,
-                                                       WnAuthSession se) {
-        return loadConfig(configType, io, path, se.getVars());
+                                                       WnSession se) {
+        return loadConfig(configType, io, path, se.getEnv());
     }
 
     public static <T extends WnDaoConfig> T loadConfig(Class<T> configType,
@@ -157,8 +156,8 @@ public abstract class WnDaos {
     public static <T extends WnDaoConfig> T loadConfig(Class<T> configType,
                                                        WnIo io,
                                                        WnObj oConf,
-                                                       WnAuthSession se) {
-        return loadConfig(configType, io, oConf, se.getVars());
+                                                       WnSession se) {
+        return loadConfig(configType, io, oConf, se.getEnv());
     }
 
     public static <T extends WnDaoConfig> T loadConfig(Class<T> configType,

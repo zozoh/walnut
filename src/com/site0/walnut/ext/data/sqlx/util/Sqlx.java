@@ -40,7 +40,7 @@ public abstract class Sqlx {
     private static Map<String, SqlHolder> sqlHolders = new HashMap<>();
 
     public static SqlHolder getSqlHolderByPath(WnSystem sys, String dirPath) {
-        return getSqlHolderByPath(sys.io, sys.session.getVars(), dirPath);
+        return getSqlHolderByPath(sys.io, sys.session.getEnv(), dirPath);
     }
 
     public static SqlHolder getSqlHolderByPath(WnIo io, NutBean vars, String dirPath) {

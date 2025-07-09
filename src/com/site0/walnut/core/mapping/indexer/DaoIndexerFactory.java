@@ -5,8 +5,6 @@ import java.util.Map;
 import org.nutz.ioc.Ioc;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.MimeMap;
 import com.site0.walnut.api.io.WnIo;
@@ -16,6 +14,9 @@ import com.site0.walnut.core.indexer.dao.DaoIndexer;
 import com.site0.walnut.core.mapping.WnIndexerFactory;
 import com.site0.walnut.ext.sys.sql.WnDaoMappingConfig;
 import com.site0.walnut.ext.sys.sql.WnDaos;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnRoleList;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 
@@ -23,9 +24,9 @@ public class DaoIndexerFactory implements WnIndexerFactory {
 
     private Ioc ioc;
 
-    private String authServiceName;
+    // private String authServiceName;
 
-    private WnAuthService auth;
+    private WnLoginApi auth;
 
     private WnIo io;
 
@@ -33,7 +34,7 @@ public class DaoIndexerFactory implements WnIndexerFactory {
 
     private MimeMap mimes;
 
-    public void setAuth(WnAuthService auth) {
+    public void setAuth(WnLoginApi auth) {
         this.auth = auth;
     }
 
@@ -62,21 +63,26 @@ public class DaoIndexerFactory implements WnIndexerFactory {
         // 预备 ...
         DaoIndexer di = null;
         WnContext wc = Wn.WC();
-        WnAccount me = wc.getMe();
+        WnUser me = wc.getMe();
 
         // 懒加载验证接口
         if (null == auth) {
-            if (null != ioc && null != this.authServiceName) {
-                this.auth = ioc.get(WnAuthService.class, authServiceName);
+            if (null != ioc) {
+                this.auth = ioc.get(WnLoginApi.class, "sysLoginApi");
             }
         }
 
-        // 如果当前用户为 root 组成员，或者当前木有做权限检查，可以从预定义里获取
-        if (null == me
-            || null == auth
-            || wc.isSecurityNoCheck()
-            || auth.isMemberOfGroup(me, "root")) {
+        // 没有指定线程用户，那么就放过检查
+        if (null == me || wc.isSecurityNoCheck()) {
             di = indexers.get(str);
+        }
+
+        // 如果当前用户为 root 组成员，或者当前木有做权限检查，可以从预定义里获取
+        if (null == di && null != auth) {
+            WnRoleList roles = auth.getRoles(me);
+            if (roles.isMemberOfRole("root")) {
+                di = indexers.get(str);
+            }
         }
         // 尝试从自己的域读取
         if (null == di) {
@@ -91,9 +97,9 @@ public class DaoIndexerFactory implements WnIndexerFactory {
             WnObj o = io.fetch(null, aph);
             if (null != o) {
                 WnDaoMappingConfig conf = WnDaos.loadConfig(WnDaoMappingConfig.class,
-                                                     io,
-                                                     o,
-                                                     Wlang.map("HOME", homePath));
+                                                            io,
+                                                            o,
+                                                            Wlang.map("HOME", homePath));
                 return new DaoIndexer(oHome, mimes, conf);
             }
         }

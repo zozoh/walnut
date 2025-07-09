@@ -50,7 +50,7 @@ public class cmd_webx extends JvmFilterExecutor<WebxContext, WebxFilter> {
         }
 
         // 创建权鉴接口
-        fc.api = WnLoginApiMaker.forDomain().make(sys.io, sys.session.getVars(), options);
+        fc.api = WnLoginApiMaker.forDomain().make(sys.io, sys.session.getEnv(), options);
     }
 
     @Override

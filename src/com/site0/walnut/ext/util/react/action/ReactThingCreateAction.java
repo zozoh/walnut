@@ -22,7 +22,7 @@ public class ReactThingCreateAction implements ReactActionHandler {
         oTs = Things.checkThingSet(oTs);
 
         // 创建服务类
-        String homePath = r.session.getMe().getHomePath();
+        String homePath = r.session.getUser().getHomePath();
         WnThingService wts = new WnThingService(r.io, oTs, homePath);
 
         // 准备必要的参数

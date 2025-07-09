@@ -10,8 +10,6 @@ import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
@@ -26,6 +24,8 @@ import com.site0.walnut.ext.sys.schedule.bean.WnMinuteSlotIndex;
 import com.site0.walnut.ext.sys.task.WnSysTask;
 import com.site0.walnut.ext.sys.task.WnSysTaskApi;
 import com.site0.walnut.ext.sys.task.WnSysTaskException;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
@@ -41,7 +41,7 @@ public class WnSysScheduleService implements WnSysScheduleApi {
 
     private WnIo io;
 
-    private WnAuthService auth;
+    private WnLoginApi auth;
 
     private WnSysCronApi cronApi;
 
@@ -51,7 +51,7 @@ public class WnSysScheduleService implements WnSysScheduleApi {
     private WnObj scheduleHome;
 
     /* AUDO get by rootUser */
-    private WnAccount rootUser;
+    private WnUser rootUser;
 
     public WnSysScheduleService() {}
 
@@ -320,7 +320,7 @@ public class WnSysScheduleService implements WnSysScheduleApi {
      */
     public void on_create() {
         if (null == this.rootUser) {
-            this.rootUser = auth.getAccount("root");
+            this.rootUser = auth.getUser("root");
         }
         if (null == this.scheduleHome) {
             this.scheduleHome = io.createIfNoExists(null, "/sys/schedule/", WnRace.DIR);

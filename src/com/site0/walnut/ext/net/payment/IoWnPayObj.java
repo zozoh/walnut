@@ -2,8 +2,8 @@ package com.site0.walnut.ext.net.payment;
 
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.core.bean.WnIoObj;
+import com.site0.walnut.login.WnUser;
 
 /**
  * 封装一个支付单的数据
@@ -298,14 +298,14 @@ public class IoWnPayObj extends WnIoObj implements WnPayObj {
     }
 
     @Override
-    public boolean isTheSeller(WnAccount u) {
+    public boolean isTheSeller(WnUser u) {
         if (null == u)
             return false;
         return u.isSameId(this.getString(WnPays.KEY_SELLER_ID));
     }
 
     @Override
-    public boolean isTheBuyer(WnAccount u) {
+    public boolean isTheBuyer(WnUser u) {
         return u.isSameId(this.getString(WnPays.KEY_BUYER_ID));
     }
 

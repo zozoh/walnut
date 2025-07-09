@@ -1,13 +1,16 @@
 package com.site0.walnut.impl.io;
 
+import org.nutz.lang.util.NutBean;
 import org.nutz.trans.Proton;
-import com.site0.walnut.api.auth.WnGroupRole;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.AbstractWnSecurity;
 import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnRoleList;
+import com.site0.walnut.login.WnRoleType;
 import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.WnUserRank;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 
@@ -111,19 +114,22 @@ public class WnSecurityImpl extends AbstractWnSecurity {
     }
 
     private WnObj __do_check_node(WnObj o, int mask, boolean asNull, WnUser u) {
+        WnRoleList roles = auth.getRoles(u);
         // 对于 root 组成员，啥都不检查
-        if (auth.isMemberOfGroup(u, "root"))
+        if (roles.isMemberOfRole("root"))
             return o;
 
         int md;
 
         // 系统用户，采用标准权限模型
-        if (u.isSysAccount()) {
+        if (u.isSysUser()) {
             md = o.mode();
         }
         // 域用户，优先采用自定义权限
         else {
-            md = o.getCustomizedPrivilege(u, o.mode());
+            WnUserRank rank = u.getRank(roles);
+            NutBean pvg = o.getCustomizedPrivilege();
+            md = rank.evalPvgMode(pvg, o.mode());
         }
 
         // 本身就是创建者，那么看看 u 部分的权限
@@ -133,10 +139,10 @@ public class WnSecurityImpl extends AbstractWnSecurity {
         }
 
         // 对象组给我啥权限
-        WnGroupRole role = auth.getGroupRole(u, o.group());
+        WnRoleType role = roles.getRoleTypeOfGroup(o.group());
 
         // 黑名单的话，禁止
-        if (WnGroupRole.BLOCK == role) {
+        if (WnRoleType.BLOCK == role) {
             if (asNull)
                 return null;
             throw Er.create("e.io.forbidden");
@@ -147,11 +153,11 @@ public class WnSecurityImpl extends AbstractWnSecurity {
             return o;
 
         // g 允许进入
-        if (WnGroupRole.MEMBER == role && ((md >> 3) & mask) == mask)
+        if (WnRoleType.MEMBER == role && ((md >> 3) & mask) == mask)
             return o;
 
         // u 允许进入
-        if (WnGroupRole.ADMIN == role && ((md >> 6) & mask) == mask)
+        if (WnRoleType.ADMIN == role && ((md >> 6) & mask) == mask)
             return o;
 
         // 看看是否允许为空

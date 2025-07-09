@@ -35,9 +35,6 @@ import org.nutz.web.WebException;
 import org.nutz.web.ajax.Ajax;
 import org.nutz.web.ajax.AjaxView;
 
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
@@ -45,12 +42,15 @@ import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.impl.srv.WnBoxRunning;
 import com.site0.walnut.impl.srv.WnDomainService;
 import com.site0.walnut.impl.srv.WwwSiteInfo;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnRoleList;
+import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.lookup.WnLookup;
 import com.site0.walnut.lookup.impl.WnLookupMaker;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.util.Wn.Session;
 import com.site0.walnut.util.WnContext;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.web.bean.WnApp;
@@ -129,15 +129,15 @@ public class AppModule extends AbstractWnModule {
 
         // 看看是否已经登录了
         String ticket = Wn.WC().getTicket();
-        WnAuthSession se = login().getSession(ticket);
-        if (null != se && !se.isDead()) {
+        WnSession se = this.auth().getSession(ticket);
+        if (null != se && !se.isExpired()) {
             return __get_session_default_view(se);
         }
 
         // 已经得到域用户
-        WnAccount domainUser = null;
+        WnUser domainUser = null;
         if (null != domainName) {
-            domainUser = login().getAccount(domainName);
+            domainUser = this.auth().getUser(domainName);
         }
 
         // 渲染登陆页面
@@ -179,7 +179,7 @@ public class AppModule extends AbstractWnModule {
             WnApp app = apps.checkApp(appName);
 
             if (log.isDebugEnabled()) {
-                String envJson = Json.toJson(app.getSession().getVars(), JsonFormat.nice());
+                String envJson = Json.toJson(app.getSession().getEnv(), JsonFormat.nice());
                 log.debugf("APP<%s>:%s:%s:%s:%s", appName, str, id, matchJson, envJson);
             }
 
@@ -192,7 +192,7 @@ public class AppModule extends AbstractWnModule {
             // 默认用路径
             else {
                 if (Strings.isBlank(str)) {
-                    str = app.getSession().getVars().getString("OBJ_DFT_PATH", "~");
+                    str = app.getSession().getEnv().getString("OBJ_DFT_PATH", "~");
                 }
                 oP = apps.getObjByPath(app, str);
             }
@@ -208,14 +208,16 @@ public class AppModule extends AbstractWnModule {
             app.setObj(obj);
 
             // 检查应用权限: root 组成员免查，可以打开任何 app
-            WnAuthSession se = app.getSession();
+            WnLoginApi auth = this.auth();
+            WnSession se = app.getSession();
             WnObj oAppHome = app.getHome();
-            if (!this.login().isMemberOfGroup(se.getMe(), "root")) {
+            WnUser me = se.getUser();
+            WnRoleList roles = auth.getRoles(me);
+            if (!roles.isMemberOfRole("root")) {
                 WnIo io = io();
                 WnObj oCheckAccess = io.fetch(oAppHome, "check_access.json");
                 if (null != oCheckAccess) {
                     AppCheckAccess ca = io.readJson(oCheckAccess, AppCheckAccess.class);
-                    WnAuthService auth = login();
                     WnBoxRunning run = this.createRunning(false);
                     if (!ca.doCheck(io, se, auth, run)) {
                         return new HttpStatusView(403);
@@ -424,11 +426,12 @@ public class AppModule extends AbstractWnModule {
                                     @ReqHeader("Referer") String referer) {
         referer = Strings.sBlank(referer, "/");
         try {
-            WnAuthSession se = login().loginByPasswd(name, passwd);
+            WnLoginApi auth = this.auth();
+            WnSession se = auth.loginByPassword(name, passwd);
             // 如果是 Ajax 视图
             if (ajax) {
                 // 获取 cookie 模板
-                Object reo = se.toMapForClient();
+                Object reo = se.toBean();
                 return new ViewWrapper(new WnAddCookieViewWrapper(conf, new AjaxView(), null), reo);
             }
             // 直接跳转到用户的主应用
@@ -452,10 +455,10 @@ public class AppModule extends AbstractWnModule {
         }
     }
 
-    private View __get_session_default_view(WnAuthSession se) {
-        String appName = se.getVars().getString("OPEN", "wn.console");
+    private View __get_session_default_view(WnSession se) {
+        String appName = se.getEnv().getString("OPEN", "wn.console");
         String url = "/a/open/" + appName;
-        Object reData = se.toMapForClient();
+        Object reData = se.toBean();
         return new ViewWrapper(new WnAddCookieViewWrapper(conf, url), reData);
     }
 
@@ -474,11 +477,12 @@ public class AppModule extends AbstractWnModule {
         if (wc.hasTicket()) {
             String ticket = wc.getTicket();
             // 退出登录
-            WnAuthSession pse = login().logout(ticket, 0);
+            WnLoginApi auth = this.auth();
+            WnSession pse = auth.logout(ticket);
 
             // 退到父会话
-            if (null != pse && !pse.isDead()) {
-                Object reo = pse.toMapForClient();
+            if (null != pse && !pse.isExpired()) {
+                Object reo = pse.toBean();
                 return new ViewWrapper(new WnAddCookieViewWrapper(conf, view, null), reo);
             }
         }
@@ -558,23 +562,24 @@ public class AppModule extends AbstractWnModule {
         // -------------------------------------------------
         // 如果这个域声明了默认登录站点，那么则试图用这个站点的账户系统登录
         try {
+            WnLoginApi auth = this.auth();
             // 如果采用域用户登陆，则校验系统账户
             // 并返回 CookieView
             if (si.oHome.isSameName(name)) {
                 if (log.isInfoEnabled()) {
                     log.infof("Login as domain-user: %s", name);
                 }
-                WnAuthSession se = login().loginByPasswd(name, passwd);
-                String appName = se.getVars().getString("OPEN", "wn.console");
+                WnSession se = auth.loginByPassword(name, passwd);
+                String appName = se.getEnv().getString("OPEN", "wn.console");
                 redirectPath = "/a/open/" + appName;
-                reo = se.toMapForClient();
+                reo = se.toBean();
             }
             // 采用域用户库来登陆
             else {
                 if (log.isInfoEnabled()) {
                     log.infof("Login as sub-user: %s", name);
                 }
-                WnAccount user = si.webs.getAuthApi().checkAccount(name);
+                WnUser user = si.webs.getAuthApi().checkAccount(name);
                 if (log.isInfoEnabled()) {
                     log.infof("sub user : %s", user.toString());
                 }
@@ -591,14 +596,14 @@ public class AppModule extends AbstractWnModule {
                     }
 
                     // 特殊会话类型
-                    String byType = WnAuthSession.V_BT_AUTH_BY_DOMAIN;
+                    String byType = WnSession.V_BT_AUTH_BY_DOMAIN;
                     String byValue = si.siteId + ":passwd";
 
                     // 获取会话时长设置
                     int se_du = si.webs.getSite().getSeDftDu();
 
                     // 注册新会话
-                    WnAuthSession se = login().createSession(user, se_du);
+                    WnSession se = login().createSession(user, se_du);
 
                     // 更新会话元数据
                     Session.updateAuthSession(login(),
@@ -665,107 +670,6 @@ public class AppModule extends AbstractWnModule {
         return new ViewWrapper(view, reo);
     }
 
-    /**
-     * 根据域站点登录票据进行系统会话登录
-     * 
-     * @param siteId
-     *            站点的 ID
-     * @param ticket
-     *            用户登录票据
-     * @param ajax
-     *            是否要返回 ajax 形式的包裹
-     * @param hostName
-     *            转接的域名
-     * @return 输出视图
-     */
-    @At
-    @Filters(@By(type = WnAsUsr.class, args = {"root"}))
-    public View auth_login_by_domain_ticket(@Param("site") String siteId,
-                                            @Param("ticket") String ticket,
-                                            @Param("ajax") boolean ajax,
-                                            @Attr("wn_www_host") String hostName) {
-        View view;
-        Object reo;
-        WnDomainService domains = new WnDomainService(io());
-        WwwSiteInfo si = domains.getWwwSiteInfo(siteId, hostName);
-        // -------------------------------------------------
-        if (null == si.oWWW) {
-            if (ajax) {
-                view = new AjaxView();
-            } else {
-                view = new ServerRedirectView("/");
-            }
-            reo = Er.create("e.auth.login.domain_without_www");
-            // 包裹返回
-            return new ViewWrapper(view, reo);
-        }
-        try {
-            // -------------------------------
-            // 特殊会话类型
-            String byType = WnAuthSession.V_BT_AUTH_BY_DOMAIN;
-            String byValue = si.siteId + ":" + ticket;
-
-            // -------------------------------
-            // 查找之前的会话
-            WnAuthSession seSys = login().getSession(byType, byValue);
-
-            // -------------------------------
-            // 嗯，看来要自动创建一个新的咯
-            // -------------------------------
-            if (null == seSys || seSys.isDead()) {
-                // 得到站点的会话票据
-                WnAuthSession seDmn = si.webs.getAuthApi().checkSession(ticket);
-
-                // 得到用户
-                WnAccount u = seDmn.getMe();
-
-                // 确保用户是可以访问域主目录的
-                Session.checkHomeAccessable(io(), login(), si.oHome, u);
-
-                // 注册新会话
-                seSys = login().createSession(u, true);
-
-                // 更新会话元数据
-                Session.updateAuthSession(login(),
-                                          conf.getInitUsrEnvs(),
-                                          seSys,
-                                          si.webs,
-                                          si.oWWW,
-                                          byType,
-                                          byValue);
-            }
-
-            // 准备返回数据
-            NutMap se = seSys.toMapForClient();
-
-            // 返回AJAX 视图
-            if (ajax) {
-                view = new WnAddCookieViewWrapper(conf, new AjaxView(), null);
-            }
-            // 重定向视图
-            else {
-                view = new WnAddCookieViewWrapper(conf, "/");
-            }
-
-            // 包裹数据对象并返回
-            return new ViewWrapper(view, se);
-        }
-        // 通常是存在什么问题，则会进入这个分支
-        catch (Exception e) {
-            reo = e;
-        }
-        // -----------------------------------------
-        // 进行到这里一定出现了错误，这里准备一下错误视图
-        if (ajax) {
-            view = new AjaxView();
-        } else {
-            view = new ServerRedirectView("/");
-        }
-        // -----------------------------------------
-        // 包裹返回
-        return new ViewWrapper(view, reo);
-    }
-
     @At("/me")
     @Ok("ajax")
     @Fail("ajax")
@@ -777,8 +681,8 @@ public class AppModule extends AbstractWnModule {
         if (WnWeb.isRequestOptions(req)) {
             return null;
         }
-        WnAuthSession se = Wn.WC().checkSession(login());
-        return se.toMapForClient();
+        WnSession se = Wn.WC().checkSession(auth());
+        return se.toBean();
     }
 
     /**
@@ -805,11 +709,11 @@ public class AppModule extends AbstractWnModule {
             String ticket = wc.getTicket();
             re.put("ticket", ticket);
             // 退出登录
-            WnAuthSession pse = login().logout(ticket, 0);
+            WnSession pse = this.auth().logout(ticket);
 
             // 退到父会话
-            if (null != pse && !pse.isDead()) {
-                re.put("parent", pse.toMapForClient());
+            if (null != pse && !pse.isExpired()) {
+                re.put("parent", pse.toBean());
             }
         }
 

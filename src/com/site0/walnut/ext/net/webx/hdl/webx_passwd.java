@@ -1,10 +1,10 @@
 package com.site0.walnut.ext.net.webx.hdl;
 
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.ext.net.webx.WebxContext;
 import com.site0.walnut.ext.net.webx.WebxFilter;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.WnRoleList;
 import com.site0.walnut.login.WnSession;
 import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Ws;
@@ -25,15 +25,16 @@ public class webx_passwd extends WebxFilter {
         try {
             // 获取用户
             WnUser u = null;
-            
+
             // TODO 严格模式下，必须需要 name 和 captcha 来验证一下不是机器人
 
             // 只有管理员才能直接指定用户
             if (!Ws.isBlank(nameOrPhoneOrEmail)) {
-                WnAccount me = sys.getMe();
+                WnUser me = sys.getMe();
+                WnRoleList roles = sys.auth.getRoles(me);
+
                 String mainGroup = sys.getMyGroup();
-                if (sys.auth.isMemberOfGroup(me, "root")
-                    || sys.auth.isAdminOfGroup(me, mainGroup)) {
+                if (roles.isMemberOfRole("root") || roles.isAdminOfRole(mainGroup)) {
                     String name = params.get("name");
                     u = fc.api.checkUser(name);
                 }
@@ -56,7 +57,7 @@ public class webx_passwd extends WebxFilter {
 
             // 更新密码
             fc.api.changePassword(u, newPassword);
-            
+
             // 将用户作为结果记录一下表示成功
             fc.result = u;
 

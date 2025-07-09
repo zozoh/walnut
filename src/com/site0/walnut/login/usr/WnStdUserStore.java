@@ -14,7 +14,6 @@ import com.site0.walnut.core.bean.WnObjId;
 import com.site0.walnut.login.UserRace;
 import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.util.Wuu;
 
 public class WnStdUserStore extends AbstractWnUserStore {
 
@@ -29,9 +28,16 @@ public class WnStdUserStore extends AbstractWnUserStore {
         this.userRace = options.userRace;
     }
 
-    public WnStdUserStore(WnIo io) {
+    public WnStdUserStore(WnIo io, String path) {
         this.io = io;
-        this.oHome = io.check(null, "/sys/usr");
+        this.oHome = io.check(null, path);
+        this.defaultMeta = new NutMap();
+        this.userRace = UserRace.SYS;
+    }
+
+    public WnStdUserStore(WnIo io, WnObj oHome) {
+        this.io = io;
+        this.oHome = oHome;
         this.defaultMeta = new NutMap();
         this.userRace = UserRace.SYS;
     }
@@ -116,13 +122,10 @@ public class WnStdUserStore extends AbstractWnUserStore {
         if (null == oU) {
             throw Er.create("e.auth.user.UserNoExistsWhenUpdateUserPassword", u.toString());
         }
-        String salt = Wuu.UU32();
-        String passwd = Wn.genSaltPassword(rawPassword, salt);
-        u.setSalt(salt);
-        u.setPasswd(passwd);
+        u.genSaltAndRawPasswd(rawPassword);
         NutMap delta = new NutMap();
-        delta.put("salt", salt);
-        delta.put("passwd", passwd);
+        delta.put("salt", u.getSalt());
+        delta.put("passwd", u.getPasswd());
 
         io.appendMeta(oU, delta);
     }

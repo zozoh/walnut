@@ -36,8 +36,8 @@ public class cmd_cd extends JvmExecutor {
         o = Wn.WC().whenEnter(o, false);
 
         // 修改会话中的设定
-        sys.session.getVars().put("PWD", o.path());
-        sys.auth.saveSessionVars(sys.session);
+        sys.session.getEnv().put("PWD", o.path());
+        sys.auth.saveSessionEnv(sys.session);
     }
 
 }

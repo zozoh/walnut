@@ -7,16 +7,15 @@ import org.nutz.mvc.ActionFilter;
 import org.nutz.mvc.View;
 import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
-import org.nutz.trans.Proton;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.box.WnBoxContext;
 import com.site0.walnut.api.box.WnBoxService;
 import com.site0.walnut.api.box.WnServiceFactory;
 import com.site0.walnut.api.hook.WnHookContext;
 import com.site0.walnut.api.hook.WnHookService;
 import com.site0.walnut.api.io.WnIo;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 import com.site0.walnut.web.util.WnWeb;
@@ -47,9 +46,9 @@ public class WnCheckSession implements ActionFilter {
         this.allowDead = allowDead;
     }
 
-    public WnAuthSession testSession(WnContext wc, WnAuthService auth) {
+    public WnSession testSession(WnContext wc, WnLoginApi auth) {
         // 先看看上下文中的Session
-        WnAuthSession se = wc.getSession();
+        WnSession se = wc.getSession();
 
         // 尝试从票据中获取
         if (null == se && wc.hasTicket()) {
@@ -59,16 +58,16 @@ public class WnCheckSession implements ActionFilter {
             // 获取并更新 Sessoion 对象的最后访问时间
             se = auth.getSession(ticket);
             if (null != se) {
-                WnAuthSession se2 = se;
-                se = Wn.WC().hooking(null, new Proton<WnAuthSession>() {
-                    protected WnAuthSession exec() {
-                        return auth.touchSession(se2);
-                    }
+                WnSession se2 = se;
+                Wn.WC().hooking(null, () -> {
+                    long du = auth.getSessionDuration();
+                    auth.touchSession(se2, du);
+
                 });
             }
 
             // 默认，已经 dead 的会话不被采用，除非特别声明
-            if (null == se || (se.isDead() && !this.allowDead)) {
+            if (null == se || (se.isExpired() && !this.allowDead)) {
                 return null;
             }
         }
@@ -87,8 +86,8 @@ public class WnCheckSession implements ActionFilter {
         Ioc ioc = ac.getIoc();
 
         // 如果有会话合法，那么就继续下一个操作
-        WnAuthService auth = Wn.Service.auth(ioc);
-        WnAuthSession se = testSession(wc, auth);
+        WnLoginApi auth = Wn.Service.auth(ioc);
+        WnSession se = testSession(wc, auth);
 
         if (null != se) {
             // 记录到上下文
@@ -98,17 +97,16 @@ public class WnCheckSession implements ActionFilter {
             WnIo io = Wn.Service.io(ioc);
             WnBoxService boxes = Wn.Service.boxes(ioc);
 
-            WnAccount me = se.getMe();
+            WnUser me = se.getUser();
 
             // 给当前 Session 设置默认的当前路径
-            se.getVars().put("PWD", me.getHomePath());
+            se.getEnv().put("PWD", me.getHomePath());
 
             // 生成沙盒上下文
             WnServiceFactory services = Wn.Service.services(ac.getIoc());
             WnBoxContext bc = new WnBoxContext(services, new NutMap());
             bc.io = io;
             bc.session = se;
-            bc.auth = auth;
 
             // 设置钩子上下文
             WnHookContext hc = new WnHookContext(boxes, bc);

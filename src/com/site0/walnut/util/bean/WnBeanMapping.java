@@ -329,7 +329,7 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
 
     public void setFields(Map<String, Object> fields, WnSystem sys) {
         WnIo io = sys.io;
-        NutBean vars = sys.session.getVars();
+        NutBean vars = sys.session.getEnv();
         this.setFields(fields, io, vars);
     }
 
@@ -347,7 +347,7 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
 
     public void loadFrom(String path, WnSystem sys) {
         WnIo io = sys.io;
-        NutBean vars = sys.session.getVars();
+        NutBean vars = sys.session.getEnv();
         this.loadFrom(path, io, vars);
     }
 

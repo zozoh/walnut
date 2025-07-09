@@ -3,11 +3,11 @@ package com.site0.walnut.impl.box.cmd;
 import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.random.StringGenerator;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuths;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.WnRoleList;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
 
@@ -46,11 +46,11 @@ public class cmd_passwd extends JvmExecutor {
         }
         // .....................................................
         // 确定用户
-        WnAccount me = sys.getMe();
-        WnAccount u;
+        WnUser me = sys.getMe();
+        WnUser u;
         String unm = params.get("u");
         // 对于非系统用（采用域账户登录的，需要做特殊处理）
-        if (!me.isSysAccount()) {
+        if (!me.isSysUser()) {
             // 只能自己修改自己
             if (Ws.isBlank(unm) || me.isSameName(unm)) {
                 u = me;
@@ -60,11 +60,11 @@ public class cmd_passwd extends JvmExecutor {
                 throw Er.create("e.cmd.passwd.dmn_user_no_pvg", me.getName());
             }
         } else if (!Strings.isBlank(unm)) {
-            u = sys.auth.checkAccount(unm);
+            u = sys.auth.checkUser(unm);
         }
         // 否则就用当前会话
         else {
-            u = sys.auth.checkAccountById(me.getId());
+            u = sys.auth.checkUserById(me.getId());
         }
 
         // .....................................................
@@ -78,28 +78,24 @@ public class cmd_passwd extends JvmExecutor {
 
         // .....................................................
         // 对于非 root/op 组的操作用户，深入检查权限
-        if (u != me && !sys.auth.isMemberOfGroup(me, "root", "op")) {
+        WnRoleList myRoles = sys.auth.getRoles(me);
+        if (u != me && !myRoles.isMemberOfRole("root", "op")) {
             // 如果要修改的是系统用户，那么，必须是自己修改自己才成
-            if (u.isSysAccount()) {
+            if (u.isSysUser()) {
                 if (!u.isSame(me)) {
                     throw Er.create("e.cmd.passwd.nopvg");
                 }
             }
             // 如果要修改的是普通域用户，那么必须是其主组的管理员才行
             else {
-                if (!sys.auth.isAdminOfGroup(me, u.getGroupName())) {
+                if (!myRoles.isAdminOfRole(u.getMainGroup())) {
                     throw Er.create("e.cmd.passwd.nopvg");
                 }
             }
         }
-
         // .....................................................
-        // 设置
-        u.setRawPasswd(passwd);
-
-        // .....................................................
-        // 保存新密码
-        sys.auth.saveAccount(u, WnAuths.ABMM.PASSWD);
+        // 保存新密码，同时这个函数也会更新 u 的 passwd+salt
+        sys.auth.updateUserPassword(u, passwd);
 
         // .....................................................
         // 给 wxgh_reset 用的

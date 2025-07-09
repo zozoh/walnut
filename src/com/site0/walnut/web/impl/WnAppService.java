@@ -11,13 +11,15 @@ import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
+
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.ext.data.titanium.hdl.ti_webdeps;
+import com.site0.walnut.login.WnSession;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnRun;
@@ -100,8 +102,8 @@ public class WnAppService extends WnRun {
         // }
         // });
         // 准备会话变量
-        WnAuthSession se = app.getSession();
-        NutMap vars = se.getVars();
+        WnSession se = app.getSession();
+        NutBean vars = se.getEnv();
         vars.put("PWD", Strings.sBlank(PWD, "~"));
         vars.put("APP_HOME", oAppHome.path());
 
@@ -126,7 +128,7 @@ public class WnAppService extends WnRun {
         String appName = app.getName();
         WnObj o = app.getObj();
         WnObj oAppHome = app.getHome();
-        WnAuthSession se = app.getSession();
+        WnSession se = app.getSession();
 
         // 这个是要输出的模板
         String tmpl;
@@ -171,15 +173,15 @@ public class WnAppService extends WnRun {
 
         // 这些优先级最高
         String rs = conf.get("app-rs", "/gu/rs/");
-        c.put("session", se.toMapForClient());
+        c.put("session", se.toBean());
         c.put("rs", rs);
         c.put("appName", appName);
         c.put("app", appJson);
         c.put("appClass", appName.replace('.', '_').toLowerCase());
 
         // 看看是否需要提供 debug 版
-        WnObj oDomain = io().fetch(null, Wn.appendPath(se.getMe().getHomePath(), ".domain"));
-        NutMap vars = se.getVars();
+        WnObj oDomain = io().fetch(null, Wn.appendPath(se.getUser().getHomePath(), ".domain"));
+        NutBean vars = se.getEnv();
         if (null != oDomain && oDomain.getBoolean("debug-app-" + appName.replace('.', '-'))) {
             c.put("TiJs", "ti/core/ti.mjs");
             c.put("WnJs", "ti/lib/walnut/walnut.mjs");
@@ -254,7 +256,7 @@ public class WnAppService extends WnRun {
      */
     public WnObj getObjByPath(WnApp app, String ph) {
         // 获取会话
-        WnAuthSession se = app.getSession();
+        WnSession se = app.getSession();
         // NutMap vars = se.getVars();
 
         // 当前目录设置为 appHome，这样，str 如果是相对路径，则直接访问应用内文件夹
@@ -297,7 +299,7 @@ public class WnAppService extends WnRun {
      */
     public WnObj getObjByQuery(WnApp app, WnQuery q) {
         // 获取会话
-        WnAuthSession se = app.getSession();
+        WnSession se = app.getSession();
 
         // 必须指定查询条件
         if (null == q) {
@@ -329,7 +331,7 @@ public class WnAppService extends WnRun {
         if (Strings.isBlank(appName))
             throw Er.create("e.app.noname");
         // 获取会话
-        WnAuthSession se = Wn.WC().checkSession();
+        WnSession se = Wn.WC().checkSession();
 
         // ----------------------------------------
         // 如果 appName 没有名称空间，补上 "wn"
@@ -364,7 +366,7 @@ public class WnAppService extends WnRun {
 
             // 在所有的 APP_PATH 里寻找
             if (null == oTmpl) {
-                String appPaths = Wn.WC().checkSession().getVars().getString("APP_PATH");
+                String appPaths = Wn.WC().checkSession().getEnv().getString("APP_PATH");
                 String[] bases = Strings.splitIgnoreBlank(appPaths, ":");
                 for (String base : bases) {
                     String phTmpl = Wn.appendPath(base, nmTmpl);
@@ -393,7 +395,7 @@ public class WnAppService extends WnRun {
     }
 
     private WnObj _find_app_home(String appName) {
-        String appPaths = Wn.WC().checkSession().getVars().getString("APP_PATH");
+        String appPaths = Wn.WC().checkSession().getEnv().getString("APP_PATH");
         String[] bases = Strings.splitIgnoreBlank(appPaths, ":");
         for (String base : bases) {
             String ph = Wn.appendPath(base, appName);

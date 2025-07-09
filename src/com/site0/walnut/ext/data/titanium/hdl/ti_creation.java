@@ -35,7 +35,7 @@ public class ti_creation implements JvmHdl {
         String mappFileName = hc.params.get("m", "creation.json");
 
         // 获取视图搜寻路径
-        String VIEW_PATH = sys.session.getVars().getString("VIEW_PATH", "/rs/ti/view/");
+        String VIEW_PATH = sys.session.getEnv().getString("VIEW_PATH", "/rs/ti/view/");
         String[] viewHomePaths = Strings.splitIgnoreBlank(VIEW_PATH, ":");
 
         // 准备获取的创建

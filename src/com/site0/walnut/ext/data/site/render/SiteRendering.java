@@ -8,7 +8,6 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.WnExecutable;
 import com.site0.walnut.api.WnOutputable;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
@@ -17,6 +16,7 @@ import com.site0.walnut.ext.data.www.JvmWnmlRuntime;
 import com.site0.walnut.ext.data.www.WnmlRuntime;
 import com.site0.walnut.ext.data.www.WnmlService;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.WnSession;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Wobj;
 import com.site0.walnut.util.Ws;
@@ -26,7 +26,7 @@ public class SiteRendering {
 
     WnIo io;
 
-    WnAuthSession session;
+    WnSession session;
 
     WnObj siteHome;
 

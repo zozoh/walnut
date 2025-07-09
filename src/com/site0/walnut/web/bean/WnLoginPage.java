@@ -15,9 +15,9 @@ import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
@@ -28,7 +28,7 @@ public class WnLoginPage {
     private static final Log log = Wlog.getAC();
 
     private WnIo io;
-    private WnAccount domainUser;
+    private WnUser domainUser;
     private String pageName;
     private String host;
     private String sitePath;
@@ -106,7 +106,7 @@ public class WnLoginPage {
             WnTmpl tmpl = WnTmpl.parse(str);
             NutBean c = Wn.getSysConfMap(io);
             if (null != this.domainUser) {
-                c.putAll(domainUser.getMetaMap());
+                c.putAll(domainUser.toBean());
             }
             String html = tmpl.render(c);
             byte[] buf = html.getBytes(Encoding.CHARSET_UTF8);
@@ -150,11 +150,11 @@ public class WnLoginPage {
         this.pageName = pageName;
     }
 
-    public WnAccount getDomainUser() {
+    public WnUser getDomainUser() {
         return domainUser;
     }
 
-    public void setDomainUser(WnAccount domainUser) {
+    public void setDomainUser(WnUser domainUser) {
         this.domainUser = domainUser;
     }
 

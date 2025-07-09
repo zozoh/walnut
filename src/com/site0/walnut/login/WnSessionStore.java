@@ -9,7 +9,14 @@ public interface WnSessionStore {
     void saveSessionEnv(WnSession se);
 
     void touchSession(WnSession se, long sessionDuration);
-    
-    boolean reomveSession(WnSession se);
+
+    /**
+     * 移除当前会话，如果会话有父会话，那么就返回父会话，否则返回 null
+     * 
+     * @param se
+     *            会话对象
+     * @return 父会话对象或 null
+     */
+    WnSession reomveSession(WnSession se, WnUserStore users);
 
 }

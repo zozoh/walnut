@@ -13,7 +13,6 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.MimeMap;
 import com.site0.walnut.api.io.WnObj;
@@ -335,8 +334,8 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     }
 
     @Override
-    public int getCustomizedPrivilege(WnAccount u, int dftMode) {
-        return oHome.getCustomizedPrivilege(u, dftMode);
+    public NutBean getCustomizedPrivilege() {
+        return oHome.getCustomizedPrivilege();
     }
 
     @Override

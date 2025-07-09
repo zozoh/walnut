@@ -29,7 +29,7 @@ public class WnMailPosting {
     private NutBean vars;
 
     public WnMailPosting(WnSystem sys) {
-        this(sys.io, sys.session.getVars());
+        this(sys.io, sys.session.getEnv());
 
     }
 

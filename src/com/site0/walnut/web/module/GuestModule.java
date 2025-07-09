@@ -66,7 +66,7 @@ public class GuestModule extends AbstractWnModule {
         if (enableSecurity) {
             WnSecurity wns = Wn.WC().getSecurity();
             try {
-                Wn.WC().setSecurity(new WnSecurityImpl(io(), login()));
+                Wn.WC().setSecurity(new WnSecurityImpl(io(), auth()));
                 o = Wn.WC().whenRead(o, false);
             }
             finally {

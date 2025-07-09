@@ -3,13 +3,14 @@ package com.site0.walnut.ext.sys.schedule;
 import java.util.List;
 
 import org.nutz.lang.Times;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.sys.task.cmd_task;
 import com.site0.walnut.impl.box.JvmHdlContext;
 import com.site0.walnut.impl.box.JvmHdlExecutor;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.WnRoleList;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Cmds;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wtime;
@@ -90,8 +91,9 @@ public class cmd_schedule extends JvmHdlExecutor {
         q.loadFromParams(hc.params);
 
         // 如果不是 root 组管理员，仅能操作自己
-        WnAccount me = sys.getMe();
-        if (!sys.auth.isMemberOfGroup(me, "root")) {
+        WnUser me = sys.getMe();
+        WnRoleList roles = sys.auth.getRoles(me);
+        if (!roles.isMemberOfRole("root")) {
             q.setUserName(me.getName());
         }
         return q;

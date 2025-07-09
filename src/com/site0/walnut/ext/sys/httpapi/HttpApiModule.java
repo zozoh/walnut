@@ -18,7 +18,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.nutz.dao.Dao;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.lang.Mirror;
@@ -36,19 +35,14 @@ import org.nutz.mvc.annotation.Filters;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.web.WebException;
 
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.box.WnBox;
 import com.site0.walnut.api.box.WnBoxContext;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
-import com.site0.walnut.ext.data.entity.history.HistoryApi;
-import com.site0.walnut.ext.data.entity.history.HistoryConfig;
-import com.site0.walnut.ext.data.entity.history.HistoryRecord;
-import com.site0.walnut.ext.data.entity.history.WnHistoryService;
 import com.site0.walnut.ext.data.pvg.BizPvgService;
 import com.site0.walnut.ext.data.pvg.WnAuthOptions;
-import com.site0.walnut.ext.sys.sql.WnDaos;
+import com.site0.walnut.login.WnSession;
 import com.site0.walnut.login.maker.WnLoginApiMaker;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
@@ -95,7 +89,7 @@ public class HttpApiModule extends AbstractWnModule {
 
             // .........................................
             // 得到用户和主目录
-            apc.u = login().checkAccount(usr);
+            apc.u = auth().checkUser(usr);
             String homePath = apc.u.getHomePath();
             apc.oHome = io().check(null, homePath);
 
@@ -115,7 +109,7 @@ public class HttpApiModule extends AbstractWnModule {
             apc.oldSe = null;
             String ticket = Wn.WC().getTicket();
             if (!Ws.isBlank(ticket)) {
-                apc.oldSe = this.login().getSession(ticket);
+                apc.oldSe = this.auth().getSession(ticket);
             }
 
             // .........................................
@@ -249,7 +243,7 @@ public class HttpApiModule extends AbstractWnModule {
 
             // 注销会话
             if (null != apc.se) {
-                login().removeSession(apc.se, 0);
+                auth().removeSession(apc.se);
             }
             apc.wc.setSession(null);
         }
@@ -335,16 +329,17 @@ public class HttpApiModule extends AbstractWnModule {
 
     }
 
-    private WnAuthSession __switch_op_user(final WnHttpApiContext apc) {
+    private WnSession __switch_op_user(final WnHttpApiContext apc) {
         apc.wc = Wn.WC();
-        WnAuthSession se = login().createSession(apc.u, false);
+        long du = auth().getSessionDuration(false);
+        WnSession se = auth().createSession(apc.u, du);
         apc.wc.setSession(se);
         return se;
     }
 
     private void _do_api_with_hook(final WnHttpApiContext apc) {
-        this.runWithHook(apc.se, new Callback<WnAuthSession>() {
-            public void invoke(WnAuthSession se) {
+        this.runWithHook(apc.se, new Callback<WnSession>() {
+            public void invoke(WnSession se) {
                 try {
                     _do_api(apc);
                 }
@@ -789,18 +784,17 @@ public class HttpApiModule extends AbstractWnModule {
 
         // 保存 http 参数
         apc.reqMeta.put("http-usr", apc.u.getName());
-        apc.reqMeta.put("http-grp", apc.u.getGroupName());
+        apc.reqMeta.put("http-grp", apc.u.getMainGroup());
         apc.reqMeta.put("http-home", apc.u.getHomePath());
         apc.reqMeta.put("http-api", apc.oApi.name());
 
         // .........................................
         // 记录老的Session对象信息
         if (null != apc.oldSe) {
-            apc.reqMeta.put("http-se-id", apc.oldSe.getId());
             apc.reqMeta.put("http-se-ticket", apc.oldSe.getTicket());
-            apc.reqMeta.put("http-se-me-name", apc.oldSe.getMe().getName());
-            apc.reqMeta.put("http-se-me-group", apc.oldSe.getMe().getGroupName());
-            apc.reqMeta.put("http-se-vars", apc.oldSe.getVars());
+            apc.reqMeta.put("http-se-me-name", apc.oldSe.getUser().getName());
+            apc.reqMeta.put("http-se-me-group", apc.oldSe.getUser().getMainGroup());
+            apc.reqMeta.put("http-se-vars", apc.oldSe.getEnv());
         }
 
         // .........................................
@@ -899,7 +893,7 @@ public class HttpApiModule extends AbstractWnModule {
                 }
                 // 创建权鉴接口
                 apc.loginApi = WnLoginApiMaker.forDomain()
-                                              .make(io(), apc.se.getVars(), apc.authOptions);
+                                              .make(io(), apc.se.getEnv(), apc.authOptions);
                 apc.wwwSe = apc.loginApi.checkSession(ticket);
                 apc.wwwMe = apc.wwwSe.getUser();
 
@@ -1218,40 +1212,43 @@ public class HttpApiModule extends AbstractWnModule {
             return;
         }
 
+        // TODO 这里需要将历史记录插入到指定的数据表里
+
         // 生成服务类
-        HistoryConfig conf = WnDaos.loadConfig(HistoryConfig.class, io(), oHis, apc.se);
-        Dao dao = WnDaos.get(conf.getAuth());
-        HistoryApi api = new WnHistoryService(conf, dao);
-
-        // 看看有木有替换的模板
-        List<NutMap> hismetas = apc.oApi.getAsList("hismetas", NutMap.class);
-        NutMap hisUpdate = null;
-        if (null != hismetas) {
-            for (NutMap hismeta : hismetas) {
-                Object test = hismeta.get("test");
-                AutoMatch am = new AutoMatch(test);
-                NutMap update = hismeta.getAs("update", NutMap.class);
-                // 找到了即可
-                if (am.match(apc.oReq)) {
-                    hisUpdate = update;
-                    break;
-                }
-            }
-        }
-
-        // 循环添加历史记录
-        for (NutMap hisTmpl : historyList) {
-            // 补充历史记录
-            if (null != hisUpdate)
-                hisTmpl.putAll(hisUpdate);
-
-            // 解析历史记录
-            NutMap hisre = (NutMap) Wn.explainObj(apc.oReq, hisTmpl);
-
-            // 插入历史记录
-            HistoryRecord his = Wlang.map2Object(hisre, HistoryRecord.class);
-            api.add(his);
-        }
+        // HistoryConfig conf = WnDaos.loadConfig(HistoryConfig.class, io(),
+        // oHis, apc.se);
+        // Dao dao = WnDaos.get(conf.getAuth());
+        // HistoryApi api = new WnHistoryService(conf, dao);
+        //
+        // // 看看有木有替换的模板
+        // List<NutMap> hismetas = apc.oApi.getAsList("hismetas", NutMap.class);
+        // NutMap hisUpdate = null;
+        // if (null != hismetas) {
+        // for (NutMap hismeta : hismetas) {
+        // Object test = hismeta.get("test");
+        // AutoMatch am = new AutoMatch(test);
+        // NutMap update = hismeta.getAs("update", NutMap.class);
+        // // 找到了即可
+        // if (am.match(apc.oReq)) {
+        // hisUpdate = update;
+        // break;
+        // }
+        // }
+        // }
+        //
+        // // 循环添加历史记录
+        // for (NutMap hisTmpl : historyList) {
+        // // 补充历史记录
+        // if (null != hisUpdate)
+        // hisTmpl.putAll(hisUpdate);
+        //
+        // // 解析历史记录
+        // NutMap hisre = (NutMap) Wn.explainObj(apc.oReq, hisTmpl);
+        //
+        // // 插入历史记录
+        // HistoryRecord his = Wlang.map2Object(hisre, HistoryRecord.class);
+        // api.add(his);
+        // }
     }
 
 }

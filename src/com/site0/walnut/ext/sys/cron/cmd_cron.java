@@ -2,12 +2,13 @@ package com.site0.walnut.ext.sys.cron;
 
 import java.util.List;
 
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.sys.task.cmd_task;
 import com.site0.walnut.impl.box.JvmHdlContext;
 import com.site0.walnut.impl.box.JvmHdlExecutor;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.WnRoleList;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Cmds;
 
 public class cmd_cron extends JvmHdlExecutor {
@@ -26,8 +27,9 @@ public class cmd_cron extends JvmHdlExecutor {
         q.loadFromParams(hc.params);
 
         // 如果不是 root 组管理员，仅能操作自己
-        WnAccount me = sys.getMe();
-        if (!sys.auth.isMemberOfGroup(me, "root")) {
+        WnUser me = sys.getMe();
+        WnRoleList roles = sys.auth.getRoles(me);
+        if (!roles.isMemberOfRole("root")) {
             q.setUserName(me.getName());
         }
         return q;

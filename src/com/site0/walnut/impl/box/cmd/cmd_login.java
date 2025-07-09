@@ -8,8 +8,6 @@ import org.nutz.json.JsonFormat;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Proton;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.www.impl.WnWebService;
@@ -18,11 +16,13 @@ import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.impl.io.WnEvalLink;
 import com.site0.walnut.impl.srv.WnDomainService;
 import com.site0.walnut.impl.srv.WwwSiteInfo;
+import com.site0.walnut.login.WnRoleList;
+import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Cmds;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 import com.site0.walnut.util.ZParams;
-import com.site0.walnut.util.Wn.Session;
 
 public class cmd_login extends JvmExecutor {
 
@@ -34,20 +34,20 @@ public class cmd_login extends JvmExecutor {
 
     }
 
-    private WnAccount __load_account(WnSystem sys, ZParams params, WwwSiteInfo si) {
+    private WnUser __load_account(WnSystem sys, ZParams params, WwwSiteInfo si) {
         String uname = params.val_check(0);
         if (null != si) {
             return si.webs.getAuthApi().checkAccount(uname);
         }
-        return sys.auth.checkAccount(uname);
+        return sys.auth.checkUser(uname);
     }
 
     private void __exec_without_security(WnSystem sys, String[] args) {
         // 解析参数
         ZParams params = ZParams.parse(args, "cnqH");
 
-        WnAccount me = sys.getMe();
-        WnAuthSession newSe;
+        WnUser me = sys.getMe();
+        WnSession newSe;
         WnContext wc = Wn.WC();
 
         // 子站点登录
@@ -83,10 +83,12 @@ public class cmd_login extends JvmExecutor {
         }
 
         // 得到用户
-        WnAccount ta = __load_account(sys, params, si);
+        WnUser ta = __load_account(sys, params, si);
 
         // ............................................
         // 开始检查权限了
+        WnRoleList myRoles = sys.auth.getRoles(me);
+        WnRoleList taRoles = sys.auth.getRoles(ta);
 
         // 自己不能登录到自己
         if (me.isSame(ta)) {
@@ -94,7 +96,8 @@ public class cmd_login extends JvmExecutor {
         }
         // 域管理员可以登录到域的子账号
         if (null != si) {
-            if (!sys.auth.isAdminOfGroup(me, sys.getMyGroup())) {
+
+            if (!myRoles.isAdminOfRole(sys.getMyGroup())) {
                 throw Er.create("e.cmd.login.me.forbid", "Need Admin of Domain");
             }
             String byType = WnAuthSession.V_BT_AUTH_BY_DOMAIN;
@@ -118,22 +121,22 @@ public class cmd_login extends JvmExecutor {
             });
         }
         // root 用户可以登录到任何用户
-        else if (me.isRoot()) {
+        else if (myRoles.isAdminOfRole("root")) {
             // 嗯，可以登录
             newSe = sys.auth.createSession(sys.session, ta, 0);
         }
         // root 组管理员能登录到除了 root 组管理员之外任何账户
-        else if (sys.auth.isAdminOfGroup(me, "root") && !sys.auth.isAdminOfGroup(ta, "root")) {
+        else if (myRoles.isAdminOfRole("root") && !taRoles.isAdminOfRole("root")) {
             // 嗯，可以登录
             newSe = sys.auth.createSession(sys.session, ta, 0);
         }
         // 否则执行操作的用户必须为 root|op 组成员
         // 目标用户必须不能为 root|op 组成员
         else {
-            if (!sys.auth.isMemberOfGroup(me, "root", "op")) {
+            if (!myRoles.isMemberOfRole("root", "op")) {
                 throw Er.create("e.cmd.login.me.forbid");
             }
-            if (sys.auth.isMemberOfGroup(ta, "root", "op")) {
+            if (taRoles.isMemberOfRole("root", "op")) {
                 throw Er.create("e.cmd.login.ta.forbid");
             }
             newSe = sys.auth.createSession(sys.session, ta, 0);
@@ -141,7 +144,7 @@ public class cmd_login extends JvmExecutor {
 
         // 输出这个新会话
         JsonFormat jfmt = Cmds.gen_json_format(params);
-        NutMap bean = newSe.toMapForClient();
+        NutMap bean = newSe.toBean();
         String json = Json.toJson(bean, jfmt);
         sys.out.println(json);
 

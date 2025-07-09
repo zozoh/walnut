@@ -4,18 +4,17 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAccountLoader;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.net.payment.WnPay3xRe;
 import com.site0.walnut.ext.net.payment.WnPayInfo;
 import com.site0.walnut.ext.net.payment.WnPayObj;
 import com.site0.walnut.ext.net.payment.WnPayment;
 import com.site0.walnut.ext.net.payment.WnPays;
-import com.site0.walnut.impl.auth.WnAccountLoaderImpl;
 import com.site0.walnut.impl.box.JvmHdl;
 import com.site0.walnut.impl.box.JvmHdlContext;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.usr.WnStdUserStore;
 import com.site0.walnut.util.Cmds;
 import com.site0.walnut.util.Wn;
 
@@ -33,13 +32,13 @@ public class pay_create implements JvmHdl {
         wpi.fillBuyer(bu);
 
         // TODO 稍后改一下，现在先用 Wn 的旧账户体系
-        WnAccount seller;
+        WnUser seller;
         if (Strings.isBlank(sl)) {
             seller = sys.getMe();
         }
         // 指定了 seller
         else {
-            seller = sys.auth.checkAccount(sl);
+            seller = sys.auth.checkUser(sl);
         }
         // 设置 seller
         wpi.seller_id = seller.getId();
@@ -47,14 +46,14 @@ public class pay_create implements JvmHdl {
 
         // 填充支付单的 buyer 的名称和ID，必须配对
         if (wpi.isWalnutBuyer()) {
-            WnAccount buyer = sys.auth.checkAccountById(wpi.buyer_id);
+            WnUser buyer = sys.auth.checkUserById(wpi.buyer_id);
             wpi.buyer_nm = buyer.getName();
         }
         // 用域用户的方式检测
         else if (wpi.isDomainBuyer()) {
             WnObj oAccountDir = Wn.checkObj(sys, "id:" + wpi.buyer_tp);
-            WnAccountLoader alod = new WnAccountLoaderImpl(sys.io, oAccountDir, true);
-            WnAccount buyer = alod.checkAccountById(wpi.buyer_id);
+            WnStdUserStore alod = new WnStdUserStore(sys.io, oAccountDir);
+            WnUser buyer = alod.checkUserById(wpi.buyer_id);
             wpi.buyer_nm = buyer.getName();
         }
         // 不可能
@@ -68,7 +67,7 @@ public class pay_create implements JvmHdl {
         // 填充费用
         String fee = hc.params.check("fee");
         wpi.fillFee(fee);
-        
+
         // 填充货币类型
         wpi.cur = hc.params.getString("cur", "RMB").toUpperCase();
 

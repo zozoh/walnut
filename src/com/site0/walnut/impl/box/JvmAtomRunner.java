@@ -10,7 +10,6 @@ import org.nutz.lang.stream.VoidInputStream;
 import org.nutz.log.Log;
 import com.site0.walnut.util.Wlog;
 import org.nutz.trans.Atom;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.box.WnBoxContext;
 import com.site0.walnut.api.box.WnBoxService;
 import com.site0.walnut.api.box.WnBoxStatus;
@@ -21,6 +20,7 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.api.io.WnSecurity;
 import com.site0.walnut.impl.io.WnSecurityImpl;
+import com.site0.walnut.login.WnSession;
 import com.site0.walnut.util.Cmds;
 import com.site0.walnut.util.JvmTunnel;
 import com.site0.walnut.util.SyncWnTunnel;
@@ -114,7 +114,7 @@ public class JvmAtomRunner {
 
         // 执行预处理环境变量
         // cmdLine = Wn.normalizeStr(cmdLine, bc.session.getVars());
-        cmdLine = WnTmplX.exec(cmdLine, bc.session.getVars());
+        cmdLine = WnTmplX.exec(cmdLine, bc.session.getEnv());
 
         // 执行处理后的命令行（不再处理预处理指令了）
         try {
@@ -145,7 +145,7 @@ public class JvmAtomRunner {
 
     void __run(String cmdLine, JvmBoxOutput boxErr) {
         // 准备标准输出输出
-        WnAuthSession se = bc.session;
+        WnSession se = bc.session;
 
         // 标记状态
         status = WnBoxStatus.RUNNING;
@@ -157,7 +157,7 @@ public class JvmAtomRunner {
         final WnContext wc = Wn.WC();
 
         // 启动安全检查接口
-        final WnSecurity secu = new WnSecurityImpl(bc.io, bc.auth);
+        final WnSecurity secu = new WnSecurityImpl(bc.io, bc.auth());
 
         // 如果调用线程设置了钩子，那么本执行器所有的线程也都要执行相同的钩子设定
         // 只是需要确保会话和当前用户与 Box 一致
@@ -200,7 +200,7 @@ public class JvmAtomRunner {
             a.sys.session = se;
             a.sys.err = boxErr;
             a.sys.io = bc.io;
-            a.sys.auth = bc.auth;
+            a.sys.auth = bc.auth();
             a.sys.jef = jef;
             a.secu = secu;
             a.hc = hc;

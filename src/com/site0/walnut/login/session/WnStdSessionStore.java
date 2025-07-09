@@ -50,6 +50,7 @@ public class WnStdSessionStore extends AbstractWnSessionStore {
         WnSimpleSession se = new WnSimpleSession();
         // 设置标识
         se.setTicket(obj.name());
+        se.setParentTicket(obj.getString("parent_ticket"));
 
         // 过期时间
         se.setExpiAt(obj.expireTime());
@@ -91,6 +92,9 @@ public class WnStdSessionStore extends AbstractWnSessionStore {
         bean.put("email", u.getEmail());
         bean.put("phone", u.getPhone());
         bean.put("env", se.getEnv());
+        if (se.hasParentTicket()) {
+            bean.put("parent_ticket", se.getParentTicket());
+        }
 
         // 保存
         WnObj oSe = io.create(oHome, bean);
@@ -99,14 +103,12 @@ public class WnStdSessionStore extends AbstractWnSessionStore {
 
     }
 
-    public boolean reomveSession(WnSession se) {
+    protected void _remove_session(WnSession se) {
         WnObj obj = io.fetch(oHome, se.getTicket());
         // 防空
-        if (null == obj) {
-            return false;
+        if (null != obj) {
+            io.delete(obj);
         }
-        io.delete(obj);
-        return true;
     }
 
     @Override

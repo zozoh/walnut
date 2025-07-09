@@ -17,6 +17,8 @@ import org.nutz.lang.util.NutMap;
  */
 public interface WnUser {
 
+    WnUserRank getRank(WnRoleList roles);
+
     boolean isSame(WnUser u);
 
     void updateBy(NutBean bean);
@@ -28,6 +30,10 @@ public interface WnUser {
     NutMap toBean();
 
     void mergeToBean(NutBean bean);
+
+    boolean isSysUser();
+
+    boolean isDomainUser();
 
     UserRace getUserRace();
 
@@ -82,5 +88,27 @@ public interface WnUser {
     void setSalt(String salt);
 
     WnUser clone();
+
+    String getMetaString(String key, String dft);
+
+    String getMetaString(String key);
+
+    String getHomePath();
+
+    void genSaltAndRawPasswd(String rawPasswd);
+
+    void setMeta(String key, Object val);
+
+    void removeMeta(String... keys);
+
+    boolean isSameName(String userName);
+
+    boolean hasSaltedPasswd();
+
+    boolean isMatchedRawPasswd(String passwd);
+
+    void setRawPasswd(String passwd);
+
+    boolean isSameId(String userId);
 
 }

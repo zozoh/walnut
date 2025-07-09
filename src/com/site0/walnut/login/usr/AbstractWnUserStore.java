@@ -34,8 +34,8 @@ public abstract class AbstractWnUserStore implements WnUserStore {
         }
     }
 
-    protected WnSimpleUser toWnUser(NutBean bean) {
-        WnSimpleUser u = new WnSimpleUser(bean);
+    protected WnUser toWnUser(NutBean bean) {
+        WnUser u = new WnSimpleUser(bean);
         u.setUserRace(this.userRace);
         if (null != this.defaultMeta) {
             u.putMetas(this.defaultMeta);

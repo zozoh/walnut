@@ -2,17 +2,19 @@ package com.site0.walnut.ext.sys.memlog;
 
 import java.util.List;
 
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.WnRoleList;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.MemoryWriterAppender;
 import com.site0.walnut.util.ZParams;
 
 public class cmd_memlog extends JvmExecutor {
 
     public void exec(WnSystem sys, String[] args) throws Exception {
-        WnAccount me = sys.getMe();
-        if (!sys.auth.isMemberOfGroup(me, "root")) {
+        WnUser me = sys.getMe();
+        WnRoleList roles = sys.auth.getRoles(me);
+        if (!roles.isMemberOfRole("root")) {
             sys.err.println("permission denied");
             return;
         }

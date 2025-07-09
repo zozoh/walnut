@@ -21,9 +21,6 @@ import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
 import org.nutz.resource.Scans;
 import com.site0.walnut.WnVersion;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.box.WnBoxService;
 import com.site0.walnut.api.box.WnServiceFactory;
 import com.site0.walnut.api.io.WnIo;
@@ -31,6 +28,10 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.ext.sys.websocket.WnWebSocket;
 import com.site0.walnut.impl.box.JvmExecutorFactory;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.usr.WnSimpleUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnRun;
 import com.site0.walnut.util.WnSysRuntime;
@@ -112,11 +113,11 @@ public class WnSetup implements Setup {
         WnIo io = Wn.Service.io(ioc);
         log.info("OK: WnIo");
 
-        WnAuthService auth = Wn.Service.auth(ioc);
+        WnLoginApi auth = Wn.Service.auth(ioc);
         log.info("OK: WnAuthService");
 
         // 获取根用户
-        WnAccount root = auth.checkAccount("root");
+        WnUser root = auth.checkUser("root");
         log.info("OK: root user");
 
         Wn.Service.tasks(ioc);
@@ -226,9 +227,10 @@ public class WnSetup implements Setup {
         // if (conf.getBoolean("crontab.enable", true))
         // ioc.get(WnCronService.class);
 
-        WnAccount guest = auth.getAccount("guest");
+        WnUser guest = auth.getUser("guest");
         if (guest == null) {
-            auth.createAccount(new WnAccount("guest"));
+            guest = new WnSimpleUser("guest");
+            guest = auth.addUser(guest);
         }
 
         // -----------------------------------------
@@ -236,8 +238,8 @@ public class WnSetup implements Setup {
         // -----------------------------------------
         WnServiceFactory sf = ioc.get(WnServiceFactory.class, "serviceFactory");
         WnRun run = ioc.get(WnRun.class);
-        WnAuthSession rootSession = auth.createSession(root, true);
-
+        long du = auth.getSessionDuration(true);
+        WnSession rootSession = auth.createSession(root, du);
         //
         // 后台任务线程
         //

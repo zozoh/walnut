@@ -4,7 +4,6 @@ import org.nutz.json.Json;
 import org.nutz.lang.Encoding;
 
 import com.adobe.internal.xmp.impl.Base64;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.core.bean.WnIoObj;
 import com.site0.walnut.ext.sys.task.WnSysTaskApi;
@@ -12,6 +11,8 @@ import com.site0.walnut.impl.box.JvmHdl;
 import com.site0.walnut.impl.box.JvmHdlContext;
 import com.site0.walnut.impl.box.JvmHdlParamArgs;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.WnRoleList;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 
@@ -70,16 +71,17 @@ public class task_add implements JvmHdl {
         }
 
         // 准备命令的操作用户
-        WnAccount me = sys.getMe();
-        if (hc.params.hasString("u") && sys.auth.isMemberOfGroup(me, "root")) {
+        WnUser me = sys.getMe();
+        WnRoleList roles = sys.auth.getRoles(me);
+        if (hc.params.hasString("u") && roles.isMemberOfRole("root")) {
             String userName = hc.params.getString("u");
-            me = sys.auth.checkAccount(userName);
+            me = sys.auth.checkUser(userName);
         }
         // 如果是域子账号，则用域主账号的名称
-        if (me.isSysAccount()) {
+        if (me.isSysUser()) {
             oTask.put("user", me.getName());
         } else {
-            oTask.put("user", me.getGroupName());
+            oTask.put("user", me.getMainGroup());
         }
 
         // 准备服务类

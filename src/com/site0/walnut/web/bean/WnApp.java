@@ -3,14 +3,14 @@ package com.site0.walnut.web.bean;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutMap;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.io.WnObj;
+import com.site0.walnut.login.WnSession;
 
 public class WnApp {
 
     private String name;
 
-    private WnAuthSession session;
+    private WnSession session;
 
     private WnObj home;
 
@@ -20,7 +20,7 @@ public class WnApp {
         NutMap map = new NutMap();
         map.put("name", name);
         if (null != session) {
-            map.put("session", session.toMapForClient());
+            map.put("session", session.toBean());
         }
         if (null != obj) {
             map.put("obj", obj);
@@ -44,11 +44,11 @@ public class WnApp {
         this.home = home;
     }
 
-    public WnAuthSession getSession() {
+    public WnSession getSession() {
         return session;
     }
 
-    public void setSession(WnAuthSession session) {
+    public void setSession(WnSession session) {
         this.session = session;
     }
 

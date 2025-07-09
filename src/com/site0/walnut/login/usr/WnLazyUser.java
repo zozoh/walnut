@@ -3,8 +3,11 @@ package com.site0.walnut.login.usr;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
+import com.site0.walnut.api.err.Er;
 import com.site0.walnut.login.UserRace;
+import com.site0.walnut.login.WnRoleList;
 import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.WnUserRank;
 import com.site0.walnut.login.WnUserStore;
 
 public class WnLazyUser implements WnUser {
@@ -21,11 +24,39 @@ public class WnLazyUser implements WnUser {
     }
 
     @Override
+    public WnUserRank getRank(WnRoleList roles) {
+        if (null == _user) {
+            throw Er.create("e.usr.lazy.WithoutInnerUserWhenGetRank");
+        }
+        return _user.getRank(roles);
+    }
+
+    @Override
     public boolean isSame(WnUser u) {
         if (null == u) {
             return false;
         }
         return _user.isSame(u);
+    }
+
+    @Override
+    public boolean isSameId(String userId) {
+        return _user.isSameId(userId);
+    }
+
+    @Override
+    public boolean isSameName(String userName) {
+        return _user.isSameName(userName);
+    }
+
+    @Override
+    public boolean isSysUser() {
+        return UserRace.SYS == this.getUserRace();
+    }
+
+    @Override
+    public boolean isDomainUser() {
+        return UserRace.DOMAIN == this.getUserRace();
     }
 
     @Override
@@ -44,7 +75,7 @@ public class WnLazyUser implements WnUser {
 
     public void setInnerUser(UserRace race, String uid, String name, String email, String phone) {
         this.fullLoaded = false;
-        WnSimpleUser u = new WnSimpleUser();
+        WnUser u = new WnSimpleUser();
         u.setUserRace(race);
         u.setId(uid);
         u.setName(name);
@@ -209,6 +240,76 @@ public class WnLazyUser implements WnUser {
 
     public void setSalt(String salt) {
         _user.setSalt(salt);
+    }
+
+    @Override
+    public void genSaltAndRawPasswd(String rawPasswd) {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
+        _user.genSaltAndRawPasswd(rawPasswd);
+    }
+
+    @Override
+    public boolean hasSaltedPasswd() {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
+        return _user.hasSaltedPasswd();
+    }
+
+    @Override
+    public void setRawPasswd(String passwd) {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
+        _user.setRawPasswd(passwd);
+    }
+
+    public boolean isMatchedRawPasswd(String passwd) {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
+        return _user.isMatchedRawPasswd(passwd);
+    }
+
+    @Override
+    public String getMetaString(String key, String dft) {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
+        return _user.getMetaString(key, dft);
+    }
+
+    @Override
+    public String getMetaString(String key) {
+        return this.getMetaString(key, null);
+    }
+
+    @Override
+    public String getHomePath() {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
+        return _user.getHomePath();
+    }
+
+    @Override
+    public void setMeta(String key, Object val) {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
+        _user.setMeta(key, val);
+
+    }
+
+    @Override
+    public void removeMeta(String... keys) {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
+        _user.removeMeta(keys);
+
     }
 
 }

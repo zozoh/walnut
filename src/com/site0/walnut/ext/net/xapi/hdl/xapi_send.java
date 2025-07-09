@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.net.xapi.XApi;
@@ -23,7 +24,7 @@ public class xapi_send implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // 首先读取变量，变量与会话的变量合并，给上下文更多的信息
-        NutMap vars = cmd_xapi.loadVars(sys, hc);
+        NutBean vars = cmd_xapi.loadVars(sys, hc);
 
         // 准备请求路径
         String apiName = hc.params.val_check(0);

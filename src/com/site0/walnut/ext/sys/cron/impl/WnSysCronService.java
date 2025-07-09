@@ -7,8 +7,6 @@ import java.util.List;
 
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
@@ -20,6 +18,8 @@ import com.site0.walnut.cron.WnCron;
 import com.site0.walnut.ext.sys.cron.WnSysCron;
 import com.site0.walnut.ext.sys.cron.WnSysCronApi;
 import com.site0.walnut.ext.sys.cron.WnSysCronQuery;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 
@@ -32,13 +32,13 @@ public class WnSysCronService implements WnSysCronApi {
 
     private WnIo io;
 
-    private WnAuthService auth;
+    private WnLoginApi auth;
 
     /* AUDO get by init */
     private WnObj cronHome;
 
     /* AUDO get by rootUser */
-    private WnAccount rootUser;
+    private WnUser rootUser;
 
     public WnSysCronService() {}
 
@@ -55,7 +55,7 @@ public class WnSysCronService implements WnSysCronApi {
         WnObj o = wc.core(null, true, null, new Proton<WnObj>() {
             protected WnObj exec() {
                 // 确保有对应用户
-                auth.checkAccount(cron.getUser());
+                auth.checkUser(cron.getUser());
 
                 // 准备创建对象
                 WnObj oCron = new WnIoObj();
@@ -265,11 +265,11 @@ public class WnSysCronService implements WnSysCronApi {
         this.io = io;
     }
 
-    public WnAuthService getAuth() {
+    public WnLoginApi getAuth() {
         return auth;
     }
 
-    public void setAuth(WnAuthService auth) {
+    public void setAuth(WnLoginApi auth) {
         this.auth = auth;
     }
 
@@ -281,11 +281,11 @@ public class WnSysCronService implements WnSysCronApi {
         this.cronHome = cronHome;
     }
 
-    public WnAccount getRootUser() {
+    public WnUser getRootUser() {
         return rootUser;
     }
 
-    public void setRootUser(WnAccount rootUser) {
+    public void setRootUser(WnUser rootUser) {
         this.rootUser = rootUser;
     }
 
@@ -294,7 +294,7 @@ public class WnSysCronService implements WnSysCronApi {
      */
     public void on_create() {
         if (null == this.rootUser) {
-            this.rootUser = auth.getAccount("root");
+            this.rootUser = auth.getUser("root");
         }
         if (null == this.cronHome) {
             this.cronHome = io.createIfNoExists(null, "/sys/cron/", WnRace.DIR);

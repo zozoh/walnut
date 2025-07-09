@@ -3,10 +3,10 @@ package com.site0.walnut.ext.net.xapi.impl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.ext.net.xapi.AbstractThirdXApi;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.WnSession;
 import com.site0.walnut.util.obj.WnObjGetter;
 import com.site0.walnut.util.stream.WnInputStreamFactory;
 
@@ -19,8 +19,8 @@ public class WnXApi extends AbstractThirdXApi {
         this.objGetter = new WnObjGetter(sys);
     }
 
-    public WnXApi(WnIo io, WnAuthSession session) {
-        this(io, session.getVars());
+    public WnXApi(WnIo io, WnSession session) {
+        this(io, session.getEnv());
         this.objGetter = new WnObjGetter(io, session);
     }
 

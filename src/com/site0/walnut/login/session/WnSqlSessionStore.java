@@ -98,6 +98,7 @@ public class WnSqlSessionStore extends AbstractWnSessionStore {
                     WnSimpleSession se = new WnSimpleSession();
                     // 设置标识
                     se.setTicket(bean.getString("ticket"));
+                    se.setParentTicket(bean.getString("parent_ticket"));
 
                     // 过期时间
                     Date expiAt = Wtime.parseAnyDate(bean.get("expi_at"));
@@ -145,6 +146,9 @@ public class WnSqlSessionStore extends AbstractWnSessionStore {
         bean.put("env", se.getEnvAsStr());
         bean.put("ct", Wtime.formatUTC(now, fmt));
         bean.put("lm", Wtime.formatUTC(now, fmt));
+        if (se.hasParentTicket()) {
+            bean.put("parent_ticket", se.getParentTicket());
+        }
 
         // 获取 SQL
         WnSqlTmpl sql = sqls.get(sqlInsert);
@@ -156,7 +160,7 @@ public class WnSqlSessionStore extends AbstractWnSessionStore {
         }
     }
 
-    public boolean reomveSession(WnSession se) {
+    protected void _remove_session(WnSession se) {
         // 查询条件
         NutMap vars = Wlang.map("id", se.getTicket());
 
@@ -164,8 +168,7 @@ public class WnSqlSessionStore extends AbstractWnSessionStore {
         WnSqlTmpl sql = sqls.get(sqlDelete);
 
         // 保存到数据库里
-        int count = Sqlx.sqlRun(auth, new SqlAtom(log, sql, vars));
-        return count > 0;
+        Sqlx.sqlRun(auth, new SqlAtom(log, sql, vars));
     }
 
     public void saveSessionEnv(WnSession se) {

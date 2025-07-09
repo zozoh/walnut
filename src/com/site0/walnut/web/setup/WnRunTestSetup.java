@@ -4,7 +4,7 @@ import org.nutz.log.Log;
 import com.site0.walnut.util.Wlog;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
-import com.site0.walnut.api.auth.WnAccount;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 import com.site0.walnut.util.WnRun;
@@ -18,7 +18,7 @@ public class WnRunTestSetup implements Setup {
 
         WnRun run = nc.getIoc().get(WnRun.class);
         WnContext wc = Wn.WC();
-        WnAccount me = wc.getMe();
+        WnUser me = wc.getMe();
 
         new Thread(() -> {
             Wn.WC().setMe(me);
