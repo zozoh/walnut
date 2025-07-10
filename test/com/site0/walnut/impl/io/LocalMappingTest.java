@@ -105,7 +105,7 @@ public class LocalMappingTest extends BaseIoTest {
         assertEquals(me.getGroupName(), myGroup);
 
         // 切换上下文用户为新用户
-        WnAccount nobody = WnAccount.create("nobody", "nogrp");
+        WnAccount nobody = WnAccount.createByHost("nobody", "nogrp");
         wc.setMe(nobody);
         try {
             io.setMount(b, "file://" + aph + "/tmp/dir");

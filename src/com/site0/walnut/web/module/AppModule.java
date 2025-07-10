@@ -515,6 +515,7 @@ public class AppModule extends AbstractWnModule {
                                             @Attr("wn_www_host") String hostName,
                                             final HttpServletRequest req,
                                             final HttpServletResponse resp) {
+        // 允许跨域
         WnWeb.setCrossDomainHeaders("*", (headName, headValue) -> {
             resp.setHeader(WnWeb.niceHeaderName(headName), headValue);
         });
@@ -522,29 +523,8 @@ public class AppModule extends AbstractWnModule {
         if (WnWeb.isRequestOptions(req)) {
             return null;
         }
-        View view = null;
-        Object reo = null;
-        WnDomainService domains = new WnDomainService(io());
-        WwwSiteInfo si = domains.getWwwSiteInfo(siteId, hostName);
-        String redirectPath = "/";
-        if (log.isInfoEnabled()) {
-            log.infof("auth_login_by_domain_passwd: - siteId: %s\n - name: %s\n - ajax: %s\n - host: %s",
-                      siteId,
-                      name,
-                      ajax,
-                      hostName);
-        }
-        // 防守一波
-        if (null == si) {
-            if (log.isWarnEnabled()) {
-                log.warnf("e.auth.login.NilSiteInfo: %s @ %s", siteId, hostName);
-            }
-            WebException err = Er.create("e.auth.login.NilSiteInfo");
-            if (ajax) {
-                return new ViewWrapper(new AjaxView(), err);
-            }
-            return new ServerRedirectView(redirectPath);
-        }
+        // 获取登录接口
+        
         // -------------------------------------------------
         if (null == si.oWWW) {
             if (ajax) {
