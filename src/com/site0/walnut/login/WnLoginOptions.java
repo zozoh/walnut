@@ -6,6 +6,8 @@ public class WnLoginOptions {
 
     public WnLoginUserOptions user;
 
+    public WnLoginRoleOptions role;
+
     public String domain;
 
     public long sessionDuration;

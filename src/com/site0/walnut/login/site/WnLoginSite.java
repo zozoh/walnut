@@ -1,18 +1,39 @@
 package com.site0.walnut.login.site;
 
 import org.nutz.lang.Files;
+import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
+import org.nutz.trans.Proton;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.login.WnLoginOptions;
+import com.site0.walnut.login.WnUser;
 import com.site0.walnut.login.maker.WnLoginApiMaker;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
+import com.site0.walnut.api.io.WnSecurity;
+import com.site0.walnut.impl.io.WnSecurityImpl;
 
 public class WnLoginSite {
+
+    public static WnLoginSite create(WnIo io, String siteIdOrPath, String hostName) {
+        return Wn.WC().nosecurity(io, new Proton<WnLoginSite>() {
+            protected WnLoginSite exec() {
+                WnLoginSite site = null;
+                if (!Ws.isBlank(siteIdOrPath)) {
+                    site = WnLoginSite.createByPath(io, siteIdOrPath);
+                }
+                if (null == site && !Ws.isBlank(hostName)) {
+                    site = WnLoginSite.createByHost(io, hostName);
+                }
+                return site;
+            }
+        });
+    }
 
     public static WnLoginSite createByHost(WnIo io, String hostName) {
         // 获取域的映射信息对象
@@ -93,10 +114,32 @@ public class WnLoginSite {
             }
 
             // 创建权鉴接口
-            this._auth = WnLoginApiMaker.forDomain().make(io, oSite, options);
+            NutBean sessionVars = new NutMap();
+            this._auth = WnLoginApiMaker.forDomain().make(io, sessionVars, options);
 
         }
         return _auth;
+    }
+
+    private WnObj _oHome;
+
+    public WnObj getHomeObj() {
+        if (null == _oHome) {
+            this._oHome = io.check(null, this.domainHomePath);
+        }
+        return _oHome;
+    }
+
+    public boolean isHomeAccessable(WnUser u) {
+        WnSecurity secu = new WnSecurityImpl(io, auth());
+        WnObj oHome = this.getHomeObj();
+        return secu.test(oHome, Wn.Io.R, u);
+    }
+
+    public void assertHomeAccessable(WnUser u) {
+        if (!isHomeAccessable(u)) {
+            throw Er.create("e.auth.home.forbidden");
+        }
     }
 
     /**

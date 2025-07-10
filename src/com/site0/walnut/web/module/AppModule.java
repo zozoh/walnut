@@ -40,12 +40,11 @@ import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.impl.srv.WnBoxRunning;
-import com.site0.walnut.impl.srv.WnDomainService;
-import com.site0.walnut.impl.srv.WwwSiteInfo;
 import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.login.WnRoleList;
 import com.site0.walnut.login.WnSession;
 import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.site.WnLoginSite;
 import com.site0.walnut.lookup.WnLookup;
 import com.site0.walnut.lookup.impl.WnLookupMaker;
 import com.site0.walnut.util.Wlang;
@@ -524,9 +523,12 @@ public class AppModule extends AbstractWnModule {
             return null;
         }
         // 获取登录接口
-        
+        Object reo = null;
+        WnLoginSite site = WnLoginSite.create(io(), siteId, hostName);
         // -------------------------------------------------
-        if (null == si.oWWW) {
+        // 找不到站点，那么一定要抛错
+        View view = null;
+        if (null == site) {
             if (ajax) {
                 view = new AjaxView();
             } else {
@@ -541,11 +543,12 @@ public class AppModule extends AbstractWnModule {
         }
         // -------------------------------------------------
         // 如果这个域声明了默认登录站点，那么则试图用这个站点的账户系统登录
+        String redirectPath = "/";
         try {
-            WnLoginApi auth = this.auth();
             // 如果采用域用户登陆，则校验系统账户
             // 并返回 CookieView
-            if (si.oHome.isSameName(name)) {
+            if (site.isDomainUser(name)) {
+                WnLoginApi auth = this.auth();
                 if (log.isInfoEnabled()) {
                     log.infof("Login as domain-user: %s", name);
                 }
@@ -556,10 +559,11 @@ public class AppModule extends AbstractWnModule {
             }
             // 采用域用户库来登陆
             else {
+                WnLoginApi auth = site.auth();
                 if (log.isInfoEnabled()) {
                     log.infof("Login as sub-user: %s", name);
                 }
-                WnUser user = si.webs.getAuthApi().checkAccount(name);
+                WnUser user = auth.checkUser(name);
                 if (log.isInfoEnabled()) {
                     log.infof("sub user : %s", user.toString());
                 }
@@ -570,36 +574,24 @@ public class AppModule extends AbstractWnModule {
                         log.infof("OK: check passwd");
                     }
                     // 确保用户是可以访问域主目录的
-                    Session.checkHomeAccessable(io(), login(), si.oHome, user);
+                    site.assertHomeAccessable(user);
                     if (log.isInfoEnabled()) {
                         log.infof("OK: check_home_accessable");
                     }
 
-                    // 特殊会话类型
-                    String byType = WnSession.V_BT_AUTH_BY_DOMAIN;
-                    String byValue = si.siteId + ":passwd";
-
                     // 获取会话时长设置
-                    int se_du = si.webs.getSite().getSeDftDu();
+                    long se_du = auth.getSessionDuration();
 
                     // 注册新会话
-                    WnSession se = login().createSession(user, se_du);
+                    WnSession se = auth.createSession(user, se_du);
 
                     // 更新会话元数据
-                    Session.updateAuthSession(login(),
-                                              conf.getInitUsrEnvs(),
-                                              se,
-                                              si.webs,
-                                              si.oWWW,
-                                              byType,
-                                              byValue);
-
                     if (log.isInfoEnabled()) {
-                        log.infof("OK: create session: %s : %s", byType, byValue);
+                        log.infof("OK: create session: %s : %s", se.getTicket(), se.getMyName());
                     }
 
                     // 获取重定向路径
-                    String appName = se.getVars().getString("OPEN", "wn.manager");
+                    String appName = se.getEnv().getString("OPEN", "wn.manager");
                     redirectPath = "/a/open/" + appName;
 
                     if (log.isInfoEnabled()) {
@@ -607,7 +599,7 @@ public class AppModule extends AbstractWnModule {
                     }
 
                     // 准备返回值
-                    reo = se.toMapForClient();
+                    reo = se.toBean();
                 }
                 // -----------------------------------------
                 // 登录失败

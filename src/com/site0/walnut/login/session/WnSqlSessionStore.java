@@ -90,6 +90,7 @@ public class WnSqlSessionStore extends AbstractWnSessionStore {
                 Sqlx.setParmas(sta, params);
 
                 ResultSet rs = sta.executeQuery();
+                rs.setFetchSize(2);
                 ResultSetMetaData meta = rs.getMetaData();
 
                 // 遍历结果集
@@ -122,6 +123,9 @@ public class WnSqlSessionStore extends AbstractWnSessionStore {
                                        bean.getString("phone"));
                         se.setUser(u);
                     }
+
+                    // 返回会话
+                    return se;
                 }
                 return null;
             }

@@ -1,9 +1,8 @@
 package com.site0.walnut.login.role;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import org.nutz.lang.util.NutBean;
 
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
@@ -12,40 +11,21 @@ import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.core.bean.WnIoObj;
 import com.site0.walnut.login.WnRole;
 import com.site0.walnut.login.WnRoleList;
-import com.site0.walnut.login.WnRoleStore;
 import com.site0.walnut.login.WnRoleType;
-import com.site0.walnut.login.WnUser;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 
-public class WnStdRoleStore implements WnRoleStore {
-
-    private WnIo io;
+public class WnStdRoleStore extends AbstractWnRoleStore {
 
     private WnObj oHome;
 
-    // TODO 这是个简单缓存，以后在扩展更优化的缓存策略
-    private Map<String, WnRoleList> cache;
-
-    public WnStdRoleStore(WnIo io, String homePath) {
-        this.io = io;
+    public WnStdRoleStore(WnIo io, NutBean sessionVars, String homePath) {
+        super(io, sessionVars);
         this.oHome = io.createIfNoExists(null, homePath, WnRace.DIR);
-        this.cache = new HashMap<>();
+
     }
 
-    @Override
-    synchronized public WnRoleList getRoles(WnUser u) {
-        return getRoles(u.getId());
-    }
-
-    @Override
-    synchronized public WnRoleList getRoles(String uid) {
-        // 尝试缓存
-        WnRoleList re = cache.get(uid);
-        if (null != re) {
-            return re;
-        }
-
+    protected List<WnRole> _get_roles(String uid) {
         // 真正查询
         WnQuery q = Wn.Q.pid(oHome);
         q.setv("uid", uid);
@@ -55,21 +35,7 @@ public class WnStdRoleStore implements WnRoleStore {
         for (WnObj oRole : oRoles) {
             results.add(_to_wn_role(oRole));
         }
-        // 计入缓存
-        re = new WnRoleList(results);
-        cache.put(uid, re);
-
-        // 返回
-        return re;
-    }
-
-    private WnRole _to_wn_role(WnObj oRole) {
-        WnRoleType type = WnRoles.fromInt(oRole.getInt("role"));
-        WnSimpleRole role = new WnSimpleRole();
-        role.setType(type);
-        role.setUserId(oRole.getString("uid"));
-        role.setName(oRole.getString("grp"));
-        return role;
+        return results;
     }
 
     @Override
@@ -90,11 +56,7 @@ public class WnStdRoleStore implements WnRoleStore {
         return new WnRoleList(results);
     }
 
-    @Override
-    synchronized public WnRole addRole(String uid, String name, WnRoleType type) {
-        // 首先清除缓存
-        cache.remove(uid);
-
+    protected WnRole _add_role(String uid, String name, WnRoleType type) {
         // 准备查询条件
         WnQuery q = Wn.Q.pid(oHome);
         q.setv("uid", uid);
@@ -118,19 +80,9 @@ public class WnStdRoleStore implements WnRoleStore {
 
         // 返回结果
         return _to_wn_role(oRole);
-
     }
 
-    @Override
-    synchronized public void removeRole(WnRole role) {
-        removeRole(role.getUserId(), role.getName());
-    }
-
-    @Override
-    synchronized public void removeRole(String uid, String name) {
-        // 删除缓存
-        cache.remove(uid);
-
+    protected void _remove_role(String uid, String name) {
         // 从数据库里得到数据对象
         WnQuery q = Wn.Q.pid(oHome);
         q.setv("uid", uid);
@@ -141,12 +93,6 @@ public class WnStdRoleStore implements WnRoleStore {
         if (null != oRole) {
             io.delete(oRole);
         }
-
-    }
-
-    @Override
-    synchronized public void clearCache() {
-        cache.clear();
     }
 
 }

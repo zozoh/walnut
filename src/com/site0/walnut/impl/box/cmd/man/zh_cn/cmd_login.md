@@ -14,12 +14,11 @@ login
 [xiaobai]  # 目标用户名
 [-cqn]     # 按json输出的格式胡方式
 [-H]       # 按json输出时，也显示双下划线开头的隐藏字段
-[-site]    # 表示域子账号登录，可以通过这个指定站点
+[-site]    # 表示域子账号登录，可以通过这个参数指定站点
            #  - "id:xxx" 表示站点对象的 ID
-           #  - "host:xxx.xx  表示站点对象的域名
            #  - "~/xxx"  表示站点的路径
-           #  - "true" 表示采用系统默认配置，通常为 ~/www/login
-           # 默认为 ~/www/login
+[-host]    # 表示域子账号登录，可以通过这个参数指定域名
+           # 系统会根据 /domain 下的域名表寻找对应的域
 ```
     
 # 示例
@@ -29,7 +28,7 @@ login
 login xiaobai
 
 # 采用子账号登录
-login xiaobai -site 
+login xiaobai -site ~/www/login
 
 ```
      

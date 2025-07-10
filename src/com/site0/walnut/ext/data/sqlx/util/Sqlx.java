@@ -94,12 +94,13 @@ public abstract class Sqlx {
         }
     }
 
-    public static int sqlRun(WnDaoAuth auth, SqlAtom callback) {
+    public static int sqlRun(WnDaoAuth auth, SqlExecutor callback) {
         DataSource ds = WnDaos.getDataSource(auth);
         Connection conn = null;
         PreparedStatement sta = null;
         try {
             conn = ds.getConnection();
+            conn.setAutoCommit(false);
             return callback.exec(conn);
         }
         catch (SQLException e) {
@@ -111,6 +112,8 @@ public abstract class Sqlx {
                     sta.close();
                 }
                 if (null != conn) {
+                    conn.commit();
+                    conn.setAutoCommit(true);
                     conn.close();
                 }
             }

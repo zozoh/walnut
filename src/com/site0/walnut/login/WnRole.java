@@ -3,6 +3,8 @@ package com.site0.walnut.login;
 import org.nutz.lang.util.NutBean;
 
 public interface WnRole {
+    
+    String getId();
 
     String getName();
 

@@ -23,9 +23,12 @@ public class WnLoginApiMaker {
 
     private WnUserStoreMaker userStoreMaker;
 
+    private WnRoleStoreMaker roleStoreMaker;
+
     public WnLoginApiMaker() {
         userStoreMaker = new WnUserStoreMaker(UserRace.DOMAIN);
         sessionStoreMaker = new WnSessionStoreMaker();
+        roleStoreMaker = new WnRoleStoreMaker();
     }
 
     public WnLoginApi make(WnIo io, NutBean sessionVars, WnLoginOptions options) {
@@ -33,6 +36,7 @@ public class WnLoginApiMaker {
         WnLoginSetup setup = new WnLoginSetup();
         setup.users = userStoreMaker.make(io, sessionVars, options.user);
         setup.sessions = sessionStoreMaker.make(io, sessionVars, options.session);
+        setup.roles = roleStoreMaker.make(io, sessionVars, options.role);
         setup.domain = options.domain;
         setup.sessionDuration = options.sessionDuration;
         setup.wechatGhOpenIdKey = options.wechatGhOpenIdKey;

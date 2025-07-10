@@ -8,6 +8,8 @@ import com.site0.walnut.login.WnRoleType;
 import com.site0.walnut.util.Ws;
 
 public class WnSimpleRole implements WnRole {
+    
+    private String id;
 
     private String userId;
 
@@ -20,6 +22,7 @@ public class WnSimpleRole implements WnRole {
     @Override
     public NutBean toBean() {
         NutMap bean = new NutMap();
+        bean.put("id", id);
         bean.put("grp", this.name);
         bean.put("uid", this.userId);
         bean.put("usr", this.userName);
@@ -44,6 +47,11 @@ public class WnSimpleRole implements WnRole {
             return false;
         }
         return name.equalsIgnoreCase(this.name);
+    }
+    
+    @Override
+    public String getId() {
+        return this.id;
     }
 
     @Override
