@@ -1,11 +1,14 @@
-package com.site0.walnut.login;
+package com.site0.walnut.login.role;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
@@ -57,7 +60,29 @@ public class WnRoleList implements List<WnRole> {
                 }
             }
         }
-        return null;
+        return WnRoleType.GUEST;
+    }
+
+    public WnRoleList getSubList(String... groups) {
+        HashSet<String> set = new HashSet<>();
+        for (String grp : groups) {
+            set.add(grp);
+        }
+        List<WnRole> list = new ArrayList<>(roles.size());
+        for (WnRole r : this.roles) {
+            if (set.contains(r.getName())) {
+                list.add(r);
+            }
+        }
+        return new WnRoleList(list);
+    }
+
+    public Map<String, Boolean> getAllPrivileges() {
+        Map<String, Boolean> re = new HashMap<>();
+        for (WnRole r : this.roles) {
+            r.mergePrivilegesTo(re);
+        }
+        return re;
     }
 
     public List<NutBean> toBeans() {

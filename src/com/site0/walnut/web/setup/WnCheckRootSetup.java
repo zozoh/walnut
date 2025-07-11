@@ -1,20 +1,12 @@
 package com.site0.walnut.web.setup;
 
 import org.nutz.ioc.Ioc;
-import org.nutz.lang.random.R;
-import org.nutz.log.Log;
-import com.site0.walnut.util.Wlog;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
 import com.site0.walnut.login.WnLoginApi;
-import com.site0.walnut.login.WnRoleType;
-import com.site0.walnut.login.WnUser;
-import com.site0.walnut.login.usr.WnSimpleUser;
 import com.site0.walnut.web.WnConfig;
 
 public class WnCheckRootSetup implements Setup {
-
-    private static final Log log = Wlog.getMAIN();
 
     @Override
     public void init(NutConfig nc) {
@@ -24,23 +16,12 @@ public class WnCheckRootSetup implements Setup {
 
         // 确保有 ROOT 用户
         WnLoginApi auth = ioc.get(WnLoginApi.class, "sysLoginApi");
-        WnUser root = auth.getUser("root");
-        if (root == null) {
-            String passwd = conf.get("root-init-passwd", "123456");
-            root = new WnSimpleUser("root");
-            root.genSaltAndRawPasswd(passwd);
-            auth.addUser(root);
-            auth.addRole(root, "root", WnRoleType.ADMIN);
-            log.infof("init root usr: %s", root.getId());
-        }
-        WnUser guest = auth.getUser("guest");
-        if (guest == null) {
-            String passwd = conf.get("guest-init-passwd", R.UU32());
-            guest = new WnSimpleUser("guest");
-            guest.genSaltAndRawPasswd(passwd);
-            auth.addUser(guest);
-            log.infof("init guest usr: %s", guest.getId());
-        }
+        String passwd = conf.get("root-init-passwd", "123456");
+        auth.addRootUserIfNoExists(passwd);
+
+        // 确保 guest 用户
+        auth.addGuestUserIfNoExists();
+
     }
 
     @Override

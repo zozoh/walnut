@@ -1,6 +1,17 @@
-package com.site0.walnut.login;
+package com.site0.walnut.login.role;
+
+import com.site0.walnut.login.usr.WnUser;
 
 public interface WnRoleStore {
+
+    /**
+     * 根据用户 ID 获取所有相关的角色设置
+     * 
+     * @param uid
+     *            用户 ID
+     * @return 角色列表
+     */
+    WnRoleList getRoles(String uid);
 
     WnRoleList getRoles(WnUser u);
 
@@ -26,15 +37,6 @@ public interface WnRoleStore {
     void removeRole(String uid, String name);
 
     void clearCache();
-
-    /**
-     * 根据用户 ID 获取所有相关的角色设置
-     * 
-     * @param uid
-     *            用户 ID
-     * @return 角色列表
-     */
-    WnRoleList getRoles(String uid);
 
     /**
      * 为某个用户在某个组创建一个橘色

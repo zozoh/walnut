@@ -7,10 +7,10 @@ import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.AbstractWnSecurity;
 import com.site0.walnut.login.WnLoginApi;
-import com.site0.walnut.login.WnRoleList;
-import com.site0.walnut.login.WnRoleType;
-import com.site0.walnut.login.WnUser;
-import com.site0.walnut.login.WnUserRank;
+import com.site0.walnut.login.role.WnRoleRank;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.role.WnRoleType;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 
@@ -115,29 +115,6 @@ public class WnSecurityImpl extends AbstractWnSecurity {
 
     private WnObj __do_check_node(WnObj o, int mask, boolean asNull, WnUser u) {
         WnRoleList roles = auth.getRoles(u);
-        // 对于 root 组成员，啥都不检查
-        if (roles.isMemberOfRole("root"))
-            return o;
-
-        int md;
-
-        // 系统用户，采用标准权限模型
-        if (u.isSysUser()) {
-            md = o.mode();
-        }
-        // 域用户，优先采用自定义权限
-        else {
-            WnUserRank rank = u.getRank(roles);
-            NutBean pvg = o.getCustomizedPrivilege();
-            md = rank.evalPvgMode(pvg, o.mode());
-        }
-
-        // 本身就是创建者，那么看看 u 部分的权限
-        if (o.creator().equals(u.getName())) {
-            if (((md >> 6) & mask) == mask)
-                return o;
-        }
-
         // 对象组给我啥权限
         WnRoleType role = roles.getRoleTypeOfGroup(o.group());
 
@@ -148,15 +125,47 @@ public class WnSecurityImpl extends AbstractWnSecurity {
             throw Er.create("e.io.forbidden");
         }
 
-        // o 允许进入
+        // 对于 root 组成员，啥都不检查
+        if (roles.isMemberOfRole("root"))
+            return o;
+
+        // 对于对象域的管理员，啥都不检查
+        if (roles.isAdminOfRole(o.d1()))
+            return o;
+        // .........................
+        // 获取权限码
+        // .........................
+        int md;
+
+        // 系统用户，采用标准权限模型
+        if (u.isSysUser()) {
+            md = o.mode();
+        }
+        // 域用户，优先采用自定义权限，因为可能有自定义界面界定了对象对于域用户的各种权限
+        else {
+            WnRoleRank rank = u.getRank(roles);
+            NutBean pvg = o.getCustomizedPrivilege();
+            md = rank.evalPvgMode(pvg, o.mode());
+        }
+
+        // 本身就是创建者，那么看看 u 部分的权限
+        if (o.creator().equals(u.getName())) {
+            if (((md >> 6) & mask) == mask)
+                return o;
+        }
+
+        // .........................
+        // 检查权限码
+        // .........................
+        // o 访客允许进入
         if ((md & mask) == mask)
             return o;
 
-        // g 允许进入
+        // g 成员允许进入
         if (WnRoleType.MEMBER == role && ((md >> 3) & mask) == mask)
             return o;
 
-        // u 允许进入
+        // u 物主允许进入
         if (WnRoleType.ADMIN == role && ((md >> 6) & mask) == mask)
             return o;
 

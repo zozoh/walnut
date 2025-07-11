@@ -3,7 +3,7 @@ package com.site0.walnut.impl.io;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.AbstractWnSecurity;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.usr.WnUser;
 
 public class WnEvalLink extends AbstractWnSecurity {
 

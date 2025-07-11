@@ -1,8 +1,9 @@
-package com.site0.walnut.login;
+package com.site0.walnut.login.usr;
 
 import java.util.List;
 
 import com.site0.walnut.api.io.WnQuery;
+import com.site0.walnut.login.UserRace;
 
 public interface WnUserStore {
 

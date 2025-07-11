@@ -2,7 +2,7 @@ package com.site0.walnut.ext.net.payment;
 
 import org.nutz.lang.util.NutBean;
 import com.site0.walnut.api.io.WnObj;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.usr.WnUser;
 
 /**
  * 封装一条支付记录

@@ -3,7 +3,7 @@ package com.site0.walnut.util;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 
-import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.log.WnLogWrapper;
 
 public class Wlog {

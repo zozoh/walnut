@@ -14,7 +14,7 @@ import com.site0.walnut.ext.net.payment.WnPay3xDataType;
 import com.site0.walnut.ext.net.payment.WnPay3xRe;
 import com.site0.walnut.ext.net.payment.WnPay3xStatus;
 import com.site0.walnut.ext.net.payment.WnPayObj;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.usr.WnUser;
 import com.paypal.core.PayPalEnvironment;
 import com.paypal.core.PayPalHttpClient;
 import com.paypal.http.HttpResponse;

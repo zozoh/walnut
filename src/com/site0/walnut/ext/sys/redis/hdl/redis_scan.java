@@ -7,7 +7,7 @@ import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
 
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.ScanParams;
+import redis.clients.jedis.params.ScanParams;
 
 public class redis_scan extends RedisFilter {
 

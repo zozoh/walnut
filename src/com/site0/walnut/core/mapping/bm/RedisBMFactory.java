@@ -11,8 +11,8 @@ import com.site0.walnut.core.mapping.WnBMFactory;
 import com.site0.walnut.ext.sys.redis.Wedis;
 import com.site0.walnut.ext.sys.redis.WedisConfig;
 import com.site0.walnut.login.WnLoginApi;
-import com.site0.walnut.login.WnRoleList;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 

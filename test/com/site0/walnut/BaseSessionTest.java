@@ -2,30 +2,31 @@ package com.site0.walnut;
 
 import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
+import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.usr.WnSimpleUser;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 
 public class BaseSessionTest extends BaseUsrTest {
 
-    protected WnAccount me;
+    protected WnUser me;
 
-    protected WnAuthSession session;
+    protected WnSession session;
 
     @Override
     protected void on_before() {
         super.on_before();
 
         // 准备测试用户
-        WnAccount me = auth.getAccount("demo");
+        WnUser me = auth.getUser("demo");
         if (null == me) {
-            me = auth.createAccount(new WnAccount("demo"));
+            me = auth.addUser(new WnSimpleUser("demo"));
         }
 
         // 创建测试会话
-        session = auth.createSession(me, true);
+        session = auth.createSession(me);
 
         // 切换会话当前用户
         Wn.WC().setMe(me);

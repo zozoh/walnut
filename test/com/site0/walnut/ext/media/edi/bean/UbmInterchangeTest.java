@@ -1,11 +1,9 @@
 package com.site0.walnut.ext.media.edi.bean;
 
-import com.site0.walnut.ext.media.edi.loader.CLNTDUPLoader;
 import com.site0.walnut.ext.media.edi.loader.EdiMsgs;
 import com.site0.walnut.ext.media.edi.loader.UBMErrLoader;
 import com.site0.walnut.ext.media.edi.loader.UBMResLoader;
 import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyError;
-import com.site0.walnut.ext.media.edi.msg.reply.clreg.IcsReplyCLNTDUP;
 import com.site0.walnut.ext.media.edi.msg.reply.ubm.IcsReplyUbmErr;
 import com.site0.walnut.ext.media.edi.msg.reply.ubm.IcsReplyUbmRes;
 import com.site0.walnut.ext.media.edi.msg.reply.ubm.UbmLineRst;

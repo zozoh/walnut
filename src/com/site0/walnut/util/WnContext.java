@@ -25,8 +25,8 @@ import com.site0.walnut.api.io.WnSecurity;
 import com.site0.walnut.impl.io.WnEvalLink;
 import com.site0.walnut.impl.io.WnSecurityImpl;
 import com.site0.walnut.login.WnLoginApi;
-import com.site0.walnut.login.WnSession;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.usr.WnUser;
 
 /**
  * 这个是 ThreadLocal 的上下文

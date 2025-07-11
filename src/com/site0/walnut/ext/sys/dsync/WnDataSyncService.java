@@ -28,7 +28,7 @@ import com.site0.walnut.ext.sys.dsync.bean.WnRestoreAction;
 import com.site0.walnut.ext.sys.dsync.bean.WnRestoreSettings;
 import com.site0.walnut.ext.sys.dsync.bean.WnRestoring;
 import com.site0.walnut.impl.box.WnSystem;
-import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 import com.site0.walnut.util.Wpath;

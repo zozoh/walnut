@@ -51,7 +51,7 @@ public class UBMErrLoader implements EdiMsgLoader<IcsReplyUbmErr> {
         }
 
         // 定位到 RFF 报文行
-        finder.moveTo(true, "RFF");
+        finder.moveTo("RFF", true);
         /*
          * 解析 RFF 报文行
          * RFF+ACW:UBMREQ'

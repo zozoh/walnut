@@ -6,8 +6,8 @@ import org.nutz.lang.random.StringGenerator;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
-import com.site0.walnut.login.WnRoleList;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
 

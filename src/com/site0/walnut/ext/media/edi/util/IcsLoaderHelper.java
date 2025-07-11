@@ -33,7 +33,7 @@ public class IcsLoaderHelper {
      */
     public static EdiReplyError[] parseERPErrs(EdiSegmentFinder finder) {
         finder.reset();
-        boolean erpFound = finder.moveTo(true, "ERP");
+        boolean erpFound = finder.moveTo("ERP", true);
         if (erpFound) {
             // 收集全部错误
             List<EdiReplyError> errList = new ArrayList<>();

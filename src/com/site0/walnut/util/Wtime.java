@@ -13,7 +13,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.ext.sys.datex.bean.WnHolidays;
-import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.session.WnSession;
 
 /**
  * 日期时间相关的帮助函数

@@ -18,7 +18,7 @@ import com.site0.walnut.util.Wlog;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.WnSystem;
-import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.Wn;
 
 import com.alibaba.druid.pool.DruidDataSource;

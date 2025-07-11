@@ -1,7 +1,11 @@
-package com.site0.walnut.login;
+package com.site0.walnut.login.usr;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+
+import com.site0.walnut.login.UserRace;
+import com.site0.walnut.login.role.WnRoleRank;
+import com.site0.walnut.login.role.WnRoleList;
 
 /**
  * 对于 id,phone,name,email 登录和容易理解，对于微信等第三方登录这里需要说明一下。
@@ -17,9 +21,15 @@ import org.nutz.lang.util.NutMap;
  */
 public interface WnUser {
 
-    WnUserRank getRank(WnRoleList roles);
+    WnRoleRank getRank(WnRoleList roles);
 
     boolean isSame(WnUser u);
+
+    boolean isSameId(String userId);
+
+    boolean isSameName(String userName);
+
+    boolean isSameMainGroup(String mainGroup);
 
     void updateBy(NutBean bean);
 
@@ -95,20 +105,18 @@ public interface WnUser {
 
     String getHomePath();
 
+    void setHomePath(String path);
+
     void genSaltAndRawPasswd(String rawPasswd);
 
     void setMeta(String key, Object val);
 
     void removeMeta(String... keys);
 
-    boolean isSameName(String userName);
-
     boolean hasSaltedPasswd();
 
     boolean isMatchedRawPasswd(String passwd);
 
     void setRawPasswd(String passwd);
-
-    boolean isSameId(String userId);
 
 }

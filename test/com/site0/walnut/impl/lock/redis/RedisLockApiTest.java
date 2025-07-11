@@ -8,7 +8,7 @@ public class RedisLockApiTest extends AbstractWnLockApiTest {
 
     @Before
     public void setUp() throws Exception {
-        this.locks = this.setup.getRedisLockApi(3);
+        this.locks = this.setup.getRedisLockApi();
         this.setup.cleanRedisData();
     }
 

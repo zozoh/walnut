@@ -1,5 +1,10 @@
 package com.site0.walnut.login;
 
+/**
+ * 用户与角色的映射
+ * 
+ * @author zozoh(zozohtnt@gmail.com)
+ */
 public class WnLoginRoleOptions {
 
     /**
@@ -23,6 +28,7 @@ public class WnLoginRoleOptions {
      * <ul>
      * <li><code>uid</code> 角色关联的用户ID
      * <li><code>grp</code> 角色关联的角色组名称
+     * <li><code>usr</code> 【字段】角色关联的用户登录名
      * </ul>
      */
     public String sqlQuery;
@@ -43,12 +49,15 @@ public class WnLoginRoleOptions {
      * <li><code>id</code> 角色的内部ID
      * <li><code>grp</code> 【字段】角色组名称
      * <li><code>uid</code> 【字段】角色关联的用户ID
-     * <li><code>role</code> 【字段】角色值
+     * <li><code>usr</code> 【字段】角色关联的用户登录名
+     * <li><code>type</code> 【字段】角色类型
+     * <li><code>role</code> 【字段】角色类型值
+     * <li><code>privileges</code> 【字段】角色特权设定（半角分隔字符串）
      * <li><code>ct</code> 【字段】创建时间
      * <li><code>lm</code> 【字段】修改时间
      * </ul>
      * 
-     * 上述字段除了 <code>id|nm</code>，数据表里如果没有，那么对应的 SQL 模板里应该过滤掉对应的输入变量
+     * 上述字段除了 <code>id</code>，数据表里如果没有，那么对应的 SQL 模板里应该过滤掉对应的输入变量
      */
     public String sqlInsert;
 }

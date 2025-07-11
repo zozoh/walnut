@@ -19,7 +19,7 @@ import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.ext.data.titanium.hdl.ti_webdeps;
-import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnRun;

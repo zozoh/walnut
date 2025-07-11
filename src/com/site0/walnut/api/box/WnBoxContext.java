@@ -3,7 +3,7 @@ package com.site0.walnut.api.box;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.login.WnLoginApi;
-import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.session.WnSession;
 
 public class WnBoxContext {
 

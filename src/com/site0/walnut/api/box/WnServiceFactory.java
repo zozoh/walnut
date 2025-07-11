@@ -58,4 +58,38 @@ public class WnServiceFactory {
         return referApi;
     }
 
+    public void setHookApi(WnHookService hookApi) {
+        this.hookApi = hookApi;
+    }
+
+    public void setLoginApi(WnLoginApi loginApi) {
+        this.loginApi = loginApi;
+    }
+
+    public void setTaskApi(WnSysTaskApi taskApi) {
+        this.taskApi = taskApi;
+    }
+
+    public void setScheduleApi(WnSysScheduleApi scheduleApi) {
+        this.scheduleApi = scheduleApi;
+    }
+
+    public void setCronApi(WnSysCronApi cronApi) {
+        this.cronApi = cronApi;
+    }
+
+    public void setBoxApi(WnBoxService boxApi) {
+        this.boxApi = boxApi;
+    }
+
+    public void setReferApi(WnReferApi referApi) {
+        this.referApi = referApi;
+    }
+
+    public void setLockApi(WnLockApi lockApi) {
+        this.lockApi = lockApi;
+    }
+
+    
+    
 }

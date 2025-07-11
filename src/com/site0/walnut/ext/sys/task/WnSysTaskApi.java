@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.site0.walnut.api.WnAuthExecutable;
 import com.site0.walnut.api.io.WnObj;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.usr.WnUser;
 
 public interface WnSysTaskApi {
 

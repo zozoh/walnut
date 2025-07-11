@@ -4,15 +4,18 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.nutz.lang.random.R;
-import com.site0.walnut.api.auth.WnAccount;
+
+import com.site0.walnut.login.usr.WnUser;
+import com.site0.walnut.login.usr.WnSimpleUser;
 
 public class WnAccountTest {
 
     @Test
     public void test_getHomePath() {
-        WnAccount u = new WnAccount("zozohtnt@gmail.com");
+        WnUser u = new WnSimpleUser("zozohtnt@gmail.com");
+        u.setMainGroup("zozoh");
         u.setId(R.UU32());
-        String expHomePath = "/home/" + u.getId() + "/";
+        String expHomePath = "/home/zozoh";
         assertEquals(expHomePath, u.getHomePath());
 
         u.setName("xiaobai");

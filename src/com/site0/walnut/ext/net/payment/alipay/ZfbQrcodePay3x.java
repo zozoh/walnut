@@ -17,7 +17,7 @@ import com.site0.walnut.ext.net.payment.WnPay3xDataType;
 import com.site0.walnut.ext.net.payment.WnPay3xRe;
 import com.site0.walnut.ext.net.payment.WnPay3xStatus;
 import com.site0.walnut.ext.net.payment.WnPayObj;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.usr.WnUser;
 
 /**
  * 支付宝主动扫二维码付款

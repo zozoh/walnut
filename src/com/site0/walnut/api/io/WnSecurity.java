@@ -1,6 +1,6 @@
 package com.site0.walnut.api.io;
 
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.usr.WnUser;
 
 public interface WnSecurity {
 

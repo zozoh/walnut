@@ -1,7 +1,6 @@
 package com.site0.walnut.login.role;
 
 import com.site0.walnut.api.err.Er;
-import com.site0.walnut.login.WnRoleType;
 
 public abstract class WnRoles {
 
@@ -13,12 +12,10 @@ public abstract class WnRoles {
             return WnRoleType.ADMIN;
         case 10:
             return WnRoleType.MEMBER;
-        case 100:
-            return WnRoleType.CANDIDATE;
         case -1:
             return WnRoleType.BLOCK;
         default:
-            throw Er.create("e.invalid.sysRoleValue", v);
+            throw Er.create("e.invalid.valueOfWnUserRoleType", v);
         }
     }
 

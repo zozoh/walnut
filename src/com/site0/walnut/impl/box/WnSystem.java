@@ -2,7 +2,6 @@ package com.site0.walnut.impl.box;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Collection;
 
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
@@ -21,9 +20,9 @@ import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.io.WnEvalLink;
 import com.site0.walnut.login.WnLoginApi;
-import com.site0.walnut.login.WnRoleList;
-import com.site0.walnut.login.WnSession;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Cmds;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
@@ -344,7 +343,7 @@ public class WnSystem implements WnAuthExecutable {
     public WnSysConf getSysConf() {
         return Wn.getSysConf(io);
     }
-    
+
     /**
      * 读取当前账户对应角色的所有自定义权限表
      * 
@@ -353,57 +352,10 @@ public class WnSystem implements WnAuthExecutable {
     public NutBean getAllMyPvg() {
         // 得到当前用户
         WnUser me = this.getMe();
-
-        // 权限表
-        NutMap myAvaPvg = new NutMap();
-
-        // 看看是否需要读取: 只有域用户才需要读取，系统用户不用管
-        if (me.isDomainUser()) {
-            String siteId = this.session.getEnv().getString(WnAuthSession.V_WWW_SITE_ID);
-            WnObj oWWW = this.io.get(siteId);
-            if (null != oWWW) {
-                WnWebService webs = new WnWebService(this, oWWW);
-                WnWebSite site = webs.getSite();
-                Collection<String> asList;
-                NutMap asMap;
-
-                // 首先加上 Others
-                asMap = site.getRoleAllowActions("others");
-                myAvaPvg.putAll(asMap);
-
-                // 自己所有的自定义权限
-                if (me.hasRoleName()) {
-                    for (String rnm : me.getRoleList()) {
-                        if (!"others".equals(rnm)) {
-                            asMap = site.getRoleAllowActions(rnm);
-                            myAvaPvg.putAll(asMap);
-                        }
-                    }
-                }
-
-                // 根据职位获取角色权限
-                asList = site.getOrgAllowActions(me.getJobs());
-                joinRolePvg(myAvaPvg, asList);
-
-                // 根据部门获取角色权限
-                asList = site.getOrgAllowActions(me.getDepts());
-                joinRolePvg(myAvaPvg, asList);
-            }
-        }
-        // 系统用户，做一个标识
-        else if (me.isSysUser()) {
-            myAvaPvg.put("$SYS_USR", true);
-        }
-
-        return myAvaPvg;
-    }
-
-    private void joinRolePvg(NutMap myAvaPvg, Collection<String> as) {
-        if (null != as && !as.isEmpty()) {
-            for (String a : as) {
-                myAvaPvg.put(a, true);
-            }
-        }
+        WnRoleList roles = auth.getRoles(me);
+        NutBean re = new NutMap();
+        re.putAll(roles.getAllPrivileges());
+        return re;
     }
 
 }

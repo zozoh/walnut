@@ -7,8 +7,8 @@ import com.site0.walnut.ext.sys.task.cmd_task;
 import com.site0.walnut.impl.box.JvmHdlContext;
 import com.site0.walnut.impl.box.JvmHdlExecutor;
 import com.site0.walnut.impl.box.WnSystem;
-import com.site0.walnut.login.WnRoleList;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Cmds;
 
 public class cmd_cron extends JvmHdlExecutor {

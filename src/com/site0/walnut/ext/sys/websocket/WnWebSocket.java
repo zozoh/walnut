@@ -34,7 +34,7 @@ import com.site0.walnut.util.Wlog;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.api.io.WnRace;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.WnRun;
 
 @ServerEndpoint(value = "/websocket", configurator = WnWebSocketConfigurator.class)

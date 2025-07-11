@@ -9,9 +9,9 @@ import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnLoginApiMaker;
 import com.site0.walnut.login.WnLoginOptions;
-import com.site0.walnut.login.WnUser;
-import com.site0.walnut.login.maker.WnLoginApiMaker;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
@@ -75,7 +75,8 @@ public class WnLoginSite {
     private WnIo io;
 
     /**
-     * 记录一个站点的配置，可能是一个目录对象，那么它的元数据就是站点登录信息 或者就是一个 JSON 文件 通常为 `~/www` 目录
+     * 记录一个站点的配置，可能是一个目录对象，那么它的元数据就是站点登录信息<br>
+     * 或者就是一个 JSON 文件 通常为 `~/www` 目录
      */
     private WnObj oSite;
 

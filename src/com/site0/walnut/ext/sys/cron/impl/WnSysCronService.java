@@ -19,7 +19,7 @@ import com.site0.walnut.ext.sys.cron.WnSysCron;
 import com.site0.walnut.ext.sys.cron.WnSysCronApi;
 import com.site0.walnut.ext.sys.cron.WnSysCronQuery;
 import com.site0.walnut.login.WnLoginApi;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 

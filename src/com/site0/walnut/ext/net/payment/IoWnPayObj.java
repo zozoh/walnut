@@ -3,7 +3,7 @@ package com.site0.walnut.ext.net.payment;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import com.site0.walnut.core.bean.WnIoObj;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.usr.WnUser;
 
 /**
  * 封装一个支付单的数据

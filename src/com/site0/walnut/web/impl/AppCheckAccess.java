@@ -8,10 +8,10 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.io.WnSecurityImpl;
 import com.site0.walnut.impl.srv.WnBoxRunning;
 import com.site0.walnut.login.WnLoginApi;
-import com.site0.walnut.login.WnRoleList;
-import com.site0.walnut.login.WnRoleType;
-import com.site0.walnut.login.WnSession;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.role.WnRoleType;
+import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 
 public class AppCheckAccess {

@@ -15,11 +15,13 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthSession;
+import com.site0.walnut.core.IoCoreTest;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.usr.WnUser;
+import com.site0.walnut.login.session.WnSimpleSession;
+import com.site0.walnut.login.usr.WnSimpleUser;
 
-public class WnTest {
+public class WnTest extends IoCoreTest {
 
     @Test
     public void test_evalTimeAndOffset() {
@@ -291,13 +293,15 @@ public class WnTest {
 
     @Test
     public void test_normalize() {
-        WnAccount me = new WnAccount();
+        WnUser me = new WnSimpleUser();
         me.setMeta("home", "/home/zozoh");
-        WnSystem sys = new WnSystem(null);
-        sys.session = new WnAuthSession(R.UU32(), me);
-        sys.session.getVars().put("HOME", "/home/zozoh");
-        sys.session.getVars().put("PWD", "$HOME/workspace/test");
-        sys.session.getVars().put("ABC", "haha");
+        WnSystem sys = new WnSystem(setup.getServiceFactory());
+        sys.session = new WnSimpleSession();
+        ((WnSimpleSession) sys.session).setTicket(R.UU32());
+        ((WnSimpleSession) sys.session).setUser(me);
+        sys.session.getEnv().put("HOME", "/home/zozoh");
+        sys.session.getEnv().put("PWD", "$HOME/workspace/test");
+        sys.session.getEnv().put("ABC", "haha");
 
         assertEquals("/home/zozoh/bin", Wn.normalizePath("~/bin", sys));
         assertEquals("/home/zozoh/workspace/test/bin", Wn.normalizePath("./bin", sys));

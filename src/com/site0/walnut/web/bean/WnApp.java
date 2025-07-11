@@ -4,7 +4,7 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
-import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.session.WnSession;
 
 public class WnApp {
 

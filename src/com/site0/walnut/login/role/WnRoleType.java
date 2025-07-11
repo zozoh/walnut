@@ -1,4 +1,4 @@
-package com.site0.walnut.login;
+package com.site0.walnut.login.role;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,11 +21,6 @@ public enum WnRoleType {
      * 组员
      */
     MEMBER(10),
-
-    /**
-     * 预备组员，等待管理员审批，期间，和非组员权限一样
-     */
-    CANDIDATE(100),
 
     /**
      * 黑名单，完全阻止任何访问，也不可以自我申请为预备组员
@@ -122,8 +117,6 @@ public enum WnRoleType {
             return ADMIN;
         if (10 == role)
             return MEMBER;
-        if (100 == role)
-            return CANDIDATE;
         if (-1 == role)
             return BLOCK;
         return GUEST;
@@ -134,7 +127,6 @@ public enum WnRoleType {
         roles.put("GUEST", GUEST);
         roles.put("ADMIN", ADMIN);
         roles.put("MEMBER", MEMBER);
-        roles.put("CANDIDATE", CANDIDATE);
         roles.put("BLOCK", BLOCK);
     }
 

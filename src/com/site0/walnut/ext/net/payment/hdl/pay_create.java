@@ -4,7 +4,6 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
-import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.net.payment.WnPay3xRe;
 import com.site0.walnut.ext.net.payment.WnPayInfo;
 import com.site0.walnut.ext.net.payment.WnPayObj;
@@ -13,10 +12,8 @@ import com.site0.walnut.ext.net.payment.WnPays;
 import com.site0.walnut.impl.box.JvmHdl;
 import com.site0.walnut.impl.box.JvmHdlContext;
 import com.site0.walnut.impl.box.WnSystem;
-import com.site0.walnut.login.WnUser;
-import com.site0.walnut.login.usr.WnStdUserStore;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Cmds;
-import com.site0.walnut.util.Wn;
 
 public class pay_create implements JvmHdl {
 
@@ -51,10 +48,10 @@ public class pay_create implements JvmHdl {
         }
         // 用域用户的方式检测
         else if (wpi.isDomainBuyer()) {
-            WnObj oAccountDir = Wn.checkObj(sys, "id:" + wpi.buyer_tp);
-            WnStdUserStore alod = new WnStdUserStore(sys.io, oAccountDir);
-            WnUser buyer = alod.checkUserById(wpi.buyer_id);
-            wpi.buyer_nm = buyer.getName();
+            // WnObj oAccountDir = Wn.checkObj(sys, "id:" + wpi.buyer_tp);
+            // WnStdUserStore alod = new WnStdUserStore(sys.io, oAccountDir);
+            // WnUser buyer = alod.checkUserById(wpi.buyer_id);
+            // wpi.buyer_nm = buyer.getName();
         }
         // 不可能
         else {

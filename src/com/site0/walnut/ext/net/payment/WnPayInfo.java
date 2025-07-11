@@ -9,7 +9,7 @@ import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.login.WnLoginApi;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 
 /**

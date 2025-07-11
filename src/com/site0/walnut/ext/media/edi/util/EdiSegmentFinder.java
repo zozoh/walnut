@@ -207,28 +207,26 @@ public class EdiSegmentFinder {
             return seg;
         }
 
-        //若找不到, 则回退一行
+        // 若找不到, 则回退一行
         it.previous();
         return null;
     }
 
     /**
-     * 1. 从当前位置开始，移动到 能匹配上 tag 的位置;
-     * - a. 找到 tag 后，若 backOneSegment=true 那么则后退一步；
-     * - b. 找到 tag 后，若 backOneSegment=false 则维持指向位置；
-     * 2. 若找不到 tag，则回退到当前(匹配开始)的位置；
+     * 1. 从当前位置开始，移动到 能匹配上 tag 的位置; - a. 找到 tag 后，若 backOneSegment=true 那么则后退一步；
+     * - b. 找到 tag 后，若 backOneSegment=false 则维持指向位置； 2. 若找不到
+     * tag，则回退到当前(匹配开始)的位置；
      */
-    public boolean moveTo(boolean backOneSegment, String tag) {
-        return moveTo(backOneSegment, tag, null);
+    public boolean moveTo(String tag, boolean backOneSegment) {
+        return moveToUtil(tag, backOneSegment);
     }
 
     /**
-     * 1. 从当前位置开始，移动到 能匹配上 tag 的位置;
-     * - a. 找到 tag 后，若 backOneSegment=true 那么则后退一步；
-     * - b. 找到 tag 后，若 backOneSegment=false 则维持指向位置；
-     * 2. 若找不到 tag， 或 中途遇到了 stopTags 中的 tag, 则回退到当前(匹配开始)的位置；
+     * 1. 从当前位置开始，移动到 能匹配上 tag 的位置; - a. 找到 tag 后，若 backOneSegment=true 那么则后退一步；
+     * - b. 找到 tag 后，若 backOneSegment=false 则维持指向位置； 2. 若找不到 tag， 或 中途遇到了
+     * stopTags 中的 tag, 则回退到当前(匹配开始)的位置；
      */
-    public boolean moveTo(boolean backOneSegment, String goalTag, String... stopTags) {
+    public boolean moveToUtil(String goalTag, boolean backOneSegment, String... stopTags) {
         // 防守
         if (!it.hasNext())
             return false;
@@ -267,10 +265,8 @@ public class EdiSegmentFinder {
         return findOne;
     }
 
-
     /**
-     * 1. 此方法常常配合 moveTo 方法使用，先使用 moveTo 方法定位到区域前方;
-     * 2.
+     * 1. 此方法常常配合 moveTo 方法使用，先使用 moveTo 方法定位到区域前方; 2.
      */
     public List<EdiSegment> findContinueSegments(String begin, String match, String boundary) {
         List<EdiSegment> re = new ArrayList<>(list.size());

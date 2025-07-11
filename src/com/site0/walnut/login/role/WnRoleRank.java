@@ -1,4 +1,4 @@
-package com.site0.walnut.login;
+package com.site0.walnut.login.role;
 
 import org.nutz.lang.util.NutBean;
 
@@ -14,7 +14,7 @@ import com.site0.walnut.core.bean.WnObjMode;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class WnUserRank {
+public class WnRoleRank {
 
     private String userId;
 
@@ -23,7 +23,7 @@ public class WnUserRank {
     private WnRoleList roles;
 
     /**
-     * 根据自定权限设定集合，评判当前用户(UserRang) 的权限吗
+     * 根据自定权限设定集合，评判当前用户(UserRank) 的权限吗
      * 
      * @param pvg
      *            权限设定集合
@@ -44,8 +44,8 @@ public class WnUserRank {
         //
         // 处理各种自定义的权限
         //
-        // - 4a98..a123 : 直接是用户的 ID
-        key = this.userId;
+        // - id:4a98..a123 : 直接指定用户ID的角色
+        key = "id:" + this.userId;
         val = pvg.get(key);
         if (null != val) {
             found = true;
@@ -56,8 +56,8 @@ public class WnUserRank {
                 return 511;
             }
         }
-        // - @[demo] : 角色【域账户】
-        key = "@[" + this.userName + "]";
+        // - demo : 直接指定用户登录名的
+        key = this.userName;
         val = pvg.get(key);
         if (null != val) {
             found = true;
@@ -68,8 +68,9 @@ public class WnUserRank {
                 return 511;
             }
         }
-        // - @others : 角色【域账户】
-        val = pvg.get("@others");
+        // - #others : 指定了其他角色，所有人至少是 @thers
+        // 这就有了一个基本的权限码
+        val = pvg.get("#others");
         if (null != val) {
             found = true;
             WnObjMode wom = WnObjMode.parse(val);
@@ -79,9 +80,12 @@ public class WnUserRank {
                 return 511;
             }
         }
-        // - @SYS_ADMIN : 角色【域账户】
-        if (!roles.isEmpty()) {
-            for (WnRole r: roles) {
+        // 自定义角色有三个角色值，譬如对象里声明:
+        // @IT = 750(ocx)
+        // 那么我们只需要把这个码取出来，外面调用者会根据当前用户的 roles
+        // 来决定采用权限的哪一段来校验
+        if (null != roles && !roles.isEmpty()) {
+            for (WnRole r : roles) {
                 key = "@" + r.getName();
                 val = pvg.get(key);
                 if (null != val) {

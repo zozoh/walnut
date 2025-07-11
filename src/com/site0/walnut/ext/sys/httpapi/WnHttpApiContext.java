@@ -10,8 +10,8 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.pvg.BizPvgService;
 import com.site0.walnut.ext.data.pvg.WnAuthOptions;
 import com.site0.walnut.login.WnLoginApi;
-import com.site0.walnut.login.WnSession;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.WnContext;
 
 /**

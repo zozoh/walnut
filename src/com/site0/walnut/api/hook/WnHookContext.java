@@ -11,7 +11,7 @@ import com.site0.walnut.api.box.WnBoxContext;
 import com.site0.walnut.api.box.WnBoxService;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.login.WnLoginApi;
-import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.Wlog;
 
 public class WnHookContext {

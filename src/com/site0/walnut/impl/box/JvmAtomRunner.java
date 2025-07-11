@@ -20,7 +20,7 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.api.io.WnSecurity;
 import com.site0.walnut.impl.io.WnSecurityImpl;
-import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.Cmds;
 import com.site0.walnut.util.JvmTunnel;
 import com.site0.walnut.util.SyncWnTunnel;

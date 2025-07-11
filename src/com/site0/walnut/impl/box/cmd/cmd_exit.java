@@ -7,7 +7,7 @@ import org.nutz.lang.util.NutMap;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.impl.io.WnEvalLink;
-import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.Wn;
 
 public class cmd_exit extends JvmExecutor {

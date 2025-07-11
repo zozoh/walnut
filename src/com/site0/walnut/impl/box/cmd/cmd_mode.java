@@ -6,9 +6,9 @@ import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
-import com.site0.walnut.login.WnRoleList;
-import com.site0.walnut.login.WnUser;
-import com.site0.walnut.login.WnUserRank;
+import com.site0.walnut.login.role.WnRoleRank;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
@@ -45,7 +45,7 @@ public class cmd_mode extends JvmExecutor {
         if (isForFile) {
             o = Wn.checkObj(sys, input);
             NutBean pvg = o.getCustomizedPrivilege();
-            WnUserRank rank = me.getRank(myRoles);
+            WnRoleRank rank = me.getRank(myRoles);
             md = rank.evalPvgMode(pvg, Wn.Io.NO_PVG);
             if (md < 0 && isReal) {
                 md = o.mode();

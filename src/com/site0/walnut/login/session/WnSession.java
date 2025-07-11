@@ -1,9 +1,13 @@
-package com.site0.walnut.login;
+package com.site0.walnut.login.session;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
+import com.site0.walnut.login.usr.WnUser;
+
 public interface WnSession {
+    
+    boolean isSame(WnSession se);
 
     boolean isSameTicket(String ticket);
 
@@ -48,6 +52,8 @@ public interface WnSession {
     void updateEnv(NutBean delta);
 
     WnSession clone();
+
+    String getMyId();
 
     String getMyName();
 

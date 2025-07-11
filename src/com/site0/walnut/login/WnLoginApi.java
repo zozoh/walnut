@@ -4,14 +4,24 @@ import java.util.Date;
 import java.util.List;
 
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.ext.net.xapi.bean.XApiRequest;
 import com.site0.walnut.ext.net.xapi.impl.WnXApi;
+import com.site0.walnut.login.role.WnRole;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.role.WnRoleStore;
+import com.site0.walnut.login.role.WnRoleType;
+import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.session.WnSessionStore;
 import com.site0.walnut.login.session.WnSimpleSession;
 import com.site0.walnut.login.usr.WnSimpleUser;
+import com.site0.walnut.login.usr.WnUser;
+import com.site0.walnut.login.usr.WnUserStore;
 import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wuu;
@@ -21,32 +31,24 @@ public class WnLoginApi {
 
     private static final WnSnowQMaker TicketMaker = new WnSnowQMaker(null, 10);
 
-    private WnUserStore users;
+    private static Log log = Wlog.getAUTH();
 
-    private WnSessionStore sessions;
+    WnUserStore users;
 
-    private WnRoleStore roles;
+    WnSessionStore sessions;
 
-    private WnXApi xapi;
+    WnRoleStore roles;
 
-    private String domain;
+    WnXApi xapi;
 
-    private long sessionDuration;
+    String domain;
 
-    private String wechatMpOpenIdKey;
+    long sessionDuration;
+
+    String wechatMpOpenIdKey;
 
     // TODO 这里是微信公众号页面的获取 openid 方式，暂时还未实现
-    // private String wechatGhOpenIdKey;
-
-    public WnLoginApi(WnLoginSetup setup) {
-        this.users = setup.users;
-        this.sessions = setup.sessions;
-        this.roles = setup.roles;
-        this.sessionDuration = setup.sessionDuration;
-        this.xapi = setup.xapi;
-        this.domain = setup.domain;
-        this.wechatMpOpenIdKey = setup.wechatMpOpenIdKey;
-    }
+    String wechatGhOpenIdKey;
 
     public WnRoleList getRoles(WnUser u) {
         WnRoleList list = roles.getRoles(u);
@@ -69,6 +71,11 @@ public class WnLoginApi {
             }
         }
         return list;
+    }
+    
+    public WnRoleType getRoleTypeOfGroup(WnUser u, String group) {
+        WnRoleList list = roles.getRoles(u);
+        return list.getRoleTypeOfGroup(group);
     }
 
     public WnRole addRole(WnUser u, String name, WnRoleType type) {
@@ -200,6 +207,33 @@ public class WnLoginApi {
 
     public UserRace getUserRace() {
         return users.getUserRace();
+    }
+
+    public WnUser addRootUserIfNoExists(String dftPassword) {
+        WnUser root = getUser("root");
+        if (null == root) {
+            root = new WnSimpleUser("root");
+            root.genSaltAndRawPasswd(dftPassword);
+            root = addUser(root);
+            addRole(root, "root", WnRoleType.ADMIN);
+            log.infof("init root usr: %s", root.getId());
+        } else {
+            log.infof("already exists root usr: %s", root.getId());
+        }
+        return root;
+    }
+
+    public WnUser addGuestUserIfNoExists() {
+        WnUser guest = getUser("guest");
+        if (null == guest) {
+            guest = new WnSimpleUser("guest");
+            guest = addUser(guest);
+            addRole(guest, "guest", WnRoleType.MEMBER);
+            log.infof("init guest usr: %s", guest.getId());
+        } else {
+            log.infof("already exists guest usr: %s", guest.getId());
+        }
+        return guest;
     }
 
     public WnUser addUser(WnUser u) {

@@ -49,9 +49,6 @@ public abstract class AbstractHttpConnector implements HttpConnector {
             if (hc.hasSslSocketFactory()) {
                 sslc.setSSLSocketFactory(hc.getSslSocketFactory());
             }
-            if (hc.hasHostnameVerifier()) {
-                sslc.setHostnameVerifier(hc.getHostnameVerifier());
-            }
         }
 
         // 对于 IPV6 的支持

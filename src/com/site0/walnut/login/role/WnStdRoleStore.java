@@ -9,9 +9,6 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.core.bean.WnIoObj;
-import com.site0.walnut.login.WnRole;
-import com.site0.walnut.login.WnRoleList;
-import com.site0.walnut.login.WnRoleType;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 

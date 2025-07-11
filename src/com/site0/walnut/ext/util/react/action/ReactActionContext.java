@@ -5,7 +5,7 @@ import com.site0.walnut.api.WnAuthExecutable;
 import com.site0.walnut.api.WnOutputable;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.impl.box.WnSystem;
-import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.session.WnSession;
 
 public class ReactActionContext {
 

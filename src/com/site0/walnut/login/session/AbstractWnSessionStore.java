@@ -3,9 +3,7 @@ package com.site0.walnut.login.session;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
-import com.site0.walnut.login.WnSession;
-import com.site0.walnut.login.WnSessionStore;
-import com.site0.walnut.login.WnUserStore;
+import com.site0.walnut.login.usr.WnUserStore;
 
 public abstract class AbstractWnSessionStore implements WnSessionStore {
 

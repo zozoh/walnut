@@ -18,7 +18,7 @@ import com.site0.walnut.ext.sys.task.WnSysTaskApi;
 import com.site0.walnut.ext.sys.task.WnSysTaskException;
 import com.site0.walnut.ext.sys.task.WnSysTaskQuery;
 import com.site0.walnut.login.WnLoginApi;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;

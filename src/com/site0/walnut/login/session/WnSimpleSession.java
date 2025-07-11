@@ -5,8 +5,7 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
-import com.site0.walnut.login.WnSession;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wtime;
 import com.site0.walnut.val.id.WnSnowQMaker;
@@ -67,6 +66,14 @@ public class WnSimpleSession implements WnSession {
     }
 
     @Override
+    public String getMyId() {
+        if (null == this.user) {
+            return null;
+        }
+        return this.user.getId();
+    }
+
+    @Override
     public String getMyName() {
         if (null == this.user) {
             return null;
@@ -83,8 +90,13 @@ public class WnSimpleSession implements WnSession {
     }
 
     @Override
+    public boolean isSame(WnSession se) {
+        return isSameTicket(se.getTicket());
+    }
+
+    @Override
     public boolean isSameTicket(String ticket) {
-        if (null == ticket) {
+        if (null == ticket || null == this.ticket) {
             return false;
         }
         return ticket.equals(this.ticket);
@@ -248,4 +260,5 @@ public class WnSimpleSession implements WnSession {
         this.env.putAll(delta);
     }
 
+    
 }

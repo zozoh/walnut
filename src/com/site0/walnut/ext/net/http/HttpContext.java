@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocketFactory;
 
 import com.site0.walnut.util.Wlang;
@@ -37,8 +36,6 @@ public class HttpContext {
     private List<HttpFormPart> formParts;
 
     private SSLSocketFactory sslSocketFactory;
-
-    private HostnameVerifier hostnameVerifier;
 
     private int connectTimeout;
 
@@ -294,18 +291,6 @@ public class HttpContext {
 
     public void setSslSocketFactory(SSLSocketFactory sslSocketFactory) {
         this.sslSocketFactory = sslSocketFactory;
-    }
-
-    public boolean hasHostnameVerifier() {
-        return null != hostnameVerifier;
-    }
-
-    public HostnameVerifier getHostnameVerifier() {
-        return hostnameVerifier;
-    }
-
-    public void setHostnameVerifier(HostnameVerifier hostnameVerifier) {
-        this.hostnameVerifier = hostnameVerifier;
     }
 
     public boolean hasConnectTimeout() {

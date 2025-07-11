@@ -7,11 +7,7 @@ import java.util.Map;
 import org.nutz.lang.util.NutBean;
 
 import com.site0.walnut.api.io.WnIo;
-import com.site0.walnut.login.WnRole;
-import com.site0.walnut.login.WnRoleList;
-import com.site0.walnut.login.WnRoleStore;
-import com.site0.walnut.login.WnRoleType;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.usr.WnUser;
 
 public abstract class AbstractWnRoleStore implements WnRoleStore {
 
@@ -32,11 +28,8 @@ public abstract class AbstractWnRoleStore implements WnRoleStore {
     }
 
     protected WnRole _to_wn_role(NutBean oRole) {
-        WnRoleType type = WnRoles.fromInt(oRole.getInt("role"));
-        WnSimpleRole role = new WnSimpleRole();
-        role.setType(type);
-        role.setUserId(oRole.getString("uid"));
-        role.setName(oRole.getString("grp"));
+        WnRole role = new WnSimpleRole();
+        role.fromBean(oRole);
         return role;
     }
 

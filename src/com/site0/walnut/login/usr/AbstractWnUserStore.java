@@ -8,8 +8,6 @@ import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.login.UserRace;
-import com.site0.walnut.login.WnUser;
-import com.site0.walnut.login.WnUserStore;
 import com.site0.walnut.util.Ws;
 
 public abstract class AbstractWnUserStore implements WnUserStore {
@@ -18,9 +16,22 @@ public abstract class AbstractWnUserStore implements WnUserStore {
 
     protected NutMap defaultMeta;
 
+    protected AbstractWnUserStore(UserRace userRace, NutMap defaultMeta) {
+        this.defaultMeta = defaultMeta;
+        this.userRace = userRace;
+    }
+
     @Override
     public UserRace getUserRace() {
         return userRace;
+    }
+
+    public NutMap getDefaultMeta() {
+        return defaultMeta;
+    }
+
+    public void setDefaultMeta(NutMap defaultMeta) {
+        this.defaultMeta = defaultMeta;
     }
 
     public void patchDefaultEnv(WnUser u) {
@@ -36,10 +47,10 @@ public abstract class AbstractWnUserStore implements WnUserStore {
 
     protected WnUser toWnUser(NutBean bean) {
         WnUser u = new WnSimpleUser(bean);
-        u.setUserRace(this.userRace);
         if (null != this.defaultMeta) {
             u.putMetas(this.defaultMeta);
         }
+        u.setUserRace(this.userRace);
         return u;
     }
 

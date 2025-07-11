@@ -6,8 +6,8 @@ import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
-import com.site0.walnut.login.WnUser;
 import com.site0.walnut.login.usr.WnSimpleUser;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Cmds;
 import com.site0.walnut.util.ZParams;
 

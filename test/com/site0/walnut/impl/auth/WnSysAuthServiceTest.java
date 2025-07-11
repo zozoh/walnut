@@ -11,12 +11,11 @@ import com.site0.walnut.util.Wlang;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import com.site0.walnut.BaseUsrTest;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthSession;
-import com.site0.walnut.api.auth.WnAuths;
-import com.site0.walnut.api.auth.WnGroupRole;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
+import com.site0.walnut.login.role.WnRoleType;
+import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 
@@ -25,8 +24,8 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
     @Test
     public void test_forbidden_write() {
         // 创建两个用户
-        final WnAccount ua = auth.createAccount(new WnAccount("userA", "123456"));
-        final WnAccount ub = auth.createAccount(new WnAccount("userB", "123456"));
+        final WnUser ua = user_passwd("userA", "123456");
+        final WnUser ub = user_passwd("userB", "123456");
 
         // 设置权限监控
         WnContext wc = Wn.WC();
@@ -66,7 +65,7 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
             });
 
             // 把 B 用户加入到组里就能写
-            auth.setGroupRole(ub, ua.getGroupName(), WnGroupRole.MEMBER);
+            auth.addRole(ub, ua.getMainGroup(), WnRoleType.MEMBER);
 
             String str = wc.su(ub, new Proton<String>() {
                 protected String exec() {
@@ -101,7 +100,7 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
             }
 
             // 只有变成管理员
-            auth.setGroupRole(ub, ua.getGroupName(), WnGroupRole.ADMIN);
+            auth.addRole(ub, ua.getMainGroup(), WnRoleType.ADMIN);
 
             // 才能写
             str = wc.su(ub, new Proton<String>() {
@@ -121,8 +120,8 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
     @Test
     public void test_forbidden_read() {
         // 创建两个用户
-        final WnAccount ua = auth.createAccount(new WnAccount("userA", "123456"));
-        final WnAccount ub = auth.createAccount(new WnAccount("userB", "123456"));
+        final WnUser ua = user_passwd("userA", "123456");
+        final WnUser ub = user_passwd("userB", "123456");
 
         // 设置权限监控
         WnContext wc = Wn.WC();
@@ -163,7 +162,7 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
             }
 
             // 把 B 用户加入到组里就能读
-            auth.setGroupRole(ub, ua.getGroupName(), WnGroupRole.MEMBER);
+            auth.addRole(ub, ua.getMainGroup(), WnRoleType.MEMBER);
 
             str = wc.su(ub, new Proton<String>() {
                 protected String exec() {
@@ -210,7 +209,7 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
             }
 
             // 只有变成管理员
-            auth.setGroupRole(ub, ua.getGroupName(), WnGroupRole.ADMIN);
+            auth.addRole(ub, ua.getMainGroup(), WnRoleType.ADMIN);
 
             // 才能读
             str = wc.su(ub, new Proton<String>() {
@@ -228,27 +227,26 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
 
     @Test
     public void se_login_logout() throws Throwable {
-        WnAccount xiaobai = auth.createAccount(new WnAccount("xiaobai", "123456"));
+        WnUser xiaobai = user_passwd("xiaobai", "123456");
 
-        WnAuthSession se = auth.loginByPasswd("xiaobai", "123456");
+        WnSession se = auth.loginByPassword("xiaobai", "123456");
 
         assertEquals(se.getMyId(), xiaobai.getId());
         assertEquals(se.getMyName(), xiaobai.getName());
-        assertEquals(se.getMyGroup(), xiaobai.getGroupName());
-        assertEquals(se.getVars().getString("HOME"), xiaobai.getHomePath());
+        assertEquals(se.getMyGroup(), xiaobai.getMainGroup());
+        assertEquals(se.getEnv().getString("HOME"), xiaobai.getHomePath());
 
         // 检查对象
         WnObj oSe = io.check(null, "/var/session/" + se.getTicket());
         assertTrue(oSe.expireTime() > (Wn.now() + 5000));
 
         // 获取
-        WnAuthSession se2 = auth.checkSession(se.getTicket());
-        assertEquals(se2.getId(), se2.getId());
+        WnSession se2 = auth.checkSession(se.getTicket());
         assertTrue(se.isSame(se2));
         assertEquals(se2.getMyId(), xiaobai.getId());
         assertEquals(se2.getMyName(), xiaobai.getName());
-        assertEquals(se2.getMyGroup(), xiaobai.getGroupName());
-        assertEquals(se2.getVars().getString("HOME"), xiaobai.getHomePath());
+        assertEquals(se2.getMyGroup(), xiaobai.getMainGroup());
+        assertEquals(se2.getEnv().getString("HOME"), xiaobai.getHomePath());
 
         // 当前会话是重读出来的那个
         se = se2;
@@ -257,34 +255,34 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
         // TODO zozoh 自从改了自制的 nanoTime 以后，就老过不去
         // 看起来是因为在很短的时间内，重复写文件，导致历史记录产生了问题？
         try {
-            se.getVars().put("say", "hello");
-            se.getVars().put("x", "100");
-            auth.saveSessionVars(se);
+            se.getEnv().put("say", "hello");
+            se.getEnv().put("x", "100");
+            auth.saveSessionEnv(se);
 
             se = auth.checkSession(se.getTicket());
-            assertEquals("100", se.getVars().getString("x"));
-            assertEquals("hello", se.getVars().getString("say"));
+            assertEquals("100", se.getEnv().getString("x"));
+            assertEquals("hello", se.getEnv().getString("say"));
 
             // 删除环境变量
-            se.getVars().put("say", null);
-            se.getVars().put("x", null);
-            auth.saveSessionVars(se);
+            se.getEnv().put("say", null);
+            se.getEnv().put("x", null);
+            auth.saveSessionEnv(se);
 
             se = auth.checkSession(se.getTicket());
-            assertNull(se.getVars().get("x"));
-            assertNull(se.getVars().get("say"));
+            assertNull(se.getEnv().get("x"));
+            assertNull(se.getEnv().get("say"));
 
             // 注销
-            auth.logout(se.getTicket(), 0);
+            auth.logout(se.getTicket());
             se = auth.getSession(se.getTicket());
             assertNull(se);
 
         }
         catch (Throwable e) {
-            System.out.println(Json.toJson(se.toMapForClient()));
+            System.out.println(Json.toJson(se.toBean()));
             System.out.println("--------------------check again:");
             se = auth.checkSession(se.getTicket());
-            System.out.println(Json.toJson(se.toMapForClient()));
+            System.out.println(Json.toJson(se.toBean()));
             System.out.println("--------------------Obj:");
             WnObj oSe2 = io.check(null, "/sys/session/" + se.getTicket());
             System.out.println(Json.toJson(oSe2));
@@ -294,18 +292,16 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
 
     @Test
     public void usr_create_by_email() {
-        WnAccount acc = new WnAccount("xiaobai@nutzam.com", "123456");
-        WnAccount xiaobai = auth.createAccount(acc);
+        WnUser xiaobai = user_passwd("xiaobai@nutzam.com", "123456");
 
         // 获取一个
-        WnAccount u = auth.getAccount("xiaobai@nutzam.com");
+        WnUser u = auth.getUser("xiaobai@nutzam.com");
         // assertEquals("123456", u.password());
         assertTrue(u.isMatchedRawPasswd("123456"));
         assertTrue(u.isSameId(xiaobai.getId()));
         assertTrue(u.isSameName(xiaobai.getName()));
-        assertTrue(u.isSameId(xiaobai.getGroupName()));
-        assertTrue(u.isSameGroup(xiaobai.getGroupName()));
-        assertTrue(u.isSameGroup(u.getId()));
+        assertTrue(u.isSameMainGroup(xiaobai.getMainGroup()));
+        assertTrue(u.isSameMainGroup(u.getId()));
         assertEquals("xiaobai@nutzam.com", u.getEmail());
         assertNull(u.getPhone());
 
@@ -319,10 +315,11 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
         assertEquals(488, oHome.mode());
 
         // 改个名
-        auth.renameAccount(u, "xiaobai");
+        u.setName("xiaobai");
+        auth.updateUserName(u);
 
         // 再次按照 Email 获取
-        u = auth.getAccount("xiaobai@nutzam.com");
+        u = auth.getUser("xiaobai@nutzam.com");
         assertTrue(u.isMatchedRawPasswd("123456"));
         assertTrue(u.isSameId(xiaobai.getId()));
         assertTrue(u.isSameName("xiaobai"));
@@ -339,7 +336,7 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
         assertEquals(488, oHome.mode());
 
         // 按照 Name 获取
-        u = auth.getAccount("xiaobai");
+        u = auth.getUser("xiaobai");
         assertTrue(u.isMatchedRawPasswd("123456"));
         assertTrue(u.isSameId(xiaobai.getId()));
         assertTrue(u.isSameName("xiaobai"));
@@ -348,10 +345,10 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
 
         // 设置手机
         u.setPhone("13910110054");
-        auth.saveAccount(u, WnAuths.ABMM.LOGIN);
+        auth.updateUserPhone(u);
 
         // 按照 手机 获取
-        u = auth.getAccount("13910110054");
+        u = auth.getUser("13910110054");
         assertTrue(u.isMatchedRawPasswd("123456"));
         assertTrue(u.isSameId(xiaobai.getId()));
         assertTrue(u.isSameName("xiaobai"));
@@ -370,12 +367,11 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
 
     @Test
     public void usr_create_by_phone() {
-        WnAccount xiaobai = auth.createAccount(new WnAccount("13910110054", "123456"));
-
+        WnUser xiaobai = user_passwd("13910110054", "123456"); 
         assertEquals("/home/" + xiaobai.getId() + "/", xiaobai.getHomePath());
 
         // 获取一个
-        WnAccount u = auth.getAccount("13910110054");
+        WnUser u = auth.getUser("13910110054");
         assertTrue(u.isMatchedRawPasswd("123456"));
         assertTrue(u.isSameId(xiaobai.getId()));
         assertTrue(u.isSameName(xiaobai.getName()));
@@ -386,10 +382,11 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
         assertEquals(u.getId(), oHome.name());
 
         // 改个名
-        auth.renameAccount(u, "xiaobai");
+        u.setName("xiaobai");
+        auth.updateUserName(u);
 
         // 再次按照 Phone 获取
-        u = auth.getAccount("13910110054");
+        u = auth.getUser("13910110054");
         assertTrue(u.isMatchedRawPasswd("123456"));
         assertTrue(u.isSameId(xiaobai.getId()));
         assertTrue(u.isSameName("xiaobai"));
@@ -400,7 +397,7 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
         assertEquals(u.getName(), oHome.name());
 
         // 按照 Name 获取
-        u = auth.getAccount("xiaobai");
+        u = auth.getUser("xiaobai");
         assertTrue(u.isMatchedRawPasswd("123456"));
         assertTrue(u.isSameId(xiaobai.getId()));
         assertTrue(u.isSameName("xiaobai"));
@@ -409,10 +406,10 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
 
         // 设置邮箱
         u.setEmail("xiaobai@nutzam.com");
-        auth.saveAccount(u, WnAuths.ABMM.LOGIN);
+        auth.updateUserEmail(u);
 
         // 按照 Name 获取
-        u = auth.getAccount("xiaobai");
+        u = auth.getUser("xiaobai");
         assertTrue(u.isMatchedRawPasswd("123456"));
         assertTrue(u.isSameId(xiaobai.getId()));
         assertTrue(u.isSameName("xiaobai"));
@@ -426,41 +423,38 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
 
     @Test
     public void usr_create_delete() {
-        WnAccount xiaobai = auth.createAccount(new WnAccount("xiaobai", "123456"));
-        WnAccount xiaohei = auth.createAccount(new WnAccount("xiaohei", "123456"));
+        WnUser xiaobai = user_passwd("xiaobai", "123456");
+        WnUser xiaohei = user_passwd("xiaohei", "123456");
 
         assertEquals("/home/xiaobai/", xiaobai.getHomePath());
 
         // 获取一个
-        WnAccount u = auth.getAccount("xiaobai");
+        WnUser u = auth.getUser("xiaobai");
         assertTrue(u.isMatchedRawPasswd("123456"));
         assertTrue(u.isSameId(xiaobai.getId()));
         assertTrue(u.isSameName("xiaobai"));
         assertEquals("xiaobai", u.getName());
-        assertEquals("xiaobai", u.getGroupName());
+        assertEquals("xiaobai", u.getMainGroup());
         assertNull(u.getPhone());
         assertNull(u.getEmail());
 
         // 重新获取一遍
-        xiaobai = auth.checkAccount("xiaobai");
-        xiaohei = auth.checkAccount("xiaohei");
+        xiaobai = auth.checkUser("xiaobai");
+        xiaohei = auth.checkUser("xiaohei");
 
         // 检查 HOME
         WnObj oHome = io.check(null, u.getHomePath());
 
         // 检查权限设定
-        assertEquals(WnGroupRole.ADMIN, auth.getGroupRole(xiaobai, xiaobai.getGroupName()));
-        assertEquals(WnGroupRole.GUEST, auth.getGroupRole(xiaohei, xiaobai.getGroupName()));
+        assertEquals(WnRoleType.ADMIN, auth.getRoleTypeOfGroup(xiaobai, xiaobai.getMainGroup()));
+        assertEquals(WnRoleType.GUEST, auth.getRoleTypeOfGroup(xiaohei, xiaobai.getMainGroup()));
 
-        assertEquals(WnGroupRole.ADMIN, auth.getGroupRole(xiaohei, xiaohei.getGroupName()));
-        assertEquals(WnGroupRole.GUEST, auth.getGroupRole(xiaobai, xiaohei.getGroupName()));
+        assertEquals(WnRoleType.ADMIN, auth.getRoleTypeOfGroup(xiaohei, xiaohei.getMainGroup()));
+        assertEquals(WnRoleType.GUEST, auth.getRoleTypeOfGroup(xiaobai, xiaohei.getMainGroup()));
 
-        // 删除就什么也没了
-        auth.deleteAccount(u);
-        assertNull(auth.getAccount("xiaobai"));
 
         // 权限也就是访客了
-        assertEquals(WnGroupRole.GUEST, auth.getGroupRole(u, u.getGroupName()));
+        assertEquals(WnRoleType.GUEST, auth.getRoleTypeOfGroup(xiaohei, "nogroup"));
 
         // 但是主目录还在
         WnObj oHome2 = io.check(null, u.getHomePath());

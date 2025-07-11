@@ -5,10 +5,8 @@ import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.login.UserRace;
-import com.site0.walnut.login.WnRoleList;
-import com.site0.walnut.login.WnUser;
-import com.site0.walnut.login.WnUserRank;
-import com.site0.walnut.login.WnUserStore;
+import com.site0.walnut.login.role.WnRoleRank;
+import com.site0.walnut.login.role.WnRoleList;
 
 public class WnLazyUser implements WnUser {
 
@@ -24,7 +22,7 @@ public class WnLazyUser implements WnUser {
     }
 
     @Override
-    public WnUserRank getRank(WnRoleList roles) {
+    public WnRoleRank getRank(WnRoleList roles) {
         if (null == _user) {
             throw Er.create("e.usr.lazy.WithoutInnerUserWhenGetRank");
         }
@@ -292,6 +290,22 @@ public class WnLazyUser implements WnUser {
             this.reloadInnerUser();
         }
         return _user.getHomePath();
+    }
+
+    @Override
+    public void setHomePath(String path) {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
+        _user.setHomePath(path);
+    }
+
+    @Override
+    public boolean isSameMainGroup(String mainGroup) {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
+        return _user.isSameMainGroup(mainGroup);
     }
 
     @Override

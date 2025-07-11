@@ -2,15 +2,14 @@ package com.site0.walnut.ext.data.entity.buy;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import com.site0.walnut.ext.sys.redis.Wedis;
 import com.site0.walnut.ext.sys.redis.WedisConfig;
 import com.site0.walnut.ext.sys.redis.WedisRunGet;
 
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.ScanResult;
-import redis.clients.jedis.Tuple;
+import redis.clients.jedis.resps.ScanResult;
+import redis.clients.jedis.resps.Tuple;
 
 public class WnRedisBuyService implements BuyApi {
 
@@ -73,7 +72,7 @@ public class WnRedisBuyService implements BuyApi {
     public List<BuyIt> getAll(String uid) {
         String key = _KEY(uid);
         return Wedis.runGet(conf, jed -> {
-            Set<Tuple> set = jed.zrangeWithScores(key, 0, -1);
+            List<Tuple> set = jed.zrangeWithScores(key, 0, -1);
             List<BuyIt> list = new ArrayList<>(set.size());
             for (Tuple tu : set) {
                 BuyIt fi = new BuyIt(tu.getElement(), (int) tu.getScore());
@@ -87,7 +86,7 @@ public class WnRedisBuyService implements BuyApi {
     public List<BuyIt> revAll(String uid) {
         String key = _KEY(uid);
         return Wedis.runGet(conf, jed -> {
-            Set<Tuple> set = jed.zrevrangeWithScores(key, 0, -1);
+            List<Tuple> set = jed.zrevrangeWithScores(key, 0, -1);
             List<BuyIt> list = new ArrayList<>(set.size());
             for (Tuple tu : set) {
                 BuyIt fi = new BuyIt(tu.getElement(), (int) tu.getScore());

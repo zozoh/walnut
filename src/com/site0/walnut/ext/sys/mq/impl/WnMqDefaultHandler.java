@@ -9,8 +9,8 @@ import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.sys.mq.WnMqHandler;
 import com.site0.walnut.ext.sys.mq.WnMqMessage;
-import com.site0.walnut.login.WnSession;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.WnRun;
 
 @IocBean

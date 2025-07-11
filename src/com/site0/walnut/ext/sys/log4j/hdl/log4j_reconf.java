@@ -4,8 +4,8 @@ import org.apache.log4j.PropertyConfigurator;
 import com.site0.walnut.impl.box.JvmHdl;
 import com.site0.walnut.impl.box.JvmHdlContext;
 import com.site0.walnut.impl.box.WnSystem;
-import com.site0.walnut.login.WnRoleList;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.usr.WnUser;
 
 public class log4j_reconf implements JvmHdl {
 

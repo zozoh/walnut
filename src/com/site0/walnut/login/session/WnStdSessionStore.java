@@ -1,16 +1,15 @@
 package com.site0.walnut.login.session;
 
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.core.bean.WnIoObj;
-import com.site0.walnut.login.WnSession;
-import com.site0.walnut.login.WnUser;
-import com.site0.walnut.login.WnUserStore;
 import com.site0.walnut.login.usr.WnLazyUser;
-import com.site0.walnut.login.usr.WnSessionStoreSetup;
+import com.site0.walnut.login.usr.WnUser;
+import com.site0.walnut.login.usr.WnUserStore;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
@@ -23,17 +22,24 @@ public class WnStdSessionStore extends AbstractWnSessionStore {
     private WnIo io;
     private WnObj oHome;
 
-    public WnStdSessionStore(WnSessionStoreSetup setup) {
-        this.io = setup.io;
-        this.defaultEnv = setup.defaultEnv;
+    public WnStdSessionStore(WnIo io, NutBean sessionVars, String homePath, NutMap defaultEnv) {
+        this.io = io;
+        this.defaultEnv = defaultEnv;
 
         // 获取会话主目录
-        this.oHome = Wn.checkObj(io, setup.sessionVars, setup.path);
+        homePath = Ws.sBlank(homePath, "~/.domain/session");
+        this.oHome = Wn.checkObj(io, sessionVars, homePath);
     }
 
+    /**
+     * 为系统用户会话准备的构造器
+     * 
+     * @param io
+     */
     public WnStdSessionStore(WnIo io) {
         this.io = io;
-        // defaultEnv 会在构造的时候设置
+        // defaultEnv 会在Ioc构造字段的时候设置，它应该通过
+        // {java: "$conf.xxx"} 去获取默认配置文件里的会话初始环境变量
 
         // 获取会话主目录
         this.oHome = io.check(null, "/var/session");

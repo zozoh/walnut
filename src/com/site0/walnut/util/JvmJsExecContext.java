@@ -21,7 +21,7 @@ import com.site0.walnut.core.WnIoHandleMutexException;
 import com.site0.walnut.impl.box.JvmBoxInput;
 import com.site0.walnut.impl.box.JvmBoxOutput;
 import com.site0.walnut.impl.box.WnSystem;
-import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.session.WnSession;
 
 /**
  * 给 JsExec 用的运行时接口

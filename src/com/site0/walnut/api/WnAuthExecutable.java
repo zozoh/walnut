@@ -1,7 +1,8 @@
 package com.site0.walnut.api;
 
 import org.nutz.lang.util.Callback;
-import com.site0.walnut.login.WnUser;
+
+import com.site0.walnut.login.usr.WnUser;
 
 public interface WnAuthExecutable extends WnExecutable {
 

@@ -26,7 +26,7 @@ import org.nutz.web.ajax.AjaxViewMaker;
 import com.site0.walnut.WnVersion;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
-import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnSysRuntime;

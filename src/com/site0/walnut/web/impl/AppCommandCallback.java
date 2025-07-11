@@ -10,7 +10,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.trans.Atom;
 import com.site0.walnut.api.box.WnBoxContext;
-import com.site0.walnut.login.WnSession;
+import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.Wn;
 
 /**

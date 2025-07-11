@@ -40,7 +40,7 @@ public class UBMResLoader implements EdiMsgLoader<IcsReplyUbmRes> {
         IcsLoaderHelper.fillResFuncCode(re, finder);
 
         // 解析 DTM 报文行, DTM+9:20240612215114156647:ZZZ'
-        boolean find = finder.moveTo(true, "DTM", "RFF", "DOC");
+        boolean find = finder.moveToUtil("DTM", true, "RFF", "DOC");
         if (find) {
             segs = finder.nextAll(true, "DTM");
             for (EdiSegment item : segs) {
@@ -53,7 +53,7 @@ public class UBMResLoader implements EdiMsgLoader<IcsReplyUbmRes> {
         }
 
         // 解析 FTX 报文行, FTX+AAH+++FJM396HU00000337/PRD1' 等
-        find = finder.moveTo(true, "FTX", "RFF", "DOC");
+        find = finder.moveToUtil("FTX", true, "RFF", "DOC");
         if (find) {
             segs = finder.nextAll(true, "FTX");
             for (EdiSegment item : segs) {
@@ -68,7 +68,7 @@ public class UBMResLoader implements EdiMsgLoader<IcsReplyUbmRes> {
         }
 
         // 解析 TDT 报文行
-        find = finder.moveTo(true, "TDT", "RFF", "DOC");
+        find = finder.moveToUtil("TDT", true, "RFF", "DOC");
         if (find) {
             segs = finder.nextAll(true, "TDT");
             for (EdiSegment item : segs) {
@@ -116,7 +116,7 @@ public class UBMResLoader implements EdiMsgLoader<IcsReplyUbmRes> {
         }
 
         // 解析 LOC 报文行, 示例: LOC+5+FM27N::95' , LOC+4+GE65A::95'
-        find = finder.moveTo(true, "LOC", "RFF", "DOC");
+        find = finder.moveToUtil("LOC", true, "RFF", "DOC");
         if (find) {
             segs = finder.nextAll(true, "LOC");
             for (EdiSegment item : segs) {
@@ -135,13 +135,13 @@ public class UBMResLoader implements EdiMsgLoader<IcsReplyUbmRes> {
         }
 
         // 略过 解析 NAD 报文行, 示例: NAD+MR+FJM396H::95' , NAD+UD+74609780707::95'
-        find = finder.moveTo(true, "NAD", "RFF", "DOC");
+        find = finder.moveToUtil("NAD", true, "RFF", "DOC");
         if (find) {
             finder.nextAll(true, "NAD");
         }
 
         // 解析 RFF 报文行, 示例: RFF+ACW:UBMREQ', 示例: RFF+ABO:U00000337/PRD1::1', RFF+ANX:UNDERBOND APPROVAL', RFF+ACD:DCL'
-        find = finder.moveTo(true, "RFF", "DOC");
+        find = finder.moveToUtil("RFF", true, "DOC");
         if (find) {
             segs = finder.nextAll(true, "RFF");
             for (EdiSegment item : segs) {

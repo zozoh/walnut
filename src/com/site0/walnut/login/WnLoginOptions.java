@@ -1,5 +1,7 @@
 package com.site0.walnut.login;
 
+import com.site0.walnut.login.session.WnLoginSessionOptions;
+
 public class WnLoginOptions {
 
     public WnLoginSessionOptions session;

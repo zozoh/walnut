@@ -10,9 +10,8 @@ import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.login.UserRace;
-import com.site0.walnut.login.WnRoleList;
-import com.site0.walnut.login.WnUser;
-import com.site0.walnut.login.WnUserRank;
+import com.site0.walnut.login.role.WnRoleRank;
+import com.site0.walnut.login.role.WnRoleList;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Wobj;
 import com.site0.walnut.util.Ws;
@@ -56,8 +55,8 @@ public class WnSimpleUser implements WnUser {
     }
 
     @Override
-    public WnUserRank getRank(WnRoleList roles) {
-        WnUserRank rank = new WnUserRank();
+    public WnRoleRank getRank(WnRoleList roles) {
+        WnRoleRank rank = new WnRoleRank();
         rank.setRoles(roles);
         rank.setUserId(id);
         rank.setUserName(name);
@@ -71,7 +70,7 @@ public class WnSimpleUser implements WnUser {
         }
         return id.equals(u.getId());
     }
-    
+
     @Override
     public boolean isSameId(String userId) {
         return id.equals(userId);
@@ -79,7 +78,18 @@ public class WnSimpleUser implements WnUser {
 
     @Override
     public boolean isSameName(String userName) {
+        if (null == userName || null == this.name) {
+            return false;
+        }
         return this.name.equals(userName);
+    }
+
+    @Override
+    public boolean isSameMainGroup(String mainGroup) {
+        if (null == mainGroup || null == this.mainGroup) {
+            return false;
+        }
+        return this.mainGroup.equals(mainGroup);
     }
 
     @Override
@@ -99,6 +109,11 @@ public class WnSimpleUser implements WnUser {
             dftHome = "/root";
         }
         return this.getMetaString("HOME", dftHome);
+    }
+
+    @Override
+    public void setHomePath(String path) {
+        this.setMeta("HOME", path);
     }
 
     @Override
@@ -275,7 +290,6 @@ public class WnSimpleUser implements WnUser {
         if (!Ws.isBlank(this.passwd)) {
             bean.put("passwd", true);
         }
-
     }
 
     @Override

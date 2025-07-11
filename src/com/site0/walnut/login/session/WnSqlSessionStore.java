@@ -24,11 +24,9 @@ import com.site0.walnut.ext.data.sqlx.util.SqlGetter;
 import com.site0.walnut.ext.data.sqlx.util.Sqlx;
 import com.site0.walnut.ext.sys.sql.WnDaoAuth;
 import com.site0.walnut.ext.sys.sql.WnDaos;
-import com.site0.walnut.login.WnSession;
-import com.site0.walnut.login.WnUser;
-import com.site0.walnut.login.WnUserStore;
 import com.site0.walnut.login.usr.WnLazyUser;
-import com.site0.walnut.login.usr.WnSessionStoreSetup;
+import com.site0.walnut.login.usr.WnUser;
+import com.site0.walnut.login.usr.WnUserStore;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Ws;
@@ -50,7 +48,7 @@ public class WnSqlSessionStore extends AbstractWnSessionStore {
 
     private String sqlInsert;
 
-    public WnSqlSessionStore(WnSessionStoreSetup setup) {
+    public WnSqlSessionStore(WnIo io, NutBean sessionVars, WnLoginSessionOptions setup) {
         this.defaultEnv = setup.defaultEnv;
 
         // SQL
@@ -60,8 +58,6 @@ public class WnSqlSessionStore extends AbstractWnSessionStore {
         this.sqlInsert = setup.sqlInsert;
 
         // 数据源
-        WnIo io = setup.io;
-        NutBean sessionVars = setup.sessionVars;
         String daoName = Ws.sBlank(setup.daoName, "default");
         this.auth = WnDaos.loadAuth(io, daoName, sessionVars);
 

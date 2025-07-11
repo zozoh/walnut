@@ -22,8 +22,8 @@ import com.site0.walnut.ext.net.payment.alipay.ZfbQrcodePay3x;
 import com.site0.walnut.ext.net.payment.alipay.ZfbScanPay3x;
 import com.site0.walnut.ext.net.payment.free.FreePay3x;
 import com.site0.walnut.ext.net.payment.paypal.PaypalPay3x;
-import com.site0.walnut.login.WnRoleList;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnRun;
 

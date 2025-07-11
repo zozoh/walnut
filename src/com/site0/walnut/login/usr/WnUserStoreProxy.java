@@ -7,17 +7,15 @@ import org.nutz.trans.Proton;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.login.UserRace;
-import com.site0.walnut.login.WnUser;
-import com.site0.walnut.login.WnUserStore;
 import com.site0.walnut.util.Wn;
 
-public class WnSysUserStore implements WnUserStore {
+public class WnUserStoreProxy implements WnUserStore {
 
     // It will be injected by Ioc
     private WnIo io;
     private WnUserStore impl;
 
-    public WnSysUserStore(WnIo io, WnUserStore impl) {
+    public WnUserStoreProxy(WnIo io, WnUserStore impl) {
         this.io = io;
         this.impl = impl;
     }

@@ -1,4 +1,6 @@
-package com.site0.walnut.login;
+package com.site0.walnut.login.session;
+
+import com.site0.walnut.login.usr.WnUserStore;
 
 public interface WnSessionStore {
 

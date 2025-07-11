@@ -3,19 +3,15 @@ package com.site0.walnut.login.role;
 import org.nutz.trans.Proton;
 
 import com.site0.walnut.api.io.WnIo;
-import com.site0.walnut.login.WnRole;
-import com.site0.walnut.login.WnRoleList;
-import com.site0.walnut.login.WnRoleStore;
-import com.site0.walnut.login.WnRoleType;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 
-public class WnSysRoleStore implements WnRoleStore {
+public class WnRoleStoreProxy implements WnRoleStore {
 
     private WnIo io;
     private WnRoleStore impl;
 
-    public WnSysRoleStore(WnIo io, WnRoleStore impl) {
+    public WnRoleStoreProxy(WnIo io, WnRoleStore impl) {
         this.io = io;
         this.impl = impl;
     }

@@ -7,9 +7,9 @@ import java.io.File;
 import org.junit.Test;
 import org.nutz.lang.Files;
 import com.site0.walnut.BaseIoTest;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 import org.nutz.web.WebException;
@@ -96,16 +96,16 @@ public class LocalMappingTest extends BaseIoTest {
 
         // 挂载目录
         WnContext wc = Wn.WC();
-        WnAccount me = wc.getMe();
+        WnUser me = wc.getMe();
         String myName = wc.getMyName();
         String myGroup = wc.getMyGroup();
 
         // 顺便测测上下文的帮助函数
         assertEquals(me.getName(), myName);
-        assertEquals(me.getGroupName(), myGroup);
+        assertEquals(me.getMainGroup(), myGroup);
 
         // 切换上下文用户为新用户
-        WnAccount nobody = WnAccount.createByHost("nobody", "nogrp");
+        WnUser nobody = user_grp("nobody", "nogrp");
         wc.setMe(nobody);
         try {
             io.setMount(b, "file://" + aph + "/tmp/dir");

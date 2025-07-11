@@ -18,8 +18,8 @@ import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Ws;
 
-import redis.clients.jedis.ScanParams;
-import redis.clients.jedis.ScanResult;
+import redis.clients.jedis.params.ScanParams;
+import redis.clients.jedis.resps.ScanResult;
 import redis.clients.jedis.params.SetParams;
 
 public class QuickRedisLockApi implements WnLockApi {

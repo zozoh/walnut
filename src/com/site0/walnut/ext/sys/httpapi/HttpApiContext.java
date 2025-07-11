@@ -2,7 +2,7 @@ package com.site0.walnut.ext.sys.httpapi;
 
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.WnSystem;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.usr.WnUser;
 
 public class HttpApiContext {
 

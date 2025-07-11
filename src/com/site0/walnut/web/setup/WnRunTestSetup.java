@@ -1,10 +1,12 @@
 package com.site0.walnut.web.setup;
 
 import org.nutz.log.Log;
+
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wlog;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
-import com.site0.walnut.login.WnUser;
+
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 import com.site0.walnut.util.WnRun;
