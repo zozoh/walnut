@@ -96,7 +96,7 @@ public class WnStdUserStore extends AbstractWnUserStore {
         if (u.hasMeta()) {
             delta.putAll(u.getMeta());
         }
-
+        delta.put("HOME", u.getHomePath());
         io.appendMeta(oU, delta);
 
     }

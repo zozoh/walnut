@@ -95,8 +95,8 @@ public class WnLazyUser implements WnUser {
         _user.updateBy(bean);
     }
 
-    public void setLoginStr(String str) {
-        _user.setLoginStr(str);
+    public void setLoginStr(String str, boolean autoSetName) {
+        _user.setLoginStr(str, autoSetName);
     }
 
     public String toString() {

@@ -72,7 +72,8 @@ public abstract class AbstractWnUserStore implements WnUserStore {
 
     @Override
     public WnUser getUser(String nameOrPhoneOrEmail) {
-        WnUser info = new WnSimpleUser(nameOrPhoneOrEmail);
+        WnUser info = new WnSimpleUser();
+        info.setLoginStr(nameOrPhoneOrEmail, false);
         return this.getUser(info);
     }
 

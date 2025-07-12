@@ -21,7 +21,6 @@ public abstract class BaseIoTest extends IoCoreTest {
         WnUser u = auth.getUser(name);
         if (null == u) {
             u = new WnSimpleUser(name);
-            u.setMainGroup("root");
             u.genSaltAndRawPasswd(passwd);
             return auth.addUser(u);
         }
@@ -58,7 +57,7 @@ public abstract class BaseIoTest extends IoCoreTest {
         setup.getDaoIndexerFactory();
 
         // 准备根用户
-        root = auth.checkUser("root");
+        root = auth.addRootUserIfNoExists("123456");
 
         // 默认每个测试运行都是用 root
         Wn.WC().setMe(root);

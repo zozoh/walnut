@@ -7,7 +7,10 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 
 import com.site0.walnut.api.err.Er;
+import com.site0.walnut.api.io.WnIo;
+import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
+import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.ext.net.xapi.bean.XApiRequest;
 import com.site0.walnut.ext.net.xapi.impl.WnXApi;
 import com.site0.walnut.login.role.WnRole;
@@ -33,6 +36,8 @@ public class WnLoginApi {
 
     private static Log log = Wlog.getAUTH();
 
+    private WnIo io;
+
     WnUserStore users;
 
     WnSessionStore sessions;
@@ -49,6 +54,10 @@ public class WnLoginApi {
 
     // TODO 这里是微信公众号页面的获取 openid 方式，暂时还未实现
     String wechatGhOpenIdKey;
+
+    public WnLoginApi(WnIo io) {
+        this.io = io;
+    }
 
     public WnRoleList getRoles(WnUser u) {
         WnRoleList list = roles.getRoles(u);
@@ -72,7 +81,7 @@ public class WnLoginApi {
         }
         return list;
     }
-    
+
     public WnRoleType getRoleTypeOfGroup(WnUser u, String group) {
         WnRoleList list = roles.getRoles(u);
         return list.getRoleTypeOfGroup(group);
@@ -237,7 +246,30 @@ public class WnLoginApi {
     }
 
     public WnUser addUser(WnUser u) {
-        return users.addUser(u);
+        // 必须有登录名
+        if (Ws.isBlank(u.getName())) {
+            throw Er.create("e.auth.addUser.WithoutName");
+        }
+        // 默认主组为自己的名称
+        if (Ws.isBlank(u.getMainGroup())) {
+            u.setMainGroup(u.getName());
+        }
+        u = users.addUser(u);
+
+        // 确保有主目录
+        WnObj oUsrHome = io.createIfExists(null, u.getHomePath(), WnRace.DIR);
+        NutMap delta = new NutMap();
+        delta.put("c", u.getName());
+        delta.put("m", u.getName());
+        delta.put("g", u.getName());
+        delta.put("md", 488); // oct: 750
+        io.appendMeta(oUsrHome, delta);
+
+        // 建立自己的额默认角色
+        addRole(u, u.getMainGroup(), WnRoleType.ADMIN);
+
+        // 搞定
+        return u;
     }
 
     public List<WnUser> queryUser(WnQuery q) {
@@ -290,6 +322,17 @@ public class WnLoginApi {
 
     public void updateUserPassword(WnUser u, String rawPassword) {
         users.updateUserPassword(u, rawPassword);
+    }
+
+    public WnObj updateUserHomeName(WnUser u, String newName) {
+        WnObj oHome = io.check(null, u.getHomePath());
+        if (oHome.isSameName(newName)) {
+            return oHome;
+        }
+        oHome = io.rename(oHome, newName);
+        u.setHomePath(oHome.path());
+        users.saveUserMeta(u);
+        return oHome;
     }
 
     public WnSession getSession(String ticket) {

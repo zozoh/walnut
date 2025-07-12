@@ -35,7 +35,7 @@ public class WnLoginApiMaker {
 
     public WnLoginApi make(WnIo io, NutBean sessionVars, WnLoginOptions options) {
 
-        WnLoginApi api = new WnLoginApi();
+        WnLoginApi api = new WnLoginApi(io);
         api.users = userStoreMaker.make(io, sessionVars, options.user);
         api.sessions = sessionStoreMaker.make(io, sessionVars, options.session);
         api.roles = roleStoreMaker.make(io, sessionVars, options.role);

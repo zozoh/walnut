@@ -33,7 +33,7 @@ public interface WnUser {
 
     void updateBy(NutBean bean);
 
-    void setLoginStr(String str);
+    void setLoginStr(String str, boolean autoSetName);
 
     String toString();
 

@@ -47,7 +47,7 @@ public class WnSimpleUser implements WnUser {
     public WnSimpleUser() {}
 
     public WnSimpleUser(String nameOrPhoneOrEmail) {
-        this.setLoginStr(nameOrPhoneOrEmail);
+        this.setLoginStr(nameOrPhoneOrEmail, true);
     }
 
     public WnSimpleUser(NutBean bean) {
@@ -134,7 +134,7 @@ public class WnSimpleUser implements WnUser {
     }
 
     @Override
-    public void setLoginStr(String str) {
+    public void setLoginStr(String str, boolean autoSetName) {
         if (Ws.isBlank(str))
             throw Er.create("e.auth.loginstr.blank");
 
@@ -156,14 +156,22 @@ public class WnSimpleUser implements WnUser {
         }
         // 手机
         else if (Strings.isMobile(str)) {
-            phone = str;
+            if (autoSetName) {
+                this.setPhoneAndName(str);
+            } else {
+                this.setPhone(str);
+            }
         }
         // 邮箱
         else if (Strings.isEmail(str)) {
-            email = str;
+            if (autoSetName) {
+                this.setEmailAndName(str);
+            } else {
+                this.setEmail(str);
+            }
         }
         // 登录名
-        else if (WnUsers.isValidAccountName(str)) {
+        else if (WnUsers.isValidUserName(str)) {
             name = str;
         }
         // 错误的登录字符串
@@ -233,6 +241,11 @@ public class WnSimpleUser implements WnUser {
             else if (Wobj.isReserveKey(key)) {
                 continue;
             }
+            // 元数据
+            else if ("meta".equals(key)) {
+                NutMap val = bean.getAs(key, NutMap.class);
+                this.meta.putAll(val);
+            }
             // Others put to "meta"
             else {
                 Object val = bean.get(key);
@@ -243,11 +256,6 @@ public class WnSimpleUser implements WnUser {
 
     @Override
     public void mergeToBean(NutBean bean) {
-        // 合并其他元数据
-        if (null != this.meta) {
-            bean.putAll(this.meta);
-        }
-
         // ID
         if (!Ws.isBlank(id))
             bean.put("id", id);
@@ -290,6 +298,14 @@ public class WnSimpleUser implements WnUser {
         if (!Ws.isBlank(this.passwd)) {
             bean.put("passwd", true);
         }
+
+        // 自定义元数据
+        NutMap meta = new NutMap();
+        if (null != this.meta) {
+            meta.putAll(this.meta);
+        }
+        meta.put("HOME", this.getHomePath());
+        bean.put("meta", meta);
     }
 
     @Override
@@ -342,6 +358,9 @@ public class WnSimpleUser implements WnUser {
 
     @Override
     public void setName(String name) {
+        if (!WnUsers.isValidUserName(name)) {
+            throw Er.create("e.auth.usr.InvalidName", name);
+        }
         this.name = name;
     }
 
@@ -355,6 +374,13 @@ public class WnSimpleUser implements WnUser {
         this.phone = phone;
     }
 
+    public void setPhoneAndName(String phone) {
+        this.phone = phone;
+        if (Ws.isBlank(this.name)) {
+            this.setName(phone);
+        }
+    }
+
     @Override
     public String getEmail() {
         return email;
@@ -363,6 +389,18 @@ public class WnSimpleUser implements WnUser {
     @Override
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public void setEmailAndName(String email) {
+        this.email = email;
+        if (Ws.isBlank(this.name)) {
+            int pos = email.indexOf('@');
+            if (pos > 0) {
+                this.setName(email.substring(0, pos).trim());
+            } else {
+                this.setName(email);
+            }
+        }
     }
 
     @Override

@@ -49,9 +49,13 @@ public enum WnRoleType {
         if (this.value < 0 || this.value >= 100) {
             return false;
         }
-        // 自己是成员，对方只要是成员或者管理员都可以
-        if (10 == this.value) {
-            return role.value <= 10;
+        // 自己是成员
+        if (MEMBER == this) {
+            return role == GUEST || role == MEMBER;
+        }
+        // 自己是管理员，对方只要是成员或者管理员都可以
+        if (ADMIN == this) {
+            return role == ADMIN || role == MEMBER || role == GUEST;
         }
         // 自己是管理员，只有对方也是管理员才可以
         // 但是前面已经判断了不等，这里就都返回 false 了
