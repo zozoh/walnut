@@ -86,7 +86,7 @@ public class WnRoleRank {
         // 来决定采用权限的哪一段来校验
         if (null != roles && !roles.isEmpty()) {
             for (WnRole r : roles) {
-                key = "@" + r.getName();
+                key = "@" + r.getGroup();
                 val = pvg.get(key);
                 if (null != val) {
                     found = true;

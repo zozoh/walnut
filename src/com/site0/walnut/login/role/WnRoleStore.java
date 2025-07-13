@@ -18,11 +18,11 @@ public interface WnRoleStore {
     /**
      * 获取所有符合指定名称的角色列表， 也就是说，给定一个角色名称，本函数会返回所有相关的用户ID
      * 
-     * @param name
+     * @param grp
      *            角色名称
      * @return 角色列表
      */
-    WnRoleList queryRolesOf(String name);
+    WnRoleList queryRolesOf(String grp);
 
     void removeRole(WnRole role);
 
@@ -31,10 +31,10 @@ public interface WnRoleStore {
      * 
      * @param uid
      *            用户ID
-     * @param name
+     * @param grp
      *            角色名
      */
-    void removeRole(String uid, String name);
+    void removeRole(String uid, String grp);
 
     void clearCache();
 
@@ -43,12 +43,29 @@ public interface WnRoleStore {
      * 
      * @param uid
      *            用户 ID
-     * @param name
+     * @param grp
      *            角色组名
      * @param type
      *            角色类型
+     * @param unm
+     *            用户登录名
      * @return 新创建的用户角色信息
      */
-    WnRole addRole(String uid, String name, WnRoleType type);
+    WnRole addRole(String uid, String grp, WnRoleType type, String unm);
+
+    /**
+     * 为某个用户在某个组创建一个橘色
+     * 
+     * @param uid
+     *            用户 ID
+     * @param grp
+     *            角色组名
+     * @param type
+     *            角色类型
+     * @param unm
+     *            用户登录名
+     * @return 新创建的用户角色信息
+     */
+    WnRole setRole(String uid, String grp, WnRoleType type, String unm);
 
 }

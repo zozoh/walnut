@@ -6,7 +6,6 @@ import java.util.Map;
 
 import com.site0.walnut.util.tmpl.WnTmpl;
 
-import org.nutz.dao.Dao;
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.json.Json;
 import org.nutz.lang.Files;
@@ -32,9 +31,6 @@ import com.site0.walnut.core.bm.localfile.LocalFileBM;
 import com.site0.walnut.core.bm.localfile.LocalFileWBM;
 import com.site0.walnut.core.bm.redis.RedisBM;
 import com.site0.walnut.core.hdl.redis.RedisIoHandleManager;
-import com.site0.walnut.core.indexer.dao.DaoIndexer;
-import com.site0.walnut.core.indexer.dao.WnObjEntity;
-import com.site0.walnut.core.indexer.dao.WnObjEntityGenerating;
 import com.site0.walnut.core.indexer.localfile.LocalFileIndexer;
 import com.site0.walnut.core.indexer.localfile.LocalFileWIndexer;
 import com.site0.walnut.core.indexer.mongo.MongoIndexer;
@@ -52,7 +48,6 @@ import com.site0.walnut.core.refer.redis.RedisReferService;
 import com.site0.walnut.ext.sys.redis.Wedis;
 import com.site0.walnut.ext.sys.redis.WedisConfig;
 import com.site0.walnut.ext.sys.sql.WnDaoMappingConfig;
-import com.site0.walnut.ext.sys.sql.WnDaos;
 import com.site0.walnut.impl.box.JvmBoxService;
 import com.site0.walnut.impl.box.JvmExecutorFactory;
 import com.site0.walnut.impl.hook.CachedWnHookService;
@@ -90,11 +85,7 @@ public class IoCoreSetup {
 
     private static WnDaoMappingConfig _daoConfig;
 
-    private static DaoIndexer _daoIndexer;
-
     private static WnDaoMappingConfig _daoNoNameConfig;
-
-    private static DaoIndexer _daoNoNameIndexer;
 
     private static WnIoMappingFactoryImpl _mappings;
 
@@ -104,11 +95,7 @@ public class IoCoreSetup {
 
     private static WnIo _io;
 
-    private static MockDaoIndexerFactory _daoIndexerFactory;
-
     private static RedisBMFactory _redisBMFactory;
-
-    private static WnLoginApi _auth;
 
     private static WnBoxService _boxService;
 
@@ -145,30 +132,28 @@ public class IoCoreSetup {
     }
 
     public WnLoginApi getLoginApi() {
-        if (null == _auth) {
-            WnIo io2 = getIo();
-            // 创建对象
-            WnLoginOptions options = new WnLoginOptions();
-            options.session = new WnLoginSessionOptions();
-            options.session.path = "/var/session";
-            options.user = new WnLoginUserOptions();
-            options.user.path = "/sys/usr";
-            options.role = new WnLoginRoleOptions();
-            options.role.path = "/sys/role";
-            options.domain = "root";
-            options.sessionDuration = 3600000L;
+        WnIo io2 = getIo();
+        // 创建对象
+        WnLoginOptions options = new WnLoginOptions();
+        options.session = new WnLoginSessionOptions();
+        options.session.path = "/var/session";
+        options.user = new WnLoginUserOptions();
+        options.user.path = "/sys/usr";
+        options.role = new WnLoginRoleOptions();
+        options.role.path = "/sys/role";
+        options.domain = "root";
+        options.sessionDuration = 3600000L;
 
-            // 准备目录
-            io2.createIfNoExists(null, options.session.path, WnRace.DIR);
-            io2.createIfNoExists(null, options.user.path, WnRace.DIR);
-            io2.createIfNoExists(null, options.role.path, WnRace.DIR);
+        // 准备目录
+        io2.createIfNoExists(null, options.session.path, WnRace.DIR);
+        io2.createIfNoExists(null, options.user.path, WnRace.DIR);
+        io2.createIfNoExists(null, options.role.path, WnRace.DIR);
 
-            // 建立接口
-            _auth = WnLoginApiMaker.forSys().make(io2, new NutMap(), options);
-            _auth.addRootUserIfNoExists("123456");
-            _auth.addGuestUserIfNoExists();
-        }
-        return _auth;
+        // 建立接口
+        WnLoginApi auth = WnLoginApiMaker.forSys().make(io2, new NutMap(), options);
+        auth.addRootUserIfNoExists("123456");
+        auth.addGuestUserIfNoExists();
+        return auth;
     }
 
     public WnBoxService getBoxService() {
@@ -201,7 +186,6 @@ public class IoCoreSetup {
         HashMap<String, WnIndexerFactory> indexers = new HashMap<>();
         indexers.put("file", new LocalFileIndexerFactory(_mimes));
         indexers.put("filew", new LocalFileWIndexerFactory(_mimes));
-        indexers.put("dao", getDaoIndexerFactory());
         // TODO 还有 "mem|redis|mq" 几种索引管理器
         // ...
         _mappings.setIndexers(indexers);
@@ -214,26 +198,6 @@ public class IoCoreSetup {
         bmfs.put("file", new LocalFileBMFactory(handles));
         bmfs.put("filew", new LocalFileWBMFactory(handles));
         _mappings.setBms(bmfs);
-    }
-
-    public MockDaoIndexerFactory getDaoIndexerFactory() {
-        if (null == _daoIndexerFactory) {
-            // DaoIndexerFactory dif = new DaoIndexerFactory();
-            // dif.setIo(io);
-            // dif.setMimes(this.getMimes());
-            //
-            // Map<String, DaoIndexer> indexers = new HashMap<>();
-            // dif.setIndexers(indexers);
-            //
-            // daoIndexerFactory = dif;
-
-            MockDaoIndexerFactory dif = new MockDaoIndexerFactory();
-            dif.setMimes(this.getMimes());
-            dif.setUnitSetup(_pp);
-
-            _daoIndexerFactory = dif;
-        }
-        return _daoIndexerFactory;
     }
 
     public WnIoMapping getGlobalIoMapping() {
@@ -360,16 +324,6 @@ public class IoCoreSetup {
         return _globalIndexer;
     }
 
-    public DaoIndexer getDaoIndexer() {
-        if (null == _daoIndexer) {
-            WnDaoMappingConfig conf = getWnDaoConfig();
-            WnObj root = this.getRootNode();
-            MimeMap mimes = this.getMimes();
-            _daoIndexer = new DaoIndexer(root, mimes, conf);
-        }
-        return _daoIndexer;
-    }
-
     public WnDaoMappingConfig getWnDaoConfig() {
         if (null == _daoConfig) {
             String aph = "com/site0/walnut/core/indexer/dao/dao_indexer.json";
@@ -378,16 +332,6 @@ public class IoCoreSetup {
             _daoConfig = Json.fromJson(WnDaoMappingConfig.class, json);
         }
         return _daoConfig;
-    }
-
-    public DaoIndexer getDaoNoNameIndexer() {
-        if (null == _daoNoNameIndexer) {
-            WnDaoMappingConfig conf = getWnDaoNoNameConfig();
-            WnObj root = this.getRootNode();
-            MimeMap mimes = this.getMimes();
-            _daoNoNameIndexer = new DaoIndexer(root, mimes, conf);
-        }
-        return _daoNoNameIndexer;
     }
 
     public WnDaoMappingConfig getWnDaoNoNameConfig() {
@@ -470,9 +414,6 @@ public class IoCoreSetup {
         // 清空 Mongo
         cleanMongo();
 
-        // 清空 MySQL
-        cleanDaoData();
-
         // 清空目录: 本地文件
         cleanLocalFileHome();
 
@@ -488,24 +429,6 @@ public class IoCoreSetup {
         if (_mongo.existsCollection(co.getNamespace().getCollectionName())) {
             co.drop();
         }
-    }
-
-    public void cleanDaoData() {
-        WnDaoMappingConfig daoConf = this.getWnDaoConfig();
-        Dao dao = WnDaos.get(daoConf.getAuth());
-        WnObjEntityGenerating ing = new WnObjEntityGenerating(null, daoConf, dao.getJdbcExpert());
-        WnObjEntity entity = ing.generate();
-
-        // 自动创建创建表（标准）
-        dao.create(entity, true);
-
-        daoConf = this.getWnDaoNoNameConfig();
-        dao = WnDaos.get(daoConf.getAuth());
-        ing = new WnObjEntityGenerating(null, daoConf, dao.getJdbcExpert());
-        entity = ing.generate();
-
-        // 自动创建创建表（无名）
-        dao.create(entity, true);
     }
 
     public void cleanLocalFileHome() {

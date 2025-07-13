@@ -70,11 +70,19 @@ public class WnRoleList implements List<WnRole> {
         }
         List<WnRole> list = new ArrayList<>(roles.size());
         for (WnRole r : this.roles) {
-            if (set.contains(r.getName())) {
+            if (set.contains(r.getGroup())) {
                 list.add(r);
             }
         }
         return new WnRoleList(list);
+    }
+    
+    public WnRole getRole(String group) {
+        WnRoleList list = getSubList(group);
+        if(list.size()>0) {
+            return list.get(0);
+        }
+        return null;
     }
 
     public Map<String, Boolean> getAllPrivileges() {

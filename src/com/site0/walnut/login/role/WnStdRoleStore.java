@@ -3,13 +3,13 @@ package com.site0.walnut.login.role;
 import java.util.ArrayList;
 import java.util.List;
 import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.core.bean.WnIoObj;
-import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 
 public class WnStdRoleStore extends AbstractWnRoleStore {
@@ -36,10 +36,10 @@ public class WnStdRoleStore extends AbstractWnRoleStore {
     }
 
     @Override
-    public WnRoleList queryRolesOf(String name) {
+    public WnRoleList queryRolesOf(String grp) {
         // 准备查询条件
         WnQuery q = Wn.Q.pid(oHome);
-        q.setv("grp", name);
+        q.setv("grp", grp);
         q.sortBy("role", 1);
 
         // 执行查询
@@ -53,37 +53,45 @@ public class WnStdRoleStore extends AbstractWnRoleStore {
         return new WnRoleList(results);
     }
 
-    protected WnRole _add_role(String uid, String name, WnRoleType type) {
+    protected WnRole _add_role(String uid, String grp, WnRoleType type, String unm) {
+        WnObj obj = new WnIoObj();
+        obj.put("grp", grp);
+        obj.put("uid", uid);
+        obj.put("unm", unm);
+        obj.put("type", type.toString());
+        obj.put("role", type.getValue());
+
+        WnObj oRole = io.create(oHome, obj);
+
+        // 返回结果
+        return _to_wn_role(oRole);
+    }
+
+    protected WnRole _set_role(String uid, String grp, WnRoleType type, String unm) {
         // 准备查询条件
         WnQuery q = Wn.Q.pid(oHome);
         q.setv("uid", uid);
-        q.setv("grp", name);
+        q.setv("grp", grp);
 
         // 执行查询
         WnObj oRole = io.getOne(q);
-
-        // 如果不存在，就创建一个
-        if (null == oRole) {
-            WnObj obj = new WnIoObj();
-            obj.put("grp", name);
-            obj.put("uid", uid);
-            obj.put("role", type.getValue());
-            oRole = io.create(oHome, obj);
-        }
-        // 如果已经存在，尝试更新
-        else if (oRole.getInt("role", -100) == type.getValue()) {
-            io.appendMeta(oRole, Wlang.map("role", type.getValue()));
+        if (oRole.getInt("role") != type.getValue() || !oRole.is("unm", unm)) {
+            NutMap delta = new NutMap();
+            delta.put("unm", unm);
+            delta.put("type", type.toString());
+            delta.put("role", type.getValue());
+            io.appendMeta(oRole, delta);
         }
 
         // 返回结果
         return _to_wn_role(oRole);
     }
 
-    protected void _remove_role(String uid, String name) {
+    protected void _remove_role(String uid, String grp) {
         // 从数据库里得到数据对象
         WnQuery q = Wn.Q.pid(oHome);
         q.setv("uid", uid);
-        q.setv("grp", name);
+        q.setv("grp", grp);
         WnObj oRole = io.getOne(q);
 
         // 删除数据库

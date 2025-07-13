@@ -59,6 +59,10 @@ public class Wlog {
     public static Log getMAIN() {
         return new WnLogWrapper(Logs.getLog("MAIN"));
     }
+    
+    public static Log getTEST() {
+        return new WnLogWrapper(Logs.getLog("TEST"));
+    }
 
     public static String msgf(String fmt, Object... args) {
         String s = String.format(fmt, args);

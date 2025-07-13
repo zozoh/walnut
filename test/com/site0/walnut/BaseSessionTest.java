@@ -9,7 +9,7 @@ import com.site0.walnut.login.usr.WnSimpleUser;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 
-public class BaseSessionTest extends BaseUsrTest {
+public abstract class BaseSessionTest extends BaseUsrTest {
 
     protected WnUser me;
 

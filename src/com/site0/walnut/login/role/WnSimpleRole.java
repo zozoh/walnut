@@ -26,7 +26,7 @@ public class WnSimpleRole implements WnRole {
     /**
      * 用户角色的组名称
      */
-    private String name;
+    private String group;
 
     /**
      * 用户特殊权限说明
@@ -66,8 +66,8 @@ public class WnSimpleRole implements WnRole {
         this.setId(bean.getString("id"));
         this.setType(type);
         this.setUserId(bean.getString("uid"));
-        this.setUserId(bean.getString("usr"));
-        this.setName(bean.getString("grp"));
+        this.setUserName(bean.getString("unm"));
+        this.setGroup(bean.getString("grp"));
         this.privilegesFromString(bean.getString("privileges"));
     }
 
@@ -75,9 +75,9 @@ public class WnSimpleRole implements WnRole {
     public NutBean toBean() {
         NutMap bean = new NutMap();
         bean.put("id", id);
-        bean.put("grp", this.name);
+        bean.put("grp", this.group);
         bean.put("uid", this.userId);
-        bean.put("usr", this.userName);
+        bean.put("unm", this.userName);
         bean.put("type", type.toString());
         bean.put("role", type.getValue());
         bean.put("privileges", this.privilegesToString());
@@ -99,7 +99,7 @@ public class WnSimpleRole implements WnRole {
         if (null == name) {
             return false;
         }
-        return name.equalsIgnoreCase(this.name);
+        return name.equalsIgnoreCase(this.group);
     }
 
     @Override
@@ -151,12 +151,12 @@ public class WnSimpleRole implements WnRole {
     }
 
     @Override
-    public String getName() {
-        return name;
+    public String getGroup() {
+        return group;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setGroup(String group) {
+        this.group = group;
     }
 
     @Override

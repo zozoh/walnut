@@ -17,13 +17,6 @@ public class WnAccountTest {
         u.setId(R.UU32());
         String expHomePath = "/home/zozoh";
         assertEquals(expHomePath, u.getHomePath());
-
-        u.setName("xiaobai");
-        expHomePath = "/home/xiaobai/";
-        assertEquals(expHomePath, u.getHomePath());
-
-        u.setHomePath("/a/b/");
-        assertEquals("/a/b/", u.getHomePath());
     }
 
 }

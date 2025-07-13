@@ -87,12 +87,19 @@ public class WnLoginApi {
         return list.getRoleTypeOfGroup(group);
     }
 
-    public WnRole addRole(WnUser u, String name, WnRoleType type) {
-        WnRole role = this.roles.addRole(u.getId(), name, type);
-        if (!role.hasUserName()) {
-            role.setUserName(u.getName());
+    public WnRole addRole(WnUser u, String grp, WnRoleType type) {
+        WnRoleList roles = this.roles.getRoles(u);
+        WnRole r = roles.getRole(grp);
+        // 已经存在了
+        if (null != r && r.getType() == type) {
+            return r;
         }
-        return role;
+        // 存在，但是类型不同，需要更新
+        if (null != r) {
+            return this.roles.setRole(u.getId(), grp, type, u.getName());
+        }
+        // 添加
+        return this.roles.addRole(u.getId(), grp, type, u.getName());
     }
 
     public void changePassword(WnUser u, String rawPassword) {
@@ -111,14 +118,14 @@ public class WnLoginApi {
         return createSession(u, this.getSessionDuration());
     }
 
-    public WnSession createSession(WnUser u, long duration) {
-        WnSession se = __create_session_by_user(u);
+    public WnSession createSession(WnUser u, long du) {
+        WnSession se = __create_session_by_user(u, du);
         sessions.addSession(se);
         return se;
     }
 
-    public WnSession createSession(WnSession parentSe, WnUser u, long duration) {
-        WnSession se = __create_session_by_user(u);
+    public WnSession createSession(WnSession parentSe, WnUser u, long du) {
+        WnSession se = __create_session_by_user(u, du);
         se.setParentTicket(parentSe.getTicket());
         sessions.addSession(se);
         return se;
@@ -138,7 +145,7 @@ public class WnLoginApi {
         }
         String saltedPassword = Wn.genSaltPassword(rawPassword, u.getSalt());
         if (saltedPassword.equals(u.getPasswd())) {
-            WnSession se = __create_session_by_user(u);
+            WnSession se = __create_session_by_user(u, this.sessionDuration);
             sessions.addSession(se);
             return se;
         }
@@ -201,8 +208,8 @@ public class WnLoginApi {
         return se;
     }
 
-    private WnSession __create_session_by_user(WnUser u) {
-        WnSimpleSession se = new WnSimpleSession();
+    private WnSession __create_session_by_user(WnUser u, long du) {
+        WnSimpleSession se = new WnSimpleSession(u, du);
         se.setExpiAt(System.currentTimeMillis() + sessionDuration);
         se.setUser(u);
         se.setTicket(TicketMaker.make(new Date(), null));

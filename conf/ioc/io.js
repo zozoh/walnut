@@ -72,19 +72,6 @@ var ioc = {
     type: "com.site0.walnut.core.mapping.indexer.LocalFileWIndexerFactory",
     args: [{ refer: "mimes" }]
   },
-  daoIndexerFactory: {
-    type: "com.site0.walnut.core.mapping.indexer.DaoIndexerFactory",
-    fields: {
-      ioc: { refer: "$Ioc" },
-      authServiceName: "sysAuthService",
-      io: { refer: "io" },
-      mimes: { refer: "mimes" },
-      indexers: {
-        "account": null,
-        "payment": null
-      }
-    }
-  },
   sqlIndexerFactory: {
     type: "com.site0.walnut.core.mapping.indexer.SqlIndexerFactory",
     fields: {
@@ -132,7 +119,6 @@ var ioc = {
         "mongo": { refer: "mongoFlatIndexerFactory" },
         "file": { refer: "localFileIndexerFactory" },
         "filew": { refer: "localFileWIndexerFactory" },
-        "dao": { refer: "daoIndexerFactory" },
         "sql": { refer: "sqlIndexerFactory" },
         "mem": null,
         "redis": null

@@ -47,7 +47,7 @@ public interface WnRole {
 
     String getId();
 
-    String getName();
+    String getGroup();
 
     WnRoleType getType();
 

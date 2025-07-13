@@ -52,28 +52,38 @@ public abstract class AbstractWnRoleStore implements WnRoleStore {
         return re;
     }
 
-    protected abstract WnRole _add_role(String uid, String name, WnRoleType type);
+    protected abstract WnRole _add_role(String uid, String grp, WnRoleType type, String unm);
+
+    protected abstract WnRole _set_role(String uid, String grp, WnRoleType type, String unm);
 
     @Override
-    public WnRole addRole(String uid, String name, WnRoleType type) {
+    public WnRole addRole(String uid, String grp, WnRoleType type, String unm) {
         // 执行真正的添加操作
-        WnRole re = _add_role(uid, name, type);
-
+        WnRole re = _add_role(uid, grp, type, unm);
         // 最后清除缓存
         synchronized (this) {
             cache.remove(uid);
         }
-
         return re;
-
     }
 
-    protected abstract void _remove_role(String uid, String name);
+    @Override
+    public WnRole setRole(String uid, String grp, WnRoleType type, String unm) {
+        // 执行真正的添加操作
+        WnRole re = _set_role(uid, grp, type, unm);
+        // 最后清除缓存
+        synchronized (this) {
+            cache.remove(uid);
+        }
+        return re;
+    }
+
+    protected abstract void _remove_role(String uid, String grp);
 
     @Override
-    synchronized public void removeRole(String uid, String name) {
+    synchronized public void removeRole(String uid, String grp) {
         // 执行真正的删除操作
-        _remove_role(uid, name);
+        _remove_role(uid, grp);
 
         // 最后清除缓存
         synchronized (this) {
@@ -84,7 +94,7 @@ public abstract class AbstractWnRoleStore implements WnRoleStore {
 
     @Override
     public synchronized void removeRole(WnRole role) {
-        removeRole(role.getUserId(), role.getName());
+        removeRole(role.getUserId(), role.getGroup());
     }
 
     @Override

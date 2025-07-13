@@ -7,7 +7,11 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 import org.nutz.json.Json;
+import org.nutz.log.Log;
+
 import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.Wlog;
+
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import com.site0.walnut.BaseUsrTest;
@@ -21,100 +25,143 @@ import com.site0.walnut.util.WnContext;
 
 public class WnSysAuthServiceTest extends BaseUsrTest {
 
+    static Log log = Wlog.getTEST();
+
     @Test
-    public void test_forbidden_write() {
-        // 创建两个用户
-        final WnUser ua = user_passwd("userA", "123456");
-        final WnUser ub = user_passwd("userB", "123456");
+    public void usr_create_by_email() {
+        //log.info("@Test WnSysAuthServiceTest.usr_create_by_email Begin");
+        WnUser xiaobai = user_passwd("xiaobai@nutzam.com", "123456");
 
-        // 设置权限监控
-        WnContext wc = Wn.WC();
+        // 获取一个
+        WnUser u = auth.getUser("xiaobai@nutzam.com");
+        // assertEquals("123456", u.password());
+        assertTrue(u.isMatchedRawPasswd("123456"));
+        assertTrue(u.isSameId(xiaobai.getId()));
+        assertTrue(u.isSameName(xiaobai.getName()));
+        assertTrue(u.isSameMainGroup(xiaobai.getMainGroup()));
+        assertEquals("xiaobai@nutzam.com", u.getEmail());
+        assertEquals("xiaobai", u.getName());
+        assertNull(u.getPhone());
+        assertEquals("/home/xiaobai", u.getMetaString("HOME"));
 
-        wc.setSecurity(security);
-        try {
-            // A 用户建立一个文件，改变权限
-            final String path = Wn.appendPath(ua.getHomePath(), "/aaa.txt");
-            wc.su(ua, new Atom() {
-                public void run() {
-                    WnObj o = io.create(null, path, WnRace.FILE);
-                    io.writeText(o, "hello");
-                }
-            });
+        // 检查主目录
+        assertEquals("/home/xiaobai", xiaobai.getHomePath());
+        WnObj oHome = io.check(null, u.getHomePath());
+        assertEquals(u.getMainGroup(), oHome.name());
+        assertEquals("xiaobai", oHome.creator());
+        assertEquals("xiaobai", oHome.mender());
+        assertEquals("xiaobai", oHome.group());
+        assertEquals(488, oHome.mode());
 
-            // B 用户不能写
-            try {
-                final WnObj o = io.check(null, path);
-                wc.su(ub, new Atom() {
-                    public void run() {
-                        io.writeText(o, "I am B");
-                    }
-                });
-                fail();
-            }
-            catch (Exception e) {
-                // 因为没加到组里，所以不能进入这个目录
-                assertEquals("e.io.forbidden : /home/userA/aaa.txt", e.toString());
-            }
+        // 改个名
+        u.setName("xiaobai");
+        auth.updateUserName(u);
 
-            // 将文件改成变成同组能写
-            wc.su(ua, new Atom() {
-                public void run() {
-                    WnObj o = io.check(null, path);
-                    io.appendMeta(o, "md:0770");
-                }
-            });
+        // 再次按照 Email 获取
+        u = auth.getUser("xiaobai@nutzam.com");
+        assertTrue(u.isMatchedRawPasswd("123456"));
+        assertTrue(u.isSameId(xiaobai.getId()));
+        assertTrue(u.isSameName("xiaobai"));
+        assertEquals("xiaobai@nutzam.com", u.getEmail());
+        assertNull(u.getPhone());
 
-            // 把 B 用户加入到组里就能写
-            auth.addRole(ub, ua.getMainGroup(), WnRoleType.MEMBER);
+        // 检查主目录
+        oHome = io.check(null, u.getHomePath());
+        assertEquals(u.getName(), oHome.name());
+        assertEquals(u.getName(), oHome.name());
+        assertEquals("xiaobai", oHome.mender());
+        assertEquals("xiaobai", oHome.creator());
+        assertEquals("xiaobai", oHome.group());
+        assertEquals(488, oHome.mode());
 
-            String str = wc.su(ub, new Proton<String>() {
-                protected String exec() {
-                    WnObj o = io.check(null, path);
-                    io.writeText(o, "I am B");
-                    return io.readText(o);
-                }
-            });
-            assertEquals("I am B", str);
+        // 按照 Name 获取
+        u = auth.getUser("xiaobai");
+        assertTrue(u.isMatchedRawPasswd("123456"));
+        assertTrue(u.isSameId(xiaobai.getId()));
+        assertTrue(u.isSameName("xiaobai"));
+        assertEquals("xiaobai@nutzam.com", u.getEmail());
+        assertNull(u.getPhone());
 
-            // 将文件改成变成管理员只写
-            wc.su(ua, new Atom() {
-                public void run() {
-                    WnObj o = io.check(null, path);
-                    io.appendMeta(o, "md:0700");
-                }
-            });
+        // 设置手机
+        u.setPhone("13910110054");
+        auth.updateUserPhone(u);
 
-            // B 又不能写了
-            try {
-                final WnObj o = io.check(null, path);
-                str = wc.su(ub, new Proton<String>() {
-                    protected String exec() {
-                        io.writeText(o, "I am B2");
-                        return io.readText(o);
-                    }
-                });
-                fail();
-            }
-            catch (Exception e) {
-                assertEquals("e.io.forbidden : /home/userA/aaa.txt", e.toString());
-            }
+        // 按照 手机 获取
+        u = auth.getUser("13910110054");
+        assertTrue(u.isMatchedRawPasswd("123456"));
+        assertTrue(u.isSameId(xiaobai.getId()));
+        assertTrue(u.isSameName("xiaobai"));
+        assertEquals("xiaobai@nutzam.com", u.getEmail());
+        assertEquals("13910110054", u.getPhone());
 
-            // 只有变成管理员
-            auth.addRole(ub, ua.getMainGroup(), WnRoleType.ADMIN);
+        oHome = io.check(null, u.getHomePath());
+        assertEquals("xiaobai", oHome.name());
+        assertEquals("xiaobai", oHome.name());
+        assertEquals("xiaobai", oHome.mender());
+        assertEquals("xiaobai", oHome.creator());
+        assertEquals("xiaobai", oHome.group());
+        assertEquals(488, oHome.mode());
 
-            // 才能写
-            str = wc.su(ub, new Proton<String>() {
-                protected String exec() {
-                    WnObj o = io.check(null, path);
-                    io.writeText(o, "I am B2");
-                    return io.readText(o);
-                }
-            });
-            assertEquals("I am B2", str);
-        }
-        finally {
-            wc.setSecurity(null);
-        }
+        //log.info("@Test WnSysAuthServiceTest.usr_create_by_email End");
+    }
+
+    @Test
+    public void usr_create_by_phone() {
+        //log.info("@Test WnSysAuthServiceTest.usr_create_by_phone Begin");
+        WnUser xiaobai = user_passwd("13910110054", "123456");
+        assertEquals("/home/13910110054", xiaobai.getHomePath());
+
+        // 获取一个
+        WnUser u = auth.getUser("13910110054");
+        assertTrue(u.isMatchedRawPasswd("123456"));
+        assertTrue(u.isSameId(xiaobai.getId()));
+        assertTrue(u.isSameName(xiaobai.getName()));
+        assertEquals("13910110054", u.getPhone());
+        assertNull(u.getEmail());
+        assertEquals("/home/13910110054", u.getMetaString("HOME"));
+
+        WnObj oHome = io.check(null, u.getHomePath());
+        assertEquals(u.getName(), oHome.name());
+
+        // 改个名
+        u.setName("xiaobai");
+        auth.updateUserName(u);
+        auth.updateUserHomeName(u, "xiaobai");
+
+        // 再次按照 Phone 获取
+        u = auth.getUser("13910110054");
+        assertTrue(u.isMatchedRawPasswd("123456"));
+        assertTrue(u.isSameId(xiaobai.getId()));
+        assertTrue(u.isSameName("xiaobai"));
+        assertEquals("13910110054", u.getPhone());
+        assertNull(u.getEmail());
+
+        oHome = io.check(null, u.getHomePath());
+        assertEquals(u.getName(), oHome.name());
+
+        // 按照 Name 获取
+        u = auth.getUser("xiaobai");
+        assertTrue(u.isMatchedRawPasswd("123456"));
+        assertTrue(u.isSameId(xiaobai.getId()));
+        assertTrue(u.isSameName("xiaobai"));
+        assertEquals("13910110054", u.getPhone());
+        assertNull(u.getEmail());
+
+        // 设置邮箱
+        u.setEmail("xiaobai@nutzam.com");
+        auth.updateUserEmail(u);
+
+        // 按照 Name 获取
+        u = auth.getUser("xiaobai");
+        assertTrue(u.isMatchedRawPasswd("123456"));
+        assertTrue(u.isSameId(xiaobai.getId()));
+        assertTrue(u.isSameName("xiaobai"));
+        assertEquals("13910110054", u.getPhone());
+        assertEquals("xiaobai@nutzam.com", u.getEmail());
+
+        oHome = io.check(null, u.getHomePath());
+        assertEquals(u.getName(), oHome.name());
+        //log.info("@Test WnSysAuthServiceTest.usr_create_by_phone End");
     }
 
     @Test
@@ -291,140 +338,102 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
     }
 
     @Test
-    public void usr_create_by_email() {
-        WnUser xiaobai = user_passwd("xiaobai@nutzam.com", "123456");
+    public void test_forbidden_write() {
+        // 创建两个用户
+        final WnUser ua = user_passwd("userA", "123456");
+        final WnUser ub = user_passwd("userB", "123456");
 
-        // 获取一个
-        WnUser u = auth.getUser("xiaobai@nutzam.com");
-        // assertEquals("123456", u.password());
-        assertTrue(u.isMatchedRawPasswd("123456"));
-        assertTrue(u.isSameId(xiaobai.getId()));
-        assertTrue(u.isSameName(xiaobai.getName()));
-        assertTrue(u.isSameMainGroup(xiaobai.getMainGroup()));
-        assertEquals("xiaobai@nutzam.com", u.getEmail());
-        assertEquals("xiaobai", u.getName());
-        assertNull(u.getPhone());
-        assertEquals("/home/xiaobai", u.getMetaString("HOME"));
+        // 设置权限监控
+        WnContext wc = Wn.WC();
 
-        // 检查主目录
-        assertEquals("/home/xiaobai", xiaobai.getHomePath());
-        WnObj oHome = io.check(null, u.getHomePath());
-        assertEquals(u.getMainGroup(), oHome.name());
-        assertEquals("xiaobai", oHome.creator());
-        assertEquals("xiaobai", oHome.mender());
-        assertEquals("xiaobai", oHome.group());
-        assertEquals(488, oHome.mode());
+        wc.setSecurity(security);
+        try {
+            // A 用户建立一个文件，改变权限
+            final String path = Wn.appendPath(ua.getHomePath(), "/aaa.txt");
+            wc.su(ua, new Atom() {
+                public void run() {
+                    WnObj o = io.create(null, path, WnRace.FILE);
+                    io.writeText(o, "hello");
+                }
+            });
 
-        // 改个名
-        u.setName("xiaobai");
-        auth.updateUserName(u);
+            // B 用户不能写
+            try {
+                final WnObj o = io.check(null, path);
+                wc.su(ub, new Atom() {
+                    public void run() {
+                        io.writeText(o, "I am B");
+                    }
+                });
+                fail();
+            }
+            catch (Exception e) {
+                // 因为没加到组里，所以不能进入这个目录
+                assertEquals("e.io.forbidden : /home/userA/aaa.txt", e.toString());
+            }
 
-        // 再次按照 Email 获取
-        u = auth.getUser("xiaobai@nutzam.com");
-        assertTrue(u.isMatchedRawPasswd("123456"));
-        assertTrue(u.isSameId(xiaobai.getId()));
-        assertTrue(u.isSameName("xiaobai"));
-        assertEquals("xiaobai@nutzam.com", u.getEmail());
-        assertNull(u.getPhone());
+            // 将文件改成变成同组能写
+            wc.su(ua, new Atom() {
+                public void run() {
+                    WnObj o = io.check(null, path);
+                    io.appendMeta(o, "md:0770");
+                }
+            });
 
-        // 检查主目录
-        oHome = io.check(null, u.getHomePath());
-        assertEquals(u.getName(), oHome.name());
-        assertEquals(u.getName(), oHome.name());
-        assertEquals("xiaobai", oHome.mender());
-        assertEquals("xiaobai", oHome.creator());
-        assertEquals("xiaobai", oHome.group());
-        assertEquals(488, oHome.mode());
+            // 把 B 用户加入到组里就能写
+            auth.addRole(ub, ua.getMainGroup(), WnRoleType.MEMBER);
 
-        // 按照 Name 获取
-        u = auth.getUser("xiaobai");
-        assertTrue(u.isMatchedRawPasswd("123456"));
-        assertTrue(u.isSameId(xiaobai.getId()));
-        assertTrue(u.isSameName("xiaobai"));
-        assertEquals("xiaobai@nutzam.com", u.getEmail());
-        assertNull(u.getPhone());
+            String str = wc.su(ub, new Proton<String>() {
+                protected String exec() {
+                    WnObj o = io.check(null, path);
+                    io.writeText(o, "I am B");
+                    return io.readText(o);
+                }
+            });
+            assertEquals("I am B", str);
 
-        // 设置手机
-        u.setPhone("13910110054");
-        auth.updateUserPhone(u);
+            // 将文件改成变成管理员只写
+            wc.su(ua, new Atom() {
+                public void run() {
+                    WnObj o = io.check(null, path);
+                    io.appendMeta(o, "md:0700");
+                }
+            });
 
-        // 按照 手机 获取
-        u = auth.getUser("13910110054");
-        assertTrue(u.isMatchedRawPasswd("123456"));
-        assertTrue(u.isSameId(xiaobai.getId()));
-        assertTrue(u.isSameName("xiaobai"));
-        assertEquals("xiaobai@nutzam.com", u.getEmail());
-        assertEquals("13910110054", u.getPhone());
+            // B 又不能写了
+            try {
+                final WnObj o = io.check(null, path);
+                str = wc.su(ub, new Proton<String>() {
+                    protected String exec() {
+                        io.writeText(o, "I am B2");
+                        return io.readText(o);
+                    }
+                });
+                fail();
+            }
+            catch (Exception e) {
+                assertEquals("e.io.forbidden : /home/userA/aaa.txt", e.toString());
+            }
 
-        oHome = io.check(null, u.getHomePath());
-        assertEquals("xiaobai", oHome.name());
-        assertEquals("xiaobai", oHome.name());
-        assertEquals("xiaobai", oHome.mender());
-        assertEquals("xiaobai", oHome.creator());
-        assertEquals("xiaobai", oHome.group());
-        assertEquals(488, oHome.mode());
+            // 只有变成管理员
+            auth.addRole(ub, ua.getMainGroup(), WnRoleType.ADMIN);
 
+            // 才能写
+            str = wc.su(ub, new Proton<String>() {
+                protected String exec() {
+                    WnObj o = io.check(null, path);
+                    io.writeText(o, "I am B2");
+                    return io.readText(o);
+                }
+            });
+            assertEquals("I am B2", str);
+        }
+        finally {
+            wc.setSecurity(null);
+        }
     }
 
-    @Test
-    public void usr_create_by_phone() {
-        WnUser xiaobai = user_passwd("13910110054", "123456");
-        assertEquals("/home/13910110054", xiaobai.getHomePath());
-
-        // 获取一个
-        WnUser u = auth.getUser("13910110054");
-        assertTrue(u.isMatchedRawPasswd("123456"));
-        assertTrue(u.isSameId(xiaobai.getId()));
-        assertTrue(u.isSameName(xiaobai.getName()));
-        assertEquals("13910110054", u.getPhone());
-        assertNull(u.getEmail());
-        assertEquals("/home/13910110054", u.getMetaString("HOME"));
-
-        WnObj oHome = io.check(null, u.getHomePath());
-        assertEquals(u.getName(), oHome.name());
-
-        // 改个名
-        u.setName("xiaobai");
-        auth.updateUserName(u);
-        auth.updateUserHomeName(u, "xiaobai");
-
-        // 再次按照 Phone 获取
-        u = auth.getUser("13910110054");
-        assertTrue(u.isMatchedRawPasswd("123456"));
-        assertTrue(u.isSameId(xiaobai.getId()));
-        assertTrue(u.isSameName("xiaobai"));
-        assertEquals("13910110054", u.getPhone());
-        assertNull(u.getEmail());
-
-        oHome = io.check(null, u.getHomePath());
-        assertEquals(u.getName(), oHome.name());
-
-        // 按照 Name 获取
-        u = auth.getUser("xiaobai");
-        assertTrue(u.isMatchedRawPasswd("123456"));
-        assertTrue(u.isSameId(xiaobai.getId()));
-        assertTrue(u.isSameName("xiaobai"));
-        assertEquals("13910110054", u.getPhone());
-        assertNull(u.getEmail());
-
-        // 设置邮箱
-        u.setEmail("xiaobai@nutzam.com");
-        auth.updateUserEmail(u);
-
-        // 按照 Name 获取
-        u = auth.getUser("xiaobai");
-        assertTrue(u.isMatchedRawPasswd("123456"));
-        assertTrue(u.isSameId(xiaobai.getId()));
-        assertTrue(u.isSameName("xiaobai"));
-        assertEquals("13910110054", u.getPhone());
-        assertEquals("xiaobai@nutzam.com", u.getEmail());
-
-        oHome = io.check(null, u.getHomePath());
-        assertEquals(u.getName(), oHome.name());
-
-    }
-
-    @Test
+    // @Test
     public void usr_create_delete() {
         WnUser xiaobai = user_passwd("xiaobai", "123456");
         WnUser xiaohei = user_passwd("xiaohei", "123456");

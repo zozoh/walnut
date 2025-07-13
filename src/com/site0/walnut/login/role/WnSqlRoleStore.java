@@ -44,16 +44,22 @@ public class WnSqlRoleStore extends AbstractWnRoleStore {
 
     private String sqlQuery;
 
+    private String sqlFetch;
+
     private String sqlDelete;
 
     private String sqlInsert;
+
+    private String sqlUpdate;
 
     public WnSqlRoleStore(WnIo io, NutBean sessionVars, WnLoginRoleOptions options) {
         super(io, sessionVars);
         // SQL
         this.sqlQuery = options.sqlQuery;
+        this.sqlFetch = options.sqlFetch;
         this.sqlDelete = options.sqlDelete;
         this.sqlInsert = options.sqlInsert;
+        this.sqlUpdate = options.sqlUpdate;
 
         // 数据源
         String daoName = Ws.sBlank(options.daoName, "default");
@@ -65,8 +71,8 @@ public class WnSqlRoleStore extends AbstractWnRoleStore {
     }
 
     @Override
-    public WnRoleList queryRolesOf(String name) {
-        NutMap query = Wlang.map("grp", name);
+    public WnRoleList queryRolesOf(String grp) {
+        NutMap query = Wlang.map("grp", grp);
         return _query_role_list(query);
     }
 
@@ -104,25 +110,82 @@ public class WnSqlRoleStore extends AbstractWnRoleStore {
         });
     }
 
+    private WnRole _fetch_role_by_id(String id) {
+        NutMap vars = new NutMap();
+        vars.put("id", id);
+        return _fetch_role_by(vars);
+    }
+
+    private WnRole _fetch_role_by_uid_grp(String uid, String grp) {
+        NutMap vars = new NutMap();
+        vars.put("uid", uid);
+        vars.put("grp", grp);
+        return _fetch_role_by(vars);
+    }
+
+    protected WnRole _fetch_role_by(NutMap vars) {
+        // 准备查询语句
+        WnSqlTmpl sqlt = this.sqls.get(this.sqlFetch);
+        if (null == sqlt) {
+            throw Er.create("role.sqlQuery SQL without defined");
+        }
+
+        // 渲染 SQL 和参数
+        List<SqlParam> cps = new ArrayList<>();
+        String sql = sqlt.render(vars, cps);
+        Object[] params = Sqlx.getSqlParamsValue(cps);
+
+        return Sqlx.sqlGet(this.auth, new SqlGetter<WnRole>() {
+            public WnRole doGet(Connection conn) throws SQLException {
+                PreparedStatement sta = conn.prepareStatement(sql);
+                Sqlx.setParmas(sta, params);
+
+                ResultSet rs = sta.executeQuery();
+                ResultSetMetaData meta = rs.getMetaData();
+
+                // 遍历结果集
+                while (rs.next()) {
+                    NutBean bean = Sqlx.toBean(rs, meta);
+                    WnRole r = _to_wn_role(bean);
+                    return r;
+                }
+                return null;
+            }
+        });
+    }
+
     @Override
     protected List<WnRole> _get_roles(String uid) {
         NutMap query = Wlang.map("uid", uid);
         return _query_role_list(query);
     }
 
-    @Override
-    protected WnRole _add_role(String uid, String name, WnRoleType type) {
-        Date now = new Date();
+    private NutMap __to_bean_for_upsert(String uid,
+                                        String grp,
+                                        WnRoleType type,
+                                        String unm,
+                                        Date now) {
         String fmt = "yyyy-MM-dd HH:mm:ss";
-
         // 转换为一个 Bean
         NutMap bean = new NutMap();
-        bean.put("id", IdMaker.make(now, null));
+        bean.put("grp", grp);
         bean.put("uid", uid);
-        bean.put("grp", name);
+
+        bean.put("unm", unm);
+        bean.put("type", type.toString());
         bean.put("role", type.getValue());
         bean.put("ct", Wtime.formatUTC(now, fmt));
         bean.put("lm", Wtime.formatUTC(now, fmt));
+        return bean;
+    }
+
+    @Override
+    protected WnRole _add_role(String uid, String grp, WnRoleType type, String unm) {
+        Date now = new Date();
+        String roleId = IdMaker.make(now, null);
+
+        NutMap bean = __to_bean_for_upsert(uid, grp, type, unm, now);
+        bean.put("id", roleId);
 
         // 获取 SQL
         WnSqlTmpl sql = sqls.get(sqlInsert);
@@ -133,16 +196,35 @@ public class WnSqlRoleStore extends AbstractWnRoleStore {
             throw Er.create("e.auth.session.FailToAdd", Json.toJson(bean));
         }
 
-        return _to_wn_role(bean);
+        return _fetch_role_by_id(roleId);
     }
 
     @Override
-    protected void _remove_role(String uid, String name) {
+    protected WnRole _set_role(String uid, String grp, WnRoleType type, String unm) {
+        Date now = new Date();
+
+        NutMap bean = __to_bean_for_upsert(uid, grp, type, unm, now);
+        bean.remove("ct");
+
+        // 获取 SQL
+        WnSqlTmpl sql = sqls.get(sqlUpdate);
+
+        // 保存到数据库里
+        int count = Sqlx.sqlRun(auth, new SqlAtom(log, sql, bean));
+        if (count <= 0) {
+            throw Er.create("e.auth.session.FailToUpdate", Json.toJson(bean));
+        }
+
+        return _fetch_role_by_uid_grp(uid, grp);
+    }
+
+    @Override
+    protected void _remove_role(String uid, String grp) {
         // 删除对应缓存
         this.cache.remove(uid);
 
         // 获取角色
-        NutMap query = Wlang.map("grp", name);
+        NutMap query = Wlang.map("grp", grp);
         WnRoleList roles = _query_role_list(query);
 
         // 准备条件

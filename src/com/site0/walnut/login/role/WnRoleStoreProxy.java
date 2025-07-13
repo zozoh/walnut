@@ -26,10 +26,10 @@ public class WnRoleStoreProxy implements WnRoleStore {
     }
 
     @Override
-    public WnRoleList queryRolesOf(String name) {
+    public WnRoleList queryRolesOf(String grp) {
         return Wn.WC().nosecurity(io, new Proton<WnRoleList>() {
             protected WnRoleList exec() {
-                return impl.queryRolesOf(name);
+                return impl.queryRolesOf(grp);
             }
         });
     }
@@ -42,9 +42,9 @@ public class WnRoleStoreProxy implements WnRoleStore {
     }
 
     @Override
-    public void removeRole(String uid, String name) {
+    public void removeRole(String uid, String grp) {
         Wn.WC().nosecurity(io, () -> {
-            impl.removeRole(uid, name);
+            impl.removeRole(uid, grp);
         });
     }
 
@@ -63,10 +63,19 @@ public class WnRoleStoreProxy implements WnRoleStore {
     }
 
     @Override
-    public synchronized WnRole addRole(String uid, String name, WnRoleType type) {
+    public synchronized WnRole addRole(String uid, String grp, WnRoleType type, String unm) {
         return Wn.WC().nosecurity(io, new Proton<WnRole>() {
             protected WnRole exec() {
-                return impl.addRole(uid, name, type);
+                return impl.addRole(uid, grp, type, unm);
+            }
+        });
+    }
+
+    @Override
+    public synchronized WnRole setRole(String uid, String grp, WnRoleType type, String unm) {
+        return Wn.WC().nosecurity(io, new Proton<WnRole>() {
+            protected WnRole exec() {
+                return impl.setRole(uid, grp, type, unm);
             }
         });
     }
