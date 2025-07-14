@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.site0.walnut.util.tmpl.WnTmpl;
+import com.site0.walnut.web.setup.WnSetup;
 
 import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.json.Json;
@@ -95,8 +96,6 @@ public class IoCoreSetup {
 
     private static WnIo _io;
 
-    private static RedisBMFactory _redisBMFactory;
-
     private static WnBoxService _boxService;
 
     private static WnServiceFactory _services;
@@ -122,11 +121,21 @@ public class IoCoreSetup {
     public WnIo getIo() {
         if (null == _io) {
             WnIoMappingFactory mappings = this.getWnIoMappingFactory();
+            // 全局索引和桶管理器
+            _mappings.setGlobalIndexer(this.getGlobalIndexer());
+            _mappings.setGlobalBM(this.getGlobalIoBM());
+
+            // 建立 IO
             _io = new WnIoImpl2(mappings);
+
+            // 准备系统关键的对象路径
+            WnSetup.makeWalnutKeyDirIfNoExists(_io);
+
+            // 设置映射工厂，有些类需要上面准备的关键路径
             this.setupWnIoMappingFactory(_io);
 
             // 稍后设置一下 RedisBMFactory 自己的实例
-            _redisBMFactory.setIo(_io);
+            getRedisBMFactory().setIo(_io);
         }
         return _io;
     }
@@ -144,15 +153,8 @@ public class IoCoreSetup {
         options.domain = "root";
         options.sessionDuration = 3600000L;
 
-        // 准备目录
-        io2.createIfNoExists(null, options.session.path, WnRace.DIR);
-        io2.createIfNoExists(null, options.user.path, WnRace.DIR);
-        io2.createIfNoExists(null, options.role.path, WnRace.DIR);
-
         // 建立接口
         WnLoginApi auth = WnLoginApiMaker.forSys().make(io2, new NutMap(), options);
-        auth.addRootUserIfNoExists("123456");
-        auth.addGuestUserIfNoExists();
         return auth;
     }
 
@@ -178,10 +180,6 @@ public class IoCoreSetup {
     }
 
     public void setupWnIoMappingFactory(WnIo io) {
-        // 全局索引和桶管理器
-        _mappings.setGlobalIndexer(this.getGlobalIndexer());
-        _mappings.setGlobalBM(this.getGlobalIoBM());
-
         // 索引管理器工厂映射
         HashMap<String, WnIndexerFactory> indexers = new HashMap<>();
         indexers.put("file", new LocalFileIndexerFactory(_mimes));
@@ -289,13 +287,13 @@ public class IoCoreSetup {
     }
 
     public RedisBMFactory getRedisBMFactory() {
-        if (null == _redisBMFactory) {
-            _redisBMFactory = new RedisBMFactory();
-            Map<String, RedisBM> bms = new HashMap<>();
-            bms.put("_", this.getRedisBM());
-            _redisBMFactory.setBms(bms);
-        }
-        return _redisBMFactory;
+        RedisBMFactory bmf = new RedisBMFactory();
+        bmf.setAuth(getLoginApi());
+        bmf.setIo(getIo());
+        Map<String, RedisBM> bms = new HashMap<>();
+        bms.put("_", this.getRedisBM());
+        bmf.setBms(bms);
+        return bmf;
     }
 
     public LocalFileIndexer getLocalFileIndexer() {

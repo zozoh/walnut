@@ -14,7 +14,7 @@ import com.site0.walnut.util.Wn;
 import com.site0.walnut.web.setup.WnSetup;
 
 public abstract class BaseIoTest extends IoCoreTest {
-    
+
     static Log log = Wlog.getTEST();
 
     protected WnIo io;
@@ -22,6 +22,8 @@ public abstract class BaseIoTest extends IoCoreTest {
     protected WnLoginApi auth;
 
     protected WnUser root;
+
+    protected WnUser guest;
 
     protected WnUser user_passwd(String name, String passwd) {
         WnUser u = auth.getUser(name);
@@ -56,15 +58,16 @@ public abstract class BaseIoTest extends IoCoreTest {
 
         // 设置 Io 接口
         io = setup.getIo();
-        
+
         // 准备系统关键的对象路径
         WnSetup.makeWalnutKeyDirIfNoExists(io);
 
         // 准备会话校验接口
         auth = setup.getLoginApi();
 
-        // 准备根用户
+        // 准备根用户和访客用户
         root = auth.addRootUserIfNoExists("123456");
+        guest = auth.addGuestUserIfNoExists();
 
         // 默认每个测试运行都是用 root
         Wn.WC().setMe(root);

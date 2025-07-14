@@ -29,9 +29,9 @@ public class WnIoCustomizedPvgTest extends IoCoreTest {
         WnObj b = io.create(a, "b", WnRace.DIR);
         WnObj c = io.create(b, "c", WnRace.FILE);
 
-        a.put("pvg", Wlang.map("{'@[xx]':'0750'}"));
-        b.put("pvg", Wlang.map("{'@[zz]':'!0755'}"));
-        c.put("pvg", Wlang.map("{'@[zz]':'0777'}"));
+        a.put("pvg", Wlang.map("{'xx':'0750'}"));
+        b.put("pvg", Wlang.map("{'zz':'!0755'}"));
+        c.put("pvg", Wlang.map("{'zz':'0777'}"));
 
         WnUser x = setup.genAccount("xx");
         WnUser y = setup.genAccount("yy");
@@ -56,9 +56,9 @@ public class WnIoCustomizedPvgTest extends IoCoreTest {
         WnObj b = io.create(a, "b", WnRace.DIR);
         WnObj c = io.create(b, "c", WnRace.FILE);
 
-        a.put("pvg", Wlang.map("{'@[xx]':'0750'}"));
-        b.put("pvg", Wlang.map("{'@[yy]':'~0755'}"));
-        c.put("pvg", Wlang.map("{'@[zz]':'0777'}"));
+        a.put("pvg", Wlang.map("{'xx':'0750'}"));
+        b.put("pvg", Wlang.map("{'yy':'~0755'}"));
+        c.put("pvg", Wlang.map("{'zz':'0777'}"));
 
         WnUser x = setup.genAccount("xx");
         WnUser y = setup.genAccount("yy");
@@ -83,9 +83,9 @@ public class WnIoCustomizedPvgTest extends IoCoreTest {
         WnObj b = io.create(a, "b", WnRace.DIR);
         WnObj c = io.create(b, "c", WnRace.FILE);
 
-        a.put("pvg", Wlang.map("{'@[xx]':'0750'}"));
-        b.put("pvg", Wlang.map("{'@[yy]':'0755'}"));
-        c.put("pvg", Wlang.map("{'@[zz]':'0777'}"));
+        a.put("pvg", Wlang.map("{'xx':'0750'}"));
+        b.put("pvg", Wlang.map("{'yy':'0755'}"));
+        c.put("pvg", Wlang.map("{'zz':'0777'}"));
 
         WnUser x = setup.genAccount("xx");
         WnUser y = setup.genAccount("yy");

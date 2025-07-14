@@ -79,9 +79,6 @@ public abstract class BaseBoxTest extends BaseUsrTest {
         me = auth.addUser(info);
         se = auth.createSession(me);
 
-        // 将测试线程切换到当前测试账号
-        Wn.WC().setSession(se);
-
         out = new StringBuilder();
         err = new StringBuilder();
 
@@ -94,6 +91,9 @@ public abstract class BaseBoxTest extends BaseUsrTest {
         bc.session = se;
 
         box = _alloc_box();
+
+        // 将测试线程切换到当前测试账号
+        Wn.WC().setSession(se);
     }
 
     protected WnIo prepareIo() {

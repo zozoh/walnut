@@ -357,22 +357,22 @@ public class WnSetup implements Setup {
     }
 
     private static void __check_key_dir(WnIo io, String path, int mode) {
-        WnObj oSysUsr = io.createIfExists(null, path, WnRace.DIR);
+        WnObj oDir = io.createIfNoExists(null, path, WnRace.DIR);
         NutMap delta = new NutMap();
-        if (oSysUsr.mode() != mode) {
+        if (oDir.mode() != mode) {
             delta.put("md", mode);
         }
-        if (!oSysUsr.creator().equals("root")) {
+        if (!oDir.creator().equals("root")) {
             delta.put("c", "root");
         }
-        if (!oSysUsr.mender().equals("root")) {
+        if (!oDir.mender().equals("root")) {
             delta.put("m", "root");
         }
-        if (!oSysUsr.group().equals("root")) {
+        if (!oDir.group().equals("root")) {
             delta.put("g", "root");
         }
         if (!delta.isEmpty()) {
-            io.appendMeta(oSysUsr, delta);
+            io.appendMeta(oDir, delta);
         }
     }
 

@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import com.site0.walnut.util.Wlang;
+
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
@@ -135,7 +136,12 @@ public class WnSystem implements WnAuthExecutable {
     public WnObj getCurrentObj() {
         String pwd = this.session.getEnv().getString("PWD");
         String path = Wn.normalizePath(pwd, this);
-        WnObj re = this.io.check(null, path);
+        WnObj re;
+        if (Ws.isBlank(path)) {
+            re = this.getHome();
+        } else {
+            re = this.io.check(null, path);
+        }
         return Wn.WC().whenEnter(re, false);
     }
 

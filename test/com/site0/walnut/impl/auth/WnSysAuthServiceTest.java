@@ -29,7 +29,7 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
 
     @Test
     public void usr_create_by_email() {
-        //log.info("@Test WnSysAuthServiceTest.usr_create_by_email Begin");
+        log.info("@Test WnSysAuthServiceTest.usr_create_by_email Begin");
         WnUser xiaobai = user_passwd("xiaobai@nutzam.com", "123456");
 
         // 获取一个
@@ -102,12 +102,12 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
         assertEquals("xiaobai", oHome.group());
         assertEquals(488, oHome.mode());
 
-        //log.info("@Test WnSysAuthServiceTest.usr_create_by_email End");
+        log.info("@Test WnSysAuthServiceTest.usr_create_by_email End");
     }
 
     @Test
     public void usr_create_by_phone() {
-        //log.info("@Test WnSysAuthServiceTest.usr_create_by_phone Begin");
+        log.info("@Test WnSysAuthServiceTest.usr_create_by_phone Begin");
         WnUser xiaobai = user_passwd("13910110054", "123456");
         assertEquals("/home/13910110054", xiaobai.getHomePath());
 
@@ -161,7 +161,7 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
 
         oHome = io.check(null, u.getHomePath());
         assertEquals(u.getName(), oHome.name());
-        //log.info("@Test WnSysAuthServiceTest.usr_create_by_phone End");
+        log.info("@Test WnSysAuthServiceTest.usr_create_by_phone End");
     }
 
     @Test
