@@ -10,70 +10,64 @@ var ioc = {
 	serviceFactory: {
 		type: 'com.site0.walnut.api.box.WnServiceFactory',
 		fields: {
-			authApi: { refer: "sysAuthService" },
+			hookApi: { refer: "hookService" },
+			loginApi: { refer: "sysLoginApi" },
 			taskApi: { refer: "safeSysTaskService" },
 			scheduleApi: { refer: "safeSysScheduleService" },
-			loginApi: { refer: "sysLoginApi" },
 			cronApi: { refer: "sysCronService" },
 			boxApi: { refer: "boxService" },
-			hookApi: { refer: "hookService" },
 			referApi: { refer: "referApi" },
 			lockApi: { refer: "lockApi" }
 		}
 	},
-	sysUserStoreService: {
+	rawUserStore: {
 		type: 'com.site0.walnut.login.usr.WnStdUserStore',
+		args: [{ refer: "io" }, { refer: "conf" }]
+	},
+	sysUserStore: {
+		type: 'com.site0.walnut.login.usr.WnUserStoreProxy',
+		args: [{ refer: "io" }, { refer: "rawUserStore" }]
+	},
+	rawSessionStore: {
+		type: 'com.site0.walnut.login.session.WnStdSessionStore',
+		args: [{ refer: "io" }, { refer: "conf" }]
+	},
+	sysSessionStore: {
+		type: 'com.site0.walnut.login.session.WnSessionStoreProxy',
+		args: [{ refer: "io" }, { refer: "rawSessionStore" }]
+	},
+	rawRoleStore: {
+		type: 'com.site0.walnut.login.role.WnStdRoleStore',
 		args: [{ refer: "io" }]
 	},
-	sysSessionStoreService: {
-		type: 'com.site0.walnut.login.session.WnStdSessionStore',
-		args: [{ refer: "io" }],
-		fields: {
-			defaultEnv: { java: '$conf.sessionDefaultEnv' }
-		}
+	sysRoleStore: {
+		type: 'com.site0.walnut.login.role.WnRoleStoreProxy',
+		args: [{ refer: "io" }, { refer: "rawRoleStore" }]
 	},
 	sysXApi: {
 		type: 'com.site0.walnut.ext.net.xapi.impl.WnXApi',
 		args: [{ refer: "io" }]
 	},
-	sysLoginSetup: {
-		type: 'com.site0.walnut.login.WnLoginSetup',
-		fields: {
-			users: { refer: "sysUserStoreService" },
-			sessions: { refer: "sysSessionStoreService" },
-			xapi: { refer: "sysXApi" },
-			domain: "root",
-			sessionDuration: { java: '$conf.getLong("se-sys-du", 3600)' },
-			wechatMpOpenIdKey: {
-				java: '$conf.get("login-wxmp-openid-key", "wxmp_openid")'
-			},
-			wechatGhOpenIdKey: {
-				java: '$conf.get("login-wxgh-openid-key", "wxgh_openid")'
-			},
-		}
-	},
 	sysLoginApi: {
 		type: 'com.site0.walnut.login.WnLoginApi',
-		args: [{ refer: 'sysLoginSetup' }]
-	},
-	sysAuthService: {
-		type: 'com.site0.walnut.impl.auth.WnSysAuthServiceWrapper',
-		parent: "ioService",
+		args: [{ refer: 'io' }],
 		fields: {
-			initEnvs: {
-				java: '$conf.initUsrEnvs'
+			users: { refer: 'sysUserStore' },
+			sessions: { refer: 'sysSessionStore' },
+			roles: { refer: 'sysRoleStore' },
+			xapi: { refer: 'sysXApi' },
+			domain: "root",
+			sessionDuration: {
+				java: "$conf.getInt('se-sys-du', 3600)"
 			},
-			rootDefaultPasswd: {
-				java: '$conf.getTrim("root-init-passwd", "123456")'
+			sessionShortDu: {
+				java: "$conf.getInt('se-tmp-du', 10)"
 			},
-			seDftDu: {
-				java: '$conf.getLong("se-sys-du", 3600)'
+			wechatMpOpenIdKey: {
+				java: "$conf.get('wx-mp-open-id-key', 'wxmp_openid')"
 			},
-			seTmpDu: {
-				java: '$conf.getLong("se-tmp-du", 60)'
-			},
-			defaultQuitUrl: {
-				java: '$conf.get("sys-entry-url", "/a/login/")'
+			wechatGhOpenIdKey: {
+				java: "$conf.get('wx-gh-open-id-key', 'wxgh_openid')"
 			}
 		}
 	},
@@ -91,7 +85,7 @@ var ioc = {
 		type: 'com.site0.walnut.ext.sys.task.impl.WnSysTaskService',
 		parent: "ioService",
 		fields: {
-			auth: { refer: "sysAuthService" }
+			auth: { refer: "sysLoginApi" }
 		}
 	},
 	safeSysScheduleService: {
@@ -112,7 +106,7 @@ var ioc = {
 		type: 'com.site0.walnut.ext.sys.schedule.impl.WnSysScheduleService',
 		parent: "ioService",
 		fields: {
-			auth: { refer: "sysAuthService" },
+			auth: { refer: "sysLoginApi" },
 			cronApi: { refer: "sysCronService" },
 			taskApi: { refer: "sysTaskService" }
 		}
@@ -121,7 +115,7 @@ var ioc = {
 		type: 'com.site0.walnut.ext.sys.cron.impl.WnSysCronService',
 		parent: "ioService",
 		fields: {
-			auth: { refer: "sysAuthService" }
+			auth: { refer: "sysLoginApi" }
 		}
 	},
 	sessionService: {

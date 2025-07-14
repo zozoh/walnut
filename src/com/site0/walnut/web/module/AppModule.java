@@ -580,7 +580,7 @@ public class AppModule extends AbstractWnModule {
                     }
 
                     // 获取会话时长设置
-                    long se_du = auth.getSessionDuration();
+                    int se_du = auth.getSessionDuration();
 
                     // 注册新会话
                     WnSession se = auth.createSession(user, se_du);

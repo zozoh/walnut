@@ -151,7 +151,10 @@ public class IoCoreSetup {
         options.role = new WnLoginRoleOptions();
         options.role.path = "/sys/role";
         options.domain = "root";
-        options.sessionDuration = 3600000L;
+        options.sessionDuration = 3600;
+        options.sessionShortDu = 3;
+        options.wechatMpOpenIdKey = "wxmp_openid";
+        options.wechatGhOpenIdKey = "wxgh_openid";
 
         // 建立接口
         WnLoginApi auth = WnLoginApiMaker.forSys().make(io2, new NutMap(), options);

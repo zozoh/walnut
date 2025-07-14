@@ -235,7 +235,7 @@ public class WnSetup implements Setup {
         // -----------------------------------------
         WnServiceFactory sf = ioc.get(WnServiceFactory.class, "serviceFactory");
         WnRun run = ioc.get(WnRun.class);
-        long du = auth.getSessionDuration(true);
+        int du = auth.getSessionDuration(true);
         WnSession rootSession = auth.createSession(root, du);
         //
         // 后台任务线程

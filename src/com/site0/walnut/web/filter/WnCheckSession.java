@@ -60,7 +60,7 @@ public class WnCheckSession implements ActionFilter {
             if (null != se) {
                 WnSession se2 = se;
                 Wn.WC().hooking(null, () -> {
-                    long du = auth.getSessionDuration();
+                    int du = auth.getSessionDuration();
                     auth.touchSession(se2, du);
 
                 });
@@ -100,7 +100,7 @@ public class WnCheckSession implements ActionFilter {
             WnUser me = se.getUser();
 
             // 给当前 Session 设置默认的当前路径
-            se.getEnv().put("PWD", me.getHomePath());
+            se.getEnv().putDefault("PWD", me.getHomePath());
 
             // 生成沙盒上下文
             WnServiceFactory services = Wn.Service.services(ac.getIoc());

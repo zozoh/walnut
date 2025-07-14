@@ -40,9 +40,9 @@ public class WnSessionStoreProxy implements WnSessionStore {
     }
 
     @Override
-    public void touchSession(WnSession se, long sessionDuration) {
+    public void touchSession(WnSession se, int seInSec) {
         Wn.WC().nosecurity(io, () -> {
-            impl.touchSession(se, sessionDuration);
+            impl.touchSession(se, seInSec);
         });
     }
 

@@ -119,8 +119,11 @@ public class WnSimpleSession implements WnSession {
         bean.put("expiAt", this.getExpiAtInUTC());
         bean.put("createTime", this.getCreateTimeInUTC());
         bean.put("lastModified", this.getLastModifiedInUTC());
-        bean.put("user", user.toBean());
-        bean.put("env", env);
+        bean.put("me", user.toBean());
+        if (null != user) {
+            bean.put("unm", user.getName());
+        }
+        bean.put("envs", env);
     }
 
     public String toString() {
@@ -260,5 +263,4 @@ public class WnSimpleSession implements WnSession {
         this.env.putAll(delta);
     }
 
-    
 }

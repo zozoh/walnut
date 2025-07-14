@@ -12,7 +12,15 @@ public class WnLoginOptions {
 
     public String domain;
 
-    public long sessionDuration;
+    /**
+     * 标准会话的时长（秒）
+     */
+    public int sessionDuration;
+    
+    /**
+     * 临时会话的时长（秒）
+     */
+    public int sessionShortDu;
 
     public String wechatMpOpenIdKey;
 

@@ -14,6 +14,7 @@ import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
+import com.site0.walnut.web.WnConfig;
 
 public class WnStdSessionStore extends AbstractWnSessionStore {
 
@@ -36,10 +37,9 @@ public class WnStdSessionStore extends AbstractWnSessionStore {
      * 
      * @param io
      */
-    public WnStdSessionStore(WnIo io) {
+    public WnStdSessionStore(WnIo io, WnConfig conf) {
         this.io = io;
-        // defaultEnv 会在Ioc构造字段的时候设置，它应该通过
-        // {java: "$conf.xxx"} 去获取默认配置文件里的会话初始环境变量
+        this.defaultEnv = conf.getSessionDefaultEnv();
 
         // 获取会话主目录
         this.oHome = io.check(null, "/var/session");
@@ -61,9 +61,6 @@ public class WnStdSessionStore extends AbstractWnSessionStore {
         // 过期时间
         se.setExpiAt(obj.expireTime());
 
-        // 设置环境变量
-        se.setEnv(obj.getAs("env", NutMap.class));
-
         // 加载用户
         String uid = obj.getString("u_id");
         if (Ws.isBlank(uid)) {
@@ -79,6 +76,9 @@ public class WnStdSessionStore extends AbstractWnSessionStore {
                            obj.getString("phone"));
             se.setUser(u);
         }
+
+        // 设置环境变量
+        se.setEnv(obj.getAs("env", NutMap.class));
 
         // 返回结果
         return se;
@@ -129,13 +129,13 @@ public class WnStdSessionStore extends AbstractWnSessionStore {
     }
 
     @Override
-    public void touchSession(WnSession se, long sessionDuration) {
+    public void touchSession(WnSession se, int duInSec) {
         WnObj obj = io.fetch(oHome, se.getTicket());
         // 防空
         if (null == obj) {
             return;
         }
-        se.setExpiAt(System.currentTimeMillis() + sessionDuration);
+        se.setExpiAt(System.currentTimeMillis() + duInSec * 1000L);
         NutMap meta = Wlang.map("expi", se.getExpiAt());
         io.appendMeta(obj, meta);
 

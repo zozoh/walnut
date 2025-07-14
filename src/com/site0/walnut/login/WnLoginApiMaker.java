@@ -41,6 +41,7 @@ public class WnLoginApiMaker {
         api.roles = roleStoreMaker.make(io, sessionVars, options.role);
         api.domain = options.domain;
         api.sessionDuration = options.sessionDuration;
+        api.sessionShortDu = options.sessionShortDu;
         api.wechatGhOpenIdKey = options.wechatGhOpenIdKey;
         api.wechatMpOpenIdKey = options.wechatMpOpenIdKey;
 

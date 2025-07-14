@@ -22,6 +22,10 @@ public class WnStdRoleStore extends AbstractWnRoleStore {
 
     }
 
+    public WnStdRoleStore(WnIo io) {
+        this(io, new NutMap(), "/sys/role");
+    }
+
     protected List<WnRole> _get_roles(String uid) {
         // 真正查询
         WnQuery q = Wn.Q.pid(oHome);

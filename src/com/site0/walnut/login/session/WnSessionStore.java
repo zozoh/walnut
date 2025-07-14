@@ -10,7 +10,7 @@ public interface WnSessionStore {
 
     void saveSessionEnv(WnSession se);
 
-    void touchSession(WnSession se, long sessionDuration);
+    void touchSession(WnSession se, int duInSec);
 
     /**
      * 移除当前会话，如果会话有父会话，那么就返回父会话，否则返回 null

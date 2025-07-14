@@ -199,7 +199,7 @@ public class WnBoxRunning implements WnAuthExecutable {
 
         // 只有当前会话不同，才要切换
         if (bc.session == null || !bc.session.getUser().isSame(newUsr)) {
-            long du = auth.getSessionDuration();
+            int du = auth.getSessionDuration();
             bc.session = auth.createSession(newUsr, du);
         }
         // 执行吧

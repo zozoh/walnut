@@ -186,9 +186,9 @@ public class WnSqlSessionStore extends AbstractWnSessionStore {
         }
     }
 
-    public void touchSession(WnSession se, long sessionDuration) {
+    public void touchSession(WnSession se, int duInSec) {
         NutBean delta = new NutMap();
-        se.setExpiAt(System.currentTimeMillis() + sessionDuration);
+        se.setExpiAt(System.currentTimeMillis() + duInSec * 1000L);
 
         delta.put("id", se.getTicket());
         delta.put("expi_at", se.getExpiAt());

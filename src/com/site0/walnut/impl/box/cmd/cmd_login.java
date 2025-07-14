@@ -77,7 +77,7 @@ public class cmd_login extends JvmExecutor {
         }
 
         // 嗯，可以登录，获取登录时长
-        long du = auth.getSessionDuration();
+        int du = auth.getSessionDuration();
 
         // 全部检查没问题，可以创建新会话了
         newSe = auth.createSession(sys.session, ta, du);

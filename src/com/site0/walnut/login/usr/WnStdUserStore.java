@@ -16,6 +16,7 @@ import com.site0.walnut.core.bean.WnObjId;
 import com.site0.walnut.login.UserRace;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
+import com.site0.walnut.web.WnConfig;
 
 public class WnStdUserStore extends AbstractWnUserStore {
 
@@ -32,6 +33,10 @@ public class WnStdUserStore extends AbstractWnUserStore {
         this.io = io;
         homePath = Ws.sBlank(homePath, "~/.domain/session");
         this.oHome = Wn.checkObj(io, sessionVars, homePath);
+    }
+
+    public WnStdUserStore(WnIo io, WnConfig conf) {
+        this(UserRace.SYS, io, new NutMap(), "/sys/usr", conf.getUserDefaultMeta());
     }
 
     /**

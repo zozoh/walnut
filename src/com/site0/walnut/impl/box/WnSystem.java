@@ -288,7 +288,7 @@ public class WnSystem implements WnAuthExecutable {
         }
 
         // 创建新会话
-        long du = auth.getSessionDuration(true);
+        int du = auth.getSessionDuration(true);
         WnSession newSession = auth.createSession(newUsr, du);
 
         // 记录旧的 Session

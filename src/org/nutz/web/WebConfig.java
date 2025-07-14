@@ -119,6 +119,11 @@ public class WebConfig extends PropertiesProxy {
         return Json.fromJson(NutMap.class, str);
     }
 
+    public NutMap getUserDefaultMeta() {
+        String str = get("usr-dft-meta", "{}");
+        return Json.fromJson(NutMap.class, str);
+    }
+
     // ================================================= 获取路径扫描器
     /**
      * 创建一个资源扫描器，它需要下列属性:

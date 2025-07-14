@@ -1,6 +1,5 @@
 package com.site0.walnut.login;
 
-import java.util.Date;
 import java.util.List;
 
 import org.nutz.lang.util.NutMap;
@@ -28,11 +27,8 @@ import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wuu;
-import com.site0.walnut.val.id.WnSnowQMaker;
 
 public class WnLoginApi {
-
-    private static final WnSnowQMaker TicketMaker = new WnSnowQMaker(null, 10);
 
     private static Log log = Wlog.getAUTH();
 
@@ -48,7 +44,15 @@ public class WnLoginApi {
 
     String domain;
 
-    long sessionDuration;
+    /**
+     * 标准会话的时长（秒）
+     */
+    int sessionDuration;
+
+    /**
+     * 临时会话的时长（秒）
+     */
+    int sessionShortDu;
 
     String wechatMpOpenIdKey;
 
@@ -118,14 +122,14 @@ public class WnLoginApi {
         return createSession(u, this.getSessionDuration());
     }
 
-    public WnSession createSession(WnUser u, long du) {
-        WnSession se = __create_session_by_user(u, du);
+    public WnSession createSession(WnUser u, int duInSec) {
+        WnSession se = __create_session_by_user(u, duInSec);
         sessions.addSession(se);
         return se;
     }
 
-    public WnSession createSession(WnSession parentSe, WnUser u, long du) {
-        WnSession se = __create_session_by_user(u, du);
+    public WnSession createSession(WnSession parentSe, WnUser u, int duInSec) {
+        WnSession se = __create_session_by_user(u, duInSec);
         se.setParentTicket(parentSe.getTicket());
         sessions.addSession(se);
         return se;
@@ -153,6 +157,9 @@ public class WnLoginApi {
     }
 
     public WnSession loginByWechatMPCode(String code, boolean autoCreateUser) {
+        if (Ws.isBlank(this.wechatMpOpenIdKey)) {
+            throw Er.create("e.auth.wechatMpOpenIdKey.NotDefined");
+        }
         String apiName = "wxmp";
         String account = this.domain;
         String path = "jscode2session";
@@ -201,18 +208,16 @@ public class WnLoginApi {
         }
 
         // 创建会话
-        WnSession se = new WnSimpleSession(u, this.sessionDuration);
+        long du = this.sessionDuration * 1000L;
+        WnSimpleSession se = new WnSimpleSession(u, du);
         sessions.addSession(se);
 
         // 搞定
         return se;
     }
 
-    private WnSession __create_session_by_user(WnUser u, long du) {
-        WnSimpleSession se = new WnSimpleSession(u, du);
-        se.setExpiAt(System.currentTimeMillis() + sessionDuration);
-        se.setUser(u);
-        se.setTicket(TicketMaker.make(new Date(), null));
+    private WnSession __create_session_by_user(WnUser u, int duInSec) {
+        WnSimpleSession se = new WnSimpleSession(u, duInSec * 1000L);
         return se;
     }
 
@@ -358,19 +363,19 @@ public class WnLoginApi {
         sessions.saveSessionEnv(se);
     }
 
-    public void touchSession(WnSession se, long sessionDuration) {
-        sessions.touchSession(se, sessionDuration);
+    public void touchSession(WnSession se, int duInSec) {
+        sessions.touchSession(se, duInSec);
     }
 
-    public long getSessionDuration() {
+    public int getSessionDuration() {
         return sessionDuration;
     }
 
-    public long getSessionDuration(boolean longSession) {
+    public int getSessionDuration(boolean longSession) {
         if (longSession) {
             return sessionDuration;
         }
-        return 3000L;
+        return 3;
     }
 
 }

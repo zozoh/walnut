@@ -99,6 +99,7 @@ public class WnConfig extends WebConfig {
         return list;
     }
 
+    @Deprecated
     public NutMap getInitUsrEnvs() {
         String str = this.get("init-usr-envs");
         if (Strings.isBlank(str))

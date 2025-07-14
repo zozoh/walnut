@@ -52,7 +52,7 @@ public class WnRun {
     @Inject("refer:sysScheduleService")
     private WnSysScheduleApi scheduleApi;
 
-    @Inject("refer:sysLoginService")
+    @Inject("refer:sysLoginApi")
     private WnLoginApi auth;
 
     // @Inject("refer:sysAuthService")
@@ -104,7 +104,7 @@ public class WnRun {
     public String exec(String logPrefix, String unm, String input, String cmdText) {
         // 检查用户和会话
         WnUser u = auth.checkUser(unm);
-        long du = auth.getSessionDuration(false);
+        int du = auth.getSessionDuration(false);
         final WnSession se = auth.createSession(u, du);
 
         // 执行命令
@@ -147,7 +147,7 @@ public class WnRun {
         // return sess.create(u);
         // }
         // });
-        long du = auth.getSessionDuration(longSession);
+        int du = auth.getSessionDuration(longSession);
         return auth.createSession(u, du);
     }
 
@@ -251,7 +251,7 @@ public class WnRun {
     }
 
     public void runWithHook(WnUser usr, String grp, NutMap env, Callback<WnSession> callback) {
-        long du = auth.getSessionDuration(false);
+        int du = auth.getSessionDuration(false);
         WnSession se = auth.createSession(usr, du);
         try {
             // 附加环境变量
