@@ -264,7 +264,16 @@ public class WnIoImpl2 implements WnIo {
             o = Wn.WC().whenRemove(o, false);
         }
 
-        WnIoMapping im = mappings.checkMapping(o);
+        WnIoMapping im;
+        // 挂载点，还是采用全局映射管理器
+        if (o.isMountEntry()) {
+            im = mappings.getGlobalMapping();
+        }
+        // 其他查询一下应该怎么用映射管理器
+        else {
+            im = mappings.checkMapping(o);
+        }
+
         im.delete(o, r, this.whenDelete);
 
         // 更新同步时间
@@ -1065,7 +1074,7 @@ public class WnIoImpl2 implements WnIo {
         Each<WnObj> looper = Wn.eachLooping(callback);
 
         // 如果声明了 pid ，则看看有木有映射
-        if (!Strings.isBlank(pid)) {
+        if (!Strings.isBlank(pid) && !this.isRoot(pid)) {
             WnObj oP = this.get(pid);
             if (null == oP)
                 return 0;
@@ -1163,7 +1172,7 @@ public class WnIoImpl2 implements WnIo {
 
         // 如果声明了 pid ，则看看有木有映射
         String pid = q.first().getString("pid");
-        if (!Strings.isBlank(pid)) {
+        if (!Strings.isBlank(pid) && !this.isRoot(pid)) {
             WnObj oP = this.get(pid);
             if (null == oP)
                 return 0;

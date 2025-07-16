@@ -1,5 +1,7 @@
 package com.site0.walnut.impl.box.cmd;
 
+import java.util.List;
+
 import org.nutz.lang.Each;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Times;
@@ -80,14 +82,24 @@ public class cmd_rm extends JvmExecutor {
                 if (limit > 0)
                     q.limit(limit);
                 q.setv("nm", str);
-
-                // 挨个查一下，然后删除
-                sys.io.each(q, new Each<WnObj>() {
-                    public void invoke(int index, WnObj o, int length) {
+                long n = sys.io.count(q);
+                // 数量少，直接查出来删
+                if (n < 1000) {
+                    List<WnObj> objs = sys.io.query(q);
+                    for (WnObj o : objs) {
                         _do_delete(sys, isV, isR, isI, isH, count[0], base, o);
-                        count[0]++;
                     }
-                });
+                    count[0] = objs.size();
+                }
+                // 挨个查一下，然后删除
+                else {
+                    sys.io.each(q, new Each<WnObj>() {
+                        public void invoke(int index, WnObj o, int length) {
+                            _do_delete(sys, isV, isR, isI, isH, count[0], base, o);
+                            count[0]++;
+                        }
+                    });
+                }
             }
         }
 
@@ -124,12 +136,14 @@ public class cmd_rm extends JvmExecutor {
         }
 
         // 递归
-        if (!o.isFILE() && !o.isLink() && isR) {
-            sys.io.each(Wn.Q.pid(o.id()), new Each<WnObj>() {
-                public void invoke(int index, WnObj child, int length) {
-                    _do_delete(sys, isV, isR, isI, true, index, base, child);
-                }
-            });
+        if (!o.isMountEntry()) {
+            if (!o.isFILE() && !o.isLink() && isR) {
+                sys.io.each(Wn.Q.pid(o.id()), new Each<WnObj>() {
+                    public void invoke(int index, WnObj child, int length) {
+                        _do_delete(sys, isV, isR, isI, true, index, base, child);
+                    }
+                });
+            }
         }
         // 删除自己
         sys.io.delete(o);

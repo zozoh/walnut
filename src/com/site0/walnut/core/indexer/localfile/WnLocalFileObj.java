@@ -384,6 +384,16 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     }
 
     @Override
+    public boolean isMountEntry() {
+        return false;
+    }
+    
+    @Override
+    public boolean isMountedObj() {
+        return true;
+    }
+
+    @Override
     public long len() {
         return file.length();
     }

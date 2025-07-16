@@ -96,10 +96,16 @@ public class WnSqlSessionStore extends AbstractWnSessionStore {
                     // 设置标识
                     se.setTicket(bean.getString("ticket"));
                     se.setParentTicket(bean.getString("parent_ticket"));
+                    se.setChildTicket(bean.getString("child_ticket"));
+                    se.setDuration(bean.getInt("duration"));
 
-                    // 过期时间
+                    // 时间戳
                     Date expiAt = Wtime.parseAnyDate(bean.get("expi_at"));
                     se.setExpiAt(expiAt.getTime());
+                    Date ct = Wtime.parseAnyDate(bean.get("ct"));
+                    se.setExpiAt(ct.getTime());
+                    Date lm = Wtime.parseAnyDate(bean.get("lm"));
+                    se.setExpiAt(lm.getTime());
 
                     // 设置环境变量
                     se.setEnv(bean.getAs("env", NutMap.class));
@@ -139,6 +145,8 @@ public class WnSqlSessionStore extends AbstractWnSessionStore {
         NutMap bean = new NutMap();
         bean.put("id", se.getTicket());
         bean.put("expi_at", se.getExpiAtInUTC());
+        bean.put("duration", se.getDuration());
+        bean.put("duration", se.getDuration());
         bean.put("u_id", u.getId());
         bean.put("u_name", u.getName());
         bean.put("email", u.getEmail());
@@ -160,21 +168,16 @@ public class WnSqlSessionStore extends AbstractWnSessionStore {
         }
     }
 
-    protected void _remove_session(WnSession se) {
-        // 查询条件
-        NutMap vars = Wlang.map("id", se.getTicket());
-
-        // 获取 SQL
-        WnSqlTmpl sql = sqls.get(sqlDelete);
-
-        // 保存到数据库里
-        Sqlx.sqlRun(auth, new SqlAtom(log, sql, vars));
-    }
-
     public void saveSessionEnv(WnSession se) {
+        Date now = new Date();
+        String fmt = "yyyy-MM-dd HH:mm:ss";
+        se.setExpiAt(now.getTime() + se.getDurationInMs());
+
         NutBean delta = new NutMap();
         delta.put("id", se.getTicket());
         delta.put("env", se.getEnvAsStr());
+        delta.put("lm", Wtime.formatUTC(now, fmt));
+        delta.put("expi_at", se.getExpiAtInUTC());
 
         // 获取 SQL
         WnSqlTmpl sql = sqls.get(sqlUpdate);
@@ -186,12 +189,40 @@ public class WnSqlSessionStore extends AbstractWnSessionStore {
         }
     }
 
-    public void touchSession(WnSession se, int duInSec) {
-        NutBean delta = new NutMap();
-        se.setExpiAt(System.currentTimeMillis() + duInSec * 1000L);
+    public void saveSessionChildTicket(WnSession se) {
+        if(!se.hasChildTicket()) {
+            return;
+        }
+        Date now = new Date();
+        String fmt = "yyyy-MM-dd HH:mm:ss";
+        se.setExpiAt(now.getTime() + se.getDurationInMs());
 
+        NutBean delta = new NutMap();
         delta.put("id", se.getTicket());
+        delta.put("child_ticket", se.getChildTicket());
+        delta.put("lm", Wtime.formatUTC(now, fmt));
+        delta.put("expi", se.getExpiAtInUTC());
+
+        // 获取 SQL
+        WnSqlTmpl sql = sqls.get(sqlUpdate);
+
+        // 保存到数据库里
+        int count = Sqlx.sqlRun(auth, new SqlAtom(log, sql, delta));
+        if (count <= 0) {
+            throw Er.create("e.auth.session.FailToSaveSessionChildTicket", Json.toJson(delta));
+        }
+
+    }
+
+    public void touchSession(WnSession se, int duInSec) {
+        Date now = new Date();
+        String fmt = "yyyy-MM-dd HH:mm:ss";
+
+        NutBean delta = new NutMap();
+        delta.put("id", se.getTicket());
+        se.setExpiAt(now.getTime() + duInSec * 1000L);
         delta.put("expi_at", se.getExpiAt());
+        delta.put("lm", Wtime.formatUTC(now, fmt));
 
         // 获取 SQL
         WnSqlTmpl sql = sqls.get(sqlUpdate);
@@ -201,5 +232,16 @@ public class WnSqlSessionStore extends AbstractWnSessionStore {
         if (count <= 0) {
             throw Er.create("e.auth.session.FailToTouch", Json.toJson(delta));
         }
+    }
+
+    protected void _remove_session(WnSession se) {
+        // 查询条件
+        NutMap vars = Wlang.map("id", se.getTicket());
+
+        // 获取 SQL
+        WnSqlTmpl sql = sqls.get(sqlDelete);
+
+        // 保存到数据库里
+        Sqlx.sqlRun(auth, new SqlAtom(log, sql, vars));
     }
 }

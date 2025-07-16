@@ -2,6 +2,7 @@ package com.site0.walnut.web.module;
 
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
@@ -24,12 +25,15 @@ import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.web.WebException;
+
+import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import com.site0.walnut.web.filter.WnAsUsr;
 import com.site0.walnut.web.util.WnWeb;
@@ -175,6 +179,82 @@ public class UsrModule extends AbstractWnModule {
         return new ViewWrapper(new JspView("jsp." + jsp_nm), null);
     }
 
+    /**
+     * 执行改变当前页面的会话，会改变响应里面的 COOKIE
+     * <p>
+     * 会话的改变有两种方式，这个由参数 <code>isExit</code> 来界定
+     * 
+     * <ul>
+     * <li><code>isExit == true</code> : 退出到父会话，那么给定的会话ID必须是当前会话的父会话
+     * <li><code>isExit == false</code> : 进入子会话，那么给定的会话ID必须是当前会话的子会话
+     * </ul>
+     * 
+     * @param ticket
+     *            新的会话 ID
+     * @param isExit
+     *            切换会话是从当前会话退出到父会话。false 则表示创建当前会话的子会话
+     * 
+     * @return 新会话对象
+     */
+    @At("/ajax/chse")
+    @Ok("++cookie->ajax")
+    @Fail("ajax")
+    public NutMap ajax_change_session(@Param("seid") String ticket,
+                                      @Param("exit") boolean isExit,
+                                      @Param("old_seid") String oldTicket,
+                                      final HttpServletRequest req,
+                                      final HttpServletResponse resp) {
+        WnWeb.setCrossDomainHeaders("*", (name, value) -> {
+            resp.setHeader(WnWeb.niceHeaderName(name), value);
+        });
+        // 对于 options 放过
+        if (WnWeb.isRequestOptions(req)) {
+            return null;
+        }
+        // 得到当前会话的。如果是退出模式，通常这个变量将为 null，因为旧会话被删除了
+        String myTicket = Wn.WC().getTicket();
+        WnSession se = null;
+        if (!Ws.isBlank(myTicket)) {
+            se = this.auth().getSession(myTicket);
+        }
+
+        // 不用切换
+        if (null != se && se.isSameTicket(ticket)) {
+            throw Er.create("e.web.u.chse.self");
+        }
+
+        // 会话是域的子账号
+
+        // 得到新会话:系统会话
+        WnSession seNew = auth().checkSession(ticket);
+
+        // 退出: 这个新会话必须是旧话的父会话
+        // 但是旧会话已经被删除，因此需要查找 session 表
+        // 具备子会话为指定会话的新会话才能进入
+        if (isExit) {
+            if (Ws.isBlank(oldTicket)) {
+                throw Er.create("e.web.u.chse.exit.NeedOldSEID");
+            }
+            if (!seNew.hasChildTicket()) {
+                throw Er.create("e.web.u.chse.exit.NewSEWithoutChildTicket");
+            }
+            if (!seNew.getChildTicket().equals(oldTicket)) {
+                throw Er.create("e.web.u.chse.exit.NewSEChildTicketNoMatched");
+            }
+        }
+        // 进入: 这个新会话必须是当前会话的子会话
+        else {
+            if (null == se) {
+                throw Er.create("e.web.u.chse.NoSession");
+            }
+            if (!se.isParentOf(seNew)) {
+                throw Er.create("e.web.u.chse.NotMyChild");
+            }
+        }
+
+        // 执行切换
+        return seNew.toBean();
+    }
 
     /**
      * 处理用户登录，并返回客户端模块("zclient")需要的数据结构

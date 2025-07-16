@@ -2,7 +2,6 @@ package com.site0.walnut.impl.box.cmd;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
@@ -21,6 +20,7 @@ public class cmd_exit extends JvmExecutor {
 
     private void __exec_without_security(final WnSystem sys) {
         // 退出登录：延迟几秒以便给后续操作机会
+        String oldTicket = sys.session.getTicket();
         WnSession newSe = sys.auth.removeSession(sys.session);
 
         // 输出这个新会话
@@ -32,13 +32,14 @@ public class cmd_exit extends JvmExecutor {
         }
 
         // ............................................
-        // 在沙盒的上下文标记一把
+        // 在沙盒的上下文标记一把，这样 HTTP 模块就有机会将这个作为宏发下去
+        NutMap macro = new NutMap();
         if (null != newSe) {
-            sys.attrs()
-               .put(Wn.MACRO.CHANGE_SESSION, Wlang.mapf("seid:'%s',exit:true", newSe.getTicket()));
-        } else {
-            sys.attrs().put(Wn.MACRO.CHANGE_SESSION, "{}");
+            macro.put("seid", newSe.getTicket());
+            macro.put("exit", true);
+            macro.put("old_seid", oldTicket);
         }
+        sys.attrs().put(Wn.MACRO.CHANGE_SESSION, macro);
     }
 
 }

@@ -40,6 +40,13 @@ public class WnSessionStoreProxy implements WnSessionStore {
     }
 
     @Override
+    public void saveSessionChildTicket(WnSession se) {
+        Wn.WC().nosecurity(io, () -> {
+            impl.saveSessionChildTicket(se);
+        });
+    }
+
+    @Override
     public void touchSession(WnSession se, int seInSec) {
         Wn.WC().nosecurity(io, () -> {
             impl.touchSession(se, seInSec);
@@ -53,6 +60,12 @@ public class WnSessionStoreProxy implements WnSessionStore {
                 return impl.reomveSession(se, users);
             }
         });
+    }
+
+    @Override
+    public void patchDefaultEnv(WnSession se) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

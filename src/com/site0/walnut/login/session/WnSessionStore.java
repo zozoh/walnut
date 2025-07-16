@@ -10,6 +10,8 @@ public interface WnSessionStore {
 
     void saveSessionEnv(WnSession se);
 
+    void saveSessionChildTicket(WnSession se);
+
     void touchSession(WnSession se, int duInSec);
 
     /**
@@ -20,5 +22,7 @@ public interface WnSessionStore {
      * @return 父会话对象或 null
      */
     WnSession reomveSession(WnSession se, WnUserStore users);
+
+    void patchDefaultEnv(WnSession se);
 
 }

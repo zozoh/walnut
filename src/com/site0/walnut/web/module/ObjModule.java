@@ -91,11 +91,16 @@ public class ObjModule extends AbstractWnModule {
     public WnObj fetch(@Param("str") String str,
                        @Param("path") boolean loadPath,
                        @Param("axis") boolean loadAxis,
+                       final HttpServletRequest req,
                        final HttpServletResponse resp) {
         // 这个接口开放给外部 app 调用
         WnWeb.setCrossDomainHeaders("*", (name, value) -> {
             resp.setHeader(WnWeb.niceHeaderName(name), value);
         });
+        // 对于 options 放过
+        if (WnWeb.isRequestOptions(req)) {
+            return null;
+        }
 
         WnSession se = Wn.WC().checkSession();
         String ph = URLDecoder.decode(str, Encoding.CHARSET_UTF8);
@@ -116,8 +121,10 @@ public class ObjModule extends AbstractWnModule {
 
     @Filters(@By(type = WnCheckSession.class, args = {"true"}))
     @At("/fetch2")
-    public WnObj fetch2(@Param("str") String str, final HttpServletResponse resp) {
-        return fetch(str, true, false, resp);
+    public WnObj fetch2(@Param("str") String str,
+                        final HttpServletRequest req,
+                        final HttpServletResponse resp) {
+        return fetch(str, true, false, req, resp);
     }
 
     /**
@@ -587,11 +594,16 @@ public class ObjModule extends AbstractWnModule {
                           @Param("content") String content,
                           @Param("cine") boolean createIfNoExists,
                           @Param("base64") boolean asBase64,
+                          final HttpServletRequest req,
                           HttpServletResponse resp) {
         // 这个接口开放给外部 app 调用
         WnWeb.setCrossDomainHeaders("*", (name, value) -> {
             resp.setHeader(WnWeb.niceHeaderName(name), value);
         });
+        // 对于 options 放过
+        if (WnWeb.isRequestOptions(req)) {
+            return null;
+        }
         // 获取当前会话
         WnSession se = Wn.WC().checkSession();
         WnIo io = io();

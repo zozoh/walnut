@@ -23,8 +23,6 @@ public interface WnObj extends NutBean, Comparable<WnObj> {
 
     String myId();
 
-    boolean hasMountRootId();
-
     boolean hasWriteHandle();
 
     String getWriteHandle();
@@ -148,11 +146,28 @@ public interface WnObj extends NutBean, Comparable<WnObj> {
 
     WnObj mount(String mnt);
 
+    boolean hasMountRootId();
+
     String mountRootId();
 
     WnObj mountRootId(String mrid);
 
+    /**
+     * 判断一个对象是不是挂载对象，挂载点以及其内的对象都是挂载对象
+     * 
+     * @return
+     */
     boolean isMount();
+
+    /**
+     * 判断当前对象是否是挂载入口对象，这个对象被全局管理器管理 且其设置了mnt属性
+     */
+    boolean isMountEntry();
+
+    /**
+     * 判断当前对象挂载点内对象
+     */
+    boolean isMountedObj();
 
     long len();
 

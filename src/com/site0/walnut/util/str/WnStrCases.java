@@ -14,6 +14,7 @@ public class WnStrCases {
         covertors.put("snake", new WnStrSnakeCase());
         covertors.put("upper", new WnStrUpperCase());
         covertors.put("lower", new WnStrLowerCase());
+        covertors.put("snake_upper", new WnStrSnakeUpperCase());
     }
 
     public static WnStrCaseConvertor get(String mode) {

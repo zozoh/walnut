@@ -418,12 +418,21 @@ public class AppModule extends AbstractWnModule {
      * @return 输出视图
      */
     @At
-    public View sys_login_by_passwd(HttpServletRequest req,
-                                    @Param("name") String name,
+    public View sys_login_by_passwd(@Param("name") String name,
                                     @Param("passwd") String passwd,
                                     @Param("ajax") boolean ajax,
-                                    @ReqHeader("Referer") String referer) {
-        referer = Strings.sBlank(referer, "/");
+                                    @ReqHeader("Referer") String referer,
+                                    final HttpServletRequest req,
+                                    final HttpServletResponse resp) {
+        // 允许跨域
+        WnWeb.setCrossDomainHeaders("*", (headName, headValue) -> {
+            resp.setHeader(WnWeb.niceHeaderName(headName), headValue);
+        });
+        // 对于 options 放过
+        if (WnWeb.isRequestOptions(req)) {
+            return null;
+        }
+        // 尝试用系统账号登录
         try {
             WnLoginApi auth = this.auth();
             WnSession se = auth.loginByPassword(name, passwd);
@@ -450,6 +459,7 @@ public class AppModule extends AbstractWnModule {
                 return new ViewWrapper(new AjaxView(), reo);
             }
             // 返回到原先地址
+            referer = Strings.sBlank(referer, "/");
             return new ServerRedirectView(referer);
         }
     }
@@ -700,10 +710,15 @@ public class AppModule extends AbstractWnModule {
                                 @Param("hint") String lookupHint,
                                 @Param(value = "limit", df = "30") int limit,
                                 @Param("reset") boolean reset,
+                                final HttpServletRequest req,
                                 final HttpServletResponse resp) {
         WnWeb.setCrossDomainHeaders("*", (name, value) -> {
             resp.setHeader(WnWeb.niceHeaderName(name), value);
         });
+        // 对于 options 放过
+        if (WnWeb.isRequestOptions(req)) {
+            return null;
+        }
 
         if (reset) {
             lookupMaker.clear();

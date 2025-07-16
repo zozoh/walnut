@@ -1714,6 +1714,32 @@ public class Ws {
     }
 
     /**
+     * 与 snakeCase 不同，这里每个部分的单词都是大写
+     * 
+     * @param cs
+     *            输入
+     * @return 输入 CamelCase 字符串
+     */
+    public static String upperCase(String input) {
+        if (input == null || input.isEmpty()) {
+            return input;
+        }
+
+        List<String> words = splitWords(input, false, true);
+
+        if (words.isEmpty()) {
+            return "";
+        }
+
+        List<String> w2 = new ArrayList<>(words.size());
+        for (String w : words) {
+            w2.add(w.toUpperCase());
+        }
+
+        return Ws.join(w2, "_");
+    }
+
+    /**
      * 将输入的字符串拆分为单词列表
      * 
      * @param input

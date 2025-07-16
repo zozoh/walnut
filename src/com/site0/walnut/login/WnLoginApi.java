@@ -208,8 +208,7 @@ public class WnLoginApi {
         }
 
         // 创建会话
-        long du = this.sessionDuration * 1000L;
-        WnSimpleSession se = new WnSimpleSession(u, du);
+        WnSession se = new WnSimpleSession(u, this.sessionDuration);
         sessions.addSession(se);
 
         // 搞定
@@ -217,7 +216,8 @@ public class WnLoginApi {
     }
 
     private WnSession __create_session_by_user(WnUser u, int duInSec) {
-        WnSimpleSession se = new WnSimpleSession(u, duInSec * 1000L);
+        WnSession se = new WnSimpleSession(u, duInSec);
+        sessions.patchDefaultEnv(se);
         return se;
     }
 

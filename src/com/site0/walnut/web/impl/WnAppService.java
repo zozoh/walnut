@@ -18,6 +18,9 @@ import org.nutz.log.Log;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
+import com.site0.walnut.cheap.dom.CheapDocument;
+import com.site0.walnut.cheap.dom.CheapElement;
+import com.site0.walnut.cheap.xml.CheapXmlParsing;
 import com.site0.walnut.ext.data.titanium.hdl.ti_webdeps;
 import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.Wlog;
@@ -104,8 +107,8 @@ public class WnAppService extends WnRun {
         // 准备会话变量
         WnSession se = app.getSession();
         NutBean vars = se.getEnv();
-        vars.put("PWD", Strings.sBlank(PWD, "~"));
-        vars.put("APP_HOME", oAppHome.path());
+        vars.putDefault("PWD", Strings.sBlank(PWD, "~"));
+        vars.putDefault("APP_HOME", oAppHome.path());
 
         // 准备命令执行后的回调
         Writer w = new OutputStreamWriter(out);
@@ -124,6 +127,55 @@ public class WnAppService extends WnRun {
      * @return 应用的界面 HTML引导代码
      */
     public String renderAppHtml(WnApp app) {
+        // 如果有 index.html 那么就用静态方式渲染
+        String html = _render_as_index_html(app);
+
+        // 如果不存在，则默认采用动态模版方式
+        if (Ws.isBlank(html)) {
+            html = _render_as_dynamic_tmpl(app);
+        }
+
+        return html;
+    }
+
+    private String _render_as_index_html(WnApp app) {
+        WnObj oIndexHtml = io().fetch(app.getHome(), "index.html");
+        if (null == oIndexHtml) {
+            return null;
+        }
+        String html = io().readText(oIndexHtml);
+
+        // 解析一下，替换 <head> 下所有的 script 与 link 的链接
+        CheapDocument doc = new CheapDocument("html", "head", "body");
+        CheapXmlParsing ing = new CheapXmlParsing(doc);
+        ing.parseDoc(html);
+        List<CheapElement> els = doc.findElements(el -> el.isStdTagAs("^(SCRIPT|LINK)$"));
+        String prefix = "/a/load/wn.term";
+        for (CheapElement el : els) {
+            // script
+            if (el.isStdTagAs("SCRIPT")) {
+                String src = el.attr("src");
+                el.attr("src", prefix + src);
+            }
+            // link
+            else if (el.isStdTagAs("LINK")) {
+                String href = el.attr("href");
+                el.attr("href", prefix + href);
+            }
+        }
+
+        // 设置一下 server-config, js 初始化的时候需要这个配置文件
+        CheapElement body = doc.body();
+        body.attr("server-config", prefix + "/server.config.json");
+        body.attr("session-ticket", app.getSession().getTicket());
+        body.attr("app-path", app.getName());
+        body.attr("quit-path", "/a/login/");
+
+        // 输出
+        return doc.toHtml();
+    }
+
+    private String _render_as_dynamic_tmpl(WnApp app) {
         NutMap c = new NutMap();
         String appName = app.getName();
         WnObj o = app.getObj();
@@ -137,31 +189,7 @@ public class WnAppService extends WnRun {
         JsonFormat jfmt = JsonFormat.nice().setQuoteName(true);
         String appJson = app.toJson(jfmt);
 
-        // 如果存在 `init_tmpl` 文件，则执行，将其结果作为模板
-        // WnObj oInitTmpl = io().fetch(oAppHome, "init_tmpl");
-        // if (null != oInitTmpl) {
-        // String cmdText = io().readText(oInitTmpl);
-        // tmpl = this.exec("app-init-tmpl:", se, appJson, cmdText);
-        // }
-        // // 否则查找静态模板文件
-        // else {
-        // tmpl = __find_tmpl(app.getName(), oAppHome);
-        // }
-
         tmpl = __find_tmpl(app.getName(), oAppHome);
-
-        // 如果存在 `init_context` 文件，则执行，将其结果合并到渲染上下文中
-        // NutMap map = null;
-        // WnObj oInitContext = io().fetch(oAppHome, "init_context");
-        // if (null != oInitContext) {
-        // String cmdText = io().readText(oInitContext);
-        // String contextJson = this.exec("app-init-context:", se, appJson,
-        // cmdText);
-        // map = Json.fromJson(NutMap.class, contextJson);
-        // }
-        // 添加自定义的上下文
-        // if (null != map)
-        // c.putAll(map);
 
         // 标题
         String title = appName;
@@ -241,7 +269,6 @@ public class WnAppService extends WnRun {
 
         // 渲染视图
         String html = WnTmpl.exec(tmpl, c);
-
         return html;
     }
 

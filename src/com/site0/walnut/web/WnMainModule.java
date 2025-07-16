@@ -20,6 +20,7 @@ import org.nutz.mvc.annotation.ReqHeader;
 import org.nutz.mvc.annotation.SetupBy;
 import org.nutz.mvc.annotation.Views;
 import org.nutz.mvc.ioc.provider.ComboIocProvider;
+import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.web.ajax.AjaxViewMaker;
 
@@ -91,6 +92,10 @@ public class WnMainModule extends AbstractWnModule {
                                @ReqHeader("If-None-Match") String etag,
                                @ReqHeader("Range") String range,
                                HttpServletRequest req) {
+        // Chrome DevTools 的配置信息调试数据
+        if (".well-known/appspecific/com.chrome.devtools.json".equals(reqPath)) {
+            return new HttpStatusView(404);
+        }
         // 这里增加一个处理 C 记录的逻辑
         if ("yes".equals(req.getAttribute("wn_www_static"))) {
             return handleRecordC(reqPath, etag, range, req);
@@ -137,13 +142,9 @@ public class WnMainModule extends AbstractWnModule {
 
         WnObj obj = io.fetch(oDir, path);
         if (null == obj) {
-            return HttpStatusView(404, path);
+            return new HttpStatusView(404);
         }
         return new WnObjDownloadView(io, obj, null, null, etag, range);
-    }
-
-    private View HttpStatusView(int i, String path) {
-        return null;
     }
 
     @At("/favicon")

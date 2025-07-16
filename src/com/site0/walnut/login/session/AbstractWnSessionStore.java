@@ -1,6 +1,7 @@
 package com.site0.walnut.login.session;
 
-import org.nutz.lang.util.NutBean;
+import java.util.Map;
+
 import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.login.usr.WnUserStore;
@@ -9,14 +10,22 @@ public abstract class AbstractWnSessionStore implements WnSessionStore {
 
     protected NutMap defaultEnv;
 
+    @Override
     public void patchDefaultEnv(WnSession se) {
-        NutBean env = null == this.defaultEnv ? new NutMap() : this.defaultEnv.duplicate();
-        if (null == se.getEnv()) {
-            se.setEnv(env);
+        if (null == this.defaultEnv) {
+            return;
         }
-        // 融合
+        // 整体设置默认值
+        if (null == se.getEnv()) {
+            se.setEnv(this.defaultEnv.duplicate());
+        }
+        // 逐个设置默认值
         else {
-            se.getEnv().putAll(env);
+            for (Map.Entry<String, Object> en : this.defaultEnv.entrySet()) {
+                String key = en.getKey();
+                Object val = en.getValue();
+                se.getEnv().putDefault(key, val);
+            }
         }
     }
 
@@ -38,7 +47,11 @@ public abstract class AbstractWnSessionStore implements WnSessionStore {
         // 如果有父会话，则返回父会话
         if (se.hasParentTicket()) {
             String parentTicket = se.getParentTicket();
-            return this.getSession(parentTicket, users);
+
+            WnSession pse = this.getSession(parentTicket, users);
+            pse.setChildTicket(se.getTicket());
+            this.saveSessionChildTicket(pse);
+            return pse;
         }
 
         return null;

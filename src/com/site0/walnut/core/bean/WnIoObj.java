@@ -650,6 +650,16 @@ public class WnIoObj extends NutMap implements WnObj {
         return false;
     }
 
+    @Override
+    public boolean isMountEntry() {
+        return this.has("mnt") && !OID().hasHomeId();
+    }
+
+    @Override
+    public boolean isMountedObj() {
+        return this.has("mnt") && OID().hasHomeId();
+    }
+
     /**
      * null 表示未设置。 "" 表示读取了，但是没有映射
      */

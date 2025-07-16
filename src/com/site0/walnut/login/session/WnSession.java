@@ -69,4 +69,22 @@ public interface WnSession {
 
     void loadEnvFromUser(WnUser u);
 
+    int getEnvInt(String key, int dft);
+
+    String getEnvString(String key, String dft);
+
+    boolean isParentOf(WnSession se);
+
+    void setChildTicket(String childTicket);
+
+    String getChildTicket();
+
+    boolean hasChildTicket();
+
+    void setDuration(int duration);
+
+    int getDuration();
+
+    long getDurationInMs();
+
 }

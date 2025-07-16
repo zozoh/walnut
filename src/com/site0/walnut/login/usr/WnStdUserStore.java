@@ -97,11 +97,15 @@ public class WnStdUserStore extends AbstractWnUserStore {
         if (null == oU) {
             throw Er.create("e.auth.user.UserNoExistsWhenSaveUserMeta", u.toString());
         }
+        // 确保有 HOME
+        u.getMeta().putDefault("HOME", u.getHomePath());
+        
+        // 准更新对象
         NutMap delta = new NutMap();
         if (u.hasMeta()) {
-            delta.putAll(u.getMeta());
+            delta.put("meta",u.getMeta());
         }
-        delta.put("HOME", u.getHomePath());
+
         io.appendMeta(oU, delta);
 
     }

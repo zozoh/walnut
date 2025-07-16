@@ -29,6 +29,17 @@ public class WnSimpleSession implements WnSession {
      */
     private String parentTicket;
 
+    /**
+     * 当子会话退出登录它就会被立即删除。 这时，它会把自己的票据临时记录在这个字段里 这样，当 /u/ajax/chse 被调用时，才能有办法
+     * 检查本次会话转换是否合理
+     */
+    private String childTicket;
+
+    /**
+     * 持续时间（秒）每次 touch 都会在当前时间加上一个持续时间
+     */
+    private int duration;
+
     private long expiAt;
 
     private long createTime;
@@ -41,21 +52,25 @@ public class WnSimpleSession implements WnSession {
         this.env = new NutMap();
     }
 
-    public WnSimpleSession(WnUser u, long duInMs) {
+    public WnSimpleSession(WnUser u, int duInSec) {
         this();
         long now = System.currentTimeMillis();
         this.ticket = TicketMaker.make(new Date(), null);
         this.user = u;
-        this.expiAt = now + duInMs;
+        this.expiAt = now + duInSec * 1000L;
+        this.duration = duInSec;
         this.createTime = now;
         this.lastModified = now;
-        this.env.putAll(u.getMeta());
+        this.loadEnvFromUser(u);
     }
 
     @Override
     public WnSession clone() {
         WnSimpleSession re = new WnSimpleSession();
         re.ticket = this.ticket;
+        re.parentTicket = this.parentTicket;
+        re.childTicket = this.childTicket;
+        re.duration = this.duration;
         re.user = this.user.clone();
         re.expiAt = this.expiAt;
         re.createTime = this.createTime;
@@ -116,6 +131,9 @@ public class WnSimpleSession implements WnSession {
 
     public void mergeToBean(NutBean bean) {
         bean.put("ticket", this.ticket);
+        bean.put("parentTicket", this.parentTicket);
+        bean.put("childTicket", this.childTicket);
+        bean.put("duration", this.duration);
         bean.put("expiAt", this.getExpiAtInUTC());
         bean.put("createTime", this.getCreateTimeInUTC());
         bean.put("lastModified", this.getLastModifiedInUTC());
@@ -140,6 +158,7 @@ public class WnSimpleSession implements WnSession {
 
     public void setUser(WnUser user) {
         this.user = user;
+        this.loadEnvFromUser(user);
     }
 
     public String getTicket() {
@@ -161,23 +180,65 @@ public class WnSimpleSession implements WnSession {
     }
 
     @Override
+    public boolean isParentOf(WnSession se) {
+        if (!se.hasParentTicket()) {
+            return false;
+        }
+        return se.getParentTicket().equals(this.ticket);
+    }
+
+    @Override
     public void setParentTicket(String parentTicket) {
         this.parentTicket = parentTicket;
     }
 
+    @Override
+    public boolean hasChildTicket() {
+        return !Ws.isBlank(childTicket);
+    }
+
+    @Override
+    public String getChildTicket() {
+        return childTicket;
+    }
+
+    @Override
+    public void setChildTicket(String childTicket) {
+        this.childTicket = childTicket;
+    }
+
+    @Override
+    public int getDuration() {
+        return duration;
+    }
+
+    @Override
+    public long getDurationInMs() {
+        return duration * 1000L;
+    }
+
+    @Override
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    @Override
     public boolean isExpired() {
         long now = System.currentTimeMillis();
         return now > this.expiAt;
     }
 
+    @Override
     public long getExpiAt() {
         return expiAt;
     }
 
+    @Override
     public void setExpiAt(long expiAt) {
         this.expiAt = expiAt;
     }
 
+    @Override
     public String getExpiAtInUTC() {
         if (this.expiAt <= 0) {
             return null;
@@ -186,18 +247,22 @@ public class WnSimpleSession implements WnSession {
         return Wtime.formatUTC(d, "yyyy-MM-dd HH:mm:ss");
     }
 
+    @Override
     public void setExpiAtInUTC(Object utcTime) {
         this.expiAt = Wtime.parseAnyAMSUTC(utcTime);
     }
 
+    @Override
     public long getCreateTime() {
         return createTime;
     }
 
+    @Override
     public void setCreateTime(long createTime) {
         this.createTime = createTime;
     }
 
+    @Override
     public String getCreateTimeInUTC() {
         if (this.createTime <= 0) {
             return null;
@@ -206,18 +271,22 @@ public class WnSimpleSession implements WnSession {
         return Wtime.formatUTC(d, "yyyy-MM-dd HH:mm:ss");
     }
 
+    @Override
     public void setCreateTimeInUTC(Object utcTime) {
         this.createTime = Wtime.parseAnyAMSUTC(utcTime);
     }
 
+    @Override
     public long getLastModified() {
         return lastModified;
     }
 
+    @Override
     public void setLastModified(long lastModified) {
         this.lastModified = lastModified;
     }
 
+    @Override
     public String getLastModifiedInUTC() {
         if (this.lastModified <= 0) {
             return null;
@@ -226,23 +295,35 @@ public class WnSimpleSession implements WnSession {
         return Wtime.formatUTC(d, "yyyy-MM-dd HH:mm:ss");
     }
 
+    @Override
     public void setLastModifiedInUTC(Object utcTime) {
         this.lastModified = Wtime.parseAnyAMSUTC(utcTime);
     }
 
     @Override
     public void loadEnvFromUser(WnUser u) {
-        if (u.hasMeta()) {
+        if (null != u && u.hasMeta()) {
             for (Map.Entry<String, Object> en : u.getMeta().entrySet()) {
                 String key = en.getKey();
                 Object val = en.getValue();
-                this.env.put(key, val);
+                this.env.put(Ws.upperCase(key), val);
             }
         }
     }
 
+    @Override
     public NutBean getEnv() {
         return env;
+    }
+
+    @Override
+    public String getEnvString(String key, String dft) {
+        return env.getString(key, dft);
+    }
+
+    @Override
+    public int getEnvInt(String key, int dft) {
+        return env.getInt(key, dft);
     }
 
     @Override
