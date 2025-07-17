@@ -209,11 +209,11 @@ public class WnSimpleUser implements WnUser {
                 this.setEmail(bean.getString(key));
             }
             // mainGroup
-            else if ("mainGroup".equals(stdKey)) {
+            else if ("grp".equals(stdKey)) {
                 this.setMainGroup(bean.getString(key));
             }
             // roles
-            else if ("roles".equals(key)) {
+            else if ("role".equals(key)) {
                 this.setRoles(bean.getArray(key, String.class));
             }
             // loginAt
@@ -278,12 +278,12 @@ public class WnSimpleUser implements WnUser {
 
         // 主组
         if (null != this.mainGroup) {
-            bean.put("mainGroup", mainGroup);
+            bean.put("grp", mainGroup);
         }
 
         // 角色
         if (null != this.roles) {
-            bean.put("roles", roles);
+            bean.put("role", roles);
         }
 
         // 最后登录时间

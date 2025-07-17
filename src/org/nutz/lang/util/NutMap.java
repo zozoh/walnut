@@ -16,13 +16,15 @@ import java.util.regex.Pattern;
 
 import org.nutz.castor.Castors;
 import org.nutz.el.El;
+import org.nutz.json.Json;
 import org.nutz.lang.ExitLoop;
-
-import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.born.Borning;
 import org.nutz.mapl.Mapl;
+
+import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.Ws;
 
 /**
  * 对于 LinkedHashMap 的一个友好封装
@@ -596,14 +598,23 @@ public class NutMap extends LinkedHashMap<String, Object> implements NutBean {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T> List<T> getList(String key, final Class<T> eleType, List<T> dft) {
         Object v = get(key);
         if (null == v)
             return dft;
 
         if (v instanceof CharSequence) {
-            return Wlang.list(Castors.me().castTo(v, eleType));
+            String str = v.toString();
+            if (Ws.isQuoteBy(str, '[', ']')) {
+                return Json.fromJsonAsList(eleType, str);
+            }
+            String[] ss = Ws.splitIgnoreBlank(str);
+            List<T> list = new ArrayList<>(ss.length);
+            for (String s : ss) {
+                T ele = Castors.me().castTo(s, eleType);
+                list.add(ele);
+            }
+            return list;
         }
 
         int len = Wlang.eleSize(v);
@@ -630,7 +641,18 @@ public class NutMap extends LinkedHashMap<String, Object> implements NutBean {
             return dft;
 
         if (v instanceof CharSequence) {
-            return Wlang.array(Castors.me().castTo(v, eleType));
+            String str = v.toString();
+            if (Ws.isQuoteBy(str, '[', ']')) {
+                return Json.fromJsonAsArray(eleType, str);
+            }
+            String[] ss = Ws.splitIgnoreBlank(str);
+            List<T> list = new ArrayList<>(ss.length);
+            for (String s : ss) {
+                T ele = Castors.me().castTo(s, eleType);
+                list.add(ele);
+            }
+            T[] arr = (T[]) Array.newInstance(eleType, ss.length);
+            return list.toArray(arr);
         }
 
         int len = Wlang.eleSize(v);

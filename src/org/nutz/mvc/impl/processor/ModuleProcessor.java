@@ -47,7 +47,7 @@ public class ModuleProcessor extends AbstractProcessor {
         moduleType = ai.getModuleType();
         // 直接指定了对象
         if (ai.getModuleObj() != null) {
-        	moduleObj = ai.getModuleObj();
+            moduleObj = ai.getModuleObj();
         }
         // 不使用 Ioc 容器管理模块
         else if (Strings.isBlank(ai.getInjectName())) {
@@ -58,8 +58,7 @@ public class ModuleProcessor extends AbstractProcessor {
                 moduleObj = modulesMap.get(className);
                 if (moduleObj == null) {
                     if (log.isInfoEnabled())
-                        log.info("Create Module obj without Ioc --> "
-                                 + moduleType);
+                        log.info("Create Module obj without Ioc --> " + moduleType);
                     moduleObj = Mirror.me(moduleType).born();
                     modulesMap.put(className, moduleObj);
                 }
@@ -70,8 +69,8 @@ public class ModuleProcessor extends AbstractProcessor {
             Ioc ioc = config.getIoc();
             if (null == ioc)
                 throw Wlang.makeThrow("Moudle with @InjectName('%s') or @IocBean('%s') but you not declare a Ioc for this app!! Miss @IocBy at MainMdoule??",
-                                     injectName,
-                                     injectName);
+                                      injectName,
+                                      injectName);
             injectName = ai.getInjectName();
             if (!ioc.has(injectName)) {
                 log.warnf("Moudle with @InjectName('%s') or @IocBean('%s') but no such ioc bean found!! Pls check your ioc configure!!",
@@ -92,8 +91,7 @@ public class ModuleProcessor extends AbstractProcessor {
                 /*
                  * 如果 Ioc 容器实现了高级接口，那么会为当前请求设置上下文对象
                  */
-                if (NutSessionListener.isSessionScopeEnable
-                    && ioc instanceof Ioc2) {
+                if (NutSessionListener.isSessionScopeEnable && ioc instanceof Ioc2) {
                     reqContext = new RequestIocContext(ac.getRequest());
                     HttpSession sess = Mvcs.getHttpSession(false);
                     IocContext myContext = null;
