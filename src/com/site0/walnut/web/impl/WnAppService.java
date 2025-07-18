@@ -149,24 +149,24 @@ public class WnAppService extends WnRun {
         CheapDocument doc = new CheapDocument("html", "head", "body");
         CheapXmlParsing ing = new CheapXmlParsing(doc);
         ing.parseDoc(html);
-        List<CheapElement> els = doc.findElements(el -> el.isStdTagAs("^(SCRIPT|LINK)$"));
-        String prefix = "/a/load/wn.term";
-        for (CheapElement el : els) {
-            // script
-            if (el.isStdTagAs("SCRIPT")) {
-                String src = el.attr("src");
-                el.attr("src", prefix + src);
-            }
-            // link
-            else if (el.isStdTagAs("LINK")) {
-                String href = el.attr("href");
-                el.attr("href", prefix + href);
-            }
-        }
+        // List<CheapElement> els = doc.findElements(el ->
+        // el.isStdTagAs("^(SCRIPT|LINK)$"));
+        // String prefix = "/a/load/wn.term";
+        // for (CheapElement el : els) {
+        // // script
+        // if (el.isStdTagAs("SCRIPT")) {
+        // String src = el.attr("src");
+        // el.attr("src", prefix + src);
+        // }
+        // // link
+        // else if (el.isStdTagAs("LINK")) {
+        // String href = el.attr("href");
+        // el.attr("href", prefix + href);
+        // }
+        // }
 
         // 设置一下 server-config, js 初始化的时候需要这个配置文件
         CheapElement body = doc.body();
-        body.attr("server-config", prefix + "/server.config.json");
         body.attr("session-ticket", app.getSession().getTicket());
         body.attr("app-path", app.getName());
         body.attr("quit-path", "/a/login/");
