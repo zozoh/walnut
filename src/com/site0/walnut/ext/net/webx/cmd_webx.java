@@ -8,6 +8,7 @@ import com.site0.walnut.impl.box.JvmFilterExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.login.site.WnLoginSite;
 import com.site0.walnut.util.Cmds;
+import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.ZParams;
 
 public class cmd_webx extends JvmFilterExecutor<WebxContext, WebxFilter> {
@@ -31,7 +32,8 @@ public class cmd_webx extends JvmFilterExecutor<WebxContext, WebxFilter> {
     @Override
     protected void prepare(WnSystem sys, WebxContext fc) {
         String sitePath = fc.params.val_check(0);
-        fc.site = WnLoginSite.createByPath(sys.io, sitePath);
+        String aph = Wn.normalizeFullPath(sitePath, sys);
+        fc.site = WnLoginSite.createByPath(sys.io, aph);
         fc.api = fc.site.auth();
     }
 

@@ -15,6 +15,7 @@ import com.site0.walnut.login.site.WnLoginSite;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Cmds;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
 
 public class cmd_login extends JvmExecutor {
@@ -37,6 +38,10 @@ public class cmd_login extends JvmExecutor {
         // 子站点登录
         String hostName = params.getString("host");
         String siteIdOrPath = params.getString("site");
+
+        if (!Ws.isBlank(siteIdOrPath)) {
+            siteIdOrPath = Wn.normalizeFullPath(siteIdOrPath, sys);
+        }
 
         // 获取权鉴接口
         WnLoginSite site = WnLoginSite.create(sys.io, siteIdOrPath, hostName);
