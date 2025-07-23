@@ -59,7 +59,7 @@ public class webx_passwd extends WebxFilter {
             fc.api.changePassword(u, newPassword);
 
             // 将用户作为结果记录一下表示成功
-            fc.result = u;
+            fc.result = u.toBean();
 
         }
         catch (Throwable e) {

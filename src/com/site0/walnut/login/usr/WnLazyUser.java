@@ -83,9 +83,11 @@ public class WnLazyUser implements WnUser {
 
     }
 
-    private void reloadInnerUser() {
-        this._user = loader.checkUserById(_user.getId());
-        this.fullLoaded = true;
+    synchronized private void reloadInnerUser() {
+        if (!this.fullLoaded) {
+            this._user = loader.checkUserById(_user.getId());
+            this.fullLoaded = true;
+        }
     }
 
     public void updateBy(NutBean bean) {
@@ -100,14 +102,23 @@ public class WnLazyUser implements WnUser {
     }
 
     public String toString() {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
         return _user.toString();
     }
 
     public NutMap toBean() {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
         return _user.toBean();
     }
 
     public void mergeToBean(NutBean bean) {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
         _user.mergeToBean(bean);
     }
 
@@ -140,18 +151,30 @@ public class WnLazyUser implements WnUser {
     }
 
     public String getPhone() {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
         return _user.getPhone();
     }
 
     public void setPhone(String phone) {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
         _user.setPhone(phone);
     }
 
     public String getEmail() {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
         return _user.getEmail();
     }
 
     public void setEmail(String email) {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
         _user.setEmail(email);
     }
 
@@ -171,6 +194,9 @@ public class WnLazyUser implements WnUser {
     }
 
     public void setLastLoginAt(long lastLoginAt) {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
         _user.setLastLoginAt(lastLoginAt);
     }
 
@@ -182,6 +208,9 @@ public class WnLazyUser implements WnUser {
     }
 
     public void setMainGroup(String mainGroup) {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
         _user.setMainGroup(mainGroup);
     }
 
@@ -193,10 +222,16 @@ public class WnLazyUser implements WnUser {
     }
 
     public void setRoles(String[] roleNames) {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
         _user.setRoles(roleNames);
     }
 
     public boolean hasMeta() {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
         return _user.hasMeta();
     }
 
@@ -208,6 +243,9 @@ public class WnLazyUser implements WnUser {
     }
 
     public void setMeta(NutBean meta) {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
         _user.setMeta(meta);
     }
 
@@ -226,6 +264,9 @@ public class WnLazyUser implements WnUser {
     }
 
     public void setPasswd(String passwd) {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
         _user.setPasswd(passwd);
     }
 
@@ -237,6 +278,9 @@ public class WnLazyUser implements WnUser {
     }
 
     public void setSalt(String salt) {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
         _user.setSalt(salt);
     }
 

@@ -8,7 +8,6 @@ import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
-import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.core.bean.WnIoObj;
 import com.site0.walnut.util.Wn;
 
@@ -18,8 +17,7 @@ public class WnStdRoleStore extends AbstractWnRoleStore {
 
     public WnStdRoleStore(WnIo io, NutBean sessionVars, String homePath) {
         super(io, sessionVars);
-        this.oHome = io.createIfNoExists(null, homePath, WnRace.DIR);
-
+        this.oHome = io.check(null, homePath);
     }
 
     public WnStdRoleStore(WnIo io) {

@@ -28,7 +28,9 @@ import org.nutz.web.WebException;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
+import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.site.WnLoginSite;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
@@ -202,6 +204,8 @@ public class UsrModule extends AbstractWnModule {
     public NutMap ajax_change_session(@Param("seid") String ticket,
                                       @Param("exit") boolean isExit,
                                       @Param("old_seid") String oldTicket,
+                                      @Param("site") String sitePath,
+                                      @Param("host") String host,
                                       final HttpServletRequest req,
                                       final HttpServletResponse resp) {
         WnWeb.setCrossDomainHeaders("*", (name, value) -> {
@@ -223,10 +227,21 @@ public class UsrModule extends AbstractWnModule {
             throw Er.create("e.web.u.chse.self");
         }
 
+        // 准备权鉴接口
+        WnLoginApi _auth;
+
         // 会话是域的子账号
+        if (!Ws.isBlank(sitePath) || !Ws.isBlank(host)) {
+            WnLoginSite login = WnLoginSite.create(io(), sitePath, host);
+            _auth = login.auth();
+        }
+        // 否则用系统权鉴
+        else {
+            _auth = this.auth();
+        }
 
         // 得到新会话:系统会话
-        WnSession seNew = auth().checkSession(ticket);
+        WnSession seNew = _auth.checkSession(ticket);
 
         // 退出: 这个新会话必须是旧话的父会话
         // 但是旧会话已经被删除，因此需要查找 session 表

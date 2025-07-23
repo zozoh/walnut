@@ -2,7 +2,6 @@ package com.site0.walnut.login.site;
 
 import org.nutz.lang.Files;
 import org.nutz.lang.util.NutBean;
-import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Proton;
 
 import com.site0.walnut.api.err.Er;
@@ -115,7 +114,7 @@ public class WnLoginSite {
             }
 
             // 创建权鉴接口
-            NutBean sessionVars = new NutMap();
+            NutBean sessionVars = Wn.getVarsByObj(oSite);
             this._auth = WnLoginApiMaker.forDomain().make(io, sessionVars, options);
 
         }

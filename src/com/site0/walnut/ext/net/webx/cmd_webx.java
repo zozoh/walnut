@@ -21,7 +21,7 @@ public class cmd_webx extends JvmFilterExecutor<WebxContext, WebxFilter> {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "cqnl");
+        return ZParams.parse(args, "cqnl", "^(ajax)$");
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.site0.walnut.login.usr;
 
 import java.util.Date;
+import java.util.Set;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonIgnore;
@@ -181,11 +182,13 @@ public class WnSimpleUser implements WnUser {
     }
 
     @Override
-    public void updateBy(NutBean bean) {
+    public synchronized void updateBy(NutBean bean) {
         this.meta = new NutMap();
+        Set<String> ks = bean.keySet();
+        String[] keys = ks.toArray(new String[ks.size()]);
 
         // 循环设置值
-        for (String key : bean.keySet()) {
+        for (String key : keys) {
             // 支持三种形式的键，以便适应数据表/Mongo Document 等场景
             String stdKey = Ws.camelCase(key);
             // 无视私有键

@@ -95,7 +95,8 @@ public class cmd_login extends JvmExecutor {
 
         // ............................................
         // 在沙盒的上下文标记一把
-        sys.attrs().put(Wn.MACRO.CHANGE_SESSION, Wlang.map("seid", newSe.getTicket()));
+        NutMap macro = Wlang.map("seid", newSe.getTicket());
+        sys.attrs().put(Wn.MACRO.CHANGE_SESSION, macro);
     }
 
 }

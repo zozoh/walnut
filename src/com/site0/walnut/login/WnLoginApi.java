@@ -28,6 +28,11 @@ import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wuu;
 
+/**
+ * 提供一个基本权鉴的接口的逻辑
+ * 
+ * @author zozoh(zozohtnt@gmail.com)
+ */
 public class WnLoginApi {
 
     private static Log log = Wlog.getAUTH();
