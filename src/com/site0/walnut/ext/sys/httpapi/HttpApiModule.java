@@ -332,7 +332,7 @@ public class HttpApiModule extends AbstractWnModule {
     private WnSession __switch_op_user(final WnHttpApiContext apc) {
         apc.wc = Wn.WC();
         int du = auth().getSessionDuration(false);
-        WnSession se = auth().createSession(apc.u, du);
+        WnSession se = auth().createSession(apc.u, Wn.SET_LOGIN_API, du);
         apc.wc.setSession(se);
         return se;
     }

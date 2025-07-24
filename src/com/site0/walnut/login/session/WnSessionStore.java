@@ -1,10 +1,18 @@
 package com.site0.walnut.login.session;
 
+import java.util.List;
+
 import com.site0.walnut.login.usr.WnUserStore;
 
 public interface WnSessionStore {
 
     WnSession getSession(String ticket, WnUserStore users);
+
+    WnSession getSessionByUserIdAndType(String uid, String type, WnUserStore users);
+
+    WnSession getSessionByUserNameAndType(String unm, String type, WnUserStore users);
+    
+    List<WnSession> querySession(int limit, WnUserStore users);
 
     void addSession(WnSession se);
 

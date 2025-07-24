@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Strings;
+import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.trans.Atom;
@@ -26,6 +27,7 @@ import com.site0.walnut.impl.io.WnEvalLink;
 import com.site0.walnut.impl.io.WnSecurityImpl;
 import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.session.WnSimpleSession;
 import com.site0.walnut.login.usr.WnUser;
 
 /**
@@ -37,9 +39,9 @@ public class WnContext extends NutMap {
 
     private String ticket;
 
-    private WnSession session;
+    private WnSession _session;
 
-    private WnUser account;
+    private WnUser _me;
 
     private WnSecurity security;
 
@@ -288,12 +290,12 @@ public class WnContext extends NutMap {
 
     public void suCore(WnUser user, WnSecurity secu, WnHookContext hc, Atom atom) {
         // 记录旧的值
-        WnUser old_me = this.account;
+        WnUser old_me = this._me;
         WnSecurity old_secu = this.security;
         WnHookContext old_hc = this.hookContext;
         // 执行
         try {
-            this.account = user;
+            this._me = user;
             this.security = secu;
             this.hookContext = hc;
             atom.run();
@@ -302,7 +304,7 @@ public class WnContext extends NutMap {
         finally {
             this.security = old_secu;
             this.hookContext = old_hc;
-            this.account = old_me;
+            this._me = old_me;
         }
     }
 
@@ -362,26 +364,58 @@ public class WnContext extends NutMap {
     }
 
     public <T> T su(WnUser u, Proton<T> proton) {
-        WnUser old_u = this.getMe();
+        WnSession old_se = _session;
+        WnUser old_u = _me;
+
+        // 不用切换用户
+        if (null != old_u && old_u.isSame(u)) {
+            proton.run();
+            return proton.get();
+        }
+
+        // 需要切换用户
         try {
-            this.setMe(u);
+            this._me = u;
+            // 会话也不等，那么暂时先移除
+            if (null != old_se && !old_se.getUser().isSame(u)) {
+                this._session = null;
+            }
+            // 执行业务逻辑
             proton.run();
             return proton.get();
         }
         finally {
-            this.setMe(old_u);
+            // 恢复之前上下文会话
+            this._me = old_u;
+            this._session = old_se;
         }
 
     }
 
     public void su(WnUser u, Atom atom) {
+        WnSession old_se = _session;
         WnUser old_u = this.getMe();
+
+        // 不用切换用户
+        if (null != old_u && old_u.isSame(u)) {
+            atom.run();
+            return;
+        }
+
+        // 需要切换用户
         try {
-            this.setMe(u);
+            this._me = u;
+            // 会话也不等，那么暂时先移除
+            if (null != old_se && !old_se.getUser().isSame(u)) {
+                this._session = null;
+            }
+            // 执行业务逻辑
             atom.run();
         }
         finally {
-            this.setMe(old_u);
+            // 恢复之前上下文会话
+            this._me = old_u;
+            this._session = old_se;
         }
     }
 
@@ -405,11 +439,11 @@ public class WnContext extends NutMap {
     }
 
     public WnUser getMe() {
-        if (null != this.account) {
-            return this.account;
+        if (null != this._me) {
+            return this._me;
         }
-        if (null != this.session) {
-            return this.session.getUser();
+        if (null != this._session) {
+            return this._session.getUser();
         }
         return null;
     }
@@ -423,7 +457,7 @@ public class WnContext extends NutMap {
     }
 
     public void setMe(WnUser me) {
-        this.account = me;
+        this._me = me;
     }
 
     public String getMyId() {
@@ -464,13 +498,13 @@ public class WnContext extends NutMap {
 
     public WnSession getSession() {
         // 防守一下，怕有其他的线程污染了这个上下文
-        if (null != session) {
-            if (!session.isSameTicket(ticket)) {
+        if (null != _session) {
+            if (!_session.isSameTicket(ticket)) {
                 return null;
             }
         }
         // 返回
-        return session;
+        return _session;
     }
 
     public WnSession checkSession() {
@@ -483,10 +517,23 @@ public class WnContext extends NutMap {
             throw Er.create("e.wc.null.ticket");
         }
         // 必须有 Session 对象
-        if (null == session) {
+        if (null == _session) {
             // 如果没有，那么获取一个
             if (null != auth) {
-                session = auth.checkSession(ticket);
+                _session = auth.checkSession(ticket);
+            }
+            // 尽量通过上下文的账号伪造一个 Session
+            else if (null != this._me) {
+                WnSimpleSession se = new WnSimpleSession();
+                se.setTicket("fake_session_" + R.UU64());
+                se.setType("Fake");
+                long now = System.currentTimeMillis();
+                se.setCreateTime(now);
+                se.setLastModified(now);
+                se.setDuration(10);
+                se.setExpiAt(now + 86400000L);
+                se.setUser(_me);
+                return se;
             }
             // 没戏了，抛错吧
             else {
@@ -494,29 +541,29 @@ public class WnContext extends NutMap {
             }
         }
         // SessionID 与对象必须匹配
-        if (!session.isSameTicket(ticket)) {
+        if (!_session.isSameTicket(ticket)) {
             throw Er.create("e.wc.ticket.nomatch");
         }
         // 嗯，揍是介个
-        return session;
+        return _session;
     }
 
     public void setSession(WnSession se) {
-        this.session = se;
+        this._session = se;
         // 设置
         if (null != se) {
             this.ticket = se.getTicket();
-            this.account = se.getUser();
+            this._me = se.getUser();
             TimeZone tz = Wtime.getSessionTimeZone(se);
             this.setTimeZone(tz);
         }
         // 删除
         else {
             this.ticket = null;
-            if (null != this.account
-                && null != this.session
-                && this.account.isSame(this.session.getUser())) {
-                this.account = null;
+            if (null != this._me
+                && null != this._session
+                && this._me.isSame(this._session.getUser())) {
+                this._me = null;
             }
             this.setTimeZone(null);
         }

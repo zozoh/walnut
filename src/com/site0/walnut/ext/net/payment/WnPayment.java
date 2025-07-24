@@ -23,6 +23,7 @@ import com.site0.walnut.ext.net.payment.alipay.ZfbScanPay3x;
 import com.site0.walnut.ext.net.payment.free.FreePay3x;
 import com.site0.walnut.ext.net.payment.paypal.PaypalPay3x;
 import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnRun;
@@ -70,7 +71,8 @@ public class WnPayment {
     private void __assert_the_seller(WnPayObj po) {
         // 得到当前操作用户
         WnUser me = Wn.WC().getMe();
-        WnRoleList roles = run.auth().getRoles(me);
+        WnSession se = Wn.WC().checkSession();
+        WnRoleList roles = run.auth().roleLoader(se).getRoles(me);
 
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // 权限检查
@@ -240,6 +242,7 @@ public class WnPayment {
     private WnPayObj __do_create(WnPayInfo wpi) {
         // 得到当前操作用户
         WnUser me = Wn.WC().getMe();
+        WnSession se = Wn.WC().checkSession();
 
         // 确保买家的信息完备
         wpi.assertBuyerPerfect();
@@ -252,7 +255,7 @@ public class WnPayment {
 
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // 权限检查
-        WnRoleList roles = run.auth().getRoles(me);
+        WnRoleList roles = run.auth().roleLoader(se).getRoles(me);
 
         // 执行操作的如果不是 root 组管理员，那么标定的卖家必须是自己
         if (!me.isSameId(wpi.seller_id)) {
@@ -316,6 +319,7 @@ public class WnPayment {
     private WnPayObj __do_get(String poId, boolean quiet) {
         // 得到当前操作用户
         WnUser me = Wn.WC().getMe();
+        WnSession se = Wn.WC().checkSession();
 
         // 执行获取
         WnObj o = run.io().get(poId);
@@ -338,7 +342,7 @@ public class WnPayment {
 
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // 权限检查
-        WnRoleList roles = run.auth().getRoles(me);
+        WnRoleList roles = run.auth().roleLoader(se).getRoles(me);
 
         // 如果不是 root/op 组成员只能获取自己域的支付单
         if (!po.isTheSeller(me)) {
@@ -356,10 +360,11 @@ public class WnPayment {
     private List<WnPayObj> __do_query(WnQuery q) {
         // 得到当前操作用户
         WnUser me = Wn.WC().getMe();
+        WnSession se = Wn.WC().checkSession();
 
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // 权限检查
-        WnRoleList roles = run.auth().getRoles(me);
+        WnRoleList roles = run.auth().roleLoader(se).getRoles(me);
 
         // 如果不是 root/op 组成员只能查询自己的域
         if (!roles.isMemberOfRole("root", "op")) {

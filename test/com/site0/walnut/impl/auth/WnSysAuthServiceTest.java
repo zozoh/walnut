@@ -17,6 +17,7 @@ import org.nutz.trans.Proton;
 import com.site0.walnut.BaseUsrTest;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
+import com.site0.walnut.login.role.WnRoleLoader;
 import com.site0.walnut.login.role.WnRoleType;
 import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.login.usr.WnUser;
@@ -31,6 +32,8 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
     public void usr_create_by_email() {
         log.info("@Test WnSysAuthServiceTest.usr_create_by_email Begin");
         WnUser xiaobai = user_passwd("xiaobai@nutzam.com", "123456");
+        //prepareSession(xiaobai);
+        
 
         // 获取一个
         WnUser u = auth.getUser("xiaobai@nutzam.com");
@@ -102,6 +105,7 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
         assertEquals("xiaobai", oHome.group());
         assertEquals(488, oHome.mode());
 
+        //clearSession();
         log.info("@Test WnSysAuthServiceTest.usr_create_by_email End");
     }
 
@@ -173,7 +177,6 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
         // 设置权限监控
         WnContext wc = Wn.WC();
 
-        wc.setSecurity(security);
         try {
             // A 用户建立一个文件
             final String path = Wn.appendPath(ua.getHomePath(), "/aaa.txt");
@@ -458,14 +461,15 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
         WnObj oHome = io.check(null, u.getHomePath());
 
         // 检查权限设定
-        assertEquals(WnRoleType.ADMIN, auth.getRoleTypeOfGroup(xiaobai, xiaobai.getMainGroup()));
-        assertEquals(WnRoleType.GUEST, auth.getRoleTypeOfGroup(xiaohei, xiaobai.getMainGroup()));
+        WnRoleLoader rl = auth.roleLoader(null);
+        assertEquals(WnRoleType.ADMIN, rl.getRoleTypeOfGroup(xiaobai, xiaobai.getMainGroup()));
+        assertEquals(WnRoleType.GUEST, rl.getRoleTypeOfGroup(xiaohei, xiaobai.getMainGroup()));
 
-        assertEquals(WnRoleType.ADMIN, auth.getRoleTypeOfGroup(xiaohei, xiaohei.getMainGroup()));
-        assertEquals(WnRoleType.GUEST, auth.getRoleTypeOfGroup(xiaobai, xiaohei.getMainGroup()));
+        assertEquals(WnRoleType.ADMIN, rl.getRoleTypeOfGroup(xiaohei, xiaohei.getMainGroup()));
+        assertEquals(WnRoleType.GUEST, rl.getRoleTypeOfGroup(xiaobai, xiaohei.getMainGroup()));
 
         // 权限也就是访客了
-        assertEquals(WnRoleType.GUEST, auth.getRoleTypeOfGroup(xiaohei, "nogroup"));
+        assertEquals(WnRoleType.GUEST, rl.getRoleTypeOfGroup(xiaohei, "nogroup"));
 
         // 但是主目录还在
         WnObj oHome2 = io.check(null, u.getHomePath());

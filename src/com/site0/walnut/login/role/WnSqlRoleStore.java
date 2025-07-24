@@ -76,7 +76,10 @@ public class WnSqlRoleStore extends AbstractWnRoleStore {
         return _query_role_list(query);
     }
 
-    private WnRoleList _query_role_list(NutMap query) {
+    private WnRoleList _query_role_list(NutMap filter) {
+        NutMap query = new NutMap();
+        query.put("filter", filter);
+        query.put("limit", 1000);
         // 准备查询语句
         WnSqlTmpl sqlt = this.sqls.get(this.sqlQuery);
         if (null == sqlt) {

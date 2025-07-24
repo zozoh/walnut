@@ -72,7 +72,7 @@ public class task_add implements JvmHdl {
 
         // 准备命令的操作用户
         WnUser me = sys.getMe();
-        WnRoleList roles = sys.auth.getRoles(me);
+        WnRoleList roles = sys.roles().getRoles(me);
         if (hc.params.hasString("u") && roles.isMemberOfRole("root")) {
             String userName = hc.params.getString("u");
             me = sys.auth.checkUser(userName);

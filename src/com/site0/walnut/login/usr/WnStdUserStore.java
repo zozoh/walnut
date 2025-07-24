@@ -28,15 +28,17 @@ public class WnStdUserStore extends AbstractWnUserStore {
                           WnIo io,
                           NutBean sessionVars,
                           String homePath,
-                          NutMap defaultMeta) {
-        super(userRace, defaultMeta);
+                          NutMap defaultMeta,
+                          String domain) {
+        super(userRace, defaultMeta, null);
         this.io = io;
         homePath = Ws.sBlank(homePath, "~/.domain/session");
         this.oHome = Wn.checkObj(io, sessionVars, homePath);
+        this.domain = Ws.sBlanks(domain, oHome.group(), oHome.d1());
     }
 
     public WnStdUserStore(WnIo io, WnConfig conf) {
-        this(UserRace.SYS, io, new NutMap(), "/sys/usr", conf.getUserDefaultMeta());
+        this(UserRace.SYS, io, new NutMap(), "/sys/usr", conf.getUserDefaultMeta(), null);
     }
 
     /**
@@ -45,7 +47,7 @@ public class WnStdUserStore extends AbstractWnUserStore {
      * @param io
      */
     public WnStdUserStore(WnIo io) {
-        super(UserRace.SYS, null);
+        super(UserRace.SYS, null, null);
         // defaultMeta 会在Ioc构造字段的时候设置，它应该通过
         // {java: "$conf.xxx"} 去获取默认配置文件里的用户默认元数据
         this.io = io;
@@ -99,11 +101,11 @@ public class WnStdUserStore extends AbstractWnUserStore {
         }
         // 确保有 HOME
         u.getMeta().putDefault("HOME", u.getHomePath());
-        
+
         // 准更新对象
         NutMap delta = new NutMap();
         if (u.hasMeta()) {
-            delta.put("meta",u.getMeta());
+            delta.put("meta", u.getMeta());
         }
 
         io.appendMeta(oU, delta);

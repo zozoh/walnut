@@ -3,10 +3,25 @@ package com.site0.walnut.login.session;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.role.WnRoleLoader;
 import com.site0.walnut.login.usr.WnUser;
 
 public interface WnSession {
-    
+
+    /**
+     * @return 会话是否由某个域站点创建
+     */
+    boolean hasSite();
+
+    /**
+     * @return 会话对应站点全路径. 如果不指定明，那么就是系统默认的用户、角色存储策略
+     * 
+     */
+    String getSite();
+
+    void setSite(String site);
+
     boolean isSame(WnSession se);
 
     boolean isSameTicket(String ticket);
@@ -59,6 +74,10 @@ public interface WnSession {
 
     NutMap toBean();
 
+    NutMap toBean(WnLoginApi auth);
+
+    NutMap toBean(WnRoleLoader rl);
+
     String getMyGroup();
 
     void setParentTicket(String parentTicket);
@@ -86,5 +105,11 @@ public interface WnSession {
     int getDuration();
 
     long getDurationInMs();
+
+    void setType(String type);
+
+    String getType();
+
+    boolean hasType();
 
 }

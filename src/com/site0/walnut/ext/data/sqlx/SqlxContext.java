@@ -103,7 +103,7 @@ public class SqlxContext extends JvmFilterContext {
     }
 
     public void setup(WnSystem sys) {
-        pipeContext.put("session", sys.session.toBean());
+        pipeContext.put("session", sys.session.toBean(sys.auth));
     }
 
     public NutMap getInput() {

@@ -30,7 +30,6 @@ import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.login.session.WnSession;
-import com.site0.walnut.login.site.WnLoginSite;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
@@ -228,17 +227,7 @@ public class UsrModule extends AbstractWnModule {
         }
 
         // 准备权鉴接口
-        WnLoginApi _auth;
-
-        // 会话是域的子账号
-        if (!Ws.isBlank(sitePath) || !Ws.isBlank(host)) {
-            WnLoginSite login = WnLoginSite.create(io(), sitePath, host);
-            _auth = login.auth();
-        }
-        // 否则用系统权鉴
-        else {
-            _auth = this.auth();
-        }
+        WnLoginApi _auth = this.auth();
 
         // 得到新会话:系统会话
         WnSession seNew = _auth.checkSession(ticket);
@@ -268,7 +257,7 @@ public class UsrModule extends AbstractWnModule {
         }
 
         // 执行切换
-        return seNew.toBean();
+        return seNew.toBean(auth());
     }
 
     /**
@@ -291,7 +280,7 @@ public class UsrModule extends AbstractWnModule {
         // 执行登录后初始化脚本
         this.exec("do_login", se, "setup -quiet -u 'id:" + se.getUser().getId() + "' usr/login");
 
-        return se.toBean();
+        return se.toBean(auth());
     }
 
     @POST
@@ -318,7 +307,7 @@ public class UsrModule extends AbstractWnModule {
             // 退出登录：延迟几秒以便给后续操作机会
             WnSession pse = auth().logout(ticket);
             if (null != pse)
-                return pse.toBean();
+                return pse.toBean(auth());
         }
         throw Wlang.makeThrow("logout delete cookie");
     }

@@ -14,11 +14,13 @@ import com.site0.walnut.ext.net.xapi.bean.XApiRequest;
 import com.site0.walnut.ext.net.xapi.impl.WnXApi;
 import com.site0.walnut.login.role.WnRole;
 import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.role.WnRoleLoader;
 import com.site0.walnut.login.role.WnRoleStore;
 import com.site0.walnut.login.role.WnRoleType;
 import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.login.session.WnSessionStore;
 import com.site0.walnut.login.session.WnSimpleSession;
+import com.site0.walnut.login.site.WnLoginSite;
 import com.site0.walnut.login.usr.WnSimpleUser;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.login.usr.WnUserStore;
@@ -33,7 +35,7 @@ import com.site0.walnut.util.Wuu;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class WnLoginApi {
+public class WnSimpleLoginApi implements WnLoginApi {
 
     private static Log log = Wlog.getAUTH();
 
@@ -46,6 +48,8 @@ public class WnLoginApi {
     WnRoleStore roles;
 
     WnXApi xapi;
+
+    String site;
 
     String domain;
 
@@ -64,38 +68,99 @@ public class WnLoginApi {
     // TODO 这里是微信公众号页面的获取 openid 方式，暂时还未实现
     String wechatGhOpenIdKey;
 
-    public WnLoginApi(WnIo io) {
+    public WnSimpleLoginApi(WnIo io) {
         this.io = io;
     }
 
-    public WnRoleList getRoles(WnUser u) {
-        WnRoleList list = roles.getRoles(u);
-        for (WnRole r : list) {
-            if (!r.hasUserName()) {
-                r.setUserName(u.getName());
-            }
+    @Override
+    public WnUserStore getUserStore() {
+        return users;
+    }
+
+    @Override
+    public WnSessionStore getSessionStore() {
+        return sessions;
+    }
+
+    @Override
+    public WnRoleStore getRoleStore() {
+        return roles;
+    }
+
+    @Override
+    public WnXApi getXapi() {
+        return xapi;
+    }
+
+    @Override
+    public String getWechatMpOpenIdKey() {
+        return wechatMpOpenIdKey;
+    }
+
+    @Override
+    public String getWechatGhOpenIdKey() {
+        return wechatGhOpenIdKey;
+    }
+
+    @Override
+    public int getSessionDuration() {
+        return sessionDuration;
+    }
+
+    @Override
+    public int getSessionDuration(boolean longSession) {
+        if (longSession) {
+            return sessionDuration;
         }
-        return list;
+        return this.sessionShortDu;
     }
 
-    public WnRoleList queryRolesOf(String name) {
-        WnRoleList list = roles.queryRolesOf(name);
-        for (WnRole r : list) {
-            if (!r.hasUserName()) {
-                WnUser u = users.getUserById(r.getUserId());
-                if (null != u) {
-                    r.setUserName(u.getName());
-                }
-            }
+    @Override
+    public WnRoleLoader roleLoader(WnSession se) {
+        String mySite = this.site;
+        if (null != se && se.hasSite()) {
+            mySite = se.getSite();
         }
-        return list;
+        if (Ws.isBlank(mySite)) {
+            return new WnRoleLoader(roles, users);
+        }
+        // 根据站点建立
+        WnLoginSite site = WnLoginSite.create(io, mySite, null);
+        return site.createRoleLoader();
     }
 
-    public WnRoleType getRoleTypeOfGroup(WnUser u, String group) {
-        WnRoleList list = roles.getRoles(u);
-        return list.getRoleTypeOfGroup(group);
-    }
+    // @Override
+    // public WnRoleList getRoles(WnUser u) {
+    // WnRoleList list = roles.getRoles(u);
+    // for (WnRole r : list) {
+    // if (!r.hasUserName()) {
+    // r.setUserName(u.getName());
+    // }
+    // }
+    // return list;
+    // }
+    //
+    // @Override
+    // public WnRoleList queryRolesOf(String name) {
+    // WnRoleList list = roles.queryRolesOf(name);
+    // for (WnRole r : list) {
+    // if (!r.hasUserName()) {
+    // WnUser u = users.getUserById(r.getUserId());
+    // if (null != u) {
+    // r.setUserName(u.getName());
+    // }
+    // }
+    // }
+    // return list;
+    // }
+    //
+    // @Override
+    // public WnRoleType getRoleTypeOfGroup(WnUser u, String group) {
+    // WnRoleList list = roles.getRoles(u);
+    // return list.getRoleTypeOfGroup(group);
+    // }
 
+    @Override
     public WnRole addRole(WnUser u, String grp, WnRoleType type) {
         WnRoleList roles = this.roles.getRoles(u);
         WnRole r = roles.getRole(grp);
@@ -111,35 +176,42 @@ public class WnLoginApi {
         return this.roles.addRole(u.getId(), grp, type, u.getName());
     }
 
+    @Override
     public void changePassword(WnUser u, String rawPassword) {
         users.updateUserPassword(u, rawPassword);
     }
 
+    @Override
     public void removeRole(WnRole role) {
         roles.removeRole(role);
     }
 
+    @Override
     public void removeRole(String uid, String name) {
         roles.removeRole(uid, name);
     }
 
-    public WnSession createSession(WnUser u) {
-        return createSession(u, this.getSessionDuration());
+    @Override
+    public WnSession createSession(WnUser u, String type) {
+        return createSession(u, type, this.getSessionDuration());
     }
 
-    public WnSession createSession(WnUser u, int duInSec) {
-        WnSession se = __create_session_by_user(u, duInSec);
+    @Override
+    public WnSession createSession(WnUser u, String type, int duInSec) {
+        WnSession se = __create_session_by_user(u, type, duInSec);
         sessions.addSession(se);
         return se;
     }
 
-    public WnSession createSession(WnSession parentSe, WnUser u, int duInSec) {
-        WnSession se = __create_session_by_user(u, duInSec);
+    @Override
+    public WnSession createSession(WnSession parentSe, WnUser u, String type, int duInSec) {
+        WnSession se = __create_session_by_user(u, type, duInSec);
         se.setParentTicket(parentSe.getTicket());
         sessions.addSession(se);
         return se;
     }
 
+    @Override
     public WnSession removeSession(WnSession se) {
         if (null == se) {
             return se;
@@ -147,6 +219,7 @@ public class WnLoginApi {
         return sessions.reomveSession(se, users);
     }
 
+    @Override
     public WnSession loginByPassword(String nameOrPhoneOrEmail, String rawPassword) {
         WnUser u = users.getUser(nameOrPhoneOrEmail);
         if (null == u) {
@@ -154,13 +227,14 @@ public class WnLoginApi {
         }
         String saltedPassword = Wn.genSaltPassword(rawPassword, u.getSalt());
         if (saltedPassword.equals(u.getPasswd())) {
-            WnSession se = __create_session_by_user(u, this.sessionDuration);
+            WnSession se = __create_session_by_user(u, Wn.SET_AUTH_PASS, this.sessionDuration);
             sessions.addSession(se);
             return se;
         }
         throw Er.create("e.auth.login.Failed");
     }
 
+    @Override
     public WnSession loginByWechatMPCode(String code, boolean autoCreateUser) {
         if (Ws.isBlank(this.wechatMpOpenIdKey)) {
             throw Er.create("e.auth.wechatMpOpenIdKey.NotDefined");
@@ -196,10 +270,10 @@ public class WnLoginApi {
             autoUser.putMetas(Wlang.map(this.wechatMpOpenIdKey, openid));
         }
 
-        return add_session_by_openid(q, autoUser);
+        return add_session_by_openid(q, Wn.SET_AUTH_WXMP, autoUser);
     }
 
-    private WnSession add_session_by_openid(WnQuery q, WnUser autoUser) {
+    private WnSession add_session_by_openid(WnQuery q, String type, WnUser autoUser) {
         WnUser u = users.getUser(q);
 
         // 是否自动创建账号
@@ -213,28 +287,33 @@ public class WnLoginApi {
         }
 
         // 创建会话
-        WnSession se = new WnSimpleSession(u, this.sessionDuration);
+        WnSession se = __create_session_by_user(u, type, this.sessionDuration);
         sessions.addSession(se);
 
         // 搞定
         return se;
     }
 
-    private WnSession __create_session_by_user(WnUser u, int duInSec) {
+    private WnSession __create_session_by_user(WnUser u, String type, int duInSec) {
         WnSession se = new WnSimpleSession(u, duInSec);
+        se.setSite(this.site);
+        se.setType(type);
         sessions.patchDefaultEnv(se);
         return se;
     }
 
+    @Override
     public WnSession logout(String ticket) {
         WnSession se = sessions.getSession(ticket, users);
         return removeSession(se);
     }
 
+    @Override
     public UserRace getUserRace() {
         return users.getUserRace();
     }
 
+    @Override
     public WnUser addRootUserIfNoExists(String dftPassword) {
         WnUser root = getUser("root");
         if (null == root) {
@@ -249,6 +328,7 @@ public class WnLoginApi {
         return root;
     }
 
+    @Override
     public WnUser addGuestUserIfNoExists() {
         WnUser guest = getUser("guest");
         if (null == guest) {
@@ -262,6 +342,7 @@ public class WnLoginApi {
         return guest;
     }
 
+    @Override
     public WnUser addUser(WnUser u) {
         // 必须有登录名
         if (Ws.isBlank(u.getName())) {
@@ -289,58 +370,72 @@ public class WnLoginApi {
         return u;
     }
 
+    @Override
     public List<WnUser> queryUser(WnQuery q) {
         return users.queryUser(q);
     }
 
+    @Override
     public WnUser getUser(String nameOrPhoneOrEmail) {
         return users.getUser(nameOrPhoneOrEmail);
     }
 
+    @Override
     public WnUser checkUser(String nameOrPhoneOrEmail) {
         return users.checkUser(nameOrPhoneOrEmail);
     }
 
+    @Override
     public WnUser getUser(WnUser info) {
         return users.getUser(info);
     }
 
+    @Override
     public WnUser checkUser(WnUser info) {
         return users.checkUser(info);
     }
 
+    @Override
     public WnUser getUserById(String uid) {
         return users.getUserById(uid);
     }
 
+    @Override
     public WnUser checkUserById(String uid) {
         return users.checkUserById(uid);
     }
 
+    @Override
     public void saveUserMeta(WnUser u) {
         users.saveUserMeta(u);
     }
 
+    @Override
     public void updateUserName(WnUser u) {
         users.updateUserName(u);
     }
 
+    @Override
     public void updateUserPhone(WnUser u) {
         users.updateUserPhone(u);
     }
 
+    @Override
     public void updateUserEmail(WnUser u) {
         users.updateUserEmail(u);
     }
 
+    @Override
     public void updateUserLastLoginAt(WnUser u) {
         users.updateUserLastLoginAt(u);
     }
 
+    @Override
     public void updateUserPassword(WnUser u, String rawPassword) {
         users.updateUserPassword(u, rawPassword);
     }
 
+    @Override
     public WnObj updateUserHomeName(WnUser u, String newName) {
         WnObj oHome = io.check(null, u.getHomePath());
         if (oHome.isSameName(newName)) {
@@ -352,10 +447,27 @@ public class WnLoginApi {
         return oHome;
     }
 
+    @Override
     public WnSession getSession(String ticket) {
         return sessions.getSession(ticket, users);
     }
 
+    @Override
+    public WnSession getSessionByUserIdAndType(String uid, String type) {
+        return sessions.getSessionByUserIdAndType(uid, type, users);
+    }
+
+    @Override
+    public WnSession getSessionByUserNameAndType(String unm, String type) {
+        return sessions.getSessionByUserNameAndType(unm, type, users);
+    }
+
+    @Override
+    public List<WnSession> querySession(int limit) {
+        return sessions.querySession(limit, users);
+    }
+
+    @Override
     public WnSession checkSession(String ticket) {
         WnSession se = sessions.getSession(ticket, users);
         if (null == se) {
@@ -364,23 +476,18 @@ public class WnLoginApi {
         return se;
     }
 
+    @Override
     public void saveSessionEnv(WnSession se) {
         sessions.saveSessionEnv(se);
     }
 
-    public void touchSession(WnSession se, int duInSec) {
-        sessions.touchSession(se, duInSec);
-    }
-
-    public int getSessionDuration() {
-        return sessionDuration;
-    }
-
-    public int getSessionDuration(boolean longSession) {
-        if (longSession) {
-            return sessionDuration;
+    @Override
+    public void touchSession(WnSession se) {
+        int du = se.getDuration();
+        if (du <= 0) {
+            du = this.sessionDuration;
         }
-        return 3;
+        sessions.touchSession(se, du);
     }
 
 }

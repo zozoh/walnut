@@ -15,7 +15,7 @@ public class cmd_mgadmin extends JvmHdlExecutor {
         sys.nosecurity(new Atom() {
             public void run() {
                 WnUser me = Wn.WC().getMe();
-                WnRoleList roles = sys.auth.getRoles(me);
+                WnRoleList roles = sys.roles().getRoles(me);
                 if (!roles.isMemberOfRole("root")) {
                     throw Er.create("e.cmd.mgadmin.only_for_root_admin");
                 }

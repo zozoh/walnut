@@ -58,7 +58,7 @@ public abstract class WnApps {
             protected Boolean exec() {
                 if (null != roleNames && roleNames.length > 0) {
                     WnUser me = sys.getMe();
-                    WnRoleList roles = sys.auth.getRoles(me);
+                    WnRoleList roles = sys.roles().getRoles(me);
                     for (String role : roleNames) {
                         String[] ss = Strings.splitIgnoreBlank(role, ":");
                         String roleName = ss[0];

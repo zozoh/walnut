@@ -26,11 +26,11 @@ public class WnRoleList implements List<WnRole> {
         this.roles = roles;
     }
 
-    public boolean isMemberOfRole(String... roleNames) {
+    public boolean isMemberOfRole(String... grps) {
         if (null != this.roles) {
-            for (String roleName : roleNames) {
+            for (String grp : grps) {
                 for (WnRole r : this.roles) {
-                    if (r.isMatchName(roleName) && r.getType().isOf(WnRoleType.MEMBER)) {
+                    if (r.isMatchGroup(grp) && r.getType().isOf(WnRoleType.MEMBER)) {
                         return true;
                     }
                 }
@@ -39,11 +39,37 @@ public class WnRoleList implements List<WnRole> {
         return false;
     }
 
-    public boolean isAdminOfRole(String... roleNames) {
+    public boolean isAdminOfRole(String... grps) {
         if (null != this.roles) {
-            for (String roleName : roleNames) {
+            for (String grp : grps) {
                 for (WnRole r : this.roles) {
-                    if (r.isMatchName(roleName) && r.getType().isOf(WnRoleType.ADMIN)) {
+                    if (r.isMatchGroup(grp) && r.getType().isOf(WnRoleType.ADMIN)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean isGuestOfRole(String... grps) {
+        if (null != this.roles) {
+            for (String grp : grps) {
+                for (WnRole r : this.roles) {
+                    if (r.isMatchGroup(grp) && r.getType().isOf(WnRoleType.GUEST)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean isBlockOfRole(String... grps) {
+        if (null != this.roles) {
+            for (String grp : grps) {
+                for (WnRole r : this.roles) {
+                    if (r.isMatchGroup(grp) && r.getType().isOf(WnRoleType.BLOCK)) {
                         return true;
                     }
                 }
@@ -55,7 +81,7 @@ public class WnRoleList implements List<WnRole> {
     public WnRoleType getRoleTypeOfGroup(String group) {
         if (null != this.roles) {
             for (WnRole r : this.roles) {
-                if (r.isMatchName(group)) {
+                if (r.isMatchGroup(group)) {
                     return r.getType();
                 }
             }
@@ -76,10 +102,10 @@ public class WnRoleList implements List<WnRole> {
         }
         return new WnRoleList(list);
     }
-    
+
     public WnRole getRole(String group) {
         WnRoleList list = getSubList(group);
-        if(list.size()>0) {
+        if (list.size() > 0) {
             return list.get(0);
         }
         return null;

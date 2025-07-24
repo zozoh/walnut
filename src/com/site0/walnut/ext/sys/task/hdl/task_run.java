@@ -25,7 +25,7 @@ public class task_run implements JvmHdl {
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // 分析查询参数
         WnUser me = sys.getMe();
-        WnRoleList roles = sys.auth.getRoles(me);
+        WnRoleList roles = sys.roles().getRoles(me);
         boolean I_am_admin = roles.isMemberOfRole("root");
         WnSysTaskQuery q = cmd_task.prepareTaskQuery(sys, hc, I_am_admin);
         int limit = q.getLimit();

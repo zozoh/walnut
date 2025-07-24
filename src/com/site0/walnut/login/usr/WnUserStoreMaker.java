@@ -14,15 +14,23 @@ public class WnUserStoreMaker {
         this.userRace = userRace;
     }
 
-    public WnUserStore make(WnIo io, NutBean sessionVars, WnLoginUserOptions options) {
+    public WnUserStore make(WnIo io,
+                            NutBean sessionVars,
+                            WnLoginUserOptions options,
+                            String domain) {
         WnUserStore re;
         // 采用 SQL 映射
         if (null != options.sqlFetch) {
-            re = new WnSqlUserStore(userRace, io, sessionVars, options);
+            re = new WnSqlUserStore(userRace, io, sessionVars, options, domain);
         }
         // 采用标准存储
         else {
-            re = new WnStdUserStore(userRace, io, sessionVars, options.path, options.defaultMeta);
+            re = new WnStdUserStore(userRace,
+                                    io,
+                                    sessionVars,
+                                    options.path,
+                                    options.defaultMeta,
+                                    domain);
         }
         return new WnUserStoreProxy(io, re);
     }

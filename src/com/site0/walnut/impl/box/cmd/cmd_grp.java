@@ -78,7 +78,7 @@ public class cmd_grp extends JvmExecutor {
             __check_right(sys, me, grp, null);
 
             // 查询
-            WnRoleList list = sys.auth.queryRolesOf(grp);
+            WnRoleList list = sys.roles().queryRolesOf(grp);
             List<NutBean> outs = list.toBeans();
 
             // 输出 JSON
@@ -103,7 +103,7 @@ public class cmd_grp extends JvmExecutor {
             WnUser u = sys.auth.checkUser(unm);
 
             // 查询
-            WnRoleList roles = sys.auth.getRoles(u);
+            WnRoleList roles = sys.roles().getRoles(u);
 
             // 输出 JSON
             if (params.is("json")) {
@@ -131,7 +131,7 @@ public class cmd_grp extends JvmExecutor {
     }
 
     private void __check_right(WnSystem sys, WnUser me, String grp, String unm) {
-        WnRoleList roles = sys.auth.getRoles(me);
+        WnRoleList roles = sys.roles().getRoles(me);
         // 那么本组的管理员可以进行这个操作
         if (!roles.isAdminOfRole(grp)) {
             // 如果不是本组管理员，根用户成员也成

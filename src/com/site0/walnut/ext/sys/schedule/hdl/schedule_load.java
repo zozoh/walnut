@@ -26,7 +26,7 @@ public class schedule_load implements JvmHdl {
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // 只有系统管理员才能执行
         WnUser me = sys.getMe();
-        WnRoleList roles = sys.auth.getRoles(me);
+        WnRoleList roles = sys.roles().getRoles(me);
         if (!roles.isMemberOfRole("root")) {
             throw Er.create("e.cmd.schedule.load", "You must be admin!");
         }

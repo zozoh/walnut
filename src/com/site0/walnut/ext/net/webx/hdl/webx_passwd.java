@@ -31,7 +31,7 @@ public class webx_passwd extends WebxFilter {
             // 只有管理员才能直接指定用户
             if (!Ws.isBlank(nameOrPhoneOrEmail)) {
                 WnUser me = sys.getMe();
-                WnRoleList roles = sys.auth.getRoles(me);
+                WnRoleList roles = sys.roles().getRoles(me);
 
                 String mainGroup = sys.getMyGroup();
                 if (roles.isMemberOfRole("root") || roles.isAdminOfRole(mainGroup)) {

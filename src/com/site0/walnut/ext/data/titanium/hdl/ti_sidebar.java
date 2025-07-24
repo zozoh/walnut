@@ -64,7 +64,7 @@ public class ti_sidebar implements JvmHdl {
         final WnSecurityImpl secur = new WnSecurityImpl(sys.io, sys.auth);
         final WnObj oSidebarHome = oSidebar.parent();
         WnUser me = sys.getMe();
-        WnRoleList roles = sys.auth.getRoles(me);
+        WnRoleList roles = sys.roles().getRoles(me);
 
         // 判断一下当前用户权限
         String myGroupName = sys.session.getMyGroup();

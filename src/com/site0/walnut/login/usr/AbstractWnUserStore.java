@@ -17,9 +17,12 @@ public abstract class AbstractWnUserStore implements WnUserStore {
 
     protected NutMap defaultMeta;
 
-    protected AbstractWnUserStore(UserRace userRace, NutMap defaultMeta) {
+    protected String domain;
+
+    protected AbstractWnUserStore(UserRace userRace, NutMap defaultMeta, String domain) {
         this.defaultMeta = defaultMeta;
         this.userRace = userRace;
+        this.domain = domain;
     }
 
     @Override
@@ -56,6 +59,9 @@ public abstract class AbstractWnUserStore implements WnUserStore {
             }
         }
         u.setUserRace(this.userRace);
+        if (Ws.isBlank(u.getMainGroup())) {
+            u.setMainGroup(domain);
+        }
         return u;
     }
 

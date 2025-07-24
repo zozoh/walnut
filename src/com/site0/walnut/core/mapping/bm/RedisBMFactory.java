@@ -12,6 +12,7 @@ import com.site0.walnut.ext.sys.redis.Wedis;
 import com.site0.walnut.ext.sys.redis.WedisConfig;
 import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
@@ -46,8 +47,9 @@ public class RedisBMFactory implements WnBMFactory {
         RedisBM bm = null;
         WnContext wc = Wn.WC();
         WnUser me = wc.getMe();
+        WnSession se = wc.getSession();
         // 如果当前用户为 root 组成员，或者当前木有做权限检查，可以从预定义里获取
-        WnRoleList roles = auth.getRoles(me);
+        WnRoleList roles = auth.roleLoader(se).getRoles(me);
         if (null == auth || wc.isSecurityNoCheck() || roles.isMemberOfRole("root")) {
             bm = bms.get(str);
         }

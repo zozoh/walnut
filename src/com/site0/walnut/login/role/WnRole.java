@@ -55,7 +55,7 @@ public interface WnRole {
 
     boolean isAdmin();
 
-    boolean isMatchName(String name);
+    boolean isMatchGroup(String name);
 
     NutBean toBean();
 

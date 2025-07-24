@@ -13,7 +13,7 @@ public class cmd_memlog extends JvmExecutor {
 
     public void exec(WnSystem sys, String[] args) throws Exception {
         WnUser me = sys.getMe();
-        WnRoleList roles = sys.auth.getRoles(me);
+        WnRoleList roles = sys.roles().getRoles(me);
         if (!roles.isMemberOfRole("root")) {
             sys.err.println("permission denied");
             return;

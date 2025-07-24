@@ -22,6 +22,7 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.io.WnEvalLink;
 import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.role.WnRoleLoader;
 import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Cmds;
@@ -282,14 +283,14 @@ public class WnSystem implements WnAuthExecutable {
         final WnSystem sys = this;
         // 检查权限
         WnUser me = this.getMe();
-        WnRoleList roles = auth.getRoles(me);
+        WnRoleList roles = roles().getRoles(me);
         if (!roles.isMemberOfRole("root")) {
             throw Er.create("e.sys.switchUser.nopvg");
         }
 
         // 创建新会话
         int du = auth.getSessionDuration(true);
-        WnSession newSession = auth.createSession(newUsr, du);
+        WnSession newSession = auth.createSession(newUsr, Wn.SET_LOGIN_SYS, du);
 
         // 记录旧的 Session
         WnSession old_se = this.session;
@@ -358,10 +359,14 @@ public class WnSystem implements WnAuthExecutable {
     public NutBean getAllMyPvg() {
         // 得到当前用户
         WnUser me = this.getMe();
-        WnRoleList roles = auth.getRoles(me);
+        WnRoleList roles = roles().getRoles(me);
         NutBean re = new NutMap();
         re.putAll(roles.getAllPrivileges());
         return re;
+    }
+
+    public WnRoleLoader roles() {
+        return auth.roleLoader(session);
     }
 
 }

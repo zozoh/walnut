@@ -92,7 +92,7 @@ public class cmd_schedule extends JvmHdlExecutor {
 
         // 如果不是 root 组管理员，仅能操作自己
         WnUser me = sys.getMe();
-        WnRoleList roles = sys.auth.getRoles(me);
+        WnRoleList roles = sys.roles().getRoles(me);
         if (!roles.isMemberOfRole("root")) {
             q.setUserName(me.getName());
         }

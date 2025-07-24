@@ -95,11 +95,11 @@ public class WnSimpleRole implements WnRole {
     }
 
     @Override
-    public boolean isMatchName(String name) {
-        if (null == name) {
+    public boolean isMatchGroup(String grp) {
+        if (null == grp) {
             return false;
         }
-        return name.equalsIgnoreCase(this.group);
+        return grp.equalsIgnoreCase(this.group);
     }
 
     @Override

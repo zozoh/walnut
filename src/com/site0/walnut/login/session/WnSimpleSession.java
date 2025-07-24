@@ -5,6 +5,9 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.role.WnRoleLoader;
+import com.site0.walnut.login.role.WnRoleType;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wtime;
@@ -23,6 +26,19 @@ public class WnSimpleSession implements WnSession {
      * 会话票据
      */
     private String ticket;
+
+    /**
+     * 标记会话的特殊类型，譬如后台线程创建的会话，就可以标注特殊类型 <code>BG</code> 这样就可以通过 getSessionByType
+     * 接口获取回来，不用每次服务启动都要创建这个会话
+     */
+    private String type;
+
+    /**
+     * 会话对应站点全路径.
+     * 
+     * 如果不指定明，那么就是系统默认的用户、角色存储策略
+     */
+    private String site;
 
     /**
      * 父会话票据
@@ -61,6 +77,7 @@ public class WnSimpleSession implements WnSession {
         this.duration = duInSec;
         this.createTime = now;
         this.lastModified = now;
+        this.user = u;
         this.loadEnvFromUser(u);
     }
 
@@ -117,11 +134,6 @@ public class WnSimpleSession implements WnSession {
         return ticket.equals(this.ticket);
     }
 
-    public String toJson(JsonFormat fmt) {
-        NutMap map = this.toBean();
-        return Json.toJson(map, fmt);
-    }
-
     @Override
     public NutMap toBean() {
         NutMap re = new NutMap();
@@ -129,10 +141,30 @@ public class WnSimpleSession implements WnSession {
         return re;
     }
 
+    @Override
+    public NutMap toBean(WnLoginApi auth) {
+        WnRoleLoader loader = auth.roleLoader(this);
+        return toBean(loader);
+    }
+
+    @Override
+    public NutMap toBean(WnRoleLoader rl) {
+        WnRoleType rt = rl.getRoleTypeOfMainGroup(user);
+        NutMap re = new NutMap();
+        re.put("mainRole", rt);
+        this.mergeToBean(re);
+        return re;
+    }
+
     public void mergeToBean(NutBean bean) {
+        bean.put("site", this.site);
+        bean.put("type", this.type);
         bean.put("ticket", this.ticket);
         bean.put("parentTicket", this.parentTicket);
         bean.put("childTicket", this.childTicket);
+        bean.put("loginName", this.getMyName());
+        bean.put("userId", this.getMyId());
+        bean.put("mainGroup", this.getMyGroup());
         bean.put("duration", this.duration);
         bean.put("expiAt", this.getExpiAtInUTC());
         bean.put("createTime", this.getCreateTimeInUTC());
@@ -146,8 +178,9 @@ public class WnSimpleSession implements WnSession {
 
     public String toString() {
         String expiAtInStr = Wtime.format(new Date(this.expiAt), "yyyy-MM-dd HH:mm:ss z");
-        return String.format("session<%s> user=%s, expiAt=",
+        return String.format("session<%s>$s user=%s, expiAt=",
                              ticket,
+                             hasSite() ? "[site=" + site + "]" : "",
                              null == user ? "null" : user.toString(),
                              expiAtInStr);
     }
@@ -158,7 +191,36 @@ public class WnSimpleSession implements WnSession {
 
     public void setUser(WnUser user) {
         this.user = user;
-        this.loadEnvFromUser(user);
+    }
+
+    @Override
+    public boolean hasSite() {
+        return !Ws.isBlank(this.site);
+    }
+
+    @Override
+    public String getSite() {
+        return site;
+    }
+
+    @Override
+    public void setSite(String site) {
+        this.site = site;
+    }
+
+    @Override
+    public boolean hasType() {
+        return !Ws.isBlank(this.type);
+    }
+
+    @Override
+    public String getType() {
+        return type;
+    }
+
+    @Override
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getTicket() {
@@ -302,6 +364,9 @@ public class WnSimpleSession implements WnSession {
 
     @Override
     public void loadEnvFromUser(WnUser u) {
+        if (null == u) {
+            u = this.user;
+        }
         if (null != u && u.hasMeta()) {
             for (Map.Entry<String, Object> en : u.getMeta().entrySet()) {
                 String key = en.getKey();

@@ -200,7 +200,7 @@ public class WnBoxRunning implements WnAuthExecutable {
         // 只有当前会话不同，才要切换
         if (bc.session == null || !bc.session.getUser().isSame(newUsr)) {
             int du = auth.getSessionDuration();
-            bc.session = auth.createSession(newUsr, du);
+            bc.session = auth.createSession(newUsr, Wn.SET_LOGIN_BOX, du);
         }
         // 执行吧
         callback.invoke(this);

@@ -1509,15 +1509,16 @@ public class Ws {
      *
      * @param obj
      *            指定的对象
-     * @param def
+     * @param fallbacks
      *            默认值
      * @return 对指定对象进行 toString 操作；如果该对象为 null 或者 toString 方法为空串（""），则返回默认值
      */
-    public static String sBlank(Object obj, String def) {
-        if (null == obj)
-            return def;
-        String s = obj.toString();
-        return isBlank(s) ? def : s;
+    public static String sBlank(Object obj, String fallback) {
+        String s = null == obj ? null : obj.toString();
+        if (!isBlank(s)) {
+            return s;
+        }
+        return fallback;
     }
 
     public static String sBlanks(Object... objs) {

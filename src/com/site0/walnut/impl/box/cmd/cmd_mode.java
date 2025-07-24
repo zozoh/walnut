@@ -26,7 +26,7 @@ public class cmd_mode extends JvmExecutor {
 
         // 获取用户
         WnUser me = sys.getMe();
-        WnRoleList myRoles = sys.auth.getRoles(me);
+        WnRoleList myRoles = sys.roles().getRoles(me);
         if (!Ws.isBlank(uName)) {
             if (!me.isSysUser()) {
                 throw Er.create("e.cmd.mode.forbid.NoSysAccount");

@@ -77,7 +77,7 @@ public abstract class BaseBoxTest extends BaseUsrTest {
         info.genSaltAndRawPasswd("123456");
 
         me = auth.addUser(info);
-        se = auth.createSession(me);
+        se = auth.createSession(me, Wn.SET_UNIT_TEST);
 
         out = new StringBuilder();
         err = new StringBuilder();

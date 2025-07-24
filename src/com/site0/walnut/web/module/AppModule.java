@@ -41,6 +41,8 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.impl.srv.WnBoxRunning;
 import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnLoginApiMaker;
+import com.site0.walnut.login.WnLoginOptions;
 import com.site0.walnut.login.role.WnRoleList;
 import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.login.site.WnLoginSite;
@@ -174,8 +176,9 @@ public class AppModule extends AbstractWnModule {
                      HttpServletResponse resp) {
 
         try {
+            WnLoginApi auth = this.auth();
             // 得到应用
-            WnApp app = apps.checkApp(appName);
+            WnApp app = apps.checkApp(appName, auth);
 
             if (log.isDebugEnabled()) {
                 String envJson = Json.toJson(app.getSession().getEnv(), JsonFormat.nice());
@@ -207,11 +210,10 @@ public class AppModule extends AbstractWnModule {
             app.setObj(obj);
 
             // 检查应用权限: root 组成员免查，可以打开任何 app
-            WnLoginApi auth = this.auth();
             WnSession se = app.getSession();
             WnObj oAppHome = app.getHome();
             WnUser me = se.getUser();
-            WnRoleList roles = auth.getRoles(me);
+            WnRoleList roles = auth.roleLoader(se).getRoles(me);
             if (!roles.isMemberOfRole("root")) {
                 WnIo io = io();
                 WnObj oCheckAccess = io.fetch(oAppHome, "check_access.json");
@@ -378,7 +380,7 @@ public class AppModule extends AbstractWnModule {
         }
 
         // 找到 app 所在目录
-        WnApp app = apps.checkApp(appName);
+        WnApp app = apps.checkApp(appName, auth());
 
         // 默认返回的 mime-type 是文本
         if (Strings.isBlank(mimeType))
@@ -439,7 +441,7 @@ public class AppModule extends AbstractWnModule {
             // 如果是 Ajax 视图
             if (ajax) {
                 // 获取 cookie 模板
-                Object reo = se.toBean();
+                Object reo = se.toBean(auth);
                 return new ViewWrapper(new WnAddCookieViewWrapper(conf, new AjaxView(), null), reo);
             }
             // 直接跳转到用户的主应用
@@ -467,7 +469,7 @@ public class AppModule extends AbstractWnModule {
     private View __get_session_default_view(WnSession se) {
         String appName = se.getEnv().getString("OPEN", "wn.console");
         String url = "/a/open/" + appName;
-        Object reData = se.toBean();
+        Object reData = se.toBean(auth());
         return new ViewWrapper(new WnAddCookieViewWrapper(conf, url), reData);
     }
 
@@ -491,7 +493,7 @@ public class AppModule extends AbstractWnModule {
 
             // 退到父会话
             if (null != pse && !pse.isExpired()) {
-                Object reo = pse.toBean();
+                Object reo = pse.toBean(auth);
                 return new ViewWrapper(new WnAddCookieViewWrapper(conf, view, null), reo);
             }
         }
@@ -565,11 +567,13 @@ public class AppModule extends AbstractWnModule {
                 WnSession se = auth.loginByPassword(name, passwd);
                 String appName = se.getEnv().getString("OPEN", "wn.console");
                 redirectPath = "/a/open/" + appName;
-                reo = se.toBean();
+                reo = se.toBean(auth());
             }
             // 采用域用户库来登陆
             else {
-                WnLoginApi auth = site.auth();
+                NutBean env = site.getSessionVarsBySiteHome();
+                WnLoginOptions options = site.getOptions();
+                WnLoginApi auth = WnLoginApiMaker.forHydrate().make(io(), env, options);
                 if (log.isInfoEnabled()) {
                     log.infof("Login as sub-user: %s", name);
                 }
@@ -583,17 +587,18 @@ public class AppModule extends AbstractWnModule {
                     if (log.isInfoEnabled()) {
                         log.infof("OK: check passwd");
                     }
-                    // 确保用户是可以访问域主目录的
-                    site.assertHomeAccessable(user);
-                    if (log.isInfoEnabled()) {
-                        log.infof("OK: check_home_accessable");
-                    }
 
                     // 获取会话时长设置
                     int se_du = auth.getSessionDuration();
 
                     // 注册新会话
-                    WnSession se = auth.createSession(user, se_du);
+                    WnSession se = auth.createSession(user, Wn.SET_LOGIN_APP, se_du);
+
+                    // 确保用户是可以访问域主目录的
+                    site.assertHomeAccessable(se);
+                    if (log.isInfoEnabled()) {
+                        log.infof("OK: check_home_accessable");
+                    }
 
                     // 更新会话元数据
                     if (log.isInfoEnabled()) {
@@ -609,7 +614,7 @@ public class AppModule extends AbstractWnModule {
                     }
 
                     // 准备返回值
-                    reo = se.toBean();
+                    reo = se.toBean(auth);
                 }
                 // -----------------------------------------
                 // 登录失败
@@ -664,7 +669,7 @@ public class AppModule extends AbstractWnModule {
             return null;
         }
         WnSession se = Wn.WC().checkSession(auth());
-        return se.toBean();
+        return se.toBean(auth());
     }
 
     /**
@@ -695,7 +700,7 @@ public class AppModule extends AbstractWnModule {
 
             // 退到父会话
             if (null != pse && !pse.isExpired()) {
-                re.put("parent", pse.toBean());
+                re.put("parent", pse.toBean(auth()));
             }
         }
 

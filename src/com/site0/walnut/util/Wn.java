@@ -53,6 +53,7 @@ import com.site0.walnut.ext.sys.schedule.WnSysScheduleApi;
 import com.site0.walnut.ext.sys.task.WnSysTaskApi;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnSimpleLoginApi;
 import com.site0.walnut.login.role.WnRoleList;
 import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.login.usr.WnUser;
@@ -68,9 +69,18 @@ import com.site0.walnut.web.WnConfig;
  */
 public abstract class Wn {
 
-    public static final String K_ROLE_IN_DOMAIN = "roleInDomain";
-
-    public static final String K_ROLE_IN_OP = "roleInOp";
+    public static final String SET_BG = "BG";
+    public static final String SET_RUN = "run";
+    public static final String SET_HOOK = "hook";
+    public static final String SET_AUTH_PASS = "auth_pass";
+    public static final String SET_AUTH_WXMP = "auth_wxmp";
+    public static final String SET_AUTH_WXGH = "auth_wxgh";
+    public static final String SET_LOGIN_CMD = "cmd_login";
+    public static final String SET_LOGIN_APP = "app_login";
+    public static final String SET_LOGIN_API = "api_login";
+    public static final String SET_LOGIN_BOX = "box_login";
+    public static final String SET_LOGIN_SYS = "sys_login";
+    public static final String SET_UNIT_TEST = "unit_test";
 
     /**
      * 记录系统运行时信息
@@ -660,7 +670,7 @@ public abstract class Wn {
         }
 
         public static WnLoginApi auth(Ioc ioc) {
-            return ioc.get(WnLoginApi.class, "sysLoginApi");
+            return ioc.get(WnSimpleLoginApi.class, "sysLoginApi");
         }
 
         public static WnSysTaskApi tasks(Ioc ioc) {
@@ -1810,7 +1820,7 @@ public abstract class Wn {
         sys.nosecurity(new Atom() {
             public void run() {
                 WnUser me = Wn.WC().getMe();
-                WnRoleList roles = sys.auth.getRoles(me);
+                WnRoleList roles = sys.roles().getRoles(me);
                 if (roles.isAdminOfRole("root")) {
                     throw Er.create("e.cmd.mgadmin.only_for_root_admin");
                 }

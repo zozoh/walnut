@@ -60,9 +60,7 @@ public class WnCheckSession implements ActionFilter {
             if (null != se) {
                 WnSession se2 = se;
                 Wn.WC().hooking(null, () -> {
-                    int du = auth.getSessionDuration();
-                    auth.touchSession(se2, du);
-
+                    auth.touchSession(se2);
                 });
             }
 

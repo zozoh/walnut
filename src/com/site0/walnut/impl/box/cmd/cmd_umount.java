@@ -18,7 +18,7 @@ public class cmd_umount extends JvmExecutor {
         String ph = Wn.normalizeFullPath(args[0], sys);
         WnObj o = sys.io.check(null, ph);
         WnUser me = sys.getMe();
-        WnRoleList roles = sys.auth.getRoles(me);
+        WnRoleList roles = sys.roles().getRoles(me);
         if (!me.isSameName(o.creator())) {
             if (!roles.isMemberOfRole("root") && !roles.isAdminOfRole(o.group())) {
                 sys.err.println("permission denied");

@@ -12,7 +12,7 @@ public class log4j_reconf implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         WnUser me = sys.getMe();
-        WnRoleList roles = sys.auth.getRoles(me);
+        WnRoleList roles = sys.roles().getRoles(me);
         if (!roles.isMemberOfRole("root")) {
             sys.err.print("just for root members");
             return;

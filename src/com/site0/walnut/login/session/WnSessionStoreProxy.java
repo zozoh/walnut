@@ -1,5 +1,7 @@
 package com.site0.walnut.login.session;
 
+import java.util.List;
+
 import org.nutz.trans.Proton;
 
 import com.site0.walnut.api.io.WnIo;
@@ -21,6 +23,33 @@ public class WnSessionStoreProxy implements WnSessionStore {
         return Wn.WC().nosecurity(io, new Proton<WnSession>() {
             protected WnSession exec() {
                 return impl.getSession(ticket, users);
+            }
+        });
+    }
+
+    @Override
+    public WnSession getSessionByUserIdAndType(String uid, String type, WnUserStore users) {
+        return Wn.WC().nosecurity(io, new Proton<WnSession>() {
+            protected WnSession exec() {
+                return impl.getSessionByUserIdAndType(uid, type, users);
+            }
+        });
+    }
+
+    @Override
+    public WnSession getSessionByUserNameAndType(String unm, String type, WnUserStore users) {
+        return Wn.WC().nosecurity(io, new Proton<WnSession>() {
+            protected WnSession exec() {
+                return impl.getSessionByUserNameAndType(unm, type, users);
+            }
+        });
+    }
+
+    @Override
+    public List<WnSession> querySession(int limit, WnUserStore users) {
+        return Wn.WC().nosecurity(io, new Proton<List<WnSession>>() {
+            protected List<WnSession> exec() {
+                return impl.querySession(limit, users);
             }
         });
     }
@@ -65,7 +94,7 @@ public class WnSessionStoreProxy implements WnSessionStore {
     @Override
     public void patchDefaultEnv(WnSession se) {
         // TODO Auto-generated method stub
-        
+
     }
 
 }

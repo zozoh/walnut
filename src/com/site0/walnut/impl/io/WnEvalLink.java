@@ -3,7 +3,7 @@ package com.site0.walnut.impl.io;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.AbstractWnSecurity;
-import com.site0.walnut.login.usr.WnUser;
+import com.site0.walnut.login.session.WnSession;
 
 public class WnEvalLink extends AbstractWnSecurity {
 
@@ -47,7 +47,7 @@ public class WnEvalLink extends AbstractWnSecurity {
     }
 
     @Override
-    public boolean test(WnObj nd, int mode, WnUser user) {
+    public boolean test(WnObj nd, int mode, WnSession user) {
         return true;
     }
 

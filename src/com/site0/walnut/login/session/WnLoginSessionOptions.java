@@ -30,6 +30,18 @@ public class WnLoginSessionOptions {
      * SQL 模板文件存储目录，默认 "~/.sqlx"
      */
     public String sqlHome;
+    
+    /**
+     * 获取会话记录列表的 SQL，需要支持变量
+     * 
+     * <ul>
+     * <li><code>filter</code>
+     * <li><code>sorter</code> 
+     * <li><code>skip</code> 
+     * <li><code>limit</code> 
+     * </ul>
+     */
+    public String sqlQuery;
 
     /**
      * 获取会话记录的 SQL，需要支持变量
@@ -45,7 +57,13 @@ public class WnLoginSessionOptions {
      * 
      * <ul>
      * <li><code>id</code> 会话的 ID 或者说 Ticket
+     * <li><code>type</code> 会话类型
+     * <li><code>u_name</code> 会话用户登录名
+     * <li><code>u_id</code> 会话用户ID
      * </ul>
+     * 
+     * SQL 假设，调用者会给出 id, 或 (type+u_name) 或者 (type+u_id)
+     * 这样的组合，如果条件为空，SQL 语句应该出错
      */
     public String sqlDelete;
 

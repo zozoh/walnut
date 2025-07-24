@@ -26,7 +26,7 @@ public class cmd_mount extends JvmExecutor {
     public void exec(WnSystem sys, String[] args) throws Exception {
         ZParams params = ZParams.parse(args, "cqnbishp", "^(init)$");
         WnUser me = sys.getMe();
-        WnRoleList roles = sys.auth.getRoles(me);
+        WnRoleList roles = sys.roles().getRoles(me);
         boolean isSysAdmin = roles.isMemberOfRole("root");
         // 初始化映射的再次检查
         if (params.is("init")) {

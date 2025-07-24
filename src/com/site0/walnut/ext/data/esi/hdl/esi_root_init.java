@@ -12,7 +12,7 @@ public class esi_root_init implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         WnUser me = sys.getMe();
-        WnRoleList roles = sys.auth.getRoles(me);
+        WnRoleList roles = sys.roles().getRoles(me);
         if (roles.isAdminOfRole("root")) {
             sys.err.print("only for root");
             return;

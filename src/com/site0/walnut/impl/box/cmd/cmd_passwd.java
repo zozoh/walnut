@@ -78,7 +78,7 @@ public class cmd_passwd extends JvmExecutor {
 
         // .....................................................
         // 对于非 root/op 组的操作用户，深入检查权限
-        WnRoleList myRoles = sys.auth.getRoles(me);
+        WnRoleList myRoles = sys.roles().getRoles(me);
         if (u != me && !myRoles.isMemberOfRole("root", "op")) {
             // 如果要修改的是系统用户，那么，必须是自己修改自己才成
             if (u.isSysUser()) {

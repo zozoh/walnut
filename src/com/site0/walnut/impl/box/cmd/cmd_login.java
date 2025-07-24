@@ -3,12 +3,19 @@ package com.site0.walnut.impl.box.cmd;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import com.site0.walnut.util.Wlang;
+
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.web.ajax.Ajax;
+import org.nutz.web.ajax.AjaxReturn;
+
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.impl.io.WnEvalLink;
 import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnLoginApiMaker;
+import com.site0.walnut.login.WnLoginOptions;
 import com.site0.walnut.login.role.WnRoleList;
 import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.login.site.WnLoginSite;
@@ -31,6 +38,29 @@ public class cmd_login extends JvmExecutor {
     private void __exec_without_security(WnSystem sys, String[] args) {
         // 解析参数
         ZParams params = ZParams.parse(args, "cnqH");
+        JsonFormat jfmt = Cmds.gen_json_format(params);
+
+        try {
+            NutMap bean = _do_login(sys, params);
+            // 输出这个新会话
+            AjaxReturn re = Ajax.ok().setData(bean);
+            String json = Json.toJson(re, jfmt);
+            sys.out.println(json);
+
+            // ............................................
+            // 在沙盒的上下文标记一把
+            String ticket = bean.getString("ticket");
+            NutMap macro = Wlang.map("seid", ticket);
+            sys.attrs().put(Wn.MACRO.CHANGE_SESSION, macro);
+        }
+        catch (Exception e) {
+            AjaxReturn re = Ajax.fail(e);
+            String json = Json.toJson(re, jfmt);
+            sys.out.println(json);
+        }
+    }
+
+    protected NutMap _do_login(WnSystem sys, ZParams params) {
         String uname = params.val_check(0);
 
         WnUser me = sys.getMe();
@@ -48,7 +78,9 @@ public class cmd_login extends JvmExecutor {
         WnLoginApi auth = sys.auth;
         // 采用了子站点登录模式
         if (null != site) {
-            auth = site.auth();
+            NutBean env = sys.session.getEnv();
+            WnLoginOptions options = site.getOptions();
+            auth = WnLoginApiMaker.forHydrate().make(sys.io, env, options);
         }
 
         // 保存目标用户变量
@@ -57,8 +89,8 @@ public class cmd_login extends JvmExecutor {
 
         // ............................................
         // 开始检查权限了
-        WnRoleList myRoles = sys.auth.getRoles(me);
-        WnRoleList taRoles = sys.auth.getRoles(ta);
+        WnRoleList myRoles = sys.roles().getRoles(me);
+        WnRoleList taRoles = sys.roles().getRoles(ta);
 
         // 自己不能登录到自己
         if (me.isSame(ta)) {
@@ -69,8 +101,6 @@ public class cmd_login extends JvmExecutor {
             if (!myRoles.isAdminOfRole(site.getDomain())) {
                 throw Er.create("e.cmd.login.me.forbid", "Need Admin of Domain");
             }
-            // 确保【目标账号】可以访问域【目标站点】主目录
-            site.assertHomeAccessable(ta);
         }
         // 那就是登录到别的域
         else {
@@ -85,18 +115,15 @@ public class cmd_login extends JvmExecutor {
         int du = auth.getSessionDuration();
 
         // 全部检查没问题，可以创建新会话了
-        newSe = auth.createSession(sys.session, ta, du);
+        newSe = auth.createSession(sys.session, ta, Wn.SET_LOGIN_CMD, du);
 
-        // 输出这个新会话
-        JsonFormat jfmt = Cmds.gen_json_format(params);
-        NutMap bean = newSe.toBean();
-        String json = Json.toJson(bean, jfmt);
-        sys.out.println(json);
+        // 确保【目标账号】可以访问域【目标站点】主目录
+        if (null != site) {
+            site.assertHomeAccessable(newSe);
+        }
 
-        // ............................................
-        // 在沙盒的上下文标记一把
-        NutMap macro = Wlang.map("seid", newSe.getTicket());
-        sys.attrs().put(Wn.MACRO.CHANGE_SESSION, macro);
+        NutMap bean = newSe.toBean(sys.auth);
+        return bean;
     }
 
 }

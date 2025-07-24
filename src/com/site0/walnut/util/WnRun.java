@@ -105,7 +105,7 @@ public class WnRun {
         // 检查用户和会话
         WnUser u = auth.checkUser(unm);
         int du = auth.getSessionDuration(false);
-        final WnSession se = auth.createSession(u, du);
+        final WnSession se = auth.createSession(u, Wn.SET_RUN, du);
 
         // 执行命令
         try {
@@ -148,7 +148,7 @@ public class WnRun {
         // }
         // });
         int du = auth.getSessionDuration(longSession);
-        return auth.createSession(u, du);
+        return auth.createSession(u, Wn.SET_RUN, du);
     }
 
     public String exec(String logPrefix, WnSession se, String cmdText) {
@@ -252,7 +252,7 @@ public class WnRun {
 
     public void runWithHook(WnUser usr, String grp, NutMap env, Callback<WnSession> callback) {
         int du = auth.getSessionDuration(false);
-        WnSession se = auth.createSession(usr, du);
+        WnSession se = auth.createSession(usr, Wn.SET_HOOK, du);
         try {
             // 附加环境变量
             if (env != null) {

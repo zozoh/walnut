@@ -49,7 +49,7 @@ var ioc = {
 		args: [{ refer: "io" }]
 	},
 	sysLoginApi: {
-		type: 'com.site0.walnut.login.WnLoginApi',
+		type: 'com.site0.walnut.login.WnSimpleLoginApi',
 		args: [{ refer: 'io' }],
 		fields: {
 			users: { refer: 'sysUserStore' },

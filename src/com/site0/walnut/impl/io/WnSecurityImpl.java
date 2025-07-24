@@ -6,10 +6,11 @@ import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.AbstractWnSecurity;
-import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.login.role.WnRoleRank;
+import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.login.role.WnRoleList;
 import com.site0.walnut.login.role.WnRoleType;
+import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
@@ -103,18 +104,18 @@ public class WnSecurityImpl extends AbstractWnSecurity {
         // 当前的线程上下文
         // 我是谁？
         WnContext wc = Wn.WC();
-        WnUser u = wc.getMe();
+        WnSession se = wc.checkSession();
 
         // // 对于 root 用户，啥都不检查
         // if ("root".equals(u.name()))
         // return o;
         //
 
-        return __do_check_node(o, mask, asNull, u);
+        return __do_check_node(o, mask, asNull, se);
     }
 
-    private WnObj __do_check_node(WnObj o, int mask, boolean asNull, WnUser u) {
-        WnRoleList roles = auth.getRoles(u);
+    private WnObj __do_check_node(WnObj o, int mask, boolean asNull, WnSession se) {
+        WnRoleList roles = auth.roleLoader(se).getRoles(se.getUser());
         // 对象组给我啥权限
         WnRoleType role = roles.getRoleTypeOfGroup(o.group());
 
@@ -136,6 +137,8 @@ public class WnSecurityImpl extends AbstractWnSecurity {
         // 获取权限码
         // .........................
         int md;
+        
+        WnUser u = se.getUser();
 
         // 系统用户，采用标准权限模型
         if (u.isSysUser()) {
@@ -198,7 +201,7 @@ public class WnSecurityImpl extends AbstractWnSecurity {
     }
 
     @Override
-    public boolean test(WnObj nd, int mode, WnUser user) {
+    public boolean test(WnObj nd, int mode, WnSession se) {
         WnObj nd2 = __eval_obj(nd);
 
         // 防止空指针
@@ -209,7 +212,7 @@ public class WnSecurityImpl extends AbstractWnSecurity {
         WnContext wc = Wn.WC();
         WnObj obj = wc.security(null, new Proton<WnObj>() {
             protected WnObj exec() {
-                return __do_check_node(nd2, mode, true, user);
+                return __do_check_node(nd2, mode, true, se);
             }
         });
 

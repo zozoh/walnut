@@ -27,7 +27,7 @@ public abstract class HttpApis {
         // 要操作的用户域
         String theName = hc.params.get("u", sys.getMyName());
         WnUser me = sys.getMe();
-        WnRoleList roles = sys.auth.getRoles(me);
+        WnRoleList roles = sys.roles().getRoles(me);
 
         // 指定了其他用户
         if (!me.isSameName(theName)) {

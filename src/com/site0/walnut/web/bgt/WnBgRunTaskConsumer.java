@@ -71,6 +71,7 @@ public class WnBgRunTaskConsumer implements Runnable {
         while (!Thread.interrupted()) {
             try {
                 WnSysTask task = taskApi.popTask(q);
+                auth.touchSession(rootSession);
 
                 // 线程池满了，休息3秒
                 int pool_a_count = execPool.getActiveCount();

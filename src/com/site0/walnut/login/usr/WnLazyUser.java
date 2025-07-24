@@ -5,8 +5,8 @@ import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.login.UserRace;
-import com.site0.walnut.login.role.WnRoleRank;
 import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.role.WnRoleRank;
 
 public class WnLazyUser implements WnUser {
 
@@ -16,9 +16,18 @@ public class WnLazyUser implements WnUser {
 
     private boolean fullLoaded;
 
-    public WnLazyUser(WnUserStore userLoader) {
-        this.loader = userLoader;
+    public WnLazyUser() {
         this.fullLoaded = false;
+    }
+
+    public WnLazyUser(WnUserStore userLoader) {
+        this();
+        this.loader = userLoader;
+    }
+
+    public void setLoader(WnUserStore loader) {
+        this.loader = loader;
+        this._user.setUserRace(loader.getUserRace());
     }
 
     @Override

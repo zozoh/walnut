@@ -58,8 +58,9 @@ public class WnSqlUserStore extends AbstractWnUserStore {
     public WnSqlUserStore(UserRace userRace,
                           WnIo io,
                           NutBean sessionVars,
-                          WnLoginUserOptions setup) {
-        super(userRace, setup.defaultMeta);
+                          WnLoginUserOptions setup,
+                          String domain) {
+        super(userRace, setup.defaultMeta, domain);
 
         // SQL
         this.sqlQuery = setup.sqlQuery;

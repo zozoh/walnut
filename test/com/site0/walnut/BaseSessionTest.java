@@ -34,7 +34,7 @@ public abstract class BaseSessionTest extends BaseUsrTest {
         }
 
         // 创建测试会话
-        session = auth.createSession(me);
+        session = auth.createSession(me, Wn.SET_UNIT_TEST);
         log.infof("> BaseSessionTest.on_before session => %s", session.getTicket());
 
         // 切换会话当前用户

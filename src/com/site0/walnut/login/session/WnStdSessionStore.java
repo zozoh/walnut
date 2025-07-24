@@ -1,15 +1,19 @@
 package com.site0.walnut.login.session;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
+import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.core.bean.WnIoObj;
 import com.site0.walnut.login.usr.WnLazyUser;
 import com.site0.walnut.login.usr.WnUser;
-import com.site0.walnut.login.usr.WnUserStore;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
@@ -19,12 +23,10 @@ public class WnStdSessionStore extends AbstractWnSessionStore {
 
     private static final Log log = Wlog.getAUTH();
 
-    WnIo io;
     WnObj oHome;
 
     public WnStdSessionStore(WnIo io, NutBean sessionVars, String homePath, NutMap defaultEnv) {
-        this.io = io;
-        this.defaultEnv = defaultEnv;
+        super(io, sessionVars, defaultEnv);
 
         // 获取会话主目录
         homePath = Ws.sBlank(homePath, "~/.domain/session");
@@ -37,16 +39,74 @@ public class WnStdSessionStore extends AbstractWnSessionStore {
      * @param io
      */
     public WnStdSessionStore(WnIo io, WnConfig conf) {
-        this.io = io;
-        this.defaultEnv = conf.getSessionDefaultEnv();
+        super(io, Wlang.map("HOME", "/root"), conf.getSessionDefaultEnv());
 
         // 获取会话主目录
         this.oHome = io.check(null, "/var/session");
     }
 
     @Override
-    public WnSession getSession(String ticket, WnUserStore users) {
+    protected List<WnSession> _query(NutMap filter, NutMap sorter, int skip, int limit) {
+        // 查询条件
+        WnQuery q = Wn.Q.pid(oHome);
+        q.setAll(filter);
+        q.sort(sorter);
+        q.limit(limit);
+
+        // 执行查询
+        List<WnObj> oSeList = io.query(q);
+
+        // 循环处理数据
+        List<WnSession> reList = new ArrayList<>(oSeList.size());
+        for (WnObj oSe : oSeList) {
+            WnSimpleSession se = __build_session_obj(oSe);
+            reList.add(se);
+        }
+
+        // 返回
+        return reList;
+    }
+
+    @Override
+    public WnSession _get_one(String ticket) {
         WnObj oSe = io.fetch(oHome, ticket);
+
+        // 创建会话对象
+        WnSimpleSession se = __build_session_obj(oSe);
+
+        // 返回结果
+        return se;
+    }
+
+    @Override
+    public WnSession _find_one_by_uid_type(String uid, String type) {
+        WnQuery q = Wn.Q.pid(oHome);
+        q.setv("type", type);
+        q.setv("u_id", uid);
+        WnObj oSe = io.getOne(q);
+
+        // 创建会话对象
+        WnSimpleSession se = __build_session_obj(oSe);
+
+        // 返回结果
+        return se;
+    }
+
+    @Override
+    public WnSession _find_one_by_unm_type(String unm, String type) {
+        WnQuery q = Wn.Q.pid(oHome);
+        q.setv("type", type);
+        q.setv("u_name", unm);
+        WnObj oSe = io.getOne(q);
+
+        // 创建会话对象
+        WnSimpleSession se = __build_session_obj(oSe);
+
+        // 返回结果
+        return se;
+    }
+
+    protected WnSimpleSession __build_session_obj(WnObj oSe) {
         // 防空
         if (null == oSe) {
             return null;
@@ -54,7 +114,9 @@ public class WnStdSessionStore extends AbstractWnSessionStore {
 
         WnSimpleSession se = new WnSimpleSession();
         // 设置标识
+        se.setSite(oSe.getString("site"));
         se.setTicket(oSe.name());
+        se.setType(oSe.getString("type"));
         se.setParentTicket(oSe.getString("parent_ticket"));
         se.setChildTicket(oSe.getString("child_ticket"));
         se.setDuration(oSe.getInt("duration"));
@@ -67,22 +129,20 @@ public class WnStdSessionStore extends AbstractWnSessionStore {
         // 加载用户
         String uid = oSe.getString("u_id");
         if (Ws.isBlank(uid)) {
-            log.warnf("session without u_id, ticket=%s", ticket);
+            log.warnf("session without u_id, ticket=%s", se.getTicket());
         }
-        // 读取用户
+        // 设置用户
         else {
-            WnLazyUser u = new WnLazyUser(users);
+            WnLazyUser u = new WnLazyUser();
             String name = oSe.getString("u_name");
             String email = oSe.getString("email");
             String phone = oSe.getString("phone");
-            u.setInnerUser(users.getUserRace(), uid, name, email, phone);
+            u.setInnerUser(null, uid, name, email, phone);
             se.setUser(u);
         }
 
         // 设置环境变量
         se.setEnv(oSe.getAs("env", NutMap.class));
-
-        // 返回结果
         return se;
     }
 
@@ -96,6 +156,7 @@ public class WnStdSessionStore extends AbstractWnSessionStore {
         bean.name(se.getTicket());
         bean.expireTime(se.getExpiAt());
         bean.put("duration", se.getDuration());
+        bean.put("type", se.getType());
         bean.put("u_id", u.getId());
         bean.put("u_name", u.getName());
         bean.put("email", u.getEmail());
@@ -103,6 +164,12 @@ public class WnStdSessionStore extends AbstractWnSessionStore {
         bean.put("env", se.getEnv());
         if (se.hasParentTicket()) {
             bean.put("parent_ticket", se.getParentTicket());
+        }
+        if (se.hasChildTicket()) {
+            bean.put("child_ticket", se.getChildTicket());
+        }
+        if (se.hasSite()) {
+            bean.put("site", se.getSite());
         }
 
         // 保存

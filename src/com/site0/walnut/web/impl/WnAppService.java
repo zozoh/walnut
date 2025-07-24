@@ -22,6 +22,7 @@ import com.site0.walnut.cheap.dom.CheapDocument;
 import com.site0.walnut.cheap.dom.CheapElement;
 import com.site0.walnut.cheap.xml.CheapXmlParsing;
 import com.site0.walnut.ext.data.titanium.hdl.ti_webdeps;
+import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
@@ -201,7 +202,7 @@ public class WnAppService extends WnRun {
 
         // 这些优先级最高
         String rs = conf.get("app-rs", "/gu/rs/");
-        c.put("session", se.toBean());
+        c.put("session", se.toBean(auth()));
         c.put("rs", rs);
         c.put("appName", appName);
         c.put("app", appJson);
@@ -349,11 +350,13 @@ public class WnAppService extends WnRun {
     /**
      * 获取一个应用。如果不存在，则抛错
      * 
+     * @param auth
+     *            权鉴接口
      * @param appName
      *            应用名。形式类似 "xx.xxx" 如果没有前缀会自动补齐 <code>wn.</code>
      * @return 应用对象
      */
-    public WnApp checkApp(String appName) {
+    public WnApp checkApp(String appName, WnLoginApi auth) {
         // 防空
         if (Strings.isBlank(appName))
             throw Er.create("e.app.noname");
@@ -375,7 +378,7 @@ public class WnAppService extends WnRun {
         app.setName(appName);
         app.setHome(oAppHome);
         app.setSession(se);
-
+        app.setAuth(auth);
         return app;
     }
 

@@ -25,7 +25,7 @@ public class cmd_task extends JvmHdlExecutor {
      */
     public static WnSysTaskQuery prepareTaskQuery(WnSystem sys, JvmHdlContext hc) {
         WnUser me = sys.getMe();
-        WnRoleList roles = sys.auth.getRoles(me);
+        WnRoleList roles = sys.roles().getRoles(me);
         boolean isAdmin = roles.isMemberOfRole("root");
         return prepareTaskQuery(sys, hc, isAdmin);
     }

@@ -134,7 +134,7 @@ public class app_setup implements JvmHdl {
     private boolean __is_matched_role_of_group(WnSystem sys, String pvg) {
         String[] ss = Strings.splitIgnoreBlank(pvg, ";");
         WnUser me = sys.getMe();
-        WnRoleList roles = sys.auth.getRoles(me);
+        WnRoleList roles = sys.roles().getRoles(me);
         for (String s : ss) {
             Matcher m = _P.matcher(s);
             // 错误的输入，被认为是无效

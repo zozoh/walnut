@@ -63,7 +63,7 @@ public class AppCheckAccess {
         WnRoleType shouldBeRole = WnRoleType.valueOf(roleName.toUpperCase());
         // 管理员
         WnUser me = se.getUser();
-        WnRoleList roles = auth.getRoles(me);
+        WnRoleList roles = auth.roleLoader(se).getRoles(me);
         if (WnRoleType.ADMIN == shouldBeRole) {
             return roles.isAdminOfRole(ta_grp);
         }
