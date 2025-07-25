@@ -27,7 +27,9 @@ public class WnLazyUser implements WnUser {
 
     public void setLoader(WnUserStore loader) {
         this.loader = loader;
-        this._user.setUserRace(loader.getUserRace());
+        if (null != this._user) {
+            this._user.setUserRace(loader.getUserRace());
+        }
     }
 
     @Override
@@ -77,7 +79,9 @@ public class WnLazyUser implements WnUser {
     public void setInnerUser(WnUser u) {
         this.fullLoaded = false;
         this._user = u;
-
+        if (null != u && null != this.loader) {
+            u.setUserRace(loader.getUserRace());
+        }
     }
 
     public void setInnerUser(UserRace race, String uid, String name, String email, String phone) {
@@ -88,8 +92,10 @@ public class WnLazyUser implements WnUser {
         u.setName(name);
         u.setEmail(email);
         u.setPhone(phone);
+        if (null != race && null != this.loader) {
+            u.setUserRace(loader.getUserRace());
+        }
         this._user = u;
-
     }
 
     synchronized private void reloadInnerUser() {
