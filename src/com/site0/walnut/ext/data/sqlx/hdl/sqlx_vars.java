@@ -9,6 +9,7 @@ import org.nutz.log.Log;
 
 import com.site0.walnut.ext.data.sqlx.SqlxContext;
 import com.site0.walnut.ext.data.sqlx.SqlxFilter;
+import com.site0.walnut.ext.data.sqlx.SqlxVarsMode;
 import com.site0.walnut.ext.data.sqlx.util.SqlVarsFaker;
 import com.site0.walnut.ext.data.sqlx.util.SqlVarsPutting;
 import com.site0.walnut.impl.box.WnSystem;
@@ -48,6 +49,7 @@ public class sqlx_vars extends SqlxFilter {
         // For List
         if ("list".equals(mode)) {
             List<NutBean> list = __read_as_list(sys, fc, params);
+            fc.setVarMode(SqlxVarsMode.LIST);
 
             // 额外读取值
             NutBean pipeContext = fc.getPipeContext();
@@ -61,6 +63,7 @@ public class sqlx_vars extends SqlxFilter {
         // For Map
         else {
             NutMap map = __read_as_map(sys, fc, params);
+            fc.setVarMode(SqlxVarsMode.MAP);
 
             // 额外读取值
             NutBean pipeContext = fc.getPipeContext();

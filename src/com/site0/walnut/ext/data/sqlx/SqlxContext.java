@@ -55,6 +55,8 @@ public class SqlxContext extends JvmFilterContext {
 
     private List<NutBean> varList;
 
+    private SqlxVarsMode varMode;
+
     /**
      * 存储一个整个命令周期都能有效的动态上下文 建立这个对象的动机是： 我需要在一个 sqlx 周期内插入数据到两张表:
      * 
@@ -231,6 +233,30 @@ public class SqlxContext extends JvmFilterContext {
         if (null != bean) {
             this.varMap.mergeWith(bean);
         }
+    }
+
+    public boolean isVarsModeAsList() {
+        return SqlxVarsMode.LIST == this.getVarsMode();
+    }
+
+    public boolean isVarsModeAsMap() {
+        return SqlxVarsMode.MAP == this.getVarsMode();
+    }
+
+    public SqlxVarsMode getVarsMode() {
+        // 自动判断
+        if (null == this.varMode) {
+            if (this.hasVarList()) {
+                return SqlxVarsMode.LIST;
+            }
+            return SqlxVarsMode.MAP;
+        }
+        // 已经指定了
+        return this.varMode;
+    }
+
+    public void setVarMode(SqlxVarsMode varMode) {
+        this.varMode = varMode;
     }
 
     public boolean hasVarList() {

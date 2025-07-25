@@ -57,7 +57,7 @@ public class sqlx_exec extends SqlxFilter {
         SqlExecResult re;
 
         // 如果是批量
-        if (fc.hasVarList()) {
+        if (fc.isVarsModeAsList()) {
             List<NutBean> beans = fc.getVarList();
 
             // 保护判断一下
@@ -95,7 +95,7 @@ public class sqlx_exec extends SqlxFilter {
             }
         }
         // 参数模式
-        else if (fc.hasVarMap()) {
+        else if (fc.isVarsModeAsMap()) {
             NutBean record = fc.getVarMap();
 
             // 保护判断一下
