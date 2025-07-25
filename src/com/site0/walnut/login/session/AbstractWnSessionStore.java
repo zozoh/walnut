@@ -74,12 +74,13 @@ public abstract class AbstractWnSessionStore implements WnSessionStore {
     public WnSession getSession(String ticket, WnUserStore users) {
         WnSession se = _get_one(ticket);
 
-        __setup_se(users, se);
-
         // 确保有用户对象
         if (null == se || !se.hasUser()) {
             return null;
         }
+
+        // 设置会话对象其余项目
+        __setup_se(users, se);
 
         // 返回结果
         return se;
@@ -89,12 +90,13 @@ public abstract class AbstractWnSessionStore implements WnSessionStore {
     public WnSession getSessionByUserIdAndType(String uid, String type, WnUserStore users) {
         WnSession se = _find_one_by_unm_type(uid, type);
 
-        __setup_se(users, se);
-
         // 确保有用户对象
         if (null == se || !se.hasUser()) {
             return null;
         }
+
+        // 设置会话对象其余项目
+        __setup_se(users, se);
 
         // 返回结果
         return se;
@@ -104,12 +106,13 @@ public abstract class AbstractWnSessionStore implements WnSessionStore {
     public WnSession getSessionByUserNameAndType(String unm, String type, WnUserStore users) {
         WnSession se = _find_one_by_unm_type(unm, type);
 
-        __setup_se(users, se);
-
         // 确保有用户对象
         if (null == se || !se.hasUser()) {
             return null;
         }
+
+        // 设置会话对象其余项目
+        __setup_se(users, se);
 
         // 返回结果
         return se;
