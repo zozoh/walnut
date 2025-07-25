@@ -117,7 +117,7 @@ public abstract class AbstractWnSessionStore implements WnSessionStore {
 
     // 补全会话的用户等其他属性
     private void __setup_se(WnUserStore users, WnSession se) {
-        if (null == se) {
+        if (null == se || !se.hasUser()) {
             return;
         }
         // 如果会话指定了站点，采用站点指明的用户存储策略
