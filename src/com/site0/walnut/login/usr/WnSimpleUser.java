@@ -27,6 +27,8 @@ public class WnSimpleUser implements WnUser {
 
     private String name;
 
+    private String nickname;
+
     private String phone;
 
     private String email;
@@ -123,6 +125,7 @@ public class WnSimpleUser implements WnUser {
         re.userRace = this.userRace;
         re.id = this.id;
         re.name = this.name;
+        re.nickname = this.nickname;
         re.phone = this.phone;
         re.email = this.email;
         re.lastLoginAt = this.lastLoginAt;
@@ -203,6 +206,10 @@ public class WnSimpleUser implements WnUser {
             else if ("nm".equals(key)) {
                 this.setName(bean.getString(key));
             }
+            // nickname
+            else if ("nickname".equals(key)) {
+                this.setNickname(bean.getString(key));
+            }
             // phone
             else if ("phone".equals(key)) {
                 this.setPhone(bean.getString(key));
@@ -267,6 +274,11 @@ public class WnSimpleUser implements WnUser {
         if (!Ws.isBlank(name))
             bean.put("nm", name);
 
+        // 昵称
+        if (!Ws.isBlank(nickname)) {
+            bean.put("nickname", nickname);
+        }
+
         // 电话
         if (!Ws.isBlank(phone))
             bean.put("phone", phone);
@@ -313,12 +325,13 @@ public class WnSimpleUser implements WnUser {
 
     @Override
     public String toString() {
-        return String.format("[%s]%s, id=%s %s",
+        return String.format("[%s]%s(%s), id=%s, phone=%s, email=%s, meta=%s",
                              this.userRace,
                              this.name,
+                             this.nickname,
+                             this.id,
                              this.phone,
                              this.email,
-                             this.id,
                              Json.toJson(this.meta));
     }
 
@@ -365,6 +378,16 @@ public class WnSimpleUser implements WnUser {
             throw Er.create("e.auth.usr.InvalidName", name);
         }
         this.name = name;
+    }
+
+    @Override
+    public String getNickname() {
+        return nickname;
+    }
+
+    @Override
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     @Override

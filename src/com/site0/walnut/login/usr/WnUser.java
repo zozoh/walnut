@@ -59,6 +59,10 @@ public interface WnUser {
 
     void setName(String name);
 
+    void setNickname(String nickname);
+
+    String getNickname();
+
     String getPhone();
 
     void setPhone(String phone);

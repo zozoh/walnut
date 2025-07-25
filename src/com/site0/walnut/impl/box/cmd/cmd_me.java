@@ -65,13 +65,7 @@ public class cmd_me extends JvmExecutor {
         }
         // 显示
         else {
-            NutMap jsonRe = NutMap.NEW();
-            me.mergeToBean(jsonRe);
-
-            // 去掉敏感信息
-            jsonRe.remove("passwd");
-            jsonRe.remove("salt");
-            jsonRe.pickAndRemoveBy("^(passwd|salt|oauth_.+|wx_.+)$");
+            NutMap jsonRe = me.toBean();
 
             // JSON 输出
             if (params.is("json")) {

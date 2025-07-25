@@ -159,6 +159,23 @@ public class WnLazyUser implements WnUser {
         _user.setName(name);
     }
 
+    @Override
+    public void setNickname(String nickname) {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
+        _user.setNickname(nickname);
+
+    }
+
+    @Override
+    public String getNickname() {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
+        return _user.getNickname();
+    }
+
     public String getPhone() {
         if (!this.fullLoaded) {
             this.reloadInnerUser();
