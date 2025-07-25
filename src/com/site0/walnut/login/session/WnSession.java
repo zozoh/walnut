@@ -53,6 +53,8 @@ public interface WnSession {
     String getLastModifiedInUTC();
 
     void setLastModifiedInUTC(Object utcTime);
+    
+    boolean hasUser();
 
     WnUser getUser();
 

@@ -76,6 +76,11 @@ public abstract class AbstractWnSessionStore implements WnSessionStore {
 
         __setup_se(users, se);
 
+        // 确保有用户对象
+        if (null == se || !se.hasUser()) {
+            return null;
+        }
+
         // 返回结果
         return se;
     }
@@ -86,6 +91,11 @@ public abstract class AbstractWnSessionStore implements WnSessionStore {
 
         __setup_se(users, se);
 
+        // 确保有用户对象
+        if (null == se || !se.hasUser()) {
+            return null;
+        }
+
         // 返回结果
         return se;
     }
@@ -95,6 +105,11 @@ public abstract class AbstractWnSessionStore implements WnSessionStore {
         WnSession se = _find_one_by_unm_type(unm, type);
 
         __setup_se(users, se);
+
+        // 确保有用户对象
+        if (null == se || !se.hasUser()) {
+            return null;
+        }
 
         // 返回结果
         return se;

@@ -185,6 +185,10 @@ public class WnSimpleSession implements WnSession {
                              expiAtInStr);
     }
 
+    public boolean hasUser() {
+        return null != user;
+    }
+
     public WnUser getUser() {
         return user;
     }
