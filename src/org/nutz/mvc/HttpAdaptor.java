@@ -50,16 +50,16 @@ public interface HttpAdaptor {
      * @param resp
      *            响应对象
      * @param pathArgs
-     *            字符串数组，路径参数。详情请参看 <a
-     *            href="http://nutzam.com/core/mvc/url_mapping.html"
+     *            字符串数组，路径参数。详情请参看
+     *            <a href="http://nutzam.com/core/mvc/url_mapping.html"
      *            >路径参数</a>
      * 
      * @return 调用参数数组
      * 
      */
-    Object[] adapt(    ServletContext sc,
-                    HttpServletRequest req,
-                    HttpServletResponse resp,
-                    String[] pathArgs);
+    Object[] adapt(ServletContext sc,
+                   HttpServletRequest req,
+                   HttpServletResponse resp,
+                   String[] pathArgs);
 
 }

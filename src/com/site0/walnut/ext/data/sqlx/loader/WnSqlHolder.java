@@ -47,6 +47,11 @@ public class WnSqlHolder implements SqlHolder {
     }
 
     @Override
+    public int size() {
+        return cache.size();
+    }
+
+    @Override
     public boolean equals(Object input) {
         if (this == input) {
             return true;
@@ -129,7 +134,7 @@ public class WnSqlHolder implements SqlHolder {
     }
 
     @Override
-    public void reset() {
+    public void clear() {
         synchronized (this) {
             cache.clear();
         }

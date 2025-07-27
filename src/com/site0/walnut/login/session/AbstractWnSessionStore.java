@@ -146,9 +146,11 @@ public abstract class AbstractWnSessionStore implements WnSessionStore {
             String parentTicket = se.getParentTicket();
 
             WnSession pse = this.getSession(parentTicket, users);
-            pse.setChildTicket(se.getTicket());
-            this.saveSessionChildTicket(pse);
-            return pse;
+            if (null != pse) {
+                pse.setChildTicket(se.getTicket());
+                this.saveSessionChildTicket(pse);
+                return pse;
+            }
         }
 
         return null;

@@ -177,8 +177,8 @@ public class JsExec {
             // + "$log.setTraceID(_TRACE_ID);"
             // + jsStr;
             jsStr = "var "
-                    + "$wn=__use_wn(sys),"
                     + "$log=__use_log(sys,logx,_TRACE_ID),"
+                    + "$wn=__use_wn(sys,$log),"
                     + "$g=__g(sys, $log, $wn, _);"
                     + jsStr;
         }

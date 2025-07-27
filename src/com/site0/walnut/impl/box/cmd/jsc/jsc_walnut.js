@@ -6,7 +6,7 @@
 // importPackage(org.nutz.lang);
 // importPackage(org.nutz.walnut.api.io);
 
-(function (sys) {
+(function (sys, $log) {
   return {
     _toObj: function (obj) {
       if (typeof obj == "string") {
@@ -54,13 +54,13 @@
         return err;
       }
     },
-    
+
     checkExecReturnAndParseJson: function (re, returnError) {
       var reo = this.checkExecReturn(re);
-      if(!reo){
-		  return JSON.parse(re);
-	  }
-	  if(returnError)return reo
+      if (!reo) {
+        return JSON.parse(re);
+      }
+      if (returnError) return reo;
     },
 
     exec: function (cmdText, input) {
@@ -74,10 +74,29 @@
       if (err) throw err;
       return re;
     },
-    
+
     execAsJson: function (cmdText, input) {
       var re = this.exec(cmdText, input);
-      return JSON.parse(re)
+      return JSON.parse(re);
+    },
+
+    tryLock: function(lockName, duration) {
+      if (!duration || duration < 0) {
+        duration = 3600;
+      }
+      var lockName = "job_booking";
+      var cmdText = "lock -cqn @try -du " + duration + " '" + lockName + "'";
+      $log.info("Try lock: %s", cmdText);
+      var re = sys.exec2(cmdText);
+      return JSON.parse(re);
+    },
+
+    freeLock: function(lock) {
+      if (!lock) return;
+      cmdText = "lock -cqn @free '" + lock.name + "' '" + lock.privateKey + "'";
+      $log.info("Release lock: %s", cmdText);
+      re = sys.exec2(cmdText);
+      $log.info("Release lock result: %s", re);
     },
   };
 });

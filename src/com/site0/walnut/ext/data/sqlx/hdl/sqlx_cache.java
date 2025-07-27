@@ -15,7 +15,9 @@ public class sqlx_cache extends SqlxFilter {
     @Override
     protected void process(WnSystem sys, SqlxContext fc, ZParams params) {
         if (params.is("reset")) {
-            fc.sqls.reset();
+            fc.quiet = true;
+            fc.sqls.clear();
+            sys.out.printlnf("clear done: %s", fc.sqls.size());
         }
         // 查看模式
         else {

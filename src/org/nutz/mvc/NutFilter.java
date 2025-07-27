@@ -205,6 +205,9 @@ public class NutFilter implements Filter {
             }
             nextChain(request, response, chain);
         }
+        catch(Throwable err) {
+            log.warn("Fail to NutFilter", err);
+        }
         finally {
             //仅当forward/incule时,才需要恢复之前设置
             if (mark != null) {

@@ -1,0 +1,16 @@
+{
+  "JAR_VER": "0.0",
+  "GIT_HOME": "D:/workspace/git/github/zozoh/",
+  "OUT_DIST": "D:/workspace/tmp/wn4j/",
+  "DIR_TI": "titanium",
+  "DIR_WN": "walnut",
+  "IMG_TAG": "latest",
+  "UP_HOST": "ccr.ccs.tencentyun.com",
+  "UP_HOST_cn": "ccr.ccs.tencentyun.com",
+  "UP_HOST_hk": "hkccr.ccs.tencentyun.com",
+  "UP_CORE": "/site0/wn4j",
+  "UP_DEPS": "/site0/wn4jdeps",
+  "UP_ACC": "108594100",
+  "UP_PWD_AT": "/home/ubuntu/.pass.txt",
+  "admin_url": "https://console.cloud.tencent.com/tke2/registry/user"
+}

@@ -2,6 +2,8 @@ package com.site0.walnut.web.module;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +14,9 @@ import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Encoding;
 import org.nutz.lang.Stopwatch;
+import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.stream.StringInputStream;
 import org.nutz.lang.util.NutBean;
@@ -336,6 +340,44 @@ public class AppModule extends AbstractWnModule {
                 log.debugf("APPLoad(%s) : %s DONE %s", appName, rsName, sw);
             }
         }
+    }
+
+    /**
+     * 如果想在浏览器 unload 的时候执行一个命令，只能通过 <code>navigator.sendBeacon()</code>
+     * 发送请求才能确保服务器会收到，但是不幸的时候，它只能发送 POST 请求，且不能指定 HEADER
+     * <p>
+     * 我们的 <code>run</code> 接口，假设浏览器发送的是
+     * <code>Content-Type: application/x-www-form-urlencoded;</code> 但是
+     * <code>navigator.sendBeacon()</code> 只能根据内容，自动决定 <code>ContentType</code>
+     * 有时候（譬如我刚才）将 body 直接变成<code>x-www-form-urlencoded</code>的字符串发送过来，但是
+     * HttpServletRequest 获取 body 参数的时候就不会解析 body ，因此也拿不到参数，这坑了我好几个小时。
+     * 
+     * 为了能可靠，我建立这样一个接口，无论你 POST 过来的是什么 <code>ContentType</code> 我都会把请求内容 按照 JSON
+     * 解析，并且得到 run 函数需要的参数
+     * 
+     * @param appName
+     * @param req
+     * @param resp
+     * @throws IOException
+     */
+    @Filters(@By(type = WnCheckSession.class, args = {"true"}))
+    @At("/beacon_run/**")
+    @Ok("void")
+    @Fail("ajax")
+    public void beacon_run(String appName,
+                           final HttpServletRequest req,
+                           final HttpServletResponse resp)
+            throws IOException {
+        Reader r = new InputStreamReader(req.getInputStream(), Encoding.CHARSET_UTF8);
+        String json = Streams.readAndClose(r);
+        NutMap map = Json.fromJson(NutMap.class, json);
+        String mime = map.getString("mime");
+        String mos = map.getString("mos");
+        String PWD = map.getString("PWD");
+        String cmd = map.getString("cmd");
+        String in = map.getString("in");
+        boolean ffb = map.getBoolean("ffb");
+        run(appName, mime, mos, PWD, cmd, in, ffb, req, resp);
     }
 
     /**

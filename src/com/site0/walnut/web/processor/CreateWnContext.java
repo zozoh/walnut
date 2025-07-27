@@ -60,6 +60,7 @@ public class CreateWnContext extends AbstractProcessor {
                         for (NameValuePair pair : pairs) {
                             if ("_wn_ticket_".equals(pair.getName())) {
                                 ticket = pair.getValue();
+                                break;
                             }
                         }
                     }
