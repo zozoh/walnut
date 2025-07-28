@@ -9,12 +9,12 @@ public class sqlx_cache extends SqlxFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "^reset$");
+        return ZParams.parse(args, "^clear$");
     }
 
     @Override
     protected void process(WnSystem sys, SqlxContext fc, ZParams params) {
-        if (params.is("reset")) {
+        if (params.is("clear")) {
             fc.quiet = true;
             fc.sqls.clear();
             sys.out.printlnf("clear done: %s", fc.sqls.size());

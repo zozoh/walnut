@@ -23,7 +23,7 @@ public class sqlx_dvcheck extends SqlxFilter {
         String key = params.val_check(1);
         // version $before:$after
         String val = params.val_check(2);
-        NutMap vars = new NutMap(fc.getVarMap());
+        NutMap vars = fc.hasVarMap() ? new NutMap(fc.getVarMap()) : new NutMap();
 
         String[] vv = Ws.splitIgnoreBlank(val, ":");
         vars.put("before", Wlang.map(key, vv[0]));
