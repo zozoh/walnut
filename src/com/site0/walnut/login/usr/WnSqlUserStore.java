@@ -93,7 +93,6 @@ public class WnSqlUserStore extends AbstractWnUserStore {
         bean.put("phone", u.getPhone());
         bean.put("email", u.getEmail());
         bean.put("main_group", u.getMainGroup());
-        bean.put("roles", Ws.sBlank(Ws.join(u.getRoles(), ","), null));
         bean.put("last_login_at", u.getLastLoginAtInUTC());
         bean.put("salt", u.getSalt());
         bean.put("passwd", u.getPasswd());

@@ -65,7 +65,7 @@ public class cmd_me extends JvmExecutor {
         }
         // 显示
         else {
-            NutMap jsonRe = me.toBean();
+            NutMap jsonRe = me.toBean(sys.roles());
 
             // JSON 输出
             if (params.is("json")) {

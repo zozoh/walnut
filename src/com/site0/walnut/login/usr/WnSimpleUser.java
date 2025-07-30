@@ -1,6 +1,8 @@
 package com.site0.walnut.login.usr;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import org.nutz.json.Json;
@@ -12,7 +14,9 @@ import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.login.UserRace;
 import com.site0.walnut.login.role.WnRoleRank;
+import com.site0.walnut.login.role.WnRole;
 import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.role.WnRoleLoader;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Wobj;
 import com.site0.walnut.util.Ws;
@@ -222,10 +226,6 @@ public class WnSimpleUser implements WnUser {
             else if ("grp".equals(stdKey)) {
                 this.setMainGroup(bean.getString(key));
             }
-            // roles
-            else if ("role".equals(key)) {
-                this.setRoles(bean.getArray(key, String.class));
-            }
             // loginAt
             else if ("lastLoginAt".equals(stdKey)) {
                 Object str = bean.getString(key);
@@ -343,6 +343,22 @@ public class WnSimpleUser implements WnUser {
     }
 
     @Override
+    public NutMap toBean(WnRoleLoader rl) {
+        NutMap re = this.toBean();
+        if (null != rl) {
+            WnRoleList roles = rl.getRoles(this);
+            List<NutBean> rlist = new ArrayList<>(roles.size());
+            for (WnRole role : roles) {
+                NutBean rb = role.toBean();
+                rb.pick("grp", "type", "role");
+                rlist.add(rb);
+            }
+            re.put("roles", roles);
+        }
+        return re;
+    }
+
+    @Override
     public UserRace getUserRace() {
         return userRace;
     }
@@ -456,16 +472,6 @@ public class WnSimpleUser implements WnUser {
     @Override
     public void setMainGroup(String mainGroup) {
         this.mainGroup = mainGroup;
-    }
-
-    @Override
-    public String[] getRoles() {
-        return roles;
-    }
-
-    @Override
-    public void setRoles(String[] roleNames) {
-        this.roles = roleNames;
     }
 
     @Override

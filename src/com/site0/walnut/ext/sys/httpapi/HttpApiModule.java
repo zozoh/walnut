@@ -43,6 +43,8 @@ import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.ext.data.pvg.BizPvgService;
 import com.site0.walnut.ext.data.pvg.WnAuthOptions;
 import com.site0.walnut.login.WnLoginApiMaker;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.role.WnRoleType;
 import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
@@ -282,6 +284,8 @@ public class HttpApiModule extends AbstractWnModule {
     }
 
     private void __do_www_check_pvg(final WnHttpApiContext apc) {
+        // !! 进行到这里，一定已经经过了 __do_www_auth 的检查
+        // !! 也就是说， wwwSe 与 wwwMe 还有 loginApi 都一定不是空值
         String[] assActions = apc.oApi.getArray("pvg-assert", String.class);
 
         // 没有声明检查项，不捡
@@ -316,8 +320,8 @@ public class HttpApiModule extends AbstractWnModule {
         apc.bizPvgs = new BizPvgService(setup);
 
         // 得到当前账户的角色
-        String[] roleNames = apc.wwwMe.getRoles();
-        ;
+        WnRoleList roles = apc.getWWWRoles();
+        String[] roleNames = roles.getRoleNames(WnRoleType.MEMBER);
 
         // 开始检查咯
         for (String assA : assActions) {
@@ -905,7 +909,6 @@ public class HttpApiModule extends AbstractWnModule {
                 apc.reqMeta.put("http-www-me", apc.wwwMe.getMeta());
                 apc.reqMeta.put("http-www-me-phone", apc.wwwMe.getPhone());
                 apc.reqMeta.put("http-www-me-email", apc.wwwMe.getEmail());
-                apc.reqMeta.put("http-www-me-roles", apc.wwwMe.getRoles());
                 apc.reqMeta.put("http-www-me-mainGroup", apc.wwwMe.getMainGroup());
             }
         }

@@ -6,6 +6,7 @@ import org.nutz.lang.util.NutMap;
 import com.site0.walnut.login.UserRace;
 import com.site0.walnut.login.role.WnRoleRank;
 import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.role.WnRoleLoader;
 
 /**
  * 对于 id,phone,name,email 登录和容易理解，对于微信等第三方登录这里需要说明一下。
@@ -38,6 +39,8 @@ public interface WnUser {
     String toString();
 
     NutMap toBean();
+
+    NutMap toBean(WnRoleLoader rl);
 
     void mergeToBean(NutBean bean);
 
@@ -80,10 +83,6 @@ public interface WnUser {
     String getMainGroup();
 
     void setMainGroup(String mainGroupName);
-
-    String[] getRoles();
-
-    void setRoles(String[] roleNames);
 
     boolean hasMeta();
 

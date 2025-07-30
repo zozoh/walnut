@@ -6,6 +6,7 @@ import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.login.UserRace;
 import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.role.WnRoleLoader;
 import com.site0.walnut.login.role.WnRoleRank;
 
 public class WnLazyUser implements WnUser {
@@ -130,6 +131,14 @@ public class WnLazyUser implements WnUser {
         return _user.toBean();
     }
 
+    @Override
+    public NutMap toBean(WnRoleLoader rl) {
+        if (!this.fullLoaded) {
+            this.reloadInnerUser();
+        }
+        return _user.toBean(rl);
+    }
+
     public void mergeToBean(NutBean bean) {
         if (!this.fullLoaded) {
             this.reloadInnerUser();
@@ -244,20 +253,6 @@ public class WnLazyUser implements WnUser {
             this.reloadInnerUser();
         }
         _user.setMainGroup(mainGroup);
-    }
-
-    public String[] getRoles() {
-        if (!this.fullLoaded) {
-            this.reloadInnerUser();
-        }
-        return _user.getRoles();
-    }
-
-    public void setRoles(String[] roleNames) {
-        if (!this.fullLoaded) {
-            this.reloadInnerUser();
-        }
-        _user.setRoles(roleNames);
     }
 
     public boolean hasMeta() {

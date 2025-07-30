@@ -136,27 +136,30 @@ public class WnSimpleSession implements WnSession {
 
     @Override
     public NutMap toBean() {
-        NutMap re = new NutMap();
-        this.mergeToBean(re);
-        return re;
+        return toBeanWithLoader(null);
     }
 
     @Override
     public NutMap toBean(WnLoginApi auth) {
+        if (null == auth) {
+            return toBeanWithLoader(null);
+        }
         WnRoleLoader loader = auth.roleLoader(this);
-        return toBean(loader);
+        return toBeanWithLoader(loader);
     }
 
     @Override
-    public NutMap toBean(WnRoleLoader rl) {
-        WnRoleType rt = rl.getRoleTypeOfMainGroup(user);
+    public NutMap toBeanWithLoader(WnRoleLoader rl) {
         NutMap re = new NutMap();
-        re.put("mainRole", rt);
-        this.mergeToBean(re);
+        this.mergeToBean(re, null);
+        if (null != rl) {
+            WnRoleType rt = rl.getRoleTypeOfMainGroup(user);
+            re.put("mainRole", rt);
+        }
         return re;
     }
 
-    public void mergeToBean(NutBean bean) {
+    private void mergeToBean(NutBean bean, WnRoleLoader rl) {
         bean.put("site", this.site);
         bean.put("type", this.type);
         bean.put("ticket", this.ticket);

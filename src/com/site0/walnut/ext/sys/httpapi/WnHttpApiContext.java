@@ -10,6 +10,7 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.pvg.BizPvgService;
 import com.site0.walnut.ext.data.pvg.WnAuthOptions;
 import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.role.WnRoleList;
 import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.WnContext;
@@ -181,4 +182,11 @@ public class WnHttpApiContext {
      * 响应码
      */
     int respCode;
+
+    public WnRoleList getWWWRoles() {
+        if (null == loginApi || null == wwwSe || null == wwwMe) {
+            return null;
+        }
+        return loginApi.roleLoader(wwwSe).getRoles(wwwMe);
+    }
 }

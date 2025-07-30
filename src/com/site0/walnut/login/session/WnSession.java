@@ -78,7 +78,7 @@ public interface WnSession {
 
     NutMap toBean(WnLoginApi auth);
 
-    NutMap toBean(WnRoleLoader rl);
+    NutMap toBeanWithLoader(WnRoleLoader rl);
 
     String getMyGroup();
 

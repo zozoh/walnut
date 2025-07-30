@@ -37,6 +37,13 @@ public enum WnRoleType {
         return this.value;
     }
 
+    /**
+     * 判断是否本角色类型属于或者高于给定的角色类型
+     * 
+     * @param role
+     *            指定的角色类型，如果传入 null 则一定返回 false
+     * @return 是否本角色类型属于或者高于给定的角色类型
+     */
     public boolean isOf(WnRoleType role) {
         if (null == role) {
             return false;

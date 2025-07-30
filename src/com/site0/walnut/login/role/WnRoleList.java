@@ -103,6 +103,16 @@ public class WnRoleList implements List<WnRole> {
         return new WnRoleList(list);
     }
 
+    public String[] getRoleNames(WnRoleType type) {
+        List<String> reList = new ArrayList<>(this.size());
+        for (WnRole role : this) {
+            if (role.getType().isOf(type)) {
+                reList.add(role.getGroup());
+            }
+        }
+        return reList.toArray(new String[reList.size()]);
+    }
+
     public WnRole getRole(String group) {
         WnRoleList list = getSubList(group);
         if (list.size() > 0) {
