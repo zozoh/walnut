@@ -17,7 +17,7 @@ public class WnRoleStoreMaker {
         // 采用标准存储
         else {
             String roleDirPath = Ws.sBlank(options.path, "~/role");
-            re = new WnStdRoleStore(io, sessionVars, roleDirPath);
+            re = new WnStdRoleStore(io, sessionVars, roleDirPath, options);
         }
         return new WnRoleStoreProxy(io, re);
     }

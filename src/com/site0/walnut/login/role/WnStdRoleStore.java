@@ -9,19 +9,27 @@ import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.core.bean.WnIoObj;
+import com.site0.walnut.login.WnLoginCacheOptions;
 import com.site0.walnut.util.Wn;
 
 public class WnStdRoleStore extends AbstractWnRoleStore {
 
     private WnObj oHome;
 
-    public WnStdRoleStore(WnIo io, NutBean sessionVars, String homePath) {
+    public WnStdRoleStore(WnIo io,
+                          NutBean sessionVars,
+                          String homePath,
+                          WnLoginCacheOptions options) {
         super(io, sessionVars);
-        this.oHome = io.check(null, homePath);
+        String aph = Wn.normalizeFullPath(homePath, sessionVars);
+        this.oHome = io.check(null, aph);
+
+        WnRoleCacheSingleton _rcs = WnRoleCacheSingleton.me();
+        this.cache = _rcs.getCache(aph, options);
     }
 
     public WnStdRoleStore(WnIo io) {
-        this(io, new NutMap(), "/sys/role");
+        this(io, new NutMap(), "/sys/role", null);
     }
 
     protected List<WnRole> _get_roles(String uid) {

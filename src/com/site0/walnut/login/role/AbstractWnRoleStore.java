@@ -1,25 +1,25 @@
 package com.site0.walnut.login.role;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import org.nutz.lang.util.NutBean;
+import org.nutz.log.Log;
 
 import com.site0.walnut.api.io.WnIo;
+import com.site0.walnut.cache.WnCache;
 import com.site0.walnut.login.usr.WnUser;
+import com.site0.walnut.util.Wlog;
 
 public abstract class AbstractWnRoleStore implements WnRoleStore {
 
+    private static final Log log = Wlog.getAUTH();
     protected WnIo io;
     protected NutBean sessionVars;
     // TODO 这是个简单缓存，以后在扩展更优化的缓存策略
-    protected Map<String, WnRoleList> cache;
+    protected WnCache<WnRoleList> cache;
 
     public AbstractWnRoleStore(WnIo io, NutBean sessionVars) {
         this.io = io;
         this.sessionVars = sessionVars;
-        this.cache = new HashMap<>();
     }
 
     @Override
@@ -41,6 +41,11 @@ public abstract class AbstractWnRoleStore implements WnRoleStore {
         WnRoleList re = cache.get(uid);
         if (null != re) {
             return re;
+        }
+
+        //System.err.printf("缓存未命中，因此 getRoles: %s\n", uid);
+        if (log.isDebugEnabled()) {
+            log.debugf("AbstractRoleStore: fail to match cach, so getRole: %s", uid);
         }
 
         List<WnRole> results = _get_roles(uid);
@@ -99,7 +104,7 @@ public abstract class AbstractWnRoleStore implements WnRoleStore {
 
     @Override
     synchronized public void clearCache() {
-        cache.clear();
+        cache.clearAll();
     }
 
 }

@@ -172,6 +172,19 @@ public class WnIoObj extends NutMap implements WnObj {
         return isSameId(o.id());
     }
 
+    public boolean isFromLink() {
+        return this.has("fromLink");
+    }
+
+    public String fromLink() {
+        return this.getString("fromLink");
+    }
+
+    public WnObj fromLink(String link) {
+        this.put("fromLink", link);
+        return this;
+    }
+
     public boolean isLink() {
         return !Strings.isBlank(link());
     }
@@ -549,9 +562,12 @@ public class WnIoObj extends NutMap implements WnObj {
     // -----------------------------------------
     // 下面的属性不要主动设置，用 nd() 方法设置
     // -----------------------------------------
+    public String getPath() {
+        return getString("ph");
+    }
 
     public String path() {
-        String ph = getString("ph");
+        String ph = getPath();
         if (Strings.isBlank(ph)) {
             this.loadParents(null, false);
             ph = getString("ph");

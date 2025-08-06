@@ -887,11 +887,17 @@ public abstract class Wn {
                                                     final WnObj o,
                                                     final boolean includeSelf,
                                                     final long now) {
-            WnContext wc = Wn.WC();
 
-            // 防止无穷递归
-            if (wc.isSynctimeOff())
+            // 防空
+            if (null == o) {
                 return;
+            }
+
+            WnContext wc = Wn.WC();
+            // 防止无穷递归
+            if (wc.isSynctimeOff()) {
+                return;
+            }
 
             // 读取所有的祖先节点列表
             final List<WnObj> list = new LinkedList<WnObj>();
@@ -1705,8 +1711,9 @@ public abstract class Wn {
             // 如果节点不存在
             if (null == o)
                 throw Er.create("e.io.obj.noexists", ln);
-            // 恢复节点的 path
-            // o.path(oldPath);
+            // 不要丢失节点的链接路径属性，这样在 WnIoCacheWrapper
+            // 可以将链接的目录也能及时清除缓存
+            o.fromLink(ln);
         }
         return o;
     }

@@ -3,17 +3,15 @@ package com.site0.walnut.impl.box;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.site0.walnut.util.Wlang;
-
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import com.site0.walnut.util.Wlog;
 import org.nutz.log.impl.AbstractLog;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
+
 import com.site0.walnut.api.WnAuthExecutable;
 import com.site0.walnut.api.box.WnServiceFactory;
 import com.site0.walnut.api.err.Er;
@@ -26,6 +24,8 @@ import com.site0.walnut.login.role.WnRoleLoader;
 import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Cmds;
+import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 import com.site0.walnut.util.WnSysConf;
@@ -166,17 +166,31 @@ public class WnSystem implements WnAuthExecutable {
         _runner.in = new EscapeCloseInputStream(null == stdIn ? in.getInputStream() : stdIn);
 
         if (log.isInfoEnabled())
-            log.info(" > sys.exec: " + cmdText);
+            log.info("WnSystem.exec: " + cmdText);
 
-        for (String cmdLine : cmdLines) {
+        for (int i = 0; i < cmdLines.length; i++) {
+            String cmdLine = cmdLines[i];
             // 跳过注释行和空行
             if (Ws.isBlank(cmdLine) || cmdLine.startsWith("#")) {
                 continue;
             }
+            if (log.isDebugEnabled())
+                log.debugf("WnSystem.exec: i=%d, cmdLine=%s", i, cmdLine);
+            
             _runner.run(cmdLine);
+            
+            if (log.isDebugEnabled())
+                log.debugf("WnSystem.exec: i=%d, _runner.wait_for_idle()", i);
             _runner.wait_for_idle();
         }
+        
+        if (log.isDebugEnabled())
+            log.debug("WnSystem.exec: _runner.__free()");
+        
         _runner.__free();
+        
+        if (log.isDebugEnabled())
+            log.debug("WnSystem.exec: done");
     }
 
     public void exec(String cmdText,

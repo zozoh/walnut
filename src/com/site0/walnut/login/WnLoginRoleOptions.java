@@ -5,7 +5,7 @@ package com.site0.walnut.login;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class WnLoginRoleOptions {
+public class WnLoginRoleOptions extends WnLoginCacheOptions {
 
     /**
      * 角色信息存储的路径，譬如 "~/role"
@@ -32,7 +32,7 @@ public class WnLoginRoleOptions {
      * </ul>
      */
     public String sqlQuery;
-    
+
     /**
      * 获取单条记录 SQL，需要支持变量
      * 
@@ -73,7 +73,7 @@ public class WnLoginRoleOptions {
      * 上述字段除了 <code>id</code>，数据表里如果没有，那么对应的 SQL 模板里应该过滤掉对应的输入变量
      */
     public String sqlInsert;
-    
+
     /**
      * 更新记录的 SQL，数据表需要支持字段：
      * 

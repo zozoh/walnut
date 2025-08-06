@@ -17,6 +17,7 @@ import org.nutz.log.Log;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
+import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.sqlx.loader.SqlHolder;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
@@ -29,6 +30,7 @@ import com.site0.walnut.ext.sys.sql.WnDaos;
 import com.site0.walnut.login.WnLoginRoleOptions;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
+import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wtime;
 import com.site0.walnut.val.id.WnSnowQMaker;
@@ -66,8 +68,16 @@ public class WnSqlRoleStore extends AbstractWnRoleStore {
         this.auth = WnDaos.loadAuth(io, daoName, sessionVars);
 
         // 准备 SQL 管理器
+        String path = Ws.sBlank(options.sqlHome, "~/.sqlx");
+        String aph = Wn.normalizeFullPath(path, sessionVars);
+        WnObj oDir = io.check(null, aph);
+        this.sqls = Sqlx.getSqlHolder(io, oDir);
 
-        this.sqls = Sqlx.getSqlHolderByPath(io, sessionVars, options.sqlHome);
+        // 准备缓冲
+        WnRoleCacheSingleton _rcs = WnRoleCacheSingleton.me();
+        String[] ss = Wlang.array(aph, daoName, this.sqlQuery);
+        String cacheKey = Ws.join(ss, ":");
+        this.cache = _rcs.getCache(cacheKey, options);
     }
 
     @Override

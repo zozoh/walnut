@@ -1241,16 +1241,27 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         WnObj a1 = io.create(null, "/linktest/a/a1", WnRace.FILE);
         WnObj b = io.create(null, "/linktest/b", WnRace.DIR);
         try {
+            // /linktest/
+            // |-- a/
+            // |   |--a1
+            // |-- b/  --> /linktest/a/
             io.writeText(a1, "haha");
             io.appendMeta(b, "ln:'/linktest/a'");
 
             assertEquals("haha", io.readText(io.fetch(null, "/linktest/a/a1")));
             assertEquals("haha", io.readText(io.fetch(null, "/linktest/b/a1")));
 
-            io.writeText(io.fetch(null, "/linktest/b/a1"), "hehe");
+            WnObj f0 = io.fetch(null, "/linktest/b/a1");
+            io.writeText(f0, "hehehe");
+            System.out.printf("f0.sha1=%s, f0.len=%d\n", f0.sha1(), f0.len());
 
-            assertEquals("hehe", io.readText(io.fetch(null, "/linktest/a/a1")));
-            assertEquals("hehe", io.readText(io.fetch(null, "/linktest/b/a1")));
+            WnObj f1 = io.fetch(null, "/linktest/b/a1");
+            System.out.printf("f1.sha1=%s, f1.len=%d\n", f1.sha1(), f1.len());
+            assertEquals("hehehe", io.readText(f1));
+
+            WnObj f2 = io.fetch(null, "/linktest/a/a1");
+            System.out.printf("f2.sha1=%s, f2.len=%d\n", f2.sha1(), f2.len());
+            assertEquals("hehehe", io.readText(f2));
 
         }
         finally {
@@ -1586,42 +1597,48 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
 
     @Test
     public void test_array_push_pull_by_query() throws IOException {
-        io.create(null, "/a/b/z", WnRace.FILE);
-        WnObj o = io.create(null, "/a/b/c", WnRace.FILE);
-        String id = o.id();
-        String pid = o.parentId();
+        WnObj oZ = io.create(null, "/a/b/z", WnRace.FILE);
+        WnObj oC = io.create(null, "/a/b/c", WnRace.FILE);
+        String id = oC.id();
+        String pid = oC.parentId();
+        assertEquals(pid, oZ.parentId());
+        assertEquals(pid, oZ.parent().id());
+        assertTrue(oZ.hasParent());
 
-        assertEquals("/a/b/c", o.path());
+        WnQuery q_by_id = Wn.Q.id(id);
+        WnQuery q_by_pid = Wn.Q.pid(pid).setv("nm", "c");
+
+        assertEquals("/a/b/c", oC.path());
 
         // 新增
-        io.push(Wn.Q.id(id), "pets", "wendal");
-        io.push(Wn.Q.pid(pid), "pets", "zozoh");
-        io.push(Wn.Q.pid(pid), "pets", "pangwu");
+        io.push(q_by_id, "pets", "wendal");
+        io.push(q_by_pid, "pets", "zozoh");
+        io.push(q_by_pid, "pets", "pangwu");
 
-        o = io.get(id);
-        assertNotNull(o);
-        assertNotNull(o.get("pets"));
-        assertEquals(3, Wlang.eleSize(o.get("pets")));
-        Wlang.each(o.get("pets"), (int index, Object ele, Object src) -> {
+        oC = io.get(id);
+        assertNotNull(oC);
+        assertNotNull(oC.get("pets"));
+        assertEquals(3, Wlang.eleSize(oC.get("pets")));
+        Wlang.each(oC.get("pets"), (int index, Object ele, Object src) -> {
             assertTrue("wendal".equals(ele) || "zozoh".equals(ele) || "pangwu".equals(ele));
         });
 
         // 减少
-        io.pull(Wn.Q.pid(pid), "pets", "zozoh");
-        o = io.get(id);
-        assertNotNull(o);
-        assertNotNull(o.get("pets"));
-        assertEquals(2, Wlang.eleSize(o.get("pets")));
-        Wlang.each(o.get("pets"), (int index, Object ele, Object src) -> {
+        io.pull(q_by_pid, "pets", "zozoh");
+        oC = io.get(id);
+        assertNotNull(oC);
+        assertNotNull(oC.get("pets"));
+        assertEquals(2, Wlang.eleSize(oC.get("pets")));
+        Wlang.each(oC.get("pets"), (int index, Object ele, Object src) -> {
             assertTrue("wendal".equals(ele) || "pangwu".equals(ele));
         });
 
-        io.pull(Wn.Q.pid(pid), "pets", "wendal");
-        io.pull(Wn.Q.pid(pid), "pets", "pangwu");
+        io.pull(q_by_pid, "pets", "wendal");
+        io.pull(q_by_pid, "pets", "pangwu");
 
-        o = io.get(id);
-        assertNotNull(o);
-        assertEquals(0, Wlang.eleSize(o.get("pets")));
+        oC = io.get(id);
+        assertNotNull(oC);
+        assertEquals(0, Wlang.eleSize(oC.get("pets")));
 
     }
 

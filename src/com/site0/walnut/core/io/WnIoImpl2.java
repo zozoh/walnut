@@ -338,6 +338,10 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public WnObj fetch(WnObj p, String path) {
+        WnObj re = null;
+        if (log.isDebugEnabled()) {
+            log.debugf("rawIo.fetch: p=%s, path=%s", p, path);
+        }
         if (null == path)
             return null;
 
@@ -348,11 +352,12 @@ public class WnIoImpl2 implements WnIo {
         // 处理挂载节点
         if (null != p && p.isMount()) {
             WnIoMapping mapping = mappings.checkMapping(p);
-            return mapping.getIndexer().fetch(p, path);
+            re = mapping.getIndexer().fetch(p, path);
+        } else {
+            String[] ss = Strings.splitIgnoreBlank(path, "[/]");
+            re = fetch(p, ss, 0, ss.length);
         }
-
-        String[] ss = Strings.splitIgnoreBlank(path, "[/]");
-        return fetch(p, ss, 0, ss.length);
+        return re;
     }
 
     @Override
@@ -436,6 +441,12 @@ public class WnIoImpl2 implements WnIo {
                 nd = globalIndexer.fetchByName(p, nm);
             }
 
+            // 设置自己的 fromLink
+            if (p.isFromLink()) {
+                String fromLn = p.fromLink();
+                nd.fromLink(Wn.appendPath(fromLn, nm));
+            }
+
             // 找不到了，就返回
             if (null == nd)
                 return null;
@@ -485,6 +496,12 @@ public class WnIoImpl2 implements WnIo {
         // 仅仅是普通名称
         else {
             nd = globalIndexer.fetchByName(p, nm);
+        }
+        // ................................................
+        // 设置自己的 fromLink
+        if (p.isFromLink()) {
+            String fromLn = p.fromLink();
+            nd.fromLink(Wn.appendPath(fromLn, nm));
         }
         // ................................................
         // 最后，可惜，还是为空
@@ -1514,17 +1531,19 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public <T> T readJson(WnObj o, Class<T> classOfT) {
-        InputStream ins = null;
-        Reader r = null;
-        try {
-            ins = this.getInputStream(o, 0);
-            r = Streams.buffr(Streams.utf8r(ins));
-            return Json.fromJson(classOfT, r);
-        }
-        finally {
-            Streams.safeClose(r);
-            Streams.safeClose(ins);
-        }
+        // InputStream ins = null;
+        // Reader r = null;
+        // try {
+        // ins = this.getInputStream(o, 0);
+        // r = Streams.buffr(Streams.utf8r(ins));
+        // return Json.fromJson(classOfT, r);
+        // }
+        // finally {
+        // Streams.safeClose(r);
+        // Streams.safeClose(ins);
+        // }
+        String json = readText(o);
+        return Json.fromJson(classOfT, json);
     }
 
     @Override

@@ -35,6 +35,7 @@ import com.site0.walnut.core.hdl.redis.RedisIoHandleManager;
 import com.site0.walnut.core.indexer.localfile.LocalFileIndexer;
 import com.site0.walnut.core.indexer.localfile.LocalFileWIndexer;
 import com.site0.walnut.core.indexer.mongo.MongoIndexer;
+import com.site0.walnut.core.io.WnIoCacheWrapper;
 import com.site0.walnut.core.io.WnIoImpl2;
 import com.site0.walnut.core.mapping.WnBMFactory;
 import com.site0.walnut.core.mapping.WnIndexerFactory;
@@ -119,6 +120,11 @@ public class IoCoreSetup {
     }
 
     public WnIo getIo() {
+        WnIo io = getRawIo();
+        return new WnIoCacheWrapper(io);
+    }
+
+    public WnIo getRawIo() {
         if (null == _io) {
             WnIoMappingFactory mappings = this.getWnIoMappingFactory();
             // 全局索引和桶管理器

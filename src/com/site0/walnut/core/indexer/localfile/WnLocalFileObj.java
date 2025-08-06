@@ -128,6 +128,10 @@ public class WnLocalFileObj extends NutMap implements WnObj {
         return false;
     }
 
+    public String getPath() {
+        return path();
+    }
+
     @Override
     public String path() {
         if (null != _parent && !_parent.isSameId(oHome)) {
@@ -387,7 +391,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     public boolean isMountEntry() {
         return false;
     }
-    
+
     @Override
     public boolean isMountedObj() {
         return true;
@@ -406,6 +410,16 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     @Override
     public WnObj clone() {
         return new WnLocalFileObj(oHome, dHome, file, mimes);
+    }
+
+    @Override
+    public boolean isFromLink() {
+        return false;
+    }
+
+    @Override
+    public String fromLink() {
+        return null;
     }
 
     @Override
@@ -717,7 +731,12 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     }
 
     @Override
-    public WnObj link(String lid) {
+    public WnObj fromLink(String link) {
+        return this;
+    }
+
+    @Override
+    public WnObj link(String link) {
         throw Wlang.noImplement();
     }
 

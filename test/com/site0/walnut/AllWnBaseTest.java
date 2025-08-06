@@ -4,6 +4,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import com.site0.walnut.alg.AllAlgTest;
 import com.site0.walnut.api.AllApiTest;
+import com.site0.walnut.cache.AllCacheTest;
 import com.site0.walnut.cheap.AllCheapTest;
 import com.site0.walnut.core.AllCoreTest;
 import com.site0.walnut.core.eot.AllExpiObjTableTest;
@@ -16,6 +17,7 @@ import com.site0.walnut.validate.WnMatchTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({AllAlgTest.class,
+                     AllCacheTest.class,
                      AllApiTest.class,
                      AllCheapTest.class,
                      AllCoreTest.class,

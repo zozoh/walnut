@@ -64,6 +64,7 @@ public class WnLoginApiMaker {
     public WnLoginApi make(WnIo io, NutBean sessionVars, WnLoginOptions options) {
 
         WnSimpleLoginApi api = new WnSimpleLoginApi(io);
+        
         // 混合模式，会话一定采用系统会话存储
         if (this.hydrated) {
             Ioc ioc = Mvcs.getIoc();
@@ -74,9 +75,13 @@ public class WnLoginApiMaker {
             api.sessions = sessionStoreMaker.make(io, sessionVars, options.session);
         }
 
+        // 用户接口
         api.users = userStoreMaker.make(io, sessionVars, options.user, options.domain);
-
+        
+        // 角色接口
         api.roles = roleStoreMaker.make(io, sessionVars, options.role);
+        
+        // 其他的属性
         api.domain = options.domain;
         api.site = Wn.normalizeFullPath(options.site, sessionVars);
         api.sessionDuration = options.sessionDuration;

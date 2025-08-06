@@ -33,7 +33,7 @@ public abstract class BaseHookTest extends BaseBoxTest {
     // 改用钩子版的 IO
     @Override
     protected WnIo prepareIo() {
-        return new WnIoHookedWrapper(setup.getIo());
+        return new WnIoHookedWrapper(setup.getRawIo());
     }
 
     @Override

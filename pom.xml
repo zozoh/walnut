@@ -5,8 +5,8 @@
 	<groupId>com.site0</groupId>
 	<packaging>jar</packaging>
 	<name>walnut</name>
-	<version>14.85</version>
-	<description>LOONG[AUTH2]</description>
+	<version>14.86</version>
+	<description>LOONG[CACHE]</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<elasticsearch.version>6.3.2</elasticsearch.version>

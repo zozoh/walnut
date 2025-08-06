@@ -53,6 +53,8 @@ public interface WnObj extends NutBean, Comparable<WnObj> {
 
     WnObj clearRWMetaKeys();
 
+    String getPath();
+
     String path();
 
     WnObj path(String path);
@@ -182,6 +184,12 @@ public interface WnObj extends NutBean, Comparable<WnObj> {
     WnObj update(Map<? extends String, ? extends Object> map);
 
     WnObj updateBy(WnObj o);
+
+    boolean isFromLink();
+
+    String fromLink();
+
+    WnObj fromLink(String link);
 
     boolean isLink();
 

@@ -14,6 +14,9 @@ import com.site0.walnut.util.Wlog;
 
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
+import org.nutz.web.WebException;
+import org.nutz.web.Webs.Err;
+
 import com.site0.walnut.BaseUsrTest;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
@@ -207,8 +210,9 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
                 fail();
             }
             catch (Exception e) {
+                WebException err = Err.wrap(e);
                 // 因为没加到组里，所以不能进入这个目录
-                assertEquals("e.io.forbidden : /home/userA", e.toString());
+                assertEquals("e.io.forbidden", err.getKey());
             }
 
             // 把 B 用户加入到组里就能读
