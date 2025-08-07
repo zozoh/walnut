@@ -42,7 +42,8 @@
       //  sqlName = 'pet.insert'
       //  sqlName1 = 'pet'
       //  sqlName2 = 'inert'
-      // 组织数据的时候可以直接使用这两个变量
+      // 组织数据的时候可以直接使用这两个变量，当然如果你的正则表达式包含更多匹配组
+      // 怎会生成更多的 sqlName${N} 变量
       "sqlName": "^(pet).(insert|update)$",
       // 判断当前操作的数据行是否要记录一个历史
       // 采用的是 AutoMatch 语法，匹配的上下文就是操作记录本身
@@ -55,10 +56,11 @@
        *   sqlName: "pet.insert", // SQL 名称
        *   sqlName1: "pet",       // 第1个捕获组
        *   sqlName2: "insert",    // 第2个捕获组
-       *   session: {...},    // 会话对象
-       *   domain: "demo",    // 当前域
-       *   scene: "web"       // 来自 assign 段的设定
-       *   item: {...}        // 当前处理对象
+       *   sqlName{N}: "???",     // 第N个捕获组
+       *   session: {...},        // 会话对象
+       *   domain: "demo",        // 当前域
+       *   scene: "web"           // 来自 assign 段的设定
+       *   item: {...}            // 当前处理对象
        * }
        */
       "data": {
@@ -74,7 +76,25 @@
       // 将提取出来的数据暂存到【过滤管线上下文】
       "to": "HISTORY"
     }
-  ]
+  ],
+  /**
+   * 在整个 SQL 命令组执行的最后阶段，会通过 `target` 配置段
+   * 声明数据具体如何记录到目标数据源中
+   */
+  "target": {
+    /**
+     * 从上下文管线的哪个变量里取值，取出来就是 data 声明的列表数据
+     */
+    "from": "HISTORY",
+    /**
+     * 目标数据源的名称，默认与当前上下文同一个数据源。
+     */
+    "dao": "hislog",
+    /**
+     * 执行什么插入语句模板
+     */
+    "sqlInsert": "his.insert",
+  }
 }
 ```
 
