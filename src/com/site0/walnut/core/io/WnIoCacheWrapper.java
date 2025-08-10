@@ -58,8 +58,14 @@ public class WnIoCacheWrapper extends AbstractWnIoWrapper {
     public WnObj get(String id) {
         // 尝试命中
         WnObj o = cache.getObjById(id);
-        if (null != o)
-            return Wn.WC().whenAccess(o, true);
+        if (null != o) {
+            if (o.isExpired()) {
+                this.delete(o);
+                o = null;
+            } else {
+                return Wn.WC().whenAccess(o, true);
+            }
+        }
 
         o = super.get(id);
 
@@ -95,11 +101,21 @@ public class WnIoCacheWrapper extends AbstractWnIoWrapper {
         // System.out.printf("cacheIo.fetch: p=%s, path=%s\n", p, path);
         // 尝试命中
         WnObj o = null;
+        if (null != path && path.startsWith("id:") && !path.contains("/")) {
+            String oid = path.substring(3).trim();
+            return this.get(oid);
+        }
+
         if (null == p) {
             o = cache.fetchByPath(path);
             // System.out.printf("cacheIo.fetch: pathCache matched o=%s\n", o);
             if (null != o) {
-                return Wn.WC().whenAccess(o, asNull);
+                if (o.isExpired()) {
+                    this.delete(o);
+                    o = null;
+                } else {
+                    return Wn.WC().whenAccess(o, asNull);
+                }
             }
         }
         o = super.fetch(p, path);

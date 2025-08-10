@@ -101,9 +101,9 @@ public class mailx_imap extends MailxFilter {
             // 获取查询目录
             String folderName = Ws.sBlank(params.val(0, fc.config.imap.getInboxName()), "INBOX");
             IMAPFolder folder = (IMAPFolder) store.getFolder(folderName);
-            LOG(sys, debug, "Get folder: [%s]", folderName);
+            LOG(sys, debug, "mailx_imap: Get folder: folderName=%s", folderName);
             folder.open(Folder.READ_WRITE);
-            LOG(sys, debug, "Open folder: [%s]", folder.toString());
+            LOG(sys, debug, "mailx_imap: Open folder: folder open=%s", folder.toString());
 
             // 得到搜索条件
             SearchTerm term = __eval_term(isOr, terms);
@@ -111,7 +111,7 @@ public class mailx_imap extends MailxFilter {
             // 收取到消息
             Message[] messages = folder.search(term);
             int N = messages.length;
-            LOG(sys, debug, "find %s messages", N);
+            LOG(sys, debug, "mailx_imap: find messages, N=%d", N);
 
             if (N <= 0) {
                 return;
@@ -137,7 +137,7 @@ public class mailx_imap extends MailxFilter {
             ThreadPoolExecutor execPool = null;
 
             if (pool_sz_core > 1) {
-                LOG(sys, debug, "use execPool core=%d, max=%d", pool_sz_core, pool_sz_max);
+                LOG(sys, debug, "mailx_imap: use execPool core=%d, max=%d", pool_sz_core, pool_sz_max);
                 BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<>();
                 execPool = new ThreadPoolExecutor(pool_sz_core,
                                                   pool_sz_max,
@@ -193,7 +193,7 @@ public class mailx_imap extends MailxFilter {
             }
 
             sw.stop();
-            LOG(sys, debug, "IMAP done in %s: N=%d", sw.toString(), N);
+            LOG(sys, debug, "mailx_imap: IMAP done in %s: N=%d", sw.toString(), N);
 
             // 输出
             if (isJson) {

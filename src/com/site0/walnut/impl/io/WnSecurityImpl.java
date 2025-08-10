@@ -96,6 +96,8 @@ public class WnSecurityImpl extends AbstractWnSecurity {
 
         // 如果对象过期了，抛错
         if (o.isExpired()) {
+            // 确保删除
+            io.delete(o);
             if (asNull)
                 return null;
             throw Er.create("e.io.obj.expired", o);

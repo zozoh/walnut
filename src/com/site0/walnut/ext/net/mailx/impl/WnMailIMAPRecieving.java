@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
+import org.nutz.json.Json;
 import org.nutz.lang.Files;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
@@ -124,7 +125,8 @@ public class WnMailIMAPRecieving implements Runnable {
 
     private WnObj __create_mail_obj(WnImapMail mail) {
         // 不是 JSON 输出，也要打印到控制台
-        LOG(sys, debug, "%d/%d) %s", i, N, mail.toBrief());
+        // LOG(sys, debug, "%d/%d) %s", i, N, mail.toBrief());
+        LOG(sys, debug, "__create_mail_obj i=%d, N=%d, mailBrief=%s", i, N, mail.toBrief());
         NutMap meta = mail.toMeta(showHeader);
         meta.put("tp", "txt");
         meta.put("mime", "text/plain");
@@ -164,10 +166,13 @@ public class WnMailIMAPRecieving implements Runnable {
 
         // 写入对象元数据
         sys.io.appendMeta(oMail, meta);
-        LOG(sys, debug, "     IMAP appendMeta: %s", oMail.toString());
+        LOG(sys, debug, "     IMAP appendMeta: %s", Json.toJson(meta));
         // 写入正文
         if (null != text) {
             sys.io.writeText(oMail, text);
+            LOG(sys, debug, "     IMAP writeText: len=%s", text.length());
+        } else {
+            LOG(sys, debug, "     IMAP writeText: text is null");
         }
 
         //
