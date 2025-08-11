@@ -2,6 +2,8 @@ package com.site0.walnut.ext.sys.sql;
 
 import org.nutz.lang.Strings;
 
+import com.site0.walnut.util.Ws;
+
 public class WnDaoAuth {
 
     private String url;
@@ -15,6 +17,8 @@ public class WnDaoAuth {
     private int maxWait;
 
     private boolean testWhileIdle;
+
+    private String history;
 
     public WnDaoAuth() {
         this.maxActive = 50;
@@ -72,6 +76,18 @@ public class WnDaoAuth {
 
     public void setTestWhileIdle(boolean testWhileIdle) {
         this.testWhileIdle = testWhileIdle;
+    }
+
+    public boolean hasHistory() {
+        return !Ws.isBlank(history);
+    }
+
+    public String getHistory() {
+        return history;
+    }
+
+    public void setHistory(String history) {
+        this.history = history;
     }
 
     @Override

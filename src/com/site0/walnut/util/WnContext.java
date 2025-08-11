@@ -177,6 +177,14 @@ public class WnContext extends NutMap {
         return hookContext;
     }
 
+    public void setIPv4(String ipv4) {
+        this.put("ipv4", ipv4);
+    }
+
+    public String getIPv4() {
+        return this.getString("ipv4");
+    }
+
     public TimeZone getTimeZone() {
         return timeZone;
     }

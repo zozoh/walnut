@@ -23,6 +23,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.born.Borning;
 import org.nutz.mapl.Mapl;
 
+import com.site0.walnut.api.err.Er;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Ws;
 
@@ -34,6 +35,18 @@ import com.site0.walnut.util.Ws;
  * @author zozoh(zozohtnt@gmail.com)
  */
 public class NutMap extends LinkedHashMap<String, Object> implements NutBean {
+
+    @SuppressWarnings("unchecked")
+    public static NutMap WrapAny(Object map) {
+        if (null == map)
+            return null;
+        if (map instanceof NutMap)
+            return (NutMap) map;
+        if (map instanceof Map) {
+            return new NutMap((Map<String, Object>) map);
+        }
+        throw Er.create("e.nutmap.wrap.NotMap", map);
+    }
 
     public static NutMap WRAP(Map<String, Object> map) {
         if (null == map)

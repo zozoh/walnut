@@ -10,13 +10,16 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.nutz.json.Json;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.mapl.Mapl;
 
 import com.site0.walnut.api.err.Er;
-import com.site0.walnut.ext.data.sqlx.hislog.SqlxHislogRuntime;
+import com.site0.walnut.api.io.WnObj;
+import com.site0.walnut.ext.data.sqlx.hislog.SqlxHisConfig;
+import com.site0.walnut.ext.data.sqlx.hislog.SqlxHisRuntime;
 import com.site0.walnut.ext.data.sqlx.loader.SqlHolder;
 import com.site0.walnut.ext.data.sqlx.processor.ExecProcessor;
 import com.site0.walnut.ext.data.sqlx.processor.QueryProcessor;
@@ -94,7 +97,7 @@ public class SqlxContext extends JvmFilterContext {
 
     public ExecProcessor exec;
 
-    public SqlxHislogRuntime hislog;
+    public SqlxHisRuntime hislog;
 
     public Object result;
 
@@ -102,6 +105,10 @@ public class SqlxContext extends JvmFilterContext {
         this.query = new QueryProcessor(log);
         this.exec = new ExecProcessor(log);
         this.pipeContext = new NutMap();
+    }
+
+    public void loadAuth(WnSystem sys, String daoName) {
+        this.auth = WnDaos.loadAuth(sys, daoName);
     }
 
     public void setup(WnSystem sys) {
@@ -309,6 +316,39 @@ public class SqlxContext extends JvmFilterContext {
         return transLevel;
     }
 
+    public boolean hasHislogRuntime() {
+        return null != this.hislog;
+    }
+
+    public void setHislogRuntime(WnSystem sys, String confPath) {
+        WnObj oLogConf = Wn.checkObj(sys, confPath);
+        String json = sys.io.readText(oLogConf);
+        if (log.isDebugEnabled()) {
+            log.debugf("sqlx hislog use id:%s, logConfPath=%s", oLogConf.id(), confPath);
+        }
+        SqlxHisConfig config = Json.fromJson(SqlxHisConfig.class, json);
+
+        if (!config.hasValidLogs()) {
+            if (log.isWarnEnabled()) {
+                log.warnf("sqlx hislog without valid logs: id:%s, logConfPath=%s",
+                          oLogConf.id(),
+                          confPath);
+            }
+            return;
+        }
+
+        if (!config.hasValidTarget()) {
+            if (log.isWarnEnabled()) {
+                log.warnf("sqlx hislog without valid target: id:%s, logConfPath=%s",
+                          oLogConf.id(),
+                          confPath);
+            }
+            return;
+        }
+
+        this.hislog = new SqlxHisRuntime(sys, config, this);
+    }
+
     /**
      * 这里设置一下事务级别，如果已经在上下文里获取了连接，那么就要为连接设置上事务级别。
      * <p>
@@ -359,20 +399,43 @@ public class SqlxContext extends JvmFilterContext {
         this.pipeContext.addv2(key, val);
     }
 
+    public void closeConnectionFor(Connection c) {
+        __close_connection(c);
+    }
+
+    public Connection getConnectionBy(WnDaoAuth auth, int transLevel, boolean autoCommit) {
+        Connection re = null;
+        try {
+            re = __get_connection_by(auth, this.transLevel);
+            re.setAutoCommit(autoCommit);
+        }
+        catch (SQLException e) {
+            if (log.isWarnEnabled()) {
+                log.warn("Fail get Connection!", e);
+            }
+        }
+        return re;
+    }
+
+    private Connection __get_connection_by(WnDaoAuth auth, int transLevel) throws SQLException {
+        if (null == auth) {
+            throw Er.create("e.cmd.sqlx.conn.noAuth");
+        }
+        DataSource ds = WnDaos.getDataSource(auth);
+        Connection re = ds.getConnection();
+        if (this.hasTransLevel()) {
+            if (transLevel > 0) {
+                re.setTransactionIsolation(transLevel);
+            }
+        }
+        return re;
+    }
+
     public Connection getConnection() {
         if (null == conn) {
-            if (null == auth) {
-                throw Er.create("e.cmd.sqlx.conn.noAuth");
-            }
-            DataSource ds = WnDaos.getDataSource(auth);
             try {
-                this.conn = ds.getConnection();
-                if (this.hasTransLevel()) {
-                    if (this.transLevel > 0) {
-                        this.conn.setTransactionIsolation(transLevel);
-                    }
-                    this.conn.setAutoCommit(false);
-                }
+                conn = __get_connection_by(auth, this.transLevel);
+                conn.setAutoCommit(false);
             }
             catch (SQLException e) {
                 if (log.isWarnEnabled()) {
@@ -384,21 +447,26 @@ public class SqlxContext extends JvmFilterContext {
     }
 
     public void closeConnection() {
-        if (null != conn) {
-            try {
-                if (log.isTraceEnabled()) {
-                    log.trace(Wlog.msg("conn.closed"));
-                }
-                if (!conn.getAutoCommit()) {
-                    conn.commit();
-                    conn.setAutoCommit(true);
-                }
-                conn.close();
+        __close_connection(this.conn);
+    }
+
+    private void __close_connection(Connection cn) {
+        if (null == cn) {
+            return;
+        }
+        try {
+            if (log.isTraceEnabled()) {
+                log.trace(Wlog.msg("conn.closed"));
             }
-            catch (SQLException e) {
-                if (log.isWarnEnabled()) {
-                    log.warn("Fail to Close!", e);
-                }
+            if (!cn.getAutoCommit()) {
+                cn.commit();
+                cn.setAutoCommit(true);
+            }
+            cn.close();
+        }
+        catch (SQLException e) {
+            if (log.isWarnEnabled()) {
+                log.warn("Fail to Close!", e);
             }
         }
     }

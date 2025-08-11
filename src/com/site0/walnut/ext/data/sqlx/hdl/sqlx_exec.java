@@ -3,6 +3,7 @@ package com.site0.walnut.ext.data.sqlx.hdl;
 import java.sql.Connection;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -37,6 +38,9 @@ public class sqlx_exec extends SqlxFilter {
         boolean batchMode = params.is("batch");
         WnMatch am = null;
 
+        // 得到当前时间
+        Date now = new Date();
+
         // 自动展开上下文
         if (params.is("explain")) {
             fc.explainVars();
@@ -68,9 +72,9 @@ public class sqlx_exec extends SqlxFilter {
 
             // 批量模式
             if (batchMode) {
-                NutBean context = beans.get(0);
+                NutBean first = beans.get(0);
                 List<SqlParam> cps = new ArrayList<>();
-                String sql = sqlt.render(context, cps);
+                String sql = sqlt.render(first, cps);
 
                 // 准备参数
                 List<Object[]> paramList = Sqlx.getParams(beans, cps);
@@ -90,8 +94,8 @@ public class sqlx_exec extends SqlxFilter {
             }
 
             // 准备更新日志
-            if (null != fc.hislog) {
-                fc.hislog.buildHislogForList(sqlName, beans);
+            if (fc.hasHislogRuntime()) {
+                fc.hislog.buildHislogForList(now, sqlName, beans);
             }
         }
         // 参数模式
@@ -109,8 +113,8 @@ public class sqlx_exec extends SqlxFilter {
             re = fc.exec.runWithParams(conn, sql, sqlParams);
 
             // 准备更新日志
-            if (null != fc.hislog) {
-                fc.hislog.buildHislog(sqlName, record);
+            if (fc.hasHislogRuntime()) {
+                fc.hislog.buildHislogForRecord(now, sqlName, record);
             }
         }
         // 那么就是普通模式

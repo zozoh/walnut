@@ -170,9 +170,10 @@ public class AppModule extends AbstractWnModule {
      * @return 应用视图
      */
     @Filters(@By(type = WnCheckSession.class))
-    @At("/open/**")
+    @At("/open/?/**")
     @Fail("jsp:jsp.show_text")
     public View open(String appName,
+                     String rsPath,
                      @Param("ph") String str,
                      @Param("id") String id,
                      @Param("m") String matchJson,
@@ -185,8 +186,12 @@ public class AppModule extends AbstractWnModule {
             WnApp app = apps.checkApp(appName, auth);
 
             if (log.isDebugEnabled()) {
-                String envJson = Json.toJson(app.getSession().getEnv(), JsonFormat.nice());
-                log.debugf("APP<%s>:%s:%s:%s:%s", appName, str, id, matchJson, envJson);
+                log.debugf("APP<%s> rsPath=%s,str=%s,id=%s, m=%s:%s",
+                           appName,
+                           rsPath,
+                           str,
+                           id,
+                           matchJson);
             }
 
             // 得到数据对象

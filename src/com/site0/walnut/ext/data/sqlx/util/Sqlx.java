@@ -140,7 +140,7 @@ public abstract class Sqlx {
         return SqlType.EXEC;
     }
 
-    public static List<Object[]> getParams(List<NutBean> list, List<SqlParam> params) {
+    public static List<Object[]> getParams(List<? extends NutBean> list, List<SqlParam> params) {
         List<Object[]> re = new ArrayList<>(list.size());
         for (NutBean li : list) {
             Object[] row = new Object[params.size()];

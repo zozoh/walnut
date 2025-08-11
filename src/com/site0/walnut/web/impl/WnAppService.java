@@ -169,7 +169,8 @@ public class WnAppService extends WnRun {
         // 设置一下 server-config, js 初始化的时候需要这个配置文件
         CheapElement body = doc.body();
         body.attr("session-ticket", app.getSession().getTicket());
-        body.attr("app-path", app.getName());
+        body.attr("app-name", app.getName());
+        body.attr("app-base", "/a/open/" + app.getName());
         body.attr("quit-path", "/a/login/");
 
         // 输出
@@ -363,11 +364,6 @@ public class WnAppService extends WnRun {
         // 获取会话
         WnSession se = Wn.WC().checkSession();
 
-        // ----------------------------------------
-        // 如果 appName 没有名称空间，补上 "wn"
-        if (appName.indexOf('.') < 0) {
-            appName = "wn." + appName;
-        }
         // ----------------------------------------
         // 找到应用
         WnObj oAppHome = this._check_app_home(appName);

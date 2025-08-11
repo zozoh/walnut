@@ -8,7 +8,6 @@ import com.site0.walnut.util.tmpl.WnTmpl;
 import com.site0.walnut.web.setup.WnSetup;
 
 import org.nutz.ioc.impl.PropertiesProxy;
-import org.nutz.json.Json;
 import org.nutz.lang.Files;
 import org.nutz.lang.Mirror;
 
@@ -49,7 +48,6 @@ import com.site0.walnut.core.mapping.indexer.LocalFileWIndexerFactory;
 import com.site0.walnut.core.refer.redis.RedisReferService;
 import com.site0.walnut.ext.sys.redis.Wedis;
 import com.site0.walnut.ext.sys.redis.WedisConfig;
-import com.site0.walnut.ext.sys.sql.WnDaoMappingConfig;
 import com.site0.walnut.impl.box.JvmBoxService;
 import com.site0.walnut.impl.box.JvmExecutorFactory;
 import com.site0.walnut.impl.hook.CachedWnHookService;
@@ -84,10 +82,6 @@ public class IoCoreSetup {
     private static LocalIoBM _globalBM;
 
     private static MongoIndexer _globalIndexer;
-
-    private static WnDaoMappingConfig _daoConfig;
-
-    private static WnDaoMappingConfig _daoNoNameConfig;
 
     private static WnIoMappingFactoryImpl _mappings;
 
@@ -329,26 +323,6 @@ public class IoCoreSetup {
             _globalIndexer = new MongoIndexer(root, mimes, co);
         }
         return _globalIndexer;
-    }
-
-    public WnDaoMappingConfig getWnDaoConfig() {
-        if (null == _daoConfig) {
-            String aph = "com/site0/walnut/core/indexer/dao/dao_indexer.json";
-            String json = Files.read(aph);
-            json = explainConfig(json);
-            _daoConfig = Json.fromJson(WnDaoMappingConfig.class, json);
-        }
-        return _daoConfig;
-    }
-
-    public WnDaoMappingConfig getWnDaoNoNameConfig() {
-        if (null == _daoNoNameConfig) {
-            String aph = "com/site0/walnut/core/indexer/dao/dao_noname_indexer.json";
-            String json = Files.read(aph);
-            json = explainConfig(json);
-            _daoNoNameConfig = Json.fromJson(WnDaoMappingConfig.class, json);
-        }
-        return _daoNoNameConfig;
     }
 
     public PropertiesProxy getProperties() {

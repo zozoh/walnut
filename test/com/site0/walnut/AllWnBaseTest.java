@@ -13,10 +13,12 @@ import com.site0.walnut.ext.AllExtTest;
 import com.site0.walnut.impl.AllImplTest;
 import com.site0.walnut.ooml.OomlsTest;
 import com.site0.walnut.util.AllUtilTest;
+import com.site0.walnut.val.AllValMakerTest;
 import com.site0.walnut.validate.WnMatchTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({AllAlgTest.class,
+                     AllValMakerTest.class,
                      AllCacheTest.class,
                      AllApiTest.class,
                      AllCheapTest.class,

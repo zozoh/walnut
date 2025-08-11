@@ -2,7 +2,9 @@ package com.site0.walnut.ext.data.sqlx.hislog;
 
 import org.nutz.lang.util.NutMap;
 
-public class SqlxHislogConfigItem {
+import com.site0.walnut.util.Ws;
+
+public class HisConfigItem {
 
     private String sqlName;
 
@@ -10,7 +12,13 @@ public class SqlxHislogConfigItem {
 
     private NutMap data;
 
+    private HisConfigSetData[] setData;
+
     private String to;
+
+    public boolean isValid() {
+        return !Ws.isBlank(sqlName) && !Ws.isBlank(to) && null != data && !data.isEmpty();
+    }
 
     public String getSqlName() {
         return sqlName;
@@ -34,6 +42,18 @@ public class SqlxHislogConfigItem {
 
     public void setData(NutMap data) {
         this.data = data;
+    }
+
+    public boolean hasSetData() {
+        return null != setData && setData.length > 0;
+    }
+
+    public HisConfigSetData[] getSetData() {
+        return setData;
+    }
+
+    public void setSetData(HisConfigSetData[] setData) {
+        this.setData = setData;
     }
 
     public String getTo() {

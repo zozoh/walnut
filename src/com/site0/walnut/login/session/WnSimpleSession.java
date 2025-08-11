@@ -9,6 +9,7 @@ import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.login.role.WnRoleLoader;
 import com.site0.walnut.login.role.WnRoleType;
 import com.site0.walnut.login.usr.WnUser;
+import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wtime;
 import com.site0.walnut.val.id.WnSnowQMaker;
@@ -66,6 +67,13 @@ public class WnSimpleSession implements WnSession {
 
     public WnSimpleSession() {
         this.env = new NutMap();
+        setIPv4ToEnv();
+    }
+
+    private void setIPv4ToEnv() {
+        if (null != this.env) {
+            this.env.put("CLIENT_IP", Wn.WC().getIPv4());
+        }
     }
 
     public WnSimpleSession(WnUser u, int duInSec) {
@@ -380,6 +388,7 @@ public class WnSimpleSession implements WnSession {
                 Object val = en.getValue();
                 this.env.put(Ws.upperCase(key), val);
             }
+            this.setIPv4ToEnv();
         }
     }
 
@@ -406,14 +415,17 @@ public class WnSimpleSession implements WnSession {
 
     public void setEnv(NutBean env) {
         this.env = env;
+        this.setIPv4ToEnv();
     }
 
     public void updateEnv(String key, Object val) {
         this.env.put(key, val);
+        this.setIPv4ToEnv();
     }
 
     public void updateEnv(NutBean delta) {
         this.env.putAll(delta);
+        this.setIPv4ToEnv();
     }
 
 }

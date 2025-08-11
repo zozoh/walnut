@@ -8,6 +8,8 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
+import com.site0.walnut.val.date.UTCDateMaker;
+import com.site0.walnut.val.date.UTCTimestampMaker;
 import com.site0.walnut.val.id.WnSeqDMaker;
 import com.site0.walnut.val.id.WnSeqHHMaker;
 import com.site0.walnut.val.id.WnSeqIdMaker;
@@ -15,6 +17,7 @@ import com.site0.walnut.val.id.WnSnowQDMaker;
 import com.site0.walnut.val.id.WnSnowQMaker;
 import com.site0.walnut.val.id.WnUU32Maker;
 import com.site0.walnut.val.seq.WnObjSeqMaker;
+import com.site0.walnut.val.util.WnIPv4Maker;
 import com.site0.walnut.val.util.WnSeqInfo;
 
 public abstract class ValueMakers {
@@ -73,10 +76,27 @@ public abstract class ValueMakers {
             return new WnUU32Maker();
         }
 
+        // UTC 时间字符串
+        if ("utc".equals(type)) {
+            return new UTCDateMaker(setup);
+        }
+
+        // 绝对毫秒数
+        else if ("ams".equals(type)) {
+            return new UTCTimestampMaker(setup);
+        }
+
+        // IPv4
+        else if ("ipv4".equals(type)) {
+            return new WnIPv4Maker();
+        }
+
+        // 当做静态值
         if (Ws.isBlank(setup)) {
             return new StaticValueMaker(type);
         }
 
+        // 剩下的应该就是各种 ID 生成器了
         String input = setup;
         String prefix = null;
         int n = 0;

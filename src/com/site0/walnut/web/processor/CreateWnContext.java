@@ -31,6 +31,9 @@ public class CreateWnContext extends AbstractProcessor {
         HttpServletRequest req = ac.getRequest();
         HttpServletResponse resp = ac.getResponse();
 
+        String ipv4 = Wlang.getIP(req, false);
+        wc.setIPv4(ipv4);
+
         // 标识一下响应
         resp.addHeader("X-Powered-By", WnVersion.getName());
 

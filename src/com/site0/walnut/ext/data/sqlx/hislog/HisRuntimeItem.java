@@ -1,19 +1,21 @@
 package com.site0.walnut.ext.data.sqlx.hislog;
 
-import java.util.Map;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
+import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.explain.WnExplain;
 import com.site0.walnut.util.explain.WnExplains;
 import com.site0.walnut.util.validate.WnMatch;
 import com.site0.walnut.util.validate.impl.AutoMatch;
+import com.site0.walnut.val.ValueMakers;
 
-public class SqlxHislogRuntimeItem {
+public class HisRuntimeItem {
 
     private Pattern sqlName;
 
@@ -23,7 +25,9 @@ public class SqlxHislogRuntimeItem {
 
     private String toPipeKey;
 
-    public SqlxHislogRuntimeItem(SqlxHislogConfigItem conf) {
+    private HisRuntimeSetData[] setData;
+
+    public HisRuntimeItem(WnSystem sys, HisConfigItem conf) {
         this.sqlName = Pattern.compile(conf.getSqlName());
         this.test = null;
         if (null != conf.getTest()) {
@@ -31,6 +35,18 @@ public class SqlxHislogRuntimeItem {
         }
         this.data = WnExplains.parse(conf.getData());
         this.toPipeKey = conf.getTo();
+        if (conf.hasSetData()) {
+            HisConfigSetData[] sds = conf.getSetData();
+            this.setData = new HisRuntimeSetData[sds.length];
+            for (int i = 0; i < sds.length; i++) {
+                HisConfigSetData sd = sds[i];
+                HisRuntimeSetData rtSD = new HisRuntimeSetData();
+                rtSD.asDefault = sd.isAsDefault();
+                rtSD.name = sd.getName();
+                rtSD.valueMaker = ValueMakers.build(sys, sd.getValue());
+                this.setData[i] = rtSD;
+            }
+        }
     }
 
     public boolean trySqlName(String name, NutBean myContext) {
@@ -54,11 +70,22 @@ public class SqlxHislogRuntimeItem {
         return test.match(record);
     }
 
-    @SuppressWarnings("unchecked")
-    public NutMap createLogRecord(NutBean myContext, NutBean record) {
+    public NutMap createLogRecord(Date now, NutBean myContext, NutBean record) {
         myContext.put("item", record);
         Object re = this.data.explain(myContext);
-        return NutMap.WRAP((Map<String, Object>) re);
+        NutMap bean = NutMap.WrapAny(re);
+        if (null != this.setData) {
+            for (HisRuntimeSetData sd : this.setData) {
+                // 仅设置默认值
+                if (sd.asDefault && bean.has(sd.name)) {
+                    continue;
+                }
+                // 设置值
+                Object val = sd.valueMaker.make(now, myContext);
+                bean.put(sd.name, val);
+            }
+        }
+        return bean;
 
     }
 
