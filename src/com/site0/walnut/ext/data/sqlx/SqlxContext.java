@@ -61,7 +61,9 @@ public class SqlxContext extends JvmFilterContext {
     private SqlxVarsMode varMode;
 
     /**
-     * 存储一个整个命令周期都能有效的动态上下文 建立这个对象的动机是： 我需要在一个 sqlx 周期内插入数据到两张表:
+     * 存储一个整个命令周期都能有效的动态上下文
+     * <p>
+     * 建立这个对象的动机是： 我需要在一个 sqlx 周期内插入数据到两张表:
      * 
      * <pre>
      * sqlx 
@@ -73,7 +75,7 @@ public class SqlxContext extends JvmFilterContext {
      * </pre>
      * 
      * 我希望 food 的数据字段，有一个关联值 <code>pet_code=pet.code</code>
-     * 犹豫这个值是我刚生成的，我希望在它新鲜热乎的时候，直接设置到上下文里，因此我希望这么写：
+     * 由于这个值是我刚生成的，我希望在它新鲜热乎的时候，直接设置到上下文里，因此我希望这么写：
      * 
      * <pre>
      * sqlx 

@@ -19,7 +19,10 @@ public class HisRuntimeItem {
 
     private Pattern sqlName;
 
-    private WnMatch test;
+    private WnMatch testRecord;
+    private WnMatch testContext;
+    private WnMatch ignoreRecord;
+    private WnMatch ignoreContext;
 
     private WnExplain data;
 
@@ -28,13 +31,17 @@ public class HisRuntimeItem {
     private HisRuntimeSetData[] setData;
 
     public HisRuntimeItem(WnSystem sys, HisConfigItem conf) {
+        // 捕获
         this.sqlName = Pattern.compile(conf.getSqlName());
-        this.test = null;
-        if (null != conf.getTest()) {
-            this.test = AutoMatch.parse(conf.getTest());
-        }
+
+        // 过滤器
+        this.testRecord = __eval_match(conf.getTestRecord(), true);
+        this.testContext = __eval_match(conf.getTestContext(), true);
+        this.ignoreRecord = __eval_match(conf.getIgnoreRecord(), false);
+        this.ignoreContext = __eval_match(conf.getIgnoreContext(), false);
+
+        // 数据处理
         this.data = WnExplains.parse(conf.getData());
-        this.toPipeKey = conf.getTo();
         if (conf.hasSetData()) {
             HisConfigSetData[] sds = conf.getSetData();
             this.setData = new HisRuntimeSetData[sds.length];
@@ -47,6 +54,16 @@ public class HisRuntimeItem {
                 this.setData[i] = rtSD;
             }
         }
+
+        // 输出
+        this.toPipeKey = conf.getTo();
+    }
+
+    private WnMatch __eval_match(Object input, boolean dft) {
+        if (null != input) {
+            return AutoMatch.parse(input, dft);
+        }
+        return null;
     }
 
     public boolean trySqlName(String name, NutBean myContext) {
@@ -63,11 +80,20 @@ public class HisRuntimeItem {
         return false;
     }
 
-    public boolean isMatchRecord(NutBean record) {
-        if (null == test) {
-            return true;
+    public boolean isMatchRecord(NutBean record, NutBean myContext) {
+        if (null != testRecord && !testRecord.match(record)) {
+            return false;
         }
-        return test.match(record);
+        if (null != testContext && !testContext.match(myContext)) {
+            return false;
+        }
+        if (null != ignoreRecord && ignoreRecord.match(record)) {
+            return false;
+        }
+        if (null != ignoreContext && ignoreContext.match(myContext)) {
+            return false;
+        }
+        return true;
     }
 
     public NutMap createLogRecord(Date now, NutBean myContext, NutBean record) {
@@ -89,40 +115,12 @@ public class HisRuntimeItem {
 
     }
 
-    public Pattern getSqlName() {
-        return sqlName;
-    }
-
-    public void setSqlName(Pattern sqlName) {
-        this.sqlName = sqlName;
-    }
-
-    public WnMatch getTest() {
-        return test;
-    }
-
-    public void setTest(WnMatch test) {
-        this.test = test;
-    }
-
-    public WnExplain getData() {
-        return data;
-    }
-
-    public void setData(WnExplain data) {
-        this.data = data;
-    }
-
     public boolean hasToPipeKey() {
         return !Ws.isBlank(toPipeKey);
     }
 
     public String getToPipeKey() {
         return toPipeKey;
-    }
-
-    public void setToPipeKey(String toPipeKey) {
-        this.toPipeKey = toPipeKey;
     }
 
 }

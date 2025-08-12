@@ -149,7 +149,7 @@ var ioc = {
   io: {
     type: "com.site0.walnut.core.io.WnIoCacheWrapper",
     fields: {
-      io: { refer: "rawIo" }
+      io: { refer: "hookedIo" }
     }
   },
   __io: {

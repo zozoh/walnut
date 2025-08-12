@@ -37,6 +37,28 @@ SELECT * FROM t_pet WHERE ${@vars=where};
 UPDATE t_pet SET${@vars=update} WHERE id=?;
 ```
 
+## 上下文
+
+整个命令生命周期内护一个上下文:
+
+```bash
+SqlxContext
+|-- input  -------+ <-- # 标准输入
+|                 |
+|-- pipeContext --+ <-- @set|query|pipe 直接设置
+|                 V
+|                 V # @vars 取出之值，并设置
+|                 V # 以便 @exec|query 子命令获取输入
+|-- varMap -------+
+|                 |
+|-- varList ------+
+|
+|-- varMode'LIST|MAP'  # 标识 @exec 采用哪种模式的数据
+#-----------------------------------------------
+- input        输入上下文
+- pipeContext  管线上下文
+```
+
 # 用法
 
 # 过滤器列表

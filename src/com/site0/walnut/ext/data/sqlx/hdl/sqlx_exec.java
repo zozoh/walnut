@@ -93,7 +93,10 @@ public class sqlx_exec extends SqlxFilter {
                 }
             }
 
-            // 准备更新日志
+            // 记录结果对象
+            _update_result(fc, params, conn, re);
+
+            // 提取历史记录
             if (fc.hasHislogRuntime()) {
                 fc.hislog.buildHislogForList(now, sqlName, beans);
             }
@@ -112,7 +115,10 @@ public class sqlx_exec extends SqlxFilter {
             Object[] sqlParams = Sqlx.getSqlParamsValue(cps);
             re = fc.exec.runWithParams(conn, sql, sqlParams);
 
-            // 准备更新日志
+            // 记录结果对象
+            _update_result(fc, params, conn, re);
+
+            // 提取历史记录
             if (fc.hasHislogRuntime()) {
                 fc.hislog.buildHislogForRecord(now, sqlName, record);
             }
@@ -122,9 +128,26 @@ public class sqlx_exec extends SqlxFilter {
             NutMap context = new NutMap();
             String sql = sqlt.render(context, null);
             re = fc.exec.run(conn, sql);
+
+            // 记录结果对象
+            _update_result(fc, params, conn, re);
         }
 
-        // 记录结果对象
+    }
+
+    /**
+     * 
+     * 更新结果对象必须要在【提取历史】以前执行，因为如果对象的 ID 是动态分配的，<br>
+     * fetch_by 将可以将这个对象信息获取回来，并设置到【管线上下文】里，
+     * <p>
+     * 这样在提取历史记录的时候，才能有足够的上下文信息
+     * 
+     * @param fc
+     * @param params
+     * @param conn
+     * @param re
+     */
+    private void _update_result(SqlxContext fc, ZParams params, Connection conn, SqlExecResult re) {
         if (!params.is("noresult")) {
             // 合并
             if (fc.result instanceof SqlExecResult) {
@@ -178,7 +201,6 @@ public class sqlx_exec extends SqlxFilter {
                 }
             }
         }
-
     }
 
 }

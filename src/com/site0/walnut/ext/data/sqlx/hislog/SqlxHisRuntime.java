@@ -78,7 +78,9 @@ public class SqlxHisRuntime {
     public void buildHislogForList(Date now, String sqlName, List<NutBean> records) {
         NutBean myContext = createGlobalContext();
         for (NutBean record : records) {
-            __build_hislog(now, sqlName, myContext, record);
+            NutMap theContext = new NutMap();
+            theContext.putAll(myContext);
+            __build_hislog(now, sqlName, theContext, record);
         }
     }
 
@@ -89,7 +91,7 @@ public class SqlxHisRuntime {
 
     private void __build_hislog(Date now, String sqlName, NutBean myContext, NutBean record) {
         for (HisRuntimeItem rtItem : logs) {
-            if (!rtItem.isMatchRecord(record) || !rtItem.hasToPipeKey()) {
+            if (!rtItem.isMatchRecord(record, myContext) || !rtItem.hasToPipeKey()) {
                 continue;
             }
             if (rtItem.trySqlName(sqlName, myContext)) {
@@ -187,6 +189,7 @@ public class SqlxHisRuntime {
             Object re = globalAssign.explain(g);
             NutMap ctx = NutMap.WRAP((Map<String, Object>) re);
             ctx.put(BATCH_NO_KEY, this.batchNo);
+            ctx.put("domain", sys.getMyGroup());
             return ctx;
         }
         return new NutMap();

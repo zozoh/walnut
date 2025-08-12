@@ -8,7 +8,13 @@ public class HisConfigItem {
 
     private String sqlName;
 
-    private Object test;
+    private Object testRecord;
+
+    private Object testContext;
+
+    private Object ignoreRecord;
+
+    private Object ignoreContext;
 
     private NutMap data;
 
@@ -28,12 +34,36 @@ public class HisConfigItem {
         this.sqlName = sqlName;
     }
 
-    public Object getTest() {
-        return test;
+    public Object getTestRecord() {
+        return testRecord;
     }
 
-    public void setTest(Object test) {
-        this.test = test;
+    public void setTestRecord(Object testRecord) {
+        this.testRecord = testRecord;
+    }
+
+    public Object getTestContext() {
+        return testContext;
+    }
+
+    public void setTestContext(Object testContext) {
+        this.testContext = testContext;
+    }
+
+    public Object getIgnoreRecord() {
+        return ignoreRecord;
+    }
+
+    public void setIgnoreRecord(Object ignoreRecord) {
+        this.ignoreRecord = ignoreRecord;
+    }
+
+    public Object getIgnoreContext() {
+        return ignoreContext;
+    }
+
+    public void setIgnoreContext(Object ignoreContext) {
+        this.ignoreContext = ignoreContext;
     }
 
     public NutMap getData() {
