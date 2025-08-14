@@ -5,17 +5,33 @@ import java.util.Map;
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.net.mailx.bean.WnMailSecurity;
 import com.site0.walnut.ext.net.mailx.bean.WnMailSign;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 import org.simplejavamail.api.mailer.config.Pkcs12Config;
 import org.simplejavamail.api.mailer.config.Pkcs12Config.Pkcs12ConfigBuilder;
 
 public abstract class Mailx {
+
+    private static final Log log = Wlog.getCMD();
+
+    public static void LOG(WnSystem sys, boolean showDebug, String fmt, Object... args) {
+        String msg = String.format(fmt, args);
+        if (showDebug) {
+            sys.out.println(msg);
+
+        }
+        if (log.isInfoEnabled()) {
+            log.info(msg);
+        }
+    }
 
     /**
      * 解析 HTTP 或者 Email 里面的 contnentType 符串 ，譬如

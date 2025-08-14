@@ -27,6 +27,7 @@ import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
 import com.site0.walnut.util.tmpl.WnTmplX;
 import com.sun.mail.imap.IMAPFolder;
+import static com.site0.walnut.ext.net.mailx.util.Mailx.LOG;
 
 import jakarta.mail.Flags;
 import jakarta.mail.Folder;
@@ -137,7 +138,11 @@ public class mailx_imap extends MailxFilter {
             ThreadPoolExecutor execPool = null;
 
             if (pool_sz_core > 1) {
-                LOG(sys, debug, "mailx_imap: use execPool core=%d, max=%d", pool_sz_core, pool_sz_max);
+                LOG(sys,
+                    debug,
+                    "mailx_imap: use execPool core=%d, max=%d",
+                    pool_sz_core,
+                    pool_sz_max);
                 BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<>();
                 execPool = new ThreadPoolExecutor(pool_sz_core,
                                                   pool_sz_max,
@@ -150,18 +155,20 @@ public class mailx_imap extends MailxFilter {
             Vector<WnObj> outputs = new Vector<>(N); // 如果输出为数据集，输出目标记录在这里
             for (int i = 0; i < N; i++) {
                 WnMailIMAPRecieving rv = new WnMailIMAPRecieving();
-                rv.msg = messages[i];
+                rv.mail_msg = messages[i];
                 rv.isAutoDecrypt = isAutoDecrypt;
                 rv.sys = sys;
                 rv.fc = fc;
                 rv.session = session;
                 rv.asContent = asContent;
-                rv.taTmpl = taTmpl;
                 rv.showHeader = showHeader;
                 rv.debug = debug;
                 rv.i = i;
                 rv.N = N;
                 rv.fixedMeta = fixedMeta;
+                
+                // 后续处理
+                rv.taTmpl = taTmpl;
                 rv.attachmentTmpl = attachmentTmpl;
                 rv.after = after;
                 rv.outputs = outputs;
@@ -263,10 +270,6 @@ public class mailx_imap extends MailxFilter {
             }
         }
         return terms;
-    }
-
-    private void LOG(WnSystem sys, boolean showDebug, String fmt, Object... args) {
-        WnMailIMAPRecieving.LOG(sys, showDebug, fmt, args);
     }
 
     private static Map<String, Flags.Flag> MAIL_FLAGS = new HashMap<>();

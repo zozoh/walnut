@@ -13,12 +13,12 @@ import jakarta.mail.Session;
 import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 
-public class WnImapPkcs12Mail extends WnImapMail {
+public class WnMimePkcs12Mail extends WnMimeMail {
 
     private Session session;
     private SmimeKey smimeKey;
 
-    public WnImapPkcs12Mail(Session session, SmimeKey smimeKey) {
+    public WnMimePkcs12Mail(Session session, SmimeKey smimeKey) {
         this.session = session;
         this.smimeKey = smimeKey;
     }

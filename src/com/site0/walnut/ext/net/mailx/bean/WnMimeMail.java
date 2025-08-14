@@ -1,11 +1,14 @@
 package com.site0.walnut.ext.net.mailx.bean;
 
+import java.io.ByteArrayInputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutBean;
@@ -15,18 +18,18 @@ import com.site0.walnut.ext.net.mailx.util.Mailx;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wtime;
 
-import com.sun.mail.imap.IMAPMessage;
-
 import jakarta.mail.Address;
 import jakarta.mail.BodyPart;
 import jakarta.mail.Header;
 import jakarta.mail.Message;
 import jakarta.mail.Message.RecipientType;
 import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
 import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 
-public class WnImapMail extends WnMail {
+public class WnMimeMail extends WnMail {
 
     private int number;
 
@@ -47,17 +50,17 @@ public class WnImapMail extends WnMail {
 
     protected List<WnMailPart> bodyParts;
 
-    public WnImapMail() {
+    public WnMimeMail() {
         attrs = new NutMap();
         headers = new NutMap();
     }
 
-    public WnImapMail(Message msg) {
+    public WnMimeMail(Message msg) {
         this();
         this.fromMessage(msg, null);
     }
 
-    public WnImapMail(Message msg, String asContent) {
+    public WnMimeMail(Message msg, String asContent) {
         this();
         this.fromMessage(msg, asContent);
     }
@@ -93,7 +96,8 @@ public class WnImapMail extends WnMail {
             return;
         // 读取消息信息
         try {
-            IMAPMessage imsg = (IMAPMessage) msg;
+            // IMAPMessage imsg = (IMAPMessage) msg;
+            MimeMessage imsg = (MimeMessage) msg;
             this.receiveAt = msg.getReceivedDate().getTime();
             this.messageId = imsg.getMessageID();
             this.number = msg.getMessageNumber();
@@ -106,6 +110,24 @@ public class WnImapMail extends WnMail {
 
         // 读取邮件正文
         this.loadBody(msg, asContent);
+    }
+
+    public void fromMessage(String mimeText, String asContent) {
+        // 创建一个空的邮件会话（无需实际连接服务器）
+        Properties props = new Properties();
+        Session session = Session.getDefaultInstance(props, null);
+
+        // 将 MIME 文本转换为输入流
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(mimeText.getBytes(StandardCharsets.UTF_8));
+
+        // 从输入流构建 MimeMessage
+        try {
+            MimeMessage msg = new MimeMessage(session, inputStream);
+            this.fromMessage(msg, asContent);
+        }
+        catch (MessagingException e) {
+            throw Er.create(e, "e.mailx.FailToBuildMimeMessage");
+        }
     }
 
     protected void loadBody(Message msg, String asContent) {

@@ -12,6 +12,7 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
 
+import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
@@ -24,6 +25,7 @@ import com.site0.walnut.cheap.xml.CheapXmlParsing;
 import com.site0.walnut.ext.data.titanium.hdl.ti_webdeps;
 import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnRun;
@@ -168,10 +170,16 @@ public class WnAppService extends WnRun {
 
         // 设置一下 server-config, js 初始化的时候需要这个配置文件
         CheapElement body = doc.body();
-        body.attr("session-ticket", app.getSession().getTicket());
+        WnSession se = app.getSession();
+        WnUser user = se.getUser();
+        String dftLoginSite = Disks.appendPath(user.getHomePath(), "www/login");
+        String loginSite = user.getMetaString("LOGIN_SITE", dftLoginSite);
+        body.attr("session-ticket", se.getTicket());
         body.attr("app-name", app.getName());
         body.attr("app-base", "/a/open/" + app.getName());
         body.attr("quit-path", "/a/login/");
+        body.attr("domain", user.getMainGroup());
+        body.attr("login-site", loginSite);
 
         // 输出
         return doc.toHtml();
