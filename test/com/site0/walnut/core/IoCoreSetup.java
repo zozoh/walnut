@@ -95,7 +95,18 @@ public class IoCoreSetup {
 
     private static WnServiceFactory _services;
 
-    static {
+    // static {
+    // // 测试配置初始化
+    // if (null == _pp) {
+    // _pp = new WebConfig("test.properties");
+    // }
+    //
+    // // MimeMap 初始化
+    // if (null == _mimes)
+    // _mimes = new MimeMapImpl(new PropertiesProxy("mime.properties"));
+    // }
+
+    public IoCoreSetup() {
         // 测试配置初始化
         if (null == _pp) {
             _pp = new WebConfig("test.properties");
