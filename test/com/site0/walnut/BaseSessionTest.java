@@ -18,6 +18,8 @@ public abstract class BaseSessionTest extends BaseUsrTest {
 
     protected WnUser me;
 
+    protected WnObj oMyHome;
+
     protected WnUser _old_me;
 
     protected WnSession session;
@@ -30,7 +32,13 @@ public abstract class BaseSessionTest extends BaseUsrTest {
         // 准备测试用户
         WnUser me = auth.getUser("demo");
         if (null == me) {
-            me = auth.addUser(new WnSimpleUser("demo"));
+            WnSimpleUser demo = new WnSimpleUser("demo");
+            demo.setMainGroup("demo");
+            demo.setMeta("HOME", "/home/demo");
+            me = auth.addUser(demo);
+
+            // 创建用户主目录
+            oMyHome = io.createIfNoExists(null, demo.getHomePath(), WnRace.DIR);
         }
 
         // 创建测试会话

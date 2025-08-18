@@ -117,6 +117,10 @@ public class IoCoreSetup {
             _mimes = new MimeMapImpl(new PropertiesProxy("mime.properties"));
     }
 
+    public String getConifg(String key) {
+        return _pp.get(key);
+    }
+
     public WnUser genAccount(String name) {
         WnUser u = new WnSimpleUser(name);
         u.setMainGroup(name);
