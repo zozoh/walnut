@@ -90,7 +90,16 @@ public class MountInfo {
 
             // 这个特殊规则用来兼容之前的 "file:///" 和 "file://C:/" 映射
             // 即，如果只有 bmArg 且 bmType 为空，那么 bmType 相当于 file
-            if ("file".equals(ix.type) || "filew".equals(ix.type)) {
+            // zozoh@20250820 我突然又觉得这个规则挺好的，下面这些形式都是像文件系统一样
+            // 元数据和内容存储一起映射的
+            // - file:///opt/mnt/project/demo
+            // - filew:///opt/mnt/project/demo
+            // - vofs://s3:/home/demo#test
+            // - vofs://cos:/home/demo#test
+            // - vofs://oss:/home/demo#test
+            // - vofs://obs:/home/demo#test
+            // - vofs://kodo:/home/demo#test
+            if (ix.type.matches("^(filew?|vofs)$")) {
                 if (null == bm.arg && null != bm.type) {
                     bm.arg = bm.type;
                     bm.type = ix.type;

@@ -23,11 +23,16 @@ public abstract class XoClientWrapper<T> {
     }
 
     protected abstract void _close_client(T client);
-    
+
     public void close() {
-        if(null!=client) {
+        if (null != client) {
             _close_client(client);
         }
+    }
+
+    public String getDirPath(String dirKey) {
+        String folder = dirKey.endsWith("/") ? dirKey : dirKey + "/";
+        return getObjPath(folder);
     }
 
     public String getObjPath(String path) {
@@ -40,9 +45,29 @@ public abstract class XoClientWrapper<T> {
                 obj_path = this.prefix;
             } else {
                 obj_path = Wn.appendPath(this.prefix, path);
+                if (path.endsWith("/") && !obj_path.endsWith("/")) {
+                    obj_path += "/";
+                }
             }
         }
         return obj_path;
+    }
+
+    public String getQueryPrefix(String objKey, String delimiter) {
+        String queryPath = this.getObjPath(objKey);
+        // 删除结尾的 *， 用 'a/*' 来搜索，可能更加符合直觉
+        if (null != queryPath && queryPath.endsWith("*")) {
+            queryPath = queryPath.substring(0, queryPath.length() - 1).trim();
+        }
+        // 确保路径以/结尾（如果是目录）
+        if (null != delimiter
+            && delimiter.length() > 0
+            && objKey != null
+            && objKey.endsWith(delimiter)
+            && !queryPath.endsWith(delimiter)) {
+            queryPath += delimiter;
+        }
+        return queryPath;
     }
 
     public String toMyKey(String key) {

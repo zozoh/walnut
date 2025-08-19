@@ -1,11 +1,10 @@
-package com.site0.walnut.ext.xo.impl.s3;
+package com.site0.walnut.ext.xo.impl;
 
 import java.io.IOException;
 
-import org.junit.Test;
-import org.nutz.lang.Files;
+import org.nutz.lang.util.NutMap;
 
-import com.site0.walnut.BaseSessionTest;
+import com.site0.walnut.util.Ws;
 
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -16,18 +15,36 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Request.Builder;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
-public class S3XoServiceTest extends BaseSessionTest {
+public class S3XoServiceTest extends AbstractXoServiceTest {
 
-    private static final String conf_json;
-
-    static {
-        conf_json = Files.read("com/site0/walnut/ext/xo/impl/conf/s3_test.json");
+    @Override
+    protected String getConfCateName() {
+        return "s3";
     }
 
-    @Test
+    @Override
+    protected void update_config(String prefix, String[] allowActions, NutMap conf) {
+        conf.put("secretId", setup.getConifg("s3-secret-id"));
+        conf.put("secretKey", setup.getConifg("s3-secret-key"));
+        conf.put("bucket", setup.getConifg("s3-bucket"));
+        conf.put("region", setup.getConifg("s3-region"));
+        if (!Ws.isBlank(prefix)) {
+            conf.put("prefix", prefix);
+        }
+        if (null != allowActions && allowActions.length > 0) {
+            conf.put("allowActions", allowActions);
+        }
+    }
+
+    @Override
+    protected XoService create_service(String confName) {
+        return new S3XoService(io, oMyHome, confName);
+    }
+
+    // @org.junit.Test
     public void raw_example() throws IOException {
-        String accessKey = setup.getConifg("s3-access-key-id");
-        String secretKey = setup.getConifg("s3-secret-access-key");
+        String accessKey = setup.getConifg("s3-secret-id");
+        String secretKey = setup.getConifg("s3-secret-key");
         String bucketName = setup.getConifg("s3-bucket");
         Region region = Region.of(setup.getConifg("s3-region"));
 

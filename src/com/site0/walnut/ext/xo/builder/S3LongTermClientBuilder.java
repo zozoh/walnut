@@ -45,12 +45,19 @@ public class S3LongTermClientBuilder extends AbstractXoClientBuilder<S3Client> {
         // 初始化配置对象
         String accessKey = props.getString("secretId");
         String secretKey = props.getString("secretKey");
+        String bucket = props.getString("bucket");
         String _region = props.getString("region");
         Region region = Region.of(_region);
 
+        re.setBucket(bucket);
+        re.setRegion(_region);
+        re.setPrefix(props.getString("prefix", ""));
+
         // 客户端是长期的，因此缓存时间搞个1天
+        int duration = props.getInt("duration", 86400);
         long now = System.currentTimeMillis();
-        re.setExpiredAt(now + 86400000L);
+        re.setExpiredAt(now + duration * 1000L);
+
         AwsBasicCredentials cred = AwsBasicCredentials.create(accessKey, secretKey);
         StaticCredentialsProvider provider = StaticCredentialsProvider.create(cred);
         S3Client s3 = S3Client.builder().region(region).credentialsProvider(provider).build();

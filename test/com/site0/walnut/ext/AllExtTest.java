@@ -12,10 +12,12 @@ import com.site0.walnut.ext.media.AllMediasTest;
 import com.site0.walnut.ext.mq.WnMqMessageTest;
 import com.site0.walnut.ext.net.AllNetTest;
 import com.site0.walnut.ext.sys.AllSysTest;
+import com.site0.walnut.ext.xo.AllXoTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
                      /* AllBulkTest.class, */
+                     AllXoTest.class,
                      AppInitServiceTest.class,
                      HttpApiDynamicRenderTest.class,
                      AllMediasTest.class,

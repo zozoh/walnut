@@ -1,4 +1,4 @@
-package com.site0.walnut.ext.xo.impl.cos;
+package com.site0.walnut.ext.xo.impl;
 
 import static org.junit.Assert.*;
 
@@ -7,9 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
 
-import org.junit.Test;
 import org.nutz.json.Json;
-import org.nutz.lang.Files;
 import org.nutz.lang.util.NutMap;
 
 import com.qcloud.cos.COSClient;
@@ -19,9 +17,6 @@ import com.qcloud.cos.model.COSObjectSummary;
 import com.qcloud.cos.model.ListObjectsRequest;
 import com.qcloud.cos.model.ObjectListing;
 import com.qcloud.cos.region.Region;
-import com.site0.walnut.BaseSessionTest;
-import com.site0.walnut.api.io.WnObj;
-import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.ext.xo.bean.XoBean;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Ws;
@@ -29,167 +24,37 @@ import com.tencent.cloud.CosStsClient;
 import com.tencent.cloud.Response;
 import com.qcloud.cos.auth.COSCredentials;
 
-public class CosXoServiceTest extends BaseSessionTest {
+public class CosXoServiceTest extends AbstractXoServiceTest {
 
-    private static final String conf_json;
-
-    static {
-        conf_json = Files.read("com/site0/walnut/ext/xo/impl/conf/cos_test.json");
+    @Override
+    protected String getConfCateName() {
+        return "cos";
     }
 
     @Override
-    protected void on_before() {
-        super.on_before();
-    }
-
-    protected CosXoService service() {
-        return service(null, null);
-    }
-
-    protected CosXoService service(String prefix) {
-        return service(prefix, null);
-    }
-
-    protected CosXoService service(String prefix, String[] allowActions) {
-        // 准备域目录
-        WnObj oIo = io.createIfNoExists(oMyHome, ".io", WnRace.DIR);
-        io.createIfNoExists(oMyHome, ".domain/xo_token", WnRace.DIR);
-
-        // 创建配置文件
-        String confName = "test";
-        WnObj oConf = io.create(oIo, "cos/" + confName + ".json5", WnRace.FILE);
-
-        // 写入配置文件内容
-        NutMap conf = Json.fromJson(NutMap.class, conf_json);
+    protected void update_config(String prefix, String[] allowActions, NutMap conf) {
         conf.put("secretId", setup.getConifg("cos-secret-id"));
         conf.put("secretKey", setup.getConifg("cos-secret-key"));
         conf.put("bucket", setup.getConifg("cos-bucket"));
+        conf.put("region", setup.getConifg("cos-region"));
         if (!Ws.isBlank(prefix)) {
             conf.put("prefix", prefix);
         }
         if (null != allowActions && allowActions.length > 0) {
             conf.put("allowActions", allowActions);
         }
-
-        String json = Json.toJson(conf);
-        io.writeText(oConf, json);
-
-        // 准备服务类
-        return new CosXoService(confName, io, oMyHome);
     }
 
-    @Test
-    public void test_00() throws IOException {
-        CosXoService cosx = service();
-
-        String key = "pet/a.pet.txt";
-
-        // 首先清除数据
-        cosx.clear("pet/");
-
-        List<XoBean> list = cosx.listObj("pet/");
-        assertEquals(0, list.size());
-
-        // 创建
-        cosx.write(key, "I am A", null);
-
-        // 查询
-        list = cosx.listObj("pet/");
-        assertEquals(1, list.size());
-
-        // 读取
-        String str = cosx.readText(key);
-        assertEquals("I am A", str);
-
-        // 覆盖
-        cosx.write(key, "I am B", null);
-        str = cosx.readText(key);
-        assertEquals("I am B", str);
-
-        // 删除
-        cosx.deleteObj(key);
-
-        // 确保删除了
-        list = cosx.listObj("pet/");
-        assertEquals(0, list.size());
-    }
-
-    @Test
-    public void test_01() throws IOException {
-        CosXoService cosx = service("pet/");
-
-        String key = "a.pet.txt";
-
-        // 首先清除数据
-        cosx.clear("*");
-
-        List<XoBean> list = cosx.listObj("*");
-        assertEquals(0, list.size());
-
-        // 创建
-        cosx.write(key, "I am A", null);
-
-        // 查询
-        list = cosx.listObj("*");
-        assertEquals(1, list.size());
-        assertEquals(key, list.get(0).getKey());
-
-        // 读取
-        String str = cosx.readText(key);
-        assertEquals("I am A", str);
-
-        // 覆盖
-        cosx.write(key, "I am B", null);
-        str = cosx.readText(key);
-        assertEquals("I am B", str);
-
-        // 删除
-        cosx.deleteObj(key);
-
-        // 确保删除了
-        list = cosx.listObj(null);
-        assertEquals(0, list.size());
-    }
-
-    @Test
-    public void test_02() throws IOException {
-        CosXoService cosx = service("pet/");
-
-        String key1 = "a/pet1.txt";
-        String key2 = "a/pet2.txt";
-        String key3 = "a/pet3.txt";
-
-        // 首先清除数据
-        cosx.clear("*");
-
-        List<XoBean> list = cosx.listObj("*");
-        assertEquals(0, list.size());
-
-        // 创建
-        cosx.write(key1, "I am A", null);
-        cosx.write(key2, "I am B", null);
-        cosx.write(key3, "I am C", null);
-
-        // 查询
-        list = cosx.listObj("a/");
-        assertEquals(3, list.size());
-        assertEquals(key1, list.get(0).getKey());
-        assertEquals(key2, list.get(1).getKey());
-        assertEquals(key3, list.get(2).getKey());
-
-        // 读取
-        String str1 = cosx.readText(key1);
-        assertEquals("I am A", str1);
-        String str2 = cosx.readText(key2);
-        assertEquals("I am B", str2);
-        String str3 = cosx.readText(key3);
-        assertEquals("I am C", str3);
+    @Override
+    protected XoService create_service(String confName) {
+        return new CosXoService(io, oMyHome, confName);
     }
 
     /**
      * 这段代码是整个接口的标准流程示例
      */
-    void raw_example() throws IOException {
+    // @org.junit.Test
+    public void raw_example() throws IOException {
         // List<XoBean> beans = cosx.listObj("pet");
         TreeMap<String, Object> config = new TreeMap<String, Object>();
         config.put("secretId", setup.getConifg("cos-secret-id"));
@@ -197,11 +62,11 @@ public class CosXoServiceTest extends BaseSessionTest {
         config.put("bucket", setup.getConifg("cos-bucket"));
         config.put("region", setup.getConifg("cos-region"));
         config.put("durationSeconds", 1000);
-        // config.put("allowPrefixes", Wlang.array("*"));
+        config.put("allowPrefixes", Wlang.array("*"));
         // config.put("allowActions", Wlang.array("*"));
-        config.put("allowPrefixes", Wlang.array("pet/*"));
+        //config.put("allowPrefixes", Wlang.array("folder/"));
         config.put("allowActions", Wlang.array("*"));
-        System.out.printf("Example:\n%s", Json.toJson(config));
+        System.out.printf("Example:\n%s\n\n", Json.toJson(config));
         Response resp = CosStsClient.getCredential(config);
         String secretId = resp.credentials.tmpSecretId;
         String secretKey = resp.credentials.tmpSecretKey;
@@ -214,8 +79,8 @@ public class CosXoServiceTest extends BaseSessionTest {
 
         ListObjectsRequest req = new ListObjectsRequest();
         req.setBucketName("dev-test-1251394887");
-        req.setPrefix("pet/");
-        req.setDelimiter("/");
+        req.setPrefix("folder/aaa/bbb/ccc/");
+       req.setDelimiter("/");
         req.setMaxKeys(1000);
         List<XoBean> list = new LinkedList<>();
         ObjectListing ing = null;
@@ -225,7 +90,13 @@ public class CosXoServiceTest extends BaseSessionTest {
             // common prefix 表示被 delimiter 截断的路径,
             // 如 delimter 设置为/, common prefix
             // 则表示所有子目录的路径
-            // List<String> commonPrefixs = ing.getCommonPrefixes();
+            for (String dir : ing.getCommonPrefixes()) {
+                XoBean xo = new XoBean();
+                xo.setKey(dir);          // 例如 folder/aaa/
+                xo.setSize(0L);
+                System.out.printf("[D]%d) %s\n", list.size(), xo);
+                list.add(xo);
+            }
 
             // object summary 表示所有列出的 object 列表
             List<COSObjectSummary> summaries = ing.getObjectSummaries();
@@ -236,6 +107,7 @@ public class CosXoServiceTest extends BaseSessionTest {
                 xo.setSize(osum.getSize());
                 xo.setStorageClass(osum.getStorageClass());
                 xo.setLastModified(osum.getLastModified());
+                System.out.printf("[F]%d) %s\n", list.size(), xo);
                 list.add(xo);
             }
 
