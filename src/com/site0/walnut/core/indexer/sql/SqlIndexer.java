@@ -410,7 +410,7 @@ public class SqlIndexer extends AbstractIoDataIndexer {
     }
 
     @Override
-    public long count(WnQuery q) {
+    public int count(WnQuery q) {
         WnSqlTmpl sqlt = getSql(SD_COUNT);
         if (null == sqlt) {
             throw Er.create("fetch SQL without defined");
@@ -425,12 +425,12 @@ public class SqlIndexer extends AbstractIoDataIndexer {
             }
         });
 
-        SqlGet<Long> get = new SqlGet<>(log, sqlt, vars, new SqlResetSetGetter<Long>() {
-            public Long getValue(ResultSet rs) throws SQLException {
-                return rs.getLong(1);
+        SqlGet<Integer> get = new SqlGet<>(log, sqlt, vars, new SqlResetSetGetter<Integer>() {
+            public Integer getValue(ResultSet rs) throws SQLException {
+                return rs.getInt(1);
             }
         }, true);
-        long N = Sqlx.sqlGet(auth, get);
+        int N = Sqlx.sqlGet(auth, get);
         return N;
     }
 

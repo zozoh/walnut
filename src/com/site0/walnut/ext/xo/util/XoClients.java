@@ -14,6 +14,8 @@ public abstract class XoClients {
     public static final XoClientManager<S3Client> S3 = new XoClientManager<>(new S3ClientProvider());
 
     public static String genClientKey(WnObj oHome, String name) {
+        if (null == name)
+            return null;
         return oHome.path() + "::" + name;
     }
 

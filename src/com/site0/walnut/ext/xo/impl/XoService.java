@@ -4,9 +4,13 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
+import org.nutz.lang.Each;
+
 import com.site0.walnut.ext.xo.bean.XoBean;
 
 public interface XoService {
+
+    boolean equals(Object other);
 
     void mkdir(String dirKey);
 
@@ -16,13 +20,24 @@ public interface XoService {
 
     void write(String objKey, InputStream ins, Map<String, Object> meta);
 
-    void writeAndClose(String objKey, InputStream ins, Map<String, Object> meta);
+    void writeAndClose(String objKey,
+                       InputStream ins,
+                       Map<String, Object> meta);
 
     List<XoBean> listObj(String objKey);
 
-    List<XoBean> listObj(String objKey, String delimiter);
+    List<XoBean> listObj(String objKey, boolean delimiter);
 
-    List<XoBean> listObj(String objKey, String delimiter, int limit);
+    List<XoBean> listObj(String objKey, boolean delimiter, int limit);
+
+    int eachObj(String objKey, Each<XoBean> callback);
+
+    int eachObj(String objKey, boolean delimiter, Each<XoBean> callback);
+
+    int eachObj(String objKey,
+                boolean delimiter,
+                int limit,
+                Each<XoBean> callback);
 
     XoBean getObj(String objKey);
 
@@ -30,7 +45,7 @@ public interface XoService {
 
     void renameObj(String oldKey, String newKey);
 
-    void renameKey(String key, String newName);
+    String renameKey(String key, String newName);
 
     InputStream read(String objKey);
 

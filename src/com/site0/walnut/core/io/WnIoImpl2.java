@@ -1174,7 +1174,7 @@ public class WnIoImpl2 implements WnIo {
     }
 
     @Override
-    public long count(WnQuery q) {
+    public int count(WnQuery q) {
         // 声明了 ID 转到 get(id)
         String id = q.first().getString("id");
         if (!Strings.isBlank(id)) {

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 
 import org.nutz.lang.Files;
-import org.nutz.lang.Strings;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.MimeMap;
 import com.site0.walnut.api.io.WnObj;
@@ -34,23 +33,6 @@ public class LocalFileWIndexer extends LocalFileIndexer {
         catch (IOException e) {
             throw Er.wrap(e);
         }
-    }
-
-    @Override
-    public WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race) {
-        int len = toIndex - fromIndex;
-        String path = Strings.join(fromIndex, len, "/", paths);
-        return create(p, path, race);
-    }
-
-    @Override
-    public WnObj createById(WnObj p, String id, String name, WnRace race) {
-        return create(p, name, race);
-    }
-
-    @Override
-    public WnObj create(WnObj p, WnObj o) {
-        return create(p, o.name(), o.race());
     }
 
     @Override

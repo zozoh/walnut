@@ -33,7 +33,7 @@ public class MongoFlatIndexer extends MongoIndexer {
     }
 
     @Override
-    public long count(WnQuery q) {
+    public int count(WnQuery q) {
         q.setv("pid", root.id());
         return super.count(q);
     }

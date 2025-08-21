@@ -134,7 +134,7 @@ public interface WnIo {
 
     List<WnObj> getChildren(WnObj o, String name);
 
-    long count(WnQuery q);
+    int count(WnQuery q);
 
     /**
      * 根据一个指定条件，对一个键进行聚集汇总计算

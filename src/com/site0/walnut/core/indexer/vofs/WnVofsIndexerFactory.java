@@ -1,4 +1,4 @@
-package com.site0.walnut.ext.xo.io.indexer;
+package com.site0.walnut.core.indexer.vofs;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.MimeMap;
@@ -9,7 +9,6 @@ import com.site0.walnut.core.mapping.WnIndexerFactory;
 import com.site0.walnut.ext.xo.impl.CosXoService;
 import com.site0.walnut.ext.xo.impl.S3XoService;
 import com.site0.walnut.ext.xo.impl.XoService;
-import com.site0.walnut.ext.xo.io.WnVofsOptions;
 
 public class WnVofsIndexerFactory implements WnIndexerFactory {
 

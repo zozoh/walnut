@@ -1,4 +1,4 @@
-package com.site0.walnut.ext.xo.io;
+package com.site0.walnut.core.indexer.vofs;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

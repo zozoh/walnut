@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.nutz.lang.Each;
 import org.nutz.lang.Streams;
 
 import com.qcloud.cos.COSClient;
@@ -32,6 +32,7 @@ import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.xo.bean.XoBean;
 import com.site0.walnut.ext.xo.util.WnIoXoClientGetter;
+import com.site0.walnut.ext.xo.util.WnSimpleClientGetter;
 import com.site0.walnut.ext.xo.util.XoClientGetter;
 import com.site0.walnut.ext.xo.util.XoClientWrapper;
 import com.site0.walnut.ext.xo.util.XoClients;
@@ -58,6 +59,21 @@ public class CosXoService extends AbstractXoService {
         this.getter = getter;
     }
 
+    public CosXoService(XoClientWrapper<COSClient> client) {
+        this.getter = new WnSimpleClientGetter<>(client);
+    }
+
+    public boolean equals(Object other) {
+        if (!super.equals(other)) {
+            return false;
+        }
+        CosXoService ta = (CosXoService) other;
+        if (null == this.getter || null == ta.getter) {
+            return false;
+        }
+        return this.getter.equals(ta.getter);
+    }
+
     private ObjectMetadata __to_cos_meta_data(Map<String, Object> meta) {
         XoMeta xmeta = to_meta_data(meta, false, true);
         ObjectMetadata md = new ObjectMetadata();
@@ -82,7 +98,9 @@ public class CosXoService extends AbstractXoService {
     }
 
     @Override
-    public void write(String objKey, InputStream ins, Map<String, Object> meta) {
+    public void write(String objKey,
+                      InputStream ins,
+                      Map<String, Object> meta) {
         long contentLength = -1;
         try {
             contentLength = ins.available();
@@ -103,11 +121,16 @@ public class CosXoService extends AbstractXoService {
         String bucket = xc.getBucket();
         String obj_path = xc.getObjPath(objKey);
 
-        PutObjectRequest req = new PutObjectRequest(bucket, obj_path, ins, metaData);
+        PutObjectRequest req = new PutObjectRequest(bucket,
+                                                    obj_path,
+                                                    ins,
+                                                    metaData);
         client.putObject(req);
     }
 
-    protected void multipartWrite(String objKey, InputStream ins, Map<String, Object> meta) {
+    protected void multipartWrite(String objKey,
+                                  InputStream ins,
+                                  Map<String, Object> meta) {
         XoClientWrapper<COSClient> xc = getter.get();
         COSClient client = xc.getClient();
         String bucket = xc.getBucket();
@@ -120,7 +143,8 @@ public class CosXoService extends AbstractXoService {
         InitiateMultipartUploadRequest initReq = new InitiateMultipartUploadRequest(bucket,
                                                                                     objPath,
                                                                                     metaData);
-        InitiateMultipartUploadResult initResp = client.initiateMultipartUpload(initReq);
+        InitiateMultipartUploadResult initResp = client
+            .initiateMultipartUpload(initReq);
         String uploadId = initResp.getUploadId();
 
         // 2. 分块上传
@@ -146,7 +170,8 @@ public class CosXoService extends AbstractXoService {
                 uploadRequest.setInputStream(partInputStream);
                 uploadRequest.setPartSize(bytesRead);
 
-                UploadPartResult uploadResult = client.uploadPart(uploadRequest);
+                UploadPartResult uploadResult = client
+                    .uploadPart(uploadRequest);
                 partETags.add(uploadResult.getPartETag());
 
                 partNumber++;
@@ -154,7 +179,10 @@ public class CosXoService extends AbstractXoService {
         }
         catch (IOException e) {
             // 出错时终止上传
-            client.abortMultipartUpload(new AbortMultipartUploadRequest(bucket, objPath, uploadId));
+            client
+                .abortMultipartUpload(new AbortMultipartUploadRequest(bucket,
+                                                                      objPath,
+                                                                      uploadId));
             throw new RuntimeException("Upload failed", e);
         }
         finally {
@@ -170,16 +198,18 @@ public class CosXoService extends AbstractXoService {
     }
 
     @Override
-    public List<XoBean> listObj(String objKey, String delimiter, int limit) {
+    public int eachObj(String objKey,
+                       boolean delimiterBySlash,
+                       int limit,
+                       Each<XoBean> callback) {
+        String delimiter = delimiterBySlash ? "/" : null;
         XoClientWrapper<COSClient> xc = getter.get();
         COSClient client = xc.getClient();
         String bucket = xc.getBucket();
         String prefix = xc.getQueryPrefix(objKey, delimiter);
-        boolean useDelimiter = null != delimiter && "/".equals(delimiter);
 
+        int count = 0;
         int remaining = limit;
-
-        List<XoBean> list = new LinkedList<>();
         String next = null;
         do {
             int maxKeys = Math.min(remaining, 1000);
@@ -193,7 +223,7 @@ public class CosXoService extends AbstractXoService {
             ObjectListing ing = client.listObjects(req);
 
             // 获取虚拟目录
-            if (useDelimiter) {
+            if (delimiterBySlash) {
                 for (String dir : ing.getCommonPrefixes()) {
                     XoBean xo = new XoBean();
                     // 查找的就是自己，那么自然什么都不显示
@@ -204,7 +234,10 @@ public class CosXoService extends AbstractXoService {
                     String key = xc.toMyKey(dir);
                     xo.setKey(key);
                     xo.setSize(0L);
-                    list.add(xo);
+                    if (null != callback) {
+                        callback.invoke(count, xo, -1);
+                    }
+                    count++;
                     if (--remaining <= 0)
                         break;
                 }
@@ -231,7 +264,10 @@ public class CosXoService extends AbstractXoService {
                 xo1.setStorageClass(osum.getStorageClass());
                 xo1.setLastModified(osum.getLastModified());
                 XoBean xo = xo1;
-                list.add(xo);
+                if (null != callback) {
+                    callback.invoke(count, xo, -1);
+                }
+                count++;
                 if (--remaining <= 0)
                     break;
             }
@@ -241,7 +277,7 @@ public class CosXoService extends AbstractXoService {
 
         } while (next != null && remaining > 0);
 
-        return list;
+        return count;
     }
 
     @Override
@@ -317,7 +353,10 @@ public class CosXoService extends AbstractXoService {
         freshMeta.setUserMetadata(merged);
 
         // 4. 执行“拷贝到自身”
-        CopyObjectRequest copyReq = new CopyObjectRequest(bucket, key, bucket, key);
+        CopyObjectRequest copyReq = new CopyObjectRequest(bucket,
+                                                          key,
+                                                          bucket,
+                                                          key);
         copyReq.setNewObjectMetadata(freshMeta);
         client.copyObject(copyReq);
     }
@@ -352,7 +391,8 @@ public class CosXoService extends AbstractXoService {
         String bucket = xc.getBucket();
         String obj_path = xc.getObjPath(objKey);
 
-        GetObjectRequest getObjectRequest = new GetObjectRequest(bucket, obj_path);
+        GetObjectRequest getObjectRequest = new GetObjectRequest(bucket,
+                                                                 obj_path);
         COSObject xo = client.getObject(getObjectRequest);
         return xo.getObjectContent();
     }

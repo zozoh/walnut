@@ -10,6 +10,8 @@ import com.site0.walnut.util.Wn;
 
 public class WnIoMapping {
 
+    private WnObj mountRoot;
+
     private WnIoIndexer indexer;
 
     private WnIoBM bm;
@@ -21,8 +23,13 @@ public class WnIoMapping {
         if (null == bm) {
             throw Er.create("e.io.mapping.nilBM");
         }
+        this.mountRoot = indexer.getRoot();
         this.indexer = indexer;
         this.bm = bm;
+    }
+
+    public WnObj getMountRoot() {
+        return mountRoot;
     }
 
     public WnIoIndexer getIndexer() {

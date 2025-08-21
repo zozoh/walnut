@@ -22,6 +22,37 @@ public abstract class XoClientWrapper<T> {
         this.key = key;
     }
 
+    public boolean equals(Object other) {
+        if (this == other)
+            return true;
+
+        if (null == other)
+            return false;
+
+        if (!(other instanceof XoClientWrapper<?>)) {
+            return false;
+        }
+
+        XoClientWrapper<?> ta = (XoClientWrapper<?>) other;
+
+        if (this.expiredAt != ta.expiredAt)
+            return false;
+
+        if (!Wlang.isEqual(this.key, ta.key))
+            return false;
+
+        if (!Wlang.isEqual(this.region, ta.region))
+            return false;
+
+        if (!Wlang.isEqual(this.bucket, ta.bucket))
+            return false;
+
+        if (!Wlang.isEqual(this.prefix, ta.prefix))
+            return false;
+
+        return true;
+    }
+
     protected abstract void _close_client(T client);
 
     public void close() {
@@ -133,14 +164,18 @@ public abstract class XoClientWrapper<T> {
         return prefix;
     }
 
-    public void setPrefix(String prefix) {
+    public static String tidyPrefix(String prefix) {
         if (Ws.isBlank(prefix)) {
-            this.prefix = null;
-        } else if (prefix.endsWith("*")) {
-            this.prefix = prefix.substring(0, prefix.length() - 1).trim();
-        } else {
-            this.prefix = prefix;
+            return null;
         }
+        if (prefix.endsWith("*")) {
+            return prefix.substring(0, prefix.length() - 1).trim();
+        }
+        return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = tidyPrefix(prefix);
     }
 
     public String[] getAllowPrefixes() {

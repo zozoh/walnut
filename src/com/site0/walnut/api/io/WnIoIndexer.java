@@ -135,9 +135,9 @@ public interface WnIoIndexer {
 
     List<WnObj> getChildren(WnObj o, String name);
 
-    long countChildren(WnObj o);
+    int countChildren(WnObj o);
 
-    long count(WnQuery q);
+    int count(WnQuery q);
 
     boolean hasChild(WnObj p);
 

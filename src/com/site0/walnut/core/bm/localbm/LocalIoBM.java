@@ -55,13 +55,11 @@ public class LocalIoBM extends AbstractIoBM {
 
     private BMSwapFiles swaps;
 
-    WnReferApi refers;
+    private WnReferApi refers;
 
     private int minBucketIdLen;
 
-    int bufferSize;
-
-    boolean canMoveSwap;
+    private boolean canMoveSwap;
 
     public LocalIoBM(WnIoHandleManager handles,
                      String phBucket,
@@ -95,7 +93,7 @@ public class LocalIoBM extends AbstractIoBM {
 
         // 一些常量
         minBucketIdLen = 8;
-        bufferSize = 8192;
+        //bufferSize = 8192;
     }
 
     @Override

@@ -227,12 +227,16 @@ public interface WnObj extends NutBean, Comparable<WnObj> {
 
     WnObj thumbnail(String thumbnail);
 
+    @Deprecated
     boolean hasData();
 
+    @Deprecated
     String data();
 
+    @Deprecated
     WnObj data(String data);
 
+    @Deprecated
     boolean isSameData(String data);
 
     WnObj len(long len);

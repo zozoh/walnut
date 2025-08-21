@@ -1,5 +1,8 @@
 package com.site0.walnut.ext.net.mailx.hdl;
 
+
+import java.util.Date;
+
 import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.api.io.WnObj;
@@ -24,6 +27,7 @@ public class mailx_raw_msg extends MailxFilter {
         boolean isAutoDecrypt = params.is("decrypt");
         String asContent = params.getString("content");
         NutMap fixedMeta = params.getMap("meta");
+        fc.setQuiet(true);
 
         sys.out.printlnf("Parse %d raw MimeMessage", params.vals.length);
 
@@ -47,6 +51,7 @@ public class mailx_raw_msg extends MailxFilter {
             WnMailRawRecieving rv = new WnMailRawRecieving();
             rv.isAutoDecrypt = isAutoDecrypt;
             rv.mimeText = mimeText;
+            rv.recieveDate = new Date(obj.lastModified());
             rv.sys = sys;
             rv.fc = fc;
             rv.asContent = asContent;
@@ -55,12 +60,13 @@ public class mailx_raw_msg extends MailxFilter {
             rv.i = i;
             rv.N = params.vals.length;
             rv.fixedMeta = fixedMeta;
+            
             // 后续处理
             // rv.taTmpl = taTmpl;
             // rv.attachmentTmpl = attachmentTmpl;
             // rv.after = after;
             // rv.outputs = outputs;
-            
+
             // 执行解析，由于 debug 为 true，会强制输出日志
             rv.run();
 

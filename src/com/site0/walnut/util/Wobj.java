@@ -1,12 +1,14 @@
 package com.site0.walnut.util;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nutz.lang.Encoding;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -367,5 +369,17 @@ public class Wobj {
             }
         }
         return RESERVE_KEYS.matcher(key).find();
+    }
+
+    public static String decodePathFromBase64(String id) {
+        byte[] bs = Base64.getDecoder().decode(id);
+        String str = new String(bs, Encoding.CHARSET_UTF8);
+        return str.trim();
+    }
+
+    public static String encodePathToBase64(String path) {
+        // 展开 base64
+        byte[] bs = path.getBytes(Encoding.CHARSET_UTF8);
+        return Base64.getEncoder().encodeToString(bs);
     }
 }

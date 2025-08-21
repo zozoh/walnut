@@ -6,10 +6,10 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.nutz.lang.Each;
 import org.nutz.lang.Streams;
 
 import com.site0.walnut.api.err.Er;
@@ -17,6 +17,7 @@ import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.xo.bean.XoBean;
 import com.site0.walnut.ext.xo.util.WnIoXoClientGetter;
+import com.site0.walnut.ext.xo.util.WnSimpleClientGetter;
 import com.site0.walnut.ext.xo.util.XoClientGetter;
 import com.site0.walnut.ext.xo.util.XoClientWrapper;
 import com.site0.walnut.ext.xo.util.XoClients;
@@ -62,8 +63,25 @@ public class S3XoService extends AbstractXoService {
         this.getter = getter;
     }
 
+    public S3XoService(XoClientWrapper<S3Client> client) {
+        this.getter = new WnSimpleClientGetter<>(client);
+    }
+
+    public boolean equals(Object other) {
+        if (!super.equals(other)) {
+            return false;
+        }
+        S3XoService ta = (S3XoService) other;
+        if (null == this.getter || null == ta.getter) {
+            return false;
+        }
+        return this.getter.equals(ta.getter);
+    }
+
     @Override
-    public void write(String objKey, InputStream ins, Map<String, Object> meta) {
+    public void write(String objKey,
+                      InputStream ins,
+                      Map<String, Object> meta) {
         long contentLength = -1;
         try {
             contentLength = ins.available();
@@ -103,7 +121,9 @@ public class S3XoService extends AbstractXoService {
 
     }
 
-    protected void multipartWrite(String objKey, InputStream ins, Map<String, Object> meta) {
+    protected void multipartWrite(String objKey,
+                                  InputStream ins,
+                                  Map<String, Object> meta) {
         XoClientWrapper<S3Client> xc = getter.get();
         S3Client client = xc.getClient();
         String bucket = xc.getBucket();
@@ -113,7 +133,8 @@ public class S3XoService extends AbstractXoService {
         XoMeta xmeta = to_meta_data(meta, true, true);
 
         // 1. 初始化分块上传
-        CreateMultipartUploadRequest createReq = CreateMultipartUploadRequest.builder()
+        CreateMultipartUploadRequest createReq = CreateMultipartUploadRequest
+            .builder()
             .bucket(bucket)
             .key(objPath)
             .metadata(xmeta.userMeta)
@@ -121,7 +142,8 @@ public class S3XoService extends AbstractXoService {
             .contentDisposition(xmeta.title)
             .build();
 
-        CreateMultipartUploadResponse createResp = client.createMultipartUpload(createReq);
+        CreateMultipartUploadResponse createResp = client
+            .createMultipartUpload(createReq);
         String uploadId = createResp.uploadId();
 
         // 2. 分块上传
@@ -141,8 +163,10 @@ public class S3XoService extends AbstractXoService {
                     .build();
 
                 ByteBuffer byteBuffer = ByteBuffer.wrap(buffer, 0, bytesRead);
-                RequestBody body = RequestBody.fromRemainingByteBuffer(byteBuffer);
-                UploadPartResponse uploadResp = client.uploadPart(uploadReq, body);
+                RequestBody body = RequestBody
+                    .fromRemainingByteBuffer(byteBuffer);
+                UploadPartResponse uploadResp = client.uploadPart(uploadReq,
+                                                                  body);
 
                 // 记录完成的分块
                 completedParts.add(CompletedPart.builder()
@@ -165,11 +189,13 @@ public class S3XoService extends AbstractXoService {
         }
 
         // 3. 完成分块上传
-        CompletedMultipartUpload completedUpload = CompletedMultipartUpload.builder()
+        CompletedMultipartUpload completedUpload = CompletedMultipartUpload
+            .builder()
             .parts(completedParts)
             .build();
 
-        CompleteMultipartUploadRequest completeReq = CompleteMultipartUploadRequest.builder()
+        CompleteMultipartUploadRequest completeReq = CompleteMultipartUploadRequest
+            .builder()
             .bucket(bucket)
             .key(objPath)
             .uploadId(uploadId)
@@ -180,17 +206,19 @@ public class S3XoService extends AbstractXoService {
     }
 
     @Override
-    public List<XoBean> listObj(String objKey, String delimiter, int limit) {
+    public int eachObj(String objKey,
+                       boolean delimiterBySlash,
+                       int limit,
+                       Each<XoBean> callback) {
+        String delimiter = delimiterBySlash ? "/" : null;
         XoClientWrapper<S3Client> xc = getter.get();
         S3Client client = xc.getClient();
         String bucket = xc.getBucket();
         String prefix = xc.getQueryPrefix(objKey, delimiter);
-        boolean useDelimiter = null != delimiter && "/".equals(delimiter);
 
-        List<XoBean> list = new LinkedList<>();
-        String next = null;
+        int count = 0;
         int remaining = limit;
-
+        String next = null;
         do {
             // 计算本次请求的最大结果数
             int maxKeys = Math.min(remaining, 1000);
@@ -206,7 +234,7 @@ public class S3XoService extends AbstractXoService {
 
             // 处理目录（Common Prefixes）
             // 获取虚拟目录
-            if (useDelimiter) {
+            if (delimiterBySlash) {
                 for (CommonPrefix dir : resp.commonPrefixes()) {
                     XoBean xo = new XoBean();
                     String dirPrefix = dir.prefix();
@@ -218,7 +246,10 @@ public class S3XoService extends AbstractXoService {
                     String key = xc.toMyKey(dirPrefix);
                     xo.setKey(key);
                     xo.setSize(0L);
-                    list.add(xo);
+                    if (null != callback) {
+                        callback.invoke(count, xo, -1);
+                    }
+                    count++;
                     if (--remaining <= 0)
                         break;
                 }
@@ -247,7 +278,10 @@ public class S3XoService extends AbstractXoService {
                 xo1.setLastModified(lm);
 
                 XoBean xo = xo1;
-                list.add(xo);
+                if (null != callback) {
+                    callback.invoke(count, xo, -1);
+                }
+                count++;
 
                 if (--remaining <= 0)
                     break;
@@ -258,7 +292,7 @@ public class S3XoService extends AbstractXoService {
 
         } while (next != null && remaining > 0);
 
-        return list;
+        return count;
     }
 
     @Override
@@ -269,7 +303,10 @@ public class S3XoService extends AbstractXoService {
         String key = xc.getObjPath(objKey);
 
         try {
-            HeadObjectRequest req = HeadObjectRequest.builder().bucket(bucket).key(key).build();
+            HeadObjectRequest req = HeadObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .build();
             HeadObjectResponse resp = client.headObject(req);
 
             XoBean xo = new XoBean();
@@ -350,7 +387,8 @@ public class S3XoService extends AbstractXoService {
         String dst = xc.getObjPath(newKey);
 
         try {
-            HeadObjectResponse head = client.headObject(b -> b.bucket(bucket).key(src));
+            HeadObjectResponse head = client
+                .headObject(b -> b.bucket(bucket).key(src));
 
             client.copyObject(CopyObjectRequest.builder()
                 .sourceBucket(bucket)
@@ -374,7 +412,10 @@ public class S3XoService extends AbstractXoService {
         String bucket = xc.getBucket();
         String objPath = xc.getObjPath(objKey);
 
-        GetObjectRequest req = GetObjectRequest.builder().bucket(bucket).key(objPath).build();
+        GetObjectRequest req = GetObjectRequest.builder()
+            .bucket(bucket)
+            .key(objPath)
+            .build();
         ResponseInputStream<GetObjectResponse> resp = client.getObject(req);
         return resp;
     }
@@ -386,7 +427,10 @@ public class S3XoService extends AbstractXoService {
         String bucket = xc.getBucket();
         String objPath = xc.getObjPath(objKey);
 
-        DeleteObjectRequest req = DeleteObjectRequest.builder().bucket(bucket).key(objPath).build();
+        DeleteObjectRequest req = DeleteObjectRequest.builder()
+            .bucket(bucket)
+            .key(objPath)
+            .build();
 
         client.deleteObject(req);
     }

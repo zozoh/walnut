@@ -40,6 +40,7 @@ public class XoBean {
     public XoBean() {
         this.rawMeta = new NutMap();
         this.userMeta = new NutMap();
+        this.lastModified = new Date();
     }
 
     public String toString() {
@@ -199,7 +200,5 @@ public class XoBean {
     public void setExpires(Instant expires) {
         this.expires = expires;
     }
-    
-    
 
 }

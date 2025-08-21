@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.nutz.lang.Each;
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.ByteInputStream;
 
@@ -42,7 +44,9 @@ public abstract class AbstractXoService implements XoService {
         }
     }
 
-    protected XoMeta to_meta_data(Map<String, Object> meta, boolean noSha1, boolean ignoreNull) {
+    protected XoMeta to_meta_data(Map<String, Object> meta,
+                                  boolean noSha1,
+                                  boolean ignoreNull) {
         XoMeta re = new XoMeta();
         re.userMeta = new HashMap<>();
         if (meta != null && !meta.isEmpty()) {
@@ -78,6 +82,15 @@ public abstract class AbstractXoService implements XoService {
         return re;
     }
 
+    public boolean equals(Object other) {
+        if (null == other)
+            return false;
+        if (!this.getClass().equals(other.getClass()))
+            return false;
+
+        return true;
+    }
+
     public void mkdir(String dirKey) {
         String[] path = Ws.splitIgnoreBlank(dirKey, "/");
         String folder = Ws.join(path, "/") + "/";
@@ -86,7 +99,9 @@ public abstract class AbstractXoService implements XoService {
     }
 
     @Override
-    public void writeText(String objKey, String text, Map<String, Object> meta) {
+    public void writeText(String objKey,
+                          String text,
+                          Map<String, Object> meta) {
         InputStream ins = Wlang.ins(text);
         writeAndClose(objKey, ins, meta);
     }
@@ -98,7 +113,9 @@ public abstract class AbstractXoService implements XoService {
     }
 
     @Override
-    public void writeAndClose(String objKey, InputStream ins, Map<String, Object> meta) {
+    public void writeAndClose(String objKey,
+                              InputStream ins,
+                              Map<String, Object> meta) {
         try {
             write(objKey, ins, meta);
         }
@@ -109,12 +126,34 @@ public abstract class AbstractXoService implements XoService {
 
     @Override
     public List<XoBean> listObj(String objKey) {
-        return listObj(objKey, "/", 1000);
+        return listObj(objKey, true, 1000);
     }
 
     @Override
-    public List<XoBean> listObj(String objKey, String delimiter) {
+    public List<XoBean> listObj(String objKey, boolean delimiter) {
         return listObj(objKey, delimiter, 1000);
+    }
+
+    public List<XoBean> listObj(String objKey,
+                                boolean delimiterBySlash,
+                                int limit) {
+        List<XoBean> list = new LinkedList<>();
+        this.eachObj(objKey, delimiterBySlash, limit, (index, xo, len) -> {
+            list.add(xo);
+        });
+        return list;
+    }
+
+    @Override
+    public int eachObj(String objKey, Each<XoBean> callback) {
+        return eachObj(objKey, true, 1000, callback);
+    }
+
+    @Override
+    public int eachObj(String objKey,
+                       boolean delimiter,
+                       Each<XoBean> callback) {
+        return eachObj(objKey, delimiter, 1000, callback);
     }
 
     @Override
@@ -139,10 +178,10 @@ public abstract class AbstractXoService implements XoService {
     }
 
     @Override
-    public void renameKey(String key, String newName) {
+    public String renameKey(String key, String newName) {
         // 防空
         if (Ws.isBlank(key) || Ws.isBlank(newName)) {
-            return;
+            return key;
         }
         // 确保是一个名字
         if (newName.endsWith("/")) {
@@ -165,11 +204,13 @@ public abstract class AbstractXoService implements XoService {
 
         renameObj(key, newKey);
 
+        return newKey;
+
     }
 
     @Override
     public void clear(String objKey) {
-        List<XoBean> list = this.listObj(objKey, null);
+        List<XoBean> list = this.listObj(objKey, false);
         for (XoBean li : list) {
             this.deleteObj(li.getKey());
         }

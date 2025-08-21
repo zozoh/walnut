@@ -1,4 +1,4 @@
-package com.site0.walnut.core.bm.vofs;
+package com.site0.walnut.core.bm.vobm;
 
 import com.site0.walnut.api.io.WnIoIndexer;
 import com.site0.walnut.api.io.WnObj;
@@ -6,27 +6,17 @@ import com.site0.walnut.core.WnIoBM;
 import com.site0.walnut.core.WnIoHandle;
 import com.site0.walnut.core.WnIoHandleManager;
 import com.site0.walnut.core.bm.AbstractIoBM;
-import com.site0.walnut.ext.xo.impl.XoService;
-import com.site0.walnut.util.Wlang;
 
-public class WnVofsBM extends AbstractIoBM {
+public class WnVoIoBM extends AbstractIoBM{
 
-    private XoService api;
-
-    public WnVofsBM(WnIoHandleManager handles, XoService api) {
+    public WnVoIoBM(WnIoHandleManager handles) {
         super(handles);
-        this.api = api;
+        // TODO Auto-generated constructor stub
     }
 
     @Override
     public boolean isSame(WnIoBM bm) {
-        if (this == bm)
-            return true;
-        if (null == bm)
-            return false;
-        if (bm instanceof WnVofsBM) {
-            return Wlang.isEqual(this.api, ((WnVofsBM) bm).api);
-        }
+        // TODO Auto-generated method stub
         return false;
     }
 

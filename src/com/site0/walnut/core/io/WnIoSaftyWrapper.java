@@ -250,7 +250,7 @@ public class WnIoSaftyWrapper implements WnIo {
         return io.getChildren(o, name);
     }
 
-    public long count(WnQuery q) {
+    public int count(WnQuery q) {
         return io.count(q);
     }
 

@@ -33,29 +33,29 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         super(root, mimes);
     }
 
-    @Override
-    public WnObj checkById(String id) {
-        WnObj o = this.get(id);
-        if (null == o) {
-            throw Er.create("e.io.obj.noexists", "id:" + id);
-        }
-        return o;
-    }
+    // @Override
+    // public WnObj checkById(String id) {
+    // WnObj o = this.get(id);
+    // if (null == o) {
+    // throw Er.create("e.io.obj.noexists", "id:" + id);
+    // }
+    // return o;
+    // }
+    //
+    // @Override
+    // public WnObj check(WnObj p, String path) {
+    // WnObj o = fetch(p, path);
+    // if (null == o)
+    // throw Er.create("e.io.obj.noexists", path);
+    // return o;
+    // }
 
-    @Override
-    public WnObj check(WnObj p, String path) {
-        WnObj o = fetch(p, path);
-        if (null == o)
-            throw Er.create("e.io.obj.noexists", path);
-        return o;
-    }
-
-    @Override
-    public boolean existsId(String id) {
-        WnQuery q = Wn.Q.id(id);
-        long re = this.count(q);
-        return re > 0;
-    }
+    // @Override
+    // public boolean existsId(String id) {
+    // WnQuery q = Wn.Q.id(id);
+    // long re = this.count(q);
+    // return re > 0;
+    // }
 
     @Override
     public WnObj fetch(WnObj p, String path) {
@@ -867,7 +867,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
     protected abstract int _each(WnQuery q, WnObj pHint, Each<WnObj> callback);
 
     @Override
-    public long countChildren(WnObj o) {
+    public int countChildren(WnObj o) {
         WnQuery q = Wn.Q.pid(o);
         return count(q);
     }

@@ -9,7 +9,6 @@ import org.nutz.json.JsonFormat;
 import org.nutz.json.ToJson;
 import org.nutz.lang.Files;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -19,6 +18,7 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.core.bean.WnObjId;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.Ws;
 
 @ToJson
 public class WnLocalFileObj extends NutMap implements WnObj {
@@ -203,14 +203,14 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     @Override
     public String name() {
         String nm = this.getString("nm");
-        if (!Strings.isBlank(nm))
+        if (!Ws.isBlank(nm))
             return nm;
         return file.getName();
     }
 
     @Override
     public WnObj name(String nm) {
-        if (Strings.isBlank(nm)) {
+        if (Ws.isBlank(nm)) {
             this.remove("nm");
         } else {
             this.put("nm", nm);
@@ -454,7 +454,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     @Override
     public boolean hasType() {
-        return !Strings.isBlank(type());
+        return !Ws.isBlank(type());
     }
 
     @Override
@@ -473,7 +473,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     @Override
     public boolean hasMime() {
-        return !Strings.isBlank(mime());
+        return !Ws.isBlank(mime());
     }
 
     @Override
@@ -492,7 +492,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     }
 
     public boolean hasSha1() {
-        return !Strings.isBlank(sha1());
+        return !Ws.isBlank(sha1());
     }
 
     public String sha1() {
@@ -644,7 +644,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     }
 
     public String toString() {
-        return String.format("%s;ID(%s)==%s", path(), id(), mount());
+        return String.format("file://%s;ID(%s)==%s", path(), id(), mount());
     }
 
     @Override

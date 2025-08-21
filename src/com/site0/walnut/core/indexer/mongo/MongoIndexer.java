@@ -431,7 +431,7 @@ public class MongoIndexer extends AbstractIoDataIndexer {
     // }
 
     @Override
-    public long count(WnQuery q) {
+    public int count(WnQuery q) {
         if (q == null)
             throw new RuntimeException("count without WnQuery is not allow");
         ZMoDoc qDoc = Mongos.toQueryDoc(q);
@@ -446,7 +446,7 @@ public class MongoIndexer extends AbstractIoDataIndexer {
             }
         }
 
-        return co.countDocuments(qDoc);
+        return (int)co.countDocuments(qDoc);
     }
 
     @Override

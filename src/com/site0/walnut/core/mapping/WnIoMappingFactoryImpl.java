@@ -33,7 +33,7 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
      */
     private HashMap<String, WnBMFactory> bms;
 
-    private WnIoMapping __check_mapping(WnObj oHome, String mount) {
+    private WnIoMapping __check_mapping(WnObj oMntRoot, String mount) {
         // 首先分析映射
         MountInfo mi = new MountInfo(mount);
 
@@ -47,7 +47,7 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
         }
         // 获取索引管理器
         else {
-            ix = loadIndexer(oHome, mi.ix);
+            ix = loadIndexer(oMntRoot, mi.ix);
         }
 
         // 采用全局桶管理器
@@ -56,7 +56,7 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
         }
         // 获取桶管理器
         else {
-            bm = loadBM(oHome, mi.bm);
+            bm = loadBM(oMntRoot, mi.bm);
         }
 
         // 组合返回
@@ -94,15 +94,15 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
     }
 
     @Override
-    public WnIoMapping checkMapping(String homeId, String mount) {
+    public WnIoMapping checkMapping(String mountRootId, String mount) {
         // 获取顶端映射对象
-        WnObj oHome = null;
-        if (!Strings.isBlank(homeId)) {
-            oHome = globalIndexer.checkById(homeId);
+        WnObj oMntRoot = null;
+        if (!Strings.isBlank(mountRootId)) {
+            oMntRoot = globalIndexer.checkById(mountRootId);
         }
 
         // 获取映射
-        return __check_mapping(oHome, mount);
+        return __check_mapping(oMntRoot, mount);
     }
 
     @Override
@@ -112,16 +112,16 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
             return getGlobalMapping();
         }
         // 获取其顶级映射
-        String homeId = obj.mountRootId();
+        String mntRootId = obj.mountRootId();
         String mount = obj.mount();
 
         // 自己就是顶端映射对象
-        if (Strings.isBlank(homeId) || obj.isSameId(homeId)) {
+        if (Strings.isBlank(mntRootId) || obj.isSameId(mntRootId)) {
             return __check_mapping(obj, mount);
         }
 
         // 返回
-        return checkMapping(homeId, mount);
+        return checkMapping(mntRootId, mount);
     }
 
     @Override

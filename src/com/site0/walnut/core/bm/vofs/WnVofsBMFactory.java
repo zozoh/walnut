@@ -1,15 +1,15 @@
-package com.site0.walnut.ext.xo.io.bm;
+package com.site0.walnut.core.bm.vofs;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.core.WnIoBM;
 import com.site0.walnut.core.WnIoHandleManager;
+import com.site0.walnut.core.indexer.vofs.WnVofsOptions;
 import com.site0.walnut.core.mapping.WnBMFactory;
 import com.site0.walnut.ext.xo.impl.CosXoService;
 import com.site0.walnut.ext.xo.impl.S3XoService;
 import com.site0.walnut.ext.xo.impl.XoService;
-import com.site0.walnut.ext.xo.io.WnVofsOptions;
 
 public class WnVofsBMFactory implements WnBMFactory {
 
@@ -18,7 +18,6 @@ public class WnVofsBMFactory implements WnBMFactory {
      */
     private WnIo io;
     private WnIoHandleManager handles;
-    private String swapPath;
 
     public void setIo(WnIo io) {
         this.io = io;
@@ -26,10 +25,6 @@ public class WnVofsBMFactory implements WnBMFactory {
 
     public void setHandles(WnIoHandleManager handles) {
         this.handles = handles;
-    }
-
-    public void setSwapPath(String swapPath) {
-        this.swapPath = swapPath;
     }
 
     @Override
@@ -55,7 +50,7 @@ public class WnVofsBMFactory implements WnBMFactory {
             throw Er.create("e.vofs.UnsupportMode", str);
         }
 
-        return new WnVofsBM(handles, swapPath, xos);
+        return new WnVofsBM(handles, xos);
     }
 
 }
