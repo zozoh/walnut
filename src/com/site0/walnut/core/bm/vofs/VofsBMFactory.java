@@ -11,7 +11,7 @@ import com.site0.walnut.ext.xo.impl.CosXoService;
 import com.site0.walnut.ext.xo.impl.S3XoService;
 import com.site0.walnut.ext.xo.impl.XoService;
 
-public class WnVofsBMFactory implements WnBMFactory {
+public class VofsBMFactory implements WnBMFactory {
 
     /**
      * 这个需要通过 IOC 注入得到实例
@@ -50,7 +50,7 @@ public class WnVofsBMFactory implements WnBMFactory {
             throw Er.create("e.vofs.UnsupportMode", str);
         }
 
-        return new WnVofsBM(handles, xos);
+        return new VofsBM(handles, xos);
     }
 
 }

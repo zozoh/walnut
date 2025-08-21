@@ -9,11 +9,11 @@ import com.site0.walnut.core.bm.AbstractIoBM;
 import com.site0.walnut.ext.xo.impl.XoService;
 import com.site0.walnut.util.Wlang;
 
-public class WnVofsBM extends AbstractIoBM {
+public class VofsBM extends AbstractIoBM {
 
     private XoService api;
 
-    public WnVofsBM(WnIoHandleManager handles, XoService api) {
+    public VofsBM(WnIoHandleManager handles, XoService api) {
         super(handles);
         this.api = api;
     }
@@ -24,8 +24,8 @@ public class WnVofsBM extends AbstractIoBM {
             return true;
         if (null == bm)
             return false;
-        if (bm instanceof WnVofsBM) {
-            return Wlang.isEqual(this.api, ((WnVofsBM) bm).api);
+        if (bm instanceof VofsBM) {
+            return Wlang.isEqual(this.api, ((VofsBM) bm).api);
         }
         return false;
     }

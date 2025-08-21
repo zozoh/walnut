@@ -23,6 +23,7 @@ import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.core.indexer.AbstractIoVfsIndexer;
 import com.site0.walnut.util.WnSort;
+import com.site0.walnut.util.Wobj;
 import com.site0.walnut.util.validate.WnMatch;
 import com.site0.walnut.util.validate.impl.AutoMatch;
 import com.site0.walnut.util.validate.impl.AutoStrMatch;
@@ -70,7 +71,8 @@ public class LocalFileIndexer extends AbstractIoVfsIndexer {
 
     @Override
     public boolean existsId(String id) {
-        File f = Files.getFile(dHome, id);
+        String ph = Wobj.decodePathFromBase64(id);
+        File f = Files.getFile(dHome, ph);
         return f.exists();
     }
 
@@ -81,7 +83,9 @@ public class LocalFileIndexer extends AbstractIoVfsIndexer {
             // 获取基线目录对象（可能是 P 也可能是 HOME）
             File f = this._check_file_by(p);
             if (log.isTraceEnabled()) {
-                log.tracef("io:localFile: f.exists=%s, f=%s", f.exists(), f.getAbsolutePath());
+                log.tracef("io:localFile: f.exists=%s, f=%s",
+                           f.exists(),
+                           f.getAbsolutePath());
             }
             // 不是目录
             if (!f.isDirectory()) {
@@ -98,7 +102,9 @@ public class LocalFileIndexer extends AbstractIoVfsIndexer {
             // 相对于基线文件，调整 path，去掉内部的 ..
             File f2 = Files.getFile(f, path);
             if (log.isTraceEnabled()) {
-                log.tracef("io:localFile: f2.exists=%s, fs=%s", f2.exists(), f2.getAbsolutePath());
+                log.tracef("io:localFile: f2.exists=%s, fs=%s",
+                           f2.exists(),
+                           f2.getAbsolutePath());
             }
             if (!f2.exists()) {
                 return null;
@@ -155,7 +161,8 @@ public class LocalFileIndexer extends AbstractIoVfsIndexer {
 
     @Override
     public WnObj get(String id) {
-        File f = Files.getFile(dHome, id);
+        String ph = Wobj.decodePathFromBase64(id);
+        File f = Files.getFile(dHome, ph);
         if (!f.exists()) {
             return null;
         }
@@ -213,7 +220,6 @@ public class LocalFileIndexer extends AbstractIoVfsIndexer {
 
     @Override
     public int each(WnQuery q, Each<WnObj> callback) {
-
         // 准备过滤条件
         // 只支持 nm 和 tp 和 lm 和 len
         NutMap flt = q.first().pick("nm", "tp", "lm", "len");
@@ -229,13 +235,14 @@ public class LocalFileIndexer extends AbstractIoVfsIndexer {
         // 否则选择目录
         // 进入到这个方法， IO 层已经把两段式 pid 使用了，仅会传第二段 ID 过来
         else {
-
-            dir = Files.getFile(dHome, pid);
+            String pph = Wobj.decodePathFromBase64(pid);
+            dir = Files.getFile(dHome, pph);
             if (!dir.exists()) {
-                throw Er.create("e.io.localfile.NoExists", pid);
+                throw Er.create("e.io.localfile.NoExists", pid + "=>" + pph);
             }
             if (!dir.isDirectory()) {
-                throw Er.create("e.io.localfile.MustBeDirectory", pid);
+                throw Er.create("e.io.localfile.MustBeDirectory",
+                                pid + "=>" + pph);
             }
         }
 

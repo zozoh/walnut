@@ -18,6 +18,7 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.core.bean.WnObjId;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.Wobj;
 import com.site0.walnut.util.Ws;
 
 @ToJson
@@ -31,7 +32,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     private MimeMap mimes;
 
-    private String _id; // 用来缓存一下
+    private WnObjId _id;
 
     private String phHome;
 
@@ -53,7 +54,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
         if (file.isDirectory() && !this.rph.endsWith("/")) {
             this.rph += "/";
         }
-        this._id = oHome.id() + ":" + rph;
+        this._id = Wobj.genPart2IDByVPath(oHome, rph);
 
         // 填充一下自己，防止有贱人 get(key)
         this._fill_vals(this);
@@ -70,17 +71,17 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     @Override
     public String id() {
-        return _id;
+        return _id.toString();
     }
 
     @Override
     public WnObjId OID() {
-        return new WnObjId(oHome.id(), this.rph);
+        return _id;
     }
 
     @Override
     public String myId() {
-        return rph;
+        return _id.getMyId();
     }
 
     @Override
@@ -90,7 +91,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     @Override
     public boolean hasID() {
-        return true;
+        return null!=_id;
     }
 
     @Override
@@ -289,7 +290,10 @@ public class WnLocalFileObj extends NutMap implements WnObj {
                 int pos = rph2.lastIndexOf('/', rph2.length() - 2);
                 if (pos > 0) {
                     File d = this.file.getParentFile();
-                    WnLocalFileObj p2 = new WnLocalFileObj(oHome, dHome, d, mimes);
+                    WnLocalFileObj p2 = new WnLocalFileObj(oHome,
+                                                           dHome,
+                                                           d,
+                                                           mimes);
                     p2.setParent(_parent);
                     return p2;
                 }
@@ -299,7 +303,8 @@ public class WnLocalFileObj extends NutMap implements WnObj {
                 }
             }
             // 计算自己相对于父的相对路径
-            String _p_rph = Disks.getRelativePath(this._parent.path(), this.path());
+            String _p_rph = Disks.getRelativePath(this._parent.path(),
+                                                  this.path());
             // 看看自己的 rph 是否用尽
             int pos = _p_rph.lastIndexOf('/', _p_rph.length() - 1);
             // rph 用尽了，直接返回自己的父就好了

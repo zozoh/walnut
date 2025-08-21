@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.json.ToJson;
 import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
@@ -22,7 +23,9 @@ import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Wobj;
 import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wtime;
 
+@ToJson
 public class WnVofsObj extends NutMap implements WnObj {
 
     WnObj oRoot;
@@ -58,13 +61,14 @@ public class WnVofsObj extends NutMap implements WnObj {
 
     private String _ph;
 
+    private String VID(String key) {
+        return oRoot.id() + ":" + Wobj.encodePathToBase64(key);
+    }
+
     @Override
     public WnObjId OID() {
         if (null == _id) {
-            String myId = Wobj.encodePathToBase64(xo.getKey());
-            _id = new WnObjId();
-            _id.setHomeId(oRoot.id());
-            _id.setMyId(myId);
+            _id = Wobj.genPart2IDByVPath(oRoot, xo.getKey());
         }
         return _id;
     }
@@ -181,9 +185,7 @@ public class WnVofsObj extends NutMap implements WnObj {
         return true;
     }
 
-    @Override
-    public WnObj parent() {
-        String key = xo.getKey();
+    public static String getParentKey(String key) {
         // 如果以 / 结束，那么删掉它，再搜索
         if (key.endsWith("/")) {
             key = key.substring(0, key.length() - 1);
@@ -191,19 +193,28 @@ public class WnVofsObj extends NutMap implements WnObj {
         int pos = key.lastIndexOf('/');
 
         if (pos <= 0) {
+            return null;
+        }
+        // 获取自己上一级, (确保 / 结尾)
+        return key.substring(0, pos + 1);
+    }
+
+    @Override
+    public WnObj parent() {
+        String pkey = getParentKey(xo.getKey());
+
+        if (null == pkey) {
             return this.oRoot;
         }
         // 获取自己上一级, (确保 / 结尾)
-        String pph = key.substring(0, pos);
-        XoBean pvo = api.getObj(pph);
+        XoBean pvo = api.getObj(pkey);
 
         // 建立一个虚拟
         if (null == pvo) {
-            pvo = _create_virtual_dir(pph);
+            pvo = _create_virtual_dir(pkey);
         }
         // 搞定
         return new WnVofsObj(oRoot, api, mimes, pvo);
-
     }
 
     private XoBean _create_virtual_dir(String pph) {
@@ -255,7 +266,11 @@ public class WnVofsObj extends NutMap implements WnObj {
 
     @Override
     public String parentId() {
-        return parent().id();
+        String pkey = getParentKey(xo.getKey());
+        if (null == pkey) {
+            return this.oRoot.id();
+        }
+        return VID(pkey);
     }
 
     @Override
@@ -508,6 +523,12 @@ public class WnVofsObj extends NutMap implements WnObj {
         map.put("mime", mime());
         map.putAll(xo.rawMeta());
         map.putAll(xo.userMeta());
+
+        // 因为 xo.rawMeta 总是有 Date 类型的对象,为了统一
+        // 都用 UTC 字符串来覆盖
+        String lms = Wtime.formatUTC(xo.getLastModified(),
+                                     "yyyy-MM-dd HH:mm:ss.SSS");
+        map.put("Last-Modified", lms);
     }
 
     public String toJson(JsonFormat jfmt) {

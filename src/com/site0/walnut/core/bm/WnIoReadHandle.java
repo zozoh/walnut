@@ -1,6 +1,5 @@
 package com.site0.walnut.core.bm;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -12,7 +11,25 @@ import com.site0.walnut.core.WnIoHandleMutexException;
 
 public abstract class WnIoReadHandle extends WnIoHandle {
 
-    abstract protected InputStream input() throws FileNotFoundException;
+    /**
+     * 子类负责创建流，不用负责关闭，本类会管理并缓存这个流对象
+     * 
+     * @return 输入流
+     * @throws IOException
+     */
+    abstract protected InputStream getInputStream() throws IOException;
+
+    private InputStream _ins;
+
+    private InputStream ins() throws IOException {
+        if (null == _ins) {
+            if (null == obj) {
+                throw Er.create("e.io.hdl.read.NilObj");
+            }
+            _ins = getInputStream();
+        }
+        return _ins;
+    }
 
     public void ready() throws WnIoHandleMutexException {}
 
@@ -22,7 +39,7 @@ public abstract class WnIoReadHandle extends WnIoHandle {
         if (null == obj) {
             throw Er.create("e.io.hdl.closed", this.getId());
         }
-        long n2 = input().skip(n);
+        long n2 = ins().skip(n);
         this.offset += n2;
         return n2;
     }
@@ -39,7 +56,7 @@ public abstract class WnIoReadHandle extends WnIoHandle {
             throw Er.create("e.io.hdl.closed", this.getId());
         }
         // 读取
-        int re = input().read(buf, off, len);
+        int re = ins().read(buf, off, len);
         if (re > 0) {
             this.offset += re;
         }
@@ -49,7 +66,7 @@ public abstract class WnIoReadHandle extends WnIoHandle {
 
     @Override
     public void write(byte[] buf, int off, int len) {
-        throw Er.create("e.io.bm.localfile.hdl.readonly");
+        throw Er.create("e.io.hdl.readonly");
     }
 
     @Override
@@ -58,11 +75,17 @@ public abstract class WnIoReadHandle extends WnIoHandle {
     @Override
     public void close() throws IOException {
         // 肯定已经关闭过了
-        if (null == obj) {
+        if (null == obj || null == _ins) {
             return;
         }
-        obj = null; // 标志一下，这个句柄实例就不能再使用了
-        Streams.safeClose(input());
+
+        // 关闭流
+        Streams.safeClose(_ins);
+
+        // 标志一下，这个句柄实例就不能再使用了
+        obj = null;
+        _ins = null;
+
     }
 
 }

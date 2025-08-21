@@ -192,8 +192,8 @@ public class CosClientBuilder extends AbstractXoClientBuilder<COSClient> {
         COSCredentials cred = new BasicSessionCredentials(tmpSecretId,
                                                           tmpSecretKey,
                                                           sessionToken);
-        Region cregion = new Region(region);
-        ClientConfig cconf = new ClientConfig(cregion);
+        Region _region = new Region(region);
+        ClientConfig cconf = new ClientConfig(_region);
         COSClient cos = new COSClient(cred, cconf);
         re.setClient(cos);
         re.setBucket(bucket);

@@ -15,13 +15,13 @@ import com.site0.walnut.ext.xo.impl.XoService;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 
-public class WnVofsIndexer extends AbstractIoVfsIndexer {
+public class VofsIndexer extends AbstractIoVfsIndexer {
 
     // private static Log log = Wlog.getIO();
 
     private XoService api;
 
-    public WnVofsIndexer(WnObj oMntRoot, MimeMap mimes, XoService xos) {
+    public VofsIndexer(WnObj oMntRoot, MimeMap mimes, XoService xos) {
         super(oMntRoot, mimes);
         this.api = xos;
     }
@@ -58,26 +58,47 @@ public class WnVofsIndexer extends AbstractIoVfsIndexer {
         throw Er.create("e.io.vofs.assertVofsObjFailed", o.toString());
     }
 
-    private String get_query_prefix(WnObj p, String path) {
-        // p 相对根，是个什么路径呢？
+    String get_query_prefix(WnObj p, String path) {
+        boolean p_is_root = null==p || this.isRoot(p);
+        // 如果确定了本前缀是一个目录路径,那么输出的前缀需要以 "/" 结尾
+        // 有下面几种情况,本前缀应该是目录
+        // 1. p.isDIR && null==path
+        // 2. p.isDIR && path.endsWith("/")
+        boolean is_for_dir = p_is_root ? true : p.isDIR();
+
+        if (null != path && !path.endsWith("/")) {
+            is_for_dir = false;
+        }
+
+        // 获取起始点
         String rph = null;
-        if (null != p) {
+        if (!p_is_root) {
             rph = Disks.getRelativePath(root.path(), p.path(), "");
         }
 
+        // 归一化相对路径 (""|null) => null
         if (Ws.isBlank(rph)) {
             rph = null;
         }
 
         if (Ws.isBlank(path)) {
-            return rph;
+            path = rph;
         }
-
         // 这个前缀路径加上 path 就是相对根的绝对路径了
-        if (!Ws.isBlank(rph)) {
+        else if (!Ws.isBlank(rph)) {
             path = Wn.appendPath(rph, path);
         }
 
+        // 防空
+        if (Ws.isBlank(path))
+            return null;
+
+        // 搜索前缀,有必要以 "/" 为结尾
+        if (is_for_dir && !path.endsWith("/")) {
+            path += "/";
+        }
+
+        // 搜素前缀一定不能以 "/" 开头
         if (path.startsWith("/")) {
             path = path.substring(1).trim();
         }
@@ -122,6 +143,7 @@ public class WnVofsIndexer extends AbstractIoVfsIndexer {
 
         api.renameObj(key, newPath);
         XoBean xo = api.getObj(newPath);
+        make_sure_all_parents_exists(xo.getKey());
         return wrap_vo(xo);
     }
 
@@ -148,6 +170,7 @@ public class WnVofsIndexer extends AbstractIoVfsIndexer {
 
         api.renameObj(key, newPath);
         XoBean xo = api.getObj(newPath);
+        make_sure_all_parents_exists(xo.getKey());
         return wrap_vo(xo);
     }
 
@@ -188,11 +211,28 @@ public class WnVofsIndexer extends AbstractIoVfsIndexer {
         // 创建对象
         api.writeText(key, "", null);
         XoBean xo = api.getObj(key);
+        make_sure_all_parents_exists(key);
+
+        // 最后返回
         return wrap_vo(xo);
+    }
+
+    private void make_sure_all_parents_exists(String key) {
+        // 确保创建所有的父
+        String pkey = WnVofsObj.getParentKey(key);
+        while (null != pkey) {
+            if (null == api.getObj(pkey)) {
+                api.mkdir(pkey);
+            }
+            pkey = WnVofsObj.getParentKey(pkey);
+        }
     }
 
     @Override
     public void delete(WnObj o) {
+        // 防空
+        if (null == o)
+            return;
         WnVofsObj vo = assert_vo(o);
         String key = vo.xo.getKey();
         api.deleteObj(key);
@@ -204,7 +244,12 @@ public class WnVofsIndexer extends AbstractIoVfsIndexer {
 
         if (null == prefix) {
             String pid = q.first().getString("pid");
-            if (!Ws.isBlank(pid)) {
+            // 用根遍历
+            if(this.isRoot(pid)) {
+                prefix  = null;
+            }
+            // 指定了一个父
+            else if (!Ws.isBlank(pid)) {
                 WnObjId oid = new WnObjId(pid);
                 prefix = get_path_by_id(oid.getMyId());
             }

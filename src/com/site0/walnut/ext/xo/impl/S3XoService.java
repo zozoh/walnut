@@ -215,6 +215,9 @@ public class S3XoService extends AbstractXoService {
         S3Client client = xc.getClient();
         String bucket = xc.getBucket();
         String prefix = xc.getQueryPrefix(objKey, delimiter);
+        boolean prefix_is_dir = delimiterBySlash
+                && null != prefix
+                && prefix.endsWith(delimiter);
 
         int count = 0;
         int remaining = limit;
@@ -265,7 +268,7 @@ public class S3XoService extends AbstractXoService {
                 // 跳过目录标记对象
                 String okey = s3obj.key();
                 // 查找的就是自己，那么自然什么都不显示
-                if (null != prefix && prefix.equals(okey)) {
+                if (prefix_is_dir && prefix.equals(okey)) {
                     continue;
                 }
                 XoBean xo1 = new XoBean();

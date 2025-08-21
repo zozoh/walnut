@@ -1,4 +1,4 @@
-package com.site0.walnut.core.bm.localbm;
+package com.site0.walnut.core.bm.bml;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,31 +10,26 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.core.bm.WnIoReadHandle;
 import com.site0.walnut.util.Wn;
 
-public class LocalIoReadHandle extends WnIoReadHandle {
+public class LocalSha1ReadHandle extends WnIoReadHandle {
 
-    private LocalIoBM bm;
+    private LocalSha1BM bm;
 
-    private InputStream ins;
-
-    LocalIoReadHandle(LocalIoBM bm) {
+    LocalSha1ReadHandle(LocalSha1BM bm) {
         this.bm = bm;
     }
 
     // 因为要考虑到滞后设置 obj，所以在第一次读取的时候，才初始化流
-    protected InputStream input() throws FileNotFoundException {
+    protected InputStream getInputStream() throws FileNotFoundException {
         WnObj o = this.obj;
-        if (null != o && null == ins) {
-            // 虚桶
-            if (Wn.Io.isEmptySha1(o.sha1())) {
-                ins = Wlang.ins("");
-            }
-            // 获取文件
-            else {
-                File buck = bm.checkBucketFile(o.sha1());
-                ins = Streams.chan(new FileInputStream(buck));
-            }
+        // 虚桶
+        if (Wn.Io.isEmptySha1(o.sha1())) {
+            return Wlang.ins("");
         }
-        return ins;
+        // 获取文件
+        else {
+            File buck = bm.checkBucketFile(o.sha1());
+            return Streams.chan(new FileInputStream(buck));
+        }
     }
 
 }

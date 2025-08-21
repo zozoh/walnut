@@ -207,6 +207,9 @@ public class CosXoService extends AbstractXoService {
         COSClient client = xc.getClient();
         String bucket = xc.getBucket();
         String prefix = xc.getQueryPrefix(objKey, delimiter);
+        boolean prefix_is_dir = delimiterBySlash
+                                && null != prefix
+                                && prefix.endsWith(delimiter);
 
         int count = 0;
         int remaining = limit;
@@ -254,7 +257,7 @@ public class CosXoService extends AbstractXoService {
                 XoBean xo1 = new XoBean();
                 String okey = osum.getKey();
                 // 查找的就是自己，那么自然什么都不显示
-                if (null != prefix && prefix.equals(okey)) {
+                if (prefix_is_dir && prefix.equals(okey)) {
                     continue;
                 }
                 String key = xc.toMyKey(okey);

@@ -1,14 +1,14 @@
-package com.site0.walnut.core.bm.localbm;
+package com.site0.walnut.core.bm.bml;
 
 import java.io.File;
 import java.io.IOException;
 import com.site0.walnut.core.bm.WnIoWriteSwapHandle;
 
-public class LocalIoWriteHandle extends WnIoWriteSwapHandle {
+public class LocalSha1WriteHandle extends WnIoWriteSwapHandle {
 
-    private LocalIoBM bm;
+    private LocalSha1BM bm;
 
-    LocalIoWriteHandle(LocalIoBM bm) {
+    LocalSha1WriteHandle(LocalSha1BM bm) {
         this.bm = bm;
     }
 

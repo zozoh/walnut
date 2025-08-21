@@ -1,17 +1,24 @@
-package com.site0.walnut.core.bm.vobm;
+package com.site0.walnut.core.bm.bmv;
+
+import java.io.File;
+import java.io.IOException;
 
 import com.site0.walnut.api.io.WnIoIndexer;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.core.WnIoBM;
 import com.site0.walnut.core.WnIoHandle;
 import com.site0.walnut.core.WnIoHandleManager;
+import com.site0.walnut.core.WnIoHandleMutexException;
 import com.site0.walnut.core.bm.AbstractIoBM;
+import com.site0.walnut.ext.xo.impl.XoService;
 
-public class WnVoIoBM extends AbstractIoBM{
+public abstract class VirtualObjSha1BM extends AbstractIoBM {
 
-    public WnVoIoBM(WnIoHandleManager handles) {
+    private XoService api;
+
+    public VirtualObjSha1BM(WnIoHandleManager handles, XoService api) {
         super(handles);
-        // TODO Auto-generated constructor stub
+        this.api = api;
     }
 
     @Override
@@ -21,7 +28,20 @@ public class WnVoIoBM extends AbstractIoBM{
     }
 
     @Override
+    public WnIoHandle open(WnObj o, int mode, WnIoIndexer indexer)
+            throws WnIoHandleMutexException, IOException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
     public WnIoHandle createHandle(int mode) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public WnIoHandle checkHandle(String hid) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -44,4 +64,17 @@ public class WnVoIoBM extends AbstractIoBM{
         return 0;
     }
 
+    @Override
+    public void updateObjSha1(WnObj o, File swap, WnIoIndexer indexer) {
+        // 对象存储，不需要这个方法
+    }
+
+    @Override
+    public void updateObjSha1(WnObj o,
+                              WnIoIndexer indexer,
+                              String sha1,
+                              long len,
+                              long lm) {
+        // 对象存储，不需要这个方法
+    }
 }

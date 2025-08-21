@@ -1,4 +1,4 @@
-package com.site0.walnut.core.bm.vobm;
+package com.site0.walnut.core.bm.bmv;
 
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
@@ -6,7 +6,7 @@ import com.site0.walnut.core.WnIoBM;
 import com.site0.walnut.core.WnIoHandleManager;
 import com.site0.walnut.core.mapping.WnBMFactory;
 
-public class WnVoIoBMFactory implements WnBMFactory {
+public class VirtualObjSha1BMFactory implements WnBMFactory {
 
     /**
      * 这个需要通过 IOC 注入得到实例

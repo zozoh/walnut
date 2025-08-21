@@ -113,7 +113,7 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
     public boolean hasChild(WnObj p) {
         return countChildren(p) > 0;
     }
-    
+
     @Override
     public List<WnObj> query(WnQuery q) {
         List<WnObj> list = new LinkedList<>();
@@ -126,7 +126,10 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
     }
 
     @Override
-    public void walk(WnObj p, Callback<WnObj> callback, WalkMode mode, WnObjFilter filter) {
+    public void walk(WnObj p,
+                     Callback<WnObj> callback,
+                     WalkMode mode,
+                     WnObjFilter filter) {
         // DEPTH_LEAF_FIRST
         if (WalkMode.DEPTH_LEAF_FIRST == mode) {
             __walk_DEPTH_LEAF_FIRST(p, callback, filter);
@@ -149,7 +152,9 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
         }
     }
 
-    protected void _do_walk_children(WnObj p, final Callback<WnObj> callback, WnObjFilter filter) {
+    protected void _do_walk_children(WnObj p,
+                                     final Callback<WnObj> callback,
+                                     WnObjFilter filter) {
         if (null != filter && null != p && !filter.match(p)) {
             return;
         }
@@ -161,25 +166,26 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
         this.eachChild(p, null, looper);
     }
 
-    private void __walk_LEAF_ONLY(WnObj p, final Callback<WnObj> callback, WnObjFilter filter) {
-        _do_walk_children(p, new Callback<WnObj>() {
-            public void invoke(WnObj nd) {
-                if (nd.isFILE())
-                    callback.invoke(nd);
-                else
-                    __walk_LEAF_ONLY(nd, callback, filter);
-            }
+    private void __walk_LEAF_ONLY(WnObj p,
+                                  final Callback<WnObj> callback,
+                                  WnObjFilter filter) {
+        _do_walk_children(p, (WnObj nd) -> {
+            if (nd.isFILE())
+                callback.invoke(nd);
+            else
+                __walk_LEAF_ONLY(nd, callback, filter);
+
         }, filter);
     }
 
-    private void __walk_BREADTH_FIRST(WnObj p, final Callback<WnObj> callback, WnObjFilter filter) {
+    private void __walk_BREADTH_FIRST(WnObj p,
+                                      final Callback<WnObj> callback,
+                                      WnObjFilter filter) {
         final List<WnObj> list = new LinkedList<WnObj>();
-        _do_walk_children(p, new Callback<WnObj>() {
-            public void invoke(WnObj nd) {
-                callback.invoke(nd);
-                if (!nd.isFILE())
-                    list.add(nd);
-            }
+        _do_walk_children(p, (WnObj nd) -> {
+            callback.invoke(nd);
+            if (!nd.isFILE())
+                list.add(nd);
         }, filter);
         for (WnObj nd : list)
             __walk_BREADTH_FIRST(nd, callback, filter);
@@ -188,12 +194,10 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
     private void __walk_DEPATH_NODE_FIRST(WnObj p,
                                           final Callback<WnObj> callback,
                                           WnObjFilter filter) {
-        _do_walk_children(p, new Callback<WnObj>() {
-            public void invoke(WnObj nd) {
-                callback.invoke(nd);
-                if (!nd.isFILE()) {
-                    __walk_DEPATH_NODE_FIRST(nd, callback, filter);
-                }
+        _do_walk_children(p, (WnObj nd) -> {
+            callback.invoke(nd);
+            if (!nd.isFILE()) {
+                __walk_DEPATH_NODE_FIRST(nd, callback, filter);
             }
         }, filter);
     }
@@ -201,13 +205,11 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
     private void __walk_DEPTH_LEAF_FIRST(WnObj p,
                                          final Callback<WnObj> callback,
                                          WnObjFilter filter) {
-        _do_walk_children(p, new Callback<WnObj>() {
-            public void invoke(WnObj nd) {
-                if (!nd.isFILE()) {
-                    __walk_DEPTH_LEAF_FIRST(nd, callback, filter);
-                }
-                callback.invoke(nd);
+        _do_walk_children(p, (WnObj nd) -> {
+            if (!nd.isFILE()) {
+                __walk_DEPTH_LEAF_FIRST(nd, callback, filter);
             }
+            callback.invoke(nd);
         }, filter);
     }
 

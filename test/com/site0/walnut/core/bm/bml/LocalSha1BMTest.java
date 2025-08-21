@@ -1,4 +1,4 @@
-package com.site0.walnut.core.bm.localbm;
+package com.site0.walnut.core.bm.bml;
 
 import org.junit.After;
 import org.junit.Before;
@@ -6,7 +6,7 @@ import com.site0.walnut.core.AbstractWnIoBMTest;
 import com.site0.walnut.core.bean.WnIoObj;
 import com.site0.walnut.util.Wn;
 
-public class LocalIoBMTest extends AbstractWnIoBMTest {
+public class LocalSha1BMTest extends AbstractWnIoBMTest {
 
     @Before
     public void setUp() throws Exception {

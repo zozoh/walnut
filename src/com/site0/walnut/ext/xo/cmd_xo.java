@@ -1,10 +1,7 @@
 package com.site0.walnut.ext.xo;
 
-import org.nutz.log.Log;
-
 import com.site0.walnut.impl.box.JvmFilterExecutor;
 import com.site0.walnut.impl.box.WnSystem;
-import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.ZParams;
 
 public class cmd_xo extends JvmFilterExecutor<XoContext, XoFilter> {
@@ -13,7 +10,7 @@ public class cmd_xo extends JvmFilterExecutor<XoContext, XoFilter> {
         super(XoContext.class, XoFilter.class);
     }
 
-    private static final Log log = Wlog.getCMD();
+    //private static final Log log = Wlog.getCMD();
 
     @Override
     protected ZParams parseParams(String[] args) {

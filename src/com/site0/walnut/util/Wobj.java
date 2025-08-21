@@ -16,6 +16,7 @@ import org.nutz.lang.util.Regex;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
+import com.site0.walnut.core.bean.WnObjId;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import com.site0.walnut.util.validate.WnMatch;
 import com.site0.walnut.util.validate.impl.AlwaysMatch;
@@ -155,7 +156,8 @@ public class Wobj {
                 // 阻止子节点无穷递归
                 memo.put(id, o);
                 // 处理子节点
-                List<? extends NutBean> children = o.getAsList(subKey, NutBean.class);
+                List<? extends NutBean> children = o.getAsList(subKey,
+                                                               NutBean.class);
                 children = __flt_obj_key(children, kms, idKey, subKey, memo);
                 out.put(subKey, children);
                 // 嗯，搞定
@@ -209,7 +211,8 @@ public class Wobj {
         return map;
     }
 
-    private static final Pattern P_QUICK_KEYS = Regex.getPattern("^[%#]([A-Z0-9]+)?$");
+    private static final Pattern P_QUICK_KEYS = Regex
+        .getPattern("^[%#]([A-Z0-9]+)?$");
 
     public static String explainQuickObjKeyMatchStr(String str) {
         if (null == str)
@@ -369,6 +372,20 @@ public class Wobj {
             }
         }
         return RESERVE_KEYS.matcher(key).find();
+    }
+
+    public static WnObjId genPart2IDByVPath(String homeId, String path) {
+        WnObjId re = new WnObjId();
+        re.setHomeId(homeId);
+        re.setMyId(encodePathToBase64(path));
+        return re;
+    }
+
+    public static WnObjId genPart2IDByVPath(WnObj oHome, String path) {
+        WnObjId re = new WnObjId();
+        re.setHomeId(oHome.id());
+        re.setMyId(encodePathToBase64(path));
+        return re;
     }
 
     public static String decodePathFromBase64(String id) {

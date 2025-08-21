@@ -7,7 +7,7 @@ import org.nutz.lang.Encoding;
 import org.nutz.lang.Strings;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
-import com.site0.walnut.core.bm.localbm.LocalIoBM;
+import com.site0.walnut.core.bm.bml.LocalSha1BM;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wn;
@@ -62,7 +62,7 @@ public class cmd_httpout extends JvmExecutor {
                 String sha1 = body.substring(5).trim();
                 // 兼容一下，有些时候，真实生产，客户端会将其变成 xxxx/xxx... 的路径形式
                 sha1 = sha1.replaceAll("[/-]", "");
-                LocalIoBM bm = this.ioc.get(LocalIoBM.class, "globalBM");
+                LocalSha1BM bm = this.ioc.get(LocalSha1BM.class, "globalBM");
                 File f = bm.getBucketFile(sha1);
                 if (!f.exists()) {
                     throw Er.create("e.io.bm.global.noexist", sha1);

@@ -51,7 +51,8 @@ public abstract class AbstractXoServiceTest extends BaseSessionTest {
         if (!Ws.isBlank(prefix)) {
             confName += "_" + prefix.replaceAll("/", "");
         }
-        WnObj oConf = io.create(oIo, cateName + "/" + confName + ".json5", WnRace.FILE);
+        WnObj oConf = io
+            .create(oIo, cateName + "/" + confName + ".json5", WnRace.FILE);
 
         // 写入配置文件内容
         NutMap conf = new NutMap();
@@ -64,7 +65,9 @@ public abstract class AbstractXoServiceTest extends BaseSessionTest {
         return create_service(confName);
     }
 
-    protected abstract void update_config(String prefix, String[] allowActions, NutMap conf);
+    protected abstract void update_config(String prefix,
+                                          String[] allowActions,
+                                          NutMap conf);
 
     protected abstract XoService create_service(String confName);
 
@@ -90,6 +93,26 @@ public abstract class AbstractXoServiceTest extends BaseSessionTest {
     }
 
     @Test
+    public void test_x00() throws IOException {
+        XoService api = service("pet/");
+
+        // 首先清除数据
+        api.clear("*");
+
+        // 创建一个文件
+        api.writeText("dog/wangcai.txt", "I am wangcai", null);
+
+        // 测试虚拟文件夹
+        List<XoBean> list = api.listObj("dog/wangcai.txt");
+        assertEquals(1, list.size());
+        XoBean dog = list.get(0);
+        assertEquals("dog/wangcai.txt", dog.getKey());
+        assertEquals("wangcai.txt", dog.getName());
+        assertFalse(dog.isVirtual());
+        assertTrue(dog.isFILE());
+    }
+
+    @Test
     public void test_y01() throws IOException {
         XoService api = service("pet/");
 
@@ -106,15 +129,15 @@ public abstract class AbstractXoServiceTest extends BaseSessionTest {
         XoBean xo = api.getObj("a/b/d/");
         assertEquals("a/b/d/", xo.getKey());
         assertEquals("d", xo.getName());
-        
-     // 测试虚拟文件夹
+
+        // 测试虚拟文件夹
         List<XoBean> list = api.listObj("a/");
         assertEquals(1, list.size());
         assertEquals("a/b/", list.get(0).getKey());
         assertEquals("b", list.get(0).getName());
         assertTrue(list.get(0).isVirtual());
         assertTrue(list.get(0).isDIR());
-        
+
     }
 
     @Test
@@ -153,12 +176,12 @@ public abstract class AbstractXoServiceTest extends BaseSessionTest {
         assertEquals("qq.txt", list.get(0).getName());
         assertFalse(list.get(0).isVirtual());
         assertTrue(list.get(0).isFILE());
-        
+
         assertEquals("abc/yy.txt", list.get(1).getKey());
         assertEquals("yy.txt", list.get(1).getName());
         assertFalse(list.get(1).isVirtual());
         assertTrue(list.get(1).isFILE());
-        
+
     }
 
     @Test
@@ -233,7 +256,9 @@ public abstract class AbstractXoServiceTest extends BaseSessionTest {
         api.clear("pet/");
 
         // 带着元数据写入
-        api.writeText(key, "this is a dog", Wlang.map("x:100,y:99,name:'hello'"));
+        api.writeText(key,
+                      "this is a dog",
+                      Wlang.map("x:100,y:99,name:'hello'"));
 
         // 读取对象
         XoBean xo = api.getObj(key);

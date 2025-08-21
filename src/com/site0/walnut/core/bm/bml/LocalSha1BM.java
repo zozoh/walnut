@@ -1,4 +1,4 @@
-package com.site0.walnut.core.bm.localbm;
+package com.site0.walnut.core.bm.bml;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +47,7 @@ import com.site0.walnut.util.Wn;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class LocalIoBM extends AbstractIoBM {
+public class LocalSha1BM extends AbstractIoBM {
 
     private static final Log log = Wlog.getIO();
 
@@ -61,7 +61,7 @@ public class LocalIoBM extends AbstractIoBM {
 
     private boolean canMoveSwap;
 
-    public LocalIoBM(WnIoHandleManager handles,
+    public LocalSha1BM(WnIoHandleManager handles,
                      String phBucket,
                      String phSwap,
                      boolean autoCreate,
@@ -101,8 +101,8 @@ public class LocalIoBM extends AbstractIoBM {
         if (this == bm) {
             return true;
         }
-        if (bm instanceof LocalIoBM) {
-            LocalIoBM libm = (LocalIoBM) bm;
+        if (bm instanceof LocalSha1BM) {
+            LocalSha1BM libm = (LocalSha1BM) bm;
             if (!libm.dBucket.equals(dBucket))
                 return false;
             if (!this.swaps.equals(libm.swaps))
@@ -117,20 +117,20 @@ public class LocalIoBM extends AbstractIoBM {
     public WnIoHandle createHandle(int mode) {
         // 只读
         if (Wn.S.isRead(mode)) {
-            return new LocalIoReadHandle(this);
+            return new LocalSha1ReadHandle(this);
         }
         // 只写
         if (Wn.S.isWrite(mode)) {
-            return new LocalIoWriteHandle(this);
+            return new LocalSha1WriteHandle(this);
         }
         // 追加
         if (Wn.S.isAppend(mode)) {
             // TODO : 是不是可以对追加模式做优化呢？
-            return new LocalIoReadWriteHandle(this);
+            return new LocalSha1ReadWriteHandle(this);
         }
         // 修改
         if (Wn.S.canModify(mode) || Wn.S.isReadWrite(mode)) {
-            return new LocalIoReadWriteHandle(this);
+            return new LocalSha1ReadWriteHandle(this);
         }
         throw Er.create("e.io.bm.localbm.NonsupportMode", mode);
     }

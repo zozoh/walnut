@@ -26,7 +26,7 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.api.lock.WnLockApi;
 import com.site0.walnut.core.bean.WnIoObj;
-import com.site0.walnut.core.bm.localbm.LocalIoBM;
+import com.site0.walnut.core.bm.bml.LocalSha1BM;
 import com.site0.walnut.core.bm.localfile.LocalFileBM;
 import com.site0.walnut.core.bm.localfile.LocalFileWBM;
 import com.site0.walnut.core.bm.redis.RedisBM;
@@ -79,7 +79,7 @@ public class IoCoreSetup {
 
     private static WedisConfig _wedisConf;
 
-    private static LocalIoBM _globalBM;
+    private static LocalSha1BM _globalBM;
 
     private static MongoIndexer _globalIndexer;
 
@@ -92,8 +92,6 @@ public class IoCoreSetup {
     private static WnIo _io;
 
     private static WnBoxService _boxService;
-
-    private static WnServiceFactory _services;
 
     // static {
     // // 测试配置初始化
@@ -170,30 +168,37 @@ public class IoCoreSetup {
         options.sessionShortDu = 3;
         options.wechatMpOpenIdKey = "wxmp_openid";
         options.wechatGhOpenIdKey = "wxgh_openid";
+        
+        // 检查关键目录
+        io2.createIfNoExists(null, "/var/session", WnRace.DIR);
+        io2.createIfNoExists(null, "/sys/usr", WnRace.DIR);
+        io2.createIfNoExists(null, "/sys/role", WnRace.DIR);
 
         // 建立接口
-        WnLoginApi auth = WnLoginApiMaker.forSys().make(io2, new NutMap(), options);
+        WnLoginApi auth = WnLoginApiMaker.forSys()
+            .make(io2, new NutMap(), options);
         return auth;
     }
 
     public WnBoxService getBoxService() {
         if (null == _boxService) {
             JvmExecutorFactory jef = new JvmExecutorFactory();
-            Mirror.me(jef).setValue(jef, "scanPkgs", Wlang.array("com.site0.walnut.impl.box.cmd"));
+            Mirror.me(jef)
+                .setValue(jef,
+                          "scanPkgs",
+                          Wlang.array("com.site0.walnut.impl.box.cmd"));
             _boxService = new JvmBoxService(jef);
         }
         return _boxService;
     }
 
     public WnServiceFactory getServiceFactory() {
-        if (null == _services) {
-            _services = new WnServiceFactory();
-            _services.setLoginApi(getLoginApi());
-            _services.setHookApi(new CachedWnHookService(getIo()));
-            _services.setBoxApi(getBoxService());
-            _services.setReferApi(getWnReferApi());
-            _services.setLockApi(getRedisLockApi());
-        }
+        WnServiceFactory _services = new WnServiceFactory();
+        _services.setLoginApi(getLoginApi());
+        _services.setHookApi(new CachedWnHookService(getIo()));
+        _services.setBoxApi(getBoxService());
+        _services.setReferApi(getWnReferApi());
+        _services.setLockApi(getRedisLockApi());
         return _services;
     }
 
@@ -234,13 +239,13 @@ public class IoCoreSetup {
         return new WnIoMapping(indexer, bm);
     }
 
-    public LocalIoBM getGlobalIoBM() {
+    public LocalSha1BM getGlobalIoBM() {
         if (null == _globalBM) {
             String phBucket = Disks.normalize(_pp.get("io-bm-bucket"));
             String phSwap = Disks.normalize(_pp.get("io-bm-swap"));
             WnIoHandleManager handles = this.getWnIoHandleManager();
             WnReferApi refers = this.getWnReferApi();
-            _globalBM = new LocalIoBM(handles, phBucket, phSwap, true, refers);
+            _globalBM = new LocalSha1BM(handles, phBucket, phSwap, true, refers);
         }
         return _globalBM;
     }

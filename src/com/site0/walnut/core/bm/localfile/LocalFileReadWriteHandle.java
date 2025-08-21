@@ -15,40 +15,28 @@ public class LocalFileReadWriteHandle extends WnIoReadWriteHandle {
 
     private RandomAccessFile raf;
 
-    private FileChannel chan;
-
     @Override
-    protected FileChannel channel() throws FileNotFoundException {
-        if (null != obj) {
-            if (null == chan) {
-                if (obj instanceof WnLocalFileObj) {
-                    File f = ((WnLocalFileObj) obj).getFile();
-                    raf = new RandomAccessFile(f, "rw");
-                    chan = raf.getChannel();
-                }
-                // 不能支持的文件类型
-                else {
-                    throw Er.create("e.io.localfile.UnsupportObjType", obj.getClass().getName());
-                }
-            }
+    protected FileChannel getChannel() throws FileNotFoundException {
+        if (obj instanceof WnLocalFileObj) {
+            File f = ((WnLocalFileObj) obj).getFile();
+            raf = new RandomAccessFile(f, "rw");
+            return raf.getChannel();
         }
-        return chan;
+        // 不能支持的文件类型
+        else {
+            throw Er.create("e.io.localfile.UnsupportObjType",
+                            obj.getClass().getName());
+        }
     }
 
     @Override
     public void on_close() throws IOException {
-        // 无论如何，刷一下
-        if (null != chan) {
-            chan.force(false);
-        }
 
         // 关闭文件
-        Streams.safeClose(chan);
         Streams.safeClose(raf);
 
         // 重置成员
         raf = null;
-        chan = null;
 
     }
 

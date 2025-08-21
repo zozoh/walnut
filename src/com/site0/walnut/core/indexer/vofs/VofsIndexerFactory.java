@@ -10,7 +10,7 @@ import com.site0.walnut.ext.xo.impl.CosXoService;
 import com.site0.walnut.ext.xo.impl.S3XoService;
 import com.site0.walnut.ext.xo.impl.XoService;
 
-public class WnVofsIndexerFactory implements WnIndexerFactory {
+public class VofsIndexerFactory implements WnIndexerFactory {
 
     /**
      * 这个需要通过 IOC 注入得到实例
@@ -49,7 +49,7 @@ public class WnVofsIndexerFactory implements WnIndexerFactory {
             throw Er.create("e.vofs.UnsupportMode", str);
         }
 
-        return new WnVofsIndexer(oMntRoot, mimes, xos);
+        return new VofsIndexer(oMntRoot, mimes, xos);
     }
 
 }
