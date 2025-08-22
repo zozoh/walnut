@@ -85,9 +85,6 @@ public class LocalSha1BM extends AbstractIoBM {
         // 获取交换区目录
         this.swaps = BMSwapFiles.create(phSwap, autoCreate);
 
-        // 句柄管理器
-        this.handles = handles;
-
         // 引用计数管理器
         this.refers = refers;
 

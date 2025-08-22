@@ -55,6 +55,8 @@ public interface XoService {
 
     void deleteObj(String objKey);
 
+    void copy(String srcKey, String dstKey);
+
     void clear(String objKey);
 
 }

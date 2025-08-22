@@ -8,5 +8,8 @@ import com.site0.walnut.core.bm.localfile.LocalFileBMTest;
 import com.site0.walnut.core.bm.redis.RedisBMTest;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({LocalSha1BMTest.class, LocalFileBMTest.class, RedisBMTest.class})
+@Suite.SuiteClasses({Sha1PartsTest.class,
+                     LocalSha1BMTest.class,
+                     LocalFileBMTest.class,
+                     RedisBMTest.class})
 public class AllBMTest {}

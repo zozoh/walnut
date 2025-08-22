@@ -1,33 +1,36 @@
-package com.site0.walnut.core.indexer.vofs;
+package com.site0.walnut.core.mapping.bm;
 
 import com.site0.walnut.api.err.Er;
-import com.site0.walnut.api.io.MimeMap;
 import com.site0.walnut.api.io.WnIo;
-import com.site0.walnut.api.io.WnIoIndexer;
 import com.site0.walnut.api.io.WnObj;
-import com.site0.walnut.core.mapping.WnIndexerFactory;
+import com.site0.walnut.core.WnIoBM;
+import com.site0.walnut.core.WnIoHandleManager;
+import com.site0.walnut.core.bm.vofs.VofsBM;
+import com.site0.walnut.core.indexer.vofs.WnVofsOptions;
+import com.site0.walnut.core.mapping.WnBMFactory;
 import com.site0.walnut.ext.xo.impl.CosXoService;
 import com.site0.walnut.ext.xo.impl.S3XoService;
 import com.site0.walnut.ext.xo.impl.XoService;
 
-public class VofsIndexerFactory implements WnIndexerFactory {
+public class VofsBMFactory implements WnBMFactory {
 
     /**
      * 这个需要通过 IOC 注入得到实例
      */
     private WnIo io;
-    private MimeMap mimes;
+    private WnIoHandleManager handles;
+    private String swapPath;
 
     public void setIo(WnIo io) {
         this.io = io;
     }
 
-    public void setMimes(MimeMap mimes) {
-        this.mimes = mimes;
+    public void setHandles(WnIoHandleManager handles) {
+        this.handles = handles;
     }
 
     @Override
-    public WnIoIndexer load(WnObj oMntRoot, String str) {
+    public WnIoBM load(WnObj oHome, String str) {
         WnVofsOptions opt = new WnVofsOptions(str);
 
         // 获取配置主目录
@@ -49,7 +52,7 @@ public class VofsIndexerFactory implements WnIndexerFactory {
             throw Er.create("e.vofs.UnsupportMode", str);
         }
 
-        return new VofsIndexer(oMntRoot, mimes, xos);
+        return new VofsBM(handles, swapPath, xos);
     }
 
 }

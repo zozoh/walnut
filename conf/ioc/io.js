@@ -43,7 +43,7 @@ var ioc = {
     ]
   },
   globalBM: {
-    type: "com.site0.walnut.core.bm.localbm.LocalIoBM",
+    type: "com.site0.walnut.core.bm.bml.LocalSha1BM",
     args: [
       { refer: "ioHandleManager" },
       { java: '$conf.get("global-bm-bucket")' },

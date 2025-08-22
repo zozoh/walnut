@@ -6,7 +6,7 @@ import com.site0.walnut.core.WnIoBM;
 import com.site0.walnut.core.WnIoHandleManager;
 import com.site0.walnut.core.mapping.WnBMFactory;
 
-public class VirtualObjSha1BMFactory implements WnBMFactory {
+public class XoSha1BMFactory implements WnBMFactory {
 
     /**
      * 这个需要通过 IOC 注入得到实例

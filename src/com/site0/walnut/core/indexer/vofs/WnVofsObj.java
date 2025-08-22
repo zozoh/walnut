@@ -65,6 +65,10 @@ public class WnVofsObj extends NutMap implements WnObj {
         return oRoot.id() + ":" + Wobj.encodePathToBase64(key);
     }
 
+    public String getObjKey() {
+        return xo.getKey();
+    }
+
     @Override
     public WnObjId OID() {
         if (null == _id) {

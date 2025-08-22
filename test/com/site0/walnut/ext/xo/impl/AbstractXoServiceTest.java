@@ -93,6 +93,32 @@ public abstract class AbstractXoServiceTest extends BaseSessionTest {
     }
 
     @Test
+    public void test_w00() throws IOException {
+        XoService api = service("pet/");
+
+        // 首先清除数据
+        api.clear("*");
+
+        // 创建一个文件
+        api.writeText("dog/wangcai.txt", "I am wangcai", null);
+
+        // 复制它
+        api.copy("dog/wangcai.txt", "dog/xiaobai.txt");
+
+        //
+        List<XoBean> list = api.listObj("dog/xiaobai.txt");
+        assertEquals(1, list.size());
+        XoBean dog = list.get(0);
+        assertEquals("dog/xiaobai.txt", dog.getKey());
+        assertEquals("xiaobai.txt", dog.getName());
+        assertFalse(dog.isVirtual());
+        assertTrue(dog.isFILE());
+
+        String str = api.readText("dog/xiaobai.txt");
+        assertEquals("I am wangcai", str);
+    }
+
+    @Test
     public void test_x00() throws IOException {
         XoService api = service("pet/");
 

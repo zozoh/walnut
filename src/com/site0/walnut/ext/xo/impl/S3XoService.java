@@ -21,6 +21,7 @@ import com.site0.walnut.ext.xo.util.WnSimpleClientGetter;
 import com.site0.walnut.ext.xo.util.XoClientGetter;
 import com.site0.walnut.ext.xo.util.XoClientWrapper;
 import com.site0.walnut.ext.xo.util.XoClients;
+import com.site0.walnut.util.Ws;
 
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -216,8 +217,8 @@ public class S3XoService extends AbstractXoService {
         String bucket = xc.getBucket();
         String prefix = xc.getQueryPrefix(objKey, delimiter);
         boolean prefix_is_dir = delimiterBySlash
-                && null != prefix
-                && prefix.endsWith(delimiter);
+                                && null != prefix
+                                && prefix.endsWith(delimiter);
 
         int count = 0;
         int remaining = limit;
@@ -377,6 +378,42 @@ public class S3XoService extends AbstractXoService {
             .contentDisposition(xmeta.title)
             .metadata(merged)
             .metadataDirective(MetadataDirective.REPLACE) // 关键：用新元数据
+            .build();
+        client.copyObject(copyReq);
+    }
+
+    @Override
+    public void copy(String srcKey, String dstKey) {
+        // 防空
+        if (Ws.isBlank(srcKey) || Ws.isBlank(dstKey) || srcKey.equals(dstKey)) {
+            return;
+        }
+
+        XoClientWrapper<S3Client> xc = getter.get();
+        S3Client client = xc.getClient();
+        String bucket = xc.getBucket();
+        String src = xc.getObjPath(srcKey);
+        String dst = xc.getObjPath(dstKey);
+
+        // 1. 取当前元数据
+        HeadObjectResponse head;
+        try {
+            head = client.headObject(b -> b.bucket(bucket).key(src));
+        }
+        catch (NoSuchKeyException e) {
+            throw Er.create("e.xo.obj.not.exists", src);
+        }
+        
+
+        // 3. 拷贝到自身，并写入新的元数据
+        CopyObjectRequest copyReq = CopyObjectRequest.builder()
+            .sourceBucket(bucket)
+            .sourceKey(src)
+            .destinationBucket(bucket)
+            .destinationKey(dst)
+            .contentType(head.contentType())
+            .contentDisposition(head.contentDisposition())
+            .metadata(head.metadata())
             .build();
         client.copyObject(copyReq);
     }

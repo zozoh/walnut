@@ -36,6 +36,7 @@ import com.site0.walnut.ext.xo.util.WnSimpleClientGetter;
 import com.site0.walnut.ext.xo.util.XoClientGetter;
 import com.site0.walnut.ext.xo.util.XoClientWrapper;
 import com.site0.walnut.ext.xo.util.XoClients;
+import com.site0.walnut.util.Ws;
 
 /**
  * 参见文档 <code>ex-storage.md</code>
@@ -361,6 +362,41 @@ public class CosXoService extends AbstractXoService {
                                                           bucket,
                                                           key);
         copyReq.setNewObjectMetadata(freshMeta);
+        client.copyObject(copyReq);
+    }
+
+    @Override
+    public void copy(String srcKey, String dstKey) {
+        // 防空
+        if (Ws.isBlank(srcKey) || Ws.isBlank(dstKey) || srcKey.equals(dstKey)) {
+            return;
+        }
+
+        // 1. 准备客户端
+        XoClientWrapper<COSClient> xc = getter.get();
+        COSClient client = xc.getClient();
+        String bucket = xc.getBucket();
+        String src = xc.getObjPath(srcKey);
+        String dst = xc.getObjPath(dstKey);
+
+        // 2. 获取元数据
+        ObjectMetadata oldMeta;
+        try {
+            oldMeta = client.getObjectMetadata(bucket, src);
+        }
+        catch (CosServiceException e) {
+            if (e.getStatusCode() == 404) {
+                throw Er.create("e.xo.obj.not.exists", src);
+            }
+            throw Er.wrap(e);
+        }
+
+        // 4. 执行“拷贝到自身”
+        CopyObjectRequest copyReq = new CopyObjectRequest(bucket,
+                                                          src,
+                                                          bucket,
+                                                          dst);
+        copyReq.setNewObjectMetadata(oldMeta);
         client.copyObject(copyReq);
     }
 
