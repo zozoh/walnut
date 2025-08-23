@@ -16,7 +16,7 @@ public class VofsBMReadWriteHandle extends WnIoReadWriteSwapHandle {
 
     private VofsBM bm;
 
-    public VofsBMReadWriteHandle(VofsBM bm) {
+    VofsBMReadWriteHandle(VofsBM bm) {
         this.bm = bm;
     }
 

@@ -9,7 +9,7 @@ public class VofsBMReadHandle extends WnIoReadHandle {
 
     private VofsBM bm;
 
-    public VofsBMReadHandle(VofsBM bm) {
+    VofsBMReadHandle(VofsBM bm) {
         this.bm = bm;
     }
 

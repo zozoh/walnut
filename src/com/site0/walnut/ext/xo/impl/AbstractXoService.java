@@ -14,10 +14,13 @@ import org.nutz.lang.util.ByteInputStream;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.ext.xo.bean.XoBean;
+import com.site0.walnut.ext.xo.util.XoClientGetter;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Ws;
 
-public abstract class AbstractXoService implements XoService {
+public abstract class AbstractXoService<T> implements XoService {
+
+    protected XoClientGetter<T> getter;
 
     protected static class XoMeta {
         Map<String, String> userMeta;

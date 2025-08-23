@@ -41,7 +41,7 @@ import com.site0.walnut.core.mapping.WnIndexerFactory;
 import com.site0.walnut.core.mapping.WnIoMappingFactoryImpl;
 import com.site0.walnut.core.mapping.bm.LocalFileBMFactory;
 import com.site0.walnut.core.mapping.bm.LocalFileWBMFactory;
-import com.site0.walnut.core.mapping.bm.LocalIoBMFactory;
+import com.site0.walnut.core.mapping.bm.LocalSha1BMFactory;
 import com.site0.walnut.core.mapping.bm.RedisBMFactory;
 import com.site0.walnut.core.mapping.indexer.LocalFileIndexerFactory;
 import com.site0.walnut.core.mapping.indexer.LocalFileWIndexerFactory;
@@ -214,7 +214,7 @@ public class IoCoreSetup {
         // 桶管理器工厂映射
         WnIoHandleManager handles = this.getWnIoHandleManager();
         HashMap<String, WnBMFactory> bmfs = new HashMap<>();
-        bmfs.put("lbm", new LocalIoBMFactory());
+        bmfs.put("lbm", new LocalSha1BMFactory());
         bmfs.put("redis", this.getRedisBMFactory());
         bmfs.put("file", new LocalFileBMFactory(handles));
         bmfs.put("filew", new LocalFileWBMFactory(handles));

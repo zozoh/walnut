@@ -43,9 +43,7 @@ import com.site0.walnut.util.Ws;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class CosXoService extends AbstractXoService {
-
-    private XoClientGetter<COSClient> getter;
+public class CosXoService extends AbstractXoService<COSClient> {
 
     public CosXoService(WnIo io, WnObj oHome, String name) {
         WnIoXoClientGetter<COSClient> getter = new WnIoXoClientGetter<>();

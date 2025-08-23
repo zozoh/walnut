@@ -8,7 +8,7 @@ import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.api.io.WnRace;
-import com.site0.walnut.core.mapping.MountInfo;
+import com.site0.walnut.core.mapping.support.MountInfo;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.login.role.WnRoleList;

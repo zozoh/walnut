@@ -12,7 +12,7 @@ public class XoSha1ReadHandle extends WnIoReadHandle {
 
     private XoSha1BM bm;
 
-    public XoSha1ReadHandle(XoSha1BM bm) {
+    XoSha1ReadHandle(XoSha1BM bm) {
         this.bm = bm;
     }
 

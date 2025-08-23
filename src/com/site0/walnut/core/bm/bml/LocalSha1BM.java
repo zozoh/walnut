@@ -62,10 +62,10 @@ public class LocalSha1BM extends AbstractIoBM {
     private boolean canMoveSwap;
 
     public LocalSha1BM(WnIoHandleManager handles,
-                     String phBucket,
-                     String phSwap,
-                     boolean autoCreate,
-                     WnReferApi refers) {
+                       String phBucket,
+                       String phSwap,
+                       boolean autoCreate,
+                       WnReferApi refers) {
         super(handles);
 
         // 获取桶目录
@@ -73,13 +73,14 @@ public class LocalSha1BM extends AbstractIoBM {
         if (!dBucket.exists()) {
             // 不自动创建，就自裁！！！
             if (!autoCreate) {
-                throw Er.create("e.io.bm.local.BucketHomeNotFound", phBucket);
+                throw Er.create("e.io.bm.LocalSha1BM.BucketHomeNotFound", phBucket);
             }
             dBucket = Files.createDirIfNoExists(phBucket);
         }
         // 不是目录，自裁
         if (!dBucket.isDirectory()) {
-            throw Er.create("e.io.bm.local.BucketHomeMustBeDirectory", dBucket.getAbsolutePath());
+            throw Er.create("e.io.bm.LocalSha1BM.BucketHomeMustBeDirectory",
+                            dBucket.getAbsolutePath());
         }
 
         // 获取交换区目录
@@ -90,7 +91,7 @@ public class LocalSha1BM extends AbstractIoBM {
 
         // 一些常量
         minBucketIdLen = 8;
-        //bufferSize = 8192;
+        // bufferSize = 8192;
     }
 
     @Override
@@ -129,7 +130,7 @@ public class LocalSha1BM extends AbstractIoBM {
         if (Wn.S.canModify(mode) || Wn.S.isReadWrite(mode)) {
             return new LocalSha1ReadWriteHandle(this);
         }
-        throw Er.create("e.io.bm.localbm.NonsupportMode", mode);
+        throw Er.create("e.io.bm.LocalSha1BM.NonsupportMode", mode);
     }
 
     @Override
@@ -154,11 +155,11 @@ public class LocalSha1BM extends AbstractIoBM {
 
     @Override
     public long remove(WnObj o) {
-        String buckId = o.sha1();
-        long rec = refers.remove(buckId, o.id());
+        String sha1 = o.sha1();
+        long rec = refers.remove(sha1, o.id());
         // 归零了，那么要删除
         if (rec <= 0) {
-            File fBuck = this.getBucketFile(buckId);
+            File fBuck = this.getBucketFile(sha1);
             if (fBuck.exists())
                 fBuck.delete();
         }
@@ -170,7 +171,8 @@ public class LocalSha1BM extends AbstractIoBM {
         // 没有桶，剪裁个屁
         if (!o.hasSha1()) {
             if (len != 0) {
-                throw Er.create("e.io.bm.trancate", "VirtualBucket to size(" + len + ")");
+                throw Er.create("e.io.bm.trancate",
+                                "VirtualBucket to size(" + len + ")");
             }
             return 0;
         }
@@ -222,12 +224,18 @@ public class LocalSha1BM extends AbstractIoBM {
 
     @Override
     public void updateObjSha1(WnObj o, File swap, WnIoIndexer indexer) {
-        throw Er.create("LocalIoBM deprecated updateObjSha1, use updateObjSha1AndSaveSwap instead");
+        throw Er
+            .create("LocalSha1BM deprecated updateObjSha1, use updateObjSha1AndSaveSwap instead");
     }
 
     @Override
-    public void updateObjSha1(WnObj o, WnIoIndexer indexer, String sha1, long len, long lm) {
-        throw Er.create("LocalIoBM deprecated updateObjSha1, use updateObjSha1AndSaveSwap instead");
+    public void updateObjSha1(WnObj o,
+                              WnIoIndexer indexer,
+                              String sha1,
+                              long len,
+                              long lm) {
+        throw Er
+            .create("LocalSha1BM deprecated updateObjSha1, use updateObjSha1AndSaveSwap instead");
     }
 
     /**
@@ -249,7 +257,9 @@ public class LocalSha1BM extends AbstractIoBM {
      * @throws IOException
      *             IO 读写发生异常
      */
-    public void updateObjSha1AndSaveSwap(WnObj o, File swap, WnIoIndexer indexer) {
+    public void updateObjSha1AndSaveSwap(WnObj o,
+                                         File swap,
+                                         WnIoIndexer indexer) {
         // 2023-12-28: zozoh 如果传入的 o==null, swap 有，可能造成swap 丢失吧！
         // 无需更新，因为没有对象，对应的句柄肯定已经关闭了
         // if (null == o) {
@@ -299,8 +309,8 @@ public class LocalSha1BM extends AbstractIoBM {
                     catch (IOException e) {
                         throw Er.wrap(e);
                     }
-                    // 无论如何，空置一下缓冲
-                    swap = null;
+                    // // 无论如何，空置一下缓冲
+                    // swap = null;
                 }
             }
 
@@ -345,7 +355,9 @@ public class LocalSha1BM extends AbstractIoBM {
         if (needCopy) {
             if (!Files.copy(swap, buck)) {
                 String swph = Files.getAbsPath(swap);
-                log.warnf("LocalIoBM: buck(%s) Fail to copy from %s!", buph, swph);
+                log.warnf("LocalIoBM: buck(%s) Fail to copy from %s!",
+                          buph,
+                          swph);
             }
             // Copy 成功，删除缓冲
             // Copy 失败，则保留缓冲，以备后面调试
@@ -362,12 +374,12 @@ public class LocalSha1BM extends AbstractIoBM {
     public File getBucketFile(String buckId) {
         // 桶ID是空的，什么情况！
         if (Strings.isBlank(buckId)) {
-            throw Er.create("e.io.bm.local.BlankBucketId");
+            throw Er.create("e.io.bm.LocalSha1BM.BlankBucketId");
         }
         // 桶ID有点短啊
         buckId = buckId.trim();
         if (buckId.length() < minBucketIdLen) {
-            throw Er.create("e.io.bm.local.BucketIdTooShort");
+            throw Er.create("e.io.bm.LocalSha1BM.BucketIdTooShort");
         }
         // 得到桶的路径
         String ph = buckId.substring(0, 4) + "/" + buckId.substring(4);
@@ -377,7 +389,8 @@ public class LocalSha1BM extends AbstractIoBM {
     public File checkBucketFile(String buckId) {
         File buck = this.getBucketFile(buckId);
         if (!buck.exists()) {
-            throw Er.create("e.io.bm.local.LostBucket", buckId + "::" + Files.getAbsPath(buck));
+            throw Er.create("e.io.bm.LocalSha1BM.LostBucket",
+                            buckId + "::" + Files.getAbsPath(buck));
         }
         return buck;
     }

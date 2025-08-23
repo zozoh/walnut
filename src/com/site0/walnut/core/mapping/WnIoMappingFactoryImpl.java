@@ -10,6 +10,7 @@ import com.site0.walnut.core.WnIoBM;
 import com.site0.walnut.core.WnIoMapping;
 import com.site0.walnut.core.WnIoMappingFactory;
 import com.site0.walnut.core.bean.WnObjMapping;
+import com.site0.walnut.core.mapping.support.MountInfo;
 
 public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
 

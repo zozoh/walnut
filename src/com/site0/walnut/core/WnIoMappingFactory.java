@@ -3,7 +3,7 @@ package com.site0.walnut.core;
 import com.site0.walnut.api.io.WnIoIndexer;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.core.bean.WnObjMapping;
-import com.site0.walnut.core.mapping.MountInfo;
+import com.site0.walnut.core.mapping.support.MountInfo;
 
 public interface WnIoMappingFactory {
 

@@ -47,9 +47,7 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 import software.amazon.awssdk.services.s3.model.UploadPartRequest;
 import software.amazon.awssdk.services.s3.model.UploadPartResponse;
 
-public class S3XoService extends AbstractXoService {
-
-    private XoClientGetter<S3Client> getter;
+public class S3XoService extends AbstractXoService<S3Client> {
 
     public S3XoService(WnIo io, WnObj oHome, String name) {
         WnIoXoClientGetter<S3Client> getter = new WnIoXoClientGetter<>();

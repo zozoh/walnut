@@ -14,7 +14,7 @@ import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIoIndexer;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
-import com.site0.walnut.core.mapping.MountInfo;
+import com.site0.walnut.core.mapping.support.MountInfo;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Wobj;
 import com.site0.walnut.util.validate.WnMatch;
