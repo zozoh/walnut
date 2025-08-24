@@ -65,8 +65,14 @@ public class WnIoSaftyWrapper implements WnIo {
         this.lockApi = lockApi;
     }
 
-    private void _safe_run(String methodName, WnObj obj, Atom atom, String[] operations) {
-        WnIoWriteLocker locker = new WnIoWriteLocker(lockApi, obj, operations, methodName);
+    private void _safe_run(String methodName,
+                           WnObj obj,
+                           Atom atom,
+                           String[] operations) {
+        WnIoWriteLocker locker = new WnIoWriteLocker(lockApi,
+                                                     obj,
+                                                     operations,
+                                                     methodName);
         locker.safeRun(atom);
     }
 
@@ -74,7 +80,10 @@ public class WnIoSaftyWrapper implements WnIo {
                                WnObj obj,
                                Proton<T> proton,
                                String[] operations) {
-        WnIoWriteLocker locker = new WnIoWriteLocker(lockApi, obj, operations, methodName);
+        WnIoWriteLocker locker = new WnIoWriteLocker(lockApi,
+                                                     obj,
+                                                     operations,
+                                                     methodName);
         return locker.safeReturn(proton);
     }
 
@@ -82,7 +91,10 @@ public class WnIoSaftyWrapper implements WnIo {
                                String objId,
                                Proton<T> proton,
                                String[] operations) {
-        WnIoWriteLocker locker = new WnIoWriteLocker(lockApi, objId, operations, methodName);
+        WnIoWriteLocker locker = new WnIoWriteLocker(lockApi,
+                                                     objId,
+                                                     operations,
+                                                     methodName);
         return locker.safeReturn(proton);
     }
 
@@ -110,15 +122,22 @@ public class WnIoSaftyWrapper implements WnIo {
         return io.fetch(p, path);
     }
 
-    public WnObj fetch(WnObj p, String[] paths, int fromIndex, int toIndex) {
-        return io.fetch(p, paths, fromIndex, toIndex);
+    public WnObj fetch(WnObj p,
+                       String[] paths,
+                       boolean isForDir,
+                       int fromIndex,
+                       int toIndex) {
+        return io.fetch(p, paths, isForDir, fromIndex, toIndex);
     }
 
     public void walk(WnObj p, Callback<WnObj> callback, WalkMode mode) {
         io.walk(p, callback, mode);
     }
 
-    public void walk(WnObj p, Callback<WnObj> callback, WalkMode mode, WnObjFilter filter) {
+    public void walk(WnObj p,
+                     Callback<WnObj> callback,
+                     WalkMode mode,
+                     WnObjFilter filter) {
         io.walk(p, callback, mode, filter);
     }
 
@@ -294,7 +313,11 @@ public class WnIoSaftyWrapper implements WnIo {
         return io.create(p, path, race);
     }
 
-    public WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race) {
+    public WnObj create(WnObj p,
+                        String[] paths,
+                        int fromIndex,
+                        int toIndex,
+                        WnRace race) {
         return io.create(p, paths, fromIndex, toIndex, race);
     }
 
@@ -442,7 +465,8 @@ public class WnIoSaftyWrapper implements WnIo {
         return io.getIndexer(o);
     }
 
-    public WnIoHandle openHandle(WnObj o, int mode) throws WnIoHandleMutexException, IOException {
+    public WnIoHandle openHandle(WnObj o, int mode)
+            throws WnIoHandleMutexException, IOException {
         return io.openHandle(o, mode);
     }
 
@@ -518,10 +542,15 @@ public class WnIoSaftyWrapper implements WnIo {
         return io.getInputStream(o, off);
     }
 
+    public InputStream getInputStream(WnObj o) {
+        return this.getInputStream(o, 0);
+    }
+
     public OutputStream getOutputStream(WnObj o, long off) {
         WnIoWriteLocker locker = new WnIoWriteLocker(lockApi,
                                                      o,
-                                                     new String[]{"meta", "content"},
+                                                     new String[]{"meta",
+                                                                  "content"},
                                                      "getOutputStream");
         while (true) {
             try {

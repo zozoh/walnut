@@ -59,7 +59,7 @@ public class VofsIndexer extends AbstractIoVfsIndexer {
     }
 
     String get_query_prefix(WnObj p, String path) {
-        boolean p_is_root = null==p || this.isRoot(p);
+        boolean p_is_root = null == p || this.isRoot(p);
         // 如果确定了本前缀是一个目录路径,那么输出的前缀需要以 "/" 结尾
         // 有下面几种情况,本前缀应该是目录
         // 1. p.isDIR && null==path
@@ -150,7 +150,7 @@ public class VofsIndexer extends AbstractIoVfsIndexer {
     @Override
     public WnObj move(WnObj src, String destPath, int mode) {
         // 得到新路径相对于根的路径
-        String newPath = Disks.getRelativePath(src.path(), destPath, "");
+        String newPath = Disks.getRelativePath(root.path(), destPath, "");
 
         // 无需移动
         if (Ws.isBlank(newPath)) {
@@ -245,8 +245,8 @@ public class VofsIndexer extends AbstractIoVfsIndexer {
         if (null == prefix) {
             String pid = q.first().getString("pid");
             // 用根遍历
-            if(this.isRoot(pid)) {
-                prefix  = null;
+            if (this.isRoot(pid)) {
+                prefix = null;
             }
             // 指定了一个父
             else if (!Ws.isBlank(pid)) {

@@ -63,11 +63,15 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
             p = null;
         }
         String[] ss = Strings.splitIgnoreBlank(path, "[/]");
-        return fetch(p, ss, 0, ss.length);
+        return fetch(p, ss, path.endsWith("/"), 0, ss.length);
     }
 
     @Override
-    public WnObj fetch(WnObj p, String[] paths, int fromIndex, int toIndex) {
+    public WnObj fetch(WnObj p,
+                       String[] paths,
+                       boolean isForDir,
+                       int fromIndex,
+                       int toIndex) {
         // null 表示从根路径开始
         if (null == p) {
             p = root.clone();
@@ -281,7 +285,11 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
     }
 
     @Override
-    public WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race) {
+    public WnObj create(WnObj p,
+                        String[] paths,
+                        int fromIndex,
+                        int toIndex,
+                        WnRace race) {
         // 默认从自己的根开始
         if (null == p) {
             p = root.clone();
@@ -294,8 +302,9 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
 
         // 创建所有的父
         WnObj p1 = p0;
+        boolean isForDir = WnRace.DIR == race;
         for (int i = fromIndex; i < rightIndex; i++) {
-            WnObj nd = fetch(p1, paths, i, i + 1);
+            WnObj nd = fetch(p1, paths, isForDir, i, i + 1);
             // 确保节点可以进入
             nd = wc.whenEnter(nd, false);
 
@@ -428,7 +437,8 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         ((WnIoObj) o).setIndexer(this);
         // 不匹配的父节点
         if (!o.isMyParent(p)) {
-            throw Er.create("e.io.NotMyParent", p.id() + " <-> " + o.parentId());
+            throw Er.create("e.io.NotMyParent",
+                            p.id() + " <-> " + o.parentId());
         }
 
         // 文件下面不能再有子对象
@@ -575,7 +585,9 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
 
     protected abstract void _set(String id, NutBean map);
 
-    protected abstract WnIoObj _set_by(WnQuery q, NutBean map, boolean returnNew);
+    protected abstract WnIoObj _set_by(WnQuery q,
+                                       NutBean map,
+                                       boolean returnNew);
 
     @Override
     public WnObj rename(WnObj o, String nm) {
@@ -625,7 +637,8 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         }
 
         // 将自己移动到自己的子里面，这个不能够啊
-        if (destPath.startsWith(srcPath) && srcPath.lastIndexOf('/') < destPath.lastIndexOf('/')) {
+        if (destPath.startsWith(srcPath)
+            && srcPath.lastIndexOf('/') < destPath.lastIndexOf('/')) {
             throw Er.create("e.io.mv.parentToChild");
         }
 
@@ -645,7 +658,9 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         String taPaPath = Files.getParent(taPath);
         WnObj ta = null;
         // 看看是不是移动到根呢？
-        if (null != taPaPath && !"/".equals(taPaPath) && taPaPath.equals(root.path())) {
+        if (null != taPaPath
+            && !"/".equals(taPaPath)
+            && taPaPath.equals(root.path())) {
             ta = root;
             newName = Files.getName(taPath);
         }

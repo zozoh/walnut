@@ -53,6 +53,25 @@ public class XoBean {
                              Json.toJson(userMeta));
     }
 
+    public XoBean clone() {
+        XoBean ta = new XoBean();
+        ta.virtual = this.virtual;
+        ta.key = this.key;
+        ta.etag = this.etag;
+        ta.size = this.size;
+        ta.storageClass = this.storageClass;
+        ta.lastModified = this.lastModified;
+        ta.title = this.title;
+        ta.mime = this.mime;
+        if (null != this.expires)
+            ta.expires = Instant.ofEpochMilli(this.expires.toEpochMilli());
+        if (null != this.rawMeta)
+            ta.rawMeta = this.rawMeta.duplicate();
+        if (null != this.userMeta)
+            ta.userMeta = this.userMeta.duplicate();
+        return ta;
+    }
+
     public WnRace getRace() {
         if (null == key) {
             return null;

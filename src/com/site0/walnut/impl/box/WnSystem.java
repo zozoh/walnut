@@ -136,6 +136,13 @@ public class WnSystem implements WnAuthExecutable {
      */
     public WnObj getCurrentObj() {
         String pwd = this.session.getEnv().getString("PWD");
+        if (Ws.isBlank(pwd)) {
+            return this.getHome();
+        }
+        // 当前路径必须以 "/" 结尾，因为 S3 等映射需要用这个区分是否是目录
+        if (!pwd.endsWith("/")) {
+            pwd += "/";
+        }
         String path = Wn.normalizePath(pwd, this);
         WnObj re;
         if (Ws.isBlank(path)) {
@@ -151,7 +158,10 @@ public class WnSystem implements WnAuthExecutable {
     }
 
     public void exec(String cmdText) {
-        exec(cmdText, out.getOutputStream(), err.getOutputStream(), in.getInputStream());
+        exec(cmdText,
+             out.getOutputStream(),
+             err.getOutputStream(),
+             in.getInputStream());
     }
 
     public void execf(String fmt, Object... args) {
@@ -159,11 +169,17 @@ public class WnSystem implements WnAuthExecutable {
         exec(cmdText);
     }
 
-    public void exec(String cmdText, OutputStream stdOut, OutputStream stdErr, InputStream stdIn) {
+    public void exec(String cmdText,
+                     OutputStream stdOut,
+                     OutputStream stdErr,
+                     InputStream stdIn) {
         String[] cmdLines = Cmds.splitCmdLines(cmdText);
-        _runner.out = new EscapeCloseOutputStream(null == stdOut ? out.getOutputStream() : stdOut);
-        _runner.err = new EscapeCloseOutputStream(null == stdErr ? err.getOutputStream() : stdErr);
-        _runner.in = new EscapeCloseInputStream(null == stdIn ? in.getInputStream() : stdIn);
+        _runner.out = new EscapeCloseOutputStream(null == stdOut ? out
+            .getOutputStream() : stdOut);
+        _runner.err = new EscapeCloseOutputStream(null == stdErr ? err
+            .getOutputStream() : stdErr);
+        _runner.in = new EscapeCloseInputStream(null == stdIn ? in
+            .getInputStream() : stdIn);
 
         if (log.isInfoEnabled())
             log.info("WnSystem.exec: " + cmdText);
@@ -176,19 +192,19 @@ public class WnSystem implements WnAuthExecutable {
             }
             if (log.isDebugEnabled())
                 log.debugf("WnSystem.exec: i=%d, cmdLine=%s", i, cmdLine);
-            
+
             _runner.run(cmdLine);
-            
+
             if (log.isDebugEnabled())
                 log.debugf("WnSystem.exec: i=%d, _runner.wait_for_idle()", i);
             _runner.wait_for_idle();
         }
-        
+
         if (log.isDebugEnabled())
             log.debug("WnSystem.exec: _runner.__free()");
-        
+
         _runner.__free();
-        
+
         if (log.isDebugEnabled())
             log.debug("WnSystem.exec: done");
     }
@@ -197,7 +213,8 @@ public class WnSystem implements WnAuthExecutable {
                      StringBuilder stdOut,
                      StringBuilder stdErr,
                      CharSequence stdIn) {
-        InputStream ins = null == stdIn ? in.getInputStream() : Wlang.ins(stdIn);
+        InputStream ins = null == stdIn ? in.getInputStream()
+                                        : Wlang.ins(stdIn);
         OutputStream out = null == stdOut ? null : Wlang.ops(stdOut);
         OutputStream err = null == stdErr ? null : Wlang.ops(stdErr);
 

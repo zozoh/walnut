@@ -24,7 +24,7 @@ import com.site0.walnut.ext.xo.impl.XoService;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 
-public class XoSha1BM extends AbstractIoBM {
+public class VXDataSignBM extends AbstractIoBM {
 
     XoService api;
 
@@ -34,7 +34,7 @@ public class XoSha1BM extends AbstractIoBM {
 
     Sha1Parts parts;
 
-    public XoSha1BM(WnIoHandleManager handles,
+    public VXDataSignBM(WnIoHandleManager handles,
                     String phSwap,
                     boolean autoCreate,
                     String signAlg,
@@ -44,7 +44,7 @@ public class XoSha1BM extends AbstractIoBM {
         super(handles);
         this.api = api;
         // 仅仅支持 SHA1
-        if ("sha1".equals(signAlg)) {
+        if (!"sha1".equals(signAlg)) {
             throw Er.create("e.io.bm.XoSha1BM.invalidSignAlg", signAlg);
         }
 
@@ -66,11 +66,11 @@ public class XoSha1BM extends AbstractIoBM {
             return true;
         if (null == bm)
             return false;
-        if (bm instanceof XoSha1BM) {
-            if (!Wlang.isEqual(this.api, ((XoSha1BM) bm).api)) {
+        if (bm instanceof VXDataSignBM) {
+            if (!Wlang.isEqual(this.api, ((VXDataSignBM) bm).api)) {
                 return false;
             }
-            if (!Wlang.isEqual(this.parts, ((XoSha1BM) bm).parts)) {
+            if (!Wlang.isEqual(this.parts, ((VXDataSignBM) bm).parts)) {
                 return false;
             }
             return true;

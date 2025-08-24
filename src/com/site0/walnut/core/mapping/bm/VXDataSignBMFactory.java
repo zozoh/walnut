@@ -5,13 +5,13 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.core.WnIoBM;
 import com.site0.walnut.core.WnIoHandleManager;
 import com.site0.walnut.core.WnReferApi;
-import com.site0.walnut.core.bm.bmv.XoSha1BM;
+import com.site0.walnut.core.bm.bmv.VXDataSignBM;
 import com.site0.walnut.core.mapping.WnBMFactory;
 import com.site0.walnut.core.mapping.support.WnVoBMOptions;
 import com.site0.walnut.ext.xo.impl.XoService;
 import com.site0.walnut.web.WnConfig;
 
-public class XoSha1BMFactory implements WnBMFactory {
+public class VXDataSignBMFactory implements WnBMFactory {
 
     /**
      * 这个需要通过 IOC 注入得到实例
@@ -21,6 +21,14 @@ public class XoSha1BMFactory implements WnBMFactory {
     private WnIoHandleManager handles;
     private String swapPath;
     private boolean autoCreateSwap;
+
+    public void setConf(WnConfig conf) {
+        this.conf = conf;
+    }
+
+    public void setAutoCreateSwap(boolean autoCreateSwap) {
+        this.autoCreateSwap = autoCreateSwap;
+    }
 
     public void setIo(WnIo io) {
         this.io = io;
@@ -44,13 +52,13 @@ public class XoSha1BMFactory implements WnBMFactory {
         XoService xos = opt.buildXoService(io, oXHome);
         WnReferApi refers = opt.getReferApi(io, conf);
 
-        return new XoSha1BM(handles,
-                            swapPath,
-                            autoCreateSwap,
-                            opt.signAlg,
-                            opt.parts,
-                            xos,
-                            refers);
+        return new VXDataSignBM(handles,
+                                 swapPath,
+                                 autoCreateSwap,
+                                 opt.signAlg,
+                                 opt.parts,
+                                 xos,
+                                 refers);
     }
 
 }

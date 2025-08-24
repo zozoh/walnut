@@ -38,6 +38,7 @@ public class WnVofsObj extends NutMap implements WnObj {
         this.api = api;
         this.mimes = mimes;
         this.xo = xo;
+        this._put_all_to_map(this);
     }
 
     @Override
@@ -489,24 +490,28 @@ public class WnVofsObj extends NutMap implements WnObj {
 
     @Override
     public NutMap toMap(String regex) {
+        if (null != regex) {
+            return this.pickBy(regex);
+        }
+
         NutMap map = new NutMap();
-        _fill_vals(map);
-
-        if (null != regex)
-            return map.pickBy(regex);
-
+        map.putAll(this);
         return map;
     }
 
-    private void _fill_vals(NutBean map) {
-        // 预先填充自定义属性
-        for (Map.Entry<String, Object> en : this.entrySet()) {
-            String key = en.getKey();
-            Object val = en.getValue();
-            map.put(key, val);
-        }
+    // private void _fill_vals(NutBean map) {
+    // // 预先填充自定义属性
+    // for (Map.Entry<String, Object> en : this.entrySet()) {
+    // String key = en.getKey();
+    // Object val = en.getValue();
+    // map.put(key, val);
+    // }
+    //
+    // // 填充一遍固定属性
+    // _put_all_to_map(map);
+    // }
 
-        // 填充一遍固定属性
+    private void _put_all_to_map(NutBean map) {
         map.put("m", mender());
         map.put("c", creator());
         map.put("g", group());
@@ -626,12 +631,12 @@ public class WnVofsObj extends NutMap implements WnObj {
 
     @Override
     public WnObj mount(String mnt) {
-        throw Wlang.noImplement();
+        return this;
     }
 
     @Override
     public WnObj mountRootId(String mrid) {
-        throw Wlang.noImplement();
+        return this;
     }
 
     @Override
@@ -646,6 +651,14 @@ public class WnVofsObj extends NutMap implements WnObj {
 
     @Override
     public WnObj updateBy(WnObj o) {
+        if (this == o || null == o) {
+            return this;
+        }
+        if (o instanceof WnVofsObj) {
+            WnVofsObj vo = (WnVofsObj) o;
+            this.xo = vo.xo.clone();
+            return this;
+        }
         throw Wlang.noImplement();
     }
 

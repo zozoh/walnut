@@ -2,6 +2,8 @@ package com.site0.walnut.core.cache;
 
 import java.util.List;
 
+import org.nutz.lang.Encoding;
+
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.cache.WnCache;
 import com.site0.walnut.cache.temp.WnInterimCache;
@@ -13,7 +15,7 @@ public class WnIoCache extends WnIoCacheOptions {
 
     private WnCache<WnObj> pathCache;
 
-    private WnCache<String> sha1Cache;
+    private WnCache<byte[]> sha1Cache;
 
     public WnIoCache() {
         objDuInSec = 0;
@@ -56,7 +58,7 @@ public class WnIoCache extends WnIoCacheOptions {
         sha1Cache = new WnInterimCache<>(sha1DuInSec, sha1CleanThreshold);
         // SHA1 缓存应该是需要有获取更新过期时间机制的
         // 这样频繁访问的内容才更容易被访问到
-        ((WnInterimCache<String>) sha1Cache).setTouchWhenGet(true);
+        ((WnInterimCache<byte[]>) sha1Cache).setTouchWhenGet(true);
     }
 
     public WnObj getObjById(String id) {
@@ -140,12 +142,28 @@ public class WnIoCache extends WnIoCacheOptions {
         }
     }
 
-    public String getContent(String sha1) {
+    public byte[] getBytes(String sha1) {
         return sha1Cache.get(sha1);
     }
 
+    public String getContent(String sha1) {
+        byte[] bs = sha1Cache.get(sha1);
+        return new String(bs, Encoding.CHARSET_UTF8);
+    }
+
     public void cacheContent(String sha1, String content) {
-        sha1Cache.put(sha1, content);
+        if (null == content) {
+            return;
+        }
+        byte[] bs = content.getBytes();
+        sha1Cache.put(sha1, bs);
+    }
+
+    public void cacheContent(String sha1, byte[] bs) {
+        if (null == bs) {
+            return;
+        }
+        sha1Cache.put(sha1, bs);
     }
 
 }

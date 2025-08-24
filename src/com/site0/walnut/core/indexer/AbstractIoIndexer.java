@@ -87,9 +87,16 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
     }
 
     @Override
-    public WnObj fetch(WnObj p, String[] paths, int fromIndex, int toIndex) {
+    public WnObj fetch(WnObj p,
+                       String[] paths,
+                       boolean isForDir,
+                       int fromIndex,
+                       int toIndex) {
         int len = toIndex - fromIndex;
         String path = Strings.join(fromIndex, len, "/", paths);
+        if (isForDir) {
+            path += "/";
+        }
         return fetch(p, path);
     }
 

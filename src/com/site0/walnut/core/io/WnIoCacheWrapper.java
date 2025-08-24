@@ -1,11 +1,18 @@
 package com.site0.walnut.core.io;
 
+import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.imageio.ImageIO;
+
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Encoding;
+import org.nutz.lang.Streams;
+import org.nutz.lang.util.ByteInputStream;
 import org.nutz.lang.util.NutBean;
 
 import com.site0.walnut.api.err.Er;
@@ -136,8 +143,35 @@ public class WnIoCacheWrapper extends AbstractWnIoWrapper {
 
     @Override
     public String readText(WnObj o) {
+        byte[] bs = readBytes(o);
+        return new String(bs, Encoding.CHARSET_UTF8);
+    }
+
+    @Override
+    public <T> T readJson(WnObj o, Class<T> classOfT) {
+        String json = readText(o);
+        return Json.fromJson(classOfT, json);
+    }
+
+    @Override
+    public BufferedImage readImage(WnObj o) {
+        InputStream ins = null;
+        try {
+            ins = this.getInputStream(o, 0);
+            return ImageIO.read(ins);
+        }
+        catch (IOException e) {
+            throw Er.create(e, "e.io.read.img", o);
+        }
+        finally {
+            Streams.safeClose(ins);
+        }
+    }
+
+    @Override
+    public byte[] readBytes(WnObj o) {
         // 检查权限
-        Wn.WC().whenRead(o, false);
+        o = Wn.WC().whenRead(o, false);
 
         // 如果是小文本文件，则尝试命中缓存
         long olen = o.len();
@@ -150,26 +184,46 @@ public class WnIoCacheWrapper extends AbstractWnIoWrapper {
 
         // 尝试命中
         if (is_small_text_file) {
-            String re = cache.getContent(sha1);
-            if (null != re) {
-                return re;
+            byte[] re = cache.getBytes(sha1);
+            if (null == re) {
+                re = super.readBytes(o);
+                cache.cacheContent(sha1, re);
             }
-        }
-        String text = super.readText(o);
 
-        // 小文本文件，计入缓存
-        if (is_small_text_file) {
-            cache.cacheContent(sha1, text);
+            return re;
         }
 
-        // 返回
-        return text;
+        // 采用父类方法，并且不缓冲
+        return super.readBytes(o);
     }
 
     @Override
-    public <T> T readJson(WnObj o, Class<T> classOfT) {
-        String json = readText(o);
-        return Json.fromJson(classOfT, json);
+    public InputStream getInputStream(WnObj o, long off) {
+        // 检查权限
+        o = Wn.WC().whenRead(o, false);
+
+        // 如果是小文本文件，则尝试命中缓存
+        long olen = o.len();
+        String mime = o.mime();
+        String sha1 = o.sha1();
+        boolean is_small_text_file = olen < 1000000L
+                                     && o.isFILE()
+                                     && null != mime
+                                     && mime.startsWith("text/");
+
+        // 尝试命中
+        if (is_small_text_file) {
+            byte[] re = cache.getBytes(sha1);
+            if (null == re) {
+                re = super.readBytes(o);
+                cache.cacheContent(sha1, re);
+            }
+
+            return new ByteInputStream(re);
+        }
+
+        // 采用父类方法，并且不缓冲
+        return super.getInputStream(o, off);
     }
 
     @Override
@@ -315,7 +369,11 @@ public class WnIoCacheWrapper extends AbstractWnIoWrapper {
     }
 
     @Override
-    public WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race) {
+    public WnObj create(WnObj p,
+                        String[] paths,
+                        int fromIndex,
+                        int toIndex,
+                        WnRace race) {
         WnObj o = super.create(p, paths, fromIndex, toIndex, race);
         cache.removeFromCache(o.parent());
         return o;

@@ -86,8 +86,12 @@ public abstract class AbstractWnIoWrapper implements WnIo {
         return io.fetch(p, path);
     }
 
-    public WnObj fetch(WnObj p, String[] paths, int fromIndex, int toIndex) {
-        return io.fetch(p, paths, fromIndex, toIndex);
+    public WnObj fetch(WnObj p,
+                       String[] paths,
+                       boolean isForDir,
+                       int fromIndex,
+                       int toIndex) {
+        return io.fetch(p, paths, isForDir, fromIndex, toIndex);
     }
 
     public WnObj createIfNoExists(WnObj p, String path, WnRace race) {
@@ -102,7 +106,10 @@ public abstract class AbstractWnIoWrapper implements WnIo {
         io.walk(p, callback, mode);
     }
 
-    public void walk(WnObj p, Callback<WnObj> callback, WalkMode mode, WnObjFilter filter) {
+    public void walk(WnObj p,
+                     Callback<WnObj> callback,
+                     WalkMode mode,
+                     WnObjFilter filter) {
         io.walk(p, callback, mode, filter);
     }
 
@@ -269,7 +276,8 @@ public abstract class AbstractWnIoWrapper implements WnIo {
         return io.getIndexer(o);
     }
 
-    public WnIoHandle openHandle(WnObj o, int mode) throws WnIoHandleMutexException, IOException {
+    public WnIoHandle openHandle(WnObj o, int mode)
+            throws WnIoHandleMutexException, IOException {
         return io.openHandle(o, mode);
     }
 
@@ -279,6 +287,10 @@ public abstract class AbstractWnIoWrapper implements WnIo {
 
     public InputStream getInputStream(WnObj o, long off) {
         return io.getInputStream(o, off);
+    }
+    
+    public InputStream getInputStream(WnObj o) {
+        return this.getInputStream(o);
     }
 
     public int read(String hid, byte[] bs) {
@@ -317,7 +329,11 @@ public abstract class AbstractWnIoWrapper implements WnIo {
         return io.create(p, path, race);
     }
 
-    public WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race) {
+    public WnObj create(WnObj p,
+                        String[] paths,
+                        int fromIndex,
+                        int toIndex,
+                        WnRace race) {
         return io.create(p, paths, fromIndex, toIndex, race);
     }
 

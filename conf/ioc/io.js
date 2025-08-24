@@ -79,8 +79,15 @@ var ioc = {
       mimes: { refer: "mimes" }
     }
   },
-  localIoBMFactory: {
-    type: "com.site0.walnut.core.mapping.bm.LocalIoBMFactory",
+  vofsIndexerFactory: {
+    type: "com.site0.walnut.core.mapping.indexer.VofsIndexerFactory",
+    fields: {
+      io: { refer: "io" },
+      mimes: { refer: "mimes" }
+    }
+  },
+  localSha1BMFactory: {
+    type: "com.site0.walnut.core.mapping.bm.LocalSha1BMFactory",
     fields: {
       bms: {}
     }
@@ -110,6 +117,24 @@ var ioc = {
       swapPath: { java: '$conf.get("global-bm-swap")' }
     }
   },
+  vofsBMFactory: {
+    type: "com.site0.walnut.core.mapping.bm.VofsBMFactory",
+    fields: {
+      io: { refer: "io" },
+      handles: { refer: "ioHandleManager" },
+      swapPath: { java: '$conf.get("global-bm-swap")' }
+    }
+  },
+  vsDataSignBMFactory: {
+    type: "com.site0.walnut.core.mapping.bm.VXDataSignBMFactory",
+    fields: {
+	  conf: { refer: "conf" },
+      io: { refer: "io" },
+      handles: { refer: "ioHandleManager" },
+      swapPath: { java: '$conf.get("global-bm-swap")' },
+      autoCreateSwap: { java: '$conf.getBoolean("global-bm-autocreate", true)' }
+    }
+  },
   ioMappingFactory: {
     type: "com.site0.walnut.core.mapping.WnIoMappingFactoryImpl",
     fields: {
@@ -120,15 +145,18 @@ var ioc = {
         "file": { refer: "localFileIndexerFactory" },
         "filew": { refer: "localFileWIndexerFactory" },
         "sql": { refer: "sqlIndexerFactory" },
+        "vofs": { refer: "vofsIndexerFactory" },
         "mem": null,
         "redis": null
       },
       bms: {
-        "lbm": { refer: "localIoBMFactory" },
+        "sha1": { refer: "localSha1BMFactory" },
         "redis": { refer: "redisBMFactory" },
         "file": { refer: "localFileBMFactory" },
         "filew": { refer: "localFileWBMFactory" },
-        "sql": { refer: "sqlBMFactory" }
+        "sql": { refer: "sqlBMFactory" },
+        "vofs": { refer: "vofsBMFactory" },
+        "vxds": { refer: "vsDataSignBMFactory" }, 
       }
     }
   },

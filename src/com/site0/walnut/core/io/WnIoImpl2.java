@@ -195,7 +195,8 @@ public class WnIoImpl2 implements WnIo {
     }
 
     @Override
-    public WnIoHandle openHandle(WnObj o, int mode) throws WnIoHandleMutexException, IOException {
+    public WnIoHandle openHandle(WnObj o, int mode)
+            throws WnIoHandleMutexException, IOException {
         WnIoMapping im = mappings.checkMapping(o);
         WnIoHandle h = im.open(o, mode);
         h.setIo(this);
@@ -355,13 +356,17 @@ public class WnIoImpl2 implements WnIo {
             re = mapping.getIndexer().fetch(p, path);
         } else {
             String[] ss = Strings.splitIgnoreBlank(path, "[/]");
-            re = fetch(p, ss, 0, ss.length);
+            re = fetch(p, ss, path.endsWith("/"), 0, ss.length);
         }
         return re;
     }
 
     @Override
-    public WnObj fetch(WnObj p, String[] paths, int fromIndex, int toIndex) {
+    public WnObj fetch(WnObj p,
+                       String[] paths,
+                       boolean isForDir,
+                       int fromIndex,
+                       int toIndex) {
         WnIoIndexer globalIndexer = mappings.getGlobalIndexer();
         // null 表示从根路径开始
         if (null == p) {
@@ -404,7 +409,8 @@ public class WnIoImpl2 implements WnIo {
         // 处理挂载节点
         if (p.isMount()) {
             WnIoMapping mapping = mappings.checkMapping(p);
-            return mapping.getIndexer().fetch(p, paths, fromIndex, toIndex);
+            return mapping.getIndexer()
+                .fetch(p, paths, isForDir, fromIndex, toIndex);
         }
         // ................................................
         // 逐个进入目标节点的父
@@ -463,7 +469,8 @@ public class WnIoImpl2 implements WnIo {
             // 处理挂载节点
             if (nd.isMount()) {
                 WnIoMapping mapping = mappings.checkMapping(nd);
-                return mapping.getIndexer().fetch(nd, paths, i + 1, toIndex);
+                return mapping.getIndexer()
+                    .fetch(nd, paths, isForDir, i + 1, toIndex);
             }
 
             // 指向下一个节点
@@ -525,7 +532,10 @@ public class WnIoImpl2 implements WnIo {
     }
 
     @Override
-    public void walk(WnObj p, Callback<WnObj> callback, WalkMode mode, WnObjFilter filter) {
+    public void walk(WnObj p,
+                     Callback<WnObj> callback,
+                     WalkMode mode,
+                     WnObjFilter filter) {
         WnObj p2;
         // 确保非空
         if (null == p) {
@@ -775,7 +785,11 @@ public class WnIoImpl2 implements WnIo {
     }
 
     @Override
-    public WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race) {
+    public WnObj create(WnObj p,
+                        String[] paths,
+                        int fromIndex,
+                        int toIndex,
+                        WnRace race) {
         final WnContext wc = Wn.WC();
         // 默认从自己的根开始
         if (null == p) {
@@ -969,7 +983,8 @@ public class WnIoImpl2 implements WnIo {
         if (null != o) {
             // 种类冲突，不能忍啊
             if (!o.isRace(race))
-                throw Er.create("e.io.create.invalid.race", path + " ! " + race);
+                throw Er.create("e.io.create.invalid.race",
+                                path + " ! " + race);
             return o;
         }
         // 不存在，就创建
@@ -1354,7 +1369,8 @@ public class WnIoImpl2 implements WnIo {
             // 如果不存在，就去掉，因为这是 write
             if (!map.containsKey(key)) {
                 // 内置属性，不要去掉
-                if (key.matches("^(nm|pid|c|m|g|md|tp|mime|ln|mnt|expi|width|height)$"))
+                if (key
+                    .matches("^(nm|pid|c|m|g|md|tp|mime|ln|mnt|expi|width|height)$"))
                     continue;
                 // 非内置属性，去掉
                 map.put("!" + key, true);
@@ -1440,6 +1456,11 @@ public class WnIoImpl2 implements WnIo {
         catch (Exception e) {
             throw Er.wrap(e);
         }
+    }
+
+    @Override
+    public InputStream getInputStream(WnObj o) {
+        return getInputStream(o, 0);
     }
 
     @Override

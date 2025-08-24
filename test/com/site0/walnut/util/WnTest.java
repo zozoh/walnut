@@ -300,7 +300,7 @@ public class WnTest extends IoCoreTest {
         ((WnSimpleSession) sys.session).setTicket(R.UU32());
         ((WnSimpleSession) sys.session).setUser(me);
         sys.session.getEnv().put("HOME", "/home/zozoh");
-        sys.session.getEnv().put("PWD", "$HOME/workspace/test");
+        sys.session.getEnv().put("PWD", "${HOME}/workspace/test");
         sys.session.getEnv().put("ABC", "haha");
 
         assertEquals("/home/zozoh/bin", Wn.normalizePath("~/bin", sys));

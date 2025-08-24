@@ -10,9 +10,9 @@ import com.site0.walnut.util.Wn;
 
 public class XoSha1ReadHandle extends WnIoReadHandle {
 
-    private XoSha1BM bm;
+    private VXDataSignBM bm;
 
-    XoSha1ReadHandle(XoSha1BM bm) {
+    XoSha1ReadHandle(VXDataSignBM bm) {
         this.bm = bm;
     }
 

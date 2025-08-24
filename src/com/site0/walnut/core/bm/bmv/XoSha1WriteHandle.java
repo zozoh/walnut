@@ -7,9 +7,9 @@ import com.site0.walnut.core.bm.WnIoWriteSwapHandle;
 
 public class XoSha1WriteHandle extends WnIoWriteSwapHandle {
 
-    private XoSha1BM bm;
+    private VXDataSignBM bm;
 
-    XoSha1WriteHandle(XoSha1BM bm) {
+    XoSha1WriteHandle(VXDataSignBM bm) {
         this.bm = bm;
     }
 
