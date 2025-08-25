@@ -9,6 +9,7 @@ import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.core.bm.WnIoWriteSwapHandle;
 import com.site0.walnut.core.indexer.vofs.WnVofsObj;
+import com.site0.walnut.ext.xo.bean.XoBean;
 import com.site0.walnut.util.Wlang;
 
 public class VofsBMWriteHandle extends WnIoWriteSwapHandle {
@@ -34,6 +35,8 @@ public class VofsBMWriteHandle extends WnIoWriteSwapHandle {
         NutMap meta = Wlang.map("sha1", sha1);
         try {
             bm.api.write(key, ins, meta);
+            XoBean xo = bm.api.getObj(key);
+            ((WnVofsObj) obj).setXo(xo);
         }
         finally {
             Streams.safeClose(ins);

@@ -1,5 +1,7 @@
 package com.site0.walnut.core.bm.vofs;
 
+import org.nutz.lang.util.NutMap;
+
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIoIndexer;
 import com.site0.walnut.api.io.WnObj;
@@ -12,6 +14,7 @@ import com.site0.walnut.core.indexer.vofs.WnVofsObj;
 import com.site0.walnut.ext.xo.impl.XoService;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.Wsum;
 
 public class VofsBM extends AbstractIoBM {
 
@@ -87,7 +90,9 @@ public class VofsBM extends AbstractIoBM {
             int sz = Math.min((int) len, content.length);
             byte[] bs = new byte[sz];
             System.arraycopy(content, 0, bs, 0, sz);
-            api.writeBytes(objKey, bs, null);
+            String sha1 = Wsum.sha1AsString(bs);
+            NutMap meta = Wlang.map("sha1", sha1);
+            api.writeBytes(objKey, bs, meta);
         }
         return 0;
     }

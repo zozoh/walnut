@@ -74,7 +74,7 @@ public class CosXoService extends AbstractXoService<COSClient> {
     }
 
     private ObjectMetadata __to_cos_meta_data(Map<String, Object> meta) {
-        XoMeta xmeta = to_meta_data(meta, false, true);
+        XoMeta xmeta = to_meta_data(meta, true, true);
         ObjectMetadata md = new ObjectMetadata();
         __join_meta_data(md, xmeta);
         return md;
@@ -87,9 +87,10 @@ public class CosXoService extends AbstractXoService<COSClient> {
         if (null != xmeta.title) {
             md.setContentDisposition(xmeta.title);
         }
-        if (null != xmeta.sha1) {
-            md.setETag(xmeta.sha1);
-        }
+        // 貌似设置了也木有用
+        // if (null != xmeta.sha1) {
+        // md.setETag(xmeta.sha1);
+        // }
         if (null != xmeta.userMeta && !xmeta.userMeta.isEmpty()) {
             md.setUserMetadata(xmeta.userMeta);
         }

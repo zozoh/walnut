@@ -30,6 +30,8 @@ import com.site0.walnut.core.bm.bml.LocalSha1BM;
 import com.site0.walnut.core.bm.localfile.LocalFileBM;
 import com.site0.walnut.core.bm.localfile.LocalFileWBM;
 import com.site0.walnut.core.bm.redis.RedisBM;
+import com.site0.walnut.core.bm.vofs.VofsBM;
+import com.site0.walnut.core.bm.bmv.VXDataSignBM;
 import com.site0.walnut.core.hdl.redis.RedisIoHandleManager;
 import com.site0.walnut.core.indexer.localfile.LocalFileIndexer;
 import com.site0.walnut.core.indexer.localfile.LocalFileWIndexer;
@@ -48,6 +50,7 @@ import com.site0.walnut.core.mapping.indexer.LocalFileWIndexerFactory;
 import com.site0.walnut.core.refer.redis.RedisReferService;
 import com.site0.walnut.ext.sys.redis.Wedis;
 import com.site0.walnut.ext.sys.redis.WedisConfig;
+import com.site0.walnut.ext.xo.impl.XoService;
 import com.site0.walnut.impl.box.JvmBoxService;
 import com.site0.walnut.impl.box.JvmExecutorFactory;
 import com.site0.walnut.impl.hook.CachedWnHookService;
@@ -168,7 +171,7 @@ public class IoCoreSetup {
         options.sessionShortDu = 3;
         options.wechatMpOpenIdKey = "wxmp_openid";
         options.wechatGhOpenIdKey = "wxgh_openid";
-        
+
         // 检查关键目录
         io2.createIfNoExists(null, "/var/session", WnRace.DIR);
         io2.createIfNoExists(null, "/sys/usr", WnRace.DIR);
@@ -245,7 +248,11 @@ public class IoCoreSetup {
             String phSwap = Disks.normalize(_pp.get("io-bm-swap"));
             WnIoHandleManager handles = this.getWnIoHandleManager();
             WnReferApi refers = this.getWnReferApi();
-            _globalBM = new LocalSha1BM(handles, phBucket, phSwap, true, refers);
+            _globalBM = new LocalSha1BM(handles,
+                                        phBucket,
+                                        phSwap,
+                                        true,
+                                        refers);
         }
         return _globalBM;
     }
@@ -302,6 +309,25 @@ public class IoCoreSetup {
             Files.createDirIfNoExists(dHome);
         }
         return new LocalFileWBM(handles, dHome);
+    }
+
+    public VofsBM getVofsBM(XoService api) {
+        WnIoHandleManager handles = this.getWnIoHandleManager();
+        String phSwap = Disks.normalize(_pp.get("io-bm-swap"));
+        return new VofsBM(handles, phSwap, api);
+    }
+
+    public VXDataSignBM getVxDataSignBM(XoService api) {
+        WnIoHandleManager handles = this.getWnIoHandleManager();
+        String phSwap = Disks.normalize(_pp.get("io-bm-swap"));
+        WnReferApi refers = this.getWnReferApi();
+        return new VXDataSignBM(handles,
+                                phSwap,
+                                true,
+                                "sha1",
+                                "22",
+                                api,
+                                refers);
     }
 
     public RedisBM getRedisBM() {

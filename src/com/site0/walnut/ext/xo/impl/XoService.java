@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.nutz.lang.Each;
 
-import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.xo.bean.XoBean;
 
 public interface XoService {

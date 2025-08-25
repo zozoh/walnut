@@ -44,7 +44,7 @@ public abstract class AbstractWnIoBMTest extends IoCoreTest {
 
         // 验证
         assertEquals(str.length(), o.len());
-        assertEquals(sha1, this.getObjSha1ForTest(sha1));
+        assertEquals(sha1, getObjSha1ForTest(sha1));
 
         // 剪裁
         bm.truncate(o, 3, indexer);
@@ -82,7 +82,7 @@ public abstract class AbstractWnIoBMTest extends IoCoreTest {
 
         // 验证
         assertEquals(str.length(), o.len());
-        assertEquals(sha1, this.getObjSha1ForTest(sha1));
+        assertEquals(sha1, getObjSha1ForTest(sha1));
 
         // 准备读回来
         h = bm.open(o, Wn.S.R, indexer);

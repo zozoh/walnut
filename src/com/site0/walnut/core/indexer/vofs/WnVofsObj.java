@@ -37,6 +37,11 @@ public class WnVofsObj extends NutMap implements WnObj {
         this.oRoot = oRoot;
         this.api = api;
         this.mimes = mimes;
+        setXo(xo);
+    }
+
+    public void setXo(XoBean xo) {
+        this.clear();
         this.xo = xo;
         this._put_all_to_map(this);
     }
@@ -409,7 +414,11 @@ public class WnVofsObj extends NutMap implements WnObj {
 
     @Override
     public String sha1() {
-        return xo.getEtag();
+        String sha1 = xo.userMeta().getString("sha1");
+        if (Ws.isBlank(sha1)) {
+            sha1 = xo.getEtag();
+        }
+        return sha1;
     }
 
     @Override
@@ -527,6 +536,7 @@ public class WnVofsObj extends NutMap implements WnObj {
         map.put("d1", d1());
         map.put("md", mode());
         map.put("len", len());
+        map.put("sha1", sha1());
         map.put("mnt", oRoot.mount());
         map.put("race", race());
         map.put("mime", mime());

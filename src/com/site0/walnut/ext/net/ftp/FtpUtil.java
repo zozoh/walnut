@@ -86,7 +86,7 @@ public class FtpUtil {
             wobj.id(parent.id() + ":ftp:%%" + wobj.name());
         }
         wobj.mount(parent.mount() + "/" + wobj.name());
-        wobj.data(wobj.mount());
+        //wobj.data(wobj.mount());
         
         if (ftpFile.isDirectory()) {
             wobj.race(WnRace.DIR);
