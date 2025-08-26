@@ -3,6 +3,7 @@ package com.site0.walnut.ext.net.mailx.impl;
 import jakarta.mail.Message;
 
 public class WnMailIMAPRecieving extends WnMailRecieving {
+    
 
     /**
      * 邮件消息

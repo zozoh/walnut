@@ -342,13 +342,13 @@ public class WnMimeMail extends WnMail {
         return null;
     }
 
-    public int getNumber() {
-        return number;
-    }
-
-    public void setNumber(int number) {
-        this.number = number;
-    }
+//    public int getNumber() {
+//        return number;
+//    }
+//
+//    public void setNumber(int number) {
+//        this.number = number;
+//    }
 
     public String getMessageId() {
         return messageId;

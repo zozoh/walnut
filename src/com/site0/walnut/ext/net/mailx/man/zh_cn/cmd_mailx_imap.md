@@ -1,43 +1,45 @@
 # 过滤器简介
 
-`@imap` 向 IMAP 服务器收取邮件。他会读取 `mailx`的配置`imap`段内容作为配置：
+`@imap` 向 IMAP 服务器收取邮件。它会读取 `mailx`的配置`imap`段内容作为配置：
 
 ```json5
-"imap": {
-  // IMAP 服务地址
-  "host":"outlook.office365.com",
-  // -1 表示采用默认端口
-  "port":-1,
-  // 邮箱账户
-  "account":"demo@abc.com",
-  // 邮箱密码
-  "password":"xxxxxxx",
-  // 值如果没有指定 authProvider， 则采用一个默认的认证实现
-  // 除了 office365 以外更多的 Provider 实现正在赶来的路上
-  "provider": {
-    "name": "office365",
-    "setup": {
-      "sslEnable": true,
-      "authMechanisms": "XOAUTH2",
-      "authority": "https://login.microsoftonli....",
-      "clientId": "9b...06",
-      // 如果不指定，则相当于获取下面所有权限
-      "scope": [
-        "offline_access",
-        "email",
-        "https://outlook.office.com/IMAP.AccessAsUser.All",
-        //"https://outlook.office.com/POP.AccessAsUser.All",
-        //"https://outlook.office.com/SMTP.Send"
-      ],
-      // 指明 access_token 的缓存路径
-      // 可以是绝对路径，如果是相对路径，则表示与 config 文件
-      // 相同的目录。
-      "cachePath": "office356_access_token"
-    }
-  },
-  // 收件箱文件夹名称，默认为 INBOX
-  // 如果收信时不特别指定文件夹，则默认就采用这个文件夹
-  "inboxName":"INBOX"
+{
+  "imap": {
+    // IMAP 服务地址
+    "host":"outlook.office365.com",
+    // -1 表示采用默认端口
+    "port":-1,
+    // 邮箱账户
+    "account":"demo@abc.com",
+    // 邮箱密码
+    "password":"xxxxxxx",
+    // 值如果没有指定 authProvider， 则采用一个默认的认证实现
+    // 除了 office365 以外更多的 Provider 实现正在赶来的路上
+    "provider": {
+      "name": "office365",
+      "setup": {
+        "sslEnable": true,
+        "authMechanisms": "XOAUTH2",
+        "authority": "https://login.microsoftonli....",
+        "clientId": "9b...06",
+        // 如果不指定，则相当于获取下面所有权限
+        "scope": [
+          "offline_access",
+          "email",
+          "https://outlook.office.com/IMAP.AccessAsUser.All",
+          //"https://outlook.office.com/POP.AccessAsUser.All",
+          //"https://outlook.office.com/SMTP.Send"
+        ],
+        // 指明 access_token 的缓存路径
+        // 可以是绝对路径，如果是相对路径，则表示与 config 文件
+        // 相同的目录。
+        "cachePath": "office356_access_token"
+      }
+    },
+    // 收件箱文件夹名称，默认为 INBOX
+    // 如果收信时不特别指定文件夹，则默认就采用这个文件夹
+    "inboxName": "INBOX"
+  }
 }
 ```
 
@@ -47,7 +49,7 @@
 @imap
 # 指定一个收件箱文件夹名称，如果不指定
 # 则会采用全局默认配置
-[INBOX]           
+[INBOX]
 # 指定一个要存储消息的临时目录, 如果不指定，则仅仅是打印邮件头
 # 因为保存邮件的正文和附件，有可能导致邮件被标志已读
 # 不指定存储目标的方式，可以用来调试输出
@@ -94,16 +96,12 @@
 [-debug]          # 即使是输出到数据集也要打印调试信息，默认是不打印
 [-json]           # 输出数据集后，也将输出的数据控制台输出，采用 json 的方式
 [-cqn]            # 如果是控制台输出，JSON模式的格式化
-# 写入邮件完毕后的回调，是个命令模板调）
-# 模板参数上下文为整个邮件对象
+# 写入邮件完毕后的回调命令模板
+# 参数上下文为整个邮件对象
 # 如果 callback 的命令比较复杂，可以存放在一个文本文件里
 # 譬如 -after o:~/tmp/mycallback
 [-after xxx]
-# 如果邮件很多，为了加快处理进度，我们需要启动一个线程池来处理每一封邮件的收发
-# 这个参数给出了这个线程池的基础线程数和最大线程数
-# 当然你的参数只有一个数字，譬如 5，则表示它会固定采用 5 个线程来处理这个问题
-# 默认的，它的值是 0 即不启用多线程
-[-pool 2:10]      
+     
 ```
 
 # 示例

@@ -59,8 +59,12 @@ public abstract class WnIoReadWriteSwapHandle extends WnIoReadWriteHandle {
                     Files.deleteFile(swap);
                 }
             }
+            catch (Throwable e) {
+                log.warn("IoW: Fail to delete SwapFile: %s" + swap, e);
+            }
             finally {
-                log.warnf("IoRW: Fail to delete SwapFile: %s", swap);
+                if (log.isDebugEnabled())
+                    log.debugf("IoW: OK for delete SwapFile: %s", swap);
             }
         }
 

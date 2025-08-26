@@ -81,17 +81,20 @@ public class S3XoService extends AbstractXoService<S3Client> {
     public void write(String objKey,
                       InputStream ins,
                       Map<String, Object> meta) {
-        long contentLength = -1;
-        try {
-            contentLength = ins.available();
-        }
-        catch (IOException e) {
-            throw Er.wrap(e);
+        XoMeta xmeta = to_meta_data(meta, true, true);
+        long len = xmeta.len;
+        if (len < 0) {
+            try {
+                len = ins.available();
+            }
+            catch (IOException e) {
+                throw Er.wrap(e);
+            }
         }
         // 未知流大小，采用分片上传,或者超过5M文件
         long M5 = 5 * 1024 * 1024L;
-        if (contentLength < 0 || contentLength >= M5) {
-            multipartWrite(objKey, ins, meta);
+        if (len < 0 || len >= M5) {
+            multipartWrite(objKey, ins, xmeta);
             return;
         }
 
@@ -99,9 +102,6 @@ public class S3XoService extends AbstractXoService<S3Client> {
         S3Client client = xc.getClient();
         String bucket = xc.getBucket();
         String objPath = xc.getObjPath(objKey);
-
-        // 准备元数据
-        XoMeta xmeta = to_meta_data(meta, true, true);
 
         // 创建上传请求
         PutObjectRequest req = PutObjectRequest.builder()
@@ -113,7 +113,7 @@ public class S3XoService extends AbstractXoService<S3Client> {
             .build();
 
         // 准备请求体
-        RequestBody body = RequestBody.fromInputStream(ins, contentLength);
+        RequestBody body = RequestBody.fromInputStream(ins, len);
 
         // 上传对象
         client.putObject(req, body);
@@ -122,14 +122,11 @@ public class S3XoService extends AbstractXoService<S3Client> {
 
     protected void multipartWrite(String objKey,
                                   InputStream ins,
-                                  Map<String, Object> meta) {
+                                  XoMeta xmeta) {
         XoClientWrapper<S3Client> xc = getter.get();
         S3Client client = xc.getClient();
         String bucket = xc.getBucket();
         String objPath = xc.getObjPath(objKey);
-
-        // 准备元数据
-        XoMeta xmeta = to_meta_data(meta, true, true);
 
         // 1. 初始化分块上传
         CreateMultipartUploadRequest createReq = CreateMultipartUploadRequest
@@ -401,7 +398,6 @@ public class S3XoService extends AbstractXoService<S3Client> {
         catch (NoSuchKeyException e) {
             throw Er.create("e.xo.obj.not.exists", src);
         }
-        
 
         // 3. 拷贝到自身，并写入新的元数据
         CopyObjectRequest copyReq = CopyObjectRequest.builder()

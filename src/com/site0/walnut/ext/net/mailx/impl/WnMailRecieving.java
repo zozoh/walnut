@@ -64,12 +64,16 @@ public abstract class WnMailRecieving implements Runnable {
     public String asContent;
 
     public Vector<WnObj> outputs;
-
+    
     public Session session;
 
     abstract protected Message getMailMessage();
 
     abstract protected String dump_mail_msg();
+    
+    private WnMimeMail mimeMail;
+    
+    private WnObj outputMailObj;
 
     @Override
     public void run() {
@@ -77,10 +81,11 @@ public abstract class WnMailRecieving implements Runnable {
             run_with_error();
         }
         catch (MessagingException e) {
-            String str = String.format("Error raised MailRecieving: i=%s, N=%s, msg=%s",
-                                       i,
-                                       N,
-                                       dump_mail_msg());
+            String str = String
+                .format("Error raised MailRecieving: i=%s, N=%s, msg=%s",
+                        i,
+                        N,
+                        dump_mail_msg());
             log.warn(str, e);
         }
     }
@@ -88,28 +93,29 @@ public abstract class WnMailRecieving implements Runnable {
     protected void run_with_error() throws MessagingException {
         // 获取邮件消息对象
         Message msg = this.getMailMessage();
-        
+
         // 解析为标准邮件对象
-        WnMimeMail mail = buildMail(msg);
-        
+        this.mimeMail = buildMail(msg);
+
         // 输出到数据集
         if (null != taTmpl) {
-            WnObj oMail = create_mail_obj(mail);
+            this.outputMailObj = create_mail_obj(mimeMail);
             // 计入结果
-            outputs.add(oMail);
+            outputs.add(outputMailObj);
         }
         // 仅仅打印信息
         else {
             LOG(sys,
                 debug,
-                "%s\n# %d/%d) <%s>: %s\n%s\n%s",
+                "%s\n# %d/%d) id=%s; sender=%s; subject=[%s]\n%s\n%s",
                 HR,
                 i,
                 N,
-                mail.getSender(),
-                mail.getSubject(),
+                mimeMail.getMessageId(),
+                mimeMail.getSender(),
+                mimeMail.getSubject(),
                 HR,
-                mail.dumpString(showHeader));
+                mimeMail.dumpString(showHeader));
         }
     }
 
@@ -136,19 +142,26 @@ public abstract class WnMailRecieving implements Runnable {
     protected SmimeKey preparePkcs7SmimeKey() {
         WnMailSecurity secu = fc.mail.getSecurity();
         Pkcs12Config pkcs12 = Mailx.createPkcs12Config(sys, secu);
-        ByteArrayInputStream storeIns = new ByteArrayInputStream(pkcs12.getPkcs12StoreData());
+        ByteArrayInputStream storeIns = new ByteArrayInputStream(pkcs12
+            .getPkcs12StoreData());
         char[] storePasswd = pkcs12.getStorePassword();
         SmimeKeyStore keyStore = new SmimeKeyStore(storeIns, storePasswd);
         String keyAlias = secu.getSign().getKeyAlias();
         String keyPasswd = secu.getSign().getKeyPassword();
-        SmimeKey smimeKey = keyStore.getPrivateKey(keyAlias, keyPasswd.toCharArray());
+        SmimeKey smimeKey = keyStore.getPrivateKey(keyAlias,
+                                                   keyPasswd.toCharArray());
         return smimeKey;
     }
 
     protected WnObj create_mail_obj(WnMimeMail mail) {
         // 不是 JSON 输出，也要打印到控制台
         // LOG(sys, debug, "%d/%d) %s", i, N, mail.toBrief());
-        LOG(sys, debug, "__create_mail_obj i=%d, N=%d, mailBrief=%s", i, N, mail.toBrief());
+        LOG(sys,
+            debug,
+            "__create_mail_obj i=%d, N=%d, mailBrief=%s",
+            i,
+            N,
+            mail.toBrief());
         NutMap meta = mail.toMeta(showHeader);
         meta.put("tp", "txt");
         meta.put("mime", "text/plain");
@@ -183,18 +196,19 @@ public abstract class WnMailRecieving implements Runnable {
         String mailAbsPath = Wn.normalizeFullPath(mailPath, sys, false);
         String mailParentPath = Files.getParent(mailAbsPath);
         String mailFileName = Files.getName(mailAbsPath);
-        WnObj oMailDir = sys.io.createIfNoExists(null, mailParentPath, WnRace.DIR);
+        WnObj oMailDir = sys.io
+            .createIfNoExists(null, mailParentPath, WnRace.DIR);
         WnObj oMail = sys.io.create(oMailDir, mailFileName, WnRace.FILE);
 
         // 写入对象元数据
         sys.io.appendMeta(oMail, meta);
-        LOG(sys, debug, "     IMAP appendMeta: %s", Json.toJson(meta));
+        LOG(sys, debug, "     Mail-Recieving appendMeta: %s", Json.toJson(meta));
         // 写入正文
         if (null != text) {
             sys.io.writeText(oMail, text);
-            LOG(sys, debug, "     IMAP writeText: len=%s", text.length());
+            LOG(sys, debug, "     Mail-Recieving writeText: len=%s", text.length());
         } else {
-            LOG(sys, debug, "     IMAP writeText: text is null");
+            LOG(sys, debug, "     Mail-Recieving writeText: text is null");
         }
 
         //
@@ -214,17 +228,25 @@ public abstract class WnMailRecieving implements Runnable {
                     ctx.attach(oMail);
                     String atPath = attachmentTmpl.render(ctx);
                     String atAbsPath = Wn.normalizeFullPath(atPath, sys, false);
-                    LOG(sys, debug, "     add attachment x=%d, fnm=%s => %s", x, fnm, atAbsPath);
+                    LOG(sys,
+                        debug,
+                        "     add attachment x=%d, fnm=%s => %s",
+                        x,
+                        fnm,
+                        atAbsPath);
                     String pPath = Files.getParent(atAbsPath);
                     String atName = Files.getName(atAbsPath);
-                    WnObj oAtP = sys.io.createIfNoExists(null, pPath, WnRace.DIR);
+                    WnObj oAtP = sys.io
+                        .createIfNoExists(null, pPath, WnRace.DIR);
                     WnObj oAtt = sys.io.create(oAtP, atName, WnRace.FILE);
                     byte[] data = att.getData();
                     sys.io.writeBytes(oAtt, data);
                     attachmentIds.add(oAtt.id());
                 }
                 if (attachmentIds.size() > 0) {
-                    sys.io.appendMeta(oMail, new NutMap("msg_attachments", attachmentIds));
+                    sys.io.appendMeta(oMail,
+                                      new NutMap("msg_attachments",
+                                                 attachmentIds));
                 }
             }
         }
@@ -246,4 +268,14 @@ public abstract class WnMailRecieving implements Runnable {
         }
         return oMail;
     }
+
+    public WnMimeMail getMimeMail() {
+        return mimeMail;
+    }
+
+    public WnObj getOutputMailObj() {
+        return outputMailObj;
+    }
+    
+    
 }

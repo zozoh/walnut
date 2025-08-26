@@ -26,7 +26,8 @@ public abstract class AbstractXoService<T> implements XoService {
         Map<String, String> userMeta;
         String mime = null;
         String title = null;
-        String sha1;
+        String sha1 = null;
+        long len = -1;
 
         void dftMime(String ct) {
             if (null == mime && !Ws.isBlank(ct)) {
@@ -45,6 +46,12 @@ public abstract class AbstractXoService<T> implements XoService {
                 this.sha1 = sha1;
             }
         }
+
+        void dftLen(long len) {
+            if (len < 0) {
+                this.len = len;
+            }
+        }
     }
 
     protected XoMeta to_meta_data(Map<String, Object> meta,
@@ -61,23 +68,40 @@ public abstract class AbstractXoService<T> implements XoService {
                     continue;
                 }
 
+                String s = null == val ? null : val.toString();
+
                 // 固定 mime
-                if ("mime".equals(key) && null != val) {
-                    re.mime = val.toString();
+                if ("mime".equals(key)) {
+                    re.mime = s;
+                }
+                // 固定 mime/Content-Type
+                else if ("Content-Type".equalsIgnoreCase(key)) {
+                    re.mime = s;
+                }
+                // 固定 len
+                if ("len".equals(key)) {
+                    re.len = null == s ? -1 : Long.parseLong(s);
+                }
+                // 固定 mime/Content-Length
+                else if ("Content-Length".equalsIgnoreCase(key)) {
+                    re.len = null == s ? -1 : Long.parseLong(s);
                 }
                 // 固定 title
-                else if ("title".equals(key) && null != val) {
-                    re.title = val.toString();
+                else if ("title".equals(key)) {
+                    re.title = s;
                 }
                 // SHA1 指纹
-                else if (!noSha1 && "sha1".equals(key) && null != val) {
-                    re.sha1 = val.toString();
+                else if (!noSha1 && "sha1".equals(key)) {
+                    re.sha1 = s;
+                }
+                // 内容长度
+                else if (!noSha1 && "sha1".equals(key)) {
+                    re.sha1 = s;
                 }
                 // 其他就是自定义属性
                 // 如果指定 noSha1 那么， sha1 也会加入到自定义元数据
                 // S3 在这点与 COS/OSS 有不同，它不支持
                 else {
-                    String s = null == val ? null : val.toString();
                     re.userMeta.put(key, s);
                 }
             }

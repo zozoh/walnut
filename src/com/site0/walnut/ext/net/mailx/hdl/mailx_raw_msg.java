@@ -1,6 +1,5 @@
 package com.site0.walnut.ext.net.mailx.hdl;
 
-
 import java.util.Date;
 
 import org.nutz.lang.util.NutMap;
@@ -22,12 +21,14 @@ public class mailx_raw_msg extends MailxFilter {
 
     @Override
     protected void process(WnSystem sys, MailxContext fc, ZParams params) {
+        // 禁止发送
+        fc.setQuiet(true);
+
         // 准备参数
         boolean showHeader = params.is("header");
         boolean isAutoDecrypt = params.is("decrypt");
         String asContent = params.getString("content");
         NutMap fixedMeta = params.getMap("meta");
-        fc.setQuiet(true);
 
         sys.out.printlnf("Parse %d raw MimeMessage", params.vals.length);
 
@@ -40,7 +41,10 @@ public class mailx_raw_msg extends MailxFilter {
             sys.out.printlnf("    > path: %s", aph);
 
             WnObj obj = sys.io.check(null, aph);
-            sys.out.printlnf("    > fobj: %s, len=%d, sha1=%s", obj, obj.len(), obj.sha1());
+            sys.out.printlnf("    > fobj: %s, len=%d, sha1=%s",
+                             obj,
+                             obj.len(),
+                             obj.sha1());
 
             String mimeText = sys.io.readText(obj);
 
@@ -60,7 +64,7 @@ public class mailx_raw_msg extends MailxFilter {
             rv.i = i;
             rv.N = params.vals.length;
             rv.fixedMeta = fixedMeta;
-            
+
             // 后续处理
             // rv.taTmpl = taTmpl;
             // rv.attachmentTmpl = attachmentTmpl;

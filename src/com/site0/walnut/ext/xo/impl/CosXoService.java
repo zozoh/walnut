@@ -73,8 +73,7 @@ public class CosXoService extends AbstractXoService<COSClient> {
         return this.getter.equals(ta.getter);
     }
 
-    private ObjectMetadata __to_cos_meta_data(Map<String, Object> meta) {
-        XoMeta xmeta = to_meta_data(meta, true, true);
+    private ObjectMetadata __to_cos_meta_data(XoMeta xmeta) {
         ObjectMetadata md = new ObjectMetadata();
         __join_meta_data(md, xmeta);
         return md;
@@ -101,21 +100,28 @@ public class CosXoService extends AbstractXoService<COSClient> {
     public void write(String objKey,
                       InputStream ins,
                       Map<String, Object> meta) {
-        long contentLength = -1;
-        try {
-            contentLength = ins.available();
+        XoMeta xmeta = to_meta_data(meta, true, true);
+        long len = xmeta.len;
+        if (len < 0) {
+            try {
+                len = ins.available();
+            }
+            catch (IOException e) {
+                throw Er.wrap(e);
+            }
         }
-        catch (IOException e) {
-            throw Er.wrap(e);
-        }
+
         // 未知流大小，采用分片上传,或者超过5M文件
         long M5 = 5 * 1024 * 1024L;
-        if (contentLength < 0 || contentLength >= M5) {
-            multipartWrite(objKey, ins, meta);
+        if (len < 0 || len >= M5) {
+            multipartWrite(objKey, ins, xmeta);
             return;
         }
 
-        ObjectMetadata metaData = __to_cos_meta_data(meta);
+        ObjectMetadata metaData = __to_cos_meta_data(xmeta);
+        if (len >= 0) {
+            metaData.setContentLength(len);
+        }
         XoClientWrapper<COSClient> xc = getter.get();
         COSClient client = xc.getClient();
         String bucket = xc.getBucket();
@@ -130,14 +136,14 @@ public class CosXoService extends AbstractXoService<COSClient> {
 
     protected void multipartWrite(String objKey,
                                   InputStream ins,
-                                  Map<String, Object> meta) {
+                                  XoMeta xmeta) {
         XoClientWrapper<COSClient> xc = getter.get();
         COSClient client = xc.getClient();
         String bucket = xc.getBucket();
         String objPath = xc.getObjPath(objKey);
 
         // 准备元数据
-        ObjectMetadata metaData = __to_cos_meta_data(meta);
+        ObjectMetadata metaData = __to_cos_meta_data(xmeta);
 
         // 1. 初始化分块上传
         InitiateMultipartUploadRequest initReq = new InitiateMultipartUploadRequest(bucket,
