@@ -48,7 +48,9 @@ public class cmd_sqlx extends JvmFilterExecutor<SqlxContext, SqlxFilter> {
         fc.sqls = Sqlx.getSqlHolderByPath(sys, dirPath);
 
         if (log.isDebugEnabled()) {
-            log.debugf("sqlx prepare: daoName=%s, dirPath=%s", daoName, dirPath);
+            log.debugf("sqlx prepare: daoName=%s, dirPath=%s",
+                       daoName,
+                       dirPath);
         }
 
         // 读取输入
@@ -62,7 +64,8 @@ public class cmd_sqlx extends JvmFilterExecutor<SqlxContext, SqlxFilter> {
         fc.setInput(input);
 
         if (log.isDebugEnabled()) {
-            log.debugf("sqlx prepare: input.size=%s", null == input ? "null" : input.size());
+            log.debugf("sqlx prepare: input.size=%s",
+                       null == input ? "null" : input.size());
         }
 
     }
@@ -74,6 +77,9 @@ public class cmd_sqlx extends JvmFilterExecutor<SqlxContext, SqlxFilter> {
                                  SqlxContext fc) {
         try {
             super._exec_filters(sys, hdlFilters, hdlParams, fc);
+            if (fc.hasHislogRuntime()) {
+                fc.hislog.insertToTarget();
+            }
         }
         // 遇到错误就回滚
         catch (Throwable e) {
@@ -89,36 +95,8 @@ public class cmd_sqlx extends JvmFilterExecutor<SqlxContext, SqlxFilter> {
             }
             throw Er.wrap(e);
         }
-    }
-
-    @Override
-    protected void onFinished(WnSystem sys, SqlxContext fc) {
-        // 处理历史记录
-        if (fc.hasHislogRuntime()) {
-            try {
-                fc.hislog.insertToTarget();
-            }
-            // 遇到错误就回滚
-            catch (Throwable e) {
-                if (fc.hasTransLevel()) {
-                    log.errorf("Rollback for insert hislog: %s", e.toString());
-                    try {
-                        fc.rollback();
-                    }
-                    catch (SQLException e1) {
-                        log.errorf("!!Rollback Fail: %s", e1.toString());
-                        throw Er.wrap(e1);
-                    }
-                }
-                throw Er.wrap(e);
-            }
-            // 总之要关闭当前上下文连接
-            finally {
-                fc.closeConnection();
-            }
-        }
         // 关闭上下文连接
-        else {
+        finally {
             fc.closeConnection();
         }
     }

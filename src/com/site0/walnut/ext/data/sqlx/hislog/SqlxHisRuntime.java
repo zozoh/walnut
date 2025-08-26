@@ -142,7 +142,7 @@ public class SqlxHisRuntime {
         // 获取连接
         Connection conn = null;
         try {
-            if (useSelftDao) {
+            if (!useSelftDao) {
                 WnDaoAuth auth = WnDaos.loadAuth(sys, ta.getDao());
                 conn = fc.getConnectionBy(auth, 1, false);
             } else {
@@ -176,7 +176,7 @@ public class SqlxHisRuntime {
             throw Er.wrap(e);
         }
         finally {
-            if (useSelftDao) {
+            if (!useSelftDao) {
                 fc.closeConnectionFor(conn);
             }
         }
