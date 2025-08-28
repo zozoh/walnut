@@ -2,6 +2,7 @@ package com.site0.walnut.ext.net.mailx.impl;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutBean;
@@ -38,7 +39,7 @@ public class WnMailPosting {
         this.vars = sessionVars;
     }
 
-    public void send(MailxSmtpConfig smtp, WnSmtpMail mail) {
+    public boolean send(MailxSmtpConfig smtp, WnSmtpMail mail) {
         // 小防守一把
         if (!smtp.hasAccount()) {
             throw Er.create("e.mailx.smtp.WithoutAccount");
@@ -156,7 +157,8 @@ public class WnMailPosting {
             .withTransportStrategy(smtp.getStrategy())
             .buildMailer();
         Email mo = builder.buildEmail();
-        mailer.sendMail(mo);
+        CompletableFuture<Void> re = mailer.sendMail(mo);
+        return re.isDone();
     }
 
 }

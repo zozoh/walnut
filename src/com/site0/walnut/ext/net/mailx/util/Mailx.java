@@ -86,7 +86,6 @@ public abstract class Mailx {
                                                   WnMailSecurity secu) {
         WnMailSign sign = secu.getSign();
         Pkcs12ConfigBuilder bu = Pkcs12Config.builder();
-        Pkcs12Config pkcs12;
 
         String storePath = sign.getStorePath();
         String storePasswd = sign.getStorePassword();
@@ -96,12 +95,17 @@ public abstract class Mailx {
         WnObj oStore = Wn.checkObj(io, sessoionVars, storePath);
         byte[] bs = io.readBytes(oStore);
 
-        pkcs12 = bu.pkcs12Store(bs)
-            .storePassword(storePasswd)
-            .keyAlias(keyAlias)
-            .keyPassword(keyPassword)
-            .build();
-        return pkcs12;
+        // pkcs12 = bu.pkcs12Store(bs)
+        // .storePassword(storePasswd)
+        // .keyAlias(keyAlias)
+        // .keyPassword(keyPassword)
+        // .build();
+
+        bu.pkcs12Store(bs);
+        bu.storePassword(storePasswd);
+        bu.keyAlias(keyAlias);
+        bu.keyPassword(keyPassword);
+        return bu.build();
     }
 
     public static void joinHeaders(StringBuilder sb,
