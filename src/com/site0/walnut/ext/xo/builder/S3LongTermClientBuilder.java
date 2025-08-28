@@ -1,6 +1,7 @@
 package com.site0.walnut.ext.xo.builder;
 
 import java.io.IOException;
+import java.net.URI;
 
 import org.nutz.lang.util.NutMap;
 
@@ -12,8 +13,13 @@ import com.site0.walnut.util.Ws;
 
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.http.SdkHttpClient;
+import software.amazon.awssdk.http.apache.ApacheHttpClient;
+import software.amazon.awssdk.http.apache.ProxyConfiguration;
+import software.amazon.awssdk.http.apache.ProxyConfiguration.Builder;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3ClientBuilder;
 
 public class S3LongTermClientBuilder extends AbstractXoClientBuilder<S3Client> {
 
@@ -70,6 +76,7 @@ public class S3LongTermClientBuilder extends AbstractXoClientBuilder<S3Client> {
         // if (null == allowActions || allowActions.length == 0) {
         // allowActions = Wlang.array("*");
         // }
+        loadProxyFromConfig(props);
     }
 
     @Override
@@ -102,23 +109,53 @@ public class S3LongTermClientBuilder extends AbstractXoClientBuilder<S3Client> {
     }
 
     private XoClientWrapper<S3Client> creaet_client() {
+        // 创建权鉴
         Region _region = Region.of(this.region);
         AwsBasicCredentials cred = AwsBasicCredentials.create(secretId,
                                                               secretKey);
+
+        // 准备工厂类
         StaticCredentialsProvider provider = StaticCredentialsProvider
             .create(cred);
-        S3Client s3 = S3Client.builder()
-            .region(_region)
-            .credentialsProvider(provider)
-            .build();
+        S3ClientBuilder s3b = S3Client.builder();
+        s3b.region(_region);
+        s3b.credentialsProvider(provider);
+
+        // 设置代理
+        if (this.hasProxy()) {
+            __setup_proxy(s3b);
+        }
+
+        // 创建客户端实例
+        S3Client s3 = s3b.build();
         re.setClient(s3);
         re.setBucket(bucket);
         re.setRegion(region);
         re.setPrefix(prefix);
+
         // 客户端是长期的，因此缓存时间搞个1天
         long now = System.currentTimeMillis();
         re.setExpiredAt(now + duration * 1000L);
         return re;
+    }
+
+    private void __setup_proxy(S3ClientBuilder s3b) {
+        // 创建 HTTP Client 配置代理
+        Builder pcb = ProxyConfiguration.builder();
+        String url = String
+            .format("%s://%s:%d", proxySchema, proxyHost, proxyPort);
+        pcb.endpoint(URI.create(url));
+        if (this.isProxyNeedAuth()) {
+            pcb.username(proxyUsername);
+            pcb.password(proxyPassword);
+        }
+        ProxyConfiguration proxyCfg = pcb.build();
+
+        // 构建客户端
+        SdkHttpClient httpClient = ApacheHttpClient.builder()
+            .proxyConfiguration(proxyCfg)
+            .build();
+        s3b.httpClient(httpClient);
     }
 
 }
