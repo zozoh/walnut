@@ -23,10 +23,7 @@
 # 示例
 
 ```bash
-# 加载两个附件对象
-mailx @at ~/a.jpg ~/b.zip
-
-# 从标准输入加载附件
-cat ~/test.zip | mail @at -name tt.zip -mime application/zip
+# 解析指定邮件
+mailx @raw_msg ~/path/to/mail.mime.txt
 ```
 

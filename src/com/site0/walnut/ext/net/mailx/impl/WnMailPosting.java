@@ -54,11 +54,10 @@ public class WnMailPosting {
         // 设置发件人
         //
         if (smtp.hasAlias()) {
-            builder = EmailBuilder.startingBlank().from(smtp.getAccount());
-        }
-        // 仅有地址
-        else {
-            builder = EmailBuilder.startingBlank().from(smtp.getAccount());
+            builder = EmailBuilder.startingBlank()
+                .from(smtp.getAlias(), smtp.getMailFrom());
+        } else {
+            builder = EmailBuilder.startingBlank().from(smtp.getMailFrom());
         }
 
         // to/cc/bcc
@@ -122,7 +121,8 @@ public class WnMailPosting {
             if (secu.isSMIME()) {
                 // 签名设置
                 if (secu.hasSign()) {
-                    Pkcs12Config pkcs12 = Mailx.createPkcs12Config(io, vars, secu);
+                    Pkcs12Config pkcs12 = Mailx
+                        .createPkcs12Config(io, vars, secu);
                     builder.signWithSmime(pkcs12);
                 }
 
@@ -148,12 +148,13 @@ public class WnMailPosting {
         //
         // 搞定，发送
         //
-        Mailer mailer = MailerBuilder.withSMTPServer(smtp.getHost(),
-                                                     smtp.getPort(),
-                                                     smtp.getAccount(),
-                                                     smtp.getPassword())
-                                     .withTransportStrategy(smtp.getStrategy())
-                                     .buildMailer();
+        Mailer mailer = MailerBuilder
+            .withSMTPServer(smtp.getHost(),
+                            smtp.getPort(),
+                            smtp.getAccount(),
+                            smtp.getPassword())
+            .withTransportStrategy(smtp.getStrategy())
+            .buildMailer();
         Email mo = builder.buildEmail();
         mailer.sendMail(mo);
     }
