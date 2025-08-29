@@ -25,6 +25,8 @@ import org.simplejavamail.mailer.MailerBuilder;
 
 public class WnMailPosting {
 
+    // private static final Log log = Wlog.getCMD();
+
     private WnIo io;
 
     private NutBean vars;
@@ -118,6 +120,9 @@ public class WnMailPosting {
         // security
         if (mail.hasSecurity()) {
             WnMailSecurity secu = mail.getSecurity();
+            // if (log.isInfoEnabled()) {
+            // log.infof("mail.security=%s", secu.toString());
+            // }
             // SMIMI
             if (secu.isSMIME()) {
                 // 签名设置

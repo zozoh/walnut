@@ -30,6 +30,10 @@ public class WnMailSign {
         }
     }
 
+    public String toString() {
+        return String.format("path=%s,passwd=[%s],alias=[%s],kpwd=[%s]", storePath,storePassword, keyAlias, keyPassword);
+    }
+
     public String getStorePath() {
         return storePath;
     }
