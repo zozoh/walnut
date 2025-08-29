@@ -5,8 +5,12 @@ import org.junit.runners.Suite;
 
 import com.site0.walnut.val.date.UTCDateMakerTest;
 import com.site0.walnut.val.date.UTCTimestampMakerTest;
+import com.site0.walnut.val.id.WnSeqDMakerTest;
 import com.site0.walnut.val.id.WnSnowQMakerTest;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({WnSnowQMakerTest.class, UTCDateMakerTest.class, UTCTimestampMakerTest.class})
+@Suite.SuiteClasses({WnSnowQMakerTest.class,
+                     WnSeqDMakerTest.class,
+                     UTCDateMakerTest.class,
+                     UTCTimestampMakerTest.class})
 public class AllValMakerTest {}

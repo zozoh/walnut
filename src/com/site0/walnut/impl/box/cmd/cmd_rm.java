@@ -24,7 +24,7 @@ public class cmd_rm extends JvmExecutor {
         boolean isH = params.is("H");
 
         // limit
-        //int limit = params.getInt("limit", 0);
+        // int limit = params.getInt("limit", 0);
 
         // 参数错误
         if (params.vals.length < 1) {
@@ -54,7 +54,10 @@ public class cmd_rm extends JvmExecutor {
                     pph = ph.substring(0, pos + 1);
                     name = ph.substring(pos + 1).trim();
                 }
-                WnObj oP = Wn.checkObj(sys, pph);
+                WnObj oP = oCurrent;
+                if (null != pph) {
+                    oP = Wn.checkObj(sys, pph);
+                }
                 List<WnObj> objs = sys.io.getChildren(oP, name);
                 for (WnObj o : objs) {
                     _do_delete(sys, isV, isR, isI, isH, count, base, o);
