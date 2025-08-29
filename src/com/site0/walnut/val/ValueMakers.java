@@ -41,6 +41,15 @@ public abstract class ValueMakers {
         return vmk;
     }
 
+    public static ValueMaker build(WnIo io, NutBean vars, String input) {
+        ValueMaker vmk = ValueMakers.build(input, new SeqMakerBuilder() {
+            public SeqMaker build(WnSeqInfo info) {
+                return ValueMakers.getSeqMaker(io, vars, info);
+            }
+        });
+        return vmk;
+    }
+
     public static ValueMaker build(String input, SeqMakerBuilder seqBuilder) {
         String typ = input;
         String val = null;
@@ -71,7 +80,9 @@ public abstract class ValueMakers {
         }
     }
 
-    public static ValueMaker build(String type, String setup, SeqMakerBuilder seqBuilder) {
+    public static ValueMaker build(String type,
+                                   String setup,
+                                   SeqMakerBuilder seqBuilder) {
         if ("uu32".equalsIgnoreCase(type)) {
             return new WnUU32Maker();
         }

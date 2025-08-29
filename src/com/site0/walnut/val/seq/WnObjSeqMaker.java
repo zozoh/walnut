@@ -27,9 +27,10 @@ public class WnObjSeqMaker implements SeqMaker {
     @Override
     public long make(Date hint, NutBean context) {
         String fname;
-        // ~/path/to/d=yyyy-MM-dd#key
-        if (format.startsWith("d=")) {
-            fname = Wtime.formatUTC(hint, format);
+        // ~/path/to/@yyyy-MM-dd#key
+        if (format.startsWith("@")) {
+            String fmt = format.substring(1).trim();
+            fname = Wtime.formatUTC(hint, fmt);
         }
         // ~/path/to/global#key
         else {
