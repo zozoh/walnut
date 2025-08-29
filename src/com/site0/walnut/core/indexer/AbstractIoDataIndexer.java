@@ -12,9 +12,11 @@ import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import com.site0.walnut.util.Wlog;
+import com.site0.walnut.api.GetWnIo;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.MimeMap;
 import com.site0.walnut.api.io.WalkMode;
+import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.api.io.WnRace;
@@ -31,6 +33,20 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
 
     protected AbstractIoDataIndexer(WnObj root, MimeMap mimes) {
         super(root, mimes);
+    }
+
+    private GetWnIo getIo;
+
+    public GetWnIo getGetIo() {
+        return getIo;
+    }
+
+    public void setGetIo(GetWnIo getIo) {
+        this.getIo = getIo;
+    }
+
+    protected WnIo getIo() {
+        return getIo.get();
     }
 
     // @Override
@@ -226,7 +242,8 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
             }
             // 确保设置索引管理器
             if (o instanceof WnIoObj) {
-                ((WnIoObj) o).setIndexer(this);
+                // ((WnIoObj) o).setIndexer(this);
+                ((WnIoObj) o).setIo(getIo.get());
             }
             // 确保补全两段式 ID
             if (p.isMount() && !o.hasMountRootId()) {
@@ -376,7 +393,8 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         // 创建自身
         WnIoObj o = new WnIoObj();
         long now = Wn.now();
-        o.setIndexer(this);
+        // o.setIndexer(this);
+        o.setIo(getIo.get());
         o.id(id);
         o.name(name);
         o.race(race);
@@ -434,7 +452,8 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
             throw Er.create("e.io.NilParent");
         }
         // 设置索引管理器
-        ((WnIoObj) o).setIndexer(this);
+        // ((WnIoObj) o).setIndexer(this);
+        ((WnIoObj) o).setIo(getIo.get());
         // 不匹配的父节点
         if (!o.isMyParent(p)) {
             throw Er.create("e.io.NotMyParent",

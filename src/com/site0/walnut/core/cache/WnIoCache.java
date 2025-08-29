@@ -56,18 +56,21 @@ public class WnIoCache extends WnIoCacheOptions {
         idCache = new WnInterimCache<>(objDuInSec, objCleanThreshold);
         pathCache = new WnInterimCache<>(objDuInSec, objCleanThreshold);
         sha1Cache = new WnInterimCache<>(sha1DuInSec, sha1CleanThreshold);
+
         // SHA1 缓存应该是需要有获取更新过期时间机制的
         // 这样频繁访问的内容才更容易被访问到
         ((WnInterimCache<byte[]>) sha1Cache).setTouchWhenGet(true);
     }
 
     public WnObj getObjById(String id) {
-        return idCache.get(id);
+        WnObj o = idCache.get(id);
+        return __check_if_no_cached(o);
     }
 
     public WnObj fetchByPath(String path) {
         path = __tidy_path(path);
-        return pathCache.get(path);
+        WnObj o = pathCache.get(path);
+        return __check_if_no_cached(o);
     }
 
     private String __tidy_path(String path) {
@@ -77,8 +80,20 @@ public class WnIoCache extends WnIoCacheOptions {
         return path;
     }
 
+    private WnObj __check_if_no_cached(WnObj o) {
+        if (null != o && o.getBoolean("no_cached")) {
+            idCache.remove(o.id());
+            pathCache.remove(o.path());
+        }
+        return o;
+    }
+
     public void cacheObj(WnObj o) {
         if (null == o) {
+            return;
+        }
+        // 明确指定不缓存
+        if (o.getBoolean("no_cached")) {
             return;
         }
         String oid = o.id();
@@ -129,17 +144,33 @@ public class WnIoCache extends WnIoCacheOptions {
         if (Ws.isBlank(idPath)) {
             return;
         }
+
+        String objId = null;
+        String objPath = null;
         // 用 ID 作为路径
         if (idPath.startsWith("id:")) {
             String id = idPath.substring(3).trim();
-            idCache.remove(id);
+            WnObj o = idCache.get(id);
+            if (null != o) {
+                objId = id;
+                objPath = o.path();
+            }
         }
         // 直接就是路径
         else {
             String path = idPath;
             path = __tidy_path(path);
-            pathCache.remove(path);
+            WnObj o = pathCache.get(path);
+            if (null != o) {
+                objId = o.id();
+                objPath = o.path();
+            }
         }
+        if (null != objId)
+            idCache.remove(objId);
+
+        if (null != objPath)
+            pathCache.remove(objPath);
     }
 
     public byte[] getBytes(String sha1) {

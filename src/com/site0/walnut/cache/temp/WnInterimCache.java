@@ -1,10 +1,10 @@
 package com.site0.walnut.cache.temp;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import com.site0.walnut.cache.WnCache;
 
@@ -27,7 +27,7 @@ public class WnInterimCache<T> implements WnCache<T> {
     public WnInterimCache(int duInSec, int cleanThreshold) {
         this.duInMs = duInSec * 1000L;
         this.cleanThreshold = cleanThreshold;
-        this.map = new HashMap<>();
+        this.map = new WeakHashMap<>();
     }
 
     @Override

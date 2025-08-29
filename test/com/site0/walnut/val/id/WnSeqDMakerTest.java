@@ -51,10 +51,11 @@ public class WnSeqDMakerTest extends BaseIoTest {
 
         WnObj o = io.check(oSeq, yyyy_MM);
         assertEquals(yyyy_MM, o.name());
-        
+        assertTrue(o.getBoolean("no_cached"));
+
         // 修改序列数量 1+123 = 124
         io.inc(o.id(), "skey", 123, false);
-        
+
         Object v1 = vm.make(now, context);
         // 250829000001
         assertEquals(yyMMdd + "0125", v1);

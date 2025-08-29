@@ -7,6 +7,7 @@ import org.nutz.lang.util.NutBean;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wtime;
 import com.site0.walnut.val.SeqMaker;
 
@@ -37,6 +38,11 @@ public class WnObjSeqMaker implements SeqMaker {
             fname = format;
         }
         WnObj o = io.createIfNoExists(p, fname, WnRace.FILE);
+
+        // 绝不缓存
+        if (!o.getBoolean("no_cached")) {
+            io.appendMeta(o, Wlang.map("no_cached", true));
+        }
         // 默认3日过期
         if (o.expireTime() <= 0) {
             // TODO 根据 format 自行决定默认的过期时间

@@ -31,9 +31,9 @@ public class WnIoCacheWrapper extends AbstractWnIoWrapper {
 
     private void __init_dft_fields() {
         this.cache = new WnIoCache();
-        this.cache.objDuInSec = 300;
+        this.cache.objDuInSec = 3;
         this.cache.objCleanThreshold = 1000;
-        this.cache.sha1DuInSec = 600;
+        this.cache.sha1DuInSec = 3600;
         this.cache.sha1CleanThreshold = 1000;
         this.cache.ready();
     }
@@ -405,6 +405,19 @@ public class WnIoCacheWrapper extends AbstractWnIoWrapper {
         WnObj o2 = super.createById(p, id, name, race);
         cache.removeFromCache(o2.parent());
         return o2;
+    }
+
+    @Override
+    public int inc(String id, String key, int val, boolean returnNew) {
+        cache.removeFromCache(id);
+        return super.inc(id, key, val, returnNew);
+    }
+
+    @Override
+    public int inc(WnQuery q, String key, int val, boolean returnNew) {
+        WnObj o = super.getOne(q);
+        cache.removeFromCache(o);
+        return super.inc(q, key, val, returnNew);
     }
 
     @Override

@@ -106,7 +106,8 @@ public class MongoIndexer extends AbstractIoDataIndexer {
             // 时间戳转日期
             if (WnAggTransMode.TIMESTAMP_TO_DATE == gk.getFunc()) {
                 Date d1970 = Wtime.parseDate("1970-01-01T00:00:00");
-                NutMap dscDate = Wlang.map("$add", Wlang.list(d1970, "$" + gkFrom));
+                NutMap dscDate = Wlang.map("$add",
+                                           Wlang.list(d1970, "$" + gkFrom));
                 NutMap dsCovert = new NutMap();
                 dsCovert.put("format", "%Y-%m-%d");
                 dsCovert.put("date", dscDate);
@@ -203,7 +204,8 @@ public class MongoIndexer extends AbstractIoDataIndexer {
         ZMoDoc doc = ZMoDoc.WRAP(dbobj);
         WnIoObj obj = Mongos.toWnObj(doc);
         if (null != obj) {
-            obj.setIndexer(this);
+            // obj.setIndexer(this);
+            obj.setIo(getIo());
         }
         return obj;
     }
@@ -214,7 +216,8 @@ public class MongoIndexer extends AbstractIoDataIndexer {
         ZMoDoc doc = ZMoDoc.WRAP(dbobj);
         WnIoObj obj = Mongos.toWnObj(doc);
         if (null != obj) {
-            obj.setIndexer(this);
+            // obj.setIndexer(this);
+            obj.setIo(getIo());
         }
         return obj;
     }
@@ -284,7 +287,8 @@ public class MongoIndexer extends AbstractIoDataIndexer {
             // 执行结果
             if (null != doc) {
                 o = Mongos.toWnObj(doc);
-                o.setIndexer(this);
+                // o.setIndexer(this);
+                o.setIo(getIo());
             }
         }
 
@@ -441,12 +445,14 @@ public class MongoIndexer extends AbstractIoDataIndexer {
         // 对id的正则表达式进行更多的检查
         if (qDoc.containsKey("id")) {
             Object tmp = qDoc.get("id");
-            if (tmp != null && tmp instanceof Pattern && tmp.toString().equals("^")) {
+            if (tmp != null
+                && tmp instanceof Pattern
+                && tmp.toString().equals("^")) {
                 throw new RuntimeException("count with id:/^/ is not allow");
             }
         }
 
-        return (int)co.countDocuments(qDoc);
+        return (int) co.countDocuments(qDoc);
     }
 
     @Override

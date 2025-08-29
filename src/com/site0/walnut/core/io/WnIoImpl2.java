@@ -24,6 +24,8 @@ import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
+
+import com.site0.walnut.api.GetWnIo;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.MimeMap;
 import com.site0.walnut.api.io.WalkMode;
@@ -86,14 +88,30 @@ public class WnIoImpl2 implements WnIo {
      */
     protected WnIoActionCallback whenWrite;
 
+    /**
+     * 子类可以覆盖这个函数，以便让自己注入到 Indexer/WnIoObj 里
+     * 
+     * @return
+     */
+    protected WnIo _get_io() {
+        return this;
+    };
+
     public WnIoImpl2() {}
 
     public WnIoImpl2(WnIoMappingFactory mappings) {
-        this.mappings = mappings;
+        this.setMappings(mappings);
     }
 
     public void setMappings(WnIoMappingFactory mappings) {
         this.mappings = mappings;
+        if (null != mappings) {
+            mappings.setGetIo(new GetWnIo() {
+                public WnIo get() {
+                    return _get_io();
+                }
+            });
+        }
     }
 
     public void setWhenDelete(WnIoActionCallback whenDelete) {
