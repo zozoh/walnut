@@ -3,10 +3,12 @@ package com.site0.walnut.ext.net.mailx.impl;
 import static com.site0.walnut.ext.net.mailx.util.Mailx.LOG;
 
 import java.io.ByteArrayInputStream;
+import java.security.Security;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.nutz.json.Json;
 import org.nutz.lang.Files;
 import org.nutz.lang.util.NutMap;
@@ -39,6 +41,10 @@ public abstract class WnMailRecieving implements Runnable {
 
     private static final String HR = Ws.repeat('#', 80);
 
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
+
     public boolean isAutoDecrypt;
 
     public WnSystem sys;
@@ -64,15 +70,15 @@ public abstract class WnMailRecieving implements Runnable {
     public String asContent;
 
     public Vector<WnObj> outputs;
-    
+
     public Session session;
 
     abstract protected Message getMailMessage();
 
     abstract protected String dump_mail_msg();
-    
+
     private WnMimeMail mimeMail;
-    
+
     private WnObj outputMailObj;
 
     @Override
@@ -202,11 +208,17 @@ public abstract class WnMailRecieving implements Runnable {
 
         // 写入对象元数据
         sys.io.appendMeta(oMail, meta);
-        LOG(sys, debug, "     Mail-Recieving appendMeta: %s", Json.toJson(meta));
+        LOG(sys,
+            debug,
+            "     Mail-Recieving appendMeta: %s",
+            Json.toJson(meta));
         // 写入正文
         if (null != text) {
             sys.io.writeText(oMail, text);
-            LOG(sys, debug, "     Mail-Recieving writeText: len=%s", text.length());
+            LOG(sys,
+                debug,
+                "     Mail-Recieving writeText: len=%s",
+                text.length());
         } else {
             LOG(sys, debug, "     Mail-Recieving writeText: text is null");
         }
@@ -276,6 +288,5 @@ public abstract class WnMailRecieving implements Runnable {
     public WnObj getOutputMailObj() {
         return outputMailObj;
     }
-    
-    
+
 }

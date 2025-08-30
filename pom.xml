@@ -5,7 +5,7 @@
 	<groupId>com.site0</groupId>
 	<packaging>jar</packaging>
 	<name>walnut</name>
-	<version>15.10</version>
+	<version>15.11</version>
 	<description>LOONG[MAIL_RAW]</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -148,21 +148,6 @@
 			<groupId>cn.apiclub.tool</groupId>
 			<artifactId>simplecaptcha</artifactId>
 			<version>1.2.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.simplejavamail</groupId>
-			<artifactId>simple-java-mail</artifactId>
-			<version>7.5.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.simplejavamail</groupId>
-			<artifactId>smime-module</artifactId>
-			<version>7.8.1</version>
-		</dependency>
-		<dependency>
-			<groupId>jakarta.mail</groupId>
-			<artifactId>jakarta.mail-api</artifactId>
-			<version>2.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -386,6 +371,21 @@
 			<groupId>com.microsoft.azure</groupId>
 			<artifactId>msal4j</artifactId>
 			<version>1.13.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.simplejavamail</groupId>
+			<artifactId>simple-java-mail</artifactId>
+			<version>7.5.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.simplejavamail</groupId>
+			<artifactId>smime-module</artifactId>
+			<version>7.8.1</version>
+		</dependency>
+		<dependency>
+			<groupId>jakarta.mail</groupId>
+			<artifactId>jakarta.mail-api</artifactId>
+			<version>2.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.qcloud</groupId>
