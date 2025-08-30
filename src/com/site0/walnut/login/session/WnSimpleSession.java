@@ -4,7 +4,6 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-
 import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.login.role.WnRoleLoader;
 import com.site0.walnut.login.role.WnRoleType;
@@ -188,7 +187,8 @@ public class WnSimpleSession implements WnSession {
     }
 
     public String toString() {
-        String expiAtInStr = Wtime.format(new Date(this.expiAt), "yyyy-MM-dd HH:mm:ss z");
+        String expiAtInStr = Wtime.format(new Date(this.expiAt),
+                                          "yyyy-MM-dd HH:mm:ss z");
         return String.format("session<%s>$s user=%s, expiAt=",
                              ticket,
                              hasSite() ? "[site=" + site + "]" : "",
@@ -313,6 +313,9 @@ public class WnSimpleSession implements WnSession {
     @Override
     public void setExpiAt(long expiAt) {
         this.expiAt = expiAt;
+        // Date d = new Date(expiAt);
+        // String str = Wtime.formatUTC(d, "yyyy-MM-dd HH:mm:ss.SSS");
+        // log.infof("setExpiAt: %s => %s", expiAt, str);
     }
 
     @Override

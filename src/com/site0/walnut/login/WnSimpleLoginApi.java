@@ -204,7 +204,10 @@ public class WnSimpleLoginApi implements WnLoginApi {
     }
 
     @Override
-    public WnSession createSession(WnSession parentSe, WnUser u, String type, int duInSec) {
+    public WnSession createSession(WnSession parentSe,
+                                   WnUser u,
+                                   String type,
+                                   int duInSec) {
         WnSession se = __create_session_by_user(u, type, duInSec);
         se.setParentTicket(parentSe.getTicket());
         sessions.addSession(se);
@@ -220,14 +223,17 @@ public class WnSimpleLoginApi implements WnLoginApi {
     }
 
     @Override
-    public WnSession loginByPassword(String nameOrPhoneOrEmail, String rawPassword) {
+    public WnSession loginByPassword(String nameOrPhoneOrEmail,
+                                     String rawPassword) {
         WnUser u = users.getUser(nameOrPhoneOrEmail);
         if (null == u) {
             throw Er.create("e.auth.login.Failed");
         }
         String saltedPassword = Wn.genSaltPassword(rawPassword, u.getSalt());
         if (saltedPassword.equals(u.getPasswd())) {
-            WnSession se = __create_session_by_user(u, Wn.SET_AUTH_PASS, this.sessionDuration);
+            WnSession se = __create_session_by_user(u,
+                                                    Wn.SET_AUTH_PASS,
+                                                    this.sessionDuration);
             sessions.addSession(se);
             return se;
         }
@@ -273,7 +279,9 @@ public class WnSimpleLoginApi implements WnLoginApi {
         return add_session_by_openid(q, Wn.SET_AUTH_WXMP, autoUser);
     }
 
-    private WnSession add_session_by_openid(WnQuery q, String type, WnUser autoUser) {
+    private WnSession add_session_by_openid(WnQuery q,
+                                            String type,
+                                            WnUser autoUser) {
         WnUser u = users.getUser(q);
 
         // 是否自动创建账号
@@ -294,7 +302,9 @@ public class WnSimpleLoginApi implements WnLoginApi {
         return se;
     }
 
-    private WnSession __create_session_by_user(WnUser u, String type, int duInSec) {
+    private WnSession __create_session_by_user(WnUser u,
+                                               String type,
+                                               int duInSec) {
         WnSession se = new WnSimpleSession(u, duInSec);
         se.setSite(this.site);
         se.setType(type);
@@ -463,8 +473,8 @@ public class WnSimpleLoginApi implements WnLoginApi {
     }
 
     @Override
-    public List<WnSession> querySession(int limit) {
-        return sessions.querySession(limit, users);
+    public List<WnSession> querySession(WnQuery q) {
+        return sessions.querySession(q, users);
     }
 
     @Override
@@ -487,7 +497,13 @@ public class WnSimpleLoginApi implements WnLoginApi {
         if (du <= 0) {
             du = this.sessionDuration;
         }
-        sessions.touchSession(se, du);
+        double duInMs = du * 1000L;
+        double remain = se.getExpiAt() - System.currentTimeMillis();
+        // 如果还剩下 33% 就过期了，那么就真正更新一下
+        double rr = remain / duInMs;
+        if (rr < 0.33) {
+            sessions.touchSession(se, du);
+        }
     }
 
 }

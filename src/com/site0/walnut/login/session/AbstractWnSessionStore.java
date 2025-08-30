@@ -6,6 +6,7 @@ import java.util.Map;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnIo;
+import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.login.site.WnLoginSite;
 import com.site0.walnut.login.usr.WnLazyUser;
 import com.site0.walnut.login.usr.WnUserStore;
@@ -16,7 +17,9 @@ public abstract class AbstractWnSessionStore implements WnSessionStore {
     protected NutBean sessionVars;
     protected NutMap defaultEnv;
 
-    protected AbstractWnSessionStore(WnIo io, NutBean sessionVars, NutMap defaultEnv) {
+    protected AbstractWnSessionStore(WnIo io,
+                                     NutBean sessionVars,
+                                     NutMap defaultEnv) {
         this.io = io;
         this.sessionVars = sessionVars;
         this.defaultEnv = defaultEnv;
@@ -57,11 +60,18 @@ public abstract class AbstractWnSessionStore implements WnSessionStore {
 
     protected abstract WnSession _find_one_by_unm_type(String uid, String type);
 
-    protected abstract List<WnSession> _query(NutMap filter, NutMap sorter, int skip, int limit);
+    protected abstract List<WnSession> _query(NutMap filter,
+                                              NutMap sorter,
+                                              int skip,
+                                              int limit);
 
     @Override
-    public List<WnSession> querySession(int limit, WnUserStore users) {
-        List<WnSession> list = _query(null, null, 0, limit);
+    public List<WnSession> querySession(WnQuery q, WnUserStore users) {
+        NutMap filter = q.first();
+        NutMap sorter = q.sort();
+        int limit = q.limit();
+        int skip = q.skip();
+        List<WnSession> list = _query(filter, sorter, skip, limit);
 
         for (WnSession se : list) {
             __setup_se(users, se);
@@ -87,7 +97,9 @@ public abstract class AbstractWnSessionStore implements WnSessionStore {
     }
 
     @Override
-    public WnSession getSessionByUserIdAndType(String uid, String type, WnUserStore users) {
+    public WnSession getSessionByUserIdAndType(String uid,
+                                               String type,
+                                               WnUserStore users) {
         WnSession se = _find_one_by_unm_type(uid, type);
 
         // 确保有用户对象
@@ -103,7 +115,9 @@ public abstract class AbstractWnSessionStore implements WnSessionStore {
     }
 
     @Override
-    public WnSession getSessionByUserNameAndType(String unm, String type, WnUserStore users) {
+    public WnSession getSessionByUserNameAndType(String unm,
+                                                 String type,
+                                                 WnUserStore users) {
         WnSession se = _find_one_by_unm_type(unm, type);
 
         // 确保有用户对象

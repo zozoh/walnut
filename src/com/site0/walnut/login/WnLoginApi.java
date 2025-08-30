@@ -103,7 +103,7 @@ public interface WnLoginApi {
 
     WnSession getSessionByUserIdAndType(String uid, String type);
 
-    List<WnSession> querySession(int limit);
+    List<WnSession> querySession(WnQuery q);
 
     WnSession checkSession(String ticket);
 

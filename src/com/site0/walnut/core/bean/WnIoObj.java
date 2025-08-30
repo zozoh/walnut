@@ -12,7 +12,6 @@ import org.nutz.log.Log;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
-import com.site0.walnut.api.io.WnIoIndexer;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.core.mapping.support.MountInfo;

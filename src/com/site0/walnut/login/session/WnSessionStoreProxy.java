@@ -5,6 +5,7 @@ import java.util.List;
 import org.nutz.trans.Proton;
 
 import com.site0.walnut.api.io.WnIo;
+import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.login.usr.WnUserStore;
 import com.site0.walnut.util.Wn;
 
@@ -46,10 +47,10 @@ public class WnSessionStoreProxy implements WnSessionStore {
     }
 
     @Override
-    public List<WnSession> querySession(int limit, WnUserStore users) {
+    public List<WnSession> querySession(WnQuery q, WnUserStore users) {
         return Wn.WC().nosecurity(io, new Proton<List<WnSession>>() {
             protected List<WnSession> exec() {
-                return impl.querySession(limit, users);
+                return impl.querySession(q, users);
             }
         });
     }

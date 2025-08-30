@@ -1,6 +1,7 @@
 package com.site0.walnut.login.session;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.nutz.lang.util.NutBean;
@@ -17,6 +18,7 @@ import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wtime;
 import com.site0.walnut.web.WnConfig;
 
 public class WnStdSessionStore extends AbstractWnSessionStore {
@@ -25,7 +27,10 @@ public class WnStdSessionStore extends AbstractWnSessionStore {
 
     WnObj oHome;
 
-    public WnStdSessionStore(WnIo io, NutBean sessionVars, String homePath, NutMap defaultEnv) {
+    public WnStdSessionStore(WnIo io,
+                             NutBean sessionVars,
+                             String homePath,
+                             NutMap defaultEnv) {
         super(io, sessionVars, defaultEnv);
 
         // 获取会话主目录
@@ -46,7 +51,10 @@ public class WnStdSessionStore extends AbstractWnSessionStore {
     }
 
     @Override
-    protected List<WnSession> _query(NutMap filter, NutMap sorter, int skip, int limit) {
+    protected List<WnSession> _query(NutMap filter,
+                                     NutMap sorter,
+                                     int skip,
+                                     int limit) {
         // 查询条件
         WnQuery q = Wn.Q.pid(oHome);
         q.setAll(filter);
@@ -121,11 +129,6 @@ public class WnStdSessionStore extends AbstractWnSessionStore {
         se.setChildTicket(oSe.getString("child_ticket"));
         se.setDuration(oSe.getInt("duration"));
 
-        // 时间戳
-        se.setExpiAt(oSe.expireTime());
-        se.setCreateTime(oSe.createTime());
-        se.setLastModified(oSe.lastModified());
-
         // 加载用户
         String uid = oSe.getString("u_id");
         if (Ws.isBlank(uid)) {
@@ -140,6 +143,11 @@ public class WnStdSessionStore extends AbstractWnSessionStore {
             u.setInnerUser(null, uid, name, email, phone);
             se.setUser(u);
         }
+
+        // 时间戳
+        se.setExpiAt(oSe.expireTime());
+        se.setCreateTime(oSe.createTime());
+        se.setLastModified(oSe.lastModified());
 
         // 设置环境变量
         se.setEnv(oSe.getAs("env", NutMap.class));
@@ -162,6 +170,7 @@ public class WnStdSessionStore extends AbstractWnSessionStore {
         bean.put("email", u.getEmail());
         bean.put("phone", u.getPhone());
         bean.put("env", se.getEnv());
+        bean.put("no_cached", true);
         if (se.hasParentTicket()) {
             bean.put("parent_ticket", se.getParentTicket());
         }
@@ -228,6 +237,11 @@ public class WnStdSessionStore extends AbstractWnSessionStore {
         }
         long now = System.currentTimeMillis();
         se.setExpiAt(System.currentTimeMillis() + duInSec * 1000L);
+        
+        long expiAt = se.getExpiAt();
+        Date d = new Date(expiAt);
+        String str = Wtime.formatUTC(d, "yyyy-MM-dd HH:mm:ss.SSS");
+        log.infof("== touchSession:setExpiAt: %s => %s", expiAt, str);
 
         NutBean delta = new NutMap();
         delta.put("expi", se.getExpiAt());
