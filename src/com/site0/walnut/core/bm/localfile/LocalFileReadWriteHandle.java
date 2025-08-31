@@ -40,4 +40,9 @@ public class LocalFileReadWriteHandle extends WnIoReadWriteHandle {
 
     }
 
+    @Override
+    public int read() throws IOException {
+        return raf.read();
+    }
+
 }

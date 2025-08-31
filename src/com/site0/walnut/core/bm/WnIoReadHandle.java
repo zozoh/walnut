@@ -50,6 +50,11 @@ public abstract class WnIoReadHandle extends WnIoHandle {
     }
 
     @Override
+    public int read() throws IOException {
+        return ins().read();
+    }
+
+    @Override
     public int read(byte[] buf, int off, int len) throws IOException {
         // 已然关闭
         if (null == obj) {

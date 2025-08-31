@@ -445,6 +445,14 @@ public class WnIoSaftyWrapper implements WnIo {
         }, new String[]{"content"});
     }
 
+    public long write(WnObj o, InputStream ins) {
+        return _safe_return("writeAndClose", o, new Proton<Long>() {
+            protected Long exec() {
+                return io.write(o, ins);
+            }
+        }, new String[]{"content"});
+    }
+
     public long writeAndClose(WnObj o, InputStream ins) {
         return _safe_return("writeAndClose", o, new Proton<Long>() {
             protected Long exec() {

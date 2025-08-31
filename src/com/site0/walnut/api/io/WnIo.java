@@ -227,6 +227,8 @@ public interface WnIo {
     long writeBytes(WnObj o, byte[] buf);
 
     long writeBytes(WnObj o, byte[] buf, int off, int len);
+    
+    long write(WnObj o, InputStream ins);
 
     long writeAndClose(WnObj o, InputStream ins);
 

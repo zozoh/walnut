@@ -322,6 +322,12 @@ public class WnIoCacheWrapper extends AbstractWnIoWrapper {
     }
 
     @Override
+    public long write(WnObj o, InputStream ins) {
+        cache.removeFromCache(o);
+        return super.write(o, ins);
+    }
+
+    @Override
     public long writeAndClose(WnObj o, InputStream ins) {
         cache.removeFromCache(o);
         return super.writeAndClose(o, ins);

@@ -23,4 +23,10 @@ public class LocalSha1WriteHandle extends WnIoWriteSwapHandle {
         bm.updateObjSha1AndSaveSwap(this.obj, swap, indexer);
     }
 
+    @Override
+    public int read() throws IOException {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
 }

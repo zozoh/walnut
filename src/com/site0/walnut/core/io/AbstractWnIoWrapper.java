@@ -251,6 +251,10 @@ public abstract class AbstractWnIoWrapper implements WnIo {
         return io.writeBytes(o, buf, off, len);
     }
 
+    public long write(WnObj o, InputStream ins) {
+        return io.write(o, ins);
+    }
+    
     public long writeAndClose(WnObj o, InputStream ins) {
         return io.writeAndClose(o, ins);
     }
@@ -288,9 +292,9 @@ public abstract class AbstractWnIoWrapper implements WnIo {
     public InputStream getInputStream(WnObj o, long off) {
         return io.getInputStream(o, off);
     }
-    
+
     public InputStream getInputStream(WnObj o) {
-        return this.getInputStream(o);
+        return this.getInputStream(o, 0);
     }
 
     public int read(String hid, byte[] bs) {

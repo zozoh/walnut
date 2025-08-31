@@ -47,6 +47,11 @@ public abstract class WnIoWriteHandle extends WnIoHandle {
     }
 
     @Override
+    public int read() throws IOException {
+        throw Wlang.noImplement();
+    }
+
+    @Override
     public int read(byte[] buf, int off, int len) throws IOException {
         throw Er.create("e.io.bm.localbm.hdl.writeonly");
     }

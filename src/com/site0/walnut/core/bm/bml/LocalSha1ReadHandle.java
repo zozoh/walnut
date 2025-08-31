@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Streams;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.core.bm.WnIoReadHandle;
 import com.site0.walnut.util.Wn;
@@ -28,7 +27,7 @@ public class LocalSha1ReadHandle extends WnIoReadHandle {
         // 获取文件
         else {
             File buck = bm.checkBucketFile(o.sha1());
-            return Streams.chan(new FileInputStream(buck));
+            return new FileInputStream(buck);
         }
     }
 

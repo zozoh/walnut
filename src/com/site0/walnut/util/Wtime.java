@@ -2,6 +2,7 @@ package com.site0.walnut.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -54,6 +55,12 @@ public abstract class Wtime {
         return format(c.getTime(), fmt);
     }
 
+    public static String format(Instant t, String fmt) {
+        long ams = t.toEpochMilli();
+        Date d = new Date(ams);
+        return format(d, fmt);
+    }
+
     public static String format(Date d, String fmt) {
         WnContext wc = Wn.WC();
         TimeZone tz = wc.getTimeZone();
@@ -75,6 +82,12 @@ public abstract class Wtime {
 
     public static String formatUTC(Calendar c, String fmt) {
         return formatUTC(c.getTime(), fmt);
+    }
+
+    public static String formatUTC(Instant t, String fmt) {
+        long ams = t.toEpochMilli();
+        Date d = new Date(ams);
+        return formatUTC(d, fmt);
     }
 
     public static String formatUTC(Date d, String fmt) {
@@ -281,9 +294,8 @@ public abstract class Wtime {
                 String fmt = "%04d-%02d-%02d %02d:%02d:%02d.%03d";
                 str = String.format(fmt, yy, MM, dd, HH, mm, ss, ms);
                 if (!Ws.isBlank(m.group(15))) {
-                    tz = TimeZone.getTimeZone(String.format("GMT%s%s:00",
-                                                            m.group(16),
-                                                            m.group(17)));
+                    tz = TimeZone.getTimeZone(String
+                        .format("GMT%s%s:00", m.group(16), m.group(17)));
                 }
 
             }
@@ -313,7 +325,8 @@ public abstract class Wtime {
             }
         }
 
-        throw Er.createf("e.time.invalid.format", "Unexpect date format '%s'", ds);
+        throw Er
+            .createf("e.time.invalid.format", "Unexpect date format '%s'", ds);
     }
 
     public static long parseAnyAMSUTC(Object input) {
@@ -558,7 +571,10 @@ public abstract class Wtime {
      *            </ul>
      * @return
      */
-    public static Calendar from(Calendar c, int offset, WnHolidays holidays, String mode) {
+    public static Calendar from(Calendar c,
+                                int offset,
+                                WnHolidays holidays,
+                                String mode) {
         // 不偏移
         // if (0 == offset) {
         // return c;
@@ -855,8 +871,10 @@ public abstract class Wtime {
         return __apply_offset(ms, sign, dus);
     }
 
-    private static final Pattern P_MS_STR = Pattern.compile("^([-]?[0-9]+)([smhdw])?$");
-    private static final Pattern P_YM_STR = Pattern.compile("^([-]?[0-9]+)([yM])$");
+    private static final Pattern P_MS_STR = Pattern
+        .compile("^([-]?[0-9]+)([smhdw])?$");
+    private static final Pattern P_YM_STR = Pattern
+        .compile("^([-]?[0-9]+)([yM])$");
 
     /**
      * 将一个字符串变成毫秒数，如果就是数字，那么表示毫秒

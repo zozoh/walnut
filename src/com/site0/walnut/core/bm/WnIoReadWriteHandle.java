@@ -9,6 +9,7 @@ import org.nutz.lang.Streams;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.core.WnIoHandle;
 import com.site0.walnut.core.WnIoHandleMutexException;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 
 public abstract class WnIoReadWriteHandle extends WnIoHandle {
@@ -81,6 +82,11 @@ public abstract class WnIoReadWriteHandle extends WnIoHandle {
         this.touch();
 
         return this.offset;
+    }
+
+    @Override
+    public int read() throws IOException {
+        throw Wlang.noImplement();
     }
 
     @Override
