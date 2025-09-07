@@ -28,6 +28,8 @@ public class TPLLParsing {
             NutMap map = new NutMap();
 
             for (TPLLField fld : fields) {
+                if (fld.isFiller())
+                    continue;
                 Object val = parseField(line, fld);
                 if (val != null) {
                     map.put(fld.getKey(), val);
@@ -42,7 +44,7 @@ public class TPLLParsing {
 
     private Object parseField(String line, TPLLField fld) {
         // 检查行长度是否足够
-        int start = fld.getStart();
+        int start = fld.getStart() - 1;
         if (line.length() <= start) {
             return null;
         }

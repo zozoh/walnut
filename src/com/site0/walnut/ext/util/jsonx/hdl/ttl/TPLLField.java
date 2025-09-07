@@ -6,11 +6,21 @@ public class TPLLField {
 
     private TPLLFieldType type;
 
+    /**
+     * 字段开始位置（1base）
+     */
     private int start;
 
+    /**
+     * 字段长度
+     */
     private int len;
 
     private String comments;
+
+    public boolean isFiller() {
+        return "Filler".equalsIgnoreCase(this.key);
+    }
 
     public String getKey() {
         return key;
