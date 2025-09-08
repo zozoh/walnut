@@ -1,5 +1,7 @@
 package com.site0.walnut.ext.util.jsonx.hdl;
 
+import java.util.TimeZone;
+
 import org.nutz.json.Json;
 
 import com.site0.walnut.api.io.WnObj;
@@ -31,6 +33,11 @@ public class jsonx_load extends JsonXFilter {
             String json = sys.io.readText(o);
             TPLLField[] flds = Json.fromJson(TPLLField[].class, json);
             TPLLParsing ing = new TPLLParsing(flds);
+
+            // 解析用的默认时区
+            String tzs = params.getString("tz", "UTC");
+            TimeZone timezone = TimeZone.getTimeZone(tzs);
+            ing.setTimezone(timezone);
 
             String input = fc.input;
             String from = params.get("from");

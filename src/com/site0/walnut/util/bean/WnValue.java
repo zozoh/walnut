@@ -187,7 +187,9 @@ public class WnValue {
         return dft;
     }
 
-    public void loadOptions(WnIo io, NutBean vars, Map<String, NutMap[]> caches) {
+    public void loadOptions(WnIo io,
+                            NutBean vars,
+                            Map<String, NutMap[]> caches) {
         if (null == this.__options_map) {
             __options_map = new HashMap<>();
             // 一个静态值
@@ -395,7 +397,7 @@ public class WnValue {
 
     public void setFromTimeZoneId(String fromTimeZoneId) {
         this.fromTimeZoneId = fromTimeZoneId;
-        if (null == fromTimeZoneId) {
+        if (Ws.isBlank(fromTimeZoneId)) {
             this._from_time_zone = null;
         } else {
             this._from_time_zone = TimeZone.getTimeZone(fromTimeZoneId);
@@ -408,7 +410,7 @@ public class WnValue {
 
     public void setToTimeZoneId(String toTimeZoneId) {
         this.toTimeZoneId = toTimeZoneId;
-        if (null == toTimeZoneId) {
+        if (Ws.isBlank(toTimeZoneId)) {
             this._to_time_zone = null;
         } else {
             this._to_time_zone = TimeZone.getTimeZone(toTimeZoneId);

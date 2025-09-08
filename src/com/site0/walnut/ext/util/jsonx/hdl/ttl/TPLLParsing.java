@@ -2,6 +2,7 @@ package com.site0.walnut.ext.util.jsonx.hdl.ttl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.nutz.lang.util.NutMap;
 
@@ -10,6 +11,8 @@ import com.site0.walnut.util.Ws;
 public class TPLLParsing {
 
     private TPLLField[] fields;
+
+    private TimeZone timezone;
 
     public TPLLParsing(TPLLField[] fields) {
         this.fields = fields;
@@ -57,6 +60,7 @@ public class TPLLParsing {
 
         // 截取字段值并去除首尾空白
         String val = line.substring(start, end).trim();
+        Object re = val;
 
         // 如果是空字符串，返回null
         if (Ws.isBlank(val)) {
@@ -65,11 +69,27 @@ public class TPLLParsing {
 
         // 根据字段类型进行处理
         if (fld.isNumeric()) {
-            return Double.valueOf(val);
+            re = Double.valueOf(val);
+        }
+        // 针对日期的类型
+        else if (fld.isDts20()) {
+            re = fld.parseAsDts20(timezone, val);
+        }
+        // 针对日期时间
+        else if (fld.isDcymd8()) {
+            re = fld.parseAsDcymd8(timezone, val);
         }
 
         // 默认就是字符类
-        return val;
+        return re;
+    }
+
+    public TimeZone getTimezone() {
+        return timezone;
+    }
+
+    public void setTimezone(TimeZone timezone) {
+        this.timezone = timezone;
     }
 
 }

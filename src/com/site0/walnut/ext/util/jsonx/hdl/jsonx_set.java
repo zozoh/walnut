@@ -9,16 +9,24 @@ import org.nutz.lang.util.NutMap;
 import com.site0.walnut.ext.util.jsonx.JsonXContext;
 import com.site0.walnut.ext.util.jsonx.JsonXFilter;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.ZParams;
 
 public class jsonx_set extends JsonXFilter {
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @Override
+    protected ZParams parseParams(String[] args) {
+        return ZParams.parse(args, "^(explain)$");
+    }
+
+    @SuppressWarnings({"unchecked"})
     @Override
     protected void process(WnSystem sys, JsonXContext fc, ZParams params) {
         if (null == fc.obj) {
             fc.obj = new NutMap();
         }
+
+        boolean needExplain = params.is("explain");
 
         NutMap delta = new NutMap();
         for (String str : params.vals) {
@@ -28,7 +36,12 @@ public class jsonx_set extends JsonXFilter {
 
         // 对于 Map
         if (fc.obj instanceof Map) {
-            Map map = (Map) fc.obj;
+            NutMap map = NutMap.WRAP((Map<String, Object>) fc.obj);
+            if (needExplain) {
+                Wn.explainMetaMacroInPlaceDeeply(delta);
+                NutMap d2 = (NutMap) Wn.explainObj(map, delta);
+                delta = d2;
+            }
             map.putAll(delta);
         }
         // 对于或者集合
@@ -37,7 +50,13 @@ public class jsonx_set extends JsonXFilter {
 
             for (Object ele : col) {
                 if (ele instanceof Map) {
-                    Map map = (Map) ele;
+                    NutMap map = NutMap.WRAP((Map<String, Object>) ele);
+                    if (needExplain) {
+                        NutMap d2 = delta.duplicate();
+                        Wn.explainMetaMacroInPlaceDeeply(d2);
+                        NutMap d3 = (NutMap) Wn.explainObj(map, d2);
+                        delta = d3;
+                    }
                     map.putAll(delta);
                 }
             }
@@ -48,7 +67,13 @@ public class jsonx_set extends JsonXFilter {
             for (int i = 0; i < n; i++) {
                 Object ele = Array.get(fc.obj, i);
                 if (ele instanceof Map) {
-                    Map map = (Map) ele;
+                    NutMap map = NutMap.WRAP((Map<String, Object>) ele);
+                    if (needExplain) {
+                        NutMap d2 = delta.duplicate();
+                        Wn.explainMetaMacroInPlaceDeeply(d2);
+                        NutMap d3 = (NutMap) Wn.explainObj(map, d2);
+                        delta = d3;
+                    }
                     map.putAll(delta);
                 }
             }
