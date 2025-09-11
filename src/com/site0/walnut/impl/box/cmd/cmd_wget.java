@@ -50,7 +50,6 @@ public class cmd_wget extends JvmExecutor {
             sys.out.println("size=" + sz);
         }
         sys.io.writeAndClose(oTa, resp.getStream());
-        sys.out.println("done");
     }
 
 }

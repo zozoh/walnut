@@ -46,10 +46,18 @@ public class WnExpiObjTableCleaner implements Atom {
     @Override
     public void run() {
         try {
-            log.infof("ExpiObjTable(%s) started:\n %s", myName, table.toString());
-            log.infof("ExpiObjTable(%s)   - sleepInterval : %d", myName, sleepInterval);
-            log.infof("ExpiObjTable(%s)   - cleanLimit    : %d", myName, cleanLimit);
-            log.infof("ExpiObjTable(%s)   - cleanHold     : %d", myName, cleanHold);
+            log.infof("ExpiObjTable(%s) started:\n %s",
+                      myName,
+                      table.toString());
+            log.infof("ExpiObjTable(%s)   - sleepInterval : %d",
+                      myName,
+                      sleepInterval);
+            log.infof("ExpiObjTable(%s)   - cleanLimit    : %d",
+                      myName,
+                      cleanLimit);
+            log.infof("ExpiObjTable(%s)   - cleanHold     : %d",
+                      myName,
+                      cleanHold);
             while (!Thread.interrupted()) {
                 try {
                     __in_loop();
@@ -78,7 +86,9 @@ public class WnExpiObjTableCleaner implements Atom {
 
         // 一直清除到没有候选
         while (!list.isEmpty()) {
-            log.infof("ExpiObjTable(%s) : takeover %d objs for clean", myName, list.size());
+            log.infof("ExpiObjTable(%s) : takeover %d objs for clean",
+                      myName,
+                      list.size());
             // 得到自己的 holdTime
             long hold = list.get(0).getHoldTime();
 
@@ -92,7 +102,7 @@ public class WnExpiObjTableCleaner implements Atom {
                 if (null != o) {
                     // 过期了就删除
                     if (o.isExpired()) {
-                        io.delete(o);
+                        io.delete(o, true);
                         count++;
                         lastObjId = oid;
                         log.debugf(" %d. rm %s", i, oid);
@@ -112,7 +122,8 @@ public class WnExpiObjTableCleaner implements Atom {
                 // 计数
                 i++;
             }
-            String holdS = Times.format("yyyy-MM-dd HH:mm:ss.SSS", new Date(hold));
+            String holdS = Times.format("yyyy-MM-dd HH:mm:ss.SSS",
+                                        new Date(hold));
             log.infof("ExpiObjTable(%s) : remove %d of %d objs(%s) at %s",
                       myName,
                       count,

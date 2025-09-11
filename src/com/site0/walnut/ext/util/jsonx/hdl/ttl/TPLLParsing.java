@@ -19,7 +19,7 @@ public class TPLLParsing {
     }
 
     public List<NutMap> parse(String input) {
-        String[] lines = Ws.splitIgnoreBlank(input, "\r?\n");
+        String[] lines = input.split("\r?\n");
         List<NutMap> re = new ArrayList<>(lines.length);
 
         // 循环每行实现代码
