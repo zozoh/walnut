@@ -1,6 +1,7 @@
 package com.site0.walnut.ext.util.jsonx.hdl.ttl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -14,8 +15,30 @@ public class TPLLParsing {
 
     private TimeZone timezone;
 
+    private HashSet<String> rawTypes;
+
+    private boolean useRawNumeric;
+
+    private boolean useRawDts20;
+
+    private boolean useRawDcymd8;
+
     public TPLLParsing(TPLLField[] fields) {
         this.fields = fields;
+        this.rawTypes = new HashSet<>();
+    }
+
+    public void setupRawTypes(String str) {
+        String[] ss = Ws.splitIgnoreBlank(str);
+        if (null != ss) {
+            for (String s : ss) {
+                rawTypes.add(s.toLowerCase());
+            }
+        }
+        this.useRawDcymd8 = rawTypes.contains("dcymd8");
+        this.useRawDts20 = rawTypes.contains("dts20");
+        this.useRawNumeric = rawTypes.contains("numeric");
+
     }
 
     public List<NutMap> parse(String input) {
@@ -69,14 +92,23 @@ public class TPLLParsing {
 
         // 根据字段类型进行处理
         if (fld.isNumeric()) {
+            if (useRawNumeric) {
+                return re;
+            }
             re = Double.valueOf(val);
         }
         // 针对日期的类型
         else if (fld.isDts20()) {
+            if (useRawDts20) {
+                return re;
+            }
             re = fld.parseAsDts20(timezone, val);
         }
         // 针对日期时间
         else if (fld.isDcymd8()) {
+            if (useRawDcymd8) {
+                return re;
+            }
             re = fld.parseAsDcymd8(timezone, val);
         }
 

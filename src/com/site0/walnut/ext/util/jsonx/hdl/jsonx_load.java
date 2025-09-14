@@ -33,6 +33,8 @@ public class jsonx_load extends JsonXFilter {
             String json = sys.io.readText(o);
             TPLLField[] flds = Json.fromJson(TPLLField[].class, json);
             TPLLParsing ing = new TPLLParsing(flds);
+            String raw = params.getString("raw");
+            ing.setupRawTypes(raw);
 
             // 解析用的默认时区
             String tzs = params.getString("tz", "UTC");
