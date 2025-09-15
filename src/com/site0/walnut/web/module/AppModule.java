@@ -42,7 +42,6 @@ import org.nutz.web.ajax.AjaxView;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
-import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.impl.srv.WnBoxRunning;
 import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.login.WnLoginApiMaker;
@@ -96,7 +95,14 @@ public class AppModule extends AbstractWnModule {
                       HttpServletResponse resp) {
         String uri = req.getRequestURI();
         if (uri.endsWith("/")) {
-            return login_page(null, page, domainName, host, sitePath, etag, range, resp);
+            return login_page(null,
+                              page,
+                              domainName,
+                              host,
+                              sitePath,
+                              etag,
+                              range,
+                              resp);
         }
         return new ServerRedirectView("/a/login/");
     }
@@ -173,10 +179,10 @@ public class AppModule extends AbstractWnModule {
     @At("/open/?/**")
     @Fail("jsp:jsp.show_text")
     public View open(String appName,
-                     String rsPath,
+                     // String rsPath,
                      @Param("ph") String str,
                      @Param("id") String id,
-                     @Param("m") String matchJson,
+                     // @Param("m") String matchJson,
                      @ReqHeader("If-None-Match") String etag,
                      HttpServletResponse resp) {
 
@@ -186,37 +192,38 @@ public class AppModule extends AbstractWnModule {
             WnApp app = apps.checkApp(appName, auth);
 
             if (log.isDebugEnabled()) {
-                log.debugf("APP<%s> rsPath=%s,str=%s,id=%s, m=%s:%s",
+                log.debugf("APP<%s>, ph=%s,id=%s,",
                            appName,
-                           rsPath,
+                           // rsPath,
                            str,
-                           id,
-                           matchJson);
+                           id);
             }
 
             // 得到数据对象
-            WnObj oP;
-            // 指定 ID
-            if (!Ws.isBlank(id)) {
-                oP = apps.getObjById(app, id);
-            }
-            // 默认用路径
-            else {
-                if (Strings.isBlank(str)) {
-                    str = app.getSession().getEnv().getString("OBJ_DFT_PATH", "~");
-                }
-                oP = apps.getObjByPath(app, str);
-            }
-            // 指定查询条件
-            WnObj obj;
-            if (!Ws.isBlank(matchJson)) {
-                WnQuery q = Wn.Q.map(matchJson);
-                q.setvToList("pid", oP.id());
-                obj = apps.getObjByQuery(app, q);
-            } else {
-                obj = oP;
-            }
-            app.setObj(obj);
+            // WnObj oP;
+            // // 指定 ID
+            // if (!Ws.isBlank(id)) {
+            // oP = apps.getObjById(app, id);
+            // }
+            // // 默认用路径
+            // else {
+            // if (Strings.isBlank(str)) {
+            // str = app.getSession()
+            // .getEnv()
+            // .getString("OBJ_DFT_PATH", "~");
+            // }
+            // oP = apps.getObjByPath(app, str);
+            // }
+            // // 指定查询条件
+            // WnObj obj;
+            // if (!Ws.isBlank(matchJson)) {
+            // WnQuery q = Wn.Q.map(matchJson);
+            // q.setvToList("pid", oP.id());
+            // obj = apps.getObjByQuery(app, q);
+            // } else {
+            // obj = oP;
+            // }
+            // app.setObj(obj);
 
             // 检查应用权限: root 组成员免查，可以打开任何 app
             WnSession se = app.getSession();
@@ -227,7 +234,8 @@ public class AppModule extends AbstractWnModule {
                 WnIo io = io();
                 WnObj oCheckAccess = io.fetch(oAppHome, "check_access.json");
                 if (null != oCheckAccess) {
-                    AppCheckAccess ca = io.readJson(oCheckAccess, AppCheckAccess.class);
+                    AppCheckAccess ca = io.readJson(oCheckAccess,
+                                                    AppCheckAccess.class);
                     WnBoxRunning run = this.createRunning(false);
                     if (!ca.doCheck(io, se, auth, run)) {
                         return new HttpStatusView(403);
@@ -373,7 +381,8 @@ public class AppModule extends AbstractWnModule {
                            final HttpServletRequest req,
                            final HttpServletResponse resp)
             throws IOException {
-        Reader r = new InputStreamReader(req.getInputStream(), Encoding.CHARSET_UTF8);
+        Reader r = new InputStreamReader(req.getInputStream(),
+                                         Encoding.CHARSET_UTF8);
         String json = Streams.readAndClose(r);
         NutMap map = Json.fromJson(NutMap.class, json);
         String mime = map.getString("mime");
@@ -489,7 +498,10 @@ public class AppModule extends AbstractWnModule {
             if (ajax) {
                 // 获取 cookie 模板
                 Object reo = se.toBean(auth);
-                return new ViewWrapper(new WnAddCookieViewWrapper(conf, new AjaxView(), null), reo);
+                return new ViewWrapper(new WnAddCookieViewWrapper(conf,
+                                                                  new AjaxView(),
+                                                                  null),
+                                       reo);
             }
             // 直接跳转到用户的主应用
             return __get_session_default_view(se);
@@ -502,7 +514,9 @@ public class AppModule extends AbstractWnModule {
                     log.warn("Jedis error", eCause);
                 }
             }
-            Object reo = Ajax.fail().setErrCode(e.getKey()).setData(e.getReason());
+            Object reo = Ajax.fail()
+                .setErrCode(e.getKey())
+                .setData(e.getReason());
             // 返回视图
             if (ajax) {
                 return new ViewWrapper(new AjaxView(), reo);
@@ -541,7 +555,10 @@ public class AppModule extends AbstractWnModule {
             // 退到父会话
             if (null != pse && !pse.isExpired()) {
                 Object reo = pse.toBean(auth);
-                return new ViewWrapper(new WnAddCookieViewWrapper(conf, view, null), reo);
+                return new ViewWrapper(new WnAddCookieViewWrapper(conf,
+                                                                  view,
+                                                                  null),
+                                       reo);
             }
         }
 
@@ -594,7 +611,9 @@ public class AppModule extends AbstractWnModule {
                 view = new ServerRedirectView("/");
             }
             if (log.isWarnEnabled()) {
-                log.warnf("e.auth.login.domain_without_www: %s @ %s", siteId, hostName);
+                log.warnf("e.auth.login.domain_without_www: %s @ %s",
+                          siteId,
+                          hostName);
             }
             reo = Er.create("e.auth.login.domain_without_www");
             // 包裹返回
@@ -620,7 +639,8 @@ public class AppModule extends AbstractWnModule {
             else {
                 NutBean env = site.getSessionVarsBySiteHome();
                 WnLoginOptions options = site.getOptions();
-                WnLoginApi auth = WnLoginApiMaker.forHydrate().make(io(), env, options);
+                WnLoginApi auth = WnLoginApiMaker.forHydrate()
+                    .make(io(), env, options);
                 if (log.isInfoEnabled()) {
                     log.infof("Login as sub-user: %s", name);
                 }
@@ -639,7 +659,8 @@ public class AppModule extends AbstractWnModule {
                     int se_du = auth.getSessionDuration();
 
                     // 注册新会话
-                    WnSession se = auth.createSession(user, Wn.SET_LOGIN_APP, se_du);
+                    WnSession se = auth
+                        .createSession(user, Wn.SET_LOGIN_APP, se_du);
 
                     // 确保用户是可以访问域主目录的
                     site.assertHomeAccessable(se);
@@ -649,11 +670,14 @@ public class AppModule extends AbstractWnModule {
 
                     // 更新会话元数据
                     if (log.isInfoEnabled()) {
-                        log.infof("OK: create session: %s : %s", se.getTicket(), se.getMyName());
+                        log.infof("OK: create session: %s : %s",
+                                  se.getTicket(),
+                                  se.getMyName());
                     }
 
                     // 获取重定向路径
-                    String appName = se.getEnv().getString("OPEN", "wn.manager");
+                    String appName = se.getEnv()
+                        .getString("OPEN", "wn.manager");
                     redirectPath = "/a/open/" + appName;
 
                     if (log.isInfoEnabled()) {
@@ -707,7 +731,8 @@ public class AppModule extends AbstractWnModule {
     @At("/me")
     @Ok("ajax")
     @Fail("ajax")
-    public NutMap getMe(final HttpServletRequest req, final HttpServletResponse resp) {
+    public NutMap getMe(final HttpServletRequest req,
+                        final HttpServletResponse resp) {
         WnWeb.setCrossDomainHeaders("*", (name, value) -> {
             resp.setHeader(WnWeb.niceHeaderName(name), value);
         });
@@ -729,7 +754,8 @@ public class AppModule extends AbstractWnModule {
     @At
     @Ok("ajax")
     @Fail("ajax")
-    public NutMap sys_ajax_logout(final HttpServletRequest req, final HttpServletResponse resp) {
+    public NutMap sys_ajax_logout(final HttpServletRequest req,
+                                  final HttpServletResponse resp) {
         WnWeb.setCrossDomainHeaders("*", (name, value) -> {
             resp.setHeader(WnWeb.niceHeaderName(name), value);
         });
