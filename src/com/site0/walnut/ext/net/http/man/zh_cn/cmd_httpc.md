@@ -21,12 +21,15 @@ httpc [{method}] {URL} [-rhH] [@FILTER ...]
 它支持的过滤器有：
 
 ```bash
-@method      # 指明 HTTP 的参数
-@header      # 向上下文内容设置请求的头 
-@query       # 向上下文内容设置请求的QueryString
-@params      # 向上下文内容设置请求的参数表
-@body        # 向上下文内容设置请求的BODY内容
-@multipart   # 向上下文内容设置一个`multipart`表单的内容
+@body        # 设置请求的BODY内容
+@header      # 设置请求的头 
+@method      # 指明 HTTP 的请求方法
+@multipart   # 设置一个`multipart`表单的内容
+@output      # 设定响应的输出目标
+@params      # 设置请求的参数表
+@proxy       # 设定代理服务器
+@query       # 设置请求的QueryString
+@timeout     # 超时设定
 ```
 
     

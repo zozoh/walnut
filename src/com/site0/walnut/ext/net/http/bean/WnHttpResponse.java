@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
@@ -16,7 +18,13 @@ import org.nutz.lang.util.NutMap;
 
 public class WnHttpResponse extends InputStream {
 
+    private String protocol;
+
+    private String version;
+
     private int statusCode;
+
+    private String statusText;
 
     private NutMap headers;
 
@@ -28,7 +36,9 @@ public class WnHttpResponse extends InputStream {
 
     public WnHttpResponse(int code, Map<String, Object> headers) {
         this.statusCode = code;
-        this.headers = NutMap.WRAP(headers);
+        this.protocol = "HTTP";
+        this.version = "1.1";
+        this.setHeaders(NutMap.WRAP(headers));
     }
 
     public InputStream getBody() {
@@ -108,8 +118,43 @@ public class WnHttpResponse extends InputStream {
         return headers;
     }
 
+    private static Pattern _P = Pattern
+        .compile("^([a-zA-Z]+)/([0-9.]+)" + " +([0-9]+)" + " +(.+)$");
+
     public void setHeaders(NutMap headers) {
-        this.headers = headers;
+        this.headers = new NutMap();
+        if (null != headers) {
+            for (Map.Entry<String, Object> en : headers.entrySet()) {
+                String key = en.getKey();
+                Object val = en.getValue();
+                // HTTP/1.1 200 OK
+                if (null == key) {
+                    Matcher m = _P.matcher(val.toString());
+                    if (m.find()) {
+                        this.protocol = m.group(1);
+                        this.version = m.group(2);
+                        this.statusCode = Integer.parseInt(m.group(3));
+                        this.statusText = m.group(4);
+                    }
+                }
+                // 普通 Header
+                else {
+                    this.headers.put(key.toLowerCase(), val);
+                }
+            }
+        }
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public String getStatusText() {
+        return statusText;
     }
 
     public int read() throws IOException {
