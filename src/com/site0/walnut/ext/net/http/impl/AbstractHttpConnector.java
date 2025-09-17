@@ -36,7 +36,8 @@ public abstract class AbstractHttpConnector implements HttpConnector {
 
         // 采用代理连接
         if (hc.hasProxy()) {
-            this.conn = (HttpURLConnection) jdkUrl.openConnection(hc.getProxy());
+            this.conn = (HttpURLConnection) jdkUrl
+                .openConnection(hc.getProxy());
         }
         // 直连
         else {
@@ -127,7 +128,10 @@ public abstract class AbstractHttpConnector implements HttpConnector {
             }
         }
         WnHttpResponse resp = new WnHttpResponse(code, headers);
-        String enc = conn.getContentEncoding();
+        String enc = null;
+        if (hc.isAutoDecode()) {
+            enc = conn.getContentEncoding();
+        }
         InputStream ins;
         if (code >= 400) {
             ins = conn.getErrorStream();

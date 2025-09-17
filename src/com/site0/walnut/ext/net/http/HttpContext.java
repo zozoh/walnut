@@ -31,6 +31,11 @@ public class HttpContext {
 
     private NutBean params;
 
+    /**
+     * 如果指定了 true，对于 gzip 之类的流，会自动解压缩
+     */
+    private boolean autoDecode;
+
     private InputStream body;
 
     private List<HttpFormPart> formParts;
@@ -347,6 +352,14 @@ public class HttpContext {
 
     public void setInputStreamFactory(WnInputStreamFactory inputStreamFactory) {
         this.inputStreamFactory = inputStreamFactory;
+    }
+
+    public boolean isAutoDecode() {
+        return autoDecode;
+    }
+
+    public void setAutoDecode(boolean autoDecode) {
+        this.autoDecode = autoDecode;
     }
 
 }
