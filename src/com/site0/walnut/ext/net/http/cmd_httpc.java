@@ -1,5 +1,7 @@
 package com.site0.walnut.ext.net.http;
 
+import java.io.IOException;
+
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
@@ -53,7 +55,6 @@ public class cmd_httpc
 
     @Override
     protected void output(WnSystem sys, HttpClientContext fc) {
-
         WnHttpResponse resp = null;
         try {
             resp = fc.getRespose();
@@ -78,8 +79,9 @@ public class cmd_httpc
                 }
             }
         }
-        catch (Exception e) {
-            throw Er.create(e, "e.cmd.httpc.FailToOutput");
+        catch (IOException e) {
+            String reason = fc.getErrReason();
+            throw Er.create(e, "e.cmd.httpc.FailToOutput", reason);
         }
         finally {
             Streams.safeClose(resp);

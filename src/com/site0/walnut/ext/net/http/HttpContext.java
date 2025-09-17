@@ -51,8 +51,8 @@ public class HttpContext {
     private WnInputStreamFactory inputStreamFactory;
 
     public HttpContext() {
-        connectTimeout = 3000;
-        readTimeout = 15000;
+        connectTimeout = 5000;
+        readTimeout = 300000;
         followRedirects = true;
     }
 

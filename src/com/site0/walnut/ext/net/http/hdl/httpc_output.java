@@ -90,7 +90,8 @@ public class httpc_output extends HttpClientFilter {
 
         }
         catch (IOException e) {
-            throw Er.wrap(e);
+            String reason = fc.getErrReason();
+            throw Er.create(e, "e.cmd.httpc.output.Fail", reason);
         }
 
     }

@@ -63,4 +63,10 @@ public class HttpClientContext extends JvmFilterContext {
         }
         return resp;
     }
+
+    public String getErrReason() {
+        return String.format("timeout-conn=%s, timeout-read=%s",
+                             context.getConnectTimeout(),
+                             context.getReadTimeout());
+    }
 }
