@@ -72,11 +72,11 @@ public abstract class SqlCriteria {
                 SqlCriJoin join = SqlCriJoin.AND;
 
                 // 特殊 $and: ...
-                if ("$and".equals(k) || "#and".equals(k)) {
+                if (k.matches("^[$#]and(:.*)?$")) {
                     node = toCriNode(v);
                 }
                 // 特殊 $or: ...
-                else if ("$or".equals(k) || "#or".equals(k)) {
+                else if (k.matches("^[$#]or(:.*)?$")) {
                     node = toCriNode(v);
                     join = SqlCriJoin.OR;
                 }
@@ -102,7 +102,8 @@ public abstract class SqlCriteria {
         }
 
         // 不支持的输入
-        throw Er.create("e.sql.cri.unsupportInputType", input.getClass().getSimpleName());
+        throw Er.create("e.sql.cri.unsupportInputType",
+                        input.getClass().getSimpleName());
     }
 
     public static SqlCriteriaNode anyToExp(String key, Object val) {
@@ -165,9 +166,11 @@ public abstract class SqlCriteria {
         return ex;
     }
 
-    private static final Pattern _P2 = Pattern.compile("^[$%](eq|ne|gt|gte|lt|lte|in|nin)$");
+    private static final Pattern _P2 = Pattern
+        .compile("^[$%](eq|ne|gt|gte|lt|lte|in|nin)$");
 
-    public static SqlCriteriaNode mapToExp(String key, Map<String, Object> map) {
+    public static SqlCriteriaNode mapToExp(String key,
+                                           Map<String, Object> map) {
         List<SqlCriteriaNode> nodes = new ArrayList<>(map.size());
         for (Map.Entry<String, Object> en : map.entrySet()) {
             String k = en.getKey();
