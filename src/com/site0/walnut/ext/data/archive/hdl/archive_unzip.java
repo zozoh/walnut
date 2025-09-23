@@ -41,7 +41,8 @@ public class archive_unzip extends ArchiveFilter {
         fc.quiet = params.is("quiet");
 
         // 目标目录
-        String taPath = params.val(0);
+        String arName = Files.getMajorName(fc.oArchive.name());
+        String taPath = params.val(0, arName);
         WnObj oTargetDir = null;
         if (!Ws.isBlank(taPath)) {
             String aph = Wn.normalizeFullPath(taPath, sys);
@@ -57,8 +58,7 @@ public class archive_unzip extends ArchiveFilter {
             if (null != _dir) {
                 fc.count = ing.extract((i, en, _ins) -> {
                     WnRace race = en.getRace();
-                    WnObj oF = sys.io
-                        .createIfNoExists(_dir, en.getName(), race);
+                    WnObj oF = sys.io.createIfNoExists(_dir, en.getName(), race);
                     if (oF.isFILE()) {
                         sys.io.write(oF, _ins);
                     }

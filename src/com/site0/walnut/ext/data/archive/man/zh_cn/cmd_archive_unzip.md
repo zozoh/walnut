@@ -4,16 +4,17 @@
 
 ```bash
 archive unzip \
-  [目标目录]       # 可选的解压目标目录
+  [path/to/target/]          # 【选】解压目标目录
+                             # 默认为当前目录下压缩包同名目录
   [-type zip|tar|tar.gz|tgz] # 指定归档类型
-  [-charset UTF-8] # 指定字符集
-  [-quiet]        # 静默模式
+  [-charset UTF-8]           # 指定字符集
+  [-quiet]                   # 静默模式
 ```
 
 # 示例
 
 ```bash
-# 解压归档文件到当前目录
+# 解压归档文件到当前目录下的 sample/ 目录
 archive ~/downloads/sample.zip @unzip
 
 # 解压归档文件到指定目录
