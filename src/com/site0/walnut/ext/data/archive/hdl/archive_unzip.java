@@ -42,11 +42,21 @@ public class archive_unzip extends ArchiveFilter {
 
         // 目标目录
         String arName = Files.getMajorName(fc.oArchive.name());
+        if (arName.endsWith(".tar")) {
+            arName = Files.getMajorName(arName);
+        }
+
+        // 默认采用压缩包主名作为目录
         String taPath = params.val(0, arName);
+
+        // 非预览模式，就需要指定一个输出目录
         WnObj oTargetDir = null;
-        if (!Ws.isBlank(taPath)) {
-            String aph = Wn.normalizeFullPath(taPath, sys);
-            oTargetDir = sys.io.createIfNoExists(null, aph, WnRace.DIR);
+        if (!params.is("view")) {
+            // 用户指定了输出目录
+            if (!Ws.isBlank(taPath)) {
+                String aph = Wn.normalizeFullPath(taPath, sys);
+                oTargetDir = sys.io.createIfNoExists(null, aph, WnRace.DIR);
+            }
         }
         final WnObj _dir = oTargetDir;
 
@@ -58,7 +68,8 @@ public class archive_unzip extends ArchiveFilter {
             if (null != _dir) {
                 fc.count = ing.extract((i, en, _ins) -> {
                     WnRace race = en.getRace();
-                    WnObj oF = sys.io.createIfNoExists(_dir, en.getName(), race);
+                    WnObj oF = sys.io
+                        .createIfNoExists(_dir, en.getName(), race);
                     if (oF.isFILE()) {
                         sys.io.write(oF, _ins);
                     }

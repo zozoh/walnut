@@ -14,7 +14,7 @@ public class MarkableInputStreamTest {
 
     @Test
     public void test_00() throws IOException {
-        InputStream ins = MarkableInputStream.wrap(Wlang.ins("1234567890"));
+        InputStream ins = MarkableInputStream.WRAP(Wlang.ins("1234567890"));
         ins.mark(3);
         byte[] bs = new byte[3];
         int n = ins.read(bs);

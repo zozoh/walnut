@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 
 public class MarkableInputStream extends InputStream {
 
-    public static InputStream wrap(InputStream ins) {
+    public static InputStream WRAP(InputStream ins) {
         if (ins.markSupported()) {
             return ins;
         }
