@@ -17,11 +17,17 @@ public class TPLLParsing {
 
     private HashSet<String> rawTypes;
 
+    private boolean ignoreNil;
+
+    private boolean useRawAll;
+
     private boolean useRawNumeric;
 
     private boolean useRawDts20;
 
     private boolean useRawDcymd8;
+
+    private boolean useRawDcymd16;
 
     public TPLLParsing(TPLLField[] fields) {
         this.fields = fields;
@@ -35,10 +41,20 @@ public class TPLLParsing {
                 rawTypes.add(s.toLowerCase());
             }
         }
+        this.useRawAll = rawTypes.contains("all");
         this.useRawDcymd8 = rawTypes.contains("dcymd8");
+        this.useRawDcymd16 = rawTypes.contains("dcymd16");
         this.useRawDts20 = rawTypes.contains("dts20");
         this.useRawNumeric = rawTypes.contains("numeric");
 
+    }
+
+    public boolean isIgnoreNil() {
+        return ignoreNil;
+    }
+
+    public void setIgnoreNil(boolean ignoreNil) {
+        this.ignoreNil = ignoreNil;
     }
 
     public List<NutMap> parse(String input) {
@@ -57,9 +73,10 @@ public class TPLLParsing {
                 if (fld.isFiller())
                     continue;
                 Object val = parseField(line, fld);
-                if (val != null) {
-                    map.put(fld.getKey(), val);
+                if (this.ignoreNil && val == null) {
+                    continue;
                 }
+                map.put(fld.getKey(), val);
             }
 
             re.add(map);
@@ -92,24 +109,31 @@ public class TPLLParsing {
 
         // 根据字段类型进行处理
         if (fld.isNumeric()) {
-            if (useRawNumeric) {
+            if (useRawNumeric || useRawAll) {
                 return re;
             }
             re = Double.valueOf(val);
         }
         // 针对日期的类型
         else if (fld.isDts20()) {
-            if (useRawDts20) {
+            if (useRawDts20 || useRawAll) {
                 return re;
             }
             re = fld.parseAsDts20(timezone, val);
         }
-        // 针对日期时间
+        // 针对日期 8位
         else if (fld.isDcymd8()) {
-            if (useRawDcymd8) {
+            if (useRawDcymd8 || useRawAll) {
                 return re;
             }
             re = fld.parseAsDcymd8(timezone, val);
+        }
+        // 针对日期时间 16位
+        else if (fld.isDcymd16()) {
+            if (useRawDcymd16 || useRawAll) {
+                return re;
+            }
+            re = fld.parseAsDcymd16(timezone, val);
         }
 
         // 默认就是字符类

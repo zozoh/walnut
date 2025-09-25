@@ -84,8 +84,15 @@ public class TPLLField {
         return TPLLFieldType.Dcymd8 == this.type;
     }
 
+    public boolean isDcymd16() {
+        return TPLLFieldType.Dcymd16 == this.type;
+    }
+
     private static Pattern PDcymd8 = Pattern
         .compile("^([0-9]{4})([0-9]{2})([0-9]{2})$");
+
+    private static Pattern PDcymd16 = Pattern
+        .compile("^([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})$");
 
     public Date parseAsDcymd8(TimeZone dftTz, String val) {
         if (Ws.isBlank(val))
@@ -97,6 +104,24 @@ public class TPLLField {
         }
         TimeZone tz = this.getTimezone(dftTz);
         Matcher m = PDcymd8.matcher(val);
+        if (!m.find()) {
+            throw Er.create("e.tpll.dcymd8.InvalidFormat", val);
+        }
+        String s = String
+            .format("%s-%s-%s", m.group(1), m.group(2), m.group(3));
+        return Wtime.parseDate(s, tz);
+    }
+
+    public Date parseAsDcymd16(TimeZone dftTz, String val) {
+        if (Ws.isBlank(val))
+            return null;
+        // ICS 的码表，默认认为 00010101000000 表示没有结束日期
+        // 为了统一，全部干到1千年后
+        if (val.startsWith("00010101000000")) {
+            return Y3000;
+        }
+        TimeZone tz = this.getTimezone(dftTz);
+        Matcher m = PDcymd16.matcher(val);
         if (!m.find()) {
             throw Er.create("e.tpll.dcymd8.InvalidFormat", val);
         }

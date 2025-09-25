@@ -17,6 +17,11 @@ import com.site0.walnut.util.ZParams;
 public class jsonx_load extends JsonXFilter {
 
     @Override
+    protected ZParams parseParams(String[] args) {
+        return ZParams.parse(args, "^(ignore_nil)$");
+    }
+
+    @Override
     protected void process(WnSystem sys, JsonXContext fc, ZParams params) {
         String as = params.getString("as", "json");
         String loadPath = params.val_check(0);
@@ -35,6 +40,7 @@ public class jsonx_load extends JsonXFilter {
             TPLLParsing ing = new TPLLParsing(flds);
             String raw = params.getString("raw");
             ing.setupRawTypes(raw);
+            ing.setIgnoreNil(params.is("ignore_nil"));
 
             // 解析用的默认时区
             String tzs = params.getString("tz", "UTC");

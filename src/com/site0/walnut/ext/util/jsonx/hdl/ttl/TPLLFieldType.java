@@ -33,7 +33,7 @@ public enum TPLLFieldType {
      * 日期类型
      * 
      * <pre>
-     * 1901 0 101 
+     * 1901 01 01 
      * |-- 1901  yyyy
      * |-- 01    MM
      * |-- 01    DD
@@ -41,5 +41,22 @@ public enum TPLLFieldType {
      * 
      * 其中，<code>00010101</code> 用来表示无限期
      */
-    Dcymd8
+    Dcymd8,
+
+    /**
+     * 日期时间
+     * 
+     * <pre>
+     * 1901 01 01 12 33 34 
+     * |-- 1901  yyyy
+     * |-- 01    MM
+     * |-- 01    DD
+     * |-- 12    HH  
+     * |-- 33    mm
+     * |-- 34    dd
+     * </pre>
+     * 
+     * 其中，<code>1901 01 01 00 00 00</code> 用来表示无限期
+     */
+    Dcymd16
 }

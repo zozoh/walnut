@@ -7,6 +7,7 @@ import com.site0.walnut.impl.box.JvmFilterExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.ZParams;
 
 public class cmd_jsonx extends JvmFilterExecutor<JsonXContext, JsonXFilter> {
 
@@ -20,6 +21,11 @@ public class cmd_jsonx extends JvmFilterExecutor<JsonXContext, JsonXFilter> {
     }
 
     @Override
+    protected ZParams parseParams(String[] args) {
+        return ZParams.parse(args, "cqn", "^(trim)$");
+    }
+
+    @Override
     protected void prepare(WnSystem sys, JsonXContext fc) {
         if (fc.params.vals.length > 0) {
             fc.input = fc.params.val(0);
@@ -27,6 +33,9 @@ public class cmd_jsonx extends JvmFilterExecutor<JsonXContext, JsonXFilter> {
         // 来自标准输入
         else {
             fc.input = sys.in.readAll();
+            if (fc.params.is("trim")) {
+                fc.input = Ws.trim(fc.input);
+            }
         }
 
         // 包裹为对象，这样输入为任意字符串都可以

@@ -33,6 +33,16 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
 
     private NutBean vars;
 
+    private boolean ignoreNil;
+
+    public boolean isIgnoreNil() {
+        return ignoreNil;
+    }
+
+    public void setIgnoreNil(boolean ignoreNil) {
+        this.ignoreNil = ignoreNil;
+    }
+
     @SuppressWarnings("unchecked")
     public Object translateAny(Object input, boolean onlyMapping) {
         Mirror<?> mi = Mirror.me(input);
@@ -167,7 +177,7 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
                 }
 
                 // 无视空
-                if (null == val) {
+                if (null == val && ignoreNil) {
                     continue;
                 }
 
@@ -302,7 +312,10 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
         }
         // 搞个容易理解的错误
         catch (Throwable e) {
-            throw Er.createf("e.bean.mapping.invalid", "field[%s]: %s", key, e.toString());
+            throw Er.createf("e.bean.mapping.invalid",
+                             "field[%s]: %s",
+                             key,
+                             e.toString());
         }
     }
 
@@ -333,7 +346,10 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
         this.setFields(fields, io, vars);
     }
 
-    public void loadFrom(String path, WnIo io, NutBean vars, Map<String, NutMap[]> caches) {
+    public void loadFrom(String path,
+                         WnIo io,
+                         NutBean vars,
+                         Map<String, NutMap[]> caches) {
         String aph = Wn.normalizeFullPath(path, vars);
         WnObj o = io.check(null, aph);
         NutMap map = io.readJson(o, NutMap.class);
@@ -355,7 +371,9 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
      * 确保自己每个值都是 WnBeanField 对象，有时候从 Json 恢复出来的是 NutMap
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public void checkFields(WnIo io, NutBean vars, Map<String, NutMap[]> caches) {
+    public void checkFields(WnIo io,
+                            NutBean vars,
+                            Map<String, NutMap[]> caches) {
         this.io = io;
         this.vars = vars;
         for (Map.Entry en : super.entrySet()) {
@@ -402,7 +420,10 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
     }
 
     @SuppressWarnings("unchecked")
-    private void checkEleType(NutMap vo, WnIo io, NutBean vars, Map<String, NutMap[]> caches) {
+    private void checkEleType(NutMap vo,
+                              WnIo io,
+                              NutBean vars,
+                              Map<String, NutMap[]> caches) {
         Object eleType = vo.get("eleType");
         if (null != eleType) {
             // 字符串，就表示类型
