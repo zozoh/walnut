@@ -298,6 +298,7 @@ public class JvmAtomRunner {
                 a = atoms[i];
                 // 如果没重定向输出，则上一个的输出等于下一个输入
                 if (a.sys.out == null) {
+                    @SuppressWarnings("resource")
                     WnTunnel tnl = new SyncWnTunnel(new JvmTunnel(8192));
                     tnls[i] = tnl;
                     a.sys.out = new JvmBoxOutput(tnl.asOutputStream());
