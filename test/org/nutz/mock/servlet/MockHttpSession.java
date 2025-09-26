@@ -11,9 +11,8 @@ import javax.servlet.http.HttpSessionContext;
 
 import com.site0.walnut.util.Wlang;
 
-@SuppressWarnings("deprecation")
 public class MockHttpSession implements HttpSession {
-    
+
     protected ServletContext servletContext;
 
     public MockHttpSession(MockServletContext servletContext) {
