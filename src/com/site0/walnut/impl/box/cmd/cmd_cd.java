@@ -41,7 +41,7 @@ public class cmd_cd extends JvmExecutor {
 
         // 修改会话中的设定
         sys.session.updateEnv("PWD", o.getRegularPath());
-        sys.auth.saveSessionEnv(sys.session);
+        //sys.auth.saveSessionEnv(sys.session);
     }
 
 }

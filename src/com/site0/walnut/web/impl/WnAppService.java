@@ -110,12 +110,15 @@ public class WnAppService extends WnRun {
         // 准备会话变量
         WnSession se = app.getSession();
         NutBean vars = se.getEnv();
-        vars.putDefault("PWD", Strings.sBlank(PWD, "~"));
-        vars.putDefault("APP_HOME", oAppHome.path());
+        vars.put("PWD", Strings.sBlank(PWD, "~"));
+        vars.put("APP_HOME", oAppHome.path());
 
         // 准备命令执行后的回调
         Writer w = new OutputStreamWriter(out);
-        AppCommandCallback callback = new AppCommandCallback(se, w, metaOutputSeparator, null);
+        AppCommandCallback callback = new AppCommandCallback(se,
+                                                             w,
+                                                             metaOutputSeparator,
+                                                             null);
 
         // 执行命令
         exec("", se, cmdText, out, err, ins, callback);
@@ -218,9 +221,11 @@ public class WnAppService extends WnRun {
         c.put("appClass", appName.replace('.', '_').toLowerCase());
 
         // 看看是否需要提供 debug 版
-        WnObj oDomain = io().fetch(null, Wn.appendPath(se.getUser().getHomePath(), ".domain"));
+        WnObj oDomain = io()
+            .fetch(null, Wn.appendPath(se.getUser().getHomePath(), ".domain"));
         NutBean vars = se.getEnv();
-        if (null != oDomain && oDomain.getBoolean("debug-app-" + appName.replace('.', '-'))) {
+        if (null != oDomain
+            && oDomain.getBoolean("debug-app-" + appName.replace('.', '-'))) {
             c.put("TiJs", "ti/core/ti.mjs");
             c.put("WnJs", "ti/lib/walnut/walnut.mjs");
         }
@@ -238,7 +243,8 @@ public class WnAppService extends WnRun {
             }
 
             // 有木有自定义的 DEPS ?
-            String depsPaths = vars.getString("TI_DEPS", "/rs/ti/dist/es6/ti-more-all.deps.json");
+            String depsPaths = vars
+                .getString("TI_DEPS", "/rs/ti/dist/es6/ti-more-all.deps.json");
             String depsUrl = vars.getString("TI_DEPS_URL", "/gu/rs/ti/deps/");
             String depsPrefix = vars.getString("TI_DEPS_PREFIX", "@deps:");
             String depsIgnore = vars.getString("TI_DEPS_IGNORE", null);
@@ -400,7 +406,10 @@ public class WnAppService extends WnRun {
 
             // 在所有的 APP_PATH 里寻找
             if (null == oTmpl) {
-                String appPaths = Wn.WC().checkSession().getEnv().getString("APP_PATH");
+                String appPaths = Wn.WC()
+                    .checkSession()
+                    .getEnv()
+                    .getString("APP_PATH");
                 String[] bases = Strings.splitIgnoreBlank(appPaths, ":");
                 for (String base : bases) {
                     String phTmpl = Wn.appendPath(base, nmTmpl);
