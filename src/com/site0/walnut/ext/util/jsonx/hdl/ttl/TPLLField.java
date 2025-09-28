@@ -53,6 +53,10 @@ public class TPLLField {
         return TPLLFieldType.Dts20 == this.type;
     }
 
+    public boolean isDts16() {
+        return TPLLFieldType.Dts16 == this.type;
+    }
+
     private static Pattern PDts20 = Pattern
         .compile("^([0-9]{4})([0-9]{2})([0-9]{2})"
                  + "([0-9]{2})([0-9]{2})([0-9]{2})"
@@ -77,6 +81,26 @@ public class TPLLField {
                                  m.group(5),
                                  m.group(6),
                                  m.group(7));
+        return Wtime.parseDate(s, tz);
+    }
+
+    private static Pattern PDts16 = Pattern
+        .compile("^([0-9]{4})([0-9]{2})([0-9]{2})" + "([0-9]{2})([0-9]{2})$");
+
+    public Date parseAsDts16(TimeZone dftTz, String val) {
+        if (Ws.isBlank(val))
+            return null;
+        TimeZone tz = this.getTimezone(dftTz);
+        Matcher m = PDts16.matcher(val);
+        if (!m.find()) {
+            throw Er.create("e.tpll.dst20.InvalidFormat", val);
+        }
+        String s = String.format("%s-%s-%s %s:%s",
+                                 m.group(1),
+                                 m.group(2),
+                                 m.group(3),
+                                 m.group(4),
+                                 m.group(5));
         return Wtime.parseDate(s, tz);
     }
 

@@ -25,6 +25,8 @@ public class TPLLParsing {
 
     private boolean useRawDts20;
 
+    private boolean useRawDts16;
+
     private boolean useRawDcymd8;
 
     private boolean useRawDcymd16;
@@ -45,6 +47,7 @@ public class TPLLParsing {
         this.useRawDcymd8 = rawTypes.contains("dcymd8");
         this.useRawDcymd16 = rawTypes.contains("dcymd16");
         this.useRawDts20 = rawTypes.contains("dts20");
+        this.useRawDts16 = rawTypes.contains("dts16");
         this.useRawNumeric = rawTypes.contains("numeric");
 
     }
@@ -114,12 +117,19 @@ public class TPLLParsing {
             }
             re = Double.valueOf(val);
         }
-        // 针对日期的类型
+        // 针对日期时间 yyyyMMddHHmmssSSS(NNN)
         else if (fld.isDts20()) {
             if (useRawDts20 || useRawAll) {
                 return re;
             }
             re = fld.parseAsDts20(timezone, val);
+        }
+        // 针对日期时间 yyyyMMddHHmm
+        else if (fld.isDts16()) {
+            if (useRawDts16 || useRawAll) {
+                return re;
+            }
+            re = fld.parseAsDts16(timezone, val);
         }
         // 针对日期 8位
         else if (fld.isDcymd8()) {
