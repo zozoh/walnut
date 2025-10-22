@@ -32,6 +32,9 @@
     setTraceID: function (traceID) {
       this.__trace_id = traceID;
     },
+    getPrefix: function(){
+	  return this.__prefix;		
+	},
     setPrefix: function (prefix) {
       this.__prefix = prefix;
     },

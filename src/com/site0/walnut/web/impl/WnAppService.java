@@ -110,7 +110,8 @@ public class WnAppService extends WnRun {
         // 准备会话变量
         WnSession se = app.getSession();
         NutBean vars = se.getEnv();
-        vars.put("PWD", Strings.sBlank(PWD, "~"));
+        String userHomePath = app.getSession().getUser().getHomePath();
+        vars.put("PWD", Strings.sBlank(PWD, userHomePath));
         vars.put("APP_HOME", oAppHome.path());
 
         // 准备命令执行后的回调
