@@ -45,9 +45,10 @@ public class cmd_jsonx extends JvmFilterExecutor<JsonXContext, JsonXFilter> {
         }
         // 输入必然是 JSON
         else if (!Ws.isBlank(fc.input)) {
-            if (Ws.isQuoteBy(fc.input, '[', ']')
-                || Ws.isQuoteBy(fc.input, '{', '}')) {
-                fc.obj = Json.fromJson(fc.input);
+            String trimed = Ws.trim(fc.input);
+            if (Ws.isQuoteBy(trimed, '[', ']')
+                || Ws.isQuoteBy(trimed, '{', '}')) {
+                fc.obj = Json.fromJson(trimed);
             }
         }
 
