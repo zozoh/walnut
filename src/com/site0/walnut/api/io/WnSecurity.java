@@ -1,6 +1,6 @@
 package com.site0.walnut.api.io;
 
-import com.site0.walnut.api.auth.WnAccount;
+import com.site0.walnut.login.session.WnSession;
 
 public interface WnSecurity {
 
@@ -18,6 +18,6 @@ public interface WnSecurity {
 
     boolean test(WnObj nd, int mode);
 
-    boolean test(WnObj nd, int mode, WnAccount user);
+    boolean test(WnObj nd, int mode, WnSession se);
 
 }

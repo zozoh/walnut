@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocketFactory;
 
 import com.site0.walnut.util.Wlang;
@@ -32,13 +31,16 @@ public class HttpContext {
 
     private NutBean params;
 
+    /**
+     * 如果指定了 true，对于 gzip 之类的流，会自动解压缩
+     */
+    private boolean autoDecode;
+
     private InputStream body;
 
     private List<HttpFormPart> formParts;
 
     private SSLSocketFactory sslSocketFactory;
-
-    private HostnameVerifier hostnameVerifier;
 
     private int connectTimeout;
 
@@ -54,8 +56,8 @@ public class HttpContext {
     private WnInputStreamFactory inputStreamFactory;
 
     public HttpContext() {
-        connectTimeout = 3000;
-        readTimeout = 15000;
+        connectTimeout = 5000;
+        readTimeout = 300000;
         followRedirects = true;
     }
 
@@ -296,18 +298,6 @@ public class HttpContext {
         this.sslSocketFactory = sslSocketFactory;
     }
 
-    public boolean hasHostnameVerifier() {
-        return null != hostnameVerifier;
-    }
-
-    public HostnameVerifier getHostnameVerifier() {
-        return hostnameVerifier;
-    }
-
-    public void setHostnameVerifier(HostnameVerifier hostnameVerifier) {
-        this.hostnameVerifier = hostnameVerifier;
-    }
-
     public boolean hasConnectTimeout() {
         return this.connectTimeout > 0;
     }
@@ -362,6 +352,14 @@ public class HttpContext {
 
     public void setInputStreamFactory(WnInputStreamFactory inputStreamFactory) {
         this.inputStreamFactory = inputStreamFactory;
+    }
+
+    public boolean isAutoDecode() {
+        return autoDecode;
+    }
+
+    public void setAutoDecode(boolean autoDecode) {
+        this.autoDecode = autoDecode;
     }
 
 }

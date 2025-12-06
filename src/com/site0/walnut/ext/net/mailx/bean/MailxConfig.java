@@ -8,4 +8,6 @@ public class MailxConfig {
 
     public MailxImapConifg imap;
 
+    public MailFSConfig fs;
+
 }

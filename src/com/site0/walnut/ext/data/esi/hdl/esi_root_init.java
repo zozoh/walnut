@@ -4,12 +4,16 @@ import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.impl.box.JvmHdl;
 import com.site0.walnut.impl.box.JvmHdlContext;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.usr.WnUser;
 
 public class esi_root_init implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
-        if (!sys.getMe().isRoot()) {
+        WnUser me = sys.getMe();
+        WnRoleList roles = sys.roles().getRoles(me);
+        if (roles.isAdminOfRole("root")) {
             sys.err.print("only for root");
             return;
         }

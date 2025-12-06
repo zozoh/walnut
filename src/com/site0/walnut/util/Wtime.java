@@ -2,6 +2,7 @@ package com.site0.walnut.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -9,11 +10,10 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Strings;
-
-import com.site0.walnut.api.auth.WnAuthSession;
+import org.nutz.lang.util.NutBean;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.ext.sys.datex.bean.WnHolidays;
+import com.site0.walnut.login.session.WnSession;
 
 /**
  * 日期时间相关的帮助函数
@@ -55,6 +55,12 @@ public abstract class Wtime {
         return format(c.getTime(), fmt);
     }
 
+    public static String format(Instant t, String fmt) {
+        long ams = t.toEpochMilli();
+        Date d = new Date(ams);
+        return format(d, fmt);
+    }
+
     public static String format(Date d, String fmt) {
         WnContext wc = Wn.WC();
         TimeZone tz = wc.getTimeZone();
@@ -78,15 +84,34 @@ public abstract class Wtime {
         return formatUTC(c.getTime(), fmt);
     }
 
+    public static String formatUTC(Instant t, String fmt) {
+        long ams = t.toEpochMilli();
+        Date d = new Date(ams);
+        return formatUTC(d, fmt);
+    }
+
     public static String formatUTC(Date d, String fmt) {
         SimpleDateFormat formater = new SimpleDateFormat(fmt, Locale.ENGLISH);
         formater.setTimeZone(tz_utc);
         return formater.format(d);
     }
 
-    public static TimeZone getSessionTimeZone(WnAuthSession session) {
-        String tzName = session.getVars().getString("TIMEZONE", "GMT+8").toUpperCase();
-        return toTimeZone(tzName);
+    public static TimeZone getSessionTimeZone(WnSession session) {
+        NutBean env = session.getEnv();
+        String tzName = null;
+        if (null != env) {
+            tzName = env.getString("TIMEZONE");
+        }
+        // 环境变量没有，那么就从线程上下文尝试获取
+        // 如果线程上下文没有，就默认采用 GMT+8
+        if (null == tzName) {
+            TimeZone tz = Wn.WC().getTimeZone();
+            if (null != tz) {
+                return tz;
+            }
+            tzName = "GMT+8";
+        }
+        return toTimeZone(tzName.toUpperCase());
     }
 
     public static TimeZone toTimeZone(String tzName) {
@@ -269,9 +294,8 @@ public abstract class Wtime {
                 String fmt = "%04d-%02d-%02d %02d:%02d:%02d.%03d";
                 str = String.format(fmt, yy, MM, dd, HH, mm, ss, ms);
                 if (!Ws.isBlank(m.group(15))) {
-                    tz = TimeZone.getTimeZone(String.format("GMT%s%s:00",
-                                                            m.group(16),
-                                                            m.group(17)));
+                    tz = TimeZone.getTimeZone(String
+                        .format("GMT%s%s:00", m.group(16), m.group(17)));
                 }
 
             }
@@ -301,7 +325,8 @@ public abstract class Wtime {
             }
         }
 
-        throw Er.createf("e.time.invalid.format", "Unexpect date format '%s'", ds);
+        throw Er
+            .createf("e.time.invalid.format", "Unexpect date format '%s'", ds);
     }
 
     public static long parseAnyAMSUTC(Object input) {
@@ -367,6 +392,10 @@ public abstract class Wtime {
 
     public static Date parseAnyDate(Object input) {
         return parseAnyDate(input, null);
+    }
+
+    public static Date parseAnyDateUTC(Object input) {
+        return parseAnyDate(input, TZ_UTC);
     }
 
     public static Date parseAnyDate(Object input, TimeZone tz) {
@@ -542,7 +571,10 @@ public abstract class Wtime {
      *            </ul>
      * @return
      */
-    public static Calendar from(Calendar c, int offset, WnHolidays holidays, String mode) {
+    public static Calendar from(Calendar c,
+                                int offset,
+                                WnHolidays holidays,
+                                String mode) {
         // 不偏移
         // if (0 == offset) {
         // return c;
@@ -724,7 +756,7 @@ public abstract class Wtime {
         if (m.find()) {
             // 分析表达式
             String current = m.group(1);
-            String offset = m.group(2); // -4d
+            // String offset = m.group(2); // -4d
             String sign = m.group(3); // - or +
             String dus = m.group(4); // 4d or 4s ...
             // 类似 now+4d
@@ -779,47 +811,70 @@ public abstract class Wtime {
             //
             // 嗯要加点偏移量
             //
-            if (!Strings.isBlank(offset)) {
-                // 偏移年/月，不能直接用毫秒数
-                m = P_YM_STR.matcher(dus);
-                if (m.find()) {
-                    int n = Integer.parseInt(m.group(1));
-                    if ("-".equals(sign)) {
-                        n = n * -1;
-                    }
-                    String unit = m.group(2);
-                    Calendar c = Calendar.getInstance();
-                    c.setTimeInMillis(ms);
-                    // 偏移年:y
-                    if ("y".equals(unit)) {
-                        c.add(Calendar.YEAR, n);
-                        ms = c.getTimeInMillis();
-                    }
-                    // 偏移月: M
-                    else {
-                        c.add(Calendar.MONTH, n);
-                        ms = c.getTimeInMillis();
-                    }
-                }
-                // 直接可以偏移毫秒: s/m/h/d/w
-                else {
-                    long off = Wtime.millisecond(dus);
-                    // 看是加还是减
-                    if ("-".equals(sign)) {
-                        off = off * -1L;
-                    }
-                    // 偏移
-                    ms += off;
-                }
-            }
+            ms = __apply_offset(ms, sign, dus);
         }
 
         // 搞定返回
         return ms;
     }
 
-    private static final Pattern P_MS_STR = Pattern.compile("^([-]?[0-9]+)([smhdw])?$");
-    private static final Pattern P_YM_STR = Pattern.compile("^([-]?[0-9]+)([yM])?$");
+    private static long __apply_offset(long ms, String sign, String dus) {
+        if (Ws.isBlank(dus)) {
+            return ms;
+        }
+        // 偏移年/月，不能直接用毫秒数
+        Matcher m = P_YM_STR.matcher(dus);
+        if (m.find()) {
+            int n = Integer.parseInt(m.group(1));
+            if ("-".equals(sign)) {
+                n = n * -1;
+            }
+            String unit = m.group(2);
+            Calendar c = Calendar.getInstance();
+            c.setTimeInMillis(ms);
+            // 偏移年:y
+            if ("y".equals(unit)) {
+                c.add(Calendar.YEAR, n);
+                ms = c.getTimeInMillis();
+            }
+            // 偏移月: M
+            else {
+                c.add(Calendar.MONTH, n);
+                ms = c.getTimeInMillis();
+            }
+        }
+        // 直接可以偏移毫秒: s/m/h/d/w
+        else {
+            long off = Wtime.millisecond(dus);
+            // 看是加还是减
+            if ("-".equals(sign)) {
+                off = off * -1L;
+            }
+            // 偏移
+            ms += off;
+        }
+        return ms;
+    }
+
+    public static long applyOffset(long ms, String offset) {
+        if (Ws.isBlank(offset)) {
+            return ms;
+        }
+        String sign = "+";
+        String dus = offset;
+        if (offset.startsWith("+")) {
+            dus = offset.substring(1).trim();
+        } else if (offset.startsWith("-")) {
+            sign = "-";
+            dus = offset.substring(1).trim();
+        }
+        return __apply_offset(ms, sign, dus);
+    }
+
+    private static final Pattern P_MS_STR = Pattern
+        .compile("^([-]?[0-9]+)([smhdw])?$");
+    private static final Pattern P_YM_STR = Pattern
+        .compile("^([-]?[0-9]+)([yM])$");
 
     /**
      * 将一个字符串变成毫秒数，如果就是数字，那么表示毫秒

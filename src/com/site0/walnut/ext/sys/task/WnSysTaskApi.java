@@ -4,8 +4,8 @@ import java.io.InputStream;
 import java.util.List;
 
 import com.site0.walnut.api.WnAuthExecutable;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.io.WnObj;
+import com.site0.walnut.login.usr.WnUser;
 
 public interface WnSysTaskApi {
 
@@ -40,7 +40,7 @@ public interface WnSysTaskApi {
      *            命令执行的标准输入流
      * @throws WnSysTaskException
      */
-    void runTask(WnAuthExecutable runer, WnObj oTask, WnAccount user, InputStream input)
+    void runTask(WnAuthExecutable runer, WnObj oTask, WnUser user, InputStream input)
             throws WnSysTaskException;
 
     /**

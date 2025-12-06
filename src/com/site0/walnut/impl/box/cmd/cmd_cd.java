@@ -25,6 +25,10 @@ public class cmd_cd extends JvmExecutor {
 
         ph = Disks.getCanonicalPath(ph);
 
+        // 确保以目录结尾
+        if (!ph.endsWith("/"))
+            ph += "/";
+
         // 检查这个目录是否存在
         WnObj o = sys.io.check(null, ph);
 
@@ -36,8 +40,8 @@ public class cmd_cd extends JvmExecutor {
         o = Wn.WC().whenEnter(o, false);
 
         // 修改会话中的设定
-        sys.session.getVars().put("PWD", o.path());
-        sys.auth.saveSessionVars(sys.session);
+        sys.session.updateEnv("PWD", o.getRegularPath());
+        //sys.auth.saveSessionEnv(sys.session);
     }
 
 }

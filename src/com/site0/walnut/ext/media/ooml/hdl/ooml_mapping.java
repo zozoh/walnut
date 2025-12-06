@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.nutz.json.Json;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.media.ooml.OomlContext;
@@ -68,7 +69,7 @@ public class ooml_mapping extends OomlFilter {
             fc.mapping.setPickingFields(keys, names);
 
             // 编译规则
-            NutMap vars = sys.session.getVars();
+            NutBean vars = sys.session.getEnv();
             Map<String, NutMap[]> caches = new HashMap<>();
             fc.mapping.ready(sys.io, vars, caches);
         }

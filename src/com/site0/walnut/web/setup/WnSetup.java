@@ -21,9 +21,6 @@ import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
 import org.nutz.resource.Scans;
 import com.site0.walnut.WnVersion;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.box.WnBoxService;
 import com.site0.walnut.api.box.WnServiceFactory;
 import com.site0.walnut.api.io.WnIo;
@@ -31,6 +28,9 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.ext.sys.websocket.WnWebSocket;
 import com.site0.walnut.impl.box.JvmExecutorFactory;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnRun;
 import com.site0.walnut.util.WnSysRuntime;
@@ -112,12 +112,21 @@ public class WnSetup implements Setup {
         WnIo io = Wn.Service.io(ioc);
         log.info("OK: WnIo");
 
-        WnAuthService auth = Wn.Service.auth(ioc);
+        // 检查系统关键目录，这几个目录不存在，系统的账号体系就不能正常工作
+        makeWalnutKeyDirIfNoExists(io);
+
+        // 权鉴接口可以从 Ioc 容器获取了
+        WnLoginApi auth = Wn.Service.auth(ioc);
         log.info("OK: WnAuthService");
 
-        // 获取根用户
-        WnAccount root = auth.checkAccount("root");
-        log.info("OK: root user");
+        // 确保有 ROOT 用户
+        String passwd = conf.get("root-init-passwd", "123456");
+        WnUser root = auth.addRootUserIfNoExists(passwd);
+        log.infof("OK: root user: %s", root.getId());
+
+        // 确保 guest 用户
+        WnUser guest = auth.addGuestUserIfNoExists();
+        log.infof("OK: guest user: %s", guest.getId());
 
         Wn.Service.tasks(ioc);
         log.info("OK: WnSysTaskApi");
@@ -221,23 +230,16 @@ public class WnSetup implements Setup {
         // 初始化jvm box
         ioc.get(JvmExecutorFactory.class).get("time");
 
-        // TODO: 这个没有必要了，稍后删除，因为换成新的 WnSysCron实现了
-        // 初始化Cron服务
-        // if (conf.getBoolean("crontab.enable", true))
-        // ioc.get(WnCronService.class);
-
-        WnAccount guest = auth.getAccount("guest");
-        if (guest == null) {
-            auth.createAccount(new WnAccount("guest"));
-        }
-
         // -----------------------------------------
         // 启动一系列线程后台处理线程
         // -----------------------------------------
         WnServiceFactory sf = ioc.get(WnServiceFactory.class, "serviceFactory");
         WnRun run = ioc.get(WnRun.class);
-        WnAuthSession rootSession = auth.createSession(root, true);
-
+        int du = auth.getSessionDuration(true);
+        WnSession rootSession = auth.getSessionByUserNameAndType("root", Wn.SET_BG);
+        if (null == rootSession) {
+            rootSession = auth.createSession(root, Wn.SET_BG, du);
+        }
         //
         // 后台任务线程
         //
@@ -336,6 +338,45 @@ public class WnSetup implements Setup {
             setup.destroy(nc);
         // 关闭所有运行的沙箱
         boxes.shutdown();
+    }
+
+    /**
+     * 无论如何，都需要考虑建立下面三个目录
+     * 
+     * <ul>
+     * <li><code>/sys/usr:750:root:root</code> 存放用户信息
+     * <li><code>/sys/role:750:root:root</code> 存放用户角色分组
+     * <li><code>/var/session:750:root:root</code> 存放会话信息
+     * </ul>
+     */
+    public static void makeWalnutKeyDirIfNoExists(WnIo io) {
+        Wn.WC().nosecurity(io, () -> {
+            __check_key_dir(io, "/sys", 493);
+            __check_key_dir(io, "/sys/usr", 488);
+            __check_key_dir(io, "/sys/role", 488);
+            __check_key_dir(io, "/var", 493);
+            __check_key_dir(io, "/var/session", 488);
+        });
+    }
+
+    private static void __check_key_dir(WnIo io, String path, int mode) {
+        WnObj oDir = io.createIfNoExists(null, path, WnRace.DIR);
+        NutMap delta = new NutMap();
+        if (oDir.mode() != mode) {
+            delta.put("md", mode);
+        }
+        if (!oDir.creator().equals("root")) {
+            delta.put("c", "root");
+        }
+        if (!oDir.mender().equals("root")) {
+            delta.put("m", "root");
+        }
+        if (!oDir.group().equals("root")) {
+            delta.put("g", "root");
+        }
+        if (!delta.isEmpty()) {
+            io.appendMeta(oDir, delta);
+        }
     }
 
 }

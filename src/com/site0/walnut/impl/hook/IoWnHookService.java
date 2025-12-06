@@ -18,8 +18,14 @@ import com.site0.walnut.util.WnContext;
 public abstract class IoWnHookService implements WnHookService {
 
     protected WnIo io;
-    
+
     protected ElasticsearchService esi;
+
+    public IoWnHookService() {}
+
+    public IoWnHookService(WnIo io) {
+        this.io = io;
+    }
 
     public IoWnHookService setIo(WnIo io) {
         this.io = io;

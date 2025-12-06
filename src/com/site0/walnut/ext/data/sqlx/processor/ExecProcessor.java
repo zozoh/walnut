@@ -48,7 +48,9 @@ public class ExecProcessor implements SqlProcessor<SqlExecResult> {
     }
 
     @Override
-    public SqlExecResult runWithParams(Connection conn, String sql, Object[] params) {
+    public SqlExecResult runWithParams(Connection conn,
+                                       String sql,
+                                       Object[] params) {
         if (log.isInfoEnabled()) {
             log.info(Wlog.msg(sql));
             log.info(Wlog.msg("Params: " + Json.toJson(params)));
@@ -76,7 +78,9 @@ public class ExecProcessor implements SqlProcessor<SqlExecResult> {
     }
 
     @Override
-    public SqlExecResult batchRun(Connection conn, String sql, List<Object[]> paramList) {
+    public SqlExecResult batchRun(Connection conn,
+                                  String sql,
+                                  List<Object[]> paramList) {
         if (log.isInfoEnabled()) {
             log.info(Wlog.msg(sql));
             int N = paramList.size();
@@ -110,9 +114,9 @@ public class ExecProcessor implements SqlProcessor<SqlExecResult> {
             }
 
             // 执行
-            re.batchResult = sta.executeBatch();
+            int[] batchResult = sta.executeBatch();
             re.updateCount = sta.getUpdateCount();
-            re.batchTotal = Nums.sum(re.batchResult);
+            re.batchTotal = Nums.sum(batchResult);
 
         }
         catch (Exception e) {

@@ -8,8 +8,6 @@ import org.nutz.lang.util.Callback;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import com.site0.walnut.api.WnAuthExecutable;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
@@ -19,6 +17,8 @@ import com.site0.walnut.ext.sys.task.WnSysTask;
 import com.site0.walnut.ext.sys.task.WnSysTaskApi;
 import com.site0.walnut.ext.sys.task.WnSysTaskException;
 import com.site0.walnut.ext.sys.task.WnSysTaskQuery;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
@@ -33,18 +33,18 @@ public class WnSysTaskService implements WnSysTaskApi {
 
     private WnIo io;
 
-    private WnAuthService auth;
+    private WnLoginApi auth;
 
     /* AUDO get by init */
     private WnObj taskHome;
 
     /* AUDO get by rootUser */
-    private WnAccount rootUser;
+    private WnUser rootUser;
 
     public WnSysTaskService() {}
 
     @Override
-    public void runTask(WnAuthExecutable runer, WnObj oTask, WnAccount user, InputStream input)
+    public void runTask(WnAuthExecutable runer, WnObj oTask, WnUser user, InputStream input)
             throws WnSysTaskException {
         // 准备命令
         String cmdText = oTask.getString("command");
@@ -240,19 +240,19 @@ public class WnSysTaskService implements WnSysTaskApi {
         this.io = io;
     }
 
-    public WnAuthService getAuth() {
+    public WnLoginApi getAuth() {
         return auth;
     }
 
-    public void setAuth(WnAuthService auth) {
+    public void setAuth(WnLoginApi auth) {
         this.auth = auth;
     }
 
-    public WnAccount getRootUser() {
+    public WnUser getRootUser() {
         return rootUser;
     }
 
-    public void setRootUser(WnAccount rootUser) {
+    public void setRootUser(WnUser rootUser) {
         this.rootUser = rootUser;
     }
 
@@ -269,7 +269,7 @@ public class WnSysTaskService implements WnSysTaskApi {
      */
     public void on_create() {
         if (null == this.rootUser) {
-            this.rootUser = auth.getAccount("root");
+            this.rootUser = auth.getUser("root");
         }
         if (null == this.taskHome) {
             this.taskHome = io.createIfNoExists(null, "/sys/tasks/", WnRace.DIR);

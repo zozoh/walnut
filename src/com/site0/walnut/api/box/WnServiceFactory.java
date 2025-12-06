@@ -1,18 +1,18 @@
 package com.site0.walnut.api.box;
 
-import com.site0.walnut.api.auth.WnAuthService;
 import com.site0.walnut.api.hook.WnHookService;
 import com.site0.walnut.api.lock.WnLockApi;
 import com.site0.walnut.core.WnReferApi;
 import com.site0.walnut.ext.sys.cron.WnSysCronApi;
 import com.site0.walnut.ext.sys.schedule.WnSysScheduleApi;
 import com.site0.walnut.ext.sys.task.WnSysTaskApi;
+import com.site0.walnut.login.WnLoginApi;
 
 public class WnServiceFactory {
 
     private WnHookService hookApi;
 
-    private WnAuthService authApi;
+    private WnLoginApi loginApi;
 
     private WnSysTaskApi taskApi;
 
@@ -30,8 +30,8 @@ public class WnServiceFactory {
         return lockApi;
     }
 
-    public WnAuthService getAuthApi() {
-        return authApi;
+    public WnLoginApi getLoginApi() {
+        return loginApi;
     }
 
     public WnSysTaskApi getTaskApi() {
@@ -58,4 +58,38 @@ public class WnServiceFactory {
         return referApi;
     }
 
+    public void setHookApi(WnHookService hookApi) {
+        this.hookApi = hookApi;
+    }
+
+    public void setLoginApi(WnLoginApi loginApi) {
+        this.loginApi = loginApi;
+    }
+
+    public void setTaskApi(WnSysTaskApi taskApi) {
+        this.taskApi = taskApi;
+    }
+
+    public void setScheduleApi(WnSysScheduleApi scheduleApi) {
+        this.scheduleApi = scheduleApi;
+    }
+
+    public void setCronApi(WnSysCronApi cronApi) {
+        this.cronApi = cronApi;
+    }
+
+    public void setBoxApi(WnBoxService boxApi) {
+        this.boxApi = boxApi;
+    }
+
+    public void setReferApi(WnReferApi referApi) {
+        this.referApi = referApi;
+    }
+
+    public void setLockApi(WnLockApi lockApi) {
+        this.lockApi = lockApi;
+    }
+
+    
+    
 }

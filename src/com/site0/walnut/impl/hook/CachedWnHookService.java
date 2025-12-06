@@ -9,6 +9,7 @@ import java.util.Map;
 import org.nutz.trans.Proton;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.hook.WnHook;
+import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.io.WnEvalLink;
 import com.site0.walnut.util.Wn;
@@ -26,6 +27,12 @@ public class CachedWnHookService extends IoWnHookService {
     private Map<String, HookInfo> globalCache;
 
     public CachedWnHookService() {
+        userCache = new HashMap<>();
+        globalCache = new HashMap<>();
+    }
+    
+    public CachedWnHookService(WnIo io) {
+        super(io);
         userCache = new HashMap<>();
         globalCache = new HashMap<>();
     }

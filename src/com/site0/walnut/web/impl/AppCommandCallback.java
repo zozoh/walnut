@@ -9,8 +9,8 @@ import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.trans.Atom;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.box.WnBoxContext;
+import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.Wn;
 
 /**
@@ -33,7 +33,7 @@ public class AppCommandCallback implements Callback<WnBoxContext> {
 
     private String metaOutputSeparator;
     private Writer w;
-    private WnAuthSession session;
+    private WnSession session;
     private Atom atom;
 
     /**
@@ -46,7 +46,7 @@ public class AppCommandCallback implements Callback<WnBoxContext> {
      * @param atom
      *            后续操作原子，通常用作释放资源之用，null 表示无需后续操作
      */
-    AppCommandCallback(WnAuthSession session, Writer w, String metaOutputSeparator, Atom atom) {
+    AppCommandCallback(WnSession session, Writer w, String metaOutputSeparator, Atom atom) {
         this.session = session;
         this.w = w;
         this.metaOutputSeparator = metaOutputSeparator;
@@ -61,7 +61,7 @@ public class AppCommandCallback implements Callback<WnBoxContext> {
                 // ----------------------------------
                 // 无论怎样，都设置环境变量
                 w.write("\n" + metaOutputSeparator + ":MACRO:" + Wn.MACRO.UPDATE_ENVS + "\n");
-                w.write(Json.toJson(session.getVars()));
+                w.write(Json.toJson(session.getEnv()));
                 w.flush();
                 // ----------------------------------
                 // 修改当前客户端的 session

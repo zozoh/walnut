@@ -103,7 +103,7 @@ public class o_ancestors extends OFilter {
             }
 
             // 包括自己
-            if (includeSelf) {
+            if (includeSelf && !o.isSameId(oTop)) {
                 ans.add(o);
             }
 

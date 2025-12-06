@@ -2,6 +2,7 @@ package com.site0.walnut.util;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -1508,15 +1509,16 @@ public class Ws {
      *
      * @param obj
      *            指定的对象
-     * @param def
+     * @param fallbacks
      *            默认值
      * @return 对指定对象进行 toString 操作；如果该对象为 null 或者 toString 方法为空串（""），则返回默认值
      */
-    public static String sBlank(Object obj, String def) {
-        if (null == obj)
-            return def;
-        String s = obj.toString();
-        return isBlank(s) ? def : s;
+    public static String sBlank(Object obj, String fallback) {
+        String s = null == obj ? null : obj.toString();
+        if (!isBlank(s)) {
+            return s;
+        }
+        return fallback;
     }
 
     public static String sBlanks(Object... objs) {
@@ -1639,10 +1641,16 @@ public class Ws {
      * @return 输入 SnakeCase 字符串
      */
     public static String snakeCase(String input) {
-        char[] cs = input.toCharArray();
-        char[] outs = new char[cs.length * 2];
-        int count = __join_sepCase_char_array(cs, outs, '_');
-        return new String(outs, 0, count);
+        if (input == null || input.isEmpty()) {
+            return input;
+        }
+
+        List<String> words = splitWords(input, false, false);
+        if (words.isEmpty()) {
+            return "";
+        }
+
+        return Ws.join(words, "_");
     }
 
     /**
@@ -1653,53 +1661,16 @@ public class Ws {
      * @return 输入 KebabCase 字符串
      */
     public static String kebabCase(String input) {
-        char[] cs = input.toCharArray();
-        char[] outs = new char[cs.length * 2];
-        int count = __join_sepCase_char_array(cs, outs, '-');
-        return new String(outs, 0, count);
-    }
-
-    private static int __join_sepCase_char_array(char[] cs, char[] outs, char sep) {
-        int count = 0;
-        boolean lastUpper = false;
-        boolean startWord = true;
-        boolean lastWhitespace = false;
-        for (int i = 0; i < cs.length; i++) {
-            char c = cs[i];
-            // 空白
-            if ('_' == c || '-' == c || Character.isWhitespace(c)) {
-                startWord = true;
-                lastWhitespace = true;
-                continue;
-            }
-            // 有字符串
-            // 当前字符串是否是大写呢？
-            boolean cu = Character.isUpperCase(c);
-
-            // 如果从小写变成大写了，也表示开始了一个新词
-            if (lastUpper != cu && cu) {
-                startWord = true;
-            } else {
-                startWord = false;
-            }
-
-            // 如果开始了一个新词，那么看看有木有必要插入一个分隔符呢？
-            if (count > 0 && (startWord || lastWhitespace)) {
-                outs[count++] = sep;
-            }
-
-            // 大写字母转换一下
-            if (cu) {
-                c = Character.toLowerCase(c);
-            }
-
-            // 记录最后的 大小写
-            outs[count++] = c;
-            lastUpper = cu;
-            startWord = false;
-            lastWhitespace = false;
+        if (input == null || input.isEmpty()) {
+            return input;
         }
-        return count;
+
+        List<String> words = splitWords(input, false, false);
+        if (words.isEmpty()) {
+            return "";
+        }
+
+        return Ws.join(words, "-");
     }
 
     /**
@@ -1710,21 +1681,16 @@ public class Ws {
      * @return 输入 HeaderCase 字符串
      */
     public static String headerCase(String input) {
-        char[] cs = input.toCharArray();
-        char[] outs = new char[cs.length * 2];
-        int count = __join_sepCase_char_array(cs, outs, '-');
-        if (count > 0) {
-            outs[0] = Character.toUpperCase(outs[0]);
+        if (input == null || input.isEmpty()) {
+            return input;
         }
-        int lastI = count - 1;
-        for (int i = 1; i < count; i++) {
-            char c = outs[i];
-            if ('-' == c && i < lastI) {
-                i++;
-                outs[i] = Character.toUpperCase(outs[i]);
-            }
+
+        List<String> words = splitWords(input, true, true);
+        if (words.isEmpty()) {
+            return "";
         }
-        return new String(outs, 0, count);
+
+        return Ws.join(words, "-");
     }
 
     /**
@@ -1735,44 +1701,113 @@ public class Ws {
      * @return 输入 CamelCase 字符串
      */
     public static String camelCase(String input) {
-        char[] cs = input.toCharArray();
-        char[] outs = new char[cs.length * 2];
-        int count = 0;
-        char lastC = 0;
-        boolean lastUpper = false;
-        for (int i = 0; i < cs.length; i++) {
-            char c = cs[i];
-            // 空白
-            if ('_' == c || '-' == c || Character.isWhitespace(c)) {
-                lastC = ' ';
-            }
-            // 有字符串
-            else {
-                // 当前字符串是否是大写呢？
-                boolean cu = Character.isUpperCase(c);
+        if (input == null || input.isEmpty()) {
+            return input;
+        }
 
-                // 如果大小写变化了，或者遇到分隔符了，就搞一个
-                if ((lastUpper != cu || ' ' == lastC) && count > 0) {
-                    if (!cu) {
-                        c = Character.toUpperCase(c);
-                    }
-                    outs[count++] = c;
-                }
-                // 大写字母
-                else if (cu) {
-                    outs[count++] = Character.toLowerCase(c);
-                }
-                // 其他统统计入
-                else {
-                    outs[count++] = c;
-                }
+        List<String> words = splitWords(input, false, true);
 
-                // 记录最后的 大小写
-                lastUpper = cu;
-                lastC = c;
+        if (words.isEmpty()) {
+            return "";
+        }
+
+        return Ws.join(words, "");
+    }
+
+    /**
+     * 与 snakeCase 不同，这里每个部分的单词都是大写
+     * 
+     * @param cs
+     *            输入
+     * @return 输入 CamelCase 字符串
+     */
+    public static String upperCase(String input) {
+        if (input == null || input.isEmpty()) {
+            return input;
+        }
+
+        List<String> words = splitWords(input, false, true);
+
+        if (words.isEmpty()) {
+            return "";
+        }
+
+        List<String> w2 = new ArrayList<>(words.size());
+        for (String w : words) {
+            w2.add(w.toUpperCase());
+        }
+
+        return Ws.join(w2, "_");
+    }
+
+    /**
+     * 将输入的字符串拆分为单词列表
+     * 
+     * @param input
+     *            输入字符串
+     * @param cfl_0
+     *            第一个单词需要首字母大写
+     * @param cfl_n
+     *            后续单词需要首字母大写
+     * @return 拆分的单词
+     */
+    public static List<String> splitWords(String input, boolean cfl_0, boolean cfl_n) {
+        char[] chars = input.trim().toCharArray();
+        List<String> words = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+
+        // 第一个字母
+        char c = chars[0];
+        int word_type = Character.getType(c);
+        if (c > 128 || word_type <= 11) {
+            if (cfl_0) {
+                sb.append(Character.toUpperCase(c));
+            } else {
+                sb.append(Character.toLowerCase(c));
             }
         }
-        return new String(outs, 0, count);
+
+        for (int i = 1; i < chars.length; i++) {
+            c = chars[i];
+            int type = Character.getType(c);
+            // 相同的单词
+            // 1. 相同的类型
+            // 2. 首字母大写，后续小写也能接受
+            if (word_type == type
+                || (Character.UPPERCASE_LETTER == word_type
+                    && Character.LOWERCASE_LETTER == type)) {
+                if (c > 128 || type <= 11) {
+                    if (cfl_n && sb.length() == 0) {
+                        sb.append(Character.toUpperCase(c));
+                    } else {
+                        sb.append(Character.toLowerCase(c));
+                    }
+                }
+            }
+            // 那么就分隔单词
+            else {
+                if (sb.length() > 0) {
+                    String w = sb.toString();
+                    words.add(w);
+                    sb.setLength(0);
+                }
+                if (c > 128 || type <= 11) {
+                    if (cfl_n) {
+                        sb.append(Character.toUpperCase(c));
+                    } else {
+                        sb.append(Character.toLowerCase(c));
+                    }
+                }
+            }
+            // 更新当前的类型
+            word_type = type;
+        }
+
+        // 添加最后一个单词
+        if (sb.length() > 0) {
+            words.add(sb.toString());
+        }
+        return words;
     }
 
     public static String toUpper(String input) {

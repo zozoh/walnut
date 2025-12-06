@@ -1,26 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration>
-	<Appenders>
-		<Console name="STDOUT" target="SYSTEM_OUT">
-			<PatternLayout pattern="%d{HH:mm:ss.SSS} %-5p (%F:%L) %M - %m%n" />
-		</Console>
-	</Appenders>
-	<Loggers>
-		<Root level="info">
-			<AppenderRef ref="STDOUT" />
-		</Root>
-		<Logger name="org.apache.commons.beanutils" level="info" />
-		<Logger name="org.quartz.core.QuartzSchedulerThread" level="info" />
-		<Logger name="org.apache.shiro.web" level="info" />
-		<Logger name="net.sf.ehcache.statistics" level="info" />
-		<Logger name="io.netty.util.internal" level="info" />
-		<Logger name="net.sf.ehcache.store.disk.Segment" level="info" />
-		<Logger name="com.corundumstudio.socketio" level="info" />
-		<Logger name="org.apache.shiro.mgt.DefaultSecurityManager" level="info" />
-		<Logger name="org.apache.shiro.session.mgt.DefaultSessionManager" level="info" />
-		<Logger name="org.apache.shiro.web.servlet.SimpleCookie" level="info" />
-		<Logger name="org.apache.log4j.xml" level="debug" />
-		<Logger name="org.eclipse.jetty" level="info" />
-		<Logger name="com.aliyun.openservices.iot" level="INFO"></Logger>
-	</Loggers>
+<Configuration status="WARN">
+    
+    <Appenders>
+        <!-- 控制台输出 -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%5p[%t]%d{yyMMdd HH:mm:ss.SSS}{UTC}: %m%n"/>
+        </Console>
+    </Appenders>
+    
+    <Loggers>
+        <!-- 根日志记录器 -->
+        <Root level="warn">
+            <AppenderRef ref="Console"/>
+        </Root>
+        
+        <!-- 第三方库日志级别 -->
+        <Logger name="org.eclipse" level="info"/>
+        <Logger name="org.nutz" level="warn"/>
+        <Logger name="org.nutz.weixin" level="warn"/>
+        <Logger name="org.elasticsearch" level="debug"/>
+        
+        <!-- 自定义日志记录器 -->
+        <Logger name="MAIN" level="info"/>
+        <Logger name="IO" level="info"/>
+        <Logger name="AUTH" level="info"/>
+        <Logger name="BOX" level="info"/>
+        <Logger name="HOOK" level="info"/>
+        <Logger name="CMD" level="debug"/>
+        <Logger name="APP" level="info"/>
+        <Logger name="AC" level="info"/>
+        <Logger name="BG_CLEANER" level="info"/>
+        <Logger name="BG_TASK" level="info"/>
+        <Logger name="BG_SCHEDULE" level="info"/>
+        <Logger name="BG_CRON" level="info"/>
+        <Logger name="TEST" level="debug"/>
+        
+        <!-- 如果需要为自定义日志器指定输出，取消注释并修改 -->
+        <!--
+        <Logger name="MAIN" level="info">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        -->
+    </Loggers>
+    
 </Configuration>

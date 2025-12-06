@@ -2,7 +2,6 @@ package com.site0.walnut.ext.data.entity.score;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.nutz.lang.Strings;
 import com.site0.walnut.ext.sys.redis.Wedis;
@@ -10,8 +9,8 @@ import com.site0.walnut.ext.sys.redis.WedisConfig;
 import com.site0.walnut.ext.sys.redis.WedisRunGet;
 
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.ScanResult;
-import redis.clients.jedis.Tuple;
+import redis.clients.jedis.resps.ScanResult;
+import redis.clients.jedis.resps.Tuple;
 
 public class WnRedisScoreService implements ScoreApi {
 
@@ -70,7 +69,7 @@ public class WnRedisScoreService implements ScoreApi {
         return Wedis.runGet(conf, jed -> {
             long start = Math.max(skip, 0);
             long stop = limit > 0 ? start + limit - 1 : -1;
-            Set<Tuple> set = jed.zrangeWithScores(key, start, stop);
+            List<Tuple> set = jed.zrangeWithScores(key, start, stop);
             List<ScoreIt> list = new ArrayList<>(set.size());
             for (Tuple tu : set) {
                 ScoreIt fi = new ScoreIt(tu.getElement(), (long) tu.getScore());
@@ -86,7 +85,7 @@ public class WnRedisScoreService implements ScoreApi {
         return Wedis.runGet(conf, jed -> {
             long start = Math.max(skip, 0);
             long stop = limit > 0 ? limit : -1;
-            Set<Tuple> set = jed.zrevrangeWithScores(key, start, stop);
+            List<Tuple> set = jed.zrevrangeWithScores(key, start, stop);
             List<ScoreIt> list = new ArrayList<>(set.size());
             for (Tuple tu : set) {
                 ScoreIt fi = new ScoreIt(tu.getElement(), (long) tu.getScore());

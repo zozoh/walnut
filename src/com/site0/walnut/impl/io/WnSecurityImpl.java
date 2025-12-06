@@ -1,23 +1,27 @@
 package com.site0.walnut.impl.io;
 
+import org.nutz.lang.util.NutBean;
 import org.nutz.trans.Proton;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
-import com.site0.walnut.api.auth.WnGroupRole;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.AbstractWnSecurity;
+import com.site0.walnut.login.role.WnRoleRank;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.role.WnRoleType;
+import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 
 public class WnSecurityImpl extends AbstractWnSecurity {
 
-    private WnAuthService auth;
+    private WnLoginApi auth;
 
     private WnEvalLink _eval_link;
 
-    public WnSecurityImpl(WnIo io, WnAuthService auth) {
+    public WnSecurityImpl(WnIo io, WnLoginApi auth) {
         super(io);
         this.auth = auth;
         this._eval_link = new WnEvalLink(io);
@@ -92,6 +96,8 @@ public class WnSecurityImpl extends AbstractWnSecurity {
 
         // 如果对象过期了，抛错
         if (o.isExpired()) {
+            // 确保删除
+            io.delete(o);
             if (asNull)
                 return null;
             throw Er.create("e.io.obj.expired", o);
@@ -100,30 +106,51 @@ public class WnSecurityImpl extends AbstractWnSecurity {
         // 当前的线程上下文
         // 我是谁？
         WnContext wc = Wn.WC();
-        WnAccount u = wc.getMe();
+        WnSession se = wc.checkSession();
 
         // // 对于 root 用户，啥都不检查
         // if ("root".equals(u.name()))
         // return o;
         //
 
-        return __do_check_node(o, mask, asNull, u);
+        return __do_check_node(o, mask, asNull, se);
     }
 
-    private WnObj __do_check_node(WnObj o, int mask, boolean asNull, WnAccount u) {
+    private WnObj __do_check_node(WnObj o, int mask, boolean asNull, WnSession se) {
+        WnRoleList roles = auth.roleLoader(se).getRoles(se.getUser());
+        // 对象组给我啥权限
+        WnRoleType role = roles.getRoleTypeOfGroup(o.group());
+
+        // 黑名单的话，禁止
+        if (WnRoleType.BLOCK == role) {
+            if (asNull)
+                return null;
+            throw Er.create("e.io.forbidden");
+        }
+
         // 对于 root 组成员，啥都不检查
-        if (auth.isMemberOfGroup(u, "root"))
+        if (roles.isMemberOfRole("root"))
             return o;
 
+        // 对于对象域的管理员，啥都不检查
+        if (roles.isAdminOfRole(o.d1()))
+            return o;
+        // .........................
+        // 获取权限码
+        // .........................
         int md;
+        
+        WnUser u = se.getUser();
 
         // 系统用户，采用标准权限模型
-        if (u.isSysAccount()) {
+        if (u.isSysUser()) {
             md = o.mode();
         }
-        // 域用户，优先采用自定义权限
+        // 域用户，优先采用自定义权限，因为可能有自定义界面界定了对象对于域用户的各种权限
         else {
-            md = o.getCustomizedPrivilege(u, o.mode());
+            WnRoleRank rank = u.getRank(roles);
+            NutBean pvg = o.getCustomizedPrivilege();
+            md = rank.evalPvgMode(pvg, o.mode());
         }
 
         // 本身就是创建者，那么看看 u 部分的权限
@@ -132,26 +159,19 @@ public class WnSecurityImpl extends AbstractWnSecurity {
                 return o;
         }
 
-        // 对象组给我啥权限
-        WnGroupRole role = auth.getGroupRole(u, o.group());
-
-        // 黑名单的话，禁止
-        if (WnGroupRole.BLOCK == role) {
-            if (asNull)
-                return null;
-            throw Er.create("e.io.forbidden");
-        }
-
-        // o 允许进入
+        // .........................
+        // 检查权限码
+        // .........................
+        // o 访客允许进入
         if ((md & mask) == mask)
             return o;
 
-        // g 允许进入
-        if (WnGroupRole.MEMBER == role && ((md >> 3) & mask) == mask)
+        // g 成员允许进入
+        if (WnRoleType.MEMBER == role && ((md >> 3) & mask) == mask)
             return o;
 
-        // u 允许进入
-        if (WnGroupRole.ADMIN == role && ((md >> 6) & mask) == mask)
+        // u 物主允许进入
+        if (WnRoleType.ADMIN == role && ((md >> 6) & mask) == mask)
             return o;
 
         // 看看是否允许为空
@@ -183,7 +203,7 @@ public class WnSecurityImpl extends AbstractWnSecurity {
     }
 
     @Override
-    public boolean test(WnObj nd, int mode, WnAccount user) {
+    public boolean test(WnObj nd, int mode, WnSession se) {
         WnObj nd2 = __eval_obj(nd);
 
         // 防止空指针
@@ -194,7 +214,7 @@ public class WnSecurityImpl extends AbstractWnSecurity {
         WnContext wc = Wn.WC();
         WnObj obj = wc.security(null, new Proton<WnObj>() {
             protected WnObj exec() {
-                return __do_check_node(nd2, mode, true, user);
+                return __do_check_node(nd2, mode, true, se);
             }
         });
 

@@ -1,6 +1,5 @@
 package com.site0.walnut.core.bm;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -13,7 +12,25 @@ import com.site0.walnut.util.Wn;
 
 public abstract class WnIoWriteHandle extends WnIoHandle {
 
-    abstract protected OutputStream outout() throws FileNotFoundException;
+    /**
+     * 子类负责创建流，不用负责关闭，本类会管理并缓存这个流对象
+     * 
+     * @return 输出流
+     * @throws IOException
+     */
+    abstract protected OutputStream getOutputStream() throws IOException;
+
+    private OutputStream _ops;
+
+    private OutputStream ops() throws IOException {
+        if (null == _ops) {
+            if (null == obj) {
+                throw Er.create("e.io.hdl.read.NilObj");
+            }
+            _ops = getOutputStream();
+        }
+        return _ops;
+    }
 
     public void ready() throws WnIoHandleMutexException {
         manager.alloc(this);
@@ -30,6 +47,11 @@ public abstract class WnIoWriteHandle extends WnIoHandle {
     }
 
     @Override
+    public int read() throws IOException {
+        throw Wlang.noImplement();
+    }
+
+    @Override
     public int read(byte[] buf, int off, int len) throws IOException {
         throw Er.create("e.io.bm.localbm.hdl.writeonly");
     }
@@ -40,12 +62,8 @@ public abstract class WnIoWriteHandle extends WnIoHandle {
         if (null == obj) {
             throw Er.create("e.io.hdl.closed", this.getId());
         }
-        // 啥也没写
-        if (len <= 0) {
-            return;
-        }
         // 写入
-        this.outout().write(buf, off, len);
+        ops().write(buf, off, len);
         this.offset += len;
 
         // 更新自身过期时间
@@ -54,7 +72,7 @@ public abstract class WnIoWriteHandle extends WnIoHandle {
 
     @Override
     public void flush() throws IOException {
-        Streams.safeFlush(outout());
+        Streams.safeFlush(ops());
     }
 
     protected abstract void on_close() throws IOException;
@@ -62,12 +80,16 @@ public abstract class WnIoWriteHandle extends WnIoHandle {
     @Override
     public void close() throws IOException {
         // 肯定已经关闭过了
-        if (null == obj) {
+        if (null == obj || null == _ops) {
             return;
         }
 
         // 获取原始对象的内容指纹
         String oldSha1 = obj.sha1();
+
+        // 关闭流
+        Streams.safeFlush(_ops);
+        Streams.safeClose(_ops);
 
         // 调用子类的清除逻辑
         this.on_close();
@@ -82,6 +104,7 @@ public abstract class WnIoWriteHandle extends WnIoHandle {
 
         // 标志一下，这个句柄实例就不能再使用了
         obj = null;
+        _ops = null;
     }
 
 }

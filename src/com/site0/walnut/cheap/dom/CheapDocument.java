@@ -498,11 +498,11 @@ public class CheapDocument {
         if (null != this.$root) {
             this.$root.rebuildChildrenIndex();
             // 看看有木有 head
-            if (null == this.$head && !Ws.isBlank(this.headTagName)) {
+            if (!Ws.isBlank(this.headTagName)) {
                 this.$head = this.$root.getFirstChildElement(this.headTagName);
             }
             // 看看有木有 body
-            if (null == this.$body && !Ws.isBlank(this.bodyTagName)) {
+            if (!Ws.isBlank(this.bodyTagName)) {
                 this.$body = this.$root.getFirstChildElement(this.bodyTagName);
             }
         }

@@ -6,13 +6,15 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
-import org.nutz.lang.util.NutMap;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnGroupAccount;
-import com.site0.walnut.api.auth.WnGroupRole;
+import org.nutz.lang.util.NutBean;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.role.WnRole;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.role.WnRoleType;
+import com.site0.walnut.login.role.WnRoles;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Cmds;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.ZParams;
@@ -43,7 +45,7 @@ public class cmd_grp extends JvmExecutor {
         boolean willDelete = params.has("d");
 
         // 得到要操作的用户
-        WnAccount me = sys.getMe();
+        WnUser me = sys.getMe();
         String myName = sys.getMyName();
         String grp = params.val(0);
 
@@ -54,10 +56,10 @@ public class cmd_grp extends JvmExecutor {
             // 检查权限
             __check_right(sys, me, grp, unm);
 
-            WnGroupRole role = __check_role(params);
+            WnRoleType role = __check_role(params);
 
-            WnAccount u = sys.auth.checkAccount(unm);
-            sys.auth.setGroupRole(u, grp, role);
+            WnUser u = sys.auth.checkUser(unm);
+            sys.auth.addRole(u, grp, role);
         }
         // 从组中删除
         else if (willDelete) {
@@ -66,8 +68,8 @@ public class cmd_grp extends JvmExecutor {
             // 检查权限
             __check_right(sys, me, grp, unm);
 
-            WnAccount u = sys.auth.checkAccount(unm);
-            sys.auth.removeGroupRole(u, grp);
+            WnUser u = sys.auth.checkUser(unm);
+            sys.auth.removeRole(u.getName(), grp);
         }
         // 显示指定组内部所有的用户
         else if (!Strings.isBlank(grp)) {
@@ -76,26 +78,18 @@ public class cmd_grp extends JvmExecutor {
             __check_right(sys, me, grp, null);
 
             // 查询
-            List<WnGroupAccount> list = sys.auth.getAccounts(grp);
+            WnRoleList list = sys.roles().queryRolesOf(grp);
+            List<NutBean> outs = list.toBeans();
 
             // 输出 JSON
             if (params.is("json")) {
-                List<NutMap> outs = new ArrayList<>(list.size());
-                for (WnGroupAccount wga : list) {
-                    outs.add(wga.toBean());
-                }
                 JsonFormat jfmt = Cmds.gen_json_format(params);
                 sys.out.println(Json.toJson(outs, jfmt));
             }
             // 输出成表格
             else {
-                String[] keys = Wlang.array("unm", "roleName", "role");
+                String[] keys = Wlang.array("grp", "unm", "type", "role");
                 params.setv("t", Strings.join(",", keys));
-
-                List<NutMap> outs = new ArrayList<NutMap>(list.size());
-                for (WnGroupAccount wga : list) {
-                    outs.add(wga.toBean(keys));
-                }
                 Cmds.output_objs_as_table(sys, params, null, outs);
             }
         }
@@ -106,28 +100,28 @@ public class cmd_grp extends JvmExecutor {
             // 检查权限
             __check_right(sys, me, sys.getMyGroup(), unm);
 
-            WnAccount u = sys.auth.checkAccount(unm);
+            WnUser u = sys.auth.checkUser(unm);
 
             // 查询
-            List<WnGroupAccount> list = sys.auth.getGroups(u);
+            WnRoleList roles = sys.roles().getRoles(u);
 
             // 输出 JSON
             if (params.is("json")) {
-                List<NutMap> outs = new ArrayList<>(list.size());
-                for (WnGroupAccount wga : list) {
-                    outs.add(wga.toBean());
+                List<NutBean> outs = new ArrayList<>(roles.size());
+                for (WnRole role : roles) {
+                    outs.add(role.toBean());
                 }
                 JsonFormat jfmt = Cmds.gen_json_format(params);
                 sys.out.println(Json.toJson(outs, jfmt));
             }
             // 输出成表格
             else {
-                String[] keys = Wlang.array("grp", "roleName", "role");
+                String[] keys = Wlang.array("grp", "type", "role");
                 params.setv("t", Strings.join(",", keys));
 
-                List<NutMap> outs = new ArrayList<NutMap>(list.size());
-                for (WnGroupAccount wga : list) {
-                    outs.add(wga.toBean(keys));
+                List<NutBean> outs = new ArrayList<>(roles.size());
+                for (WnRole role : roles) {
+                    outs.add(role.toBean());
                 }
                 Cmds.output_objs_as_table(sys, params, null, outs);
             }
@@ -136,11 +130,12 @@ public class cmd_grp extends JvmExecutor {
 
     }
 
-    private void __check_right(WnSystem sys, WnAccount me, String grp, String unm) {
+    private void __check_right(WnSystem sys, WnUser me, String grp, String unm) {
+        WnRoleList roles = sys.roles().getRoles(me);
         // 那么本组的管理员可以进行这个操作
-        if (!sys.auth.isAdminOfGroup(me, grp)) {
+        if (!roles.isAdminOfRole(grp)) {
             // 如果不是本组管理员，根用户成员也成
-            if (!sys.auth.isMemberOfGroup(me, "root")) {
+            if (!roles.isMemberOfRole("root")) {
                 // 靠，木权限
                 throw Er.create("e.me.nopvg");
             }
@@ -155,9 +150,9 @@ public class cmd_grp extends JvmExecutor {
         return unm;
     }
 
-    private WnGroupRole __check_role(ZParams params) {
-        int role = params.getInt("role", WnGroupRole.MEMBER.getValue());
-        return WnGroupRole.parseInt(role);
+    private WnRoleType __check_role(ZParams params) {
+        int role = params.getInt("role", WnRoleType.MEMBER.getValue());
+        return WnRoles.fromInt(role);
     }
 
 }

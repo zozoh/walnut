@@ -4,13 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.site0.walnut.ext.sys.redis.Wedis;
 import com.site0.walnut.ext.sys.redis.WedisConfig;
 import com.site0.walnut.util.Wn;
 
-import redis.clients.jedis.Tuple;
+import redis.clients.jedis.resps.Tuple;
 
 public class WnRedisFavorService implements FavorApi {
 
@@ -19,7 +18,7 @@ public class WnRedisFavorService implements FavorApi {
     public WnRedisFavorService(WedisConfig conf) {
         this.conf = conf;
     }
-    
+
     private String _KEY(String uid) {
         return conf.setup().getString("prefix", "favor:") + uid;
     }
@@ -47,7 +46,7 @@ public class WnRedisFavorService implements FavorApi {
         return Wedis.runGet(conf, jed -> {
             long start = Math.max(skip, 0);
             long stop = limit > 0 ? start + limit - 1 : Long.MAX_VALUE;
-            Set<Tuple> set = jed.zrangeWithScores(key, start, stop);
+            List<Tuple> set = jed.zrangeWithScores(key, start, stop);
             List<FavorIt> list = new ArrayList<>(set.size());
             for (Tuple tu : set) {
                 FavorIt fi = new FavorIt(tu.getElement(), (long) tu.getScore());
@@ -63,7 +62,7 @@ public class WnRedisFavorService implements FavorApi {
         return Wedis.runGet(conf, jed -> {
             long start = Math.max(skip, 0);
             long stop = limit > 0 ? limit - 1 : Long.MAX_VALUE;
-            Set<Tuple> set = jed.zrevrangeWithScores(key, start, stop);
+            List<Tuple> set = jed.zrevrangeWithScores(key, start, stop);
             List<FavorIt> list = new ArrayList<>(set.size());
             for (Tuple tu : set) {
                 FavorIt fi = new FavorIt(tu.getElement(), (long) tu.getScore());

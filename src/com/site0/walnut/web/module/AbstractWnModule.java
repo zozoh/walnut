@@ -15,7 +15,6 @@ import org.nutz.mvc.view.HttpStatusView;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.MimeMap;
 import com.site0.walnut.api.io.WnObj;
-import com.site0.walnut.ext.data.www.WWW;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnRun;
 
@@ -27,7 +26,7 @@ public abstract class AbstractWnModule extends WnRun {
     protected MimeMap mimes;
 
     protected WnObj _find_app_home(String appName) {
-        String appPaths = Wn.WC().checkSession().getVars().getString("APP_PATH");
+        String appPaths = Wn.WC().checkSession().getEnv().getString("APP_PATH");
         String[] bases = Strings.splitIgnoreBlank(appPaths, ":");
         for (String base : bases) {
             String ph = Wn.appendPath(base, appName);
@@ -110,10 +109,8 @@ public abstract class AbstractWnModule extends WnRun {
         }
         context.put("params", params);
 
-        // 得到 duser 会话 ID (TODO zozoh:这个最后会被抛弃掉)
-        context.put("sessionId", Wn.WC().getString(WWW.AT_SEID));
-
         // 返回
         return context;
     }
+    
 }

@@ -197,7 +197,6 @@ public class SqlBM extends AbstractIoBM {
                 throw Er.wrap(e);
             }
         }
-
         return 0;
     }
 

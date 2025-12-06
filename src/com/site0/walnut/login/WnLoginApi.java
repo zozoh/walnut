@@ -1,190 +1,114 @@
 package com.site0.walnut.login;
 
-import java.util.Date;
 import java.util.List;
 
-import org.nutz.lang.util.NutMap;
-
-import com.site0.walnut.api.err.Er;
+import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
-import com.site0.walnut.ext.net.xapi.bean.XApiRequest;
 import com.site0.walnut.ext.net.xapi.impl.WnXApi;
-import com.site0.walnut.login.session.WnSimpleSession;
-import com.site0.walnut.login.usr.WnSimpleUser;
-import com.site0.walnut.util.Wlang;
-import com.site0.walnut.util.Wn;
-import com.site0.walnut.util.Ws;
-import com.site0.walnut.util.Wuu;
-import com.site0.walnut.val.id.WnSnowQMaker;
+import com.site0.walnut.login.role.WnRole;
+import com.site0.walnut.login.role.WnRoleLoader;
+import com.site0.walnut.login.role.WnRoleStore;
+import com.site0.walnut.login.role.WnRoleType;
+import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.session.WnSessionStore;
+import com.site0.walnut.login.usr.WnUser;
+import com.site0.walnut.login.usr.WnUserStore;
 
-public class WnLoginApi {
+public interface WnLoginApi {
 
-    private static final WnSnowQMaker TicketMaker = new WnSnowQMaker(null, 10);
+    // WnRoleList getRoles(WnUser u);
+    //
+    // WnRoleList queryRolesOf(String name);
+    //
+    // WnRoleType getRoleTypeOfGroup(WnUser u, String group);
+    WnRoleLoader roleLoader(WnSession se);
 
-    private WnUserStore users;
+    WnRole addRole(WnUser u, String grp, WnRoleType type);
 
-    private WnSessionStore sessions;
+    int getSessionDuration();
 
-    private WnXApi xapi;
+    int getSessionDuration(boolean longSession);
 
-    private String domain;
+    String getWechatGhOpenIdKey();
 
-    private long sessionDuration;
+    String getWechatMpOpenIdKey();
 
-    private String wechatMpOpenIdKey;
+    WnXApi getXapi();
 
-    // TODO 这里是微信公众号页面的获取 openid 方式，暂时还未实现
-    // private String wechatGhOpenIdKey;
+    WnRoleStore getRoleStore();
 
-    public WnLoginApi(WnLoginSetup options) {
-        this.users = options.users;
-        this.sessions = options.sessions;
-        this.sessionDuration = options.sessionDuration;
-        this.xapi = options.xapi;
-        this.domain = options.domain;
-        this.wechatMpOpenIdKey = options.wechatMpOpenIdKey;
-    }
+    WnSessionStore getSessionStore();
 
-    public void changePassword(WnUser u, String rawPassword) {
-        users.updateUserPassword(u, rawPassword);
-    }
+    WnUserStore getUserStore();
 
-    public WnSession loginByPassword(String nameOrPhoneOrEmail, String rawPassword) {
-        WnUser u = users.getUser(nameOrPhoneOrEmail);
-        if (null == u) {
-            throw Er.create("e.auth.login.Failed");
-        }
-        String saltedPassword = Wn.genSaltPassword(rawPassword, u.getSalt());
-        if (saltedPassword.equals(u.getPasswd())) {
-            WnSession se = __create_session_by_user(u);
-            sessions.addSession(se);
-            return se;
-        }
-        throw Er.create("e.auth.login.Failed");
-    }
+    void changePassword(WnUser u, String rawPassword);
 
-    public WnSession loginByWechatMPCode(String code, boolean autoCreateUser) {
-        String apiName = "wxmp";
-        String account = this.domain;
-        String path = "jscode2session";
-        // boolean force = false;
+    void removeRole(WnRole role);
 
-        NutMap vars = Wlang.map("code", code);
-        XApiRequest req = xapi.prepare(apiName, account, path, vars, false);
-        req.setDisableCache(true);
+    void removeRole(String uid, String name);
 
-        NutMap result = xapi.send(req, NutMap.class);
-        String openid = result.getString("openid");
+    UserRace getUserRace();
 
-        // 看看是否成功的获取了用户的 openid
-        // 没有 open id，那么必然是错误
-        if (Ws.isBlank(openid)) {
-            throw Er.create("e.auth.session.loginByWechatMPCode.Faild", result);
-        }
+    WnUser addRootUserIfNoExists(String dftPassword);
 
-        // 根据用户的 openid 找回账号
-        WnQuery q = new WnQuery();
-        q.setv(this.wechatMpOpenIdKey, openid);
+    WnUser addGuestUserIfNoExists();
 
-        // 自动创建用户
-        WnUser autoUser = null;
-        if (autoCreateUser) {
-            autoUser = new WnSimpleUser();
-            autoUser.setName("bywxmp_" + Wuu.UU32());
-            users.patchDefaultEnv(autoUser);
-            autoUser.putMetas(Wlang.map(this.wechatMpOpenIdKey, openid));
-        }
+    WnUser addUser(WnUser u);
 
-        return add_session_by_openid(q, autoUser);
-    }
+    List<WnUser> queryUser(WnQuery q);
 
-    private WnSession add_session_by_openid(WnQuery q, WnUser autoUser) {
-        WnUser u = users.getUser(q);
+    WnUser getUser(String nameOrPhoneOrEmail);
 
-        // 是否自动创建账号
-        if (null == u && null != autoUser) {
-            u = users.addUser(autoUser);
-        }
+    WnUser checkUser(String nameOrPhoneOrEmail);
 
-        // 账号不存在
-        if (null == u) {
-            throw Er.create("e.auth.account.noexists", q.toString());
-        }
+    WnUser getUser(WnUser info);
 
-        // 创建会话
-        WnSession se = new WnSimpleSession(u, this.sessionDuration);
-        sessions.addSession(se);
+    WnUser checkUser(WnUser info);
 
-        // 搞定
-        return se;
-    }
+    WnUser getUserById(String uid);
 
-    private WnSession __create_session_by_user(WnUser u) {
-        WnSimpleSession se = new WnSimpleSession();
-        se.setExpiAt(System.currentTimeMillis() + sessionDuration);
-        se.setUser(u);
-        se.setTicket(TicketMaker.make(new Date(), null));
-        return se;
-    }
+    WnUser checkUserById(String uid);
 
-    public WnSession logout(String ticket) {
-        WnSession se = sessions.getSession(ticket, users);
-        if (null != se) {
-            sessions.reomveSession(se);
-        }
-        return se;
-    }
+    void saveUserMeta(WnUser u);
 
-    public UserRace getUserRace() {
-        return users.getUserRace();
-    }
+    void updateUserName(WnUser u);
 
-    public List<WnUser> queryUser(WnQuery q) {
-        return users.queryUser(q);
-    }
+    void updateUserPhone(WnUser u);
 
-    public WnUser getUser(String nameOrPhoneOrEmail) {
-        return users.getUser(nameOrPhoneOrEmail);
-    }
+    void updateUserEmail(WnUser u);
 
-    public WnUser checkUser(String nameOrPhoneOrEmail) {
-        return users.checkUser(nameOrPhoneOrEmail);
-    }
+    void updateUserLastLoginAt(WnUser u);
 
-    public WnUser getUser(WnUser info) {
-        return users.getUser(info);
-    }
+    void updateUserPassword(WnUser u, String rawPassword);
 
-    public WnUser checkUser(WnUser info) {
-        return users.checkUser(info);
-    }
+    WnObj updateUserHomeName(WnUser u, String newName);
 
-    public WnUser getUserById(String uid) {
-        return users.getUserById(uid);
-    }
+    WnSession createSession(WnUser u, String type);
 
-    public WnUser checkUserById(String uid) {
-        return users.checkUserById(uid);
-    }
+    WnSession createSession(WnUser u, String type, int duInSec);
 
-    public WnSession getSession(String ticket) {
-        return sessions.getSession(ticket, users);
-    }
+    WnSession createSession(WnSession parentSe, WnUser u, String type, int duInSec);
 
-    public WnSession checkSession(String ticket) {
-        WnSession se = sessions.getSession(ticket, users);
-        if (null == se) {
-            throw Er.create("e.auth.session.NoExists", ticket);
-        }
-        return se;
-    }
+    WnSession removeSession(WnSession se);
 
-    public void saveSessionEnv(WnSession se) {
-        sessions.saveSessionEnv(se);
-    }
+    WnSession loginByPassword(String nameOrPhoneOrEmail, String rawPassword);
 
-    public void touchSession(WnSession se, long sessionDuration) {
-        sessions.touchSession(se, sessionDuration);
-    }
+    WnSession loginByWechatMPCode(String code, boolean autoCreateUser);
+
+    WnSession logout(String ticket);
+
+    WnSession getSession(String ticket);
+
+    WnSession getSessionByUserNameAndType(String unm, String type);
+
+    WnSession getSessionByUserIdAndType(String uid, String type);
+
+    List<WnSession> querySession(WnQuery q);
+
+    WnSession checkSession(String ticket);
+
+    void saveSessionEnv(WnSession se);
+
+    void touchSession(WnSession se);
 
 }

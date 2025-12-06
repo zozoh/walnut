@@ -87,19 +87,23 @@ public class cmd_mailx extends JvmFilterExecutor<MailxContext, MailxFilter> {
         // 发送
         try {
             WnMailPosting posting = new WnMailPosting(sys);
-            posting.send(fc.config.smtp, fc.mail);
+            boolean sendResult = posting.send(fc.config.smtp, fc.mail);
             AjaxReturn re = Ajax.ok().setData(fc.mail);
+            re.setOk(sendResult);
             tryPrintOutput(sys, fc, re);
         }
         catch (Exception e) {
             if (log.isDebugEnabled()) {
                 log.warn("Fail sendmail", e);
             }
-            NutMap data = Wlang.map("email", fc.mail).setv("error", e.toString());
+            NutMap data = Wlang.map("email", fc.mail)
+                .setv("error", e.toString());
             if (null != e.getCause()) {
                 data.put("cause", e.getCause().toString());
             }
-            AjaxReturn re = Ajax.fail().setErrCode("e.cmd.mailx.FailToSend").setData(data);
+            AjaxReturn re = Ajax.fail()
+                .setErrCode("e.cmd.mailx.FailToSend")
+                .setData(data);
             tryPrintOutput(sys, fc, re);
 
             throw e;

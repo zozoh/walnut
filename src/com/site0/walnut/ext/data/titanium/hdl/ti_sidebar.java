@@ -3,8 +3,6 @@ package com.site0.walnut.ext.data.titanium.hdl;
 import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnGroupRole;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.titanium.sidebar.TiSidebarCheckItemByRoleName;
@@ -17,6 +15,9 @@ import com.site0.walnut.impl.box.JvmHdlContext;
 import com.site0.walnut.impl.box.JvmHdlParamArgs;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.impl.io.WnSecurityImpl;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.role.WnRoleType;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Wsum;
 import com.site0.walnut.util.validate.impl.AutoMatch;
@@ -42,7 +43,7 @@ public class ti_sidebar implements JvmHdl {
         // 路径集合
         String[] paths = hc.params.vals;
         if (paths.length == 0) {
-            String ss = sys.session.getVars().getString("SIDEBAR_PATH", "/rs/ti/view/sidebar.json");
+            String ss = sys.session.getEnv().getString("SIDEBAR_PATH", "/rs/ti/view/sidebar.json");
             paths = Strings.splitIgnoreBlank(ss, ":");
         }
         // 查找
@@ -62,12 +63,13 @@ public class ti_sidebar implements JvmHdl {
         // 准备权限检查接口
         final WnSecurityImpl secur = new WnSecurityImpl(sys.io, sys.auth);
         final WnObj oSidebarHome = oSidebar.parent();
-        WnAccount me = sys.getMe();
+        WnUser me = sys.getMe();
+        WnRoleList roles = sys.roles().getRoles(me);
 
         // 判断一下当前用户权限
         String myGroupName = sys.session.getMyGroup();
-        boolean IamAdmin = sys.auth.isAdminOfGroup(me, myGroupName);
-        boolean IamMember = IamAdmin ? true : sys.auth.isMemberOfGroup(me, myGroupName);
+        boolean IamAdmin = roles.isAdminOfRole(myGroupName);
+        boolean IamMember = IamAdmin ? true : roles.isMemberOfRole(myGroupName);
 
         // 准备解析
         TiSidebarInput input = sidebars.getInput(oSidebar);
@@ -90,18 +92,18 @@ public class ti_sidebar implements JvmHdl {
                 // 根据角色
                 ta_grp = oTa.group();
             }
-            WnGroupRole shouldBeRole = WnGroupRole.valueOf(roleName);
+            WnRoleType shouldBeRole = WnRoleType.valueOf(roleName);
             // 管理员
-            if (WnGroupRole.ADMIN == shouldBeRole) {
+            if (WnRoleType.ADMIN == shouldBeRole) {
                 if (ta_grp.equals(myGroupName))
                     return IamAdmin;
-                return sys.auth.isAdminOfGroup(me, ta_grp);
+                return roles.isAdminOfRole(ta_grp);
             }
             // 成员
-            if (WnGroupRole.MEMBER == shouldBeRole) {
+            if (WnRoleType.MEMBER == shouldBeRole) {
                 if (ta_grp.equals(myGroupName))
                     return IamMember;
-                return sys.auth.isMemberOfGroup(me, ta_grp);
+                return roles.isMemberOfRole(ta_grp);
             }
             // 权限写的不对，禁止
             return false;

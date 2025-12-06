@@ -3,34 +3,34 @@ package com.site0.walnut.core.indexer.localfile;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
 import org.nutz.lang.Files;
 import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.Wlog;
+
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Disks;
-import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.MimeMap;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.api.io.WnRace;
-import com.site0.walnut.api.io.agg.WnAggOptions;
-import com.site0.walnut.api.io.agg.WnAggResult;
-import com.site0.walnut.core.indexer.AbstractIoIndexer;
+import com.site0.walnut.core.indexer.AbstractIoVfsIndexer;
 import com.site0.walnut.util.WnSort;
+import com.site0.walnut.util.Wobj;
 import com.site0.walnut.util.validate.WnMatch;
 import com.site0.walnut.util.validate.impl.AutoMatch;
 import com.site0.walnut.util.validate.impl.AutoStrMatch;
 
-public class LocalFileIndexer extends AbstractIoIndexer {
+public class LocalFileIndexer extends AbstractIoVfsIndexer {
 
-    // private static final Log log = Wlog.getIO();
+    private static final Log log = Wlog.getIO();
 
     protected File dHome;
 
@@ -44,11 +44,6 @@ public class LocalFileIndexer extends AbstractIoIndexer {
 
     public File getFileHome() {
         return dHome;
-    }
-
-    @Override
-    public WnAggResult aggregate(WnQuery q, WnAggOptions agg) {
-        throw Wlang.noImplement();
     }
 
     protected File _check_file_by(WnObj p) {
@@ -76,64 +71,68 @@ public class LocalFileIndexer extends AbstractIoIndexer {
 
     @Override
     public boolean existsId(String id) {
-        File f = Files.getFile(dHome, id);
+        String ph = Wobj.decodePathFromBase64(id);
+        File f = Files.getFile(dHome, ph);
         return f.exists();
     }
 
     @Override
-    public WnObj checkById(String id) {
-        WnObj o = this.get(id);
-        if (null == o) {
-            throw Er.create("e.io.noexists", id);
-        }
-        return o;
-    }
-
-    @Override
-    public WnObj check(WnObj p, String path) {
-        WnObj o = this.fetch(p, path);
-        if (null == o) {
-            throw Er.create("e.io.noexists", path);
-        }
-        return o;
-    }
-
-    @Override
     public WnObj fetch(WnObj p, String path) {
-        // 获取基线目录对象（可能是 P 也可能是 HOME）
-        File f = this._check_file_by(p);
-        // 不是目录
-        if (!f.isDirectory()) {
-            f = f.getParentFile();
-            // 退到根了
-            if (f.equals(this.dHome)) {
-                p = this.root;
+        WnObj re = null;
+        try {
+            // 获取基线目录对象（可能是 P 也可能是 HOME）
+            File f = this._check_file_by(p);
+            if (log.isTraceEnabled()) {
+                log.tracef("io:localFile: f.exists=%s, f=%s",
+                           f.exists(),
+                           f.getAbsolutePath());
             }
-            // 否则重新搞一个对象
-            else {
-                p = new WnLocalFileObj(root, dHome, f, mimes);
+            // 不是目录
+            if (!f.isDirectory()) {
+                f = f.getParentFile();
+                // 退到根了
+                if (f.equals(this.dHome)) {
+                    p = this.root;
+                }
+                // 否则重新搞一个对象
+                else {
+                    p = new WnLocalFileObj(root, dHome, f, mimes);
+                }
+            }
+            // 相对于基线文件，调整 path，去掉内部的 ..
+            File f2 = Files.getFile(f, path);
+            if (log.isTraceEnabled()) {
+                log.tracef("io:localFile: f2.exists=%s, fs=%s",
+                           f2.exists(),
+                           f2.getAbsolutePath());
+            }
+            if (!f2.exists()) {
+                return null;
+            }
+            String fph = Disks.getCanonicalPath(f2.getAbsolutePath());
+            if (log.isTraceEnabled()) {
+                log.tracef("io:localFile: fph=%s", fph);
+            }
+            // 这个路径超出了索引管理器管理的路径，可能会造成危险
+            if (!fph.startsWith(this.phHome)) {
+                throw Er.create("e.io.localFile.OutOfHome", path);
+            }
+            f2 = new File(fph);
+            // return _gen_file_obj(p, f2);
+
+            // 如果输入的 path 带上了 ../ 这种回退的路径，那么输入的 p 就不是返回对象真正的父了
+            // 就留着一个空吧
+            if (path.indexOf("../") >= 0) {
+                return _gen_file_obj(null, f2);
+            }
+            re = _gen_file_obj(p, f2);
+            return re;
+        }
+        finally {
+            if (log.isTraceEnabled()) {
+                log.tracef("io:localFile: re=%s", re);
             }
         }
-        // 相对于基线文件，调整 path，去掉内部的 ..
-        File f2 = Files.getFile(f, path);
-        if (!f2.exists()) {
-            return null;
-        }
-        String fph = Disks.getCanonicalPath(f2.getAbsolutePath());
-        // 这个路径超出了索引管理器管理的路径，可能会造成危险
-        if (!fph.startsWith(this.phHome)) {
-            throw Er.create("e.io.localFile.OutOfHome", path);
-        }
-        f2 = new File(fph);
-        // return _gen_file_obj(p, f2);
-
-        // 如果输入的 path 带上了 ../ 这种回退的路径，那么输入的 p 就不是返回对象真正的父了
-        // 就留着一个空吧
-        if (path.indexOf("../") >= 0) {
-            return _gen_file_obj(null, f2);
-        }
-        return _gen_file_obj(p, f2);
-
         //
         // 为了保险起见，重新生成一遍父对象
         // zozoh@20201118: 我也忘记了为啥要这么搞，好像是某个 case
@@ -161,20 +160,9 @@ public class LocalFileIndexer extends AbstractIoIndexer {
     }
 
     @Override
-    public WnObj fetch(WnObj p, String[] paths, int fromIndex, int toIndex) {
-        int len = toIndex - fromIndex;
-        String path = Strings.join(fromIndex, len, "/", paths);
-        return fetch(p, path);
-    }
-
-    @Override
-    public WnObj fetchByName(WnObj p, String name) {
-        return this.fetch(p, name);
-    }
-
-    @Override
     public WnObj get(String id) {
-        File f = Files.getFile(dHome, id);
+        String ph = Wobj.decodePathFromBase64(id);
+        File f = Files.getFile(dHome, ph);
         if (!f.exists()) {
             return null;
         }
@@ -223,18 +211,7 @@ public class LocalFileIndexer extends AbstractIoIndexer {
     }
 
     @Override
-    public List<WnObj> getChildren(WnObj o, String name) {
-        List<WnObj> list = new LinkedList<>();
-        this.eachChild(o, name, new Each<WnObj>() {
-            public void invoke(int index, WnObj ele, int length) {
-                list.add(ele);
-            }
-        });
-        return list;
-    }
-
-    @Override
-    public long countChildren(WnObj o) {
+    public int countChildren(WnObj o) {
         File f = this._check_file_by(o);
         if (f.isFile())
             return 0;
@@ -242,22 +219,7 @@ public class LocalFileIndexer extends AbstractIoIndexer {
     }
 
     @Override
-    public boolean hasChild(WnObj p) {
-        return countChildren(p) > 0;
-    }
-
-    @Override
-    public WnObj getOne(WnQuery q) {
-        q.limit(1);
-        List<WnObj> list = query(q);
-        if (list.isEmpty())
-            return null;
-        return list.get(0);
-    }
-
-    @Override
     public int each(WnQuery q, Each<WnObj> callback) {
-
         // 准备过滤条件
         // 只支持 nm 和 tp 和 lm 和 len
         NutMap flt = q.first().pick("nm", "tp", "lm", "len");
@@ -273,13 +235,14 @@ public class LocalFileIndexer extends AbstractIoIndexer {
         // 否则选择目录
         // 进入到这个方法， IO 层已经把两段式 pid 使用了，仅会传第二段 ID 过来
         else {
-
-            dir = Files.getFile(dHome, pid);
+            String pph = Wobj.decodePathFromBase64(pid);
+            dir = Files.getFile(dHome, pph);
             if (!dir.exists()) {
-                throw Er.create("e.io.localfile.NoExists", pid);
+                throw Er.create("e.io.localfile.NoExists", pid + "=>" + pph);
             }
             if (!dir.isDirectory()) {
-                throw Er.create("e.io.localfile.MustBeDirectory", pid);
+                throw Er.create("e.io.localfile.MustBeDirectory",
+                                pid + "=>" + pph);
             }
         }
 
@@ -359,71 +322,12 @@ public class LocalFileIndexer extends AbstractIoIndexer {
         return count;
     }
 
-    @Override
-    public List<WnObj> query(WnQuery q) {
-        List<WnObj> list = new LinkedList<>();
-        this.each(q, new Each<WnObj>() {
-            public void invoke(int index, WnObj o, int length) {
-                list.add(o);
-            }
-        });
-        return list;
-    }
-
-    @Override
-    public long count(WnQuery q) {
-        return this.each(q, new Each<WnObj>() {
-            public void invoke(int index, WnObj ele, int length) {}
-        });
-    }
-
-    //
-    // 下面的就是弄个幌子，啥也不做
-    //
-    @Override
-    public void set(WnObj o, String regex) {}
-
-    @Override
-    public WnObj setBy(String id, NutBean map, boolean returnNew) {
-        return this.get(id);
-    }
-
-    @Override
-    public WnObj setBy(WnQuery q, NutBean map, boolean returnNew) {
-        throw Wlang.noImplement();
-    }
-
-    @Override
-    public int inc(String id, String key, int val, boolean returnNew) {
-        return val;
-    }
-
-    @Override
-    public int inc(WnQuery q, String key, int val, boolean returnNew) {
-        return val;
-    }
-
     //
     // 下面的都暂时不实现
     //
 
     @Override
-    public WnObj move(WnObj src, String destPath) {
-        throw Wlang.noImplement();
-    }
-
-    @Override
     public WnObj move(WnObj src, String destPath, int mode) {
-        throw Wlang.noImplement();
-    }
-
-    @Override
-    public WnObj rename(WnObj o, String nm) {
-        throw Wlang.noImplement();
-    }
-
-    @Override
-    public WnObj rename(WnObj o, String nm, boolean keepType) {
         throw Wlang.noImplement();
     }
 
@@ -433,67 +337,12 @@ public class LocalFileIndexer extends AbstractIoIndexer {
     }
 
     @Override
-    public int getInt(String id, String key, int dft) {
-        return dft;
-    }
-
-    @Override
-    public long getLong(String id, String key, long dft) {
-        return dft;
-    }
-
-    @Override
-    public String getString(String id, String key, String dft) {
-        return dft;
-    }
-
-    @Override
-    public <T> T getAs(String id, String key, Class<T> classOfT, T dft) {
-        return dft;
-    }
-
-    @Override
     public WnObj create(WnObj p, String path, WnRace race) {
         throw Wlang.noImplement();
     }
 
     @Override
-    public WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race) {
-        throw Wlang.noImplement();
-    }
-
-    @Override
-    public WnObj createById(WnObj p, String id, String name, WnRace race) {
-        throw Wlang.noImplement();
-    }
-
-    @Override
-    public WnObj create(WnObj p, WnObj o) {
-        throw Wlang.noImplement();
-    }
-
-    @Override
     public void delete(WnObj o) {
-        throw Wlang.noImplement();
-    }
-
-    @Override
-    public WnObj push(String id, String key, Object val, boolean returnNew) {
-        throw Wlang.noImplement();
-    }
-
-    @Override
-    public void push(WnQuery query, String key, Object val) {
-        throw Wlang.noImplement();
-    }
-
-    @Override
-    public WnObj pull(String id, String key, Object val, boolean returnNew) {
-        throw Wlang.noImplement();
-    }
-
-    @Override
-    public void pull(WnQuery query, String key, Object val) {
         throw Wlang.noImplement();
     }
 

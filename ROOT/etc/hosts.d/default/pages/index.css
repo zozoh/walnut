@@ -1,36 +1,48 @@
 * {
   box-sizing: border-box;
 }
-html, body {
-  height: 100%; 
-  font-size: 18px; margin:0;
+html,
+body {
+  height: 100%;
+  font-size: 18px;
+  margin: 0;
   font-family: "Microsoft YaHei", Vendana, Calibri, Driod Sans, Arial;
 }
 body {
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #FFF;
+  color: #fff;
   background-color: #000;
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
-  padding: 6em 0; 
+  padding: 6em 0;
 }
 form {
-  margin: 0 auto; text-align: center;
-  width: 24em; padding:1em;
-  background: rgba(255, 255, 255, 0.6);
+  margin: 0 auto;
+  text-align: center;
+  width: 24em;
+  padding: 1em;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
   color: #000;
   border-radius: 1em;
-  transition: .5s; opacity: .2; transform: translateY(5em);
+  transition: 0.5s;
+  opacity: 0.2;
+  transform: translateY(5em);
+  box-shadow: -1px -1px 0 rgba(255, 255, 255, 0.9), 1px 1px 0 rgba(0, 0, 0, 0.3),
+    0 0 7px rgba(255, 255, 255, 0.3);
 }
 img.as-logo {
-  transition: .5s; opacity: .2; transform: scale(0.2);
+  transition: 0.5s;
+  opacity: 0.2;
+  transform: scale(0.2);
 }
 hr {
-  height:1px; border:0;
-  border-top:1px solid rgba(255, 255, 255, 0.3);
+  height: 1px;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
 }
 section {
   margin: 1em;
@@ -39,58 +51,85 @@ section.as-icp {
   font-size: 11px;
 }
 section.as-icp a {
-  color: #666666; text-decoration: none;
+  color: #666666;
+  text-decoration: none;
 }
 section.as-icp a:hover {
-  color: #0088FF; text-decoration: underline;
+  color: #0088ff;
+  text-decoration: underline;
 }
 input {
-  width:100%; font-size: inherit; padding: .8em;
-  outline: none; border:1px solid #08F;
-  transition: .8s; opacity: 0;
+  width: 100%;
+  font-size: inherit;
+  padding: 0.8em;
+  outline: none;
+  border: 1px solid #08f;
+  transition: 0.8s;
+  opacity: 0;
   font-family: inherit;
   font-size: 1.2em;
 }
-input[name='name']   {
+input[name="name"] {
   transition-delay: 0s;
   transform: translateX(-5em);
 }
-::-webkit-input-placeholder {color: #CCC;}
-:-moz-placeholder           {color: #CCC;}
-::-moz-placeholder          {color: #CCC;}
-:-ms-input-placeholder      {color: #CCC;}
-input[name='passwd'] {
-  transition-delay: .3s;
+::-webkit-input-placeholder {
+  color: #ccc;
+}
+:-moz-placeholder {
+  color: #ccc;
+}
+::-moz-placeholder {
+  color: #ccc;
+}
+:-ms-input-placeholder {
+  color: #ccc;
+}
+input[name="passwd"] {
+  transition-delay: 0.3s;
   transform: translateX(5em);
 }
 button {
-  width:100%; padding: 1em; font-size: inherit;
-  background: #08F; color:#FFF;
-  border:0; outline: none;
+  width: 100%;
+  padding: 1em;
+  font-size: inherit;
+  background: #08f;
+  color: #fff;
+  border: 0;
+  outline: none;
   cursor: pointer;
-  font-family: inherit; font-size: inherit;
-  transition: transform 1s; opacity: 0; transform: translateY(5em);
+  font-family: inherit;
+  font-size: inherit;
+  transition: transform 1s;
+  opacity: 0;
+  transform: translateY(5em);
 }
 button:hover {
-  background: #F80; color:#FFF;
+  background: #f80;
+  color: #fff;
 }
 /*-------------------------------------------*/
 body.load-done form {
-  opacity: 1; transform: unset;
+  opacity: 1;
+  transform: unset;
 }
 /*-------------------------------------------*/
 body.load-done img.as-logo {
-  opacity: 1; transform: unset;
+  opacity: 1;
+  transform: unset;
 }
 /*-------------------------------------------*/
-body.load-done input[name='name'] {
-  opacity: 1; transform: unset;
+body.load-done input[name="name"] {
+  opacity: 1;
+  transform: unset;
 }
 /*-------------------------------------------*/
-body.load-done input[name='passwd'] {
-  opacity: 1; transform: unset;
+body.load-done input[name="passwd"] {
+  opacity: 1;
+  transform: unset;
 }
 /*-------------------------------------------*/
 body.load-done button {
-  opacity: 1; transform: unset;
+  opacity: 1;
+  transform: unset;
 }

@@ -10,12 +10,11 @@ import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import com.site0.walnut.util.Wlog;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.err.Er;
-import com.site0.walnut.api.io.WnIoIndexer;
+import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
-import com.site0.walnut.core.mapping.MountInfo;
+import com.site0.walnut.core.mapping.support.MountInfo;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Wobj;
 import com.site0.walnut.util.validate.WnMatch;
@@ -29,14 +28,19 @@ public class WnIoObj extends NutMap implements WnObj {
      * <p>
      * 为了能一直查找 Parent，索引管理器也应该有父子结构
      */
-    private WnIoIndexer indexer;
+    // private WnIoIndexer indexer;
+    private WnIo io;
 
     public WnIoObj() {
         super();
     }
 
-    public void setIndexer(WnIoIndexer indexer) {
-        this.indexer = indexer;
+    // public void setIndexer(WnIoIndexer indexer) {
+    // this.indexer = indexer;
+    // }
+
+    public void setIo(WnIo io) {
+        this.io = io;
     }
 
     public NutMap toMap4Update(String regex) {
@@ -171,6 +175,19 @@ public class WnIoObj extends NutMap implements WnObj {
 
     public boolean isSameId(WnObj o) {
         return isSameId(o.id());
+    }
+
+    public boolean isFromLink() {
+        return this.has("fromLink");
+    }
+
+    public String fromLink() {
+        return this.getString("fromLink");
+    }
+
+    public WnObj fromLink(String link) {
+        this.put("fromLink", link);
+        return this;
     }
 
     public boolean isLink() {
@@ -404,7 +421,8 @@ public class WnIoObj extends NutMap implements WnObj {
 
         // 更新自己的私有属性
         if (o instanceof WnIoObj) {
-            this.indexer = ((WnIoObj) o).indexer;
+            // this.indexer = ((WnIoObj) o).indexer;
+            this.io = ((WnIoObj) o).io;
             this._parent = ((WnIoObj) o)._parent;
         } else {
             this._parent = o.parent();
@@ -550,9 +568,12 @@ public class WnIoObj extends NutMap implements WnObj {
     // -----------------------------------------
     // 下面的属性不要主动设置，用 nd() 方法设置
     // -----------------------------------------
+    public String getPath() {
+        return getString("ph");
+    }
 
     public String path() {
-        String ph = getString("ph");
+        String ph = getPath();
         if (Strings.isBlank(ph)) {
             this.loadParents(null, false);
             ph = getString("ph");
@@ -640,7 +661,7 @@ public class WnIoObj extends NutMap implements WnObj {
             return true;
 
         // 如果设置了映射管理器，那么看看自己的父
-        if (null != this.indexer && this.hasParent()) {
+        if (null != this.io && this.hasParent()) {
             WnObj p = this.parent();
             if (null != p) {
                 return p.isMount();
@@ -649,6 +670,16 @@ public class WnIoObj extends NutMap implements WnObj {
 
         // 那就是木有咯
         return false;
+    }
+
+    @Override
+    public boolean isMountEntry() {
+        return this.has("mnt") && !OID().hasHomeId();
+    }
+
+    @Override
+    public boolean isMountedObj() {
+        return this.has("mnt") && OID().hasHomeId();
     }
 
     /**
@@ -711,15 +742,18 @@ public class WnIoObj extends NutMap implements WnObj {
     public WnObj parent() {
         if (null == _parent && hasParent()) {
             String pid = this.parentId();
-            if (this.indexer == null) {
-                throw Wlang.makeThrow("NPE indexer: %s/%s > %s", pid, this.id(), this.name());
+            if (this.io == null) {
+                throw Wlang.makeThrow("NPE inner IO: %s/%s > %s",
+                                      pid,
+                                      this.id(),
+                                      this.name());
             }
             // 自己的父就是根了
-            if (this.indexer.isRoot(pid)) {
-                return this.indexer.getRoot();
+            if (this.io.isRoot(pid)) {
+                return this.io.getRoot();
             }
             // 尝试获取自己的老父亲
-            WnObj oP = indexer.get(pid);
+            WnObj oP = io.get(pid);
             if (null == oP) {
                 // oP = tree.get(pid);
                 // throw Wlang.makeThrow("NPE parent: %s/%s > %s", pid,
@@ -770,17 +804,13 @@ public class WnIoObj extends NutMap implements WnObj {
      * 
      * @return 一个十进制的权限码
      */
-    public int getCustomizedPrivilege(WnAccount u, int dftMode) {
-        // 防守: 没有指定账户
-        if (null == u) {
-            return dftMode;
-        }
+    public NutBean getCustomizedPrivilege() {
         // 防守: 没有指定自定义权限集合
         NutBean pvg = this.getAs("pvg", NutMap.class);
         if (this.hasParent()) {
             pvg = this.parent().joinCustomizedPrivilege(pvg);
         }
-        return u.evalPvgMode(pvg, dftMode);
+        return pvg;
     }
 
     @Override
@@ -867,11 +897,11 @@ public class WnIoObj extends NutMap implements WnObj {
         }
 
         // 没设置索引管理器
-        if (null == indexer) {
+        if (null == io) {
             return null;
         }
 
-        WnObj p = indexer.isRoot(pid) ? indexer.getRoot() : indexer.get(pid);
+        WnObj p = io.isRoot(pid) ? io.getRoot() : io.get(pid);
 
         // 没有父，是不可能的
         if (null == p) {

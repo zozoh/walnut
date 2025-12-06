@@ -40,7 +40,7 @@ public abstract class Sqlx {
     private static Map<String, SqlHolder> sqlHolders = new HashMap<>();
 
     public static SqlHolder getSqlHolderByPath(WnSystem sys, String dirPath) {
-        return getSqlHolderByPath(sys.io, sys.session.getVars(), dirPath);
+        return getSqlHolderByPath(sys.io, sys.session.getEnv(), dirPath);
     }
 
     public static SqlHolder getSqlHolderByPath(WnIo io, NutBean vars, String dirPath) {
@@ -94,12 +94,13 @@ public abstract class Sqlx {
         }
     }
 
-    public static int sqlRun(WnDaoAuth auth, SqlAtom callback) {
+    public static int sqlRun(WnDaoAuth auth, SqlExecutor callback) {
         DataSource ds = WnDaos.getDataSource(auth);
         Connection conn = null;
         PreparedStatement sta = null;
         try {
             conn = ds.getConnection();
+            conn.setAutoCommit(false);
             return callback.exec(conn);
         }
         catch (SQLException e) {
@@ -111,6 +112,8 @@ public abstract class Sqlx {
                     sta.close();
                 }
                 if (null != conn) {
+                    conn.commit();
+                    conn.setAutoCommit(true);
                     conn.close();
                 }
             }
@@ -137,7 +140,7 @@ public abstract class Sqlx {
         return SqlType.EXEC;
     }
 
-    public static List<Object[]> getParams(List<NutBean> list, List<SqlParam> params) {
+    public static List<Object[]> getParams(List<? extends NutBean> list, List<SqlParam> params) {
         List<Object[]> re = new ArrayList<>(list.size());
         for (NutBean li : list) {
             Object[] row = new Object[params.size()];

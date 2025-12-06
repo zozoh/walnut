@@ -7,6 +7,5 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({WnIoImpl2Test.class,
                      WnIoCustomizedPvgTest.class,
                      LocalMappingTest.class,
-                     DaoMappingTest.class,
                      RedisBMMappingTest.class})
 public class AllIoTest {}

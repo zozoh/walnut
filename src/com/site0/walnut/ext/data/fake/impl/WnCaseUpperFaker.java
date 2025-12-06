@@ -1,6 +1,7 @@
 package com.site0.walnut.ext.data.fake.impl;
 
 import com.site0.walnut.ext.data.fake.WnFaker;
+import com.site0.walnut.util.Ws;
 
 public class WnCaseUpperFaker extends WnCaseFaker {
 
@@ -10,7 +11,7 @@ public class WnCaseUpperFaker extends WnCaseFaker {
 
     @Override
     protected String toCase(String s) {
-        return s.toUpperCase();
+        return Ws.upperCase(s);
     }
 
 }

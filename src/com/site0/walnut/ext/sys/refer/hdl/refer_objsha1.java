@@ -4,7 +4,7 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.core.WnIoBM;
 import com.site0.walnut.core.WnIoMapping;
 import com.site0.walnut.core.WnReferApi;
-import com.site0.walnut.core.bm.localbm.LocalIoBM;
+import com.site0.walnut.core.bm.bml.LocalSha1BM;
 import com.site0.walnut.impl.box.JvmHdl;
 import com.site0.walnut.impl.box.JvmHdlContext;
 import com.site0.walnut.impl.box.WnSystem;
@@ -34,8 +34,8 @@ public class refer_objsha1 implements JvmHdl {
         WnIoMapping im = sys.io.getMappingFactory().checkMapping(o);
         WnIoBM bm = im.getBucketManager();
         WnReferApi refers = null;
-        if (bm instanceof LocalIoBM) {
-            refers = ((LocalIoBM) bm).getReferApi();
+        if (bm instanceof LocalSha1BM) {
+            refers = ((LocalSha1BM) bm).getReferApi();
         }
 
         // 防守：本对象区块无需引用计数

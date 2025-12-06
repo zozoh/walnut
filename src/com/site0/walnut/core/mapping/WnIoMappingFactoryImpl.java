@@ -3,13 +3,18 @@ package com.site0.walnut.core.mapping;
 import java.util.HashMap;
 
 import org.nutz.lang.Strings;
+
+import com.site0.walnut.api.GetWnIo;
 import com.site0.walnut.api.err.Er;
+import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnIoIndexer;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.core.WnIoBM;
 import com.site0.walnut.core.WnIoMapping;
 import com.site0.walnut.core.WnIoMappingFactory;
 import com.site0.walnut.core.bean.WnObjMapping;
+import com.site0.walnut.core.indexer.AbstractIoDataIndexer;
+import com.site0.walnut.core.mapping.support.MountInfo;
 
 public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
 
@@ -24,6 +29,13 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
     private WnIoBM globalBM;
 
     /**
+     * 这个注入很重要，因为内部的 Indexer 都需要这个接口
+     * <p>
+     * 在 WnIoImpl2 的 setMapping 里会设置它
+     */
+    private GetWnIo getIo;
+
+    /**
      * 索引管理器工厂映射
      */
     private HashMap<String, WnIndexerFactory> indexers;
@@ -33,7 +45,17 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
      */
     private HashMap<String, WnBMFactory> bms;
 
-    private WnIoMapping __check_mapping(WnObj oHome, String mount) {
+    private GetWnIo __my_get_io;
+
+    public WnIoMappingFactoryImpl() {
+        __my_get_io = new GetWnIo() {
+            public WnIo get() {
+                return getIo.get();
+            }
+        };
+    }
+
+    private WnIoMapping __check_mapping(WnObj oMntRoot, String mount) {
         // 首先分析映射
         MountInfo mi = new MountInfo(mount);
 
@@ -47,7 +69,7 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
         }
         // 获取索引管理器
         else {
-            ix = loadIndexer(oHome, mi.ix);
+            ix = loadIndexer(oMntRoot, mi.ix);
         }
 
         // 采用全局桶管理器
@@ -56,7 +78,7 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
         }
         // 获取桶管理器
         else {
-            bm = loadBM(oHome, mi.bm);
+            bm = loadBM(oMntRoot, mi.bm);
         }
 
         // 组合返回
@@ -73,7 +95,8 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
     public WnIoBM loadBM(WnObj oHome, MountInfo.Item mibm) {
         WnBMFactory bmFa = bms.get(mibm.type);
         if (null == bmFa) {
-            throw Er.create("e.io.mapping.WnBMFactoryNotFound", mibm.toString());
+            throw Er.create("e.io.mapping.WnBMFactoryNotFound",
+                            mibm.toString());
         }
         return bmFa.load(oHome, mibm.arg);
     }
@@ -88,21 +111,26 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
     public WnIoIndexer loadIndexer(WnObj oHome, MountInfo.Item miix) {
         WnIndexerFactory ixFa = indexers.get(miix.type);
         if (null == ixFa) {
-            throw Er.create("e.io.mapping.WnIndexerFactoryNotFound", miix.toString());
+            throw Er.create("e.io.mapping.WnIndexerFactoryNotFound",
+                            miix.toString());
         }
-        return ixFa.load(oHome, miix.arg);
+        WnIoIndexer ix = ixFa.load(oHome, miix.arg);
+        if (ix instanceof AbstractIoDataIndexer) {
+            ((AbstractIoDataIndexer) ix).setGetIo(__my_get_io);
+        }
+        return ix;
     }
 
     @Override
-    public WnIoMapping checkMapping(String homeId, String mount) {
+    public WnIoMapping checkMapping(String mountRootId, String mount) {
         // 获取顶端映射对象
-        WnObj oHome = null;
-        if (!Strings.isBlank(homeId)) {
-            oHome = globalIndexer.checkById(homeId);
+        WnObj oMntRoot = null;
+        if (!Strings.isBlank(mountRootId)) {
+            oMntRoot = globalIndexer.checkById(mountRootId);
         }
 
         // 获取映射
-        return __check_mapping(oHome, mount);
+        return __check_mapping(oMntRoot, mount);
     }
 
     @Override
@@ -112,16 +140,16 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
             return getGlobalMapping();
         }
         // 获取其顶级映射
-        String homeId = obj.mountRootId();
+        String mntRootId = obj.mountRootId();
         String mount = obj.mount();
 
         // 自己就是顶端映射对象
-        if (Strings.isBlank(homeId) || obj.isSameId(homeId)) {
+        if (Strings.isBlank(mntRootId) || obj.isSameId(mntRootId)) {
             return __check_mapping(obj, mount);
         }
 
         // 返回
-        return checkMapping(homeId, mount);
+        return checkMapping(mntRootId, mount);
     }
 
     @Override
@@ -164,6 +192,9 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
 
     public void setGlobalIndexer(WnIoIndexer globalIndexer) {
         this.globalIndexer = globalIndexer;
+        if (globalIndexer instanceof AbstractIoDataIndexer) {
+            ((AbstractIoDataIndexer) globalIndexer).setGetIo(__my_get_io);
+        }
     }
 
     public void setGlobalBM(WnIoBM globalBM) {
@@ -176,6 +207,10 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
 
     public void setBms(HashMap<String, WnBMFactory> bms) {
         this.bms = bms;
+    }
+
+    public void setGetIo(GetWnIo io) {
+        this.getIo = io;
     }
 
 }

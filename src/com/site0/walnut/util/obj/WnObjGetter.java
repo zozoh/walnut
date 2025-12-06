@@ -3,10 +3,10 @@ package com.site0.walnut.util.obj;
 import java.io.InputStream;
 
 import org.nutz.lang.util.NutBean;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.stream.WnInputStreamFactory;
 import com.site0.walnut.util.stream.WnInputStreamInfo;
@@ -24,8 +24,8 @@ public class WnObjGetter implements WnInputStreamFactory {
         this.stdInput = sys.in.getInputStream();
     }
 
-    public WnObjGetter(WnIo io, WnAuthSession session) {
-        this(io, session.getVars());
+    public WnObjGetter(WnIo io, WnSession session) {
+        this(io, session.getEnv());
     }
 
     public WnObjGetter(WnIo io, NutBean vars) {

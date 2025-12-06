@@ -19,6 +19,11 @@ import com.site0.walnut.val.ValueMakers;
 public class val_gen extends ValFilter {
 
     @Override
+    protected ZParams parseParams(String[] args) {
+        return ZParams.parse(args, "^(json)$");
+    }
+
+    @Override
     protected void process(WnSystem sys, ValContext fc, ZParams params) {
         String input = params.val_check(0);
         int n = params.getInt("n", 1);

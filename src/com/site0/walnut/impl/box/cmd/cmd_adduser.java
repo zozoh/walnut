@@ -3,10 +3,11 @@ package com.site0.walnut.impl.box.cmd;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutMap;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.usr.WnSimpleUser;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Cmds;
 import com.site0.walnut.util.ZParams;
 
@@ -22,7 +23,7 @@ public class cmd_adduser extends JvmExecutor {
 
         // 创建后的用户
         //WnUsr u = sys.usrService.fetchBy(info);
-        WnAccount u = sys.auth.getAccount(str);
+        WnUser u = sys.auth.getUser(str);
 
         // 用户存在 ...
         if (null != u) {
@@ -33,18 +34,18 @@ public class cmd_adduser extends JvmExecutor {
         }
         // 不存在，创建吧
         else {
-            u = new WnAccount(str);
+            u = new WnSimpleUser(str);
             // 分析密码
             if (params.has("p")) {
                 String passwd = params.get("p");
                 if ("true".equals(passwd)) {
                     passwd = "123456";
                 }
-                u.setPasswd(passwd);
+                u.genSaltAndRawPasswd(passwd);
             }
 
             // 创建用户
-            u = sys.auth.createAccount(u);
+            u = sys.auth.addUser(u);
 
             // 初始化设置
             String setup = params.get("setup");

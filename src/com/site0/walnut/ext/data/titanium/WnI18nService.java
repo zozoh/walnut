@@ -7,10 +7,10 @@ import java.util.Map;
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Wpath;
 import com.site0.walnut.util.Ws;
@@ -27,8 +27,8 @@ public class WnI18nService {
         this(sys.io, sys.session);
     }
 
-    public WnI18nService(WnIo io, WnAuthSession session) {
-        this(io, session.getVars());
+    public WnI18nService(WnIo io, WnSession session) {
+        this(io, session.getEnv());
     }
 
     public WnI18nService(WnIo io, NutBean vars) {

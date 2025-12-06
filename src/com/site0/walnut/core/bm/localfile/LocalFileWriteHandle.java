@@ -11,30 +11,21 @@ import com.site0.walnut.core.indexer.localfile.WnLocalFileObj;
 
 public class LocalFileWriteHandle extends WnIoWriteHandle {
 
-    private OutputStream ops;
-
-    protected OutputStream outout() throws FileNotFoundException {
-        if (null != obj && null == ops) {
-            if (obj instanceof WnLocalFileObj) {
-                File f = ((WnLocalFileObj) obj).getFile();
-                this.ops = Streams.chanOps(f, false);
-            }
-            // 不能支持的文件类型
-            else {
-                throw Er.create("e.io.localfile.UnsupportObjType", obj.getClass().getName());
-            }
+    protected OutputStream getOutputStream() throws FileNotFoundException {
+        if (obj instanceof WnLocalFileObj) {
+            File f = ((WnLocalFileObj) obj).getFile();
+            return Streams.chanOps(f, false);
         }
-        return ops;
+        // 不能支持的文件类型
+        else {
+            throw Er.create("e.io.localfile.UnsupportObjType",
+                            obj.getClass().getName());
+        }
     }
 
     @Override
     public void on_close() throws IOException {
-        // 无论如何，刷一下
-        Streams.safeFlush(ops);
-
-        // 关闭交换文件
-        Streams.safeClose(ops);
-        ops = null;
+        // 没啥好做的
     }
 
 }

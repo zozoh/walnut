@@ -3,6 +3,7 @@ package com.site0.walnut.ext.data.sqlx.hdl;
 import java.sql.Connection;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -37,6 +38,9 @@ public class sqlx_exec extends SqlxFilter {
         boolean batchMode = params.is("batch");
         WnMatch am = null;
 
+        // 得到当前时间
+        Date now = new Date();
+
         // 自动展开上下文
         if (params.is("explain")) {
             fc.explainVars();
@@ -57,7 +61,7 @@ public class sqlx_exec extends SqlxFilter {
         SqlExecResult re;
 
         // 如果是批量
-        if (fc.hasVarList()) {
+        if (fc.isVarsModeAsList()) {
             List<NutBean> beans = fc.getVarList();
 
             // 保护判断一下
@@ -68,9 +72,9 @@ public class sqlx_exec extends SqlxFilter {
 
             // 批量模式
             if (batchMode) {
-                NutBean context = beans.get(0);
+                NutBean first = beans.get(0);
                 List<SqlParam> cps = new ArrayList<>();
-                String sql = sqlt.render(context, cps);
+                String sql = sqlt.render(first, cps);
 
                 // 准备参数
                 List<Object[]> paramList = Sqlx.getParams(beans, cps);
@@ -89,13 +93,16 @@ public class sqlx_exec extends SqlxFilter {
                 }
             }
 
-            // 准备更新日志
-            if (null != fc.hislog) {
-                fc.hislog.buildHislogForList(sqlName, beans);
+            // 记录结果对象
+            _update_result(fc, params, conn, re);
+
+            // 提取历史记录
+            if (fc.hasHislogRuntime()) {
+                fc.hislog.buildHislogForList(now, sqlName, beans);
             }
         }
         // 参数模式
-        else if (fc.hasVarMap()) {
+        else if (fc.isVarsModeAsMap()) {
             NutBean record = fc.getVarMap();
 
             // 保护判断一下
@@ -108,9 +115,12 @@ public class sqlx_exec extends SqlxFilter {
             Object[] sqlParams = Sqlx.getSqlParamsValue(cps);
             re = fc.exec.runWithParams(conn, sql, sqlParams);
 
-            // 准备更新日志
-            if (null != fc.hislog) {
-                fc.hislog.buildHislog(sqlName, record);
+            // 记录结果对象
+            _update_result(fc, params, conn, re);
+
+            // 提取历史记录
+            if (fc.hasHislogRuntime()) {
+                fc.hislog.buildHislogForRecord(now, sqlName, record);
             }
         }
         // 那么就是普通模式
@@ -118,9 +128,26 @@ public class sqlx_exec extends SqlxFilter {
             NutMap context = new NutMap();
             String sql = sqlt.render(context, null);
             re = fc.exec.run(conn, sql);
+
+            // 记录结果对象
+            _update_result(fc, params, conn, re);
         }
 
-        // 记录结果对象
+    }
+
+    /**
+     * 
+     * 更新结果对象必须要在【提取历史】以前执行，因为如果对象的 ID 是动态分配的，<br>
+     * fetch_by 将可以将这个对象信息获取回来，并设置到【管线上下文】里，
+     * <p>
+     * 这样在提取历史记录的时候，才能有足够的上下文信息
+     * 
+     * @param fc
+     * @param params
+     * @param conn
+     * @param re
+     */
+    private void _update_result(SqlxContext fc, ZParams params, Connection conn, SqlExecResult re) {
         if (!params.is("noresult")) {
             // 合并
             if (fc.result instanceof SqlExecResult) {
@@ -174,7 +201,6 @@ public class sqlx_exec extends SqlxFilter {
                 }
             }
         }
-
     }
 
 }

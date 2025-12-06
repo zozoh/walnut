@@ -5,9 +5,9 @@ import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 
 public class cmd_chown extends cmd_chxxx {
@@ -31,7 +31,7 @@ public class cmd_chown extends cmd_chxxx {
         }
 
         // 确保有这个用户
-        WnAccount u = sys.auth.checkAccount(unm);
+        WnUser u = sys.auth.checkUser(unm);
 
         // 输出内容
         for (WnObj o : cc.list) {

@@ -20,7 +20,7 @@ public class app_init implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // 得到当前操作路径
-        String pwd = sys.session.getVars().getString("PWD");
+        String pwd = sys.session.getEnv().getString("PWD");
 
         // 准备基石
         Stopwatch sw = Stopwatch.begin();

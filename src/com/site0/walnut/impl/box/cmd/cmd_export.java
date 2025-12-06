@@ -1,7 +1,7 @@
 package com.site0.walnut.impl.box.cmd;
 
 import org.nutz.lang.Strings;
-import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.NutBean;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.impl.io.WnEvalLink;
@@ -11,7 +11,7 @@ public class cmd_export extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) {
-        NutMap vars = sys.session.getVars();
+        NutBean vars = sys.session.getEnv();
         // 没参数显示所有环境变量
         if (args.length == 0) {
             for (String key : vars.keySet()) {
@@ -31,7 +31,7 @@ public class cmd_export extends JvmExecutor {
             }
             // 强制写入
             Wn.WC().security(new WnEvalLink(sys.io), () -> {
-                sys.auth.saveSessionVars(sys.session);
+                sys.auth.saveSessionEnv(sys.session);
             });
         }
     }

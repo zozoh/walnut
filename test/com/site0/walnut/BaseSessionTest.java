@@ -2,38 +2,61 @@ package com.site0.walnut;
 
 import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthSession;
+import org.nutz.log.Log;
+
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
+import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.usr.WnSimpleUser;
+import com.site0.walnut.login.usr.WnUser;
+import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 
-public class BaseSessionTest extends BaseUsrTest {
+public abstract class BaseSessionTest extends BaseUsrTest {
 
-    protected WnAccount me;
+    static Log log = Wlog.getTEST();
 
-    protected WnAuthSession session;
+    protected WnUser me;
+
+    protected WnObj oMyHome;
+
+    protected WnUser _old_me;
+
+    protected WnSession session;
 
     @Override
     protected void on_before() {
         super.on_before();
 
+        log.info("> BaseSessionTest.on_before enter");
         // 准备测试用户
-        WnAccount me = auth.getAccount("demo");
+        WnUser me = auth.getUser("demo");
         if (null == me) {
-            me = auth.createAccount(new WnAccount("demo"));
+            WnSimpleUser demo = new WnSimpleUser("demo");
+            demo.setMainGroup("demo");
+            demo.setMeta("HOME", "/home/demo");
+            me = auth.addUser(demo);
+
+            // 创建用户主目录
+            oMyHome = io.createIfNoExists(null, demo.getHomePath(), WnRace.DIR);
         }
 
         // 创建测试会话
-        session = auth.createSession(me, true);
+        session = auth.createSession(me, Wn.SET_UNIT_TEST);
+        log.infof("> BaseSessionTest.on_before session => %s", session.getTicket());
 
         // 切换会话当前用户
+        log.infof("> BaseSessionTest.on_before switch me=> %s", me.getName());
+        _old_me = Wn.WC().getMe();
         Wn.WC().setMe(me);
+        log.info("> BaseSessionTest.on_before quiet");
     }
 
     @Override
     protected void on_after() {
         super.on_after();
+        Wn.WC().setMe(_old_me);
+        log.info("> BaseSessionTest.on_after");
     }
 
     protected String APH(String ph) {

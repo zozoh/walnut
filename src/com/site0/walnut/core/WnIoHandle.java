@@ -13,7 +13,8 @@ import com.site0.walnut.api.io.WnObj;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public abstract class WnIoHandle extends HandleInfo implements Closeable, Flushable {
+public abstract class WnIoHandle extends HandleInfo
+        implements Closeable, Flushable {
 
     /**
      * 句柄管理器，用来更新句柄过期时间
@@ -103,6 +104,8 @@ public abstract class WnIoHandle extends HandleInfo implements Closeable, Flusha
      * @throws IOException
      */
     public abstract long seek(long n) throws IOException;
+
+    public abstract int read() throws IOException;
 
     /**
      * 读取到缓冲

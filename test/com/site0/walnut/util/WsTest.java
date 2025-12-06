@@ -308,6 +308,7 @@ public class WsTest {
         assertEquals("aBC", Ws.camelCase("A-b-C"));
         assertEquals("aBC", Ws.camelCase("A-_b-C"));
         assertEquals("aBC", Ws.camelCase("A_b_C"));
+        assertEquals("lastLoginAt", Ws.camelCase("lastLoginAt"));
     }
 
     @Test

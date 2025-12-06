@@ -1,9 +1,10 @@
 package com.site0.walnut.core;
 
+import com.site0.walnut.api.GetWnIo;
 import com.site0.walnut.api.io.WnIoIndexer;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.core.bean.WnObjMapping;
-import com.site0.walnut.core.mapping.MountInfo;
+import com.site0.walnut.core.mapping.support.MountInfo;
 
 public interface WnIoMappingFactory {
 
@@ -93,4 +94,12 @@ public interface WnIoMappingFactory {
      */
     WnIoBM loadBM(WnObj oHome, MountInfo.Item mibm);
 
+    /**
+     * 设置 IO 类的获取方式
+     * <p>
+     * 这个注入很重要，因为内部的 Indexer 都需要这个接口
+     * <p>
+     * 在 WnIoImpl2 的 setMapping 里会设置它
+     */
+    void setGetIo(GetWnIo io);
 }

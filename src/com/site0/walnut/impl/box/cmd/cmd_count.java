@@ -24,7 +24,7 @@ public class cmd_count extends JvmExecutor {
 
         String path;
         if (params.vals.length == 0) {
-            path = sys.session.getVars().getString("PWD");
+            path = sys.session.getEnv().getString("PWD");
         } else {
             path = params.vals[0];
         }

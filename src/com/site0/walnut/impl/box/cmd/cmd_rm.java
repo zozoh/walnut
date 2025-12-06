@@ -1,12 +1,13 @@
 package com.site0.walnut.impl.box.cmd;
 
+import java.util.List;
+
 import org.nutz.lang.Each;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.Disks;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
-import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wn;
@@ -23,7 +24,7 @@ public class cmd_rm extends JvmExecutor {
         boolean isH = params.is("H");
 
         // limit
-        int limit = params.getInt("limit", 0);
+        // int limit = params.getInt("limit", 0);
 
         // 参数错误
         if (params.vals.length < 1) {
@@ -40,54 +41,33 @@ public class cmd_rm extends JvmExecutor {
 
         // 循环每个参数
         for (String str : params.vals) {
-            // 准备父目录
-            WnObj oP;
-
             // 修改通配符
-            str = str.replace("*", ".*");
-
-            // 如果有路径
-            if (str.contains("/")) {
+            // str = str.replace("*", ".*");
+            // 如果是有通配符，那么就是查询
+            if (str.contains("*")) {
+                String ph = Wn.normalizeFullPath(str, sys);
                 int pos = str.lastIndexOf('/');
-                // 不是从根目录开始
+                String pph = null;
+                String name = str;
                 if (pos > 0) {
-                    String pPath = str.substring(0, pos);
-                    String apPh = Wn.normalizeFullPath(pPath, sys);
-                    oP = sys.io.check(oCurrent, apPh);
+                    // 保留这个结尾的 "/" 因为对于 S3 等对象存储，需要用 "/" 区别是目录
+                    pph = ph.substring(0, pos + 1);
+                    name = ph.substring(pos + 1).trim();
                 }
-                // 否则从根目录开始
-                else {
-                    oP = sys.io.getRoot();
+                WnObj oP = oCurrent;
+                if (null != pph) {
+                    oP = Wn.checkObj(sys, pph);
                 }
-
-                // 得到名字
-                str = str.substring(pos + 1);
+                List<WnObj> objs = sys.io.getChildren(oP, name);
+                for (WnObj o : objs) {
+                    _do_delete(sys, isV, isR, isI, isH, count, base, o);
+                }
             }
-            // 否则就是当前目录
+            // 否则就是直接删除
             else {
-                oP = oCurrent;
-            }
+                WnObj o = Wn.checkObj(sys, str);
+                _do_delete(sys, isV, isR, isI, isH, count, base, o);
 
-            // 如果直接就是 ID 的，那么删除它
-            if (str.startsWith("id:")) {
-                WnObj o = sys.io.checkById(str.substring(3));
-                _do_delete(sys, isV, isR, isI, true, count[0], base, o);
-                count[0]++;
-            }
-            // 否则设置查询条件
-            else {
-                WnQuery q = Wn.Q.pid(oP);
-                if (limit > 0)
-                    q.limit(limit);
-                q.setv("nm", str);
-
-                // 挨个查一下，然后删除
-                sys.io.each(q, new Each<WnObj>() {
-                    public void invoke(int index, WnObj o, int length) {
-                        _do_delete(sys, isV, isR, isI, isH, count[0], base, o);
-                        count[0]++;
-                    }
-                });
             }
         }
 
@@ -106,13 +86,16 @@ public class cmd_rm extends JvmExecutor {
                               final boolean isR,
                               final boolean isI,
                               final boolean isH,
-                              int index,
+                              int[] count,
                               final String base,
                               WnObj o) {
+        int index = count[0];
         // 打印
         if (isV) {
             if (isI) {
-                sys.out.printlnf("%d. %s", index, Disks.getRelativePath(base, o.path()));
+                sys.out.printlnf("%d. %s",
+                                 index,
+                                 Disks.getRelativePath(base, o.path()));
             } else {
                 sys.out.println(Disks.getRelativePath(base, o.path()));
             }
@@ -124,15 +107,25 @@ public class cmd_rm extends JvmExecutor {
         }
 
         // 递归
-        if (!o.isFILE() && !o.isLink() && isR) {
-            sys.io.each(Wn.Q.pid(o.id()), new Each<WnObj>() {
-                public void invoke(int index, WnObj child, int length) {
-                    _do_delete(sys, isV, isR, isI, true, index, base, child);
-                }
-            });
+        if (!o.isMountEntry()) {
+            if (!o.isFILE() && !o.isLink() && isR) {
+                sys.io.each(Wn.Q.pid(o.id()), new Each<WnObj>() {
+                    public void invoke(int index, WnObj child, int length) {
+                        _do_delete(sys,
+                                   isV,
+                                   isR,
+                                   isI,
+                                   true,
+                                   count,
+                                   base,
+                                   child);
+                    }
+                });
+            }
         }
         // 删除自己
         sys.io.delete(o);
+        count[0]++;
     }
 
 }

@@ -1,12 +1,14 @@
 package com.site0.walnut.util;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nutz.lang.Encoding;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -14,6 +16,7 @@ import org.nutz.lang.util.Regex;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
+import com.site0.walnut.core.bean.WnObjId;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import com.site0.walnut.util.validate.WnMatch;
 import com.site0.walnut.util.validate.impl.AlwaysMatch;
@@ -153,7 +156,8 @@ public class Wobj {
                 // 阻止子节点无穷递归
                 memo.put(id, o);
                 // 处理子节点
-                List<? extends NutBean> children = o.getAsList(subKey, NutBean.class);
+                List<? extends NutBean> children = o.getAsList(subKey,
+                                                               NutBean.class);
                 children = __flt_obj_key(children, kms, idKey, subKey, memo);
                 out.put(subKey, children);
                 // 嗯，搞定
@@ -207,7 +211,8 @@ public class Wobj {
         return map;
     }
 
-    private static final Pattern P_QUICK_KEYS = Regex.getPattern("^[%#]([A-Z0-9]+)?$");
+    private static final Pattern P_QUICK_KEYS = Regex
+        .getPattern("^[%#]([A-Z0-9]+)?$");
 
     public static String explainQuickObjKeyMatchStr(String str) {
         if (null == str)
@@ -367,5 +372,31 @@ public class Wobj {
             }
         }
         return RESERVE_KEYS.matcher(key).find();
+    }
+
+    public static WnObjId genPart2IDByVPath(String homeId, String path) {
+        WnObjId re = new WnObjId();
+        re.setHomeId(homeId);
+        re.setMyId(encodePathToBase64(path));
+        return re;
+    }
+
+    public static WnObjId genPart2IDByVPath(WnObj oHome, String path) {
+        WnObjId re = new WnObjId();
+        re.setHomeId(oHome.id());
+        re.setMyId(encodePathToBase64(path));
+        return re;
+    }
+
+    public static String decodePathFromBase64(String id) {
+        byte[] bs = Base64.getDecoder().decode(id);
+        String str = new String(bs, Encoding.CHARSET_UTF8);
+        return str.trim();
+    }
+
+    public static String encodePathToBase64(String path) {
+        // 展开 base64
+        byte[] bs = path.getBytes(Encoding.CHARSET_UTF8);
+        return Base64.getEncoder().encodeToString(bs);
     }
 }

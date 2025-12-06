@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
+import org.nutz.json.Json;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
@@ -16,7 +17,8 @@ public class WnSqlTmplTest {
     @Test
     public void test_update_with_self_field() {
         String s = "UPDATE t_pet SET ${@vars=update;omit=id} WHERE ${@vars=where; pick=id}";
-        NutMap context = NutMap.WRAP("{id:\"f000\", key:\":=>id\", name:\"xiaobai\"}");
+        NutMap context = NutMap
+            .WRAP("{id:\"f000\", key:\":=>id\", name:\"xiaobai\"}");
         WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
         List<SqlParam> params = new ArrayList<>(2);
         String sql = sqlt.render(context, params);
@@ -26,17 +28,20 @@ public class WnSqlTmplTest {
         assertEquals("id=\"f000\"", params.get(1).toString());
 
         sql = sqlt.render(context, null);
-        assertEquals("UPDATE t_pet SET key=id,name='xiaobai' WHERE id='f000'", sql);
+        assertEquals("UPDATE t_pet SET key=id,name='xiaobai' WHERE id='f000'",
+                     sql);
     }
 
     @Test
     public void test_update_with_scope() {
         String s = "UPDATE t_dict SET ${@vars=update;omit=__pk} WHERE ${@vars=where; scope=__pk}";
-        NutMap context = NutMap.WRAP("{value:'A',tip:'X',__pk:{value:'X',type:'C'}}");
+        NutMap context = NutMap
+            .WRAP("{value:'A',tip:'X',__pk:{value:'X',type:'C'}}");
         WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
         List<SqlParam> params = new ArrayList<>(2);
         String sql = sqlt.render(context, params);
-        assertEquals("UPDATE t_dict SET value=?,tip=? WHERE value=? AND type=?", sql);
+        assertEquals("UPDATE t_dict SET value=?,tip=? WHERE value=? AND type=?",
+                     sql);
         assertEquals(4, params.size());
         assertEquals("value=\"A\"", params.get(0).toString());
         assertEquals("tip=\"X\"", params.get(1).toString());
@@ -44,7 +49,8 @@ public class WnSqlTmplTest {
         assertEquals("[__pk]:type=\"C\"", params.get(3).toString());
 
         sql = sqlt.render(context, null);
-        assertEquals("UPDATE t_dict SET value='A',tip='X' WHERE value='X' AND type='C'", sql);
+        assertEquals("UPDATE t_dict SET value='A',tip='X' WHERE value='X' AND type='C'",
+                     sql);
     }
 
     @Test
@@ -55,7 +61,8 @@ public class WnSqlTmplTest {
         WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
         List<SqlParam> params = new ArrayList<>(2);
         String sql = sqlt.render(context, params);
-        assertEquals("SELECT * FROM t_pet WHERE (a>? AND a<?) AND (b<? AND b>=?)", sql);
+        assertEquals("SELECT * FROM t_pet WHERE (a>? AND a<?) AND (b<? AND b>=?)",
+                     sql);
         assertEquals(4, params.size());
         assertEquals("[query]:a=100", params.get(0).toString());
         assertEquals("[query]:a=500", params.get(1).toString());
@@ -63,7 +70,8 @@ public class WnSqlTmplTest {
         assertEquals("[query]:b=9", params.get(3).toString());
 
         sql = sqlt.render(context, null);
-        assertEquals("SELECT * FROM t_pet WHERE (a>100 AND a<500) AND (b<6 AND b>=9)", sql);
+        assertEquals("SELECT * FROM t_pet WHERE (a>100 AND a<500) AND (b<6 AND b>=9)",
+                     sql);
     }
 
     @Test
@@ -73,7 +81,8 @@ public class WnSqlTmplTest {
         WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
         List<SqlParam> params = new ArrayList<>(2);
         String sql = sqlt.render(context, params);
-        assertEquals("SELECT * FROM t_pet WHERE (a>? AND a<?) AND (b<? AND b>=?)", sql);
+        assertEquals("SELECT * FROM t_pet WHERE (a>? AND a<?) AND (b<? AND b>=?)",
+                     sql);
         assertEquals(4, params.size());
         assertEquals("a=100", params.get(0).toString());
         assertEquals("a=500", params.get(1).toString());
@@ -81,7 +90,8 @@ public class WnSqlTmplTest {
         assertEquals("b=9", params.get(3).toString());
 
         sql = sqlt.render(context, null);
-        assertEquals("SELECT * FROM t_pet WHERE (a>100 AND a<500) AND (b<6 AND b>=9)", sql);
+        assertEquals("SELECT * FROM t_pet WHERE (a>100 AND a<500) AND (b<6 AND b>=9)",
+                     sql);
     }
 
     @Test
@@ -98,7 +108,46 @@ public class WnSqlTmplTest {
         assertEquals("y=99", params.get(2).toString());
 
         sql = sqlt.render(context, null);
-        assertEquals("SELECT * FROM t_pet WHERE a='A' AND (x=100 OR y=99)", sql);
+        assertEquals("SELECT * FROM t_pet WHERE a='A' AND (x=100 OR y=99)",
+                     sql);
+    }
+
+    @Test
+    public void test_var_as_where_simple_and_or() {
+        String s = "SELECT t_pet WHERE ${@vars=where;}";
+        NutMap context = NutMap.WRAP("{'$or:mark1':[{x:100},{y:99}]}");
+        WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
+        List<SqlParam> params = new ArrayList<>(2);
+        String sql = sqlt.render(context, params);
+        assertEquals("SELECT t_pet WHERE (x=? OR y=?)", sql);
+        assertEquals(2, params.size());
+        assertEquals("x=100", params.get(0).toString());
+        assertEquals("y=99", params.get(1).toString());
+
+        sql = sqlt.render(context, null);
+        assertEquals("SELECT t_pet WHERE (x=100 OR y=99)", sql);
+    }
+
+    @Test
+    public void test_var_as_where_multi_and_or() {
+        String s = "SELECT t_pet WHERE ${@vars=where;}";
+        NutMap context = NutMap.WRAP("{'$or:mark1':[{x:100},{y:99}]}");
+        context.put("$and", Json.fromJson("[{a:'A'},{b:'B',c:'C'}]"));
+        WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
+        List<SqlParam> params = new ArrayList<>(2);
+        String sql = sqlt.render(context, params);
+        assertEquals("SELECT t_pet WHERE (x=? OR y=?) AND (a=? OR (b=? AND c=?))",
+                     sql);
+        assertEquals(5, params.size());
+        assertEquals("x=100", params.get(0).toString());
+        assertEquals("y=99", params.get(1).toString());
+        assertEquals("a=\"A\"", params.get(2).toString());
+        assertEquals("b=\"B\"", params.get(3).toString());
+        assertEquals("c=\"C\"", params.get(4).toString());
+
+        sql = sqlt.render(context, null);
+        assertEquals("SELECT t_pet WHERE (x=100 OR y=99) AND (a='A' OR (b='B' AND c='C'))",
+                     sql);
     }
 
     @Test

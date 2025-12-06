@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 
@@ -13,10 +12,6 @@ public class WnIoObjTest {
     
     @Test
     public void test_pvg2() {
-        WnAccount u = new WnAccount("zozoh");
-        u.setDepts(Wlang.array("A", "B", "C"));
-        u.setRoleName("x,y");
-
         WnIoObj o = new WnIoObj();
         o.id(Wn.genId());
         o.put("pvg", Wlang.map("{'@x':'0700'}"));
@@ -36,10 +31,6 @@ public class WnIoObjTest {
 
     @Test
     public void test_pvg() {
-        WnAccount u = new WnAccount("zozoh");
-        u.setDepts(Wlang.array("A", "B", "C"));
-        u.setRoleName("x,y");
-
         WnIoObj o = new WnIoObj();
         o.id(Wn.genId());
         o.put("pvg", Wlang.map("{'@x':'0700'}"));

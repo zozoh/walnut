@@ -30,11 +30,13 @@ import com.site0.walnut.core.WnIoHandleMutexException;
 import com.site0.walnut.core.WnReferApi;
 import com.site0.walnut.core.bean.WnIoObj;
 import com.site0.walnut.core.bean.WnObjIdTest;
-import com.site0.walnut.core.bm.localbm.LocalIoBM;
+import com.site0.walnut.core.bm.bml.LocalSha1BM;
 import com.site0.walnut.core.bm.redis.RedisBM;
 import com.site0.walnut.core.indexer.localfile.WnLocalFileObj;
 import com.site0.walnut.impl.io.WnEvalLink;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.Wobj;
+
 import org.nutz.web.WebException;
 
 public abstract class AbsractWnIoTest extends IoCoreTest {
@@ -87,8 +89,12 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
 
         // 获取文件 /home/demo/dir/a/b/c/d/x.txt
         WnObj o = io.fetch(null, "/mnt/dir/b/c/d/x.txt");
-        assertEquals(oMntDir.id() + ":b/c/d/x.txt", o.id());
-        assertEquals(oMntDir.id() + ":b/c/d/", o.parentId());
+        String ID1 = oMntDir.id()
+                     + ":"
+                     + Wobj.encodePathToBase64("b/c/d/x.txt");
+        assertEquals(ID1, o.id());
+        String ID2 = oMntDir.id() + ":" + Wobj.encodePathToBase64("b/c/d/");
+        assertEquals(ID2, o.parentId());
         assertEquals(o.parentId(), o.getString("pid"));
     }
 
@@ -324,7 +330,8 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         File dHome = setup.getLocalFileHome();
         File f = Files.getFile(dHome, "titanium/src/view/creation.json");
         Files.createFileIfNoExists(f);
-        File f2 = Files.getFile(dHome, "titanium/src/view/types/zh-cn/_types.json");
+        File f2 = Files.getFile(dHome,
+                                "titanium/src/view/types/zh-cn/_types.json");
         Files.write(f2, "hello");
         Files.createFileIfNoExists(f2);
 
@@ -461,7 +468,8 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         io.appendMeta(o, meta);
         WnObj o2 = io.get(o.id());
         assertEquals("demo", o2.getString("http-usr"));
-        assertEquals("http://api.local.io:8080/api/demo/thing/list", o2.getString("http-url"));
+        assertEquals("http://api.local.io:8080/api/demo/thing/list",
+                     o2.getString("http-url"));
         for (String key : meta.keySet()) {
             Object val = meta.get(key);
             Object v2 = o2.get(key);
@@ -542,21 +550,29 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
 
         // 修改的字段
         // 修改一个，没条件应该是 null
-        WnObj o = io.setBy(Wn.Q.map("{}"), Wlang.map("realname:'xiaobai', nb:24"), false);
+        WnObj o = io.setBy(Wn.Q.map("{}"),
+                           Wlang.map("realname:'xiaobai', nb:24"),
+                           false);
         assertNull(o);
 
         // 修改 "{age:12}" 的，只有一个修改了
-        o = io.setBy(Wn.Q.map("{age:12}"), Wlang.map("realname:'xiaobai', nb:24"), false);
+        o = io.setBy(Wn.Q.map("{age:12}"),
+                     Wlang.map("realname:'xiaobai', nb:24"),
+                     false);
         assertTrue(b.isSameId(o) || c.isSameId(o));
         assertEquals("xiaobai", io.getString(o.id(), "realname", null));
         assertEquals(24, io.getInt(o.id(), "nb", 0));
 
         // 修改 "{age:12, weight:11}" 的返回 null
-        o = io.setBy(Wn.Q.map("{age:12, weight:11}"), Wlang.map("brief:'AAA', x:3001"), false);
+        o = io.setBy(Wn.Q.map("{age:12, weight:11}"),
+                     Wlang.map("brief:'AAA', x:3001"),
+                     false);
         assertNull(o);
 
         // 修改 "{age:12 weight:14}" 的返回只有一个被修改了
-        o = io.setBy(Wn.Q.map("{age:12, weight:14}"), Wlang.map("brief:'AAA', x:3001"), true);
+        o = io.setBy(Wn.Q.map("{age:12, weight:14}"),
+                     Wlang.map("brief:'AAA', x:3001"),
+                     true);
         assertTrue(b.isSameId(o));
         assertEquals("AAA", io.getString(o.id(), "brief", null));
         assertEquals(3001, io.getInt(o.id(), "x", 0));
@@ -1241,16 +1257,27 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         WnObj a1 = io.create(null, "/linktest/a/a1", WnRace.FILE);
         WnObj b = io.create(null, "/linktest/b", WnRace.DIR);
         try {
+            // /linktest/
+            // |-- a/
+            // | |--a1
+            // |-- b/ --> /linktest/a/
             io.writeText(a1, "haha");
             io.appendMeta(b, "ln:'/linktest/a'");
 
             assertEquals("haha", io.readText(io.fetch(null, "/linktest/a/a1")));
             assertEquals("haha", io.readText(io.fetch(null, "/linktest/b/a1")));
 
-            io.writeText(io.fetch(null, "/linktest/b/a1"), "hehe");
+            WnObj f0 = io.fetch(null, "/linktest/b/a1");
+            io.writeText(f0, "hehehe");
+            System.out.printf("f0.sha1=%s, f0.len=%d\n", f0.sha1(), f0.len());
 
-            assertEquals("hehe", io.readText(io.fetch(null, "/linktest/a/a1")));
-            assertEquals("hehe", io.readText(io.fetch(null, "/linktest/b/a1")));
+            WnObj f1 = io.fetch(null, "/linktest/b/a1");
+            System.out.printf("f1.sha1=%s, f1.len=%d\n", f1.sha1(), f1.len());
+            assertEquals("hehehe", io.readText(f1));
+
+            WnObj f2 = io.fetch(null, "/linktest/a/a1");
+            System.out.printf("f2.sha1=%s, f2.len=%d\n", f2.sha1(), f2.len());
+            assertEquals("hehehe", io.readText(f2));
 
         }
         finally {
@@ -1499,7 +1526,8 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
     }
 
     @Test
-    public void test_random_write() throws IOException, WnIoHandleMutexException {
+    public void test_random_write()
+            throws IOException, WnIoHandleMutexException {
         WnObj o = io.create(null, "/a/b/c", WnRace.FILE);
 
         assertEquals("/a/b/c", o.path());
@@ -1534,7 +1562,7 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         assertEquals(1, refers.count(newSha1));
 
         // 得到全局桶
-        LocalIoBM bm = setup.getGlobalIoBM();
+        LocalSha1BM bm = setup.getGlobalIoBM();
 
         // 旧的SHA1 文件被删掉了
         File fOld = bm.getBucketFile(oldSha1);
@@ -1562,7 +1590,9 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         assertNotNull(o.get("pets"));
         assertEquals(3, Wlang.eleSize(o.get("pets")));
         Wlang.each(o.get("pets"), (int index, Object ele, Object src) -> {
-            assertTrue("wendal".equals(ele) || "zozoh".equals(ele) || "pangwu".equals(ele));
+            assertTrue("wendal".equals(ele)
+                       || "zozoh".equals(ele)
+                       || "pangwu".equals(ele));
         });
 
         // 减少
@@ -1586,42 +1616,50 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
 
     @Test
     public void test_array_push_pull_by_query() throws IOException {
-        io.create(null, "/a/b/z", WnRace.FILE);
-        WnObj o = io.create(null, "/a/b/c", WnRace.FILE);
-        String id = o.id();
-        String pid = o.parentId();
+        WnObj oZ = io.create(null, "/a/b/z", WnRace.FILE);
+        WnObj oC = io.create(null, "/a/b/c", WnRace.FILE);
+        String id = oC.id();
+        String pid = oC.parentId();
+        assertEquals(pid, oZ.parentId());
+        assertEquals(pid, oZ.parent().id());
+        assertTrue(oZ.hasParent());
 
-        assertEquals("/a/b/c", o.path());
+        WnQuery q_by_id = Wn.Q.id(id);
+        WnQuery q_by_pid = Wn.Q.pid(pid).setv("nm", "c");
+
+        assertEquals("/a/b/c", oC.path());
 
         // 新增
-        io.push(Wn.Q.id(id), "pets", "wendal");
-        io.push(Wn.Q.pid(pid), "pets", "zozoh");
-        io.push(Wn.Q.pid(pid), "pets", "pangwu");
+        io.push(q_by_id, "pets", "wendal");
+        io.push(q_by_pid, "pets", "zozoh");
+        io.push(q_by_pid, "pets", "pangwu");
 
-        o = io.get(id);
-        assertNotNull(o);
-        assertNotNull(o.get("pets"));
-        assertEquals(3, Wlang.eleSize(o.get("pets")));
-        Wlang.each(o.get("pets"), (int index, Object ele, Object src) -> {
-            assertTrue("wendal".equals(ele) || "zozoh".equals(ele) || "pangwu".equals(ele));
+        oC = io.get(id);
+        assertNotNull(oC);
+        assertNotNull(oC.get("pets"));
+        assertEquals(3, Wlang.eleSize(oC.get("pets")));
+        Wlang.each(oC.get("pets"), (int index, Object ele, Object src) -> {
+            assertTrue("wendal".equals(ele)
+                       || "zozoh".equals(ele)
+                       || "pangwu".equals(ele));
         });
 
         // 减少
-        io.pull(Wn.Q.pid(pid), "pets", "zozoh");
-        o = io.get(id);
-        assertNotNull(o);
-        assertNotNull(o.get("pets"));
-        assertEquals(2, Wlang.eleSize(o.get("pets")));
-        Wlang.each(o.get("pets"), (int index, Object ele, Object src) -> {
+        io.pull(q_by_pid, "pets", "zozoh");
+        oC = io.get(id);
+        assertNotNull(oC);
+        assertNotNull(oC.get("pets"));
+        assertEquals(2, Wlang.eleSize(oC.get("pets")));
+        Wlang.each(oC.get("pets"), (int index, Object ele, Object src) -> {
             assertTrue("wendal".equals(ele) || "pangwu".equals(ele));
         });
 
-        io.pull(Wn.Q.pid(pid), "pets", "wendal");
-        io.pull(Wn.Q.pid(pid), "pets", "pangwu");
+        io.pull(q_by_pid, "pets", "wendal");
+        io.pull(q_by_pid, "pets", "pangwu");
 
-        o = io.get(id);
-        assertNotNull(o);
-        assertEquals(0, Wlang.eleSize(o.get("pets")));
+        oC = io.get(id);
+        assertNotNull(oC);
+        assertEquals(0, Wlang.eleSize(oC.get("pets")));
 
     }
 

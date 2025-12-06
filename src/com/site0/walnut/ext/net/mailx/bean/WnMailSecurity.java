@@ -18,6 +18,13 @@ public class WnMailSecurity {
         encryptCertFile = WnTmpl.exec(encryptCertFile, vars);
     }
 
+    public String toString() {
+        return String.format("type=%s; sign=%s, encryptCertFile=%s",
+                             type,
+                             sign,
+                             encryptCertFile);
+    }
+
     public boolean isSMIME() {
         return WnMailSecuType.SMIME == type;
     }

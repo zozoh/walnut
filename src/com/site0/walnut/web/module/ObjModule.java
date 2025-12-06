@@ -43,12 +43,12 @@ import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.ViewWrapper;
 import org.nutz.repo.Base64;
 
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.api.io.WnRace;
+import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnPagerObj;
@@ -91,13 +91,18 @@ public class ObjModule extends AbstractWnModule {
     public WnObj fetch(@Param("str") String str,
                        @Param("path") boolean loadPath,
                        @Param("axis") boolean loadAxis,
+                       final HttpServletRequest req,
                        final HttpServletResponse resp) {
         // 这个接口开放给外部 app 调用
         WnWeb.setCrossDomainHeaders("*", (name, value) -> {
             resp.setHeader(WnWeb.niceHeaderName(name), value);
         });
+        // 对于 options 放过
+        if (WnWeb.isRequestOptions(req)) {
+            return null;
+        }
 
-        WnAuthSession se = Wn.WC().checkSession();
+        WnSession se = Wn.WC().checkSession();
         String ph = URLDecoder.decode(str, Encoding.CHARSET_UTF8);
         WnObj o = Wn.checkObj(io(), se, ph);
 
@@ -116,8 +121,10 @@ public class ObjModule extends AbstractWnModule {
 
     @Filters(@By(type = WnCheckSession.class, args = {"true"}))
     @At("/fetch2")
-    public WnObj fetch2(@Param("str") String str, final HttpServletResponse resp) {
-        return fetch(str, true, false, resp);
+    public WnObj fetch2(@Param("str") String str,
+                        final HttpServletRequest req,
+                        final HttpServletResponse resp) {
+        return fetch(str, true, false, req, resp);
     }
 
     /**
@@ -133,7 +140,7 @@ public class ObjModule extends AbstractWnModule {
      */
     @At("/ancestors")
     public List<WnObj> ancestors(@Param("str") String str) {
-        WnAuthSession se = Wn.WC().checkSession();
+        WnSession se = Wn.WC().checkSession();
         WnObj meta = Wn.checkObj(io(), se, str);
         LinkedList<WnObj> ans = new LinkedList<>();
         meta.loadParents(ans, false);
@@ -156,7 +163,9 @@ public class ObjModule extends AbstractWnModule {
     @Deprecated
     @At("/set/**")
     @AdaptBy(type = JsonAdaptor.class)
-    public WnObj set(String str, @Param("aph") boolean isAbsolutePath, NutMap map) {
+    public WnObj set(String str,
+                     @Param("aph") boolean isAbsolutePath,
+                     NutMap map) {
         // 确保 str 的形式正确
         str = __format_str(str, isAbsolutePath);
 
@@ -180,7 +189,7 @@ public class ObjModule extends AbstractWnModule {
     @AdaptBy(type = JsonAdaptor.class)
     public WnObj update(@Param("str") String str, NutMap map) {
         // 确保 str 的形式正确
-        WnAuthSession se = Wn.WC().checkSession();
+        WnSession se = Wn.WC().checkSession();
 
         // 取得并写入
         WnObj o = Wn.checkObj(io(), se, str);
@@ -242,8 +251,9 @@ public class ObjModule extends AbstractWnModule {
     }
 
     @At("/children")
-    public Object children(@Param("str") String str, @Param("pg") Boolean paging) {
-        WnAuthSession se = Wn.WC().checkSession();
+    public Object children(@Param("str") String str,
+                           @Param("pg") Boolean paging) {
+        WnSession se = Wn.WC().checkSession();
         WnObj o = Wn.checkObj(io(), se, str);
 
         // 查询
@@ -321,7 +331,7 @@ public class ObjModule extends AbstractWnModule {
 
         // 增加自己主域限制
         if (mine) {
-            WnAuthSession se = Wn.WC().checkSession();
+            WnSession se = Wn.WC().checkSession();
             q.setv("d0", "home");
             q.setv("d1", se.getMyGroup());
         }
@@ -391,7 +401,9 @@ public class ObjModule extends AbstractWnModule {
 
         // 直接指定的就是文件类型
         if (str.startsWith("type:")) {
-            im = __read_by_type(sizeHint, null, str.substring("type:".length()));
+            im = __read_by_type(sizeHint,
+                                null,
+                                str.substring("type:".length()));
         }
         // 根据对象找吧
         else {
@@ -405,7 +417,12 @@ public class ObjModule extends AbstractWnModule {
                 // im = io().readImage(oThumb);
                 // mime = oThumb.mime();
                 // imtp = oThumb.type();
-                return new WnObjDownloadView(io(), oThumb, null, null, etag, range);
+                return new WnObjDownloadView(io(),
+                                             oThumb,
+                                             null,
+                                             null,
+                                             etag,
+                                             range);
             }
             // 否则找默认的，默认的一定是 image/png
             else {
@@ -459,8 +476,9 @@ public class ObjModule extends AbstractWnModule {
         String sz_key = String.format("%1$dx%1$d", sizeHint);
 
         // 尝试从本域读取默认缩略图
-        String ph = Wn.normalizeFullPath("~/.thumbnail/dft/" + tp + "/" + sz_key + ".png",
-                                         Wn.WC().checkSession());
+        String ph = Wn
+            .normalizeFullPath("~/.thumbnail/dft/" + tp + "/" + sz_key + ".png",
+                               Wn.WC().checkSession());
         WnObj oThumb = io().fetch(null, ph);
 
         // 如果找到了 ...
@@ -476,7 +494,9 @@ public class ObjModule extends AbstractWnModule {
 
     private static final int[] SIZE_HINTS = Nums.array(16, 24, 32, 64, 128);
 
-    private BufferedImage __read_dft_thumbnail(String tp, WnRace race, String sz_key) {
+    private BufferedImage __read_dft_thumbnail(String tp,
+                                               WnRace race,
+                                               String sz_key) {
         BufferedImage im;
 
         // 先看看缓存里有木有
@@ -519,7 +539,8 @@ public class ObjModule extends AbstractWnModule {
         String thumb_key = "unknown_" + sz_key;
         im = thumbCache.get(thumb_key);
         if (null == im) {
-            WnObj oThumb = io().check(null, "/etc/thumbnail/unknown/" + sz_key + ".png");
+            WnObj oThumb = io()
+                .check(null, "/etc/thumbnail/unknown/" + sz_key + ".png");
             im = io().readImage(oThumb);
             thumbCache.put("unknown_" + sz_key, im);
         }
@@ -557,7 +578,7 @@ public class ObjModule extends AbstractWnModule {
         }
 
         // 获取当前会话
-        WnAuthSession se = Wn.WC().checkSession();
+        WnSession se = Wn.WC().checkSession();
 
         // 取得对应对象
         WnObj o = Wn.checkObj(io(), se, str);
@@ -587,13 +608,18 @@ public class ObjModule extends AbstractWnModule {
                           @Param("content") String content,
                           @Param("cine") boolean createIfNoExists,
                           @Param("base64") boolean asBase64,
+                          final HttpServletRequest req,
                           HttpServletResponse resp) {
         // 这个接口开放给外部 app 调用
         WnWeb.setCrossDomainHeaders("*", (name, value) -> {
             resp.setHeader(WnWeb.niceHeaderName(name), value);
         });
+        // 对于 options 放过
+        if (WnWeb.isRequestOptions(req)) {
+            return null;
+        }
         // 获取当前会话
-        WnAuthSession se = Wn.WC().checkSession();
+        WnSession se = Wn.WC().checkSession();
         WnIo io = io();
 
         // 取得对应对象
@@ -692,17 +718,21 @@ public class ObjModule extends AbstractWnModule {
         }
 
         // 得到当前会话
-        WnAuthSession se = Wn.WC().checkSession();
+        WnSession se = Wn.WC().checkSession();
+        WnIo io = io();
+
+        // 获取绝对路径
+        String aph = Wn.normalizeFullPath(str, se);
 
         // 取得对应对象
-        WnObj o = Wn.getObj(io(), se, str);
+        WnObj o = io.fetch(null, aph);
 
         // 格式化一下，去掉文件名里奇怪的字符
         nm = Wobj.normalizeName(nm);
 
         // 处理链接文件
         if (null != o)
-            o = Wn.real(o, io(), new HashMap<>());
+            o = Wn.real(o, io, new HashMap<>());
 
         // 默认模式
         mode = Strings.sBlank(mode, "r");
@@ -713,18 +743,17 @@ public class ObjModule extends AbstractWnModule {
             if (null == o) {
                 // 目标是个目录
                 if (str.endsWith("/")) {
-                    String aph = Wn.normalizeFullPath(Wn.appendPath(str, nm), se);
-                    o = io().createIfNoExists(null, aph, WnRace.FILE);
+                    aph = Wn.appendPath(aph, nm);
+                    o = io.createIfNoExists(null, aph, WnRace.FILE);
                 }
                 // 目标是个文件
                 else {
-                    String aph = Wn.normalizeFullPath(str, se);
-                    o = io().createIfNoExists(null, aph, WnRace.FILE);
+                    o = io.createIfNoExists(null, aph, WnRace.FILE);
                 }
             }
             // 存在，且是目录，那么还是创建
             else if (o.isDIR()) {
-                o = io().createIfNoExists(o, nm, WnRace.FILE);
+                o = io.createIfNoExists(o, nm, WnRace.FILE);
             }
         }
         // s- 严格模式: str必须存在，且是一个文件，将会将其替换
@@ -747,7 +776,7 @@ public class ObjModule extends AbstractWnModule {
             // 目录的话，则按照 nm取一下
             if (o.isDIR()) {
                 oP = o;
-                o = io().fetch(o, nm);
+                o = io.fetch(o, nm);
                 fname = nm;
             }
             // 文件的话，取一下父目录
@@ -766,11 +795,11 @@ public class ObjModule extends AbstractWnModule {
                 c.put("nb", i++);
                 fname = seg.render(c);
                 // 一直找到一个不存在的名称
-                if (!io().exists(oP, fname))
+                if (!io.exists(oP, fname))
                     break;
             }
             // 创建这个文件
-            o = io().create(oP, fname, WnRace.FILE);
+            o = io.create(oP, fname, WnRace.FILE);
         }
         // 错误的模式
         else {
@@ -778,7 +807,7 @@ public class ObjModule extends AbstractWnModule {
         }
 
         // 写入
-        OutputStream ops = io().getOutputStream(o, 0);
+        OutputStream ops = io.getOutputStream(o, 0);
         Streams.writeAndClose(ops, ins, 256 * 1024);
 
         // 计入原始数据
@@ -787,7 +816,7 @@ public class ObjModule extends AbstractWnModule {
         localMeta.put("mime", mime);
         localMeta.put("size", sz);
         NutMap meta = Wlang.map("local", localMeta);
-        io().appendMeta(o, meta);
+        io.appendMeta(o, meta);
 
         // 返回
         return o;
@@ -840,7 +869,9 @@ public class ObjModule extends AbstractWnModule {
         // 确保 str 的形式正确
         str = __format_str(str, isAbsolutePath);
         // 防御非法请求
-        if (Strings.isBlank(str) || str.equals("id:") || str.equals("id:undefined")) {
+        if (Strings.isBlank(str)
+            || str.equals("id:")
+            || str.equals("id:undefined")) {
             return HttpStatusView.HTTP_404;
         }
 
@@ -873,7 +904,9 @@ public class ObjModule extends AbstractWnModule {
     @POST
     @AdaptBy(type = QueryStringAdaptor.class)
     @At("/write/**")
-    public WnObj write(String str, @Param("aph") boolean isAbsolutePath, InputStream ins) {
+    public WnObj write(String str,
+                       @Param("aph") boolean isAbsolutePath,
+                       InputStream ins) {
         // 确保 str 的形式正确
         str = __format_str(str, isAbsolutePath);
 
@@ -949,7 +982,7 @@ public class ObjModule extends AbstractWnModule {
                         @Param("dupp") String dupp,
                         InputStream ins) {
         // 得到当前会话
-        WnAuthSession se = Wn.WC().checkSession();
+        WnSession se = Wn.WC().checkSession();
 
         // 首先得到目标对象
         WnObj ta;

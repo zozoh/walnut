@@ -3,10 +3,13 @@ package org.nutz.web;
 import java.io.Reader;
 
 import org.nutz.ioc.impl.PropertiesProxy;
+import org.nutz.json.Json;
+
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.segment.Segments;
 import org.nutz.lang.util.Disks;
+import org.nutz.lang.util.NutMap;
 import org.nutz.web.jsp.RsScaner;
 
 /**
@@ -35,7 +38,7 @@ public class WebConfig extends PropertiesProxy {
      * 配置文件的键名: 应用监听的端口，比如 8080
      */
     public static final String APP_PORT = "app-port";
-    
+
     public static final String BIND_ADDRESS = "bind-address";
 
     /**
@@ -109,6 +112,16 @@ public class WebConfig extends PropertiesProxy {
 
     public String getAppModules() {
         return get("app-modules");
+    }
+
+    public NutMap getSessionDefaultEnv() {
+        String str = get("session-dft-env", "{}");
+        return Json.fromJson(NutMap.class, str);
+    }
+
+    public NutMap getUserDefaultMeta() {
+        String str = get("usr-dft-meta", "{}");
+        return Json.fromJson(NutMap.class, str);
     }
 
     // ================================================= 获取路径扫描器

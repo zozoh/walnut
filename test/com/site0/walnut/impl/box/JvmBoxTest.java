@@ -5,16 +5,16 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.BaseBoxTest;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 
 public class JvmBoxTest extends BaseBoxTest {
 
     @Test
     public void test_link_by_id() {
-        WnAccount u = Wn.WC().checkMe();
+        WnUser u = Wn.WC().checkMe();
         assertEquals(me.getName(), u.getName());
 
         String aph = Wn.normalizeFullPath("~/x/abc.txt", this.se);

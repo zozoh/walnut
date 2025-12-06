@@ -2,7 +2,9 @@ package com.site0.walnut.login.usr;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.api.err.Er;
@@ -11,9 +13,10 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.core.bean.WnIoObj;
 import com.site0.walnut.core.bean.WnObjId;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.UserRace;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.util.Wuu;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.web.WnConfig;
 
 public class WnStdUserStore extends AbstractWnUserStore {
 
@@ -21,16 +24,67 @@ public class WnStdUserStore extends AbstractWnUserStore {
 
     private WnObj oHome;
 
-    public WnStdUserStore(WnUserStoreSetup options) {
-        this.io = options.io;
-        this.oHome = Wn.checkObj(io, options.sessionVars, options.path);
-        this.defaultMeta = options.defaultMeta;
-        this.userRace = options.userRace;
+    public WnStdUserStore(UserRace userRace,
+                          WnIo io,
+                          NutBean sessionVars,
+                          String homePath,
+                          NutMap defaultMeta,
+                          String domain) {
+        super(userRace, defaultMeta, null);
+        this.io = io;
+        homePath = Ws.sBlank(homePath, "~/.domain/session");
+        this.oHome = Wn.checkObj(io, sessionVars, homePath);
+        this.domain = Ws.sBlanks(domain, oHome.group(), oHome.d1());
+    }
+
+    public WnStdUserStore(WnIo io, WnConfig conf) {
+        this(UserRace.SYS, io, new NutMap(), "/sys/usr", conf.getUserDefaultMeta(), null);
+    }
+
+    /**
+     * 为系统用户准备的构造器
+     * 
+     * @param io
+     */
+    public WnStdUserStore(WnIo io) {
+        super(UserRace.SYS, null, null);
+        // defaultMeta 会在Ioc构造字段的时候设置，它应该通过
+        // {java: "$conf.xxx"} 去获取默认配置文件里的用户默认元数据
+        this.io = io;
+        this.oHome = io.check(null, "/sys/usr");
+    }
+
+    private NutMap _to_bean_for_update(WnUser u) {
+        NutBean bean = u.toBean();
+        NutMap re = new NutMap();
+        for (Map.Entry<String, Object> en : bean.entrySet()) {
+            String key = en.getKey();
+            Object val = en.getValue();
+
+            // 忽略
+            if (key.matches("^(lastLoginAtInUTC|userRace)$")) {
+                continue;
+            }
+
+            // 密码获取加密值
+            if ("passwd".equals(key)) {
+                re.put(key, u.getPasswd());
+            }
+            // 盐值
+            else if ("salt".equals(key)) {
+                re.put(key, u.getSalt());
+            }
+            // 转换为 snake
+            else {
+                re.put(key, val);
+            }
+        }
+        return re;
     }
 
     @Override
     public WnUser addUser(WnUser u) {
-        NutMap bean = u.toBean();
+        NutMap bean = _to_bean_for_update(u);
         WnIoObj obj = new WnIoObj();
         obj.update(bean);
 
@@ -45,9 +99,13 @@ public class WnStdUserStore extends AbstractWnUserStore {
         if (null == oU) {
             throw Er.create("e.auth.user.UserNoExistsWhenSaveUserMeta", u.toString());
         }
+        // 确保有 HOME
+        u.getMeta().putDefault("HOME", u.getHomePath());
+
+        // 准更新对象
         NutMap delta = new NutMap();
-        if(u.hasMeta()) {
-            delta.putAll(u.getMeta());
+        if (u.hasMeta()) {
+            delta.put("meta", u.getMeta());
         }
 
         io.appendMeta(oU, delta);
@@ -108,13 +166,10 @@ public class WnStdUserStore extends AbstractWnUserStore {
         if (null == oU) {
             throw Er.create("e.auth.user.UserNoExistsWhenUpdateUserPassword", u.toString());
         }
-        String salt = Wuu.UU32();
-        String passwd = Wn.genSaltPassword(rawPassword, salt);
-        u.setSalt(salt);
-        u.setPasswd(passwd);
+        u.genSaltAndRawPasswd(rawPassword);
         NutMap delta = new NutMap();
-        delta.put("salt", salt);
-        delta.put("passwd", passwd);
+        delta.put("salt", u.getSalt());
+        delta.put("passwd", u.getPasswd());
 
         io.appendMeta(oU, delta);
     }

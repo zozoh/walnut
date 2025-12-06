@@ -1,10 +1,14 @@
 package com.site0.walnut.impl.box.cmd;
 
-import com.site0.walnut.api.auth.WnAccount;
+import org.nutz.lang.util.NutBean;
+
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.role.WnRoleRank;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
@@ -21,17 +25,18 @@ public class cmd_mode extends JvmExecutor {
         String uName = params.getString("u");
 
         // 获取用户
-        WnAccount me = sys.getMe();
+        WnUser me = sys.getMe();
+        WnRoleList myRoles = sys.roles().getRoles(me);
         if (!Ws.isBlank(uName)) {
-            if (!me.isSysAccount()) {
+            if (!me.isSysUser()) {
                 throw Er.create("e.cmd.mode.forbid.NoSysAccount");
             }
             if (!me.isSameName(uName)) {
-                if (!sys.auth.isMemberOfGroup(me, "root", "op")) {
+                if (!myRoles.isMemberOfRole("root", "op")) {
                     throw Er.create("e.cmd.mode.forbid.NoRight");
                 }
             }
-            me = sys.auth.checkAccount(uName);
+            me = sys.auth.checkUser(uName);
         }
 
         // 获取目标文件
@@ -39,7 +44,9 @@ public class cmd_mode extends JvmExecutor {
         int md;
         if (isForFile) {
             o = Wn.checkObj(sys, input);
-            md = o.getCustomizedPrivilege(me, Wn.Io.NO_PVG);
+            NutBean pvg = o.getCustomizedPrivilege();
+            WnRoleRank rank = me.getRank(myRoles);
+            md = rank.evalPvgMode(pvg, Wn.Io.NO_PVG);
             if (md < 0 && isReal) {
                 md = o.mode();
             }

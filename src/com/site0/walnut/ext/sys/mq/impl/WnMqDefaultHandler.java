@@ -5,12 +5,12 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.log.Log;
 import com.site0.walnut.util.Wlog;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.sys.mq.WnMqHandler;
 import com.site0.walnut.ext.sys.mq.WnMqMessage;
+import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.WnRun;
 
 @IocBean
@@ -32,7 +32,7 @@ public class WnMqDefaultHandler extends WnRun implements WnMqHandler {
             return;
 
         // 首先获取用户
-        WnAccount u = this.auth().checkAccount(msg.getUser());
+        WnUser u = this.auth().checkUser(msg.getUser());
 
         // 得到权鉴密钥
         WnIo io = this.io();
@@ -54,8 +54,8 @@ public class WnMqDefaultHandler extends WnRun implements WnMqHandler {
         }
 
         // 那么就执行咯
-        this.runWithHook(u, u.getGroupName(), null, new Callback<WnAuthSession>() {
-            public void invoke(WnAuthSession se) {
+        this.runWithHook(u, u.getMainGroup(), null, new Callback<WnSession>() {
+            public void invoke(WnSession se) {
                 exec("MQ:Run", se, cmdText);
             }
         });

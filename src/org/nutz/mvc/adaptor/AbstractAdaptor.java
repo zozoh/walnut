@@ -291,12 +291,14 @@ public abstract class AbstractAdaptor implements HttpAdaptor2 {
                 value = obj;
             }
             try {
-                args[i] = injs[i].get(sc, req, resp, value);
+                ParamInjector injector = injs[i];
+                args[i] = injector.get(sc, req, resp, value);
             }
             catch (Throwable e) {
                 if (errCtx != null) {
                 	log.infof("Adapter Param Error(%s) index=%d", method, i, e);
-                    errCtx.setError(i, e, method, value, injs[i]); // 先错误保存起来,全部转好了,再判断是否需要抛出
+                    ParamInjector injecting2 = injs[i];
+                    errCtx.setError(i, e, method, value, injecting2); // 先错误保存起来,全部转好了,再判断是否需要抛出
                 } else
                     throw Wlang.wrapThrow(e);
             }

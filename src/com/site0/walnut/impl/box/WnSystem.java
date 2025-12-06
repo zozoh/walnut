@@ -2,30 +2,30 @@ package com.site0.walnut.impl.box;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Collection;
 
-import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import com.site0.walnut.util.Wlog;
 import org.nutz.log.impl.AbstractLog;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
+
 import com.site0.walnut.api.WnAuthExecutable;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.box.WnServiceFactory;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
-import com.site0.walnut.ext.data.www.bean.WnWebSite;
-import com.site0.walnut.ext.data.www.impl.WnWebService;
 import com.site0.walnut.impl.io.WnEvalLink;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.role.WnRoleLoader;
+import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Cmds;
+import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 import com.site0.walnut.util.WnSysConf;
@@ -57,27 +57,28 @@ public class WnSystem implements WnAuthExecutable {
 
     public WnIo io;
 
-    public WnAuthService auth;
-
-    public WnAuthSession session;
+    public WnSession session;
 
     public JvmExecutorFactory jef;
+
+    public WnLoginApi auth;
 
     JvmAtomRunner _runner;
 
     public WnSystem(WnServiceFactory services) {
         this.services = services;
+        this.auth = services.getLoginApi();
     }
 
-    public WnAccount getMe() {
+    public WnUser getMe() {
         if (null != this.session) {
-            return this.session.getMe();
+            return this.session.getUser();
         }
         return null;
     }
 
     public String getMyId() {
-        WnAccount me = this.getMe();
+        WnUser me = this.getMe();
         if (null != me) {
             return me.getId();
         }
@@ -85,7 +86,7 @@ public class WnSystem implements WnAuthExecutable {
     }
 
     public String getMyName() {
-        WnAccount me = this.getMe();
+        WnUser me = this.getMe();
         if (null != me) {
             return me.getName();
         }
@@ -93,9 +94,9 @@ public class WnSystem implements WnAuthExecutable {
     }
 
     public String getMyGroup() {
-        WnAccount me = this.getMe();
+        WnUser me = this.getMe();
         if (null != me) {
-            return me.getGroupName();
+            return me.getMainGroup();
         }
         return null;
     }
@@ -106,7 +107,7 @@ public class WnSystem implements WnAuthExecutable {
      * @return HOME 对象
      */
     public WnObj getHome() {
-        String home = this.session.getVars().getString("HOME");
+        String home = this.session.getEnv().getString("HOME");
         String path = Wn.normalizePath(home, this);
         return this.io.check(null, path);
     }
@@ -117,7 +118,7 @@ public class WnSystem implements WnAuthExecutable {
      * @return 当前的语言
      */
     public String getLang(String dft) {
-        return this.session.getVars().getString("LANG", dft);
+        return this.session.getEnv().getString("LANG", dft);
     }
 
     /**
@@ -134,9 +135,21 @@ public class WnSystem implements WnAuthExecutable {
      * @return 对象
      */
     public WnObj getCurrentObj() {
-        String pwd = this.session.getVars().getString("PWD");
+        String pwd = this.session.getEnv().getString("PWD");
+        if (Ws.isBlank(pwd)) {
+            return this.getHome();
+        }
+        // 当前路径必须以 "/" 结尾，因为 S3 等映射需要用这个区分是否是目录
+        if (!pwd.endsWith("/")) {
+            pwd += "/";
+        }
         String path = Wn.normalizePath(pwd, this);
-        WnObj re = this.io.check(null, path);
+        WnObj re;
+        if (Ws.isBlank(path)) {
+            re = this.getHome();
+        } else {
+            re = this.io.check(null, path);
+        }
         return Wn.WC().whenEnter(re, false);
     }
 
@@ -145,7 +158,10 @@ public class WnSystem implements WnAuthExecutable {
     }
 
     public void exec(String cmdText) {
-        exec(cmdText, out.getOutputStream(), err.getOutputStream(), in.getInputStream());
+        exec(cmdText,
+             out.getOutputStream(),
+             err.getOutputStream(),
+             in.getInputStream());
     }
 
     public void execf(String fmt, Object... args) {
@@ -153,31 +169,52 @@ public class WnSystem implements WnAuthExecutable {
         exec(cmdText);
     }
 
-    public void exec(String cmdText, OutputStream stdOut, OutputStream stdErr, InputStream stdIn) {
+    public void exec(String cmdText,
+                     OutputStream stdOut,
+                     OutputStream stdErr,
+                     InputStream stdIn) {
         String[] cmdLines = Cmds.splitCmdLines(cmdText);
-        _runner.out = new EscapeCloseOutputStream(null == stdOut ? out.getOutputStream() : stdOut);
-        _runner.err = new EscapeCloseOutputStream(null == stdErr ? err.getOutputStream() : stdErr);
-        _runner.in = new EscapeCloseInputStream(null == stdIn ? in.getInputStream() : stdIn);
+        _runner.out = new EscapeCloseOutputStream(null == stdOut ? out
+            .getOutputStream() : stdOut);
+        _runner.err = new EscapeCloseOutputStream(null == stdErr ? err
+            .getOutputStream() : stdErr);
+        _runner.in = new EscapeCloseInputStream(null == stdIn ? in
+            .getInputStream() : stdIn);
 
         if (log.isInfoEnabled())
-            log.info(" > sys.exec: " + cmdText);
+            log.info("WnSystem.exec: " + cmdText);
 
-        for (String cmdLine : cmdLines) {
+        for (int i = 0; i < cmdLines.length; i++) {
+            String cmdLine = cmdLines[i];
             // 跳过注释行和空行
             if (Ws.isBlank(cmdLine) || cmdLine.startsWith("#")) {
                 continue;
             }
+            if (log.isDebugEnabled())
+                log.debugf("WnSystem.exec: i=%d, cmdLine=%s", i, cmdLine);
+
             _runner.run(cmdLine);
+
+            if (log.isDebugEnabled())
+                log.debugf("WnSystem.exec: i=%d, _runner.wait_for_idle()", i);
             _runner.wait_for_idle();
         }
+
+        if (log.isDebugEnabled())
+            log.debug("WnSystem.exec: _runner.__free()");
+
         _runner.__free();
+
+        if (log.isDebugEnabled())
+            log.debug("WnSystem.exec: done");
     }
 
     public void exec(String cmdText,
                      StringBuilder stdOut,
                      StringBuilder stdErr,
                      CharSequence stdIn) {
-        InputStream ins = null == stdIn ? in.getInputStream() : Wlang.ins(stdIn);
+        InputStream ins = null == stdIn ? in.getInputStream()
+                                        : Wlang.ins(stdIn);
         OutputStream out = null == stdOut ? null : Wlang.ops(stdOut);
         OutputStream err = null == stdErr ? null : Wlang.ops(stdErr);
 
@@ -273,18 +310,21 @@ public class WnSystem implements WnAuthExecutable {
      * @param callback
      *            回调，参数为当前 WnSystem
      */
-    public void switchUser(WnAccount newUsr, Callback<WnAuthExecutable> callback) {
+    public void switchUser(WnUser newUsr, Callback<WnAuthExecutable> callback) {
         final WnSystem sys = this;
         // 检查权限
-        if (!this.auth.isMemberOfGroup(this.getMe(), "root")) {
+        WnUser me = this.getMe();
+        WnRoleList roles = roles().getRoles(me);
+        if (!roles.isMemberOfRole("root")) {
             throw Er.create("e.sys.switchUser.nopvg");
         }
 
         // 创建新会话
-        WnAuthSession newSession = this.auth.createSession(newUsr, true);
+        int du = auth.getSessionDuration(true);
+        WnSession newSession = auth.createSession(newUsr, Wn.SET_LOGIN_SYS, du);
 
         // 记录旧的 Session
-        WnAuthSession old_se = this.session;
+        WnSession old_se = this.session;
         this.session = newSession;
         WnContext wc = Wn.WC();
         try {
@@ -305,7 +345,7 @@ public class WnSystem implements WnAuthExecutable {
             // 切换 session
             this.session = old_se;
             wc.setSession(old_se);
-            this.auth.removeSession(newSession, 0);
+            auth.removeSession(newSession);
         }
     }
 
@@ -349,57 +389,15 @@ public class WnSystem implements WnAuthExecutable {
      */
     public NutBean getAllMyPvg() {
         // 得到当前用户
-        WnAccount me = this.getMe();
-
-        // 权限表
-        NutMap myAvaPvg = new NutMap();
-
-        // 看看是否需要读取: 只有域用户才需要读取，系统用户不用管
-        if (WnAuthSession.V_BT_AUTH_BY_DOMAIN.equals(this.session.getByType())) {
-            String siteId = this.session.getVars().getString(WnAuthSession.V_WWW_SITE_ID);
-            WnObj oWWW = this.io.get(siteId);
-            if (null != oWWW) {
-                WnWebService webs = new WnWebService(this, oWWW);
-                WnWebSite site = webs.getSite();
-                Collection<String> asList;
-                NutMap asMap;
-
-                // 首先加上 Others
-                asMap = site.getRoleAllowActions("others");
-                myAvaPvg.putAll(asMap);
-
-                // 自己所有的自定义权限
-                if (me.hasRoleName()) {
-                    for (String rnm : me.getRoleList()) {
-                        if (!"others".equals(rnm)) {
-                            asMap = site.getRoleAllowActions(rnm);
-                            myAvaPvg.putAll(asMap);
-                        }
-                    }
-                }
-
-                // 根据职位获取角色权限
-                asList = site.getOrgAllowActions(me.getJobs());
-                joinRolePvg(myAvaPvg, asList);
-
-                // 根据部门获取角色权限
-                asList = site.getOrgAllowActions(me.getDepts());
-                joinRolePvg(myAvaPvg, asList);
-            }
-        }
-        // 系统用户，做一个标识
-        else if (me.isSysAccount()) {
-            myAvaPvg.put("$SYS_USR", true);
-        }
-
-        return myAvaPvg;
+        WnUser me = this.getMe();
+        WnRoleList roles = roles().getRoles(me);
+        NutBean re = new NutMap();
+        re.putAll(roles.getAllPrivileges());
+        return re;
     }
 
-    private void joinRolePvg(NutMap myAvaPvg, Collection<String> as) {
-        if (null != as && !as.isEmpty()) {
-            for (String a : as) {
-                myAvaPvg.put(a, true);
-            }
-        }
+    public WnRoleLoader roles() {
+        return auth.roleLoader(session);
     }
+
 }

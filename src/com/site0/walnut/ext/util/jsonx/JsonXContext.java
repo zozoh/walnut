@@ -9,6 +9,8 @@ import com.site0.walnut.impl.box.JvmFilterContext;
 import com.site0.walnut.util.Ws;
 
 public class JsonXContext extends JvmFilterContext {
+    
+    public String input;
 
     public Object obj;
 

@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.nutz.json.Json;
 import com.site0.walnut.util.Wlang;
+
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.o.util.WnObjTrans;
@@ -77,7 +79,7 @@ public class jsonx_translate extends JsonXFilter {
 
             // 编译规则
             Map<String, NutMap[]> caches = new HashMap<>();
-            NutMap vars = sys.session.getVars();
+            NutBean vars = sys.session.getEnv();
             bm.setFields(map, sys.io, vars, caches);
 
             // 执行映射

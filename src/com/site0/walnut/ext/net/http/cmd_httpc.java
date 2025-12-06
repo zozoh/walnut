@@ -1,7 +1,6 @@
 package com.site0.walnut.ext.net.http;
 
-import java.io.PrintStream;
-import java.util.Map;
+import java.io.IOException;
 
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutMap;
@@ -11,12 +10,13 @@ import com.site0.walnut.ext.net.http.bean.WnHttpResponse;
 import com.site0.walnut.ext.net.util.WnNet;
 import com.site0.walnut.impl.box.JvmFilterExecutor;
 import com.site0.walnut.impl.box.WnSystem;
-import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
 import com.site0.walnut.util.obj.WnObjGetter;
 
-public class cmd_httpc extends JvmFilterExecutor<HttpClientContext, HttpClientFilter> {
+public class cmd_httpc
+        extends JvmFilterExecutor<HttpClientContext, HttpClientFilter> {
 
     public cmd_httpc() {
         super(HttpClientContext.class, HttpClientFilter.class);
@@ -43,7 +43,9 @@ public class cmd_httpc extends JvmFilterExecutor<HttpClientContext, HttpClientFi
                 url = fc.params.val(1);
             }
         }
-        catch (Throwable e) {}
+        catch (Throwable e) {
+            throw Er.wrap(e);
+        }
 
         // 设置上下文
         fc.context.setUrl(url);
@@ -53,47 +55,42 @@ public class cmd_httpc extends JvmFilterExecutor<HttpClientContext, HttpClientFi
 
     @Override
     protected void output(WnSystem sys, HttpClientContext fc) {
-        HttpConnector c = fc.context.open();
         WnHttpResponse resp = null;
         try {
-            c.prepare();
-            c.connect();
-            c.sendHeaders();
-            c.sendBody();
-            resp = c.getResponse();
+            resp = fc.getRespose();
 
             // 输出头部
-            boolean headerOnly = fc.params.is("H");
-            if (fc.params.is("h") || headerOnly) {
-                for (Map.Entry<String, Object> en : resp.getHeaders().entrySet()) {
-                    String key = en.getKey();
-                    Object val = en.getValue();
-                    Wlang.each(val, (index, v, src) -> {
-                        if (null == key) {
-                            sys.out.println(v);
-                        } else {
-                            sys.out.printlnf("%s: %s", key, v);
-                        }
-                    });
-                }
-                sys.out.println();
+            String hh = fc.outputHeader(resp);
+            if (!Ws.isBlank(hh)) {
+                sys.out.println(hh);
             }
 
+            boolean headerOnly = fc.shouldOutputHeaderOnly();
+
+            // 输出响应内容
             if (!headerOnly) {
-                sys.out.write(resp);
+                // 写入到文件
+                if (null != fc.oOut) {
+                    sys.io.writeAndClose(fc.oOut, resp);
+                }
+                // 写入到标准输出
+                else {
+                    sys.out.write(resp);
+                }
             }
         }
-        catch (Exception e) {
-            PrintStream ps = new PrintStream(sys.err.getOutputStream(), true);
-            e.printStackTrace(ps);
-            throw Er.create(e, "e.cmd.http.send", e.toString());
+        catch (IOException e) {
+            String reason = fc.getErrReason();
+            throw Er.create(e, "e.cmd.httpc.FailToOutput", reason);
         }
         finally {
             Streams.safeClose(resp);
         }
     }
 
-    public static NutMap evalQuery(WnSystem sys, ZParams params, boolean readFromStdInput) {
+    public static NutMap evalQuery(WnSystem sys,
+                                   ZParams params,
+                                   boolean readFromStdInput) {
         boolean decode = params.is("decode");
         // 依次读取
         NutMap q = new NutMap();

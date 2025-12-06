@@ -43,7 +43,7 @@ var ioc = {
     ]
   },
   globalBM: {
-    type: "com.site0.walnut.core.bm.localbm.LocalIoBM",
+    type: "com.site0.walnut.core.bm.bml.LocalSha1BM",
     args: [
       { refer: "ioHandleManager" },
       { java: '$conf.get("global-bm-bucket")' },
@@ -72,19 +72,6 @@ var ioc = {
     type: "com.site0.walnut.core.mapping.indexer.LocalFileWIndexerFactory",
     args: [{ refer: "mimes" }]
   },
-  daoIndexerFactory: {
-    type: "com.site0.walnut.core.mapping.indexer.DaoIndexerFactory",
-    fields: {
-      ioc: { refer: "$Ioc" },
-      authServiceName: "sysAuthService",
-      io: { refer: "io" },
-      mimes: { refer: "mimes" },
-      indexers: {
-        "account": null,
-        "payment": null
-      }
-    }
-  },
   sqlIndexerFactory: {
     type: "com.site0.walnut.core.mapping.indexer.SqlIndexerFactory",
     fields: {
@@ -92,8 +79,15 @@ var ioc = {
       mimes: { refer: "mimes" }
     }
   },
-  localIoBMFactory: {
-    type: "com.site0.walnut.core.mapping.bm.LocalIoBMFactory",
+  vofsIndexerFactory: {
+    type: "com.site0.walnut.core.mapping.indexer.VofsIndexerFactory",
+    fields: {
+      io: { refer: "io" },
+      mimes: { refer: "mimes" }
+    }
+  },
+  localSha1BMFactory: {
+    type: "com.site0.walnut.core.mapping.bm.LocalSha1BMFactory",
     fields: {
       bms: {}
     }
@@ -123,6 +117,24 @@ var ioc = {
       swapPath: { java: '$conf.get("global-bm-swap")' }
     }
   },
+  vofsBMFactory: {
+    type: "com.site0.walnut.core.mapping.bm.VofsBMFactory",
+    fields: {
+      io: { refer: "io" },
+      handles: { refer: "ioHandleManager" },
+      swapPath: { java: '$conf.get("global-bm-swap")' }
+    }
+  },
+  vsDataSignBMFactory: {
+    type: "com.site0.walnut.core.mapping.bm.VXDataSignBMFactory",
+    fields: {
+	  conf: { refer: "conf" },
+      io: { refer: "io" },
+      handles: { refer: "ioHandleManager" },
+      swapPath: { java: '$conf.get("global-bm-swap")' },
+      autoCreateSwap: { java: '$conf.getBoolean("global-bm-autocreate", true)' }
+    }
+  },
   ioMappingFactory: {
     type: "com.site0.walnut.core.mapping.WnIoMappingFactoryImpl",
     fields: {
@@ -132,17 +144,19 @@ var ioc = {
         "mongo": { refer: "mongoFlatIndexerFactory" },
         "file": { refer: "localFileIndexerFactory" },
         "filew": { refer: "localFileWIndexerFactory" },
-        "dao": { refer: "daoIndexerFactory" },
         "sql": { refer: "sqlIndexerFactory" },
+        "vofs": { refer: "vofsIndexerFactory" },
         "mem": null,
         "redis": null
       },
       bms: {
-        "lbm": { refer: "localIoBMFactory" },
+        "sha1": { refer: "localSha1BMFactory" },
         "redis": { refer: "redisBMFactory" },
         "file": { refer: "localFileBMFactory" },
         "filew": { refer: "localFileWBMFactory" },
-        "sql": { refer: "sqlBMFactory" }
+        "sql": { refer: "sqlBMFactory" },
+        "vofs": { refer: "vofsBMFactory" },
+        "vxds": { refer: "vsDataSignBMFactory" }, 
       }
     }
   },
@@ -160,13 +174,13 @@ var ioc = {
       expiTable: { refer: "safeExpiObjTable" }
     }
   },
-  lockedIo: {
-    type: "com.site0.walnut.core.io.WnIoSaftyWrapper",
+  io: {
+    type: "com.site0.walnut.core.io.WnIoCacheWrapper",
     fields: {
       io: { refer: "hookedIo" }
     }
   },
-  io: {
+  __io: {
     type: "com.site0.walnut.core.io.WnIoHookedWrapper",
     fields: {
       io: { refer: "rawIo" },

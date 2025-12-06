@@ -1,28 +1,29 @@
 package com.site0.walnut.impl.box.cmd;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import com.site0.walnut.util.Wlang;
+
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.trans.Proton;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthSession;
+import org.nutz.web.ajax.Ajax;
+import org.nutz.web.ajax.AjaxReturn;
+
 import com.site0.walnut.api.err.Er;
-import com.site0.walnut.api.io.WnObj;
-import com.site0.walnut.ext.data.www.impl.WnWebService;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.impl.io.WnEvalLink;
-import com.site0.walnut.impl.srv.WnDomainService;
-import com.site0.walnut.impl.srv.WwwSiteInfo;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnLoginApiMaker;
+import com.site0.walnut.login.WnLoginOptions;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.site.WnLoginSite;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Cmds;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.util.WnContext;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
-import com.site0.walnut.util.Wn.Session;
 
 public class cmd_login extends JvmExecutor {
 
@@ -34,120 +35,95 @@ public class cmd_login extends JvmExecutor {
 
     }
 
-    private WnAccount __load_account(WnSystem sys, ZParams params, WwwSiteInfo si) {
-        String uname = params.val_check(0);
-        if (null != si) {
-            return si.webs.getAuthApi().checkAccount(uname);
-        }
-        return sys.auth.checkAccount(uname);
-    }
-
     private void __exec_without_security(WnSystem sys, String[] args) {
         // 解析参数
         ZParams params = ZParams.parse(args, "cnqH");
+        JsonFormat jfmt = Cmds.gen_json_format(params);
 
-        WnAccount me = sys.getMe();
-        WnAuthSession newSe;
-        WnContext wc = Wn.WC();
+        try {
+            NutMap bean = _do_login(sys, params);
+            // 输出这个新会话
+            AjaxReturn re = Ajax.ok().setData(bean);
+            String json = Json.toJson(re, jfmt);
+            sys.out.println(json);
+
+            // ............................................
+            // 在沙盒的上下文标记一把
+            String ticket = bean.getString("ticket");
+            NutMap macro = Wlang.map("seid", ticket);
+            sys.attrs().put(Wn.MACRO.CHANGE_SESSION, macro);
+        }
+        catch (Exception e) {
+            AjaxReturn re = Ajax.fail(e);
+            String json = Json.toJson(re, jfmt);
+            sys.out.println(json);
+        }
+    }
+
+    protected NutMap _do_login(WnSystem sys, ZParams params) {
+        String uname = params.val_check(0);
+
+        WnUser me = sys.getMe();
 
         // 子站点登录
-        WwwSiteInfo si = null;
-        if (params.has("site")) {
-            WnDomainService domains = new WnDomainService(sys.io);
-            String site = params.getString("site");
-            Pattern _P = Pattern.compile("^(host|id):(.+)$");
-            Matcher m = _P.matcher(site);
-            // 直接指定了 siteId 或者 host
-            if (m.find()) {
-                String siteId = null, host = null;
-                if ("id".equals(m.group(1))) {
-                    siteId = m.group(2);
-                } else {
-                    host = m.group(2);
-                }
-                String sid = siteId;
-                String hnm = host;
-                si = wc.suCoreNoSecurity(sys.io, me, new Proton<WwwSiteInfo>() {
-                    protected WwwSiteInfo exec() {
-                        return domains.getWwwSiteInfo(sid, hnm);
-                    }
-                });
-            }
-            // 直接采用站点路径
-            else {
-                if ("true".equals(site)) {
-                    site = null;
-                }
-                si = domains.getWwwSiteInfoByHome(sys.getHome(), site);
-            }
+        String hostName = params.getString("host");
+        String siteIdOrPath = params.getString("site");
+
+        if (!Ws.isBlank(siteIdOrPath)) {
+            siteIdOrPath = Wn.normalizeFullPath(siteIdOrPath, sys);
         }
 
-        // 得到用户
-        WnAccount ta = __load_account(sys, params, si);
+        // 获取权鉴接口
+        WnLoginSite site = WnLoginSite.create(sys.io, siteIdOrPath, hostName);
+        WnLoginApi auth = sys.auth;
+        // 采用了子站点登录模式
+        if (null != site) {
+            NutBean env = sys.session.getEnv();
+            WnLoginOptions options = site.getOptions();
+            auth = WnLoginApiMaker.forHydrate().make(sys.io, env, options);
+        }
+
+        // 保存目标用户变量
+        WnUser ta = auth.checkUser(uname);
+        WnSession newSe;
 
         // ............................................
         // 开始检查权限了
+        WnRoleList myRoles = sys.roles().getRoles(me);
+        WnRoleList taRoles = sys.roles().getRoles(ta);
 
         // 自己不能登录到自己
         if (me.isSame(ta)) {
             throw Er.create("e.cmd.login.self", me.getName());
         }
         // 域管理员可以登录到域的子账号
-        if (null != si) {
-            if (!sys.auth.isAdminOfGroup(me, sys.getMyGroup())) {
+        if (null != site) {
+            if (!myRoles.isAdminOfRole(site.getDomain())) {
                 throw Er.create("e.cmd.login.me.forbid", "Need Admin of Domain");
             }
-            String byType = WnAuthSession.V_BT_AUTH_BY_DOMAIN;
-            String byValue = si.siteId + ":passwd";
-
-            // 确保用户是可以访问域主目录的
-            Session.checkHomeAccessable(sys.io, sys.auth, si.oHome, ta);
-
-            // 获取会话时长设置
-            WnWebService webs = si.webs;
-            WnObj oWWW = si.oWWW;
-            int se_du = webs.getSite().getSeDftDu();
-            newSe = wc.suCoreNoSecurity(sys.io, me, new Proton<WnAuthSession>() {
-                protected WnAuthSession exec() {
-                    // 创建会话
-                    WnAuthSession se = sys.auth.createSession(sys.session, ta, se_du);
-                    // 更新会话元数据
-                    Session.updateAuthSession(sys.auth, null, se, webs, oWWW, byType, byValue);
-                    return se;
-                }
-            });
         }
-        // root 用户可以登录到任何用户
-        else if (me.isRoot()) {
-            // 嗯，可以登录
-            newSe = sys.auth.createSession(sys.session, ta, 0);
-        }
-        // root 组管理员能登录到除了 root 组管理员之外任何账户
-        else if (sys.auth.isAdminOfGroup(me, "root") && !sys.auth.isAdminOfGroup(ta, "root")) {
-            // 嗯，可以登录
-            newSe = sys.auth.createSession(sys.session, ta, 0);
-        }
-        // 否则执行操作的用户必须为 root|op 组成员
-        // 目标用户必须不能为 root|op 组成员
+        // 那就是登录到别的域
         else {
-            if (!sys.auth.isMemberOfGroup(me, "root", "op")) {
+            // 我必须是根管理员
+            // 对方必须不能是根管理员
+            if (!myRoles.isAdminOfRole("root") || taRoles.isAdminOfRole("root")) {
                 throw Er.create("e.cmd.login.me.forbid");
             }
-            if (sys.auth.isMemberOfGroup(ta, "root", "op")) {
-                throw Er.create("e.cmd.login.ta.forbid");
-            }
-            newSe = sys.auth.createSession(sys.session, ta, 0);
         }
 
-        // 输出这个新会话
-        JsonFormat jfmt = Cmds.gen_json_format(params);
-        NutMap bean = newSe.toMapForClient();
-        String json = Json.toJson(bean, jfmt);
-        sys.out.println(json);
+        // 嗯，可以登录，获取登录时长
+        int du = auth.getSessionDuration();
 
-        // ............................................
-        // 在沙盒的上下文标记一把
-        sys.attrs().put(Wn.MACRO.CHANGE_SESSION, Wlang.map("seid", newSe.getTicket()));
+        // 全部检查没问题，可以创建新会话了
+        newSe = auth.createSession(sys.session, ta, Wn.SET_LOGIN_CMD, du);
+
+        // 确保【目标账号】可以访问域【目标站点】主目录
+        if (null != site) {
+            site.assertHomeAccessable(newSe);
+        }
+
+        NutMap bean = newSe.toBean(sys.auth);
+        return bean;
     }
 
 }

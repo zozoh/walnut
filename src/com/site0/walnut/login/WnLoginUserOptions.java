@@ -19,6 +19,7 @@ public class WnLoginUserOptions {
      * 用户信息存储的路径，譬如 "~/user"
      */
     public String path;
+    
 
     /**
      * 数据源名称，默认 default

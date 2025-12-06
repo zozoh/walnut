@@ -9,13 +9,14 @@ import org.nutz.json.Json;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Atom;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.app.WnApps;
 import com.site0.walnut.impl.box.JvmHdl;
 import com.site0.walnut.impl.box.JvmHdlContext;
 import com.site0.walnut.impl.box.JvmHdlParamArgs;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 import com.site0.walnut.util.Ws;
@@ -132,7 +133,8 @@ public class app_setup implements JvmHdl {
     // 条件用 ; 分隔，是 “或” 的关系
     private boolean __is_matched_role_of_group(WnSystem sys, String pvg) {
         String[] ss = Strings.splitIgnoreBlank(pvg, ";");
-        WnAccount me = sys.getMe();
+        WnUser me = sys.getMe();
+        WnRoleList roles = sys.roles().getRoles(me);
         for (String s : ss) {
             Matcher m = _P.matcher(s);
             // 错误的输入，被认为是无效
@@ -143,12 +145,12 @@ public class app_setup implements JvmHdl {
             String[] grps = Strings.splitIgnoreBlank(m.group(2));
             // 判断
             if ("ADMIN".equals(roleName)) {
-                if (sys.auth.isAdminOfGroup(me, grps))
+                if (roles.isAdminOfRole(grps))
                     return true;
             }
             // 那就一定是成员咯
             else {
-                if (sys.auth.isMemberOfGroup(me, grps))
+                if (roles.isMemberOfRole(grps))
                     return true;
             }
 

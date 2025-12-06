@@ -7,8 +7,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
+// import java.security.AccessController;
+// import java.security.PrivilegedAction;
 import java.security.ProtectionDomain;
 
 import com.site0.walnut.util.Wlang;
@@ -50,17 +50,18 @@ public class ReflectTool {
         }
     }
 
-    @Deprecated
-    public static ProtectionDomain getProtectionDomain(final Class source) {
-        if (source == null) {
-            return null;
-        }
-        return (ProtectionDomain) AccessController.doPrivileged(new PrivilegedAction() {
-            public Object run() {
-                return source.getProtectionDomain();
-            }
-        });
-    }
+    // @Deprecated
+    // public static ProtectionDomain getProtectionDomain(final Class source) {
+    // if (source == null) {
+    // return null;
+    // }
+    // return (ProtectionDomain) AccessController.doPrivileged(new
+    // PrivilegedAction() {
+    // public Object run() {
+    // return source.getProtectionDomain();
+    // }
+    // });
+    // }
 
     public static Class defineClass(String className, byte[] b, ClassLoader loader)
             throws Exception {

@@ -31,7 +31,11 @@ public interface WnIoIndexer {
 
     WnObj fetch(WnObj p, String path);
 
-    WnObj fetch(WnObj p, String[] paths, int fromIndex, int toIndex);
+    WnObj fetch(WnObj p,
+                String[] paths,
+                boolean isForDir,
+                int fromIndex,
+                int toIndex);
 
     WnObj fetchByName(WnObj p, String name);
 
@@ -107,7 +111,11 @@ public interface WnIoIndexer {
 
     WnObj create(WnObj p, String path, WnRace race);
 
-    WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race);
+    WnObj create(WnObj p,
+                 String[] paths,
+                 int fromIndex,
+                 int toIndex,
+                 WnRace race);
 
     WnObj createById(WnObj p, String id, String name, WnRace race);
 
@@ -125,7 +133,10 @@ public interface WnIoIndexer {
 
     boolean isRoot(WnObj o);
 
-    void walk(WnObj p, Callback<WnObj> callback, WalkMode mode, WnObjFilter filter);
+    void walk(WnObj p,
+              Callback<WnObj> callback,
+              WalkMode mode,
+              WnObjFilter filter);
 
     int each(WnQuery q, Each<WnObj> callback);
 
@@ -135,9 +146,9 @@ public interface WnIoIndexer {
 
     List<WnObj> getChildren(WnObj o, String name);
 
-    long countChildren(WnObj o);
+    int countChildren(WnObj o);
 
-    long count(WnQuery q);
+    int count(WnQuery q);
 
     boolean hasChild(WnObj p);
 

@@ -11,13 +11,21 @@ import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
+
+import org.nutz.lang.util.Disks;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
+import com.site0.walnut.cheap.dom.CheapDocument;
+import com.site0.walnut.cheap.dom.CheapElement;
+import com.site0.walnut.cheap.xml.CheapXmlParsing;
 import com.site0.walnut.ext.data.titanium.hdl.ti_webdeps;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnRun;
@@ -100,14 +108,18 @@ public class WnAppService extends WnRun {
         // }
         // });
         // 准备会话变量
-        WnAuthSession se = app.getSession();
-        NutMap vars = se.getVars();
-        vars.put("PWD", Strings.sBlank(PWD, "~"));
+        WnSession se = app.getSession();
+        NutBean vars = se.getEnv();
+        String userHomePath = app.getSession().getUser().getHomePath();
+        vars.put("PWD", Strings.sBlank(PWD, userHomePath));
         vars.put("APP_HOME", oAppHome.path());
 
         // 准备命令执行后的回调
         Writer w = new OutputStreamWriter(out);
-        AppCommandCallback callback = new AppCommandCallback(se, w, metaOutputSeparator, null);
+        AppCommandCallback callback = new AppCommandCallback(se,
+                                                             w,
+                                                             metaOutputSeparator,
+                                                             null);
 
         // 执行命令
         exec("", se, cmdText, out, err, ins, callback);
@@ -122,11 +134,67 @@ public class WnAppService extends WnRun {
      * @return 应用的界面 HTML引导代码
      */
     public String renderAppHtml(WnApp app) {
+        // 如果有 index.html 那么就用静态方式渲染
+        String html = _render_as_index_html(app);
+
+        // 如果不存在，则默认采用动态模版方式
+        if (Ws.isBlank(html)) {
+            html = _render_as_dynamic_tmpl(app);
+        }
+
+        return html;
+    }
+
+    private String _render_as_index_html(WnApp app) {
+        WnObj oIndexHtml = io().fetch(app.getHome(), "index.html");
+        if (null == oIndexHtml) {
+            return null;
+        }
+        String html = io().readText(oIndexHtml);
+
+        // 解析一下，替换 <head> 下所有的 script 与 link 的链接
+        CheapDocument doc = new CheapDocument("html", "head", "body");
+        CheapXmlParsing ing = new CheapXmlParsing(doc);
+        ing.parseDoc(html);
+        // List<CheapElement> els = doc.findElements(el ->
+        // el.isStdTagAs("^(SCRIPT|LINK)$"));
+        // String prefix = "/a/load/wn.term";
+        // for (CheapElement el : els) {
+        // // script
+        // if (el.isStdTagAs("SCRIPT")) {
+        // String src = el.attr("src");
+        // el.attr("src", prefix + src);
+        // }
+        // // link
+        // else if (el.isStdTagAs("LINK")) {
+        // String href = el.attr("href");
+        // el.attr("href", prefix + href);
+        // }
+        // }
+
+        // 设置一下 server-config, js 初始化的时候需要这个配置文件
+        CheapElement body = doc.body();
+        WnSession se = app.getSession();
+        WnUser user = se.getUser();
+        String dftLoginSite = Disks.appendPath(user.getHomePath(), "www/login");
+        String loginSite = user.getMetaString("LOGIN_SITE", dftLoginSite);
+        body.attr("session-ticket", se.getTicket());
+        body.attr("app-name", app.getName());
+        body.attr("app-base", "/a/open/" + app.getName());
+        body.attr("quit-path", "/a/login/");
+        body.attr("domain", user.getMainGroup());
+        body.attr("login-site", loginSite);
+
+        // 输出
+        return doc.toHtml();
+    }
+
+    private String _render_as_dynamic_tmpl(WnApp app) {
         NutMap c = new NutMap();
         String appName = app.getName();
         WnObj o = app.getObj();
         WnObj oAppHome = app.getHome();
-        WnAuthSession se = app.getSession();
+        WnSession se = app.getSession();
 
         // 这个是要输出的模板
         String tmpl;
@@ -135,31 +203,7 @@ public class WnAppService extends WnRun {
         JsonFormat jfmt = JsonFormat.nice().setQuoteName(true);
         String appJson = app.toJson(jfmt);
 
-        // 如果存在 `init_tmpl` 文件，则执行，将其结果作为模板
-        // WnObj oInitTmpl = io().fetch(oAppHome, "init_tmpl");
-        // if (null != oInitTmpl) {
-        // String cmdText = io().readText(oInitTmpl);
-        // tmpl = this.exec("app-init-tmpl:", se, appJson, cmdText);
-        // }
-        // // 否则查找静态模板文件
-        // else {
-        // tmpl = __find_tmpl(app.getName(), oAppHome);
-        // }
-
         tmpl = __find_tmpl(app.getName(), oAppHome);
-
-        // 如果存在 `init_context` 文件，则执行，将其结果合并到渲染上下文中
-        // NutMap map = null;
-        // WnObj oInitContext = io().fetch(oAppHome, "init_context");
-        // if (null != oInitContext) {
-        // String cmdText = io().readText(oInitContext);
-        // String contextJson = this.exec("app-init-context:", se, appJson,
-        // cmdText);
-        // map = Json.fromJson(NutMap.class, contextJson);
-        // }
-        // 添加自定义的上下文
-        // if (null != map)
-        // c.putAll(map);
 
         // 标题
         String title = appName;
@@ -171,16 +215,18 @@ public class WnAppService extends WnRun {
 
         // 这些优先级最高
         String rs = conf.get("app-rs", "/gu/rs/");
-        c.put("session", se.toMapForClient());
+        c.put("session", se.toBean(auth()));
         c.put("rs", rs);
         c.put("appName", appName);
         c.put("app", appJson);
         c.put("appClass", appName.replace('.', '_').toLowerCase());
 
         // 看看是否需要提供 debug 版
-        WnObj oDomain = io().fetch(null, Wn.appendPath(se.getMe().getHomePath(), ".domain"));
-        NutMap vars = se.getVars();
-        if (null != oDomain && oDomain.getBoolean("debug-app-" + appName.replace('.', '-'))) {
+        WnObj oDomain = io()
+            .fetch(null, Wn.appendPath(se.getUser().getHomePath(), ".domain"));
+        NutBean vars = se.getEnv();
+        if (null != oDomain
+            && oDomain.getBoolean("debug-app-" + appName.replace('.', '-'))) {
             c.put("TiJs", "ti/core/ti.mjs");
             c.put("WnJs", "ti/lib/walnut/walnut.mjs");
         }
@@ -198,7 +244,8 @@ public class WnAppService extends WnRun {
             }
 
             // 有木有自定义的 DEPS ?
-            String depsPaths = vars.getString("TI_DEPS", "/rs/ti/dist/es6/ti-more-all.deps.json");
+            String depsPaths = vars
+                .getString("TI_DEPS", "/rs/ti/dist/es6/ti-more-all.deps.json");
             String depsUrl = vars.getString("TI_DEPS_URL", "/gu/rs/ti/deps/");
             String depsPrefix = vars.getString("TI_DEPS_PREFIX", "@deps:");
             String depsIgnore = vars.getString("TI_DEPS_IGNORE", null);
@@ -239,7 +286,6 @@ public class WnAppService extends WnRun {
 
         // 渲染视图
         String html = WnTmpl.exec(tmpl, c);
-
         return html;
     }
 
@@ -254,7 +300,7 @@ public class WnAppService extends WnRun {
      */
     public WnObj getObjByPath(WnApp app, String ph) {
         // 获取会话
-        WnAuthSession se = app.getSession();
+        WnSession se = app.getSession();
         // NutMap vars = se.getVars();
 
         // 当前目录设置为 appHome，这样，str 如果是相对路径，则直接访问应用内文件夹
@@ -297,7 +343,7 @@ public class WnAppService extends WnRun {
      */
     public WnObj getObjByQuery(WnApp app, WnQuery q) {
         // 获取会话
-        WnAuthSession se = app.getSession();
+        WnSession se = app.getSession();
 
         // 必须指定查询条件
         if (null == q) {
@@ -320,22 +366,19 @@ public class WnAppService extends WnRun {
     /**
      * 获取一个应用。如果不存在，则抛错
      * 
+     * @param auth
+     *            权鉴接口
      * @param appName
      *            应用名。形式类似 "xx.xxx" 如果没有前缀会自动补齐 <code>wn.</code>
      * @return 应用对象
      */
-    public WnApp checkApp(String appName) {
+    public WnApp checkApp(String appName, WnLoginApi auth) {
         // 防空
         if (Strings.isBlank(appName))
             throw Er.create("e.app.noname");
         // 获取会话
-        WnAuthSession se = Wn.WC().checkSession();
+        WnSession se = Wn.WC().checkSession();
 
-        // ----------------------------------------
-        // 如果 appName 没有名称空间，补上 "wn"
-        if (appName.indexOf('.') < 0) {
-            appName = "wn." + appName;
-        }
         // ----------------------------------------
         // 找到应用
         WnObj oAppHome = this._check_app_home(appName);
@@ -346,7 +389,7 @@ public class WnAppService extends WnRun {
         app.setName(appName);
         app.setHome(oAppHome);
         app.setSession(se);
-
+        app.setAuth(auth);
         return app;
     }
 
@@ -364,7 +407,10 @@ public class WnAppService extends WnRun {
 
             // 在所有的 APP_PATH 里寻找
             if (null == oTmpl) {
-                String appPaths = Wn.WC().checkSession().getVars().getString("APP_PATH");
+                String appPaths = Wn.WC()
+                    .checkSession()
+                    .getEnv()
+                    .getString("APP_PATH");
                 String[] bases = Strings.splitIgnoreBlank(appPaths, ":");
                 for (String base : bases) {
                     String phTmpl = Wn.appendPath(base, nmTmpl);
@@ -393,7 +439,7 @@ public class WnAppService extends WnRun {
     }
 
     private WnObj _find_app_home(String appName) {
-        String appPaths = Wn.WC().checkSession().getVars().getString("APP_PATH");
+        String appPaths = Wn.WC().checkSession().getEnv().getString("APP_PATH");
         String[] bases = Strings.splitIgnoreBlank(appPaths, ":");
         for (String base : bases) {
             String ph = Wn.appendPath(base, appName);

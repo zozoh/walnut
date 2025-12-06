@@ -14,6 +14,28 @@ import com.site0.walnut.util.time.WnDayTime;
 public class WtimeTest {
 
     @Test
+    public void test_applyOffset() {
+        String fmt = "yyyy-MM-dd HH:mm:ss.SSS";
+        long ms2;String s;
+        long ams = Wtime.parseAnyAMSUTC("2025-08-11 09:45:33.876");
+        ms2 = Wtime.applyOffset(ams, "+1h");
+        s = Wtime.formatUTC(new Date(ms2), fmt);
+        assertEquals("2025-08-11 10:45:33.876", s);
+        
+        ms2 = Wtime.applyOffset(ams, "+3d");
+        s = Wtime.formatUTC(new Date(ms2), fmt);
+        assertEquals("2025-08-14 09:45:33.876", s);
+        
+        ms2 = Wtime.applyOffset(ams, "+20m");
+        s = Wtime.formatUTC(new Date(ms2), fmt);
+        assertEquals("2025-08-11 10:05:33.876", s);
+        
+        ms2 = Wtime.applyOffset(ams, "-200");
+        s = Wtime.formatUTC(new Date(ms2), fmt);
+        assertEquals("2025-08-11 09:45:33.676", s);
+    }
+
+    @Test
     public void test_from_offset_holiday_mixin() {
         NutMap holimap = new NutMap();
         holimap.put("2023-09-30", "work");

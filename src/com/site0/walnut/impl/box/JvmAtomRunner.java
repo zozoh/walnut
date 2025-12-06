@@ -10,7 +10,6 @@ import org.nutz.lang.stream.VoidInputStream;
 import org.nutz.log.Log;
 import com.site0.walnut.util.Wlog;
 import org.nutz.trans.Atom;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.box.WnBoxContext;
 import com.site0.walnut.api.box.WnBoxService;
 import com.site0.walnut.api.box.WnBoxStatus;
@@ -21,6 +20,7 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.api.io.WnSecurity;
 import com.site0.walnut.impl.io.WnSecurityImpl;
+import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.Cmds;
 import com.site0.walnut.util.JvmTunnel;
 import com.site0.walnut.util.SyncWnTunnel;
@@ -105,8 +105,12 @@ public class JvmAtomRunner {
         JvmBoxOutput boxErr = new JvmBoxOutput(err);
 
         // 首先对命令行进行预处理
-        if (cmdLine.indexOf('`') >= 0)
+        if (cmdLine.indexOf('`') >= 0) {
             cmdLine = __extend_substitution(cmdLine, boxErr);
+            if (log.isDebugEnabled()) {
+                log.debugf("JvmAtomRunner.run: extended cmdLine=%s", cmdLine);
+            }
+        }
 
         // 预处理失败，就不向下执行了
         if (Strings.isBlank(cmdLine))
@@ -114,7 +118,11 @@ public class JvmAtomRunner {
 
         // 执行预处理环境变量
         // cmdLine = Wn.normalizeStr(cmdLine, bc.session.getVars());
-        cmdLine = WnTmplX.exec(cmdLine, bc.session.getVars());
+        cmdLine = WnTmplX.exec(cmdLine, bc.session.getEnv());
+
+        if (log.isDebugEnabled()) {
+            log.debugf("JvmAtomRunner.run: apply_env cmdLine=%s", cmdLine);
+        }
 
         // 执行处理后的命令行（不再处理预处理指令了）
         try {
@@ -145,7 +153,7 @@ public class JvmAtomRunner {
 
     void __run(String cmdLine, JvmBoxOutput boxErr) {
         // 准备标准输出输出
-        WnAuthSession se = bc.session;
+        WnSession se = bc.session;
 
         // 标记状态
         status = WnBoxStatus.RUNNING;
@@ -153,11 +161,19 @@ public class JvmAtomRunner {
         // 分析命令，看看有多少管道连接
         String[] cmds = Cmds.splitCmdAtoms(cmdLine);
 
+        if (log.isDebugEnabled()) {
+            log.debugf("JvmAtomRunner.__run: cmds.lenght=%d", cmds.length);
+        }
+
         // 准备运行的线程原子
         final WnContext wc = Wn.WC();
 
         // 启动安全检查接口
-        final WnSecurity secu = new WnSecurityImpl(bc.io, bc.auth);
+        final WnSecurity secu = new WnSecurityImpl(bc.io, bc.auth());
+
+        if (log.isDebugEnabled()) {
+            log.debugf("JvmAtomRunner.__run: secu=%s", secu);
+        }
 
         // 如果调用线程设置了钩子，那么本执行器所有的线程也都要执行相同的钩子设定
         // 只是需要确保会话和当前用户与 Box 一致
@@ -166,11 +182,18 @@ public class JvmAtomRunner {
             hc = hc.clone();
         }
 
+        if (log.isDebugEnabled()) {
+            log.debugf("JvmAtomRunner.__run: hc=%s", hc);
+        }
+
         // 分析每个执行原子
         JvmAtom a;
         atoms = new JvmAtom[cmds.length];
         // opss = new ArrayList<OutputStream>(atoms.length);
         for (int i = 0; i < cmds.length; i++) {
+            if (log.isDebugEnabled()) {
+                log.debugf("JvmAtomRunner.__run: cmds[%d]=%s", i, cmds[i]);
+            }
             // 生成原子并解析命令字符串
             try {
                 a = new JvmAtom(this, cmds[i]);
@@ -189,6 +212,10 @@ public class JvmAtomRunner {
                 return;
             }
 
+            if (log.isDebugEnabled()) {
+                log.debugf("JvmAtomRunner.__run: cmds[%d] executor=%s", i, a.executor.getMyName());
+            }
+
             // 填充对应字段
             a.id = i;
             a.sys = new WnSystem(bc.services);
@@ -200,11 +227,18 @@ public class JvmAtomRunner {
             a.sys.session = se;
             a.sys.err = boxErr;
             a.sys.io = bc.io;
-            a.sys.auth = bc.auth;
+            a.sys.auth = bc.auth();
             a.sys.jef = jef;
             a.secu = secu;
             a.hc = hc;
             a.parentContext = wc;
+
+            if (log.isDebugEnabled()) {
+                log.debugf("JvmAtomRunner.__run: cmds[%d] a.id=%s, a.cmdName=%s",
+                           i,
+                           a.id,
+                           a.cmdName);
+            }
 
             // 看看是否重定向输出
             if (null != a.redirectPath) {
@@ -235,6 +269,12 @@ public class JvmAtomRunner {
         // 为第一个原子分配标准输入
         atoms[0].sys.in = new JvmBoxInput(null == in ? new VoidInputStream() : in);
 
+        if (log.isDebugEnabled()) {
+            log.debugf("JvmAtomRunner.__run: atoms.len=%d, atoms[0].sys.in=%s",
+                       atoms.length,
+                       atoms[0].sys.in);
+        }
+
         // 如果没有重定向，为最后一个原子分配标准输出
         int lastIndex = atoms.length - 1;
         a = atoms[lastIndex];
@@ -247,6 +287,10 @@ public class JvmAtomRunner {
         }
         a.sys.nextId = -1; // 最后一个原子 nextId 为 -1 表示没有后续管道原子处理它的输出
 
+        if (log.isDebugEnabled()) {
+            log.debugf("JvmAtomRunner.__run: atoms[%d].sys.out=%s", lastIndex, a.sys.out);
+        }
+
         // 为所有中间原子分配管道
         if (atoms.length > 1) {
             tnls = new WnTunnel[lastIndex];
@@ -254,6 +298,7 @@ public class JvmAtomRunner {
                 a = atoms[i];
                 // 如果没重定向输出，则上一个的输出等于下一个输入
                 if (a.sys.out == null) {
+                    @SuppressWarnings("resource")
                     WnTunnel tnl = new SyncWnTunnel(new JvmTunnel(8192));
                     tnls[i] = tnl;
                     a.sys.out = new JvmBoxOutput(tnl.asOutputStream());
@@ -268,23 +313,40 @@ public class JvmAtomRunner {
                     a.sys.err = a.sys.out;
                 }
             }
+            if (log.isDebugEnabled()) {
+                log.debug("JvmAtomRunner.__run: assigned WnTunnel between atoms");
+            }
         }
 
         // 如果仅有一个原子，那么就在本线程执行
         if (atoms.length == 1) {
+            if (log.isDebugEnabled()) {
+                log.debug("JvmAtomRunner.__run: atoms[0].run()");
+            }
             atoms[0].run();
         }
         // 否则，为每个原子创建一个线程赖运行
         else {
+            if (log.isDebugEnabled()) {
+                log.debugf("JvmAtomRunner.__run: atoms run in %d Threads", atoms.length);
+            }
             threads = new Thread[atoms.length];
             for (int i = 0; i < atoms.length; i++) {
                 String tName = "box_" + boxId + "@T" + i + ":" + atoms[i].cmdName;
                 threads[i] = new Thread(atoms[i], tName);
             }
+
+            if (log.isDebugEnabled()) {
+                log.debugf("JvmAtomRunner.__run: t.start in loop...");
+            }
             // 依次启动
             for (Thread t : threads) {
                 t.start();
             }
+        }
+        
+        if (log.isDebugEnabled()) {
+            log.debugf("JvmAtomRunner.__run: quiet");
         }
     }
 

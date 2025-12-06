@@ -9,8 +9,6 @@ import org.nutz.mvc.ActionContext;
 import org.nutz.mvc.ActionFilter;
 import org.nutz.mvc.View;
 import org.nutz.mvc.view.HttpStatusView;
-import com.site0.walnut.api.auth.WnAuthService;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.box.WnBoxContext;
 import com.site0.walnut.api.box.WnBoxService;
 import com.site0.walnut.api.box.WnServiceFactory;
@@ -18,6 +16,8 @@ import com.site0.walnut.api.hook.WnHookContext;
 import com.site0.walnut.api.hook.WnHookService;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 
@@ -33,8 +33,8 @@ public class FuseActionFilter implements ActionFilter {
         Ioc ioc = ac.getIoc();
 
         // 如果有会话 ID，则检查一下有效性
-        WnAuthService auth = Wn.Service.auth(ioc);
-        WnAuthSession se = null;
+        WnLoginApi auth = Wn.Service.auth(ioc);
+        WnSession se = null;
         if (ticket != null) {
             se = auth.checkSession(ticket);
         } else {
@@ -54,7 +54,6 @@ public class FuseActionFilter implements ActionFilter {
             WnBoxContext bc = new WnBoxContext(services, new NutMap());
             bc.io = io;
             bc.session = se;
-            bc.auth = auth;
 
             WnHookContext hc = new WnHookContext(boxes, bc);
             hc.service = ioc.get(WnHookService.class, "hookService");

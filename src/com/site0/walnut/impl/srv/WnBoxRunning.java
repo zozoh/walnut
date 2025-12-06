@@ -9,9 +9,6 @@ import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import com.site0.walnut.api.WnAuthExecutable;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.box.WnBox;
 import com.site0.walnut.api.box.WnBoxContext;
 import com.site0.walnut.api.box.WnBoxService;
@@ -21,6 +18,9 @@ import com.site0.walnut.api.hook.WnHookContext;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnSecurity;
 import com.site0.walnut.impl.io.WnSecurityImpl;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
@@ -67,7 +67,6 @@ public class WnBoxRunning implements WnAuthExecutable {
         this.boxAllocTimeout = boxAllocTimeout;
         this.bc = new WnBoxContext(services, new NutMap());
         this.bc.io = io;
-        this.bc.auth = services.getAuthApi();
         this.stdOut = out;
         this.stdErr = err;
         this.stdIns = ins;
@@ -89,13 +88,13 @@ public class WnBoxRunning implements WnAuthExecutable {
 
         // 执行
         WnContext wc = Wn.WC();
-        WnAuthSession oldSe = wc.getSession();
+        WnSession oldSe = wc.getSession();
         WnHookContext oldHc = wc.getHookContext();
         WnSecurity oldSecu = wc.getSecurity();
         boolean oldSyncOff = wc.isSynctimeOff();
         try {
             // 准备线程上下文
-            WnSecurity secu = new WnSecurityImpl(bc.io, bc.auth);
+            WnSecurity secu = new WnSecurityImpl(bc.io, bc.auth());
             wc.setSession(bc.session);
             wc.setHookContext(this.hc);
             wc.setSecurity(secu);
@@ -195,12 +194,13 @@ public class WnBoxRunning implements WnAuthExecutable {
     }
 
     @Override
-    public void switchUser(WnAccount newUsr, Callback<WnAuthExecutable> callback) {
-        WnAuthService auth = services.getAuthApi();
+    public void switchUser(WnUser newUsr, Callback<WnAuthExecutable> callback) {
+        WnLoginApi auth = services.getLoginApi();
 
         // 只有当前会话不同，才要切换
-        if (bc.session == null || !bc.session.getMe().isSame(newUsr)) {
-            bc.session = auth.createSession(newUsr, true);
+        if (bc.session == null || !bc.session.getUser().isSame(newUsr)) {
+            int du = auth.getSessionDuration();
+            bc.session = auth.createSession(newUsr, Wn.SET_LOGIN_BOX, du);
         }
         // 执行吧
         callback.invoke(this);

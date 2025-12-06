@@ -3,14 +3,27 @@ package com.site0.walnut.core.bm;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+
+import org.nutz.lang.Streams;
+
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.core.WnIoHandle;
 import com.site0.walnut.core.WnIoHandleMutexException;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 
 public abstract class WnIoReadWriteHandle extends WnIoHandle {
 
-    protected abstract FileChannel channel() throws IOException;
+    protected abstract FileChannel getChannel() throws IOException;
+
+    private FileChannel _chan;
+
+    private FileChannel channel() throws IOException {
+        if (null == _chan) {
+            _chan = getChannel();
+        }
+        return _chan;
+    }
 
     public void ready() throws WnIoHandleMutexException {
         manager.alloc(this);
@@ -72,6 +85,11 @@ public abstract class WnIoReadWriteHandle extends WnIoHandle {
     }
 
     @Override
+    public int read() throws IOException {
+        throw Wlang.noImplement();
+    }
+
+    @Override
     public int read(byte[] bs, int off, int len) throws IOException {
         // 已然关闭
         if (null == obj) {
@@ -102,10 +120,6 @@ public abstract class WnIoReadWriteHandle extends WnIoHandle {
         if (null == obj) {
             throw Er.create("e.io.hdl.closed", this.getId());
         }
-        // 啥也没写
-        if (len <= 0) {
-            return;
-        }
         // 准备
         FileChannel chan = channel();
         ByteBuffer bb = ByteBuffer.wrap(bs, off, len);
@@ -128,12 +142,16 @@ public abstract class WnIoReadWriteHandle extends WnIoHandle {
     @Override
     public void close() throws IOException {
         // 肯定已经关闭过了
-        if (null == obj) {
+        if (null == obj || null == _chan) {
             return;
         }
 
         // 获取原始对象的内容指纹
         String oldSha1 = obj.sha1();
+
+        // 关闭流
+        _chan.force(false);
+        Streams.safeClose(_chan);
 
         // 调用子类的清除逻辑
         this.on_close();
@@ -148,6 +166,7 @@ public abstract class WnIoReadWriteHandle extends WnIoHandle {
 
         // 标志一下，这个句柄实例就不能再使用了
         obj = null;
+        _chan = null;
     }
 
 }

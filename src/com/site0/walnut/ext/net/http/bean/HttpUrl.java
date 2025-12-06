@@ -191,7 +191,6 @@ public class HttpUrl {
     }
 
     public void addQuery(NutBean query) {
-        this.query.putAll(query);
         if (null == this.query) {
             this.query = NutMap.WRAP(query);
         } else {

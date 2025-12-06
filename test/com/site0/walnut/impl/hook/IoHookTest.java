@@ -225,8 +225,12 @@ public class IoHookTest extends BaseHookTest {
         // 验证
         WnObj o = io.check(oHome, "abc.txt");
         String txt = io.readText(o);
-        assertEquals(Wlang.md5("hello\n") + "\n" + Wlang.sha1(Wlang.md5("hello\n") + "\n") + "\n",
-                     txt);
+        
+        String expected = Wlang.md5("hello\n")
+                          + "\n"
+                          + Wlang.sha1(Wlang.md5("hello\n") + "\n")
+                          + "\n";
+        assertEquals(expected, txt);
         assertEquals(Wlang.sha1(txt), o.sha1());
     }
 

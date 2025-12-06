@@ -38,11 +38,18 @@ public interface WnIo {
 
     WnObj fetch(WnObj p, String path);
 
-    WnObj fetch(WnObj p, String[] paths, int fromIndex, int toIndex);
+    WnObj fetch(WnObj p,
+                String[] paths,
+                boolean isForDir,
+                int fromIndex,
+                int toIndex);
 
     void walk(WnObj p, Callback<WnObj> callback, WalkMode mode);
 
-    void walk(WnObj p, Callback<WnObj> callback, WalkMode mode, WnObjFilter filter);
+    void walk(WnObj p,
+              Callback<WnObj> callback,
+              WalkMode mode,
+              WnObjFilter filter);
 
     WnObj move(WnObj src, String destPath);
 
@@ -134,7 +141,7 @@ public interface WnIo {
 
     List<WnObj> getChildren(WnObj o, String name);
 
-    long count(WnQuery q);
+    int count(WnQuery q);
 
     /**
      * 根据一个指定条件，对一个键进行聚集汇总计算
@@ -167,7 +174,11 @@ public interface WnIo {
 
     WnObj create(WnObj p, String path, WnRace race);
 
-    WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race);
+    WnObj create(WnObj p,
+                 String[] paths,
+                 int fromIndex,
+                 int toIndex,
+                 WnRace race);
 
     WnObj createById(WnObj p, String id, String name, WnRace race);
 
@@ -216,6 +227,8 @@ public interface WnIo {
     long writeBytes(WnObj o, byte[] buf);
 
     long writeBytes(WnObj o, byte[] buf, int off, int len);
+    
+    long write(WnObj o, InputStream ins);
 
     long writeAndClose(WnObj o, InputStream ins);
 
@@ -225,7 +238,8 @@ public interface WnIo {
 
     WnIoIndexer getIndexer(WnObj o);
 
-    WnIoHandle openHandle(WnObj o, int mode) throws WnIoHandleMutexException, IOException;
+    WnIoHandle openHandle(WnObj o, int mode)
+            throws WnIoHandleMutexException, IOException;
 
     /**
      * 给出一个快捷的方法，将对象 A 的内容快速 copy 到对象B 中
@@ -365,6 +379,8 @@ public interface WnIo {
      * @return 对象的输入流
      */
     InputStream getInputStream(WnObj o, long off);
+    
+    InputStream getInputStream(WnObj o);
 
     /**
      * 获取一个对象的写入流。当输入流关闭后，会自动更新传入的对象的内部状态。 <br>

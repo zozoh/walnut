@@ -1,6 +1,7 @@
 package com.site0.walnut.login.usr;
 
 import java.util.List;
+import java.util.Map;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -8,8 +9,6 @@ import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.login.UserRace;
-import com.site0.walnut.login.WnUser;
-import com.site0.walnut.login.WnUserStore;
 import com.site0.walnut.util.Ws;
 
 public abstract class AbstractWnUserStore implements WnUserStore {
@@ -18,9 +17,25 @@ public abstract class AbstractWnUserStore implements WnUserStore {
 
     protected NutMap defaultMeta;
 
+    protected String domain;
+
+    protected AbstractWnUserStore(UserRace userRace, NutMap defaultMeta, String domain) {
+        this.defaultMeta = defaultMeta;
+        this.userRace = userRace;
+        this.domain = domain;
+    }
+
     @Override
     public UserRace getUserRace() {
         return userRace;
+    }
+
+    public NutMap getDefaultMeta() {
+        return defaultMeta;
+    }
+
+    public void setDefaultMeta(NutMap defaultMeta) {
+        this.defaultMeta = defaultMeta;
     }
 
     public void patchDefaultEnv(WnUser u) {
@@ -34,11 +49,18 @@ public abstract class AbstractWnUserStore implements WnUserStore {
         }
     }
 
-    protected WnSimpleUser toWnUser(NutBean bean) {
-        WnSimpleUser u = new WnSimpleUser(bean);
-        u.setUserRace(this.userRace);
+    protected WnUser toWnUser(NutBean bean) {
+        WnUser u = new WnSimpleUser(bean);
         if (null != this.defaultMeta) {
-            u.putMetas(this.defaultMeta);
+            for (Map.Entry<String, Object> en : this.defaultMeta.entrySet()) {
+                String key = en.getKey();
+                Object val = en.getValue();
+                u.getMeta().putDefault(key, val);
+            }
+        }
+        u.setUserRace(this.userRace);
+        if (Ws.isBlank(u.getMainGroup())) {
+            u.setMainGroup(domain);
         }
         return u;
     }
@@ -61,7 +83,8 @@ public abstract class AbstractWnUserStore implements WnUserStore {
 
     @Override
     public WnUser getUser(String nameOrPhoneOrEmail) {
-        WnUser info = new WnSimpleUser(nameOrPhoneOrEmail);
+        WnUser info = new WnSimpleUser();
+        info.setLoginStr(nameOrPhoneOrEmail, false);
         return this.getUser(info);
     }
 

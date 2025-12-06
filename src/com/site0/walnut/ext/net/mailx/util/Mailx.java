@@ -5,17 +5,39 @@ import java.util.Map;
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
+
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.net.mailx.bean.WnMailSecurity;
 import com.site0.walnut.ext.net.mailx.bean.WnMailSign;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.ZParams;
+import com.site0.walnut.util.tmpl.WnTmplX;
+
 import org.simplejavamail.api.mailer.config.Pkcs12Config;
 import org.simplejavamail.api.mailer.config.Pkcs12Config.Pkcs12ConfigBuilder;
 
 public abstract class Mailx {
+
+    private static final Log log = Wlog.getCMD();
+
+    public static void LOG(WnSystem sys,
+                           boolean showDebug,
+                           String fmt,
+                           Object... args) {
+        String msg = String.format(fmt, args);
+        if (showDebug) {
+            sys.out.println(msg);
+
+        }
+        if (log.isInfoEnabled()) {
+            log.info(msg);
+        }
+    }
 
     /**
      * 解析 HTTP 或者 Email 里面的 contnentType 符串 ，譬如
@@ -54,8 +76,9 @@ public abstract class Mailx {
         return ss[0];
     }
 
-    public static Pkcs12Config createPkcs12Config(WnSystem sys, WnMailSecurity secu) {
-        return createPkcs12Config(sys.io, sys.session.getVars(), secu);
+    public static Pkcs12Config createPkcs12Config(WnSystem sys,
+                                                  WnMailSecurity secu) {
+        return createPkcs12Config(sys.io, sys.session.getEnv(), secu);
     }
 
     public static Pkcs12Config createPkcs12Config(WnIo io,
@@ -63,7 +86,6 @@ public abstract class Mailx {
                                                   WnMailSecurity secu) {
         WnMailSign sign = secu.getSign();
         Pkcs12ConfigBuilder bu = Pkcs12Config.builder();
-        Pkcs12Config pkcs12;
 
         String storePath = sign.getStorePath();
         String storePasswd = sign.getStorePassword();
@@ -73,19 +95,30 @@ public abstract class Mailx {
         WnObj oStore = Wn.checkObj(io, sessoionVars, storePath);
         byte[] bs = io.readBytes(oStore);
 
-        pkcs12 = bu.pkcs12Store(bs)
-                   .storePassword(storePasswd)
-                   .keyAlias(keyAlias)
-                   .keyPassword(keyPassword)
-                   .build();
-        return pkcs12;
+        // pkcs12 = bu.pkcs12Store(bs)
+        // .storePassword(storePasswd)
+        // .keyAlias(keyAlias)
+        // .keyPassword(keyPassword)
+        // .build();
+
+        bu.pkcs12Store(bs);
+        bu.storePassword(storePasswd);
+        bu.keyAlias(keyAlias);
+        bu.keyPassword(keyPassword);
+        return bu.build();
     }
 
-    public static void joinHeaders(StringBuilder sb, NutMap map, String prefix) {
+    public static void joinHeaders(StringBuilder sb,
+                                   NutMap map,
+                                   String prefix) {
         for (Map.Entry<String, Object> en : map.entrySet()) {
             String key = en.getKey();
             Object val = en.getValue();
-            sb.append("\n").append(prefix).append(" - ").append(key).append(": ");
+            sb.append("\n")
+                .append(prefix)
+                .append(" - ")
+                .append(key)
+                .append(": ");
             if (null != val) {
                 if (val instanceof CharSequence) {
                     sb.append(val.toString());
@@ -103,5 +136,14 @@ public abstract class Mailx {
             String k = null == prefix ? key : prefix + key;
             bean.put(k, val);
         }
+    }
+
+    public static WnTmplX getTmpl(ZParams params, String key) {
+        String str = params.getString(key);
+        WnTmplX re = null;
+        if (!Ws.isBlank(str)) {
+            re = WnTmplX.parse(str);
+        }
+        return re;
     }
 }

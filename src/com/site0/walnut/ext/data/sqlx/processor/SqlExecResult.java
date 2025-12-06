@@ -9,8 +9,6 @@ public class SqlExecResult {
 
     public int updateCount;
 
-    public int[] batchResult;
-
     public int batchTotal;
 
     /**

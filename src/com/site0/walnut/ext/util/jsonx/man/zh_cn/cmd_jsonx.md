@@ -26,6 +26,7 @@ jsonx [options] [[@filter filter-args...]...]
 #
 @akeys      # 设置全局 JSON 输出的键白名单
 @ikeys      # 指定输出时，锁定不输出的字段
+@load       # 重新加载上下文对象
 #
 # 操作
 #

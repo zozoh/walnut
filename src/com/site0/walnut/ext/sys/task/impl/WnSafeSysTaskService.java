@@ -6,7 +6,6 @@ import java.util.List;
 import org.nutz.log.Log;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.api.WnAuthExecutable;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.lock.WnLock;
 import com.site0.walnut.api.lock.WnLockApi;
@@ -16,6 +15,7 @@ import com.site0.walnut.ext.sys.task.WnSysTask;
 import com.site0.walnut.ext.sys.task.WnSysTaskApi;
 import com.site0.walnut.ext.sys.task.WnSysTaskException;
 import com.site0.walnut.ext.sys.task.WnSysTaskQuery;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 
 public class WnSafeSysTaskService implements WnSysTaskApi {
@@ -36,7 +36,7 @@ public class WnSafeSysTaskService implements WnSysTaskApi {
 
     private long tryLockDuration;
 
-    public void runTask(WnAuthExecutable runer, WnObj oTask, WnAccount user, InputStream input)
+    public void runTask(WnAuthExecutable runer, WnObj oTask, WnUser user, InputStream input)
             throws WnSysTaskException {
         tasks.runTask(runer, oTask, user, input);
     }

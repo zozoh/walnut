@@ -2,8 +2,6 @@ package com.site0.walnut.core.mapping.bm;
 
 import java.util.Map;
 
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
@@ -12,6 +10,10 @@ import com.site0.walnut.core.bm.redis.RedisBM;
 import com.site0.walnut.core.mapping.WnBMFactory;
 import com.site0.walnut.ext.sys.redis.Wedis;
 import com.site0.walnut.ext.sys.redis.WedisConfig;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 
@@ -22,13 +24,13 @@ import com.site0.walnut.util.WnContext;
  */
 public class RedisBMFactory implements WnBMFactory {
 
-    private WnAuthService auth;
+    private WnLoginApi auth;
 
     private WnIo io;
 
     private Map<String, RedisBM> bms;
 
-    public void setAuth(WnAuthService auth) {
+    public void setAuth(WnLoginApi auth) {
         this.auth = auth;
     }
 
@@ -44,9 +46,11 @@ public class RedisBMFactory implements WnBMFactory {
     public WnIoBM load(WnObj oHome, String str) {
         RedisBM bm = null;
         WnContext wc = Wn.WC();
-        WnAccount me = wc.getMe();
+        WnUser me = wc.getMe();
+        WnSession se = wc.getSession();
         // 如果当前用户为 root 组成员，或者当前木有做权限检查，可以从预定义里获取
-        if (null == auth || wc.isSecurityNoCheck() || auth.isMemberOfGroup(me, "root")) {
+        WnRoleList roles = auth.roleLoader(se).getRoles(me);
+        if (null == auth || wc.isSecurityNoCheck() || roles.isMemberOfRole("root")) {
             bm = bms.get(str);
         }
         // 尝试从自己的域读取

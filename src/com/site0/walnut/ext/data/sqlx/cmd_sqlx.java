@@ -8,7 +8,6 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 
 import com.site0.walnut.api.err.Er;
-import com.site0.walnut.ext.sys.sql.WnDaos;
 import com.site0.walnut.impl.box.JvmFilterExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Cmds;
@@ -35,28 +34,39 @@ public class cmd_sqlx extends JvmFilterExecutor<SqlxContext, SqlxFilter> {
     }
 
     @Override
-    protected void onFinished(WnSystem sys, SqlxContext fc) {
-        fc.closeConnection();
-    }
-
-    @Override
     protected void prepare(WnSystem sys, SqlxContext fc) {
         fc.setup(sys);
 
         String daoName = fc.params.val(0, "default");
-        fc.auth = WnDaos.loadAuth(sys, daoName);
+        fc.loadAuth(sys, daoName);
+
+        if (fc.auth.hasHistory()) {
+            fc.setHislogRuntime(sys, fc.auth.getHistory());
+        }
 
         String dirPath = fc.params.getString("conf", "~/.sqlx");
         fc.sqls = Sqlx.getSqlHolderByPath(sys, dirPath);
 
         if (log.isDebugEnabled()) {
-            log.debugf("sqlx prepare: %s : %s", daoName, dirPath);
+            log.debugf("sqlx prepare: daoName=%s, dirPath=%s",
+                       daoName,
+                       dirPath);
         }
 
         // 读取输入
         String json = sys.in.readAll();
+
+        if (log.isDebugEnabled()) {
+            log.debugf("sqlx prepare: json=%s", json);
+        }
+
         NutMap input = Json.fromJson(NutMap.class, json);
         fc.setInput(input);
+
+        if (log.isDebugEnabled()) {
+            log.debugf("sqlx prepare: input.size=%s",
+                       null == input ? "null" : input.size());
+        }
 
     }
 
@@ -67,6 +77,9 @@ public class cmd_sqlx extends JvmFilterExecutor<SqlxContext, SqlxFilter> {
                                  SqlxContext fc) {
         try {
             super._exec_filters(sys, hdlFilters, hdlParams, fc);
+            if (fc.hasHislogRuntime()) {
+                fc.hislog.insertToTarget();
+            }
         }
         // 遇到错误就回滚
         catch (Throwable e) {
@@ -81,6 +94,10 @@ public class cmd_sqlx extends JvmFilterExecutor<SqlxContext, SqlxFilter> {
                 }
             }
             throw Er.wrap(e);
+        }
+        // 关闭上下文连接
+        finally {
+            fc.closeConnection();
         }
     }
 

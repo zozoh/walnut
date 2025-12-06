@@ -31,10 +31,10 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.SimpleContext;
 import org.nutz.log.Log;
 import com.site0.walnut.util.Wlog;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.api.io.WnRace;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.WnRun;
 
 @ServerEndpoint(value = "/websocket", configurator = WnWebSocketConfigurator.class)
@@ -150,7 +150,7 @@ public class WnWebSocket extends Endpoint {
                 break;
             }
             case "cmd": {
-                WnAccount usr = wnRun.auth().getAccount(user);
+                WnUser usr = wnRun.auth().getUser(user);
                 if (usr == null) {
                     log.debugf("not such websocket user=%s", user);
                     break;

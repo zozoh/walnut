@@ -18,6 +18,7 @@ import com.site0.walnut.jsexec.JsExec;
 import com.site0.walnut.util.JvmJsExecContext;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
 
 /**
@@ -32,8 +33,9 @@ public class cmd_jsc extends JvmExecutor {
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
-        if (log.isTraceEnabled())
-            log.trace("init exec");
+        if (log.isTraceEnabled()) {
+            log.trace("cmd_jsc: init exec");
+        }
 
         // 得到运行器
         JsExec JE = JsExec.me();
@@ -41,6 +43,10 @@ public class cmd_jsc extends JvmExecutor {
         // 分析参数
         ZParams params = ZParams.parse(args, "^(debug|clear|merge)$");
         boolean debug = params.is("debug");
+
+        if (log.isTraceEnabled()) {
+            log.tracef("cmd_jsc: params=%s, debug=%s", Ws.join(args, ","), debug);
+        }
 
         // 查看所有可用引擎
         if (params.has("lsengine")) {
@@ -64,6 +70,10 @@ public class cmd_jsc extends JvmExecutor {
 
         // 得到引擎
         String engineName = params.get("engine", JsExec.dft_engine_nm);
+
+        if (log.isTraceEnabled()) {
+            log.tracef("cmd_jsc: engineName=%s", engineName);
+        }
 
         // 分析输入变量
         NutMap vars = new NutMap();
@@ -94,28 +104,48 @@ public class cmd_jsc extends JvmExecutor {
             vars = new NutMap();
         }
 
+        if (log.isTraceEnabled()) {
+            log.tracef("cmd_jsc: vars.size=%s", vars.size());
+        }
+
         String jsStr;
         // 用文件?
         if (params.has("f")) {
             String str = params.get("f");
             WnObj o = Wn.checkObj(sys, str);
             jsStr = sys.io.readText(o);
-        } else if (params.has("cmd")) {
+        }
+        // 直接输入命令
+        else if (params.has("cmd")) {
             jsStr = params.get("cmd");
         }
         // 用输入的参数吧
         else if (params.vals.length > 0) {
             String str = params.vals[0];
 
-            // 看看这个字符串本身是不是一个路径或者 ID ...
-            WnObj o = null;
-            if (!str.contains(";")) {
-                o = Wn.getObj(sys, str);
+            if (log.isTraceEnabled()) {
+                log.tracef("cmd_jsc: params.vals[0]=%s", str);
             }
+
+            // 看看这个字符串本身是不是一个路径或者 ID ...
+            WnObj o = Wn.getObj(sys, str);
+
+            if (log.isTraceEnabled()) {
+                log.tracef("cmd_jsc: o=%s", o);
+            }
+
             if (null != o) {
                 jsStr = sys.io.readText(o);
-                if (o.name().endsWith("groovy"))
+                if (log.isTraceEnabled()) {
+                    log.tracef("cmd_jsc: sys.io.readText=>jsStr.length=%s", jsStr.length());
+                }
+                if (o.name().endsWith("groovy")) {
                     engineName = "groovy";
+
+                    if (log.isTraceEnabled()) {
+                        log.tracef("cmd_jsc: change engineName=%s", engineName);
+                    }
+                }
             } else {
                 jsStr = str;
             }
@@ -127,10 +157,17 @@ public class cmd_jsc extends JvmExecutor {
         // 看看是不是要从管道里读取
         else if (sys.pipeId > 0) {
             jsStr = sys.in.readAll();
+            if (log.isTraceEnabled()) {
+                log.tracef("cmd_jsc: sys.pipeId=%d, sys.in.readAll", sys.pipeId);
+            }
         }
         // 总得输入点啥吧
         else {
             throw Er.create("e.cmd.jsc.noinput");
+        }
+
+        if (log.isTraceEnabled()) {
+            log.tracef("cmd_jsc: jsStr.length=%s", jsStr.length());
         }
 
         // 添加固定上下文变量
@@ -148,7 +185,15 @@ public class cmd_jsc extends JvmExecutor {
         // 执行
         if (debug)
             sys.out.println("js=\n" + jsStr + "\n");
+
+        if (log.isTraceEnabled()) {
+            log.trace("cmd_jsc: JE.exec begin");
+        }
         Object obj = JE.exec(new JvmJsExecContext(sys), engineName, vars, jsStr);
+
+        if (log.isTraceEnabled()) {
+            log.trace("cmd_jsc: JE.exec end");
+        }
         if (debug) {
             stopwatch.stop();
             sys.out.printlnf("runTime=%dms(%s)",

@@ -13,9 +13,9 @@ import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.WnExecutable;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
+import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnObjDataCachedFactory;
@@ -38,12 +38,12 @@ public class TiSidebarService {
     private void __join_output(int depth,
                                TiSidebarInputItem inputItem,
                                List<TiSidebarOutputItem> list,
-                               WnAuthSession sess,
+                               WnSession sess,
                                NutBean tmplContext,
                                TiSidebarCheckItemByRoleName checkRole,
                                TiSidebarCheckPvg checkPvg,
                                WnExecutable runtime) {
-        NutMap vars = sess.getVars();
+        NutBean vars = sess.getEnv();
         // 克隆一份自身
         TiSidebarInputItem inIt = inputItem.clone();
 
@@ -161,7 +161,7 @@ public class TiSidebarService {
 
     private void __check_dynamic_item_children(int depth,
                                                TiSidebarInputItem inIt,
-                                               WnAuthSession sess,
+                                               WnSession sess,
                                                NutBean tmplContext,
                                                TiSidebarCheckItemByRoleName checkRole,
                                                TiSidebarCheckPvg checkPvg,
@@ -191,14 +191,14 @@ public class TiSidebarService {
     }
 
     public TiSidebarOutput getOutput(TiSidebarInput input,
-                                     WnAuthSession sess,
+                                     WnSession sess,
                                      TiSidebarCheckItemByRoleName checkRole,
                                      TiSidebarCheckPvg checkPvg,
                                      WnExecutable runtime) {
         TiSidebarOutput output = new TiSidebarOutput();
         List<TiSidebarOutputItem> sidebar = new LinkedList<>();
 
-        NutBean tmplContext = sess.toMapForClient();
+        NutBean tmplContext = sess.toBean();
 
         // 循环分析
         if (input.hasSidebar()) {

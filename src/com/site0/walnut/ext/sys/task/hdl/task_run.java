@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.util.ByteInputStream;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.sys.task.WnSysTask;
@@ -15,6 +14,8 @@ import com.site0.walnut.impl.box.JvmHdl;
 import com.site0.walnut.impl.box.JvmHdlContext;
 import com.site0.walnut.impl.box.JvmHdlParamArgs;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wlang;
 
 @JvmHdlParamArgs(value = "cqn", regex = "^(json)$")
@@ -23,8 +24,9 @@ public class task_run implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         // 分析查询参数
-        WnAccount me = sys.getMe();
-        boolean I_am_admin = sys.auth.isMemberOfGroup(me, "root");
+        WnUser me = sys.getMe();
+        WnRoleList roles = sys.roles().getRoles(me);
+        boolean I_am_admin = roles.isMemberOfRole("root");
         WnSysTaskQuery q = cmd_task.prepareTaskQuery(sys, hc, I_am_admin);
         int limit = q.getLimit();
 
@@ -57,9 +59,9 @@ public class task_run implements JvmHdl {
             }
 
             // 检查执行账号
-            WnAccount user = null;
+            WnUser user = null;
             if (!isMyTask) {
-                user = sys.auth.checkAccount(userName);
+                user = sys.auth.checkUser(userName);
             }
 
             // 准备任务的标准输入

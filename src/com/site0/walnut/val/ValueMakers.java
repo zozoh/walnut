@@ -8,6 +8,8 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
+import com.site0.walnut.val.date.UTCDateMaker;
+import com.site0.walnut.val.date.UTCTimestampMaker;
 import com.site0.walnut.val.id.WnSeqDMaker;
 import com.site0.walnut.val.id.WnSeqHHMaker;
 import com.site0.walnut.val.id.WnSeqIdMaker;
@@ -15,12 +17,13 @@ import com.site0.walnut.val.id.WnSnowQDMaker;
 import com.site0.walnut.val.id.WnSnowQMaker;
 import com.site0.walnut.val.id.WnUU32Maker;
 import com.site0.walnut.val.seq.WnObjSeqMaker;
+import com.site0.walnut.val.util.WnIPv4Maker;
 import com.site0.walnut.val.util.WnSeqInfo;
 
 public abstract class ValueMakers {
 
     public static SeqMaker getSeqMaker(WnSystem sys, WnSeqInfo info) {
-        return getSeqMaker(sys.io, sys.session.getVars(), info);
+        return getSeqMaker(sys.io, sys.session.getEnv(), info);
     }
 
     public static SeqMaker getSeqMaker(WnIo io, NutBean vars, WnSeqInfo info) {
@@ -33,6 +36,15 @@ public abstract class ValueMakers {
         ValueMaker vmk = ValueMakers.build(input, new SeqMakerBuilder() {
             public SeqMaker build(WnSeqInfo info) {
                 return ValueMakers.getSeqMaker(sys, info);
+            }
+        });
+        return vmk;
+    }
+
+    public static ValueMaker build(WnIo io, NutBean vars, String input) {
+        ValueMaker vmk = ValueMakers.build(input, new SeqMakerBuilder() {
+            public SeqMaker build(WnSeqInfo info) {
+                return ValueMakers.getSeqMaker(io, vars, info);
             }
         });
         return vmk;
@@ -68,15 +80,34 @@ public abstract class ValueMakers {
         }
     }
 
-    public static ValueMaker build(String type, String setup, SeqMakerBuilder seqBuilder) {
+    public static ValueMaker build(String type,
+                                   String setup,
+                                   SeqMakerBuilder seqBuilder) {
         if ("uu32".equalsIgnoreCase(type)) {
             return new WnUU32Maker();
         }
 
+        // UTC 时间字符串
+        if ("utc".equals(type)) {
+            return new UTCDateMaker(setup);
+        }
+
+        // 绝对毫秒数
+        else if ("ams".equals(type)) {
+            return new UTCTimestampMaker(setup);
+        }
+
+        // IPv4
+        else if ("ipv4".equals(type)) {
+            return new WnIPv4Maker();
+        }
+
+        // 当做静态值
         if (Ws.isBlank(setup)) {
             return new StaticValueMaker(type);
         }
 
+        // 剩下的应该就是各种 ID 生成器了
         String input = setup;
         String prefix = null;
         int n = 0;

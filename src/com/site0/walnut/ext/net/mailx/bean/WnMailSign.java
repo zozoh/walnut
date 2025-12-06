@@ -1,6 +1,8 @@
 package com.site0.walnut.ext.net.mailx.bean;
 
 import org.nutz.lang.util.NutBean;
+
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
 
 public class WnMailSign {
@@ -16,8 +18,20 @@ public class WnMailSign {
     public void render(NutBean vars) {
         storePath = WnTmpl.exec(storePath, vars);
         storePassword = WnTmpl.exec(storePassword, vars);
-        keyAlias = WnTmpl.exec(keyAlias, vars);
-        keyPassword = WnTmpl.exec(keyPassword, vars);
+        if (!Ws.isBlank(keyAlias)) {
+            keyAlias = WnTmpl.exec(keyAlias, vars);
+        } else {
+            keyAlias = "";
+        }
+        if (!Ws.isBlank(keyPassword)) {
+            keyPassword = WnTmpl.exec(keyPassword, vars);
+        } else {
+            keyPassword = "";
+        }
+    }
+
+    public String toString() {
+        return String.format("path=%s,passwd=[%s],alias=[%s],kpwd=[%s]", storePath,storePassword, keyAlias, keyPassword);
     }
 
     public String getStorePath() {

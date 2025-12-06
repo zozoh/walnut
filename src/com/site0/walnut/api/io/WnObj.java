@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.core.bean.WnObjId;
 
 public interface WnObj extends NutBean, Comparable<WnObj> {
@@ -23,8 +22,6 @@ public interface WnObj extends NutBean, Comparable<WnObj> {
     WnObjId OID();
 
     String myId();
-
-    boolean hasMountRootId();
 
     boolean hasWriteHandle();
 
@@ -55,6 +52,8 @@ public interface WnObj extends NutBean, Comparable<WnObj> {
     WnObj setRWMetaKeys(String regex);
 
     WnObj clearRWMetaKeys();
+
+    String getPath();
 
     String path();
 
@@ -102,7 +101,7 @@ public interface WnObj extends NutBean, Comparable<WnObj> {
 
     List<WnObj> parents();
 
-    int getCustomizedPrivilege(WnAccount u, int dftMode);
+    NutBean getCustomizedPrivilege();
 
     /**
      * 将自己以及自己所有的祖先与给定的自定义权限融合
@@ -117,7 +116,7 @@ public interface WnObj extends NutBean, Comparable<WnObj> {
      * 
      * 值可以是
      * <ul>
-     * <li><code>"0777"</code> :  八进制
+     * <li><code>"0777"</code> : 八进制
      * <li><code>511</code> : 十进制
      * <li><code>"rwxr-xr-x"</code> : 全文本
      * <li><code>"rwx"</code> : 文本，相当于 "rwxrwxrwx"
@@ -149,11 +148,28 @@ public interface WnObj extends NutBean, Comparable<WnObj> {
 
     WnObj mount(String mnt);
 
+    boolean hasMountRootId();
+
     String mountRootId();
 
     WnObj mountRootId(String mrid);
 
+    /**
+     * 判断一个对象是不是挂载对象，挂载点以及其内的对象都是挂载对象
+     * 
+     * @return
+     */
     boolean isMount();
+
+    /**
+     * 判断当前对象是否是挂载入口对象，这个对象被全局管理器管理 且其设置了mnt属性
+     */
+    boolean isMountEntry();
+
+    /**
+     * 判断当前对象挂载点内对象
+     */
+    boolean isMountedObj();
 
     long len();
 
@@ -168,6 +184,12 @@ public interface WnObj extends NutBean, Comparable<WnObj> {
     WnObj update(Map<? extends String, ? extends Object> map);
 
     WnObj updateBy(WnObj o);
+
+    boolean isFromLink();
+
+    String fromLink();
+
+    WnObj fromLink(String link);
 
     boolean isLink();
 
@@ -205,12 +227,16 @@ public interface WnObj extends NutBean, Comparable<WnObj> {
 
     WnObj thumbnail(String thumbnail);
 
+    @Deprecated
     boolean hasData();
 
+    @Deprecated
     String data();
 
+    @Deprecated
     WnObj data(String data);
 
+    @Deprecated
     boolean isSameData(String data);
 
     WnObj len(long len);

@@ -20,13 +20,14 @@ import org.nutz.mvc.annotation.ReqHeader;
 import org.nutz.mvc.annotation.SetupBy;
 import org.nutz.mvc.annotation.Views;
 import org.nutz.mvc.ioc.provider.ComboIocProvider;
+import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.web.ajax.AjaxViewMaker;
 
 import com.site0.walnut.WnVersion;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
+import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnSysRuntime;
@@ -68,15 +69,15 @@ public class WnMainModule extends AbstractWnModule {
         }
 
         // 看看有木有会话
-        WnAuthSession se = null;
+        WnSession se = null;
 
         if (Wn.WC().hasTicket()) {
             String ticket = Wn.WC().getTicket();
             se = auth().getSession(ticket);
 
             // 有会话的话，转到默认打开应用
-            if (null != se && !se.isDead()) {
-                String appName = se.getVars().getString("OPEN", "wn.console");
+            if (null != se && !se.isExpired()) {
+                String appName = se.getEnv().getString("OPEN", "wn.console");
                 return new ServerRedirectView("/a/open/" + appName);
             }
         }
@@ -91,6 +92,10 @@ public class WnMainModule extends AbstractWnModule {
                                @ReqHeader("If-None-Match") String etag,
                                @ReqHeader("Range") String range,
                                HttpServletRequest req) {
+        // Chrome DevTools 的配置信息调试数据
+        if (".well-known/appspecific/com.chrome.devtools.json".equals(reqPath)) {
+            return new HttpStatusView(404);
+        }
         // 这里增加一个处理 C 记录的逻辑
         if ("yes".equals(req.getAttribute("wn_www_static"))) {
             return handleRecordC(reqPath, etag, range, req);
@@ -137,13 +142,9 @@ public class WnMainModule extends AbstractWnModule {
 
         WnObj obj = io.fetch(oDir, path);
         if (null == obj) {
-            return HttpStatusView(404, path);
+            return new HttpStatusView(404);
         }
         return new WnObjDownloadView(io, obj, null, null, etag, range);
-    }
-
-    private View HttpStatusView(int i, String path) {
-        return null;
     }
 
     @At("/favicon")

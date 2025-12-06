@@ -6,14 +6,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.lang.util.NutMap;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.pvg.BizPvgService;
 import com.site0.walnut.ext.data.pvg.WnAuthOptions;
 import com.site0.walnut.login.WnLoginApi;
-import com.site0.walnut.login.WnSession;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.WnContext;
 
 /**
@@ -93,7 +92,7 @@ public class WnHttpApiContext {
     /**
      * 执行账户：当前执行 API 的账户
      */
-    WnAccount u;
+    WnUser u;
 
     /**
      * 当前执行账户域的主目录
@@ -128,12 +127,12 @@ public class WnHttpApiContext {
     /**
      * 当前线程的旧会话：执行时会切换到【执行账户】
      */
-    WnAuthSession oldSe;
+    WnSession oldSe;
 
     /**
      * API的执行会话：读取文件等用这个会话来验证权限
      */
-    WnAuthSession se;
+    WnSession se;
 
     /**
      * API 对应的网站工作目录
@@ -183,4 +182,11 @@ public class WnHttpApiContext {
      * 响应码
      */
     int respCode;
+
+    public WnRoleList getWWWRoles() {
+        if (null == loginApi || null == wwwSe || null == wwwMe) {
+            return null;
+        }
+        return loginApi.roleLoader(wwwSe).getRoles(wwwMe);
+    }
 }

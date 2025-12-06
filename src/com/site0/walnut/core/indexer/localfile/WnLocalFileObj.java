@@ -9,17 +9,17 @@ import org.nutz.json.JsonFormat;
 import org.nutz.json.ToJson;
 import org.nutz.lang.Files;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.MimeMap;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.core.bean.WnObjId;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.Wobj;
+import com.site0.walnut.util.Ws;
 
 @ToJson
 public class WnLocalFileObj extends NutMap implements WnObj {
@@ -32,7 +32,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     private MimeMap mimes;
 
-    private String _id; // 用来缓存一下
+    private WnObjId _id;
 
     private String phHome;
 
@@ -54,7 +54,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
         if (file.isDirectory() && !this.rph.endsWith("/")) {
             this.rph += "/";
         }
-        this._id = oHome.id() + ":" + rph;
+        this._id = Wobj.genPart2IDByVPath(oHome, rph);
 
         // 填充一下自己，防止有贱人 get(key)
         this._fill_vals(this);
@@ -71,17 +71,17 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     @Override
     public String id() {
-        return _id;
+        return _id.toString();
     }
 
     @Override
     public WnObjId OID() {
-        return new WnObjId(oHome.id(), this.rph);
+        return _id;
     }
 
     @Override
     public String myId() {
-        return rph;
+        return _id.getMyId();
     }
 
     @Override
@@ -91,7 +91,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     @Override
     public boolean hasID() {
-        return true;
+        return null!=_id;
     }
 
     @Override
@@ -127,6 +127,10 @@ public class WnLocalFileObj extends NutMap implements WnObj {
             }
         }
         return false;
+    }
+
+    public String getPath() {
+        return path();
     }
 
     @Override
@@ -200,14 +204,14 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     @Override
     public String name() {
         String nm = this.getString("nm");
-        if (!Strings.isBlank(nm))
+        if (!Ws.isBlank(nm))
             return nm;
         return file.getName();
     }
 
     @Override
     public WnObj name(String nm) {
-        if (Strings.isBlank(nm)) {
+        if (Ws.isBlank(nm)) {
             this.remove("nm");
         } else {
             this.put("nm", nm);
@@ -286,7 +290,10 @@ public class WnLocalFileObj extends NutMap implements WnObj {
                 int pos = rph2.lastIndexOf('/', rph2.length() - 2);
                 if (pos > 0) {
                     File d = this.file.getParentFile();
-                    WnLocalFileObj p2 = new WnLocalFileObj(oHome, dHome, d, mimes);
+                    WnLocalFileObj p2 = new WnLocalFileObj(oHome,
+                                                           dHome,
+                                                           d,
+                                                           mimes);
                     p2.setParent(_parent);
                     return p2;
                 }
@@ -296,7 +303,8 @@ public class WnLocalFileObj extends NutMap implements WnObj {
                 }
             }
             // 计算自己相对于父的相对路径
-            String _p_rph = Disks.getRelativePath(this._parent.path(), this.path());
+            String _p_rph = Disks.getRelativePath(this._parent.path(),
+                                                  this.path());
             // 看看自己的 rph 是否用尽
             int pos = _p_rph.lastIndexOf('/', _p_rph.length() - 1);
             // rph 用尽了，直接返回自己的父就好了
@@ -335,8 +343,8 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     }
 
     @Override
-    public int getCustomizedPrivilege(WnAccount u, int dftMode) {
-        return oHome.getCustomizedPrivilege(u, dftMode);
+    public NutBean getCustomizedPrivilege() {
+        return oHome.getCustomizedPrivilege();
     }
 
     @Override
@@ -385,6 +393,16 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     }
 
     @Override
+    public boolean isMountEntry() {
+        return false;
+    }
+
+    @Override
+    public boolean isMountedObj() {
+        return true;
+    }
+
+    @Override
     public long len() {
         return file.length();
     }
@@ -397,6 +415,16 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     @Override
     public WnObj clone() {
         return new WnLocalFileObj(oHome, dHome, file, mimes);
+    }
+
+    @Override
+    public boolean isFromLink() {
+        return false;
+    }
+
+    @Override
+    public String fromLink() {
+        return null;
     }
 
     @Override
@@ -431,7 +459,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     @Override
     public boolean hasType() {
-        return !Strings.isBlank(type());
+        return !Ws.isBlank(type());
     }
 
     @Override
@@ -450,7 +478,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
 
     @Override
     public boolean hasMime() {
-        return !Strings.isBlank(mime());
+        return !Ws.isBlank(mime());
     }
 
     @Override
@@ -469,7 +497,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     }
 
     public boolean hasSha1() {
-        return !Strings.isBlank(sha1());
+        return !Ws.isBlank(sha1());
     }
 
     public String sha1() {
@@ -621,7 +649,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     }
 
     public String toString() {
-        return String.format("%s;ID(%s)==%s", path(), id(), mount());
+        return String.format("file://%s;ID(%s)==%s", path(), id(), mount());
     }
 
     @Override
@@ -708,7 +736,12 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     }
 
     @Override
-    public WnObj link(String lid) {
+    public WnObj fromLink(String link) {
+        return this;
+    }
+
+    @Override
+    public WnObj link(String link) {
         throw Wlang.noImplement();
     }
 

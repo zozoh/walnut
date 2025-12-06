@@ -3,7 +3,7 @@ package com.site0.walnut.util;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 
-import com.site0.walnut.api.auth.WnAuthSession;
+import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.log.WnLogWrapper;
 
 public class Wlog {
@@ -59,6 +59,10 @@ public class Wlog {
     public static Log getMAIN() {
         return new WnLogWrapper(Logs.getLog("MAIN"));
     }
+    
+    public static Log getTEST() {
+        return new WnLogWrapper(Logs.getLog("TEST"));
+    }
 
     public static String msgf(String fmt, Object... args) {
         String s = String.format(fmt, args);
@@ -67,7 +71,7 @@ public class Wlog {
 
     public static String msg(String str) {
         WnContext wc = Wn.WC();
-        WnAuthSession se = wc.getSession();
+        WnSession se = wc.getSession();
         String tkt;
         String unm;
         if (null != se) {

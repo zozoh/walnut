@@ -40,9 +40,6 @@ import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.web.Webs.Err;
 
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.box.WnBoxService;
 import com.site0.walnut.api.box.WnServiceFactory;
 import com.site0.walnut.api.err.Er;
@@ -51,16 +48,20 @@ import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.api.io.WnRace;
-import com.site0.walnut.api.io.WnSecurity;
-import com.site0.walnut.ext.data.www.impl.WnWebService;
 import com.site0.walnut.ext.sys.cron.WnSysCronApi;
 import com.site0.walnut.ext.sys.schedule.WnSysScheduleApi;
 import com.site0.walnut.ext.sys.task.WnSysTaskApi;
 import com.site0.walnut.impl.box.WnSystem;
-import com.site0.walnut.impl.io.WnSecurityImpl;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnSimpleLoginApi;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.each.WnEachIteratee;
 import com.site0.walnut.util.explain.WnExplain;
 import com.site0.walnut.util.explain.WnExplains;
+import com.site0.walnut.util.tmpl.WnTmplX;
+import com.site0.walnut.web.WnConfig;
 
 /**
  * Walnut 系统的各种帮助函数集合
@@ -69,9 +70,18 @@ import com.site0.walnut.util.explain.WnExplains;
  */
 public abstract class Wn {
 
-    public static final String K_ROLE_IN_DOMAIN = "roleInDomain";
-
-    public static final String K_ROLE_IN_OP = "roleInOp";
+    public static final String SET_BG = "BG";
+    public static final String SET_RUN = "run";
+    public static final String SET_HOOK = "hook";
+    public static final String SET_AUTH_PASS = "auth_pass";
+    public static final String SET_AUTH_WXMP = "auth_wxmp";
+    public static final String SET_AUTH_WXGH = "auth_wxgh";
+    public static final String SET_LOGIN_CMD = "cmd_login";
+    public static final String SET_LOGIN_APP = "app_login";
+    public static final String SET_LOGIN_API = "api_login";
+    public static final String SET_LOGIN_BOX = "box_login";
+    public static final String SET_LOGIN_SYS = "sys_login";
+    public static final String SET_UNIT_TEST = "unit_test";
 
     /**
      * 记录系统运行时信息
@@ -139,8 +149,8 @@ public abstract class Wn {
 
     }
 
-    public static WnObj getObj(WnIo io, WnAuthSession se, String str) {
-        return getObj(io, se.getVars(), str);
+    public static WnObj getObj(WnIo io, WnSession se, String str) {
+        return getObj(io, se.getEnv(), str);
 
     }
 
@@ -185,7 +195,7 @@ public abstract class Wn {
 
     }
 
-    public static WnObj checkObj(WnIo io, WnAuthSession se, String str) {
+    public static WnObj checkObj(WnIo io, WnSession se, String str) {
         WnObj o = getObj(io, se, str);
         if (null == o)
             throw Er.create("e.io.obj.noexists", str);
@@ -204,8 +214,10 @@ public abstract class Wn {
      * 
      * @return 列表
      */
-    public static List<WnObj> getPathObjList(WnSystem sys, String varName, String dftPh) {
-        NutMap vars = sys.session.getVars();
+    public static List<WnObj> getPathObjList(WnSystem sys,
+                                             String varName,
+                                             String dftPh) {
+        NutBean vars = sys.session.getEnv();
         String paths = vars.getString(varName, dftPh);
         String[] phs = Strings.splitIgnoreBlank(paths, ":");
 
@@ -267,7 +279,9 @@ public abstract class Wn {
                     lastIsSlash = new boolean[]{false};
                 }
             }
-            if (ph.startsWith("~") || ph.startsWith("/") || ph.startsWith("id:")) {
+            if (ph.startsWith("~")
+                || ph.startsWith("/")
+                || ph.startsWith("id:")) {
                 pos = i;
                 break;
             }
@@ -355,7 +369,7 @@ public abstract class Wn {
         return normalizePath(ph, sys, true);
     }
 
-    public static String normalizePath(String ph, WnAuthSession se) {
+    public static String normalizePath(String ph, WnSession se) {
         return normalizePath(ph, se, true);
     }
 
@@ -363,15 +377,21 @@ public abstract class Wn {
         return normalizePath(ph, vars, true);
     }
 
-    public static String normalizePath(String ph, WnSystem sys, boolean applyEnv) {
+    public static String normalizePath(String ph,
+                                       WnSystem sys,
+                                       boolean applyEnv) {
         return normalizePath(ph, sys.session, applyEnv);
     }
 
-    public static String normalizePath(String ph, WnAuthSession se, boolean applyEnv) {
-        return normalizePath(ph, se.getVars(), applyEnv);
+    public static String normalizePath(String ph,
+                                       WnSession se,
+                                       boolean applyEnv) {
+        return normalizePath(ph, se.getEnv(), applyEnv);
     }
 
-    public static String normalizePath(String ph, NutBean vars, boolean applyEnv) {
+    public static String normalizePath(String ph,
+                                       NutBean vars,
+                                       boolean applyEnv) {
         if (Strings.isBlank(ph))
             return ph;
         // 主目录开头
@@ -385,7 +405,8 @@ public abstract class Wn {
 
         // 展开环境变量
         if (applyEnv) {
-            return normalizeStr(ph, vars);
+            // return normalizeStr(ph, vars);
+            return WnTmplX.exec(ph, vars);
         }
         return ph;
     }
@@ -394,7 +415,7 @@ public abstract class Wn {
         return normalizeFullPath(ph, sys, true);
     }
 
-    public static String normalizeFullPath(String ph, WnAuthSession se) {
+    public static String normalizeFullPath(String ph, WnSession se) {
         return normalizeFullPath(ph, se, true);
     }
 
@@ -402,7 +423,9 @@ public abstract class Wn {
         return normalizeFullPath(ph, vars, true);
     }
 
-    public static String normalizeFullPath(String ph, WnSystem sys, boolean applyEnv) {
+    public static String normalizeFullPath(String ph,
+                                           WnSystem sys,
+                                           boolean applyEnv) {
         // 嗯，搞一下变量吧
         ph = normalizeFullPath(ph, sys.session, applyEnv);
 
@@ -434,14 +457,20 @@ public abstract class Wn {
         return ph;
     }
 
-    public static String normalizeFullPath(String ph, WnAuthSession se, boolean applyEnv) {
-        return normalizeFullPath(ph, se.getVars(), applyEnv);
+    public static String normalizeFullPath(String ph,
+                                           WnSession se,
+                                           boolean applyEnv) {
+        return normalizeFullPath(ph, se.getEnv(), applyEnv);
     }
 
-    public static String normalizeFullPath(String ph, NutBean vars, boolean applyEnv) {
+    public static String normalizeFullPath(String ph,
+                                           NutBean vars,
+                                           boolean applyEnv) {
         // 防空
         if (Strings.isBlank(ph))
             return ph;
+
+        boolean isForDir = ph.endsWith("/");
 
         // 组合上当前目录
         String pwd = vars.getString("PWD", "");
@@ -468,10 +497,11 @@ public abstract class Wn {
         }
         // 特殊诡异情况
         if (re.endsWith("id:"))
-            throw new RuntimeException("emtry paht 'id:' is not allow!!! re=" + re);
+            throw new RuntimeException("emtry paht 'id:' is not allow!!! re="
+                                       + re);
 
         // 如果是目录
-        if (ph.endsWith("/") && !re.endsWith("/"))
+        if (isForDir && !re.endsWith("/"))
             return re + "/";
 
         // 返回
@@ -486,8 +516,8 @@ public abstract class Wn {
         return normalizeStr(str, sys.session);
     }
 
-    public static String normalizeStr(String str, WnAuthSession se) {
-        return normalizeStr(str, se.getVars());
+    public static String normalizeStr(String str, WnSession se) {
+        return normalizeStr(str, se.getEnv());
     }
 
     /**
@@ -650,77 +680,18 @@ public abstract class Wn {
         return wc;
     }
 
-    public static class Session {
-
-        public static void updateAuthSession(WnAuthService auth,
-                                             NutBean initUsrEnvs,
-                                             WnAuthSession se,
-                                             WnWebService webs,
-                                             WnObj oWWW,
-                                             String byType,
-                                             String byValue) {
-            // 标注新会话的类型，以便指明用户来源
-            if (!Ws.isBlank(byType))
-                se.setByType(byType);
-            if (!Ws.isBlank(byValue))
-                se.setByValue(byValue);
-
-            // 确保用户会话有足够的环境变量
-            NutMap vars = se.getVars();
-
-            // 先搞一轮站点的环境变量，这个要强制加上
-            for (Map.Entry<String, Object> en : webs.getSite().getVars().entrySet()) {
-                String key = en.getKey();
-                Object val = en.getValue();
-                boolean force = key.startsWith("!");
-                // 有些时候，站点这边希望强制用户设置某些环境变量，譬如 HOME,THEME等
-                // 这样就不用为每个用户设置了。有些时候又希望千人千面。
-                // 所以我们把决定权交给配置，前面声明了 ! 的键，表示要强制设置的项目
-                if (force) {
-                    key = key.substring(1).trim();
-                    vars.put(key, val);
-                }
-                // 弱弱的补充一下
-                else {
-                    vars.putDefault(key, val);
-                }
-            }
-            // 再搞一轮系统的默认环境变量，系统的，自然就都是弱弱的补充了，嗯，我看没什么问题
-            if (null != initUsrEnvs) {
-                for (Map.Entry<String, Object> en : initUsrEnvs.entrySet()) {
-                    vars.putDefault(en.getKey(), en.getValue());
-                }
-            }
-
-            // 最后，设置一下所属站点，以备之后的权限检查相关的逻辑读取
-            vars.put(WnAuthSession.V_WWW_SITE_ID, oWWW.id());
-            vars.put(WnAuthSession.V_ROLE, se.getMe().getRoleName());
-
-            // 保存会话
-            auth.saveSession(se);
-        }
-
-        public static void checkHomeAccessable(WnIo io,
-                                               WnAuthService auth,
-                                               WnObj oHome,
-                                               WnAccount user) {
-            WnSecurity secu = new WnSecurityImpl(io, auth);
-            // 不能读，那么注销会话，并返回错误
-            if (!secu.test(oHome, Wn.Io.R, user)) {
-                throw Er.create("e.auth.home.forbidden");
-            }
-        }
-
-    }
-
     public static class Service {
+
+        public static WnConfig config(Ioc ioc) {
+            return ioc.get(WnConfig.class, "conf");
+        }
 
         public static WnServiceFactory services(Ioc ioc) {
             return ioc.get(WnServiceFactory.class, "serviceFactory");
         }
 
-        public static WnAuthService auth(Ioc ioc) {
-            return ioc.get(WnAuthService.class, "sysAuthService");
+        public static WnLoginApi auth(Ioc ioc) {
+            return ioc.get(WnSimpleLoginApi.class, "sysLoginApi");
         }
 
         public static WnSysTaskApi tasks(Ioc ioc) {
@@ -937,11 +908,17 @@ public abstract class Wn {
                                                     final WnObj o,
                                                     final boolean includeSelf,
                                                     final long now) {
-            WnContext wc = Wn.WC();
 
-            // 防止无穷递归
-            if (wc.isSynctimeOff())
+            // 防空
+            if (null == o) {
                 return;
+            }
+
+            WnContext wc = Wn.WC();
+            // 防止无穷递归
+            if (wc.isSynctimeOff()) {
+                return;
+            }
 
             // 读取所有的祖先节点列表
             final List<WnObj> list = new LinkedList<WnObj>();
@@ -980,7 +957,10 @@ public abstract class Wn {
         // copy 时标志位： 显示日志
         public static final int VERBOSE = 1 << 2;
 
-        public static void copy(WnSystem sys, int mode, WnObj oSrc, String ph_dst) {
+        public static void copy(WnSystem sys,
+                                int mode,
+                                WnObj oSrc,
+                                String ph_dst) {
             copy(sys, mode, oSrc, ph_dst, null, null);
         }
 
@@ -1037,14 +1017,22 @@ public abstract class Wn {
                 // 必须存在父
                 if (!isR) {
                     WnObj oP = Wn.checkObj(sys, Files.getParent(ph_dst));
-                    oDst = sys.io.createIfNoExists(oP, Files.getName(ph_dst), oSrc.race());
+                    oDst = sys.io.createIfNoExists(oP,
+                                                   Files.getName(ph_dst),
+                                                   oSrc.race());
                 }
                 // 否则自由创建
                 else {
                     oDst = sys.io.createIfNoExists(null, ph_dst, oSrc.race());
                 }
                 // 执行 Copy 就好了
-                __recur_copy_obj(sys, mode, ph_base, oSrc, oDst, filter, callback);
+                __recur_copy_obj(sys,
+                                 mode,
+                                 ph_base,
+                                 oSrc,
+                                 oDst,
+                                 filter,
+                                 callback);
             }
             // 否则，不能是自己 copy 给自己就好
             else {
@@ -1055,18 +1043,32 @@ public abstract class Wn {
                 // 目标是一个文件夹
                 if (oDst.isDIR()) {
                     // 在里面创建与源同名的目标
-                    WnObj oDst2 = sys.io.createIfNoExists(oDst, oSrc.name(), oSrc.race());
+                    WnObj oDst2 = sys.io
+                        .createIfNoExists(oDst, oSrc.name(), oSrc.race());
                     // 执行 Copy
-                    __recur_copy_obj(sys, mode, ph_base, oSrc, oDst2, filter, callback);
+                    __recur_copy_obj(sys,
+                                     mode,
+                                     ph_base,
+                                     oSrc,
+                                     oDst2,
+                                     filter,
+                                     callback);
                 }
                 // 目标是一个文件
                 else if (oDst.isFILE()) {
                     // 源必须是一个文件
                     if (!oSrc.isFILE()) {
-                        throw Er.create("e.io.copy.file2dir", oSrc.path() + " ->> " + oDst.path());
+                        throw Er.create("e.io.copy.file2dir",
+                                        oSrc.path() + " ->> " + oDst.path());
                     }
                     // 执行 Copy
-                    __recur_copy_obj(sys, mode, ph_base, oSrc, oDst, filter, callback);
+                    __recur_copy_obj(sys,
+                                     mode,
+                                     ph_base,
+                                     oSrc,
+                                     oDst,
+                                     filter,
+                                     callback);
                 }
                 // 靠！什么鬼！
                 else {
@@ -1098,14 +1100,22 @@ public abstract class Wn {
                                 return;
                         }
                         // 执行 copy
-                        WnObj oTa = sys.io.createIfNoExists(oDst, o.name(), o.race());
-                        __recur_copy_obj(sys, mode, ph_base, o, oTa, filter, callback);
+                        WnObj oTa = sys.io
+                            .createIfNoExists(oDst, o.name(), o.race());
+                        __recur_copy_obj(sys,
+                                         mode,
+                                         ph_base,
+                                         o,
+                                         oTa,
+                                         filter,
+                                         callback);
                     }
                 });
 
                 // 元数据 copy
                 if (isP) {
-                    NutBean meta = oSrc.pickBy("!^(id|pid|race|ph|nm|d[0-9]|ct|lm|data|sha1|len|thumb|videoc_dir)$");
+                    NutBean meta = oSrc
+                        .pickBy("!^(id|pid|race|ph|nm|d[0-9]|ct|lm|data|sha1|len|thumb|videoc_dir)$");
                     sys.io.appendMeta(oDst, meta);
                 }
             }
@@ -1122,7 +1132,8 @@ public abstract class Wn {
 
                 // 元数据 copy
                 if (isP) {
-                    NutBean meta = oSrc.pickBy("!^(id|pid|race|ph|nm|d[0-9]|ct|lm|data|sha1|len|thumb|videoc_dir)$");
+                    NutBean meta = oSrc
+                        .pickBy("!^(id|pid|race|ph|nm|d[0-9]|ct|lm|data|sha1|len|thumb|videoc_dir)$");
                     sys.io.appendMeta(oDst, meta);
                 }
 
@@ -1156,7 +1167,8 @@ public abstract class Wn {
                                              boolean forceSyncTypeAndMime) {
             // 两个必须是文件
             if (!src.isFILE() || !dst.isFILE()) {
-                throw Er.create("e.copy.nofile", src.path() + " ->> " + dst.path());
+                throw Er.create("e.copy.nofile",
+                                src.path() + " ->> " + dst.path());
             }
 
             // 如果是 Mount 就傻傻的写流；这个时候 IO 应该自动运行 Hook
@@ -1204,7 +1216,9 @@ public abstract class Wn {
          * @param callback
          *            回调
          */
-        public static void eachChildren(WnIo io, WnObj o, final Each<WnObj> callback) {
+        public static void eachChildren(WnIo io,
+                                        WnObj o,
+                                        final Each<WnObj> callback) {
             // 没有回调，没必要执行
             if (null == callback)
                 return;
@@ -1521,8 +1535,10 @@ public abstract class Wn {
         OutputStream out = null;
         File cf = null;
         try {
-            cf = File.createTempFile(Strings.alignLeft(obj.name(), 3, 'a'),
-                                     !Strings.isBlank(obj.type()) ? "." + obj.type() : null);
+            cf = File
+                .createTempFile(Strings.alignLeft(obj.name(), 3, 'a'),
+                                !Strings.isBlank(obj.type()) ? "." + obj.type()
+                                                             : null);
             out = new FileOutputStream(cf);
             io.readAndClose(obj, out);
             out.flush();
@@ -1755,8 +1771,9 @@ public abstract class Wn {
             // 如果节点不存在
             if (null == o)
                 throw Er.create("e.io.obj.noexists", ln);
-            // 恢复节点的 path
-            // o.path(oldPath);
+            // 不要丢失节点的链接路径属性，这样在 WnIoCacheWrapper
+            // 可以将链接的目录也能及时清除缓存
+            o.fromLink(ln);
         }
         return o;
     }
@@ -1821,7 +1838,9 @@ public abstract class Wn {
         });
     }
 
-    public static boolean checkEtag(WnObj wobj, HttpServletRequest req, HttpServletResponse resp) {
+    public static boolean checkEtag(WnObj wobj,
+                                    HttpServletRequest req,
+                                    HttpServletResponse resp) {
         String etag = getEtag(wobj);
         if (resp != null)
             resp.setHeader("ETag", etag);
@@ -1869,8 +1888,9 @@ public abstract class Wn {
         // 检查权限: root 组管理员才能操作
         sys.nosecurity(new Atom() {
             public void run() {
-                WnAccount me = Wn.WC().getMe();
-                if (sys.auth.isAdminOfGroup(me, "root")) {
+                WnUser me = Wn.WC().getMe();
+                WnRoleList roles = sys.roles().getRoles(me);
+                if (roles.isAdminOfRole("root")) {
                     throw Er.create("e.cmd.mgadmin.only_for_root_admin");
                 }
             }

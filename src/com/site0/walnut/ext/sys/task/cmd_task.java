@@ -3,11 +3,12 @@ package com.site0.walnut.ext.sys.task;
 import java.util.List;
 
 import org.nutz.lang.Encoding;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmHdlContext;
 import com.site0.walnut.impl.box.JvmHdlExecutor;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.role.WnRoleList;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Cmds;
 import com.site0.walnut.util.Ws;
 
@@ -23,8 +24,9 @@ public class cmd_task extends JvmHdlExecutor {
      * @return 任务对象查询对象
      */
     public static WnSysTaskQuery prepareTaskQuery(WnSystem sys, JvmHdlContext hc) {
-        WnAccount me = sys.getMe();
-        boolean isAdmin = sys.auth.isMemberOfGroup(me, "root");
+        WnUser me = sys.getMe();
+        WnRoleList roles = sys.roles().getRoles(me);
+        boolean isAdmin = roles.isMemberOfRole("root");
         return prepareTaskQuery(sys, hc, isAdmin);
     }
 
@@ -34,7 +36,7 @@ public class cmd_task extends JvmHdlExecutor {
 
         // 如果不是 root 组管理员，仅能操作自己
         if (!isAdmin) {
-            WnAccount me = sys.getMe();
+            WnUser me = sys.getMe();
             tq.setUserName(me.getName());
         }
         return tq;
@@ -70,8 +72,10 @@ public class cmd_task extends JvmHdlExecutor {
     /**
      * 为了防止命令输出太长，本函数，把过长的部分加省略号
      * 
-     * @param list 任务对象
-     * @param key 命令存放在对象的哪个键里
+     * @param list
+     *            任务对象
+     * @param key
+     *            命令存放在对象的哪个键里
      */
     public static void formatObjCommandField(List<WnObj> list, String key) {
         for (WnObj o : list) {

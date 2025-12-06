@@ -2,6 +2,7 @@ package com.site0.walnut.ext.net.mailx.impl;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutBean;
@@ -24,12 +25,14 @@ import org.simplejavamail.mailer.MailerBuilder;
 
 public class WnMailPosting {
 
+    // private static final Log log = Wlog.getCMD();
+
     private WnIo io;
 
     private NutBean vars;
 
     public WnMailPosting(WnSystem sys) {
-        this(sys.io, sys.session.getVars());
+        this(sys.io, sys.session.getEnv());
 
     }
 
@@ -38,7 +41,7 @@ public class WnMailPosting {
         this.vars = sessionVars;
     }
 
-    public void send(MailxSmtpConfig smtp, WnSmtpMail mail) {
+    public boolean send(MailxSmtpConfig smtp, WnSmtpMail mail) {
         // 小防守一把
         if (!smtp.hasAccount()) {
             throw Er.create("e.mailx.smtp.WithoutAccount");
@@ -54,11 +57,10 @@ public class WnMailPosting {
         // 设置发件人
         //
         if (smtp.hasAlias()) {
-            builder = EmailBuilder.startingBlank().from(smtp.getAccount());
-        }
-        // 仅有地址
-        else {
-            builder = EmailBuilder.startingBlank().from(smtp.getAccount());
+            builder = EmailBuilder.startingBlank()
+                .from(smtp.getAlias(), smtp.getMailFrom());
+        } else {
+            builder = EmailBuilder.startingBlank().from(smtp.getMailFrom());
         }
 
         // to/cc/bcc
@@ -118,11 +120,15 @@ public class WnMailPosting {
         // security
         if (mail.hasSecurity()) {
             WnMailSecurity secu = mail.getSecurity();
+            // if (log.isInfoEnabled()) {
+            // log.infof("mail.security=%s", secu.toString());
+            // }
             // SMIMI
             if (secu.isSMIME()) {
                 // 签名设置
                 if (secu.hasSign()) {
-                    Pkcs12Config pkcs12 = Mailx.createPkcs12Config(io, vars, secu);
+                    Pkcs12Config pkcs12 = Mailx
+                        .createPkcs12Config(io, vars, secu);
                     builder.signWithSmime(pkcs12);
                 }
 
@@ -148,14 +154,16 @@ public class WnMailPosting {
         //
         // 搞定，发送
         //
-        Mailer mailer = MailerBuilder.withSMTPServer(smtp.getHost(),
-                                                     smtp.getPort(),
-                                                     smtp.getAccount(),
-                                                     smtp.getPassword())
-                                     .withTransportStrategy(smtp.getStrategy())
-                                     .buildMailer();
+        Mailer mailer = MailerBuilder
+            .withSMTPServer(smtp.getHost(),
+                            smtp.getPort(),
+                            smtp.getAccount(),
+                            smtp.getPassword())
+            .withTransportStrategy(smtp.getStrategy())
+            .buildMailer();
         Email mo = builder.buildEmail();
-        mailer.sendMail(mo);
+        CompletableFuture<Void> re = mailer.sendMail(mo);
+        return re.isDone();
     }
 
 }

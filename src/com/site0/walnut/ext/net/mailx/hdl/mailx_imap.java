@@ -5,10 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -21,12 +17,14 @@ import com.site0.walnut.ext.net.mailx.MailxFilter;
 import com.site0.walnut.ext.net.mailx.impl.WnMailIMAPRecieving;
 import com.site0.walnut.ext.net.mailx.provider.MailStoreProvider;
 import com.site0.walnut.ext.net.mailx.provider.MailStoreProviders;
+import com.site0.walnut.ext.net.mailx.util.Mailx;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Cmds;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
 import com.site0.walnut.util.tmpl.WnTmplX;
 import com.sun.mail.imap.IMAPFolder;
+import static com.site0.walnut.ext.net.mailx.util.Mailx.LOG;
 
 import jakarta.mail.Flags;
 import jakarta.mail.Folder;
@@ -51,6 +49,7 @@ public class mailx_imap extends MailxFilter {
         // 禁止发送
         fc.setQuiet(true);
 
+        // 准备参数
         boolean isOr = params.is("or");
         boolean showHeader = params.is("header");
         boolean isAutoDecrypt = params.is("decrypt");
@@ -60,18 +59,10 @@ public class mailx_imap extends MailxFilter {
         NutMap fixedMeta = params.getMap("meta");
 
         // 得到输出目标
-        String taPath = params.getString("to");
-        WnTmplX taTmpl = null;
-        if (!Ws.isBlank(taPath)) {
-            taTmpl = WnTmplX.parse(taPath);
-        }
+        WnTmplX taTmpl = Mailx.getTmpl(params, "to");
 
         // 附件的输出目标
-        String attchmentPath = params.getString("at");
-        WnTmplX attachmentTmpl = null;
-        if (!Ws.isBlank(attchmentPath)) {
-            attachmentTmpl = WnTmplX.parse(attchmentPath);
-        }
+        WnTmplX attachmentTmpl = Mailx.getTmpl(params, "at");
 
         // boolean hasTarget = null != oTa;
         boolean debug = null == taTmpl;
@@ -91,7 +82,8 @@ public class mailx_imap extends MailxFilter {
             MailStoreProvider provider;
             if (fc.config.imap.hasProvider()) {
                 String providerName = fc.config.imap.getProvider().getName();
-                provider = MailStoreProviders.me().createProvider(sys, providerName);
+                provider = MailStoreProviders.me()
+                    .createProvider(sys, providerName);
             } else {
                 provider = MailStoreProviders.me().createDefaultProvider(sys);
             }
@@ -99,11 +91,21 @@ public class mailx_imap extends MailxFilter {
             store = provider.createStrore(session, fc.config.imap);
 
             // 获取查询目录
-            String folderName = Ws.sBlank(params.val(0, fc.config.imap.getInboxName()), "INBOX");
+            String folderName = Ws.sBlank(
+                                          params.val(0,
+                                                     fc.config.imap
+                                                         .getInboxName()),
+                                          "INBOX");
             IMAPFolder folder = (IMAPFolder) store.getFolder(folderName);
-            LOG(sys, debug, "Get folder: [%s]", folderName);
+            LOG(sys,
+                debug,
+                "mailx_imap: Get folder: folderName=%s",
+                folderName);
             folder.open(Folder.READ_WRITE);
-            LOG(sys, debug, "Open folder: [%s]", folder.toString());
+            LOG(sys,
+                debug,
+                "mailx_imap: Open folder: folder open=%s",
+                folder.toString());
 
             // 得到搜索条件
             SearchTerm term = __eval_term(isOr, terms);
@@ -111,7 +113,7 @@ public class mailx_imap extends MailxFilter {
             // 收取到消息
             Message[] messages = folder.search(term);
             int N = messages.length;
-            LOG(sys, debug, "find %s messages", N);
+            LOG(sys, debug, "mailx_imap: find messages, N=%d", N);
 
             if (N <= 0) {
                 return;
@@ -120,80 +122,38 @@ public class mailx_imap extends MailxFilter {
             // 准备计时
             Stopwatch sw = Stopwatch.begin();
 
-            // 准备处理线程池
-            String poolSize = params.getString("pool", "0");
-            String[] pss = Ws.splitIgnoreBlank(poolSize, ":");
-            int pool_sz_core, pool_sz_max;
-            // 固定大小
-            if (pss.length == 1) {
-                pool_sz_core = Math.min(N, Integer.parseInt(pss[0]));
-                pool_sz_max = pool_sz_core;
-            }
-            // 指定了最大最小值
-            else {
-                pool_sz_core = Math.min(N, Integer.parseInt(pss[0]));
-                pool_sz_max = Integer.parseInt(pss[1]);
-            }
-            ThreadPoolExecutor execPool = null;
-
-            if (pool_sz_core > 1) {
-                LOG(sys, debug, "use execPool core=%d, max=%d", pool_sz_core, pool_sz_max);
-                BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<>();
-                execPool = new ThreadPoolExecutor(pool_sz_core,
-                                                  pool_sz_max,
-                                                  0,
-                                                  TimeUnit.MILLISECONDS,
-                                                  workQueue);
-            }
-
             // 循环处理消息
             Vector<WnObj> outputs = new Vector<>(N); // 如果输出为数据集，输出目标记录在这里
             for (int i = 0; i < N; i++) {
                 WnMailIMAPRecieving rv = new WnMailIMAPRecieving();
-                rv.msg = messages[i];
+                rv.mail_msg = messages[i];
                 rv.isAutoDecrypt = isAutoDecrypt;
                 rv.sys = sys;
                 rv.fc = fc;
                 rv.session = session;
                 rv.asContent = asContent;
-                rv.taTmpl = taTmpl;
                 rv.showHeader = showHeader;
                 rv.debug = debug;
                 rv.i = i;
                 rv.N = N;
                 rv.fixedMeta = fixedMeta;
+
+                // 后续处理
+                rv.taTmpl = taTmpl;
                 rv.attachmentTmpl = attachmentTmpl;
                 rv.after = after;
                 rv.outputs = outputs;
+                
                 // 直接执行
-                if (null == execPool) {
-                    rv.run();
-                }
-                // 提交线程
-                else {
-                    execPool.submit(rv);
-                }
+                rv.run();
             } // for (int i = 0; i < N; i++) {
 
-            if (null != execPool) {
-                // 关闭线程池，不再接受新的任务
-                execPool.shutdown();
-
-                // 等待线程池执行完毕
-                try {
-                    if (!execPool.awaitTermination(7200, TimeUnit.SECONDS)) {
-                        execPool.shutdownNow(); // 如果等待超时，中断所有任务
-                        LOG(sys, debug, "exec pool timeout (over 7200s) force quiet");
-                    }
-                }
-                catch (InterruptedException e) {
-                    execPool.shutdownNow(); // 如果当前线程被中断，中断所有任务
-                    LOG(sys, debug, "exec pool timeout Interrupted, force quiet: %s", e.toString());
-                }
-            }
-
             sw.stop();
-            LOG(sys, debug, "IMAP done in %s: N=%d", sw.toString(), N);
+            LOG(sys,
+                debug,
+                "mailx_imap: IMAP done in %s: N=%d",
+                sw.toString(),
+                N);
 
             // 输出
             if (isJson) {
@@ -263,10 +223,6 @@ public class mailx_imap extends MailxFilter {
             }
         }
         return terms;
-    }
-
-    private void LOG(WnSystem sys, boolean showDebug, String fmt, Object... args) {
-        WnMailIMAPRecieving.LOG(sys, showDebug, fmt, args);
     }
 
     private static Map<String, Flags.Flag> MAIL_FLAGS = new HashMap<>();

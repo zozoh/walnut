@@ -18,7 +18,7 @@ import org.nutz.log.Log;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.MimeMap;
-import com.site0.walnut.api.io.WnIoIndexer;
+import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.api.io.agg.WnAggOptions;
@@ -62,7 +62,11 @@ public class SqlIndexer extends AbstractIoDataIndexer {
     private static final String SD_REMOVE = "remove";
     private static final String SD_INC = "inc";
 
-    public SqlIndexer(WnObj root, MimeMap mimes, WnDaoAuth auth, SqlHolder sqls, SqlIoArgs args) {
+    public SqlIndexer(WnObj root,
+                      MimeMap mimes,
+                      WnDaoAuth auth,
+                      SqlHolder sqls,
+                      SqlIoArgs args) {
         super(root, mimes);
         this.auth = auth;
         this.sqls = sqls;
@@ -149,7 +153,10 @@ public class SqlIndexer extends AbstractIoDataIndexer {
         v_exec.put("val", val);
 
         NutMap filter = prepareQuery(q);
-        SqlGet<Integer> get = _gen_val_getter(filter, key, Integer.class, rs -> rs.getInt(key));
+        SqlGet<Integer> get = _gen_val_getter(filter,
+                                              key,
+                                              Integer.class,
+                                              rs -> rs.getInt(key));
 
         // 执行更新的操作
         SqlAtom inc = new SqlAtom(log, _inc, v_exec);
@@ -258,7 +265,8 @@ public class SqlIndexer extends AbstractIoDataIndexer {
                     return null;
                 }
                 if (beans.size() > 1) {
-                    String msg = String.format("obj multi exists in '%s'", Json.toJson(filter));
+                    String msg = String.format("obj multi exists in '%s'",
+                                               Json.toJson(filter));
                     new SQLException(msg);
                 }
                 NutBean bean = beans.get(0);
@@ -383,15 +391,22 @@ public class SqlIndexer extends AbstractIoDataIndexer {
         if (null == sqlt) {
             throw Er.create("select SQL without defined");
         }
-        SqlGet<WnIoObj> get = new SqlGet<>(log, sqlt, vars, new SqlResetSetGetter<WnIoObj>() {
-            public WnIoObj getValue(ResultSet rs) throws SQLException {
-                ResultSetMetaData meta = rs.getMetaData();
-                NutBean bean = Sqlx.toBean(rs, meta);
-                WnIoObj obj = new WnIoObj();
-                obj.putAll(bean);
-                return obj;
-            }
-        }, true);
+        SqlGet<WnIoObj> get = new SqlGet<>(log,
+                                           sqlt,
+                                           vars,
+                                           new SqlResetSetGetter<WnIoObj>() {
+                                               public WnIoObj getValue(ResultSet rs)
+                                                       throws SQLException {
+                                                   ResultSetMetaData meta = rs
+                                                       .getMetaData();
+                                                   NutBean bean = Sqlx
+                                                       .toBean(rs, meta);
+                                                   WnIoObj obj = new WnIoObj();
+                                                   obj.putAll(bean);
+                                                   return obj;
+                                               }
+                                           },
+                                           true);
 
         // 执行
         return Sqlx.sqlGet(auth, new SqlGetter<WnIoObj>() {
@@ -410,7 +425,7 @@ public class SqlIndexer extends AbstractIoDataIndexer {
     }
 
     @Override
-    public long count(WnQuery q) {
+    public int count(WnQuery q) {
         WnSqlTmpl sqlt = getSql(SD_COUNT);
         if (null == sqlt) {
             throw Er.create("fetch SQL without defined");
@@ -425,12 +440,17 @@ public class SqlIndexer extends AbstractIoDataIndexer {
             }
         });
 
-        SqlGet<Long> get = new SqlGet<>(log, sqlt, vars, new SqlResetSetGetter<Long>() {
-            public Long getValue(ResultSet rs) throws SQLException {
-                return rs.getLong(1);
-            }
-        }, true);
-        long N = Sqlx.sqlGet(auth, get);
+        SqlGet<Integer> get = new SqlGet<>(log,
+                                           sqlt,
+                                           vars,
+                                           new SqlResetSetGetter<Integer>() {
+                                               public Integer getValue(ResultSet rs)
+                                                       throws SQLException {
+                                                   return rs.getInt(1);
+                                               }
+                                           },
+                                           true);
+        int N = Sqlx.sqlGet(auth, get);
         return N;
     }
 
@@ -473,7 +493,8 @@ public class SqlIndexer extends AbstractIoDataIndexer {
         }
 
         // 执行查询
-        final WnIoIndexer indexer = this;
+        // final WnIoIndexer indexer = this;
+        final WnIo io = getIo();
         return Sqlx.sqlGet(auth, new SqlGetter<Integer>() {
             public Integer doGet(Connection conn) throws SQLException {
                 int total = 0;
@@ -491,7 +512,8 @@ public class SqlIndexer extends AbstractIoDataIndexer {
                     o.putAll(bean);
 
                     // 根据父对象补完自身字段
-                    o.setIndexer(indexer);
+                    // o.setIndexer(indexer);
+                    o.setIo(io);
                     _complete_obj_by_parent(pHint, o);
 
                     // 回调

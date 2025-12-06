@@ -6,6 +6,8 @@ public interface SqlHolder {
 
     WnSqlTmpl get(String key);
 
-    void reset();
+    void clear();
+
+    int size();
 
 }

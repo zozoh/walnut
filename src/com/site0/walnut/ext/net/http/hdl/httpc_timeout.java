@@ -11,11 +11,11 @@ public class httpc_timeout extends HttpClientFilter {
     protected void process(WnSystem sys, HttpClientContext fc, ZParams params) {
         int readTimeout = params.val_int(0, -1);
         if (readTimeout > 0) {
-            fc.context.setReadTimeout(readTimeout);
+            fc.context.setReadTimeout(readTimeout * 1000);
         }
         int connTimeout = params.val_int(1, -1);
         if (connTimeout > 0) {
-            fc.context.setConnectTimeout(connTimeout);
+            fc.context.setConnectTimeout(connTimeout * 1000);
         }
     }
 

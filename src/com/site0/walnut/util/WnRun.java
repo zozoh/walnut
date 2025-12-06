@@ -12,9 +12,6 @@ import org.nutz.log.Log;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.box.WnBox;
 import com.site0.walnut.api.box.WnBoxContext;
 import com.site0.walnut.api.box.WnBoxService;
@@ -30,6 +27,9 @@ import com.site0.walnut.impl.box.JvmExecutorFactory;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.impl.io.WnSecurityImpl;
 import com.site0.walnut.impl.srv.WnBoxRunning;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.web.WnConfig;
 
 @IocBean
@@ -52,8 +52,11 @@ public class WnRun {
     @Inject("refer:sysScheduleService")
     private WnSysScheduleApi scheduleApi;
 
-    @Inject("refer:sysAuthService")
-    private WnAuthService auth;
+    @Inject("refer:sysLoginApi")
+    private WnLoginApi auth;
+
+    // @Inject("refer:sysAuthService")
+    // private WnAuthService auth;
 
     @Inject("refer:jvmExecutorFactory")
     private JvmExecutorFactory jef;
@@ -78,8 +81,8 @@ public class WnRun {
         return io;
     }
 
-    public WnAuthService auth() {
-        return auth;
+    public WnLoginApi auth() {
+        return this.auth;
     }
 
     public WnBoxService boxes() {
@@ -100,8 +103,9 @@ public class WnRun {
 
     public String exec(String logPrefix, String unm, String input, String cmdText) {
         // 检查用户和会话
-        final WnAccount u = auth.checkAccount(unm);
-        final WnAuthSession se = auth.createSession(u, false);
+        WnUser u = auth.checkUser(unm);
+        int du = auth.getSessionDuration(false);
+        final WnSession se = auth.createSession(u, Wn.SET_RUN, du);
 
         // 执行命令
         try {
@@ -109,7 +113,7 @@ public class WnRun {
         }
         // 退出会话
         finally {
-            auth.removeSession(se, 0);
+            auth.removeSession(se);
         }
     }
 
@@ -120,7 +124,7 @@ public class WnRun {
                      StringBuilder sbOut,
                      StringBuilder sbErr) {
         // 检查用户和会话
-        final WnAuthSession se = creatSession(unm, false);
+        final WnSession se = creatSession(unm, false);
         InputStream in = null == input ? null : Wlang.ins(input);
         OutputStream out = Wlang.ops(sbOut);
         OutputStream err = Wlang.ops(sbErr);
@@ -130,12 +134,12 @@ public class WnRun {
         }
         // 退出会话
         finally {
-            auth.removeSession(se, 0);
+            auth.removeSession(se);
         }
     }
 
-    public WnAuthSession creatSession(String unm, boolean longSession) {
-        final WnAccount u = auth.checkAccount(unm);
+    public WnSession creatSession(String unm, boolean longSession) {
+        WnUser u = auth.checkUser(unm);
 
         // zozoh: 为啥？考，应该直接创建就好了吧 ...
         // return Wn.WC().su(u, new Proton<WnSession>() {
@@ -143,15 +147,15 @@ public class WnRun {
         // return sess.create(u);
         // }
         // });
-
-        return auth.createSession(u, longSession);
+        int du = auth.getSessionDuration(longSession);
+        return auth.createSession(u, Wn.SET_RUN, du);
     }
 
-    public String exec(String logPrefix, WnAuthSession se, String cmdText) {
+    public String exec(String logPrefix, WnSession se, String cmdText) {
         return exec(logPrefix, se, null, cmdText);
     }
 
-    public String exec(String logPrefix, WnAuthSession se, String input, String cmdText) {
+    public String exec(String logPrefix, WnSession se, String input, String cmdText) {
         StringBuilder sbOut = new StringBuilder();
         StringBuilder sbErr = new StringBuilder();
         OutputStream out = Wlang.ops(sbOut);
@@ -183,7 +187,7 @@ public class WnRun {
     }
 
     public void exec(String logPrefix,
-                     WnAuthSession se,
+                     WnSession se,
                      String cmdText,
                      OutputStream out,
                      OutputStream err,
@@ -239,37 +243,33 @@ public class WnRun {
         }
     }
 
-    protected WnBoxContext createBoxContext(WnAuthSession se) {
+    protected WnBoxContext createBoxContext(WnSession se) {
         WnBoxContext bc = new WnBoxContext(services, new NutMap());
         bc.io = io;
         bc.session = se;
-        bc.auth = auth;
         return bc;
     }
 
-    public void runWithHook(WnAccount usr,
-                            String grp,
-                            NutMap env,
-                            Callback<WnAuthSession> callback) {
-        WnAuthSession se = auth.createSession(usr, false);
+    public void runWithHook(WnUser usr, String grp, NutMap env, Callback<WnSession> callback) {
+        int du = auth.getSessionDuration(false);
+        WnSession se = auth.createSession(usr, Wn.SET_HOOK, du);
         try {
             // 附加环境变量
             if (env != null) {
-                se.getVars().putAll(env);
+                se.getEnv().putAll(env);
             }
             // 执行
             this.runWithHook(se, callback);
         }
         finally {
-            auth.removeSession(se, 0);
+            auth.removeSession(se);
         }
     }
 
-    public void runWithHook(WnAuthSession se, Callback<WnAuthSession> callback) {
+    public void runWithHook(WnSession se, Callback<WnSession> callback) {
         WnBoxContext bc = new WnBoxContext(services, new NutMap());
         bc.io = io;
         bc.session = se;
-        bc.auth = auth;
         WnHookContext hc = new WnHookContext(boxes, bc);
         hc.service = hooks;
 

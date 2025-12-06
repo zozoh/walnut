@@ -15,7 +15,6 @@ import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.WnOutputable;
-import com.site0.walnut.api.auth.WnAuthSession;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WalkMode;
 import com.site0.walnut.api.io.WnIo;
@@ -29,6 +28,7 @@ import com.site0.walnut.ext.sys.dsync.bean.WnRestoreAction;
 import com.site0.walnut.ext.sys.dsync.bean.WnRestoreSettings;
 import com.site0.walnut.ext.sys.dsync.bean.WnRestoring;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 import com.site0.walnut.util.Wpath;
@@ -47,9 +47,9 @@ public class WnDataSyncService {
         this(sys.io, sys.session);
     }
 
-    public WnDataSyncService(WnIo io, WnAuthSession session) {
+    public WnDataSyncService(WnIo io, WnSession session) {
         this.io = io;
-        this.vars = session.getVars();
+        this.vars = session.getEnv();
     }
 
     public WnDataSyncService(WnIo io, NutBean vars) {

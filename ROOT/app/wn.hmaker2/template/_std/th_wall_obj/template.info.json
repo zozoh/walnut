@@ -1,9 +1,0 @@
-{
-    "name"     : "_std_th_wall_obj",
-    "title"    : "图文墙",
-    "dataType" : ["list", "page"],
-    "options"  : {
-        "href"   : "(详情页面)@link",
-        "layout" : "(字段布局)@layout",
-    }
-}

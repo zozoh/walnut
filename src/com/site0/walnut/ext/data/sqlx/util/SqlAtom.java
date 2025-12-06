@@ -14,7 +14,7 @@ import org.nutz.log.Log;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
 
-public class SqlAtom {
+public class SqlAtom implements SqlExecutor{
 
     private Log log;
 

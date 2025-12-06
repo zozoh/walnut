@@ -4,6 +4,7 @@
     __debug: false,
     __trace_id: traceID,
     __prefix: null,
+    __quiet:false,
     __log_args: function __log_args(_arguments, offset) {
       var rt_msg, lg_msg;
       offset = offset || 0;
@@ -31,15 +32,20 @@
     setTraceID: function (traceID) {
       this.__trace_id = traceID;
     },
+    getPrefix: function(){
+	  return this.__prefix;		
+	},
     setPrefix: function (prefix) {
       this.__prefix = prefix;
     },
-    setup: function (tag, debug, prefix) {
+    setup: function (tag, debug, prefix, quiet) {
       if (tag) this.__log_tag = tag;
       if ("boolean" === typeof debug) this.__debug = debug;
+      if ("boolean" === typeof quiet) this.__quiet = quiet;
       if ("string" == typeof prefix) this.__prefix = prefix;
     },
     info: function () {
+	  if(this.__quiet)return;
       var aa = this.__log_args(arguments);
       logx.print("info", aa[0], aa[1]);
       if (this.__debug) sys.out.printlnf(aa[2], aa[3]);

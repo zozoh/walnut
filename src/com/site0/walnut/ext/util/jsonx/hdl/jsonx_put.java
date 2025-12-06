@@ -21,10 +21,6 @@ public class jsonx_put extends JsonXFilter {
     @SuppressWarnings("unchecked")
     @Override
     protected void process(WnSystem sys, JsonXContext fc, ZParams params) {
-        // 防守
-        if (null == fc.obj)
-            return;
-
         // 对于 Map
         if (fc.obj instanceof Map) {
             String key = params.val_check(0);
@@ -82,7 +78,8 @@ public class jsonx_put extends JsonXFilter {
             }
         }
         // 对于列表，
-        else if (fc.obj instanceof Collection<?> || fc.obj.getClass().isArray()) {
+        else if (fc.obj instanceof Collection<?>
+                 || fc.obj.getClass().isArray()) {
             String key = params.val_check(0);
             // 记入新 Map
             if (params.vals.length == 1) {

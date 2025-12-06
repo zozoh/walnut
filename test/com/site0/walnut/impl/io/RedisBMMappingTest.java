@@ -3,15 +3,21 @@ package com.site0.walnut.impl.io;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.nutz.log.Log;
+
 import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.Wlog;
 import com.site0.walnut.BaseSessionTest;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
 
 public class RedisBMMappingTest extends BaseSessionTest {
+    
+    static Log log = Wlog.getTEST();
 
     @Test
     public void test_simple_read_write() {
+        log.info("@Test RedisBMMappingTest.test_simple_read_write Begin");
         // 创建一个路径
         WnObj p = _setup_hierarchy("~/a");
 
@@ -35,10 +41,12 @@ public class RedisBMMappingTest extends BaseSessionTest {
         // 读取
         String str = io.readText(o2);
         assertEquals("hello", str);
+        log.info("@Test RedisBMMappingTest.test_simple_read_write End");
     }
 
     @Test
     public void test_simple_add_get() {
+        log.info("@Test RedisBMMappingTest.test_simple_add_get Begin");
         // 创建一个路径
         WnObj p = _setup_hierarchy("~/a");
 
@@ -51,6 +59,7 @@ public class RedisBMMappingTest extends BaseSessionTest {
         // 重新获取
         WnObj o2 = io.get(o.id());
         assertEquals(o.id(), o2.id());
+        log.info("@Test RedisBMMappingTest.test_simple_add_get End");
     }
 
     private WnObj _setup_hierarchy(String dirph) {

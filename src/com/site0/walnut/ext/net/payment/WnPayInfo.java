@@ -5,11 +5,11 @@ import java.util.regex.Pattern;
 
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
-import com.site0.walnut.api.auth.WnAccount;
-import com.site0.walnut.api.auth.WnAuthService;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
+import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 
 /**
@@ -85,7 +85,7 @@ public class WnPayInfo {
      */
     public String seller_nm;
 
-    public WnAccount checkSeller(WnAuthService auth, WnAccount me) {
+    public WnUser checkSeller(WnLoginApi auth, WnUser me) {
         boolean noSeId = Strings.isBlank(seller_id);
         boolean noSeNm = Strings.isBlank(seller_nm);
 
@@ -99,14 +99,14 @@ public class WnPayInfo {
             }
             // 补足 ID
             else if (noSeId) {
-                WnAccount u = auth.checkAccount(seller_nm);
+                WnUser u = auth.checkUser(seller_nm);
                 seller_id = me.getId();
                 seller_nm = me.getName();
                 return u;
             }
             // 补足名称
             else {
-                WnAccount u = auth.checkAccount(seller_id);
+                WnUser u = auth.checkUser(seller_id);
                 seller_id = me.getId();
                 seller_nm = me.getName();
                 return u;
@@ -114,7 +114,7 @@ public class WnPayInfo {
         }
         // 如果两个都有，则比较一下是否匹配
         else {
-            WnAccount u = auth.checkAccountById(seller_id);
+            WnUser u = auth.checkUserById(seller_id);
             if (!u.isSameName(seller_nm)) {
                 throw Er.create("e.pay.noMatchSeller", seller_id + " not " + seller_nm);
             }
@@ -176,7 +176,7 @@ public class WnPayInfo {
         return !Strings.isBlank(callbackName);
     }
 
-    public String readCallback(WnIo io, WnAccount seller) {
+    public String readCallback(WnIo io, WnUser seller) {
         String aph = Wn.appendPath(seller.getHomePath(), ".payment/callback", callbackName);
         WnObj oCallback = io.check(null, aph);
         return io.readText(oCallback);

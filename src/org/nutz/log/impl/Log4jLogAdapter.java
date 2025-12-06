@@ -1,7 +1,8 @@
 package org.nutz.log.impl;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Level;
 import org.nutz.log.Log;
 import org.nutz.log.LogAdapter;
 import org.nutz.plugin.Plugin;
@@ -9,9 +10,12 @@ import org.nutz.plugin.Plugin;
 /**
  * Apache log4j 适配器
  * 
- * <p/>存在<code>org.apache.log4j.Logger</code>就认为可用.
- * <p/>同样的,如果存在log4j-over-slf4j,则也会认为可用.
- * <p/>参考Issue : http://code.google.com/p/nutz/issues/detail?id=322
+ * <p/>
+ * 存在<code>org.apache.log4j.Logger</code>就认为可用.
+ * <p/>
+ * 同样的,如果存在log4j-over-slf4j,则也会认为可用.
+ * <p/>
+ * 参考Issue : http://code.google.com/p/nutz/issues/detail?id=322
  * <p/>
  * <b>Log4J 1.2.11及之前的版本不支持Trace级别,默认转为使用Debug级别来Log</b>
  * 
@@ -22,7 +26,8 @@ public class Log4jLogAdapter implements LogAdapter, Plugin {
 
     public boolean canWork() {
         try {
-            org.apache.log4j.Logger.class.getName();
+            // org.apache.log4j.Logger.class.getName();
+            org.apache.logging.log4j.LogManager.class.getName();
             return true;
         }
         catch (Throwable e) {}
@@ -51,72 +56,68 @@ public class Log4jLogAdapter implements LogAdapter, Plugin {
         }
 
         Log4JLogger(String className) {
-            logger = Logger.getLogger(className);
-            isFatalEnabled = logger.isEnabledFor(Level.FATAL);
-            isErrorEnabled = logger.isEnabledFor(Level.ERROR);
-            isWarnEnabled = logger.isEnabledFor(Level.WARN);
-            isInfoEnabled = logger.isEnabledFor(Level.INFO);
-            isDebugEnabled = logger.isEnabledFor(Level.DEBUG);
+            logger = LogManager.getLogger(className);
+            isFatalEnabled = logger.isEnabled(Level.FATAL);
+            isErrorEnabled = logger.isEnabled(Level.ERROR);
+            isWarnEnabled = logger.isEnabled(Level.WARN);
+            isInfoEnabled = logger.isEnabled(Level.INFO);
+            isDebugEnabled = logger.isEnabled(Level.DEBUG);
             if (hasTrace)
-                isTraceEnabled = logger.isEnabledFor(Level.TRACE);
+                isTraceEnabled = logger.isEnabled(Level.TRACE);
         }
 
         public void debug(Object message, Throwable t) {
             if (isDebugEnabled())
-                logger.log(SELF_FQCN, Level.DEBUG, message, t);
+                logger.debug(message.toString(), t);
         }
 
         public void error(Object message, Throwable t) {
             if (isErrorEnabled())
-                logger.log(SELF_FQCN, Level.ERROR, message, t);
-
+                logger.error(message.toString(), t);
         }
 
         public void fatal(Object message, Throwable t) {
             if (isFatalEnabled())
-                logger.log(SELF_FQCN, Level.FATAL, message, t);
+                logger.fatal(message.toString(), t);
         }
 
         public void info(Object message, Throwable t) {
             if (isInfoEnabled())
-                logger.log(SELF_FQCN, Level.INFO, message, t);
+                logger.info(message.toString(), t);
         }
 
         public void trace(Object message, Throwable t) {
-            if (isTraceEnabled())
-                logger.log(SELF_FQCN, Level.TRACE, message, t);
-            else if ((!hasTrace) && isDebugEnabled())
-                logger.log(SELF_FQCN, Level.DEBUG, message, t);
+            if (isTraceEnabled()) {
+                logger.trace(message.toString(), t);
+            }
         }
 
         public void warn(Object message, Throwable t) {
             if (isWarnEnabled())
-                logger.log(SELF_FQCN, Level.WARN, message, t);
+                logger.warn(message.toString(), t);
         }
 
         @Override
         protected void doPrintLog(int level, Object message, Throwable tx) {
+
             switch (level) {
             case LEVEL_FATAL:
-                logger.log(SUPER_FQCN, Level.FATAL, message, tx);
+                logger.log(Level.FATAL, message, tx);
                 break;
             case LEVEL_ERROR:
-                logger.log(SUPER_FQCN, Level.ERROR, message, tx);
+                logger.log(Level.ERROR, message, tx);
                 break;
             case LEVEL_WARN:
-                logger.log(SUPER_FQCN, Level.WARN, message, tx);
+                logger.log(Level.WARN, message, tx);
                 break;
             case LEVEL_INFO:
-                logger.log(SUPER_FQCN, Level.INFO, message, tx);
+                logger.log(Level.INFO, message, tx);
                 break;
             case LEVEL_DEBUG:
-                logger.log(SUPER_FQCN, Level.DEBUG, message, tx);
+                logger.log(Level.DEBUG, message, tx);
                 break;
             case LEVEL_TRACE:
-                if (hasTrace)
-                    logger.log(SUPER_FQCN, Level.TRACE, message, tx);
-                else
-                    logger.log(SUPER_FQCN, Level.DEBUG, message, tx);
+                logger.log(Level.TRACE, message, tx);
                 break;
             default:
                 break;
@@ -130,12 +131,12 @@ public class Log4jLogAdapter implements LogAdapter, Plugin {
 
         @Override
         public boolean isErrorEnabled() {
-            return logger.isEnabledFor(Level.ERROR);
+            return logger.isEnabled(Level.ERROR);
         }
 
         @Override
         public boolean isFatalEnabled() {
-            return logger.isEnabledFor(Level.FATAL);
+            return logger.isEnabled(Level.FATAL);
         }
 
         @Override
@@ -152,7 +153,7 @@ public class Log4jLogAdapter implements LogAdapter, Plugin {
 
         @Override
         public boolean isWarnEnabled() {
-            return logger.isEnabledFor(Level.WARN);
+            return logger.isEnabled(Level.WARN);
         }
     }
 }

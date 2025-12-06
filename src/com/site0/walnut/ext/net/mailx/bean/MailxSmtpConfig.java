@@ -10,6 +10,11 @@ public class MailxSmtpConfig {
     private String host;
 
     /**
+     * 发件人邮件地址，如果不设置，应该默认采用 account
+     */
+    private String from;
+
+    /**
      * SMTP 服务端口
      */
     private int port;
@@ -53,6 +58,19 @@ public class MailxSmtpConfig {
 
     public void setPort(int smtpPort) {
         this.port = smtpPort;
+    }
+
+    public String getMailFrom() {
+        String str = Ws.sBlanks(from, account);
+        return str;
+    }
+
+    public String getFrom() {
+        return from;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
     }
 
     public boolean hasAccount() {

@@ -28,13 +28,13 @@ import com.site0.walnut.ext.data.sqlx.util.SqlGetter;
 import com.site0.walnut.ext.data.sqlx.util.Sqlx;
 import com.site0.walnut.ext.sys.sql.WnDaoAuth;
 import com.site0.walnut.ext.sys.sql.WnDaos;
-import com.site0.walnut.login.WnUser;
+import com.site0.walnut.login.UserRace;
+import com.site0.walnut.login.WnLoginUserOptions;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wtime;
-import com.site0.walnut.util.Wuu;
 import com.site0.walnut.val.id.WnSnowQMaker;
 
 public class WnSqlUserStore extends AbstractWnUserStore {
@@ -55,9 +55,12 @@ public class WnSqlUserStore extends AbstractWnUserStore {
 
     private String sqlInsert;
 
-    public WnSqlUserStore(WnUserStoreSetup setup) {
-        this.defaultMeta = setup.defaultMeta;
-        this.userRace = setup.userRace;
+    public WnSqlUserStore(UserRace userRace,
+                          WnIo io,
+                          NutBean sessionVars,
+                          WnLoginUserOptions setup,
+                          String domain) {
+        super(userRace, setup.defaultMeta, domain);
 
         // SQL
         this.sqlQuery = setup.sqlQuery;
@@ -66,8 +69,6 @@ public class WnSqlUserStore extends AbstractWnUserStore {
         this.sqlInsert = setup.sqlInsert;
 
         // 数据源
-        WnIo io = setup.io;
-        NutBean sessionVars = setup.sessionVars;
         String daoName = Ws.sBlank(setup.daoName, "default");
         this.auth = WnDaos.loadAuth(io, daoName, sessionVars);
 
@@ -92,7 +93,6 @@ public class WnSqlUserStore extends AbstractWnUserStore {
         bean.put("phone", u.getPhone());
         bean.put("email", u.getEmail());
         bean.put("main_group", u.getMainGroup());
-        bean.put("roles", Ws.sBlank(Ws.join(u.getRoles(), ","), null));
         bean.put("last_login_at", u.getLastLoginAtInUTC());
         bean.put("salt", u.getSalt());
         bean.put("passwd", u.getPasswd());
@@ -192,14 +192,11 @@ public class WnSqlUserStore extends AbstractWnUserStore {
     }
 
     public void updateUserPassword(WnUser u, String rawPassword) {
-        String salt = Wuu.UU32();
-        String passwd = Wn.genSaltPassword(rawPassword, salt);
-        u.setSalt(salt);
-        u.setPasswd(passwd);
+        u.genSaltAndRawPasswd(rawPassword);
         NutMap delta = new NutMap();
         delta.put("id", u.getId());
-        delta.put("salt", salt);
-        delta.put("passwd", passwd);
+        delta.put("salt", u.getSalt());
+        delta.put("passwd", u.getPasswd());
 
         // 获取 SQL
         WnSqlTmpl sql = sqls.get(sqlUpdate);
@@ -244,7 +241,7 @@ public class WnSqlUserStore extends AbstractWnUserStore {
                 // 遍历结果集
                 while (rs.next()) {
                     NutBean bean = Sqlx.toBean(rs, meta);
-                    WnSimpleUser u = toWnUser(bean);
+                    WnUser u = toWnUser(bean);
                     list.add(u);
                 }
 

@@ -6,6 +6,8 @@ import java.util.Map;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
+
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.thing.WnThingService;
@@ -61,7 +63,7 @@ public class thing_query implements JvmHdl {
             else {
                 WnObj oMapping = Wn.checkObj(sys, phMapping);
                 tq.mapping = sys.io.readJson(oMapping, WnBeanMapping.class);
-                NutMap vars = sys.session.getVars();
+                NutBean vars = sys.session.getEnv();
                 Map<String, NutMap[]> caches = new HashMap<>();
                 tq.mapping.checkFields(sys.io, vars, caches);
             }

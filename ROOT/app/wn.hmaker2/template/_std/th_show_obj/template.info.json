@@ -1,9 +1,0 @@
-{
-    "name"     : "_std_th_show_obj",
-    "title"    : "展示图文",
-    "dataType" : "obj",
-    "options"  : {
-        "href"   : "(详情页面)@link",
-        "layout" : "(字段布局)@layout",
-    }
-}

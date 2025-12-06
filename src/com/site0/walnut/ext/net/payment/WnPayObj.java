@@ -1,8 +1,8 @@
 package com.site0.walnut.ext.net.payment;
 
 import org.nutz.lang.util.NutBean;
-import com.site0.walnut.api.auth.WnAccount;
 import com.site0.walnut.api.io.WnObj;
+import com.site0.walnut.login.usr.WnUser;
 
 /**
  * 封装一条支付记录
@@ -14,7 +14,7 @@ public interface WnPayObj extends WnObj {
     boolean hasScript();
 
     String getBrief(String dftBrief);
-    
+
     String getBrief();
 
     void setBrief(String brief);
@@ -37,7 +37,7 @@ public interface WnPayObj extends WnObj {
 
     void setCloseAt(long closeAt);
 
-    boolean isTheSeller(WnAccount seller);
+    boolean isTheSeller(WnUser seller);
 
     String getSellerId();
 
@@ -47,7 +47,7 @@ public interface WnPayObj extends WnObj {
 
     void setSellerName(String sellerName);
 
-    boolean isTheBuyer(WnAccount seller);
+    boolean isTheBuyer(WnUser seller);
 
     boolean isWalnutBuyer();
 
@@ -68,7 +68,7 @@ public interface WnPayObj extends WnObj {
     boolean isPayType(WnPayType payType);
 
     WnPayType getPayType();
-    
+
     void setPayType(WnPayType payType);
 
     void setPayType(String payType);
@@ -88,7 +88,7 @@ public interface WnPayObj extends WnObj {
     void setPrice(int price);
 
     int getFee();
-    
+
     float getFeeInYuan();
 
     void setFee(int fee);
@@ -112,9 +112,9 @@ public interface WnPayObj extends WnObj {
     WnPay3xDataType getReturnType();
 
     void setReturnType(WnPay3xDataType reType);
-    
+
     Object getReturnData();
-    
+
     void setReturnData(Object reData);
 
     WnPay3xRe getPayReturn();

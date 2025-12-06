@@ -45,7 +45,7 @@ public class Jvms {
         sys.cmdOriginal = null;
         sys.session = bc.session;
         sys.io = bc.io;
-        sys.auth = bc.auth;
+        sys.auth = bc.auth();
         sys.jef = jef;
         sys.in = new JvmBoxInput(null == s_in ? new VoidInputStream() : s_in);
         sys.out = new JvmBoxOutput(s_out);

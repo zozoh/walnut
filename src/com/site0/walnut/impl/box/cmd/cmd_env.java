@@ -1,7 +1,7 @@
 package com.site0.walnut.impl.box.cmd;
 
 import org.nutz.lang.Strings;
-import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.NutBean;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.impl.io.WnEvalLink;
@@ -15,7 +15,7 @@ public class cmd_env extends JvmExecutor {
         ZParams params = ZParams.parse(args, null);
 
         // 得到会话的环境变量值表
-        NutMap vars = sys.session.getVars();
+        NutBean vars = sys.session.getEnv();
 
         // 如果是移除
         if (params.has("u")) {
@@ -24,7 +24,7 @@ public class cmd_env extends JvmExecutor {
                 vars.remove(varName);
             }
             Wn.WC().security(new WnEvalLink(sys.io), () -> {
-                sys.auth.saveSessionVars(sys.session);
+                sys.auth.saveSessionEnv(sys.session);
             });
         }
         // 没有参数，列出所有环境变量
@@ -43,7 +43,7 @@ public class cmd_env extends JvmExecutor {
                 String val = str.substring(pos + 1);
                 String v2 = Wn.normalizeStr(val, sys);
                 vars.put(key, v2);
-                sys.auth.saveSessionVars(sys.session);
+                sys.auth.saveSessionEnv(sys.session);
             }
             // 列出变量的值
             else {

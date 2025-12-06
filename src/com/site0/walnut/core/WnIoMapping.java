@@ -10,6 +10,8 @@ import com.site0.walnut.util.Wn;
 
 public class WnIoMapping {
 
+    private WnObj mountRoot;
+
     private WnIoIndexer indexer;
 
     private WnIoBM bm;
@@ -21,8 +23,13 @@ public class WnIoMapping {
         if (null == bm) {
             throw Er.create("e.io.mapping.nilBM");
         }
+        this.mountRoot = indexer.getRoot();
         this.indexer = indexer;
         this.bm = bm;
+    }
+
+    public WnObj getMountRoot() {
+        return mountRoot;
     }
 
     public WnIoIndexer getIndexer() {
@@ -82,17 +89,19 @@ public class WnIoMapping {
         }
 
         // 递归删除所有的子孙
-        if (!o.isLink()) {
-            if (r) {
-                indexer.eachChild(o, null, new Each<WnObj>() {
-                    public void invoke(int index, WnObj child, int length) {
-                        delete(child, r, callback);
-                    }
-                });
-            }
-            // 否则必须确保自身不为空
-            else if (indexer.hasChild(o)) {
-                throw Er.create("e.io.rm.NoEmptyDir");
+        if (!o.isMountEntry()) {
+            if (!o.isLink() && !o.isMount()) {
+                if (r) {
+                    indexer.eachChild(o, null, new Each<WnObj>() {
+                        public void invoke(int index, WnObj child, int length) {
+                            delete(child, r, callback);
+                        }
+                    });
+                }
+                // 否则必须确保自身不为空
+                else if (indexer.hasChild(o)) {
+                    throw Er.create("e.io.rm.NoEmptyDir");
+                }
             }
         }
 

@@ -8,6 +8,8 @@ import redis.clients.jedis.Jedis;
 
 public class WedisConfig {
 
+    private String name;
+
     private String host;
 
     private int port;
@@ -49,6 +51,18 @@ public class WedisConfig {
         this.maxTotal = 0;
         this.maxIdle = 0;
         this.minIdle = 0;
+    }
+
+    public String getLink() {
+        return String.format("%s:%s", host, port);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getHost() {

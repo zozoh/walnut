@@ -6,6 +6,7 @@ import org.nutz.lang.util.LinkedByteBuffer;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.core.WnIoHandle;
 import com.site0.walnut.core.WnIoHandleMutexException;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 
 public class RedisReadWriteHandle extends WnIoHandle {
@@ -59,6 +60,11 @@ public class RedisReadWriteHandle extends WnIoHandle {
         bytes.seekRead((int) n);
         bytes.seekWrite((int) n);
         return bytes.getReadIndex();
+    }
+
+    @Override
+    public int read() throws IOException {
+        throw Wlang.noImplement();
     }
 
     @Override
