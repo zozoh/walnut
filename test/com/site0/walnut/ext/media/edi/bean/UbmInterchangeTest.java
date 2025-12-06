@@ -99,4 +99,13 @@ public class UbmInterchangeTest {
 
     }
 
+    @Test
+    public void test_UBMResLoader_02() {
+        String input = _read_input("ubm_res_02");
+        EdiInterchange ic = EdiInterchange.parse(input);
+        EdiMessage msg = ic.getFirstMessage();
+        UBMResLoader loader = EdiMsgs.getUBMResLoader();
+        IcsReplyUbmRes re = loader.load(msg);
+        System.out.println(Json.toJson(re, JsonFormat.full()) );
+    }
 }
