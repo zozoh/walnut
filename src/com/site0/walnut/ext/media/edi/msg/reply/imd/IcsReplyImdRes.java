@@ -12,13 +12,14 @@ public class IcsReplyImdRes extends IcsCommonReply {
 
     private Map<String, String> imdStatus;
 
+    // --- GIS 相关 ---
     private boolean preLodge;
+    private boolean llb; // Line Liabilities Breakdown Indicator
+    private boolean tlb;// Total Liabilities Breakdown Indicator
 
-    // Line Liabilities Breakdown Indicator
-    private boolean llb;
-
-    // Total Liabilities Breakdown Indicator
-    private boolean tlb;
+    // --- NAD 相关---
+    private String msgRecipient;
+    private String branchId;
 
 
     public IcsReplyImdRes() {
@@ -64,5 +65,21 @@ public class IcsReplyImdRes extends IcsCommonReply {
 
     public void setTlb(boolean tlb) {
         this.tlb = tlb;
+    }
+
+    public String getMsgRecipient() {
+        return msgRecipient;
+    }
+
+    public void setMsgRecipient(String msgRecipient) {
+        this.msgRecipient = msgRecipient;
+    }
+
+    public String getBranchId() {
+        return branchId;
+    }
+
+    public void setBranchId(String branchId) {
+        this.branchId = branchId;
     }
 }

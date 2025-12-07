@@ -33,7 +33,7 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
         IcsLoaderHelper.fillResFuncCode(re, finder);
 
         // 定位到 DTM 报文行
-        boolean find = finder.moveToUtil("DTM", true, "NAD");
+        boolean find = finder.moveToUtil("DTM", true, "NAD", "RFF");
         if (find) {
             segs = finder.nextAll(true, "DTM");
             for (EdiSegment item : segs) {
@@ -46,7 +46,7 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
         }
 
         // 定位到 DTM 报文行
-        find = finder.moveToUtil("FTX", true, "NAD");
+        find = finder.moveToUtil("FTX", true, "NAD", "RFF");
         if (find) {
             segs = finder.nextAll(true, "FTX");
             for (EdiSegment item : segs) {
@@ -64,22 +64,40 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
         }
 
         // 	定位到 GIS 报文行 (General Indicator C10)
-        find = finder.moveToUtil("GIS", true, "NAD");
+        find = finder.moveToUtil("GIS", true, "NAD", "RFF");
         if (find) {
             segs = finder.nextAll(true, "GIS");
             for (EdiSegment item : segs) {
                 rff.clear();
                 item.fillBean(rff, null, "indDescCode,indCode,agencyCode");
-                // AHN: Status details
                 if (rff.is("indDescCode", "95")) {
                     if (rff.is("indCode", "117")) {
                         if (rff.is("indDescCode", "Y")) {
                             re.setPreLodge(true);
-                        } else if (rff.is("indDescCode", "N")) {
+                        } else {
                             re.setPreLodge(false);
                         }
                     }
                 }
+            }
+        }
+
+        // 定位到 NAD 报文行： NAD+{FuncCode}+{PartyId}::{AgencyCode}+{name1}:{name2}:{boxNum}'
+        find = finder.moveToUtil("NAD", true, "RFF");
+        if (find) {
+            segs = finder.nextAll(true, "NAD");
+            for (EdiSegment item : segs) {
+                rff.clear();
+                item.fillBean(rff, null, "funcCode", "partyId,,agencyCode" + "name1,name2,boxNum");
+                if (rff.is("funcCode", "MR")) {
+                    re.setMsgRecipient(rff.getString("partyId"));
+                } else if (rff.is("funcCode", "VT")) {
+                    re.setBranchId(rff.getString("partyId"));
+                }
+                if (rff.is("funcCode", "CB") && rff.is("agencyCode", "95")) {
+                    re.setPreLodge(true);
+                }
+
 
             }
         }
