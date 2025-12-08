@@ -20,6 +20,18 @@ public class IcsReplyImdRes extends IcsCommonReply {
     // --- NAD 相关---
     private String msgRecipient;
     private String branchId;
+    private String brokerLicNum;
+    private String brokerName;
+    private String borkerBoxNum;
+    private String importerName;
+    private String importerBoxNum;
+
+    // --- RFF 相关 ---
+    private String headerNatureType; // AAE
+    private String importerRef; // ABQ
+    private String impDecNum; // ABT
+    private String impDecVer;
+    private String brokerRef; // ADU
 
 
     public IcsReplyImdRes() {
@@ -81,5 +93,85 @@ public class IcsReplyImdRes extends IcsCommonReply {
 
     public void setBranchId(String branchId) {
         this.branchId = branchId;
+    }
+
+    public String getBrokerLicNum() {
+        return brokerLicNum;
+    }
+
+    public void setBrokerLicNum(String brokerLicNum) {
+        this.brokerLicNum = brokerLicNum;
+    }
+
+    public String getBrokerName() {
+        return brokerName;
+    }
+
+    public void setBrokerName(String brokerName) {
+        this.brokerName = brokerName;
+    }
+
+    public String getBorkerBoxNum() {
+        return borkerBoxNum;
+    }
+
+    public void setBorkerBoxNum(String borkerBoxNum) {
+        this.borkerBoxNum = borkerBoxNum;
+    }
+
+    public String getImporterName() {
+        return importerName;
+    }
+
+    public void setImporterName(String importerName) {
+        this.importerName = importerName;
+    }
+
+    public String getImporterBoxNum() {
+        return importerBoxNum;
+    }
+
+    public void setImporterBoxNum(String importerBoxNum) {
+        this.importerBoxNum = importerBoxNum;
+    }
+
+    public String getHeaderNatureType() {
+        return headerNatureType;
+    }
+
+    public void setHeaderNatureType(String headerNatureType) {
+        this.headerNatureType = headerNatureType;
+    }
+
+    public String getImporterRef() {
+        return importerRef;
+    }
+
+    public void setImporterRef(String importerRef) {
+        this.importerRef = importerRef;
+    }
+
+    public String getImpDecNum() {
+        return impDecNum;
+    }
+
+    public void setImpDecNum(String impDecNum) {
+        this.impDecNum = impDecNum;
+    }
+
+    public String getImpDecVer() {
+        return impDecVer;
+    }
+
+    public void setImpDecVer(String impDecVer) {
+        this.impDecVer = impDecVer;
+    }
+
+    public String getBrokerRef() {
+        return brokerRef;
+    }
+
+    public void setBrokerRef(String brokerRef) {
+        this.brokerRef = brokerRef;
     }
 }
