@@ -3,6 +3,7 @@ package com.site0.walnut.ext.media.edi.msg.reply.imd;
 import com.site0.walnut.ext.media.edi.msg.reply.IcsCommonReply;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class IcsReplyImdRes extends IcsCommonReply {
@@ -33,6 +34,14 @@ public class IcsReplyImdRes extends IcsCommonReply {
     private String impDecVer;
     private String brokerRef; // ADU
 
+    // --- Segment Group 4: ERP-ERC-FTX ---
+    private List<ImdReplyHeadErr> headErrs;
+
+    /**
+     * --- Segment Group 13: ERP-ERC-FTX ---
+     * this is tail advice
+     */
+    private List<ImdReplyTailErr> tailErrs;
 
     public IcsReplyImdRes() {
         super("CUSRES");
