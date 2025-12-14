@@ -9,6 +9,7 @@ import com.site0.walnut.ext.media.edi.util.IcsLoaderHelper;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
@@ -125,7 +126,7 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
         // 定位到 RFF 报文行
         find = finder.moveToUtil("RFF", true);
         if (find) {
-            segs = finder.nextAll(true, "NAD");
+            segs = finder.nextAll(true, "RFF");
             for (EdiSegment item : segs) {
                 rff.clear();
                 item.fillBean(rff, null, "refCode,refVal,,refVer");
@@ -150,13 +151,52 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
             }
         }
 
+
         // 定位到 TAX 之前的 ERP-ERC-FTX 报文组，解析错误信息
-        finder.moveToUtil("ERP", true, "TAX");
+        boolean findTax = finder.moveToUtil("TAX", true, "MOA");
+        finder.reset();
+        if (findTax) {
+            List<ImdReplyHeadErr> headErrs = this.findHeadErrs(finder);
+        }
+
+        // 解析 Segment Group 5: TAX-MOA todo xxx
+        boolean findDoc = finder.moveToUtil("DOC", true, "UNT");
+        finder.reset();
+        if (findDoc) {
+            find = finder.moveToUtil("TAX", true, "DOC");
+        }
 
 
 
         return null;
     }
 
+    private List<ImdReplyHeadErr> findHeadErrs(EdiSegmentFinder finder) {
+        List<ImdReplyHeadErr> headErrs = new ArrayList<>();
+        // 定位到 TAX 之前的 ERP-ERC-FTX 报文组，解析错误信息
+        boolean find = finder.moveToUtil("ERP", true, "TAX");
+        while (find) {
+            // 找到 ERP-ERC-FTX 报文组
+            List<EdiSegment> errs = finder.findContinueSegments("ERP", "^(ERC|FTX)$", "^(ERP|TAX)$");
+            // 看来找不到错误了，那么退出循环
+            if (errs.isEmpty() || !errs.get(0).is("ERC")) {
+                break;
+            }
+            if (isHeadErr(errs)) {
+                headErrs.add(new ImdReplyHeadErr(errs));
+            }
+            find = finder.moveToUtil("ERP", true, "TAX");
+        }
+        return headErrs.size() == 0 ? null : headErrs;
+    }
+
+    private boolean isHeadErr(List<EdiSegment> errs) {
+        for (EdiSegment seg : errs) {
+            if (seg.isRawContentStartsWith("FTX+AAO")) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }

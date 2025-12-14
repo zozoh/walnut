@@ -1,6 +1,11 @@
 package com.site0.walnut.ext.media.edi.msg.reply.imd;
 
 
+import com.site0.walnut.ext.media.edi.bean.EdiSegment;
+import com.site0.walnut.util.Ws;
+import org.nutz.lang.util.NutBean;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,6 +28,34 @@ public class ImdReplyHeadErr {
     private List<String> errDesc;
 
     public ImdReplyHeadErr() {
+    }
+
+    public ImdReplyHeadErr(List<EdiSegment> segs) {
+        for (EdiSegment seg : segs) {
+            // todo
+            if (seg.is("ERP")) {
+                NutBean bean = seg.getBean(null, ",,errLocation");
+                this.errLoc = bean.getString("errLocation");
+            } else if (seg.is("ERC")) {
+                NutBean bean = seg.getBean(null, "errId,,");
+                String errIdStr = bean.getString("errId");
+                if (!Ws.isBlank(errIdStr)) {
+                    if (this.errId == null) {
+                        this.errId = new ArrayList<>();
+                    }
+                    this.errId.add(errIdStr);
+                }
+            } else if (seg.is("FTX")) {
+                NutBean bean = seg.getBean(null, null, null, null, "errDesc");
+                String errDescStr = bean.getString("errDesc");
+                if (!Ws.isBlank(errDescStr)) {
+                    if (this.errDesc == null) {
+                        this.errDesc = new ArrayList<>();
+                    }
+                    this.errDesc.add(errDescStr);
+                }
+            }
+        }
     }
 
     public String getErrLoc() {
