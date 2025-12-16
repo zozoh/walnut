@@ -1,5 +1,7 @@
 package com.site0.walnut.lookup.bean;
 
+import org.nutz.lang.util.NutMap;
+
 import com.site0.walnut.util.Wlang;
 
 public class LookupConfig {
@@ -39,6 +41,8 @@ public class LookupConfig {
      */
     private String[] fetchRequireds;
 
+    private NutMap fetchDftContext;
+
     /**
      * 这里可以声明一个数组，根据 partsSep，
      * <p>
@@ -58,6 +62,8 @@ public class LookupConfig {
      * 获取前检查一下上下文，如果缺少指定变量，将返回空 默认的为 `['hint']`
      */
     private String[] queryRequireds;
+
+    private NutMap queryDftContext;
 
     /**
      * 用来拆解 hint 的具名变量，如果不设置，则不会拆解<br>
@@ -116,6 +122,18 @@ public class LookupConfig {
         this.fetchRequireds = fetchRequireds;
     }
 
+    public boolean hasFetchDftContext() {
+        return null != fetchDftContext && !fetchDftContext.isEmpty();
+    }
+
+    public NutMap getFetchDftContext() {
+        return fetchDftContext;
+    }
+
+    public void setFetchDftContext(NutMap fetchDftContext) {
+        this.fetchDftContext = fetchDftContext;
+    }
+
     public String[] getQueryParts() {
         return queryParts;
     }
@@ -133,6 +151,18 @@ public class LookupConfig {
 
     public void setQueryRequireds(String[] queryRequireds) {
         this.queryRequireds = queryRequireds;
+    }
+
+    public boolean hasQueryDftContext() {
+        return null != queryDftContext && !queryDftContext.isEmpty();
+    }
+
+    public NutMap getQueryDftContext() {
+        return queryDftContext;
+    }
+
+    public void setQueryDftContext(NutMap queryDftContext) {
+        this.queryDftContext = queryDftContext;
     }
 
     public String getPartsSep() {

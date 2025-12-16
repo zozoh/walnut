@@ -21,21 +21,39 @@ public abstract class AbstractLookup implements WnLookup {
     protected NutBean prepareHintForQuery(String hint) {
         String sep = config.getPartsSep();
         String[] parts = config.getQueryParts();
-        return _prepare_hint(hint, "hint", sep, parts, config.getQueryRequireds());
+        NutMap re = new NutMap();
+        if (config.hasQueryDftContext()) {
+            re.putAll(config.getQueryDftContext());
+        }
+        return _prepare_hint(re,
+                             hint,
+                             "hint",
+                             sep,
+                             parts,
+                             config.getQueryRequireds());
     }
 
     protected NutBean prepareHintForFetch(String hint) {
         String sep = config.getPartsSep();
         String[] parts = config.getFetchParts();
-        return _prepare_hint(hint, "id", sep, parts, config.getFetchParts());
+        NutMap re = new NutMap();
+        if (config.hasFetchDftContext()) {
+            re.putAll(config.getFetchDftContext());
+        }
+        return _prepare_hint(re,
+                             hint,
+                             "id",
+                             sep,
+                             parts,
+                             config.getFetchParts());
     }
 
-    static NutBean _prepare_hint(String hint,
-                                 String hintKey,
-                                 String sep,
-                                 String[] parts,
-                                 String[] required) {
-        NutMap re = new NutMap();
+    static NutMap _prepare_hint(NutMap re,
+                                String hint,
+                                String hintKey,
+                                String sep,
+                                String[] parts,
+                                String[] required) {
         // 尝试具名 Hint
         if (!Ws.isBlank(sep)) {
             // String[] ss = Ws.splitIgnoreBlank(hint, sep);
