@@ -37,6 +37,15 @@ public class IcsReplyImdRes extends IcsCommonReply {
     // --- Segment Group 4: ERP-ERC-FTX ---
     private List<ImdReplyHeadErr> headErrs;
 
+    // --- Segment Group 5: TAX-MOA ---
+    private List<Map<String, String>> headMoas;
+
+    //  transport lines
+
+
+    // imd entry lines
+
+
     /**
      * --- Segment Group 13: ERP-ERC-FTX ---
      * this is tail advice
@@ -182,5 +191,29 @@ public class IcsReplyImdRes extends IcsCommonReply {
 
     public void setBrokerRef(String brokerRef) {
         this.brokerRef = brokerRef;
+    }
+
+    public List<ImdReplyHeadErr> getHeadErrs() {
+        return headErrs;
+    }
+
+    public void setHeadErrs(List<ImdReplyHeadErr> headErrs) {
+        this.headErrs = headErrs;
+    }
+
+    public List<Map<String, String>> getHeadMoas() {
+        return headMoas;
+    }
+
+    public void setHeadMoas(List<Map<String, String>> headMoas) {
+        this.headMoas = headMoas;
+    }
+
+    public List<ImdReplyTailErr> getTailErrs() {
+        return tailErrs;
+    }
+
+    public void setTailErrs(List<ImdReplyTailErr> tailErrs) {
+        this.tailErrs = tailErrs;
     }
 }

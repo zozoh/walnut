@@ -129,6 +129,35 @@ public class EdiSegmentFinder {
         return re;
     }
 
+    public List<EdiSegment> nextAllUntilStopTag(boolean noMatchBack, String targetTag, String... stopTags) {
+        List<EdiSegment> re = new ArrayList<>(list.size());
+        // 防守
+        if (!it.hasNext())
+            return re;
+
+        int stepNum = 0;
+
+        // 循环查找
+        while (it.hasNext()) {
+            EdiSegment seg = it.next();
+            stepNum++;
+            if (seg.isTag(targetTag)) {
+                re.add(seg);
+            } else if (stopTags != null && stopTags.length > 0 && seg.is(stopTags)) {
+                // 不符合条件，回退一下指针，后续读取将从这个未匹配的开始
+                it.previous();
+                break;
+            }
+        }
+        if (noMatchBack && stepNum > 0) {
+            for (int i = 0; i < stepNum; i++) {
+                it.previous();
+            }
+        }
+        return re;
+    }
+
+
     public List<EdiSegment> nextAllUtilNoMatch(boolean noBreakUtilFound, String... tags) {
         List<EdiSegment> re = new ArrayList<>(list.size());
         // 防守

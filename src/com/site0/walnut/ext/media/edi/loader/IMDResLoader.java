@@ -7,10 +7,13 @@ import com.site0.walnut.ext.media.edi.msg.reply.imd.ImdReplyHeadErr;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
 import com.site0.walnut.ext.media.edi.util.IcsLoaderHelper;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
 
@@ -153,20 +156,48 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
 
 
         // 定位到 TAX 之前的 ERP-ERC-FTX 报文组，解析错误信息
-        boolean findTax = finder.moveToUtil("TAX", true, "MOA");
+        boolean findTax = finder.moveToUtil("TAX", true, "DOC", "CST");
         finder.reset();
         if (findTax) {
             List<ImdReplyHeadErr> headErrs = this.findHeadErrs(finder);
+            re.setHeadErrs(headErrs);
         }
 
         // 解析 Segment Group 5: TAX-MOA todo xxx
-        boolean findDoc = finder.moveToUtil("DOC", true, "UNT");
+        boolean findCst = finder.moveToUtil("CST", true, "UNT");
         finder.reset();
-        if (findDoc) {
-            find = finder.moveToUtil("TAX", true, "DOC");
+        if (findCst) {
+            segs = finder.nextAllUntilStopTag(true, "MOA", "CST");
+            List<Map<String, String>> heaMoas = new ArrayList<>();
+            if (!segs.isEmpty()) {
+                for (EdiSegment seg : segs) {
+                    Map<String, String> map = new HashMap<>();
+                    // MOA+{HeaderAmountType}:{HeaderAmount}'
+                    NutBean bean = seg.getBean(null, "taxType,taxAmount");
+                    map.put(bean.getString("taxType"), bean.getString("taxAmount"));
+                    heaMoas.add(map);
+                }
+                if (!heaMoas.isEmpty()) {
+                    re.setHeadMoas(heaMoas);
+                }
+            }
         }
 
+        // 解析 Segment Group 6: DOC-FTX-SG11-SG13 的 DOC-FTX todo
+        if (findCst) {
+            find = finder.moveToUtil("DOC", true, "CST");
+            if (find) {
+                // todo
+                EdiSegment segment = finder.next("DOC");
+                if (segment != null) {
+                    // todo DOC+1+{TransportLineNum}'
+                    NutBean bean =  segment.getBean(null,"triggerVal", "lineNum");
+                    if (bean.is("triggerVal","1") && bean.has("lineNum")) {
 
+                    }
+                }
+            }
+        }
 
         return null;
     }

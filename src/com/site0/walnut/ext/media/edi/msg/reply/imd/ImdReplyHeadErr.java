@@ -32,7 +32,6 @@ public class ImdReplyHeadErr {
 
     public ImdReplyHeadErr(List<EdiSegment> segs) {
         for (EdiSegment seg : segs) {
-            // todo
             if (seg.is("ERP")) {
                 NutBean bean = seg.getBean(null, ",,errLocation");
                 this.errLoc = bean.getString("errLocation");
