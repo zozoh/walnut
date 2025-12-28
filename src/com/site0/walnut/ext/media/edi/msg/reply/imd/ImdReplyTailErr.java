@@ -1,6 +1,8 @@
 package com.site0.walnut.ext.media.edi.msg.reply.imd;
 
 
+import com.site0.walnut.ext.media.edi.bean.EdiSegment;
+
 import java.util.List;
 
 /**
@@ -23,6 +25,12 @@ public class ImdReplyTailErr {
     private List<String> advLoc;
 
     private List<String> advDesc;
+
+    public ImdReplyTailErr() {}
+
+    public ImdReplyTailErr(List<EdiSegment> segs) {
+        // todo
+    }
 
     public String getAdvId() {
         return advId;

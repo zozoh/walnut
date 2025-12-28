@@ -129,8 +129,8 @@ public class EdiSegmentFinder {
         return re;
     }
 
-    public List<EdiSegment> nextAllUntilStopTag(boolean noMatchBack, String targetTag, String... stopTags) {
-        List<EdiSegment> re = new ArrayList<>(list.size());
+    public List<EdiSegment> nextAllUntilStopTag(boolean noMatchBack, String[] targetTags, String... stopTags) {
+        List<EdiSegment> re = new ArrayList<>();
         // 防守
         if (!it.hasNext())
             return re;
@@ -141,7 +141,8 @@ public class EdiSegmentFinder {
         while (it.hasNext()) {
             EdiSegment seg = it.next();
             stepNum++;
-            if (seg.isTag(targetTag)) {
+            if (seg.is(targetTags)) {
+                noMatchBack = false;
                 re.add(seg);
             } else if (stopTags != null && stopTags.length > 0 && seg.is(stopTags)) {
                 // 不符合条件，回退一下指针，后续读取将从这个未匹配的开始
@@ -157,6 +158,9 @@ public class EdiSegmentFinder {
         return re;
     }
 
+    public List<EdiSegment> nextAllUntilStopTag(boolean noMatchBack, String targetTag, String... stopTags) {
+        return nextAllUntilStopTag(noMatchBack, new String[]{targetTag}, stopTags);
+    }
 
     public List<EdiSegment> nextAllUtilNoMatch(boolean noBreakUtilFound, String... tags) {
         List<EdiSegment> re = new ArrayList<>(list.size());

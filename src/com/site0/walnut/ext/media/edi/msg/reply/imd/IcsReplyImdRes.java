@@ -41,10 +41,10 @@ public class IcsReplyImdRes extends IcsCommonReply {
     private List<Map<String, String>> headMoas;
 
     //  transport lines
-
+    private List<ImdResTransLine> transLines;
 
     // imd entry lines
-
+    private List<ImdResEntryLine> entryLines;
 
     /**
      * --- Segment Group 13: ERP-ERC-FTX ---
@@ -215,5 +215,21 @@ public class IcsReplyImdRes extends IcsCommonReply {
 
     public void setTailErrs(List<ImdReplyTailErr> tailErrs) {
         this.tailErrs = tailErrs;
+    }
+
+    public List<ImdResTransLine> getTransLines() {
+        return transLines;
+    }
+
+    public void setTransLines(List<ImdResTransLine> transLines) {
+        this.transLines = transLines;
+    }
+
+    public List<ImdResEntryLine> getEntryLines() {
+        return entryLines;
+    }
+
+    public void setEntryLines(List<ImdResEntryLine> entryLines) {
+        this.entryLines = entryLines;
     }
 }
