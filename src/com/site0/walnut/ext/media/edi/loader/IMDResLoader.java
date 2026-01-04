@@ -52,8 +52,8 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
         }
 
         // 定位到 DTM 报文行
-        find = finder.moveToUtil("FTX", true, "NAD", "RFF");
-        if (find) {
+        boolean findFtx = finder.moveToUtil("FTX", true, "NAD", "RFF");
+        if (findFtx) {
             segs = finder.nextAll(true, "FTX");
             for (EdiSegment item : segs) {
                 rff.clear();
@@ -70,8 +70,8 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
         }
 
         // 	定位到 GIS 报文行 (General Indicator C10)
-        find = finder.moveToUtil("GIS", true, "NAD", "RFF");
-        if (find) {
+        boolean findGis = finder.moveToUtil("GIS", true, "NAD", "RFF");
+        if (findGis) {
             segs = finder.nextAll(true, "GIS");
             for (EdiSegment item : segs) {
                 rff.clear();
@@ -85,8 +85,8 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
         }
 
         // 定位到 NAD 报文行： NAD+{FuncCode}+{PartyId}::{AgencyCode}+{name1}:{name2}:{boxNum}'
-        find = finder.moveToUtil("NAD", true, "RFF");
-        if (find) {
+        boolean findNad = finder.moveToUtil("NAD", true, "RFF");
+        if (findNad) {
             segs = finder.nextAll(true, "NAD");
             for (EdiSegment item : segs) {
                 rff.clear();
@@ -122,8 +122,8 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
         }
 
         // 定位到 RFF 报文行
-        find = finder.moveToUtil("RFF", true);
-        if (find) {
+        boolean findRff = finder.moveToUtil("RFF", true);
+        if (findRff) {
             segs = finder.nextAll(true, "RFF");
             for (EdiSegment item : segs) {
                 rff.clear();
@@ -152,15 +152,17 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
 
         // 定位到 TAX 之前的 ERP-ERC-FTX 报文组，解析错误信息
         boolean findTax = finder.moveToUtil("TAX", true, "DOC", "CST");
-        finder.reset();
-        if (findTax) {
-            List<ImdReplyHeadErr> headErrs = this.findHeadErrs(finder);
-            re.setHeadErrs(headErrs);
-        }
-
-        // 解析 Segment Group 5: TAX-MOA
         boolean findCst = finder.moveToUtil("CST", true, "UNT");
         finder.reset();
+
+        if (findTax || findCst) {
+            List<ImdReplyHeadErr> headErrs = this.findHeadErrs(finder, findTax, findCst);
+            re.setHeadErrs(headErrs);
+        }
+        // 解析 Segment Group 5: TAX-MOA
+
+        finder.reset();
+        findCst = finder.moveToUtil("CST", true, "UNT");
         if (findCst) {
             segs = finder.nextAllUntilStopTag(true, "MOA", "CST");
             List<Map<String, String>> heaMoas = new ArrayList<>();
@@ -178,8 +180,7 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
         }
 
         List<ImdResTransLine> transLines = new ArrayList<>();
-
-        // 解析 Segment Group 6: DOC-FTX-SG11-SG13 的 DOC-FTX todo
+        // 解析 Segment Group 6: DOC-FTX-SG11-SG13 的 DOC-FTX
         if (findCst) {
             boolean findDoc = finder.moveToUtil("DOC", true, "CST");
             if (findDoc) {
@@ -245,14 +246,25 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
             }
         }
 
+        // 解析 "Segment Group 13: ERP-ERC-FTX"
+        List<ImdReplyTailErr> tailErrs = this.findTailErrs(finder);
+        re.setTailErrs(tailErrs);
 
-        return null;
+        return re;
     }
 
-    private List<ImdReplyHeadErr> findHeadErrs(EdiSegmentFinder finder) {
+    private List<ImdReplyHeadErr> findHeadErrs(EdiSegmentFinder finder, boolean findTax, boolean findCst) {
         List<ImdReplyHeadErr> headErrs = new ArrayList<>();
-        // 定位到 TAX 之前的 ERP-ERC-FTX 报文组，解析错误信息
-        boolean find = finder.moveToUtil("ERP", true, "TAX");
+        // 定位到 TAX/CST 之前的 ERP-ERC-FTX 报文组，解析错误信息
+        String stopTag;
+        if (findTax) {
+            stopTag = "TAX";
+        } else if (findCst) {
+            stopTag = "CST";
+        } else {
+            return null;
+        }
+        boolean find = finder.moveToUtil("ERP", true, stopTag);
         while (find) {
             // 找到 ERP-ERC-FTX 报文组
             List<EdiSegment> errs = finder.findContinueSegments("ERP", "^(ERC|FTX)$", "^(ERP|TAX)$");
@@ -261,10 +273,10 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
                 break;
             }
 
-            boolean isHeadErrs = false;
+            boolean isHeadErrs = true;
             for (EdiSegment seg : errs) {
-                if (seg.isRawContentStartsWith("FTX+AAO")) {
-                    isHeadErrs = true;
+                if (seg.isRawContentStartsWith("FTX+") && !seg.isRawContentStartsWith("FTX+AAO")) {
+                    isHeadErrs = false;
                 }
             }
 
@@ -282,16 +294,16 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
         boolean find = finder.moveToUtil("ERP", true, "UNT");
         while (find) {
             // 找到 ERP-ERC-FTX 报文组
-            List<EdiSegment> errs = finder.findContinueSegments("ERP", "^(ERC|FTX)$", "^(ERP|UNT)$");
+            List<EdiSegment> errs = finder.findContinueSegments("ERP", "^(ERP|ERC|FTX)$", "^(ERP|UNT)$");
             // 看来找不到错误了，那么退出循环
-            if (errs.isEmpty() || !errs.get(0).is("ERC")) {
+            if (errs.isEmpty() || !errs.get(0).is("ERP")) {
                 break;
             }
 
-            boolean isTailErrs = false;
+            boolean isTailErrs = true;
             for (EdiSegment seg : errs) {
-                if (seg.isRawContentStartsWith("FTX+AAT")) {
-                    isTailErrs = true;
+                if (seg.isRawContentStartsWith("FTX+T") && !seg.isRawContentStartsWith("FTX+AAT")) {
+                    isTailErrs = false;
                 }
             }
 
