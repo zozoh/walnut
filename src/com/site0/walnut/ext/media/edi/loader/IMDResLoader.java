@@ -76,7 +76,7 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
             for (EdiSegment item : segs) {
                 rff.clear();
                 item.fillBean(rff, null, "indDescCode,indCode,agencyCode");
-                if (rff.is("indDescCode", "95")) {
+                if (rff.is("agencyCode", "95")) {
                     if (rff.is("indCode", "117")) {
                         re.setPreLodge(rff.is("indDescCode", "Y"));
                     }
