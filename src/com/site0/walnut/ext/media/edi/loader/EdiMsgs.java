@@ -29,6 +29,7 @@ public abstract class EdiMsgs {
         loaders.put("CARST", new CARSTLoader());
         loaders.put("UBMREQE", new UBMErrLoader());
         loaders.put("UBMREQR", new UBMResLoader());
+        loaders.put("IMDR", new IMDResLoader());
     }
 
     public static String getLoaderType(EdiMessage msg) {
@@ -81,4 +82,7 @@ public abstract class EdiMsgs {
         return (UBMResLoader) loaders.get("UBMREQR");
     }
 
+    public static IMDResLoader getIMDResLoader() {
+        return (IMDResLoader) loaders.get("IMDR");
+    }
 }

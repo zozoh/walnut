@@ -26,7 +26,7 @@ public class UBMResLoader implements EdiMsgLoader<IcsReplyUbmRes> {
         re.setRstVer(0);
         // BGM 报文中的 FUNCTION CODE, 此报文固定为 32: Approval
         re.setFuncCode(32);
-        // 改报文固定为 true
+        // 该报文固定为 true
         re.setSuccess(true);
 
         EdiSegmentFinder finder = msg.getFinder();
