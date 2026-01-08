@@ -1,5 +1,7 @@
 package com.site0.walnut.ext.media.edi.msg.reply.imd;
 
+import java.util.List;
+
 public class ImdResTransLine {
 
     private int lineNum;
@@ -10,13 +12,18 @@ public class ImdResTransLine {
     // Transport Line StatusDesc
     private String stDesc;
 
-    public ImdResTransLine() {
-    }
 
-    public ImdResTransLine(int lineNum, String stTp, String stDesc) {
-        this.lineNum = lineNum;
-        this.stTp = stTp;
-        this.stDesc = stDesc;
+    // imd entry lines
+    private List<ImdResEntryLine> entryLines;
+
+    /**
+     * --- Segment Group 13: ERP-ERC-FTX ---
+     * this is tail advice
+     */
+    private List<ImdReplyLineErr> lineErrs;
+
+
+    public ImdResTransLine() {
     }
 
 
@@ -42,5 +49,21 @@ public class ImdResTransLine {
 
     public void setStDesc(String stDesc) {
         this.stDesc = stDesc;
+    }
+
+    public List<ImdResEntryLine> getEntryLines() {
+        return entryLines;
+    }
+
+    public void setEntryLines(List<ImdResEntryLine> entryLines) {
+        this.entryLines = entryLines;
+    }
+
+    public List<ImdReplyLineErr> getLineErrs() {
+        return lineErrs;
+    }
+
+    public void setLineErrs(List<ImdReplyLineErr> lineErrs) {
+        this.lineErrs = lineErrs;
     }
 }
