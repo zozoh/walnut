@@ -149,41 +149,36 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
             }
         }
 
+        // 定位的 DOC 报文行
+        boolean findDoc = finder.moveTo("DOC", true);
+        List<ImdResTransLine> transLines = new ArrayList<>();
 
-        // 定位到 TAX 之前的 ERP-ERC-FTX 报文组，解析错误信息
-        boolean findTax = finder.moveToUtil("TAX", true, "DOC", "CST");
-        boolean findCst = finder.moveToUtil("CST", true, "UNT");
-        finder.reset();
-
-        if (findTax || findCst) {
-            List<ImdReplyHeadErr> headErrs = this.findHeadErrs(finder, findTax, findCst);
+        if (findDoc) {
+            finder.reset();
+            List<ImdReplyHeadErr> headErrs = this.findHeadErrs(finder, findDoc);
             re.setHeadErrs(headErrs);
-        }
-        // 解析 Segment Group 5: TAX-MOA
 
-        finder.reset();
-        findCst = finder.moveToUtil("CST", true, "UNT");
-        if (findCst) {
-            segs = finder.nextAllUntilStopTag(true, "MOA", "CST");
-            List<Map<String, String>> heaMoas = new ArrayList<>();
-            if (!segs.isEmpty()) {
-                for (EdiSegment seg : segs) {
-                    Map<String, String> map = new HashMap<>();
-                    NutBean bean = seg.getBean(null, "taxType,taxAmount");
-                    map.put(bean.getString("taxType"), bean.getString("taxAmount"));
-                    heaMoas.add(map);
-                }
-                if (!heaMoas.isEmpty()) {
-                    re.setHeadMoas(heaMoas);
+            finder.reset();
+            String stopTag = "DOC";
+            boolean findTax = finder.moveToUtil("TAX", true, stopTag);
+            // 解析 Segment Group 5: TAX-MOA
+            if (findTax) {
+                segs = finder.nextAllUntilStopTag(true, "MOA", stopTag);
+                List<Map<String, String>> heaMoas = new ArrayList<>();
+                if (!segs.isEmpty()) {
+                    for (EdiSegment seg : segs) {
+                        Map<String, String> map = new HashMap<>();
+                        NutBean bean = seg.getBean(null, "taxType,taxAmount");
+                        map.put(bean.getString("taxType"), bean.getString("taxAmount"));
+                        heaMoas.add(map);
+                    }
+                    if (!heaMoas.isEmpty()) {
+                        re.setHeadMoas(heaMoas);
+                    }
                 }
             }
-        }
-
-        List<ImdResTransLine> transLines = new ArrayList<>();
-        // 解析 Segment Group 6: DOC-FTX-SG11-SG13 的 DOC-FTX
-        if (findCst) {
-            boolean findDoc = finder.moveToUtil("DOC", true, "CST");
-            if (findDoc) {
+            while (findDoc) {
+                // 解析 Segment Group 6: DOC-FTX-SG11-SG13
                 ImdResTransLine transLine = new ImdResTransLine();
                 EdiSegment segment = finder.next("DOC");
                 int lineNum = -1;
@@ -199,70 +194,104 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
                     for (EdiSegment seg : segments) {
                         if (seg.isRawContentStartsWith("FTX+AHN")) {
                             NutBean bean = seg.getBean(null, null, null, null, "statusType,statusDesc");
-                            transLine.setStTp(bean.getString("stTp"));
+                            transLine.setStTp(bean.getString("statusType"));
                             transLine.setStDesc(bean.getString("statusDesc"));
                             break;
                         }
                     }
                 }
                 transLines.add(transLine);
-            }
-            // 解析可能有的 所有 entry lines 的信息
-            findCst = finder.moveTo("CST", true);
-            if (findCst) {
-                List<ImdResEntryLine> entryLines = new ArrayList<>();
-                List<EdiSegment> ediSegmentList = finder.nextAllUntilStopTag(true, new String[]{"CST", "FTX", "TAX", "MOA"}, "CST", "ERP", "DOC", "UNT");
-                while (ediSegmentList != null && ediSegmentList.size() > 0) {
-                    ImdResEntryLine entryLine = new ImdResEntryLine();
-                    List<Map<String, String>> dutyRates = new ArrayList<>();
-                    for (EdiSegment item : ediSegmentList) {
-                        if (item.isTag("CST")) {
-                            NutBean nutBean = item.getBean(null, "LineNumber", "natureType");
-                            entryLine.setLineNum(nutBean.getInt("LineNumber"));
-                            entryLine.setNatureType(nutBean.getString("natureType"));
-                        } else if (item.isTag("FTX")) {
-                            // FTX+AAF+++FREE
-                            NutBean nutBean = item.getBean(null, null, null, null, "dutyRateDesc");
-                            entryLine.setDutyRateDesc(nutBean.getString("dutyRateDesc"));
-                        } else if (item.isTag("MOA")) {
-                            // MOA+40:0000000027457.31
-                            NutBean nutBean = item.getBean(null, "amountType,amountValue");
-                            String amountValue = nutBean.getString("amountValue");
-                            if (amountValue != null && !amountValue.trim().isEmpty()) {
-                                amountValue = new BigDecimal(amountValue).stripTrailingZeros().toPlainString();
+
+                // 解析可能有的 所有 entry lines 的信息
+                boolean findCst = finder.moveTo("CST", true);
+                if (findCst) {
+                    List<ImdResEntryLine> entryLines = new ArrayList<>();
+                    List<EdiSegment> ediSegmentList = finder.nextAllUntilStopTag(true, new String[]{"CST", "FTX", "TAX", "MOA"}, new String[]{"CST", "ERP", "DOC", "UNT"});
+                    while (ediSegmentList != null && ediSegmentList.size() > 0) {
+                        ImdResEntryLine entryLine = new ImdResEntryLine();
+                        List<Map<String, String>> dutyRates = new ArrayList<>();
+                        for (EdiSegment item : ediSegmentList) {
+                            if (item.isTag("CST")) {
+                                NutBean nutBean = item.getBean(null, "LineNumber", "natureType");
+                                entryLine.setLineNum(nutBean.getInt("LineNumber"));
+                                entryLine.setNatureType(nutBean.getString("natureType"));
+                            } else if (item.isTag("FTX")) {
+                                // FTX+AAF+++FREE
+                                NutBean nutBean = item.getBean(null, null, null, null, "dutyRateDesc");
+                                entryLine.setDutyRateDesc(nutBean.getString("dutyRateDesc"));
+                            } else if (item.isTag("MOA")) {
+                                // MOA+40:0000000027457.31
+                                NutBean nutBean = item.getBean(null, "amountType,amountValue");
+                                String amountValue = nutBean.getString("amountValue");
+                                if (amountValue != null && !amountValue.trim().isEmpty()) {
+                                    amountValue = new BigDecimal(amountValue).stripTrailingZeros().toPlainString();
+                                }
+                                Map<String, String> map = new HashMap<>();
+                                map.put(nutBean.getString("amountType"), amountValue);
+                                dutyRates.add(map);
                             }
-                            Map<String, String> map = new HashMap<>();
-                            map.put(nutBean.getString("amountType"), amountValue);
-                            dutyRates.add(map);
                         }
+                        if (dutyRates.size() > 0) {
+                            entryLine.setDutyRates(dutyRates);
+                        }
+                        entryLines.add(entryLine);
+                        ediSegmentList = finder.nextAllUntilStopTag(true, new String[]{"CST", "FTX", "TAX", "MOA"}, new String[]{"CST", "ERP", "DOC", "UNT"});
                     }
-                    if (dutyRates.size() > 0) {
-                        entryLine.setDutyRates(dutyRates);
-                    }
-                    entryLines.add(entryLine);
-                    ediSegmentList = finder.nextAllUntilStopTag(true, new String[]{"CST", "FTX", "TAX", "MOA"}, "CST", "ERP", "DOC", "UNT");
+                    transLine.setEntryLines(entryLines);
                 }
-                re.setEntryLines(entryLines);
+
+                // 解析 "Segment Group 13: ERP-ERC-FTX"
+                List<ImdReplyLineErr> lineErrs = this.findTransLineErrs(finder);
+                transLine.setLineErrs(lineErrs);
+
+                // 下一轮的 Segment Group 6: DOC-FTX-SG11-SG13
+                findDoc = finder.moveTo("DOC", true);
+            }
+            if (transLines.size() > 0) {
+                re.setTransLines(transLines);
+            }
+
+        } else { // 没有 DOC 报文行的情况
+            finder.reset();
+            List<ImdReplyHeadErr> headErrs = this.findHeadErrs(finder, findDoc);
+            re.setHeadErrs(headErrs);
+
+            finder.reset();
+            String stopTag = "UNT";
+            boolean findTax = finder.moveToUtil("TAX", true, stopTag);
+            // 解析 Segment Group 5: TAX-MOA
+            if (findTax) {
+                segs = finder.nextAllUntilStopTag(true, "MOA", stopTag);
+                List<Map<String, String>> heaMoas = new ArrayList<>();
+                if (!segs.isEmpty()) {
+                    for (EdiSegment seg : segs) {
+                        Map<String, String> map = new HashMap<>();
+                        NutBean bean = seg.getBean(null, "taxType,taxAmount");
+                        map.put(bean.getString("taxType"), bean.getString("taxAmount"));
+                        heaMoas.add(map);
+                    }
+                    if (!heaMoas.isEmpty()) {
+                        re.setHeadMoas(heaMoas);
+                    }
+                }
             }
         }
 
-        // 解析 "Segment Group 13: ERP-ERC-FTX"
-        List<ImdReplyTailErr> tailErrs = this.findTailErrs(finder);
-        re.setTailErrs(tailErrs);
+        if (transLines.size() > 0) {
+            re.setTransLines(transLines);
+        }
 
         return re;
     }
 
-    private List<ImdReplyHeadErr> findHeadErrs(EdiSegmentFinder finder, boolean findTax, boolean findCst) {
+    private List<ImdReplyHeadErr> findHeadErrs(EdiSegmentFinder finder, boolean findDoc) {
         List<ImdReplyHeadErr> headErrs = new ArrayList<>();
         // 定位到 TAX/CST 之前的 ERP-ERC-FTX 报文组，解析错误信息
         String stopTag;
-        if (findTax) {
+        if (findDoc) {
             stopTag = "TAX";
-        } else if (findCst) {
-            stopTag = "CST";
         } else {
-            return null;
+            stopTag = "UNT";
         }
         boolean find = finder.moveToUtil("ERP", true, stopTag);
         while (find) {
@@ -288,13 +317,13 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
         return headErrs.isEmpty() ? null : headErrs;
     }
 
-    private List<ImdReplyTailErr> findTailErrs(EdiSegmentFinder finder) {
-        List<ImdReplyTailErr> tailErrs = new ArrayList<>();
+    private List<ImdReplyLineErr> findTransLineErrs(EdiSegmentFinder finder) {
+        List<ImdReplyLineErr> tailErrs = new ArrayList<>();
         // 定位到 TAX 之前的 ERP-ERC-FTX 报文组，解析错误信息
         boolean find = finder.moveToUtil("ERP", true, "UNT");
         while (find) {
             // 找到 ERP-ERC-FTX 报文组
-            List<EdiSegment> errs = finder.findContinueSegments("ERP", "^(ERP|ERC|FTX)$", "^(ERP|UNT)$");
+            List<EdiSegment> errs = finder.findContinueSegments("ERP", "^(ERP|ERC|FTX)$", "^(ERP|DOC|CNT|UNT)$");
             // 看来找不到错误了，那么退出循环
             if (errs.isEmpty() || !errs.get(0).is("ERP")) {
                 break;
@@ -308,7 +337,7 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
             }
 
             if (isTailErrs) {
-                tailErrs.add(new ImdReplyTailErr(errs));
+                tailErrs.add(new ImdReplyLineErr(errs));
             }
             find = finder.moveToUtil("ERP", true, "UNT");
         }
