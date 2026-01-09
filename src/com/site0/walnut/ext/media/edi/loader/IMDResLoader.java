@@ -151,35 +151,33 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
 
         // 定位的 DOC 报文行
         boolean findDoc = finder.moveTo("DOC", true);
-        // todo xxx
         List<ImdResTransLine> transLines = new ArrayList<>();
 
         if (findDoc) {
-            while (findDoc) {
-                finder.reset();
-                List<ImdReplyHeadErr> headErrs = this.findHeadErrs(finder, findDoc);
-                re.setHeadErrs(headErrs);
+            finder.reset();
+            List<ImdReplyHeadErr> headErrs = this.findHeadErrs(finder, findDoc);
+            re.setHeadErrs(headErrs);
 
-                finder.reset();
-                String stopTag = "DOC";
-                boolean findTax = finder.moveToUtil("TAX", true, stopTag);
-                // 解析 Segment Group 5: TAX-MOA
-                if (findTax) {
-                    segs = finder.nextAllUntilStopTag(true, "MOA", stopTag);
-                    List<Map<String, String>> heaMoas = new ArrayList<>();
-                    if (!segs.isEmpty()) {
-                        for (EdiSegment seg : segs) {
-                            Map<String, String> map = new HashMap<>();
-                            NutBean bean = seg.getBean(null, "taxType,taxAmount");
-                            map.put(bean.getString("taxType"), bean.getString("taxAmount"));
-                            heaMoas.add(map);
-                        }
-                        if (!heaMoas.isEmpty()) {
-                            re.setHeadMoas(heaMoas);
-                        }
+            finder.reset();
+            String stopTag = "DOC";
+            boolean findTax = finder.moveToUtil("TAX", true, stopTag);
+            // 解析 Segment Group 5: TAX-MOA
+            if (findTax) {
+                segs = finder.nextAllUntilStopTag(true, "MOA", stopTag);
+                List<Map<String, String>> heaMoas = new ArrayList<>();
+                if (!segs.isEmpty()) {
+                    for (EdiSegment seg : segs) {
+                        Map<String, String> map = new HashMap<>();
+                        NutBean bean = seg.getBean(null, "taxType,taxAmount");
+                        map.put(bean.getString("taxType"), bean.getString("taxAmount"));
+                        heaMoas.add(map);
+                    }
+                    if (!heaMoas.isEmpty()) {
+                        re.setHeadMoas(heaMoas);
                     }
                 }
-
+            }
+            while (findDoc) {
                 // 解析 Segment Group 6: DOC-FTX-SG11-SG13
                 ImdResTransLine transLine = new ImdResTransLine();
                 EdiSegment segment = finder.next("DOC");
@@ -196,7 +194,7 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
                     for (EdiSegment seg : segments) {
                         if (seg.isRawContentStartsWith("FTX+AHN")) {
                             NutBean bean = seg.getBean(null, null, null, null, "statusType,statusDesc");
-                            transLine.setStTp(bean.getString("stTp"));
+                            transLine.setStTp(bean.getString("statusType"));
                             transLine.setStDesc(bean.getString("statusDesc"));
                             break;
                         }
@@ -208,7 +206,7 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
                 boolean findCst = finder.moveTo("CST", true);
                 if (findCst) {
                     List<ImdResEntryLine> entryLines = new ArrayList<>();
-                    List<EdiSegment> ediSegmentList = finder.nextAllUntilStopTag(true, new String[]{"CST", "FTX", "TAX", "MOA"}, "CST", "ERP", "DOC", "UNT");
+                    List<EdiSegment> ediSegmentList = finder.nextAllUntilStopTag(true, new String[]{"CST", "FTX", "TAX", "MOA"}, new String[]{"CST", "ERP", "DOC", "UNT"});
                     while (ediSegmentList != null && ediSegmentList.size() > 0) {
                         ImdResEntryLine entryLine = new ImdResEntryLine();
                         List<Map<String, String>> dutyRates = new ArrayList<>();
@@ -237,7 +235,7 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
                             entryLine.setDutyRates(dutyRates);
                         }
                         entryLines.add(entryLine);
-                        ediSegmentList = finder.nextAllUntilStopTag(true, new String[]{"CST", "FTX", "TAX", "MOA"}, "CST", "ERP", "DOC", "UNT");
+                        ediSegmentList = finder.nextAllUntilStopTag(true, new String[]{"CST", "FTX", "TAX", "MOA"}, new String[]{"CST", "ERP", "DOC", "UNT"});
                     }
                     transLine.setEntryLines(entryLines);
                 }
@@ -249,6 +247,10 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
                 // 下一轮的 Segment Group 6: DOC-FTX-SG11-SG13
                 findDoc = finder.moveTo("DOC", true);
             }
+            if (transLines.size() > 0) {
+                re.setTransLines(transLines);
+            }
+
         } else { // 没有 DOC 报文行的情况
             finder.reset();
             List<ImdReplyHeadErr> headErrs = this.findHeadErrs(finder, findDoc);
@@ -321,7 +323,7 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
         boolean find = finder.moveToUtil("ERP", true, "UNT");
         while (find) {
             // 找到 ERP-ERC-FTX 报文组
-            List<EdiSegment> errs = finder.findContinueSegments("ERP", "^(ERP|ERC|FTX)$", "^(ERP|UNT)$");
+            List<EdiSegment> errs = finder.findContinueSegments("ERP", "^(ERP|ERC|FTX)$", "^(ERP|DOC|CNT|UNT)$");
             // 看来找不到错误了，那么退出循环
             if (errs.isEmpty() || !errs.get(0).is("ERP")) {
                 break;

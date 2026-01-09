@@ -162,6 +162,19 @@ public class EdiSegment extends EdiItem {
         return components.size() > 0;
     }
 
+    public boolean isOf(String... tags) {
+        if (null == components || components.isEmpty()) {
+            return false;
+        }
+        EdiComponent firstTag = components.get(0);
+        for (String tag : tags) {
+            if (firstTag.is(tag)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void setComponent(int index, String str) {
         EdiElement ele = new EdiElement(str);
         EdiComponent com = new EdiComponent(advice, Wlang.list(ele));
