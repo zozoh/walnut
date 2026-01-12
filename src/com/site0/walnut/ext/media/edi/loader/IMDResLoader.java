@@ -79,6 +79,13 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
                 if (rff.is("agencyCode", "95")) {
                     if (rff.is("indCode", "117")) {
                         re.setPreLodge(rff.is("indDescCode", "Y"));
+                    } else if (rff.is("indCode", "109")) {
+                        String indDescCode = rff.getString("indDescCode");
+                        if ("TLB".equalsIgnoreCase(indDescCode)) {
+                            re.setTlb(true);
+                        } else if ("LLB".equalsIgnoreCase(indDescCode)) {
+                            re.setLlb(true);
+                        }
                     }
                 }
             }
@@ -90,7 +97,7 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
             segs = finder.nextAll(true, "NAD");
             for (EdiSegment item : segs) {
                 rff.clear();
-                item.fillBean(rff, null, "funcCode", "partyId,,agencyCode" + "name1,name2,boxNum");
+                item.fillBean(rff, null, "funcCode", "partyId,,agencyCode", "name1,name2,boxNum");
                 if (rff.is("funcCode", "MR")) {
                     re.setMsgRecipient(rff.getString("partyId"));
                 } else if (rff.is("funcCode", "VT")) {
@@ -296,9 +303,9 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
         boolean find = finder.moveToUtil("ERP", true, stopTag);
         while (find) {
             // 找到 ERP-ERC-FTX 报文组
-            List<EdiSegment> errs = finder.findContinueSegments("ERP", "^(ERC|FTX)$", "^(ERP|TAX)$");
+            List<EdiSegment> errs = finder.findContinueSegments("ERP", "^(ERP|ERC|FTX)$", "^(ERP|TAX)$");
             // 看来找不到错误了，那么退出循环
-            if (errs.isEmpty() || !errs.get(0).is("ERC")) {
+            if (errs.isEmpty() || !errs.get(0).is("ERP")) {
                 break;
             }
 
