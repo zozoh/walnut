@@ -71,6 +71,7 @@ public class ImdReplyTest {
 
 
         List<Map<String, String>> headMoas = re.getHeadMoas();
+        assertEquals(headMoas.size(), 7);
 
     }
 }
