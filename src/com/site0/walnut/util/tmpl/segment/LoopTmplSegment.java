@@ -3,8 +3,12 @@ package com.site0.walnut.util.tmpl.segment;
 import org.nutz.mapl.Mapl;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.each.WnBreakException;
+import com.site0.walnut.util.each.WnContinueException;
 import com.site0.walnut.util.each.WnEachIteratee;
 import com.site0.walnut.util.tmpl.WnTmplRenderContext;
+import com.site0.walnut.util.tmpl.util.BreakSegmentException;
+import com.site0.walnut.util.tmpl.util.ContinueSegmentException;
 
 public class LoopTmplSegment extends AbstractTmplSegment {
 
@@ -48,14 +52,22 @@ public class LoopTmplSegment extends AbstractTmplSegment {
         // 迭代逻辑
         final int baseI = this.base;
         WnEachIteratee<Object> iteratee = new WnEachIteratee<Object>() {
-            public void invoke(int index, Object ele, Object src) {
+            public void invoke(int index, Object ele, Object src)
+                    throws WnContinueException, WnBreakException {
                 rc.context.put(varName, ele);
                 if (null != indexName) {
                     rc.context.put(indexName, index + baseI);
                 }
-
-                for (TmplSegment seg : children) {
-                    seg.renderTo(rc);
+                try {
+                    for (TmplSegment seg : children) {
+                        seg.renderTo(rc);
+                    }
+                }
+                catch (ContinueSegmentException e) {
+                    throw new WnContinueException();
+                }
+                catch (BreakSegmentException e) {
+                    throw new WnBreakException();
                 }
             }
         };
@@ -101,7 +113,8 @@ public class LoopTmplSegment extends AbstractTmplSegment {
                 int pos = ixName.indexOf('=');
                 if (pos > 0) {
                     this.indexName = ixName.substring(0, pos);
-                    this.base = Integer.parseInt(ixName.substring(pos + 1).trim());
+                    this.base = Integer
+                        .parseInt(ixName.substring(pos + 1).trim());
                 } else {
                     this.indexName = ixName;
                 }

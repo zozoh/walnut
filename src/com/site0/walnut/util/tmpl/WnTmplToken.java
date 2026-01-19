@@ -24,7 +24,8 @@ public class WnTmplToken {
         return parseToArray(s.toCharArray());
     }
 
-    public static WnTmplToken[] parseToArray(WnTmplTokenExpert expert, char[] cs) {
+    public static WnTmplToken[] parseToArray(WnTmplTokenExpert expert,
+                                             char[] cs) {
         List<WnTmplToken> list = parse(expert, cs);
         return list.toArray(new WnTmplToken[list.size()]);
     }
@@ -131,7 +132,7 @@ public class WnTmplToken {
         return this.valueOf();
     }
 
-    private static String REGEXP = "^#(if|else-if|else|end|loop)(.*)$";
+    private static String REGEXP = "^#(if|else-if|else|end|loop|continue|break)(.*)$";
     private static Pattern _P = Pattern.compile(REGEXP);
 
     public WnTmplToken valueOf() {
@@ -176,7 +177,14 @@ public class WnTmplToken {
                 sg_loop.valueOf(content);
                 return sg_loop;
             }
-
+            // #continue
+            if (this.isTypeContinue()) {
+                return new ContinueTmplSegment();
+            }
+            // #break
+            if (this.isTypeBreak()) {
+                return new BreakTmplSegment();
+            }
         }
 
         // 静态文本或者动态变量： 创建一个普通块
@@ -213,7 +221,8 @@ public class WnTmplToken {
             json = json.substring(3).trim();
         }
 
-        if (!Ws.isQuoteBy(content, '[', ']') && !Ws.isQuoteBy(content, '{', '}')) {
+        if (!Ws.isQuoteBy(content, '[', ']')
+            && !Ws.isQuoteBy(content, '{', '}')) {
             json = "{" + json + "}";
         }
         Object input = Json.fromJson(json);
@@ -263,6 +272,14 @@ public class WnTmplToken {
 
     public boolean isTypeLoop() {
         return WnTmplTokenType.LOOP == type;
+    }
+
+    public boolean isTypeContinue() {
+        return WnTmplTokenType.CONTINUE == type;
+    }
+
+    public boolean isTypeBreak() {
+        return WnTmplTokenType.BREAK == type;
     }
 
     public WnTmplTokenType getType() {

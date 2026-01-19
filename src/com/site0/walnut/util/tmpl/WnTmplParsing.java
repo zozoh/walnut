@@ -56,7 +56,8 @@ public class WnTmplParsing {
                 // 弹出到 Branch
                 TmplSegment[] sgs = stack.popUtilAsArray(new Predicate<>() {
                     public boolean test(TmplSegment t) {
-                        return (t instanceof BranchTmplSegment) || (t instanceof LoopTmplSegment);
+                        return (t instanceof BranchTmplSegment)
+                               || (t instanceof LoopTmplSegment);
                     }
                 }, true, TmplSegment.class);
 
@@ -64,7 +65,8 @@ public class WnTmplParsing {
                 TmplSegment lastSeg = sgs[sgs.length - 1];
                 if (!(lastSeg instanceof BranchTmplSegment)
                     && !(lastSeg instanceof LoopTmplSegment)) {
-                    throw Er.create("e.tmpl.EndWithoutBeginLoopOfIf", t.toString());
+                    throw Er.create("e.tmpl.EndWithoutBeginLoopOfIf",
+                                    t.toString());
                 }
 
                 // 从头开始向下合并
@@ -76,11 +78,12 @@ public class WnTmplParsing {
                 }
                 // 向下寻找第一个可以下压的对象
                 else {
-                    TmplSegment[] tops = stack.popUtilAsArray(new Predicate<>() {
-                        public boolean test(TmplSegment t) {
-                            return t.isCanAddChild();
-                        }
-                    }, true, TmplSegment.class);
+                    TmplSegment[] tops = stack
+                        .popUtilAsArray(new Predicate<>() {
+                            public boolean test(TmplSegment t) {
+                                return t.isCanAddChild();
+                            }
+                        }, true, TmplSegment.class);
 
                     // 为了防止
                     // 01) [ Loop ]
@@ -151,6 +154,14 @@ public class WnTmplParsing {
             else if (t.isTypeLoop()) {
                 TmplSegment sg = t.createSegment(this.tknMaker);
                 stack.push(sg);
+            }
+            // #continue/break 将会加入子节点
+            else if (t.isTypeBreak() || t.isTypeContinue()) {
+                TmplSegment sg = t.createSegment(this.tknMaker);
+                TmplSegment top = stack.peek();
+                if (null != top) {
+                    top.addChild(sg);
+                }
             }
             // 其他则肯定是静态文本或者占位符，作为元素压入栈顶
             // 如果栈顶元素不能接受元素，则创建一个 Block

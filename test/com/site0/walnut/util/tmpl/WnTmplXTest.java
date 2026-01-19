@@ -14,6 +14,34 @@ import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.tmpl.ele.TmplEle;
 
 public class WnTmplXTest {
+    
+    @Test
+    public void test_loop_break() {
+        String json = "[{name:'A',age:12},{name:'B',age:8},{name:'C',age:20}]";
+        NutMap vars = Wlang.map("users", Json.fromJson(json));
+
+        String s = "SEE ${=users.size} Users: ${#loop u:users}"
+                   + "${#if 'u.age':'[,10]'}${#break}${#end}[${u.name}]"
+                   + "${#end}";
+        WnTmplX tmpl = WnTmplX.parse(s);
+
+        String str = tmpl.render(vars);
+        assertEquals("SEE 3 Users: [A]", str);
+    }
+
+    @Test
+    public void test_loop_continu() {
+        String json = "[{name:'A',age:12},{name:'B',age:8},{name:'C',age:20}]";
+        NutMap vars = Wlang.map("users", Json.fromJson(json));
+
+        String s = "SEE ${=users.size} Users: ${#loop u:users}"
+                   + "${#if 'u.age':'[,10]'}${#continue}${#end}[${u.name}]"
+                   + "${#end}";
+        WnTmplX tmpl = WnTmplX.parse(s);
+
+        String str = tmpl.render(vars);
+        assertEquals("SEE 3 Users: [A][C]", str);
+    }
 
     @Test
     public void test_float_str() {
@@ -173,10 +201,12 @@ public class WnTmplXTest {
     public void test_branch_if_note() {
         NutMap vars = Wlang.map("{a:100,b:20}");
 
-        String str = WnTmplX.exec("${#if not a:'[0,99]'}A=${a}${#else}B=${b}${#end}", vars);
+        String str = WnTmplX
+            .exec("${#if not a:'[0,99]'}A=${a}${#else}B=${b}${#end}", vars);
         assertEquals("A=100", str);
 
-        str = WnTmplX.exec("${#if not a:'[0,100]'}A=${a}${#else}B=${b}${#end}", vars);
+        str = WnTmplX.exec("${#if not a:'[0,100]'}A=${a}${#else}B=${b}${#end}",
+                           vars);
         assertEquals("B=20", str);
     }
 
@@ -184,11 +214,13 @@ public class WnTmplXTest {
     public void test_branch_if() {
         NutMap vars = Wlang.map("{a:100,b:20}");
 
-        String str = WnTmplX.exec("${#if a:'[0,99]'}A=${a}${#else}B=${b}${#end}", vars);
+        String str = WnTmplX
+            .exec("${#if a:'[0,99]'}A=${a}${#else}B=${b}${#end}", vars);
         assertEquals("B=20", str);
 
         vars.put("a", 80);
-        str = WnTmplX.exec("${#if a:'[0,99]'}A=${a}${#else}B=${b}${#end}", vars);
+        str = WnTmplX.exec("${#if a:'[0,99]'}A=${a}${#else}B=${b}${#end}",
+                           vars);
         assertEquals("A=80", str);
     }
 
@@ -231,13 +263,16 @@ public class WnTmplXTest {
     public void test_string_replace() {
         NutMap context = Wlang.map("path:'  ~/a/b/c  '");
         assertEquals("-a-b-c",
-                     WnTmplX.exec("${path<:@trim;@replace'/','-';@replace'~'>}", context, true));
+                     WnTmplX.exec("${path<:@trim;@replace'/','-';@replace'~'>}",
+                                  context,
+                                  true));
     }
 
     @Test
     public void test_string_sub2() {
         NutMap context = Wlang.map("addr: '8 Jessie Riley Avenue'");
-        assertEquals("8 Jessie Riley Avenue", WnTmplX.exec("${addr<:@sub=50>}", context, true));
+        assertEquals("8 Jessie Riley Avenue",
+                     WnTmplX.exec("${addr<:@sub=50>}", context, true));
         assertEquals("", WnTmplX.exec("${addr<:@sub=50/100>}", context, true));
     }
 
@@ -253,13 +288,20 @@ public class WnTmplXTest {
     @Test
     public void test_string_mapping() {
         NutMap context = Wlang.map("fruit:'A'");
-        assertEquals("Apple", WnTmplX.exec("${fruit(::A=Apple,B=Banana,C=Cherry)}", context, true));
-        assertEquals("Apple", WnTmplX.exec("${fruit<::A=Apple,B=Banana,C=Cherry>}", context, true));
+        assertEquals("Apple",
+                     WnTmplX.exec("${fruit(::A=Apple,B=Banana,C=Cherry)}",
+                                  context,
+                                  true));
+        assertEquals("Apple",
+                     WnTmplX.exec("${fruit<::A=Apple,B=Banana,C=Cherry>}",
+                                  context,
+                                  true));
     }
 
     @Test
     public void test_bracket_mode() {
-        assertEquals("A100C", WnTmplX.exec("A${b(int)?89}C", Wlang.map("b:100")));
+        assertEquals("A100C",
+                     WnTmplX.exec("A${b(int)?89}C", Wlang.map("b:100")));
         assertEquals("A89C", WnTmplX.exec("A${b(int)?89}C", null));
     }
 
@@ -267,20 +309,25 @@ public class WnTmplXTest {
     public void test_json_format() {
         assertEquals("null", WnTmplX.exec("${a<json>}", Wlang.map("")));
         assertEquals("null", WnTmplX.exec("${a<json>}", Wlang.map("a:null")));
-        assertEquals("{x:100,y:99}", WnTmplX.exec("${a<json:c>}", Wlang.map("a:{x:100,y:99}")));
+        assertEquals("{x:100,y:99}",
+                     WnTmplX.exec("${a<json:c>}", Wlang.map("a:{x:100,y:99}")));
         assertEquals("{\"x\":100,\"y\":99}",
-                     WnTmplX.exec("${a<json:cq>}", Wlang.map("a:{x:100,y:99}")));
+                     WnTmplX.exec("${a<json:cq>}",
+                                  Wlang.map("a:{x:100,y:99}")));
         assertEquals("\"\"", WnTmplX.exec("${a<json>?}", Wlang.map("")));
         assertEquals("[]", WnTmplX.exec("${a<json>?[]}", Wlang.map("")));
         assertEquals("{}", WnTmplX.exec("${a<json>?-obj-}", Wlang.map("")));
-        assertEquals("\"xyz\"", WnTmplX.exec("${a<json>?-obj-}", Wlang.map("a:'xyz'")));
+        assertEquals("\"xyz\"",
+                     WnTmplX.exec("${a<json>?-obj-}", Wlang.map("a:'xyz'")));
         assertEquals("{k:[3, true, \"a\"]}",
-                     WnTmplX.exec("${a<json:c>?-obj-}", Wlang.map("a:{k:[3,true,'a']}")));
+                     WnTmplX.exec("${a<json:c>?-obj-}",
+                                  Wlang.map("a:{k:[3,true,'a']}")));
     }
 
     @Test
     public void test_string_format() {
-        assertEquals("AB   C", WnTmplX.exec("A${b<:%-4s>?}C", Wlang.map("b:'B'}")));
+        assertEquals("AB   C",
+                     WnTmplX.exec("A${b<:%-4s>?}C", Wlang.map("b:'B'}")));
         // assertEquals("AB C", Tmpl.exec("A${b<string:%-4s>?}C",
         // Wlang.map("b:'B'}")));
     }
@@ -305,17 +352,22 @@ public class WnTmplXTest {
     @Test
     public void test_special_key() {
         assertEquals("ABC", WnTmplX.exec("A${a-b}C", Wlang.map("'a-b':'B'}")));
-        assertEquals("ABC", WnTmplX.exec("A${'a.b'}C", Wlang.map("'a.b':'B'}")));
+        assertEquals("ABC",
+                     WnTmplX.exec("A${'a.b'}C", Wlang.map("'a.b':'B'}")));
         assertEquals("A1C",
-                     WnTmplX.exec("A${pos[0].'x.x'}C", Wlang.map("pos:[{'x.x':1},{'y.y':2}]}")));
+                     WnTmplX.exec("A${pos[0].'x.x'}C",
+                                  Wlang.map("pos:[{'x.x':1},{'y.y':2}]}")));
         assertEquals("A2C",
-                     WnTmplX.exec("A${pos[1].'y.y'}C", Wlang.map("pos:[{'x.x':1},{'y.y':2}]}")));
+                     WnTmplX.exec("A${pos[1].'y.y'}C",
+                                  Wlang.map("pos:[{'x.x':1},{'y.y':2}]}")));
     }
 
     @Test
     public void test_string() {
         assertEquals("ABC", WnTmplX.exec("A${a.b}C", Wlang.map("a:{b:'B'}")));
-        assertEquals("ABC", WnTmplX.exec("A${a.b[1]}C", Wlang.map("a:{b:['A','B','C']}")));
+        assertEquals("ABC",
+                     WnTmplX.exec("A${a.b[1]}C",
+                                  Wlang.map("a:{b:['A','B','C']}")));
         assertEquals("ABC", WnTmplX.exec("A${a?B}C", null));
     }
 
@@ -337,27 +389,38 @@ public class WnTmplXTest {
         Date d = Times.D(ms);
         String sd = Times.format("yyyy-MM-dd'T'HH:mm:ss", d);
         assertEquals(sd, WnTmplX.exec("${d<date>}", Wlang.mapf("d:%s", ms)));
-        assertEquals(Times.sD(d), WnTmplX.exec("${d<date:yyyy-MM-dd>}", Wlang.mapf("d:'%s'", sd)));
-        assertEquals("", WnTmplX.exec("${xyz<date:yyyy-MM-dd>?}", new NutMap()));
+        assertEquals(Times.sD(d),
+                     WnTmplX.exec("${d<date:yyyy-MM-dd>}",
+                                  Wlang.mapf("d:'%s'", sd)));
+        assertEquals("",
+                     WnTmplX.exec("${xyz<date:yyyy-MM-dd>?}", new NutMap()));
     }
 
     @Test
     public void test_boolean() {
-        assertEquals("yes", WnTmplX.exec("${v<boolean:no/yes>}", Wlang.map("v:true")));
-        assertEquals("no", WnTmplX.exec("${v<boolean:no/yes>}", Wlang.map("v:false")));
+        assertEquals("yes",
+                     WnTmplX.exec("${v<boolean:no/yes>}", Wlang.map("v:true")));
+        assertEquals("no",
+                     WnTmplX.exec("${v<boolean:no/yes>}",
+                                  Wlang.map("v:false")));
         assertEquals("no", WnTmplX.exec("${v<boolean:no/yes>?false}", null));
 
-        assertEquals("是", WnTmplX.exec("${v<boolean:否/是>}", Wlang.map("v:true")));
-        assertEquals("否", WnTmplX.exec("${v<boolean:否/是>}", Wlang.map("v:false")));
+        assertEquals("是",
+                     WnTmplX.exec("${v<boolean:否/是>}", Wlang.map("v:true")));
+        assertEquals("否",
+                     WnTmplX.exec("${v<boolean:否/是>}", Wlang.map("v:false")));
         assertEquals("否", WnTmplX.exec("${v<boolean:否/是>?false}", null));
 
         assertEquals("false", WnTmplX.exec("${v<boolean>?false}", null));
-        assertEquals("true", WnTmplX.exec("${v<boolean>?true}", Wlang.map("{}")));
+        assertEquals("true",
+                     WnTmplX.exec("${v<boolean>?true}", Wlang.map("{}")));
 
         assertEquals("false", WnTmplX.exec("${v<boolean>}", null));
         assertEquals("false", WnTmplX.exec("${v<boolean>}", Wlang.map("{}")));
 
-        assertEquals("yes", WnTmplX.exec("${v<boolean:/yes>}", Wlang.map("v:true")));
-        assertEquals("", WnTmplX.exec("${v<boolean:/yes>}", Wlang.map("v:false")));
+        assertEquals("yes",
+                     WnTmplX.exec("${v<boolean:/yes>}", Wlang.map("v:true")));
+        assertEquals("",
+                     WnTmplX.exec("${v<boolean:/yes>}", Wlang.map("v:false")));
     }
 }
