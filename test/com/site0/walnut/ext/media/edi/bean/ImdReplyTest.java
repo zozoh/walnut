@@ -74,4 +74,15 @@ public class ImdReplyTest {
         assertEquals(headMoas.size(), 7);
 
     }
+
+    @Test
+    public void test_Imd_SuccessRes_02() {
+        String input = _read_input("imd_res_02");
+
+        EdiInterchange ic = EdiInterchange.parse(input);
+        EdiMessage msg = ic.getFirstMessage();
+        IMDResLoader loader = EdiMsgs.getIMDResLoader();
+        IcsReplyImdRes re = loader.load(msg);
+        System.out.println(Json.toJson(re, JsonFormat.full()));
+    }
 }
