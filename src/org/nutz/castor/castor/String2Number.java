@@ -23,7 +23,9 @@ public abstract class String2Number<T> extends Castor<String, T> {
     }
 
     protected abstract T getPrimitiveDefaultValue();
+
     protected abstract T getFalseValue();
+
     protected abstract T getTrueValue();
 
     protected abstract T valueOf(String str);
@@ -34,29 +36,27 @@ public abstract class String2Number<T> extends Castor<String, T> {
             return toType.isPrimitive() ? getPrimitiveDefaultValue() : null;
         }
         if (!toType.isPrimitive()
-            && ("null".equals(src) || "NULL".equals(src) || "Null".equals(src))) {
+            && ("null".equals(src)
+                || "NULL".equals(src)
+                || "Null".equals(src))) {
             return null;
         }
 
-
         if ("true".equalsIgnoreCase(src)) {
-
             return getTrueValue();
         }
 
-
         if ("false".equalsIgnoreCase(src)) {
-
             return getFalseValue();
         }
 
         try {
-            return valueOf(src);
+            String s = src.replace(",", "");
+            return valueOf(s);
         }
         catch (Exception e) {
-            throw new FailToCastObjectException(String.format("Fail to cast '%s' to <%s>",
-                                                              src,
-                                                              toType.getName()),
+            throw new FailToCastObjectException(String
+                .format("Fail to cast '%s' to <%s>", src, toType.getName()),
                                                 Wlang.unwrapThrow(e));
         }
     }

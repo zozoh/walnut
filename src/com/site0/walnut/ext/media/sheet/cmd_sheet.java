@@ -35,7 +35,9 @@ public class cmd_sheet extends JvmExecutor {
         NutMap confOutput = params.getMap("co", new NutMap());
 
         if (confInput.containsKey("images")) {
-            confInput.put("images", Wn.normalizeFullPath(confInput.getString("images"), sys));
+            confInput
+                .put("images",
+                     Wn.normalizeFullPath(confInput.getString("images"), sys));
         }
 
         // .................................................
@@ -94,7 +96,7 @@ public class cmd_sheet extends JvmExecutor {
         if (params.has("mapping")) {
             WnObj oMapping = Wn.checkObj(sys, params.get("mapping"));
             // 采用 BeanMapping 方式映射
-            if (oMapping.isType("json")) {
+            if (oMapping.isType("json") || oMapping.isType("json5")) {
                 String json = sys.io.readText(oMapping);
                 NutMap map = Json.fromJson(NutMap.class, json);
                 WnBeanMapping bm = new WnBeanMapping();
@@ -155,13 +157,23 @@ public class cmd_sheet extends JvmExecutor {
             WnObj oOut = sys.io.createIfNoExists(null, aph, WnRace.FILE);
             String typeOutput = params.get("tpo", oOut.type());
             OutputStream ops = sys.io.getOutputStream(oOut, 0);
-            wss.writeAndClose(ops, typeOutput, outputList, headKeys, confOutput, out, process);
+            wss.writeAndClose(ops,
+                              typeOutput,
+                              outputList,
+                              headKeys,
+                              confOutput,
+                              out,
+                              process);
         }
         // 输入到标准输出
         else {
             String typeOutput = params.get("tpo", "csv");
             OutputStream ops = sys.out.getOutputStream();
-            wss.writeAndClose(ops, typeOutput, outputList, headKeys, confOutput);
+            wss.writeAndClose(ops,
+                              typeOutput,
+                              outputList,
+                              headKeys,
+                              confOutput);
         }
 
     }
