@@ -248,8 +248,8 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
                 }
 
                 // 解析 "Segment Group 13: ERP-ERC-FTX"
-                List<ImdReplyLineErr> lineErrs = this.findTransLineErrs(finder);
-                transLine.setLineErrs(lineErrs);
+                List<ImdReplyLineAdv> lineErrs = this.findTransLineErrs(finder);
+                transLine.setLineAdvs(lineErrs);
 
                 // 下一轮的 Segment Group 6: DOC-FTX-SG11-SG13
                 findDoc = finder.moveTo("DOC", true);
@@ -288,6 +288,13 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
             re.setTransLines(transLines);
         }
 
+        // 如果 headErrs 不为空，则设置为 false; line中的 err 根据文档解释, 是 advice 范畴，不是错误
+        if (re.getHeadErrs() != null && !re.getHeadErrs().isEmpty()) {
+            re.setSuccess(false);
+        } else {
+            re.setSuccess(true);
+        }
+
         return re;
     }
 
@@ -324,8 +331,8 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
         return headErrs.isEmpty() ? null : headErrs;
     }
 
-    private List<ImdReplyLineErr> findTransLineErrs(EdiSegmentFinder finder) {
-        List<ImdReplyLineErr> tailErrs = new ArrayList<>();
+    private List<ImdReplyLineAdv> findTransLineErrs(EdiSegmentFinder finder) {
+        List<ImdReplyLineAdv> tailErrs = new ArrayList<>();
         // 定位到 TAX 之前的 ERP-ERC-FTX 报文组，解析错误信息
         boolean find = finder.moveToUtil("ERP", true, "UNT");
         while (find) {
@@ -344,7 +351,7 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
             }
 
             if (isTailErrs) {
-                tailErrs.add(new ImdReplyLineErr(errs));
+                tailErrs.add(new ImdReplyLineAdv(errs));
             }
             find = finder.moveToUtil("ERP", true, "UNT");
         }

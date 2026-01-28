@@ -20,7 +20,7 @@ public class ImdResTransLine {
      * --- Segment Group 13: ERP-ERC-FTX ---
      * this is tail advice
      */
-    private List<ImdReplyLineErr> lineErrs;
+    private List<ImdReplyLineAdv> lineAdvs;
 
 
     public ImdResTransLine() {
@@ -59,11 +59,11 @@ public class ImdResTransLine {
         this.entryLines = entryLines;
     }
 
-    public List<ImdReplyLineErr> getLineErrs() {
-        return lineErrs;
+    public List<ImdReplyLineAdv> getLineAdvs() {
+        return lineAdvs;
     }
 
-    public void setLineErrs(List<ImdReplyLineErr> lineErrs) {
-        this.lineErrs = lineErrs;
+    public void setLineAdvs(List<ImdReplyLineAdv> lineAdvs) {
+        this.lineAdvs = lineAdvs;
     }
 }

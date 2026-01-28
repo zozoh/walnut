@@ -20,7 +20,7 @@ import java.util.List;
  * --------------------------------------------
  */
 
-public class ImdReplyLineErr {
+public class ImdReplyLineAdv {
 
     private String advId;
 
@@ -28,10 +28,10 @@ public class ImdReplyLineErr {
 
     private List<String> advDesc;
 
-    public ImdReplyLineErr() {
+    public ImdReplyLineAdv() {
     }
 
-    public ImdReplyLineErr(List<EdiSegment> segs) {
+    public ImdReplyLineAdv(List<EdiSegment> segs) {
         this.advLoc = new ArrayList<>();
         this.advDesc = new ArrayList<>();
         for (EdiSegment seg : segs) {
