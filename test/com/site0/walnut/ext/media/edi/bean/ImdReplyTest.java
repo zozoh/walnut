@@ -72,6 +72,7 @@ public class ImdReplyTest {
 
         List<Map<String, String>> headMoas = re.getHeadMoas();
         assertEquals(headMoas.size(), 7);
+        assertEquals(true, re.isSuccess());
 
     }
 
@@ -84,5 +85,6 @@ public class ImdReplyTest {
         IMDResLoader loader = EdiMsgs.getIMDResLoader();
         IcsReplyImdRes re = loader.load(msg);
         System.out.println(Json.toJson(re, JsonFormat.full()));
+        assertEquals(true, re.isSuccess());
     }
 }

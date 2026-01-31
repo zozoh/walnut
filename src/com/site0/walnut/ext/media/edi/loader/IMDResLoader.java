@@ -289,10 +289,10 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
         }
 
         // 如果 headErrs 不为空，则设置为 false; line中的 err 根据文档解释, 是 advice 范畴，不是错误
-        if (re.getHeadErrs() != null && !re.getHeadErrs().isEmpty()) {
-            re.setSuccess(false);
-        } else {
+        if (re.getHeadMoas() != null && !re.getHeadMoas().isEmpty()) {
             re.setSuccess(true);
+        } else {
+            re.setSuccess(false);
         }
 
         return re;
