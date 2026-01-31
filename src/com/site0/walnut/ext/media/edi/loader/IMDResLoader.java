@@ -176,7 +176,8 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
                     for (EdiSegment seg : segs) {
                         Map<String, String> map = new HashMap<>();
                         NutBean bean = seg.getBean(null, "taxType,taxAmount");
-                        map.put(bean.getString("taxType"), bean.getString("taxAmount"));
+                        map.put("amtCode", bean.getString("taxType"));
+                        map.put("amtValue", bean.getString("taxAmount"));
                         heaMoas.add(map);
                     }
                     if (!heaMoas.isEmpty()) {
@@ -234,7 +235,8 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
                                     amountValue = new BigDecimal(amountValue).stripTrailingZeros().toPlainString();
                                 }
                                 Map<String, String> map = new HashMap<>();
-                                map.put(nutBean.getString("amountType"), amountValue);
+                                map.put("amtCode", nutBean.getString("amountType"));
+                                map.put("amtValue", amountValue);
                                 dutyRates.add(map);
                             }
                         }
