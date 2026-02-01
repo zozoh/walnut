@@ -214,20 +214,39 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
                 boolean findCst = finder.moveTo("CST", true);
                 if (findCst) {
                     List<ImdResEntryLine> entryLines = new ArrayList<>();
-                    List<EdiSegment> ediSegmentList = finder.nextAllUntilStopTag(true, new String[]{"CST", "FTX", "TAX", "MOA"}, new String[]{"CST", "ERP", "DOC", "UNT"});
+                    // 批内可能包含多个 CST 开头的 entry group，需要按 CST 切分
+                    List<EdiSegment> ediSegmentList = finder.nextAllUntilStopTag(true, new String[]{"CST", "FTX", "TAX", "MOA"}, new String[]{"ERP", "DOC", "UNT"});
                     while (ediSegmentList != null && ediSegmentList.size() > 0) {
-                        ImdResEntryLine entryLine = new ImdResEntryLine();
-                        List<Map<String, String>> dutyRates = new ArrayList<>();
+                        ImdResEntryLine curr = null;
+                        List<Map<String, String>> currDutyRates = null;
+                        // 遍历本批段，遇到 CST 就开启新 entryLine；FTX/TAX/MOA 属于当前 entryLine
                         for (EdiSegment item : ediSegmentList) {
                             if (item.isTag("CST")) {
+                                // 如果已有正在构建的 entryLine，保存它
+                                if (curr != null && currDutyRates != null && !currDutyRates.isEmpty()) {
+                                    curr.setDutyRates(currDutyRates);
+                                    entryLines.add(curr);
+                                }
+                                // 开始新的 entryLine
+                                curr = new ImdResEntryLine();
+                                currDutyRates = new ArrayList<>();
+
                                 NutBean nutBean = item.getBean(null, "LineNumber", "natureType");
-                                entryLine.setLineNum(nutBean.getInt("LineNumber"));
-                                entryLine.setNatureType(nutBean.getString("natureType"));
+                                curr.setLineNum(nutBean.getInt("LineNumber"));
+                                curr.setNatureType(nutBean.getString("natureType"));
                             } else if (item.isTag("FTX")) {
+                                if (curr == null) {
+                                    curr = new ImdResEntryLine();
+                                    currDutyRates = new ArrayList<>();
+                                }
                                 // FTX+AAF+++FREE
                                 NutBean nutBean = item.getBean(null, null, null, null, "dutyRateDesc");
-                                entryLine.setDutyRateDesc(nutBean.getString("dutyRateDesc"));
+                                curr.setDutyRateDesc(nutBean.getString("dutyRateDesc"));
                             } else if (item.isTag("MOA")) {
+                                if (curr == null) {
+                                    curr = new ImdResEntryLine();
+                                    currDutyRates = new ArrayList<>();
+                                }
                                 // MOA+40:0000000027457.31
                                 NutBean nutBean = item.getBean(null, "amountType,amountValue");
                                 String amountValue = nutBean.getString("amountValue");
@@ -237,14 +256,19 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
                                 Map<String, String> map = new HashMap<>();
                                 map.put("amtCode", nutBean.getString("amountType"));
                                 map.put("amtValue", amountValue);
-                                dutyRates.add(map);
+                                currDutyRates.add(map);
                             }
                         }
-                        if (dutyRates.size() > 0) {
-                            entryLine.setDutyRates(dutyRates);
+
+                        // 本批次结束后，保存当前正在构建的 entryLine
+                        if (curr != null) {
+                            if (currDutyRates != null && !currDutyRates.isEmpty()) {
+                                curr.setDutyRates(currDutyRates);
+                            }
+                            entryLines.add(curr);
                         }
-                        entryLines.add(entryLine);
-                        ediSegmentList = finder.nextAllUntilStopTag(true, new String[]{"CST", "FTX", "TAX", "MOA"}, new String[]{"CST", "ERP", "DOC", "UNT"});
+                        // 取下一批
+                        ediSegmentList = finder.nextAllUntilStopTag(true, new String[]{"CST", "FTX", "TAX", "MOA"}, new String[]{"ERP", "DOC", "UNT"});
                     }
                     transLine.setEntryLines(entryLines);
                 }
