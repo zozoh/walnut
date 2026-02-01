@@ -87,4 +87,16 @@ public class ImdReplyTest {
         System.out.println(Json.toJson(re, JsonFormat.full()));
         assertEquals(true, re.isSuccess());
     }
+
+    @Test
+    public void test_Imd_SuccessRes_03() {
+        String input = _read_input("imd_res_03");
+
+        EdiInterchange ic = EdiInterchange.parse(input);
+        EdiMessage msg = ic.getFirstMessage();
+        IMDResLoader loader = EdiMsgs.getIMDResLoader();
+        IcsReplyImdRes re = loader.load(msg);
+        System.out.println(Json.toJson(re, JsonFormat.full()));
+        assertEquals(true, re.isSuccess());
+    }
 }
