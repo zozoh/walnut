@@ -45,7 +45,7 @@ public class IcsReplyImdRes extends IcsCommonReply {
 
 
     public IcsReplyImdRes() {
-        super("CUSRES");
+        super("IMDR");
         imdStatus = new HashMap<>();
     }
 

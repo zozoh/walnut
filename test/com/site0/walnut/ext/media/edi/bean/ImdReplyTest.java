@@ -31,6 +31,7 @@ public class ImdReplyTest {
         IcsReplyImdRes re = loader.load(msg);
         System.out.println(Json.toJson(re, JsonFormat.full()));
 
+        assertEquals("IMDR", re.getMsgType());
         assertEquals(11, re.getFuncCode());
         assertEquals(null, re.getDutyDate());
 
@@ -84,7 +85,8 @@ public class ImdReplyTest {
         EdiMessage msg = ic.getFirstMessage();
         IMDResLoader loader = EdiMsgs.getIMDResLoader();
         IcsReplyImdRes re = loader.load(msg);
-        System.out.println(Json.toJson(re, JsonFormat.full()));
+        // System.out.println(Json.toJson(re, JsonFormat.full()));
+        assertEquals("IMDR", re.getMsgType());
         assertEquals(true, re.isSuccess());
     }
 
@@ -96,7 +98,8 @@ public class ImdReplyTest {
         EdiMessage msg = ic.getFirstMessage();
         IMDResLoader loader = EdiMsgs.getIMDResLoader();
         IcsReplyImdRes re = loader.load(msg);
-        System.out.println(Json.toJson(re, JsonFormat.full()));
+        //System.out.println(Json.toJson(re, JsonFormat.full()));
+        assertEquals("IMDR", re.getMsgType());
         assertEquals(true, re.isSuccess());
     }
 }
