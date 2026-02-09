@@ -15,6 +15,24 @@ import com.site0.walnut.util.Wlang;
 public class WnSqlTmplTest {
 
     @Test
+    public void test_update_with_fpref() {
+        String s = "UPDATE t_pet SET pick=0${@vars=update;omit=id;prefix=,} WHERE ${@vars=where; pick=id}";
+        NutMap context = NutMap
+            .WRAP("{id:\"f000\", name:\"xiaobai\"}");
+        WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
+        List<SqlParam> params = new ArrayList<>(2);
+        String sql = sqlt.render(context, params);
+        assertEquals("UPDATE t_pet SET pick=0,name=? WHERE id=?", sql);
+        assertEquals(2, params.size());
+        assertEquals("name=\"xiaobai\"", params.get(0).toString());
+        assertEquals("id=\"f000\"", params.get(1).toString());
+
+        sql = sqlt.render(context, null);
+        assertEquals("UPDATE t_pet SET pick=0,name='xiaobai' WHERE id='f000'",
+                     sql);
+    }
+
+    @Test
     public void test_update_with_self_field() {
         String s = "UPDATE t_pet SET ${@vars=update;omit=id} WHERE ${@vars=where; pick=id}";
         NutMap context = NutMap
