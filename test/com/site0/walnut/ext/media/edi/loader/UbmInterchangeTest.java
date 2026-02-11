@@ -1,8 +1,7 @@
-package com.site0.walnut.ext.media.edi.bean;
+package com.site0.walnut.ext.media.edi.loader;
 
-import com.site0.walnut.ext.media.edi.loader.EdiMsgs;
-import com.site0.walnut.ext.media.edi.loader.UBMErrLoader;
-import com.site0.walnut.ext.media.edi.loader.UBMResLoader;
+import com.site0.walnut.ext.media.edi.bean.EdiInterchange;
+import com.site0.walnut.ext.media.edi.bean.EdiMessage;
 import com.site0.walnut.ext.media.edi.msg.reply.EdiReplyError;
 import com.site0.walnut.ext.media.edi.msg.reply.ubm.IcsReplyUbmErr;
 import com.site0.walnut.ext.media.edi.msg.reply.ubm.IcsReplyUbmRes;
