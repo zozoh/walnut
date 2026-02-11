@@ -9,7 +9,7 @@ public class RefundAdv extends IcsCommonReply {
     }
 
     // FTX+ACB
-    private String senderRef;
+    private String drawbackId;
     // FTX+ACD
     private String cusActReason;
 
@@ -30,12 +30,12 @@ public class RefundAdv extends IcsCommonReply {
 
     private String brokerRef;    // ADU
 
-    public String getSenderRef() {
-        return senderRef;
+    public String getDrawbackId() {
+        return drawbackId;
     }
 
-    public void setSenderRef(String senderRef) {
-        this.senderRef = senderRef;
+    public void setDrawbackId(String drawbackId) {
+        this.drawbackId = drawbackId;
     }
 
     public String getCusActReason() {

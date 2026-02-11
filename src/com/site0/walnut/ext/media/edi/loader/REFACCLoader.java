@@ -37,11 +37,11 @@ public class REFACCLoader implements EdiMsgLoader<RefundAdv> {
             for (EdiSegment seg : segs) {
                 nutMap.clear();
                 // 1:SubjectCode, 2:TextFunc, 3:TextRef, 4:textValue
-                seg.fillBean(nutMap, null, "subjectCode,,,textValue");
+                seg.fillBean(nutMap, null, "subjectCode", null, null, "textValue");
                 String subjectCode = nutMap.getString("subjectCode");
                 String textValue = nutMap.getString("textValue");
                 if ("ACB".equals(subjectCode)) {
-                    re.setSenderRef(textValue);
+                    re.setDrawbackId(textValue);
                 } else if ("ACD".equals(subjectCode)) {
                     re.setCusActReason(textValue);
                 }

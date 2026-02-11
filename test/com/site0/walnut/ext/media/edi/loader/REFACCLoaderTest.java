@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Files;
+import static org.junit.Assert.*;
 
 public class REFACCLoaderTest {
 
@@ -27,6 +28,18 @@ public class REFACCLoaderTest {
         RefundAdv re = loader.load(msg);
         System.out.println(Json.toJson(re, JsonFormat.full()));
 
+        assertNotNull(re);
+        assertEquals(0, re.getRstVer());
+        assertEquals("ISMEL4106", re.getDrawbackId());
+        assertEquals("FJM396H", re.getMsgRecipient());
+        assertEquals("AF46JR", re.getBranchId());
+        assertEquals("MASTER LOGISTICS PTY LTD", re.getBrokerName());
+        assertEquals("B00058894/1/PRD1", re.getRefId());
+        assertEquals("b00058894/1/prd1", re.getRefIdInLower());
+        assertEquals(2, re.getRefVer());
+        assertEquals("AE3AFP7X4", re.getImpDecNum());
+        assertEquals("2", re.getImpDecNumVer());
+        assertEquals("B00058894", re.getBrokerRef());
     }
 
 }
