@@ -54,7 +54,7 @@ public class PAYRECLoader implements EdiMsgLoader<PayRecRes> {
             segs = finder.nextAll(true, "NAD");
             for (EdiSegment seg : segs) {
                 nutMap.clear();
-                seg.fillBean(nutMap, null, "funcCode", "partyId,,agencyCode,bankAccName");
+                seg.fillBean(nutMap, null, "funcCode", "partyId,,agencyCode", null, "bankAccName");
                 String funcCode = nutMap.getString("funcCode");
                 String partyId = nutMap.getString("partyId");
 
@@ -67,11 +67,11 @@ public class PAYRECLoader implements EdiMsgLoader<PayRecRes> {
                 } else if ("COQ".equals(funcCode)) {
                     re.setBsbNum(partyId);
                 } else if ("IM".equals(funcCode)) {
-                    re.setImporterId(funcCode);
+                    re.setImporterId(partyId);
                 } else if ("MR".equals(funcCode)) {
                     re.setMsgRecipient(partyId);
                 } else if ("VT".equals(funcCode)) {
-                    re.setBranchId(funcCode);
+                    re.setBranchId(partyId);
                 }
             }
         }
@@ -114,17 +114,19 @@ public class PAYRECLoader implements EdiMsgLoader<PayRecRes> {
             List<Map<String, String>> moaList = new ArrayList<>();
             segs = finder.nextAllUntilStopTag(true, new String[]{"TAX", "MOA"}, new String[]{"UNT"});
             for (EdiSegment seg : segs) {
-                nutMap.clear();
-                seg.fillBean(nutMap, null, "amountType,amountValue");
-                String amountType = nutMap.getString("amountType");
-                String amountValue = nutMap.getString("amountValue");
-                if (amountValue != null && !amountValue.trim().isEmpty()) {
-                    amountValue = new BigDecimal(amountValue).stripTrailingZeros().toPlainString();
+                if (seg.isOf("MOA")) {
+                    nutMap.clear();
+                    seg.fillBean(nutMap, null, "amountType,amountValue");
+                    String amountType = nutMap.getString("amountType");
+                    String amountValue = nutMap.getString("amountValue");
+                    if (amountValue != null && !amountValue.trim().isEmpty()) {
+                        amountValue = new BigDecimal(amountValue).stripTrailingZeros().toPlainString();
+                    }
+                    Map<String, String> map = new HashMap<>();
+                    map.put("amtCode", amountType);
+                    map.put("amtValue", amountValue);
+                    moaList.add(map);
                 }
-                Map<String, String> map = new HashMap<>();
-                map.put("amtCode", amountType);
-                map.put("amtValue", amountValue);
-                moaList.add(map);
             }
             re.setMoaList(moaList);
         }

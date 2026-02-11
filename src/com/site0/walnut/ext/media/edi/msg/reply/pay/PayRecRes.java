@@ -84,7 +84,7 @@ public class PayRecRes extends IcsCommonReply {
     }
 
     public void setBsbNum(String bsbNum) {
-        bsbNum = bsbNum;
+        this.bsbNum = bsbNum;
     }
 
     public String getImporterId() {
