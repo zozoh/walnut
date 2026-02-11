@@ -70,15 +70,51 @@ public class PAYRECMsgTest {
         assertEquals("23", m1.get("amtCode"));
         assertEquals("50", m1.get("amtValue"));
 
+        // MOA+9:0000000000000.00'
+        Map<String, String> m2 = moaList.get(2);
+        assertEquals("9", m2.get("amtCode"));
+        assertEquals("0", m2.get("amtValue"));
+
+        // MOA+58:0000000000000.00'
+        Map<String, String> m3 = moaList.get(3);
+        assertEquals("58", m3.get("amtCode"));
+        assertEquals("0", m3.get("amtValue"));
+
+        // MOA+149:0000000000000.00'
+        Map<String, String> m4 = moaList.get(4);
+        assertEquals("149", m4.get("amtCode"));
+        assertEquals("0", m4.get("amtValue"));
+
         // MOA+369:0000000000405.58'
         Map<String, String> m5 = moaList.get(5);
         assertEquals("369", m5.get("amtCode"));
         assertEquals("405.58", m5.get("amtValue"));
 
+        // MOA+371:0000000000000.00'
+        Map<String, String> m6 = moaList.get(6);
+        assertEquals("371", m6.get("amtCode"));
+        assertEquals("0", m6.get("amtValue"));
+
+        // MOA+26:0000000000049.00'
+        Map<String, String> m7 = moaList.get(7);
+        assertEquals("26", m7.get("amtCode"));
+        assertEquals("49", m7.get("amtValue"));
+
+        // MOA+206:0000000000000.00'
+        Map<String, String> m8 = moaList.get(8);
+        assertEquals("206", m8.get("amtCode"));
+        assertEquals("0", m8.get("amtValue"));
+
+        // MOA+304:0000000000000.00'
+        Map<String, String> m9 = moaList.get(9);
+        assertEquals("304", m9.get("amtCode"));
+        assertEquals("0", m9.get("amtValue"));
+
         // MOA+128:0000000000504.58'
         Map<String, String> mLast = moaList.get(10);
         assertEquals("128", mLast.get("amtCode"));
         assertEquals("504.58", mLast.get("amtValue"));
+
 
     }
 
