@@ -30,6 +30,8 @@ public abstract class EdiMsgs {
         loaders.put("UBMREQE", new UBMErrLoader());
         loaders.put("UBMREQR", new UBMResLoader());
         loaders.put("IMDR", new IMDResLoader());
+        loaders.put("PAYREC", new PAYRECLoader());
+        loaders.put("REFACC", new REFACCLoader());
     }
 
     public static String getLoaderType(EdiMessage msg) {
@@ -85,4 +87,13 @@ public abstract class EdiMsgs {
     public static IMDResLoader getIMDResLoader() {
         return (IMDResLoader) loaders.get("IMDR");
     }
+
+    public static PAYRECLoader getPAYRECLoader() {
+        return (PAYRECLoader) loaders.get("PAYREC");
+    }
+
+    public static REFACCLoader getREFACCLoader() {
+        return (REFACCLoader) loaders.get("REFACC");
+    }
+
 }
