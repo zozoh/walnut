@@ -15,10 +15,42 @@ import com.site0.walnut.util.Wlang;
 public class WnSqlTmplTest {
 
     @Test
+    public void test_where_with_fpref() {
+        String s = "SELECT t_pet WHERE ${@vars=where; fpref=A.}";
+        NutMap context = NutMap.WRAP("{st:\"[1,]\", name:\"xiaobai\"}");
+        WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
+        List<SqlParam> params = new ArrayList<>(2);
+        String sql = sqlt.render(context, params);
+        assertEquals("SELECT t_pet WHERE A.st>=? AND A.name=?", sql);
+        assertEquals(2, params.size());
+        assertEquals("A.st=1", params.get(0).toString());
+        assertEquals("A.name=\"xiaobai\"", params.get(1).toString());
+
+        sql = sqlt.render(context, null);
+        assertEquals("SELECT t_pet WHERE A.st>=1 AND A.name='xiaobai'", sql);
+    }
+    
+    @Test
+    public void test_where_with_fpref2() {
+        String s = "SELECT t_pet WHERE ${@vars=where; fpref=A.}";
+        NutMap context = NutMap.WRAP("{st:\"[1,6]\", name:\"xiaobai\"}");
+        WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
+        List<SqlParam> params = new ArrayList<>(2);
+        String sql = sqlt.render(context, params);
+        assertEquals("SELECT t_pet WHERE (A.st>=? AND A.st<=?) AND A.name=?", sql);
+        assertEquals(3, params.size());
+        assertEquals("A.st=1", params.get(0).toString());
+        assertEquals("A.st=6", params.get(1).toString());
+        assertEquals("A.name=\"xiaobai\"", params.get(2).toString());
+
+        sql = sqlt.render(context, null);
+        assertEquals("SELECT t_pet WHERE (A.st>=1 AND A.st<=6) AND A.name='xiaobai'", sql);
+    }
+
+    @Test
     public void test_update_with_fpref() {
         String s = "UPDATE t_pet SET pick=0${@vars=update;omit=id;prefix=,} WHERE ${@vars=where; pick=id}";
-        NutMap context = NutMap
-            .WRAP("{id:\"f000\", name:\"xiaobai\"}");
+        NutMap context = NutMap.WRAP("{id:\"f000\", name:\"xiaobai\"}");
         WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
         List<SqlParam> params = new ArrayList<>(2);
         String sql = sqlt.render(context, params);

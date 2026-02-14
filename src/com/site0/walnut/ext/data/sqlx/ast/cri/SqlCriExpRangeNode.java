@@ -140,4 +140,18 @@ public class SqlCriExpRangeNode extends SqlCriExpressionNode {
 
     }
 
+    @Override
+    public void setFieldPrefix(String fieldPrefix) {
+        super.setFieldPrefix(fieldPrefix);
+        if (null != this.left) {
+            this.left.setFieldPrefix(fieldPrefix);
+        }
+        if (null != this.right) {
+            this.right.setFieldPrefix(fieldPrefix);
+        }
+        if (null != this.eq) {
+            this.eq.setFieldPrefix(fieldPrefix);
+        }
+    }
+
 }
