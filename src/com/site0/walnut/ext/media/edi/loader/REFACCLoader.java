@@ -21,6 +21,7 @@ public class REFACCLoader implements EdiMsgLoader<RefundAdv> {
     public RefundAdv load(EdiMessage msg) {
         RefundAdv re = new RefundAdv();
         re.setRstVer(0);
+        re.setSuccess(true);
 
         EdiSegmentFinder finder = msg.getFinder();
         NutMap nutMap = new NutMap();

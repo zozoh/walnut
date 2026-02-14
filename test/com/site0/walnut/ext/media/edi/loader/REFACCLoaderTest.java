@@ -31,6 +31,7 @@ public class REFACCLoaderTest {
 
         assertNotNull(re);
         assertEquals(0, re.getRstVer());
+        assertEquals(true, re.isSuccess());
         assertEquals("ISMEL4106", re.getDrawbackId());
         assertEquals("FJM396H", re.getMsgRecipient());
         assertEquals("AF46JR", re.getBranchId());
@@ -54,6 +55,7 @@ public class REFACCLoaderTest {
 
         assertNotNull(re);
         assertEquals(0, re.getRstVer());
+        assertEquals(true, re.isSuccess());
         assertEquals("KM23016-1", re.getDrawbackId());
         assertEquals("FJM396H", re.getMsgRecipient());
         assertEquals("AF46JR", re.getBranchId());
@@ -77,6 +79,7 @@ public class REFACCLoaderTest {
 
         assertNotNull(re);
         assertEquals(0, re.getRstVer());
+        assertEquals(true, re.isSuccess());
         assertEquals("ISMEL4159E", re.getDrawbackId());
         assertEquals("FJM396H", re.getMsgRecipient());
         assertEquals("AF46JR", re.getBranchId());
