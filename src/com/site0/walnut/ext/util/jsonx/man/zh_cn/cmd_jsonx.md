@@ -33,7 +33,7 @@ jsonx [options] [[@filter filter-args...]...]
 @list2map   # 将一个列表转换为Map
 @map2list   # 将一个Map转换为列表
 @merge      # 将输入的JSON合并到上下文中
-@put        # 向上下文中设置更多的值
+@put        # 向上下文对象中设置更多的值或将上下文列表计对象
 @remove     # 从上下文中移除某些键
 @append     # 假设上下文为列表，向其尾部压入更多对象
 @prepend    # 假设上下文为列表，向其首部压入更多对象
