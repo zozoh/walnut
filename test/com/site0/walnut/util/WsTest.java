@@ -1,9 +1,8 @@
 package com.site0.walnut.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +13,107 @@ import com.site0.walnut.util.callback.WnStrToken;
 import com.site0.walnut.util.callback.WnStrTokenCallback;
 
 public class WsTest {
+
+    @Test
+    public void test_truncateByBytes() {
+        // 1. 纯ASCII（每字符1字节）
+        assertEquals("Hello", Ws.truncateByBytes("Hello World", 5));
+        assertEquals("Hello World", Ws.truncateByBytes("Hello World", 11)); // 刚好相等
+        assertEquals("", Ws.truncateByBytes("Hello", 0)); // 边界0
+
+        // 2. 纯中文（每字符3字节）
+        String chinese = "你好世界";
+        assertEquals(12, chinese.getBytes(StandardCharsets.UTF_8).length); // 确认4个汉字=12字节
+
+        assertEquals("", Ws.truncateByBytes(chinese, 1)); // 1字节装不下任何汉字
+        assertEquals("", Ws.truncateByBytes(chinese, 2)); // 2字节也装不下
+        assertEquals("你", Ws.truncateByBytes(chinese, 3)); // 刚好1个汉字
+        assertEquals("你", Ws.truncateByBytes(chinese, 4)); // 4字节只能放下"你"（3字节），保守策略
+        assertEquals("你好", Ws.truncateByBytes(chinese, 6)); // 2个汉字
+        assertEquals("你好世", Ws.truncateByBytes(chinese, 9));
+        assertEquals(chinese, Ws.truncateByBytes(chinese, 12)); // 刚好全部
+        assertEquals(chinese, Ws.truncateByBytes(chinese, 100)); // 超过总长度
+
+        // 3. 中英文混合："Hi你好"
+        // H(1) + i(1) + 你(3) + 好(3) = 8字节
+        String mixed = "Hi你好";
+        assertEquals("", Ws.truncateByBytes(mixed, 0));
+        assertEquals("H", Ws.truncateByBytes(mixed, 1));
+        assertEquals("Hi", Ws.truncateByBytes(mixed, 2));
+        assertEquals("Hi", Ws.truncateByBytes(mixed, 3)); // 3字节只能放"Hi"（2字节），不能放"你"（3字节）
+        assertEquals("Hi你", Ws.truncateByBytes(mixed, 5)); // 2+3=5
+        assertEquals(mixed, Ws.truncateByBytes(mixed, 8));
+
+        // 4. Emoji测试（4字节字符）😀
+        String emoji = "A😀B😀C"; // 1+4+1+4+1 = 11字节
+        assertEquals("A", Ws.truncateByBytes(emoji, 1)); // "A" 正好是 1 字节
+        assertEquals("A", Ws.truncateByBytes(emoji, 2)); // 2字节也只能放下"A"（Emoji要4字节）
+        assertEquals("A", Ws.truncateByBytes(emoji, 3));
+        assertEquals("A", Ws.truncateByBytes(emoji, 4)); // 4字节仍然不够"A😀"(5字节)
+        assertEquals("A😀", Ws.truncateByBytes(emoji, 5)); // 刚好放下
+        assertEquals("A😀", Ws.truncateByBytes(emoji, 5)); // 1+4=5，刚好
+        assertEquals("A😀B", Ws.truncateByBytes(emoji, 6));
+        assertEquals("A😀B😀", Ws.truncateByBytes(emoji, 10));
+        assertEquals(emoji, Ws.truncateByBytes(emoji, 11));
+
+        // 5. 多字节边界测试：确保不会截断在字符中间产生乱码
+        String testStr = "中";
+        for (int i = 1; i < 3; i++) {
+            String result = Ws.truncateByBytes(testStr, i);
+            // 任何情况下都不应该有乱码（替换字符 U+FFFD）
+            // , "截断在" + i + "字节时不应产生乱码"
+            assertFalse(result.contains("\uFFFD"));
+        }
+
+        // 6. 长字符串性能测试（确保O(1)性能）
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 10000; i++) {
+            sb.append("abcdefghij"); // 100字节 per iter
+        }
+        String longStr = sb.toString();
+        long start = System.currentTimeMillis();
+        String truncated = Ws.truncateByBytes(longStr, 50);
+        long cost = System.currentTimeMillis() - start;
+        assertEquals(50, truncated.getBytes(StandardCharsets.UTF_8).length);
+        // , "处理大字符串应该很快，实际耗时" + cost + "ms"
+        assertTrue(cost < 100);
+
+        // 7. Null和空字符串
+        assertEquals("", Ws.truncateByBytes(null, 10));
+        assertEquals("", Ws.truncateByBytes("", 10));
+
+        // 8. 特殊字符：希腊文（2字节）、日文（3字节）
+        String greek = "αβγ"; // 希腊文小写字母，UTF-8中各占2字节
+        assertEquals("", Ws.truncateByBytes(greek, 1));
+        assertEquals("α", Ws.truncateByBytes(greek, 2));
+        assertEquals("α", Ws.truncateByBytes(greek, 3)); // 3字节只能放"α"（2字节），"β"需要2字节，2+2=4>3
+        assertEquals("αβ", Ws.truncateByBytes(greek, 4));
+
+        String japanese = "こんにちは"; // 假名，3字节
+        assertEquals("こ", Ws.truncateByBytes(japanese, 3));
+        assertEquals("こん", Ws.truncateByBytes(japanese, 6));
+
+        // 9. 阿拉伯文（RTL，从右到左，但字节计算方式相同）
+        String arabic = "مرحبا"; // 阿拉伯文"你好"
+        byte[] arabicBytes = arabic.getBytes(StandardCharsets.UTF_8);
+        int arabicTotalBytes = arabicBytes.length;
+        assertEquals(arabic, Ws.truncateByBytes(arabic, arabicTotalBytes));
+        // 截断一半（阿拉伯文字母通常是2字节）
+        String truncatedArabic = Ws.truncateByBytes(arabic,
+                                                    arabicTotalBytes / 2);
+        assertFalse(truncatedArabic.contains("\uFFFD"));
+
+        // 10. 极长字符序列测试（确保不会StackOverflow或OOM）
+        StringBuilder huge = new StringBuilder();
+        for (int i = 0; i < 100000; i++) {
+            huge.append("中"); // 30万字节
+        }
+        String hugeStr = huge.toString();
+        String result = Ws.truncateByBytes(hugeStr, 100);
+        // 33个汉字 = 99字节，第34个会超出，所以只能是99
+        assertEquals(99, result.getBytes(StandardCharsets.UTF_8).length);
+        assertEquals(33, result.length());
+    }
 
     @Test
     public void test_splitQuote() {
@@ -48,7 +148,8 @@ public class WsTest {
 
     @Test
     public void test_splitAttrMap2() {
-        NutBean map = Ws.splitAttrMap("style=color:red; align=center contenteditable");
+        NutBean map = Ws
+            .splitAttrMap("style=color:red; align=center contenteditable");
         assertEquals("color:red;", map.get("style"));
         assertEquals("center", map.get("align"));
         assertTrue(map.containsKey("contenteditable"));
@@ -57,7 +158,8 @@ public class WsTest {
 
     @Test
     public void test_splitAttrMap() {
-        NutBean map = Ws.splitAttrMap("style=\"color:red;\" align=\"center\" contenteditable");
+        NutBean map = Ws
+            .splitAttrMap("style=\"color:red;\" align=\"center\" contenteditable");
         assertEquals("color:red;", map.get("style"));
         assertEquals("center", map.get("align"));
         assertTrue(map.containsKey("contenteditable"));
@@ -81,7 +183,10 @@ public class WsTest {
                     break;
                 // 引号
                 case QUOTE:
-                    String s = String.format("%s%s%s", token.quoteC, token.text, token.quoteC);
+                    String s = String.format("%s%s%s",
+                                             token.quoteC,
+                                             token.text,
+                                             token.quoteC);
                     list.add(s);
                     break;
                 // 其他的就是错误

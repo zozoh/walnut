@@ -28,6 +28,7 @@ public class HisRuntimeItem {
 
     private String toPipeKey;
 
+    private HisRuntimeTrimData[] trimData;
     private HisRuntimeSetData[] setData;
 
     public HisRuntimeItem(WnSystem sys, HisConfigItem conf) {
@@ -40,8 +41,23 @@ public class HisRuntimeItem {
         this.ignoreRecord = __eval_match(conf.getIgnoreRecord(), false);
         this.ignoreContext = __eval_match(conf.getIgnoreContext(), false);
 
-        // 数据处理
+        // 数据创建
         this.data = WnExplains.parse(conf.getData());
+
+        // 数据剪裁
+        if (conf.hasTrimData()) {
+            HisConfigTrimData[] tds = conf.getTrimData();
+            this.trimData = new HisRuntimeTrimData[tds.length];
+            for (int i = 0; i < tds.length; i++) {
+                HisConfigTrimData td = tds[i];
+                HisRuntimeTrimData rtd = new HisRuntimeTrimData();
+                rtd.name = td.getName();
+                rtd.maxSize = td.getMaxSize();
+                this.trimData[i] = rtd;
+            }
+        }
+
+        // 数据处理
         if (conf.hasSetData()) {
             HisConfigSetData[] sds = conf.getSetData();
             this.setData = new HisRuntimeSetData[sds.length];
@@ -100,6 +116,15 @@ public class HisRuntimeItem {
         myContext.put("item", record);
         Object re = this.data.explain(myContext);
         NutMap bean = NutMap.WrapAny(re);
+        // 有些时候这个 bean 里面的 op_data 可能会太大，当然也可能是其他的字段
+        // 为了保证记录能被顺利插入，我们需要对每个字段的值做一些裁剪
+        if (null != this.trimData) {
+            for (HisRuntimeTrimData td : this.trimData) {
+                td.doTrim(bean);
+            }
+        }
+
+        // 设置额外数据字段
         if (null != this.setData) {
             for (HisRuntimeSetData sd : this.setData) {
                 // 仅设置默认值
