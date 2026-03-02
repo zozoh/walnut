@@ -5,8 +5,8 @@
 	<groupId>com.site0</groupId>
 	<packaging>jar</packaging>
 	<name>walnut</name>
-	<version>15.41</version>
-	<description>LOONG[ZIP]</description>
+	<version>15.42</version>
+	<description>COLT[EDI]</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<elasticsearch.version>6.3.2</elasticsearch.version>

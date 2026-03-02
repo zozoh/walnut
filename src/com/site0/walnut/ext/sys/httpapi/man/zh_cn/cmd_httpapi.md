@@ -10,4 +10,5 @@
     
     list    : 列出所有的 api， @see `man httpapi list`
     invoke  : 执行某个 api,   @see `main httpai invoke`
+    recall  : 重新执行某个请求文件
     
