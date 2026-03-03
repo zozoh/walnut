@@ -109,6 +109,11 @@ public abstract class AbstractXoService<T> implements XoService {
         return re;
     }
 
+    @Override
+    public int resetClients() {
+        return this.getter.clearClinetsCache();
+    }
+
     public boolean equals(Object other) {
         if (null == other)
             return false;

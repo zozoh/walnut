@@ -31,4 +31,10 @@ public class WnSimpleClientGetter<T> implements XoClientGetter<T> {
         return client;
     }
 
+    @Override
+    public int clearClinetsCache() {
+        // 测试用简单连接，不需要重置连接
+        return 0;
+    }
+
 }

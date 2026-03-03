@@ -35,7 +35,8 @@ public class XoClientManager<T> {
                         clients.remove(key);
                     }
                     try {
-                        XoClientBuilder<T> ing = provider.getBuilder(io, oHome, name);
+                        XoClientBuilder<T> ing = provider
+                            .getBuilder(io, oHome, name);
                         re = ing.build();
                         clients.put(key, re);
                     }
@@ -47,6 +48,25 @@ public class XoClientManager<T> {
             }
         }
         return re;
+    }
+
+    public int closeAllClients() {
+        // 防空
+        if (this.clients.isEmpty()) {
+            return 0;
+        }
+
+        synchronized (clients) {
+            if (this.clients.isEmpty()) {
+                return 0;
+            }
+            for (XoClientWrapper<T> c : this.clients.values()) {
+                c.close();
+            }
+            int re = this.clients.size();
+            this.clients.clear();
+            return re;
+        }
     }
 
 }
