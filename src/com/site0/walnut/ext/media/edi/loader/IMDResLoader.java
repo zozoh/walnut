@@ -52,7 +52,7 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
         }
 
         // 定位到 DTM 报文行
-        boolean findFtx = finder.moveToUtil("FTX", true, "NAD", "RFF");
+        boolean findFtx = finder.moveToUtil("FTX", true, "NAD", "RFF", "ERP");
         if (findFtx) {
             segs = finder.nextAll(true, "FTX");
             for (EdiSegment item : segs) {

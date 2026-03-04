@@ -273,7 +273,7 @@ public class EdiSegmentFinder {
             seg = it.next();
             stepNum++;
 
-            if (seg.isTag(goalTag)) {
+            if (seg.isOf(goalTag)) {
                 findOne = true;
                 if (backOneSegment) {
                     it.previous();
@@ -281,7 +281,7 @@ public class EdiSegmentFinder {
                 break;
             }
             if (stopTags != null && stopTags.length > 0) {
-                if (seg.is(stopTags)) {
+                if (seg.isOf(stopTags)) {
                     break;
                 }
             }

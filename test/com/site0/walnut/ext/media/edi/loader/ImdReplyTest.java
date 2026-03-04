@@ -102,4 +102,22 @@ public class ImdReplyTest {
         assertEquals("IMDR", re.getMsgType());
         assertEquals(true, re.isSuccess());
     }
+
+    @Test
+    public void test_Imd_ErrRes_04() {
+        String input = _read_input("imd_res_04");
+
+        EdiInterchange ic = EdiInterchange.parse(input);
+        EdiMessage msg = ic.getFirstMessage();
+        IMDResLoader loader = EdiMsgs.getIMDResLoader();
+        IcsReplyImdRes re = loader.load(msg);
+        System.out.println(Json.toJson(re, JsonFormat.full()));
+        assertEquals("IMDR", re.getMsgType());
+        assertEquals(false, re.isSuccess());
+        assertEquals("AAR399A", re.getMsgRecipient());
+        assertEquals("MK0YGTPYY4RH0X9BWS", re.getRefId());
+        assertEquals("mk0ygtpyy4rh0x9bws", re.getRefIdInLower());
+        assertEquals(3, re.getRefVer());
+        assertEquals(11, re.getFuncCode());
+    }
 }
