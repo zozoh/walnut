@@ -9,7 +9,9 @@ import software.amazon.awssdk.services.s3.S3Client;
 public class S3ClientProvider implements XoClientProvider<S3Client> {
 
     @Override
-    public XoClientBuilder<S3Client> getBuilder(WnIo io, WnObj oHome, String name)
+    public XoClientBuilder<S3Client> getBuilder(WnIo io,
+                                                WnObj oHome,
+                                                String name)
             throws Exception {
         return new S3LongTermClientBuilder(io, oHome, name);
     }

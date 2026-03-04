@@ -6,6 +6,7 @@ import com.site0.walnut.ext.xo.builder.XoClientBuilder;
 
 public interface XoClientProvider<T> {
 
-    XoClientBuilder<T> getBuilder(WnIo io, WnObj oHome, String name) throws Exception;
+    XoClientBuilder<T> getBuilder(WnIo io, WnObj oHome, String name)
+            throws Exception;
 
 }

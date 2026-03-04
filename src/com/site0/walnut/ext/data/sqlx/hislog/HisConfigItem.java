@@ -18,12 +18,17 @@ public class HisConfigItem {
 
     private NutMap data;
 
+    private HisConfigTrimData[] trimData;
+
     private HisConfigSetData[] setData;
 
     private String to;
 
     public boolean isValid() {
-        return !Ws.isBlank(sqlName) && !Ws.isBlank(to) && null != data && !data.isEmpty();
+        return !Ws.isBlank(sqlName)
+               && !Ws.isBlank(to)
+               && null != data
+               && !data.isEmpty();
     }
 
     public String getSqlName() {
@@ -72,6 +77,18 @@ public class HisConfigItem {
 
     public void setData(NutMap data) {
         this.data = data;
+    }
+
+    public boolean hasTrimData() {
+        return null != this.trimData && this.trimData.length > 0;
+    }
+
+    public HisConfigTrimData[] getTrimData() {
+        return trimData;
+    }
+
+    public void setTrimData(HisConfigTrimData[] trimData) {
+        this.trimData = trimData;
     }
 
     public boolean hasSetData() {

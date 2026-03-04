@@ -10,6 +10,8 @@ import com.site0.walnut.ext.xo.bean.XoBean;
 
 public interface XoService {
 
+    int resetClients();
+
     boolean equals(Object other);
 
     void mkdir(String dirKey);
@@ -58,5 +60,5 @@ public interface XoService {
     void copy(String srcKey, String dstKey);
 
     void clear(String objKey);
-    
+
 }

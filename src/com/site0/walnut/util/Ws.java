@@ -2,6 +2,7 @@ package com.site0.walnut.util;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,6 +34,77 @@ import com.site0.walnut.util.str.WnStrCases;
  * @author zozoh(zozohtnt@gmail.com)
  */
 public class Ws {
+
+    /**
+     * 按字节长度裁剪字符串（UTF-8编码），不会截断多字节字符
+     * 
+     * @param str
+     *            输入字符串
+     * @param maxBytes
+     *            最大字节数（UTF-8编码下）
+     * @return 裁剪后的字符串，确保不会截断字符
+     */
+    public static String truncateByBytes(String str, int maxBytes) {
+        if (str == null || maxBytes <= 0) {
+            return "";
+        }
+
+        if (str.getBytes(StandardCharsets.UTF_8).length <= maxBytes) {
+            return str;
+        }
+
+        int byteCount = 0;
+        int charIndex = 0;
+        int length = str.length();
+
+        while (charIndex < length) {
+            char c = str.charAt(charIndex);
+            int charBytes;
+
+            // 计算当前字符在UTF-8下的字节数
+            if (c < 0x80) {
+                charBytes = 1;
+            } else if (c < 0x800) {
+                charBytes = 2;
+            } else if (c >= 0xD800 && c <= 0xDBFF) {
+                // 高代理项 (High Surrogate)
+                if (charIndex + 1 < length) {
+                    char next = str.charAt(charIndex + 1);
+                    if (next >= 0xDC00 && next <= 0xDFFF) {
+                        // 有效的代理对 (Emoji): 4字节
+                        charBytes = 4;
+
+                        // ⚠️ 关键修复：先检查是否能放下，再增加索引
+                        if (byteCount + charBytes > maxBytes) {
+                            break;
+                        }
+                        byteCount += charBytes;
+                        charIndex += 2; // 同时跳过高低代理项
+                        continue; // 跳过后面的统一递增
+                    } else {
+                        charBytes = 3;
+                    }
+                } else {
+                    charBytes = 3;
+                }
+            } else if (c >= 0xDC00 && c <= 0xDFFF) {
+                // 孤立的低代理项（异常情况）：3字节
+                charBytes = 3;
+            } else {
+                charBytes = 3;
+            }
+
+            // 保守策略：如果加入这个字符会超限，就停止
+            if (byteCount + charBytes > maxBytes) {
+                break;
+            }
+
+            byteCount += charBytes;
+            charIndex++;
+        }
+
+        return str.substring(0, charIndex);
+    }
 
     /**
      * 将一个用 A-Z表示的字符串转换为一个 1Base的整数
@@ -327,7 +399,8 @@ public class Ws {
         return new String(utf8Bytes, Encoding.CHARSET_UTF8);
     }
 
-    private static Pattern P_HTML_EN = Pattern.compile("&(#([0-9]+)|([a-z]+));");
+    private static Pattern P_HTML_EN = Pattern
+        .compile("&(#([0-9]+)|([a-z]+));");
 
     public static String escapeHTML(String s) {
         if (null == s) {
@@ -541,7 +614,9 @@ public class Ws {
      *            右字符
      * @return 字符串是被左字符和右字符包裹
      */
-    public static boolean isQuoteByIgnoreBlank(CharSequence cs, char lc, char rc) {
+    public static boolean isQuoteByIgnoreBlank(CharSequence cs,
+                                               char lc,
+                                               char rc) {
         if (null == cs)
             return false;
         int len = cs.length();
@@ -662,7 +737,10 @@ public class Ws {
      *            迭代元素数量
      * @return 合并后的字符串
      */
-    public static <T extends Object> String join(T[] arr, String sep, int off, int len) {
+    public static <T extends Object> String join(T[] arr,
+                                                 String sep,
+                                                 int off,
+                                                 int len) {
         StringBuilder sb = new StringBuilder();
         if (len > 0) {
             int lastI = Math.min(arr.length, off + len);
@@ -866,7 +944,9 @@ public class Ws {
      *            </ul>
      * @return 经过分割、去除首尾空白字符以及将空字符串处理为null后的字符串数组。
      */
-    public static String[] splitTrimedEmptyAsNull(String s, String regex, int limit) {
+    public static String[] splitTrimedEmptyAsNull(String s,
+                                                  String regex,
+                                                  int limit) {
         String[] ss = s.split(regex, limit);
         for (int i = 0; i < ss.length; i++) {
             ss[i] = ss[i].trim();
@@ -927,7 +1007,9 @@ public class Ws {
      *            </ul>
      * @return 一个包含经过处理后的非空白子字符串的列表，若输入字符串为null则返回null，列表中的每个元素都是去除首尾空白字符后的非空白子字符串。
      */
-    public static List<String> splitIgnoreBlanks(String s, String regex, int limit) {
+    public static List<String> splitIgnoreBlanks(String s,
+                                                 String regex,
+                                                 int limit) {
         if (null == s)
             return null;
         String[] ss = s.split(regex, limit);
@@ -956,10 +1038,12 @@ public class Ws {
                                                    '\\');
 
     // 解码过程表: 转义字符串 -> 真正字符
-    public static final Wchar.EscapeTable STR_UNESC_TAB = Wchar.buildEscapeTable(STR_ESC_TS);
+    public static final Wchar.EscapeTable STR_UNESC_TAB = Wchar
+        .buildEscapeTable(STR_ESC_TS);
 
     // 编码过程表: 真正字符 -> 转义字符串
-    public static final Wchar.EscapeTable STR_ESC_TAB = Wchar.buildEscapeReverTable(STR_ESC_TS);
+    public static final Wchar.EscapeTable STR_ESC_TAB = Wchar
+        .buildEscapeReverTable(STR_ESC_TS);
 
     /**
      * 将字符串根据转移字符转义
@@ -991,7 +1075,9 @@ public class Ws {
      *            字符转义表
      * @return 转义后的字符串
      */
-    public static String escape(String str, char escape, Wchar.EscapeTable table) {
+    public static String escape(String str,
+                                char escape,
+                                Wchar.EscapeTable table) {
         StringBuilder sb = new StringBuilder();
         char[] cs = str.toCharArray();
         for (int i = 0; i < cs.length; i++) {
@@ -1012,9 +1098,10 @@ public class Ws {
     public static String encodeUrlPair(String key, Object val) {
         try {
             if (null != val) {
-                return String.format("%s=%s",
-                                     URLEncoder.encode(key, Encoding.UTF8),
-                                     URLEncoder.encode(val.toString(), Encoding.UTF8));
+                return String
+                    .format("%s=%s",
+                            URLEncoder.encode(key, Encoding.UTF8),
+                            URLEncoder.encode(val.toString(), Encoding.UTF8));
             } else {
                 return URLEncoder.encode(key, Encoding.UTF8);
             }
@@ -1046,7 +1133,9 @@ public class Ws {
      *            字符转义表
      * @return 转义后的字符串
      */
-    public static String unescape(String str, char escape, Wchar.EscapeTable table) {
+    public static String unescape(String str,
+                                  char escape,
+                                  Wchar.EscapeTable table) {
         StringBuilder sb = new StringBuilder();
         char[] cs = str.toCharArray();
         for (int i = 0; i < cs.length; i++) {
@@ -1056,7 +1145,11 @@ public class Ws {
                 c = cs[++i];
                 char c2 = table.get(c);
                 if (0 == c2) {
-                    throw Wlang.makeThrow("evalEscape invalid char[%d] '%c'  : %s", i, c, str);
+                    throw Wlang
+                        .makeThrow("evalEscape invalid char[%d] '%c'  : %s",
+                                   i,
+                                   c,
+                                   str);
                 }
                 sb.append(c2);
             }
@@ -1081,7 +1174,9 @@ public class Ws {
      * 
      * @see #splitQuote(String, String, boolean, boolean, String)
      */
-    public static List<String> splitQuote(String str, String quote, String seps) {
+    public static List<String> splitQuote(String str,
+                                          String quote,
+                                          String seps) {
         return splitQuote(str, quote, '\\', false, true, seps);
     }
 
@@ -1093,8 +1188,15 @@ public class Ws {
         return splitQuote(str, false, keepQuote);
     }
 
-    public static List<String> splitQuote(String str, boolean ignoreBlank, boolean keepQuote) {
-        return splitQuote(str, "\"'", '\\', ignoreBlank, keepQuote, ",;、，； \t\r\n");
+    public static List<String> splitQuote(String str,
+                                          boolean ignoreBlank,
+                                          boolean keepQuote) {
+        return splitQuote(str,
+                          "\"'",
+                          '\\',
+                          ignoreBlank,
+                          keepQuote,
+                          ",;、，； \t\r\n");
     }
 
     /**
@@ -1304,7 +1406,10 @@ public class Ws {
                                        char[] quotes,
                                        char[] seperators,
                                        WnStrTokenCallback callback) {
-        if (null == input || null == quotes || quotes.length == 0 || null == callback) {
+        if (null == input
+            || null == quotes
+            || quotes.length == 0
+            || null == callback) {
             return;
         }
 
@@ -1554,7 +1659,8 @@ public class Ws {
         return sb.toString();
     }
 
-    private static Pattern JV_NB = Pattern.compile("^(-?([0-9]+)([.][0-9]+)?)([Lf])?$");
+    private static Pattern JV_NB = Pattern
+        .compile("^(-?([0-9]+)([.][0-9]+)?)([Lf])?$");
 
     /**
      * 根据字符串，将其自动转成一个有意义的值
@@ -1751,7 +1857,9 @@ public class Ws {
      *            后续单词需要首字母大写
      * @return 拆分的单词
      */
-    public static List<String> splitWords(String input, boolean cfl_0, boolean cfl_n) {
+    public static List<String> splitWords(String input,
+                                          boolean cfl_0,
+                                          boolean cfl_n) {
         char[] chars = input.trim().toCharArray();
         List<String> words = new ArrayList<>();
         StringBuilder sb = new StringBuilder();

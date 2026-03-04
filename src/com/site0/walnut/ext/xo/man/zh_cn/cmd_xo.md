@@ -16,6 +16,7 @@ xo move         # 移动对象到新的路径
 xo delete       # 删除对象
 xo copy         # 复制对象
 xo clear        # 清理对象
+xo reset        # 重置缓存的客户端实例
 ```
 
 # 示例

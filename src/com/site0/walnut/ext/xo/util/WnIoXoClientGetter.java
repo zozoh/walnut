@@ -17,6 +17,11 @@ public class WnIoXoClientGetter<T> implements XoClientGetter<T> {
         return man.getClient(io, oHome, name);
     }
 
+    @Override
+    public int clearClinetsCache() {
+        return man.closeAllClients();
+    }
+
     public boolean equals(Object other) {
         if (this == other) {
             return true;
