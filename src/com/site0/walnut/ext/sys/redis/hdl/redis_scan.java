@@ -16,7 +16,7 @@ public class redis_scan extends RedisFilter {
         long _cu = params.val_long(0, 0);
         String cursor = Long.toString(_cu);
         String match = params.get("match");
-        int count = params.getInt("count", 0);
+        int count = params.getInt("count", 100);
         fc.addHandler(new RedisHanlder("SCAN", cursor) {
             public Object run(RedisContext fc, Jedis jed) {
                 // 指定了 count
