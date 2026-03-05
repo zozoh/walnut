@@ -3,13 +3,15 @@ package com.site0.walnut.core.mapping.support;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.nutz.web.WebException;
+
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.core.WnReferApi;
 import com.site0.walnut.core.refer.redis.RedisReferService;
 import com.site0.walnut.ext.sys.redis.WedisConfig;
-import com.site0.walnut.util.Wlang;
+import com.site0.walnut.ext.sys.redis.util.CheckAllowResult;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Wobj;
 import com.site0.walnut.util.Ws;
@@ -89,41 +91,49 @@ public class WnVoBMOptions extends WnVofsOptions {
         WnObj oConf = io.check(null, _ph);
         WedisConfig wedisConf = io.readJson(oConf, WedisConfig.class);
 
-        // root 域不检查
-        if (!"root".equals(domain)) {
-            // 获取系统的 Redis 连接, 看看是否允许当前域使用内置的 Redis
-            String sysRedisHost = config.get("redis-host", "localhost");
-            String sysRedisPort = config.get("redis-port", "6379");
-            String sysRedisLink = sysRedisHost + ":" + sysRedisPort;
-
-            // 如果它要连接系统的 Redis 服务，那么需要检查
-            if (sysRedisLink.equals(wedisConf.getLink())) {
-                // 允许的 Domain (必须是显式的指明允许的域)
-                // 系统管理员需要明确的知道，有那几个域是可以允许对方乱搞的，因为那可能就是他自己
-                String allowDomains = config.get("redis-host-allow-domain", "");
-                if (!"*".equals(allowDomains)) {
-                    String[] allows = Ws.splitIgnoreBlank(allowDomains);
-                    if (Wlang.indexOf(allows, domain) < 0) {
-                        throw Er.create("e.io.VoBM.DomainNoAllowed",
-                                        domain + "!=>" + allowDomains);
-                    }
-                }
-                // 允许的 database (默认就是 *)
-                String allowDatabases = config.get("redis-database-allow", "*");
-                if (!"*".equals(allowDatabases)) {
-                    String myDB = "" + wedisConf.getDatabase();
-                    String[] allows = Ws.splitIgnoreBlank(allowDatabases);
-                    if (Wlang.indexOf(allows, myDB) < 0) {
-                        throw Er.create("e.io.VoBM.DatabaseNoAllowed",
-                                        myDB + "!=>" + allowDatabases);
-                    }
-                }
+        // 检查权限
+        CheckAllowResult re = wedisConf.checkAllowSysRedisLink(domain, config);
+        // // root 域不检查
+        // if (!"root".equals(domain)) {
+        // // 获取系统的 Redis 连接, 看看是否允许当前域使用内置的 Redis
+        // String sysRedisHost = config.get("redis-host", "localhost");
+        // String sysRedisPort = config.get("redis-port", "6379");
+        // String sysRedisLink = sysRedisHost + ":" + sysRedisPort;
+        //
+        // // 如果它要连接系统的 Redis 服务，那么需要检查
+        // if (sysRedisLink.equals(wedisConf.getLink())) {
+        // // 允许的 Domain (必须是显式的指明允许的域)
+        // // 系统管理员需要明确的知道，有那几个域是可以允许对方乱搞的，因为那可能就是他自己
+        // String allowDomains = config.get("redis-host-allow-domain", "");
+        // if (!"*".equals(allowDomains)) {
+        // String[] allows = Ws.splitIgnoreBlank(allowDomains);
+        // if (Wlang.indexOf(allows, domain) < 0) {
+        // throw Er.create("e.io.VoBM.DomainNoAllowed",
+        // domain + "!=>" + allowDomains);
+        // }
+        // }
+        // // 允许的 database (默认就是 *)
+        // String allowDatabases = config.get("redis-database-allow", "*");
+        // if (!"*".equals(allowDatabases)) {
+        // String myDB = "" + wedisConf.getDatabase();
+        // String[] allows = Ws.splitIgnoreBlank(allowDatabases);
+        // if (Wlang.indexOf(allows, myDB) < 0) {
+        // throw Er.create("e.io.VoBM.DatabaseNoAllowed",
+        // myDB + "!=>" + allowDatabases);
+        // }
+        // }
+        // }
+        // }
+        if (!re.isAllow()) {
+            WebException err = re.toException("e.io.VoBM");
+            if (null != err) {
+                throw err;
             }
         }
 
         // 一切都没有问题，返回
         String pkey = Wobj.encodePathToBase64(this.toString());
-        String prefix = "io:ref:" + oConf.d1() + ":" + pkey;
+        String prefix = "io:ref:" + oConf.d1() + ":" + pkey + ":";
         return new RedisReferService(prefix, wedisConf);
     }
 

@@ -1,11 +1,11 @@
 # 命令简介 
 
-`refer objsha1` 将会修改某个系统对象SHA1的引用
+`@objsha1` 将会修改某个系统对象SHA1的引用
 
 # 用法
 
 ```bash
-refer objsha1 
+refer @objsha1 
   [path/to]         # 【必】目标对象的路径
   [$LEN]            # 【必】新内容的长度，Byte
   [SHA1]            # 【必】新的 SHA1
@@ -17,5 +17,5 @@ refer objsha1
     
 ```bash
 # 为某自定义目标增加引用
-demo:> refer objsha1 ~/abc.txt 1560 54af..9a2e
+demo:> refer @objsha1 ~/abc.txt 1560 54af..9a2e
 ```

@@ -5,22 +5,23 @@ import com.site0.walnut.core.WnIoBM;
 import com.site0.walnut.core.WnIoMapping;
 import com.site0.walnut.core.WnReferApi;
 import com.site0.walnut.core.bm.bml.LocalSha1BM;
-import com.site0.walnut.impl.box.JvmHdl;
-import com.site0.walnut.impl.box.JvmHdlContext;
+import com.site0.walnut.ext.sys.refer.ReferContext;
+import com.site0.walnut.ext.sys.refer.ReferFilter;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.ZParams;
 
-public class refer_objsha1 implements JvmHdl {
+public class refer_objsha1 extends ReferFilter {
 
     @Override
-    public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
+    protected void process(WnSystem sys, ReferContext fc, ZParams params) {
         // 分析参数
-        String ph = hc.params.val_check(0);
-        long len = hc.params.val_check_long(1);
-        String sha1 = hc.params.val_check(2);
+        String ph = params.val_check(0);
+        long len = params.val_check_long(1);
+        String sha1 = params.val_check(2);
 
         // 最后修改时间
-        long lm = hc.params.val_long(3, Wn.now());
+        long lm = params.val_long(3, Wn.now());
 
         // 获取对象
         WnObj o = Wn.checkObj(sys, ph);

@@ -17,7 +17,8 @@ var ioc = {
 			cronApi: { refer: "sysCronService" },
 			boxApi: { refer: "boxService" },
 			referApi: { refer: "referApi" },
-			lockApi: { refer: "lockApi" }
+			lockApi: { refer: "lockApi" },
+			config: { refer: "conf" }
 		}
 	},
 	rawUserStore: {

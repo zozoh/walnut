@@ -3,6 +3,10 @@ package com.site0.walnut.ext.sys.redis;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import com.site0.walnut.ext.sys.redis.util.CheckAllowResult;
+import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.web.WnConfig;
 
 import redis.clients.jedis.Jedis;
 
@@ -259,6 +263,41 @@ public class WedisConfig {
                    && maxIdle == conf.maxIdle;
         }
         return false;
+    }
+
+    public CheckAllowResult checkAllowSysRedisLink(String domain,
+                                                   WnConfig config) {
+        CheckAllowResult re = new CheckAllowResult(domain);
+        // root 域不检查
+        if (!"root".equals(domain)) {
+            // 获取系统的 Redis 连接, 看看是否允许当前域使用内置的 Redis
+            String sysRedisHost = config.get("redis-host", "localhost");
+            String sysRedisPort = config.get("redis-port", "6379");
+            String sysRedisLink = sysRedisHost + ":" + sysRedisPort;
+
+            // 如果它要连接系统的 Redis 服务，那么需要检查
+            if (sysRedisLink.equals(this.getLink())) {
+                // 允许的 Domain (必须是显式的指明允许的域)
+                // 系统管理员需要明确的知道，有那几个域是可以允许对方乱搞的，因为那可能就是他自己
+                String allowDomains = config.get("redis-host-allow-domain", "");
+                if (!"*".equals(allowDomains)) {
+                    String[] allows = Ws.splitIgnoreBlank(allowDomains);
+                    if (Wlang.indexOf(allows, domain) < 0) {
+                        re.notAllowDomains(allowDomains);
+                    }
+                }
+                // 允许的 database (默认就是 *)
+                String allowDatabases = config.get("redis-database-allow", "*");
+                if (!"*".equals(allowDatabases)) {
+                    String myDB = "" + this.getDatabase();
+                    String[] allows = Ws.splitIgnoreBlank(allowDatabases);
+                    if (Wlang.indexOf(allows, myDB) < 0) {
+                        re.notAllowDatabases(myDB, allowDatabases);
+                    }
+                }
+            }
+        }
+        return re;
     }
 
 }

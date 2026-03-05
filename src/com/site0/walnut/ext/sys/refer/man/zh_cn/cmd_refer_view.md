@@ -1,11 +1,11 @@
 # 命令简介 
 
-`refer view` 查看某个指定对象的引用状况
+`@view` 查看某个指定对象的引用状况
 
 # 用法
 
 ```bash
-refer view
+refer @view
   [TargetId]        # 【必】引用者 ID
 ```
 
@@ -13,7 +13,7 @@ refer view
     
 ```bash
 # 为某自定义目标增加引用
-demo:> refer view 54af..9a2e
+demo:> refer @view 54af..9a2e
 0) s15v0kefe2gc7om67ododn56a8
 1) 5c5dltcr2ui02ormb7v6cdtd2f
 2) 4oh9u9p5gmgrpoguk7bkftiubh

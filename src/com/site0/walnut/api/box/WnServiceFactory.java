@@ -7,6 +7,7 @@ import com.site0.walnut.ext.sys.cron.WnSysCronApi;
 import com.site0.walnut.ext.sys.schedule.WnSysScheduleApi;
 import com.site0.walnut.ext.sys.task.WnSysTaskApi;
 import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.web.WnConfig;
 
 public class WnServiceFactory {
 
@@ -25,6 +26,8 @@ public class WnServiceFactory {
     private WnReferApi referApi;
 
     private WnLockApi lockApi;
+
+    private WnConfig config;
 
     public WnLockApi getLockApi() {
         return lockApi;
@@ -90,6 +93,12 @@ public class WnServiceFactory {
         this.lockApi = lockApi;
     }
 
-    
-    
+    public WnConfig getConfig() {
+        return config;
+    }
+
+    public void setConfig(WnConfig config) {
+        this.config = config;
+    }
+
 }
