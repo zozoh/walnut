@@ -1,12 +1,12 @@
 package org.nutz.lang.util;
 
-public class DoubleRegion extends Region<Double> {
+public class DoubleRange extends ValueRange<Double> {
 
-    public DoubleRegion() {
+    public DoubleRange() {
         super();
     }
 
-    public DoubleRegion(String str) {
+    public DoubleRange(String str) {
         super();
         this.valueOf(str);
     }

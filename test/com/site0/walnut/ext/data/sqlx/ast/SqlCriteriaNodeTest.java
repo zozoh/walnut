@@ -11,6 +11,17 @@ import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.util.Wlang;
 
 public class SqlCriteriaNodeTest {
+    
+    @Test
+    public void test_str_map_range() {
+        NutMap q = NutMap.WRAP("{ct:'Str[2025,2026]'}");
+        SqlCriteriaNode cri = SqlCriteria.toCriNode(q);
+        assertEquals("(ct>='2025' AND ct<='2026')", cri.toSql(false));
+
+        q = NutMap.WRAP("{ct:'Str[20251223]'}");
+        cri = SqlCriteria.toCriNode(q);
+        assertEquals("ct='20251223'", cri.toSql(false));
+    }
 
     @Test
     public void test_str_date_range() {

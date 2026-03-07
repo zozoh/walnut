@@ -13,12 +13,12 @@ import org.bson.Document;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
-import org.nutz.lang.util.DateRegion;
-import org.nutz.lang.util.FloatRegion;
-import org.nutz.lang.util.IntRegion;
-import org.nutz.lang.util.LongRegion;
+import org.nutz.lang.util.DateRange;
+import org.nutz.lang.util.FloatRange;
+import org.nutz.lang.util.IntRange;
+import org.nutz.lang.util.LongRange;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Region;
+import org.nutz.lang.util.ValueRange;
 import org.nutz.mongo.ZMo;
 import org.nutz.mongo.ZMoDoc;
 import com.site0.walnut.api.err.Er;
@@ -110,8 +110,8 @@ public class Mongos {
             _put_to_query(q, not, key, v);
         }
         // 范围
-        else if (v instanceof Region) {
-            __set_region_to_doc(q, not, key, (Region<?>) v);
+        else if (v instanceof ValueRange) {
+            __set_region_to_doc(q, not, key, (ValueRange<?>) v);
         }
         // Regex
         else if (v instanceof Pattern) {
@@ -181,32 +181,32 @@ public class Mongos {
                 }
                 // 整数范围
                 else if (s.matches(Wregion.intRegion())) {
-                    IntRegion rg = Region.Int(s);
+                    IntRange rg = ValueRange.Int(s);
                     __set_region_to_doc(q, not, key, rg);
                 }
                 // 长整数范围
                 else if (s.matches(Wregion.longRegion())) {
-                    LongRegion rg = Region.Long(s);
+                    LongRange rg = ValueRange.Long(s);
                     __set_region_to_doc(q, not, key, rg);
                 }
                 // 浮点范围
                 else if (s.matches(Wregion.floatRegion())) {
-                    FloatRegion rg = Region.Float(s);
+                    FloatRange rg = ValueRange.Float(s);
                     __set_region_to_doc(q, not, key, rg);
                 }
                 // 日期范围
                 else if (s.matches(Wregion.dateRegion("^[Dd]ate"))) {
                     String s2 = s.substring(4).trim();
                     s2 = Wregion.extend_rg_macro(s2);
-                    DateRegion rg = Region.Date(s2);
+                    DateRange rg = ValueRange.Date(s2);
                     __set_region_to_doc(q, not, key, rg);
                 }
                 // 日期范围当做毫秒数
                 else if (s.matches(Wregion.dateRegion("^[Mm][Ss]"))) {
                     String str = s.substring(2);
-                    DateRegion rg = Region.Date(str);
+                    DateRange rg = ValueRange.Date(str);
 
-                    LongRegion rg2 = new LongRegion();
+                    LongRange rg2 = new LongRange();
                     rg2.leftOpen(rg.isLeftOpen()).rightOpen(rg.isRightOpen());
 
                     Date l = rg.left();
@@ -272,7 +272,7 @@ public class Mongos {
         }
     }
 
-    private static void __set_region_to_doc(ZMoDoc q, boolean not, String key, Region<?> rg) {
+    private static void __set_region_to_doc(ZMoDoc q, boolean not, String key, ValueRange<?> rg) {
         // 如果是一个范围
         if (rg.isRegion()) {
             ZMoDoc doc = ZMoDoc.NEW();

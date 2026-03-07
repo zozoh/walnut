@@ -3,12 +3,12 @@ package com.site0.walnut.ext.data.sqlx.ast.cri;
 import java.util.Date;
 import java.util.List;
 
-import org.nutz.lang.util.DateRegion;
-import org.nutz.lang.util.FloatRegion;
-import org.nutz.lang.util.IntRegion;
-import org.nutz.lang.util.LongRegion;
-import org.nutz.lang.util.Region;
-import org.nutz.lang.util.StrRegion;
+import org.nutz.lang.util.DateRange;
+import org.nutz.lang.util.FloatRange;
+import org.nutz.lang.util.IntRange;
+import org.nutz.lang.util.LongRange;
+import org.nutz.lang.util.ValueRange;
+import org.nutz.lang.util.StrRange;
 
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.util.Wregion;
@@ -19,39 +19,39 @@ public class SqlCriExpRangeNode extends SqlCriExpressionNode {
         String s = Wregion.extend_rg_macro(str);
         // 整数范围
         if (s.matches(Wregion.intRegion())) {
-            IntRegion rg = Region.Int(s);
+            IntRange rg = ValueRange.Int(s);
             return new SqlCriExpRangeNode(name, rg);
         }
         // 长整数范围
         if (s.matches(Wregion.longRegion())) {
-            LongRegion rg = Region.Long(s);
+            LongRange rg = ValueRange.Long(s);
             return new SqlCriExpRangeNode(name, rg);
         }
         // 浮点范围
         if (s.matches(Wregion.floatRegion())) {
-            FloatRegion rg = Region.Float(s);
+            FloatRange rg = ValueRange.Float(s);
             return new SqlCriExpRangeNode(name, rg);
         }
         // 字符串范围
         String s_lower = s.trim().toLowerCase();
         if (s_lower.startsWith("str[") && s_lower.endsWith("]")) {
             String s2 = s_lower.substring(3);
-            StrRegion rg = Region.Str(s2);
+            StrRange rg = ValueRange.Str(s2);
             return new SqlCriExpRangeNode(name, rg);
         }
         // 日期范围
         if (s.matches(Wregion.dateRegion("^[Dd]ate"))) {
             String s2 = s.substring(4).trim();
             s2 = Wregion.extend_rg_macro(s2);
-            DateRegion rg = Region.Date(s2);
+            DateRange rg = ValueRange.Date(s2);
             return new SqlCriExpRangeNode(name, rg);
         }
         // 日期范围当做毫秒数
         else if (s.matches(Wregion.dateRegion("^[Mm][Ss]"))) {
             String s2 = s.substring(2);
-            DateRegion rg = Region.Date(s2);
+            DateRange rg = ValueRange.Date(s2);
 
-            LongRegion rg2 = new LongRegion();
+            LongRange rg2 = new LongRange();
             rg2.leftOpen(rg.isLeftOpen()).rightOpen(rg.isRightOpen());
 
             Date l = rg.left();
@@ -74,7 +74,7 @@ public class SqlCriExpRangeNode extends SqlCriExpressionNode {
 
     private SqlCriExpSimpleEqNode eq;
 
-    public SqlCriExpRangeNode(String name, Region<?> range) {
+    public SqlCriExpRangeNode(String name, ValueRange<?> range) {
         super(name);
         if (!range.isNull()) {
             // 区间

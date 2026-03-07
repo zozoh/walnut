@@ -13,7 +13,7 @@ import java.util.TimeZone;
 import org.nutz.lang.Each;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Region;
+import org.nutz.lang.util.ValueRange;
 
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
@@ -441,7 +441,7 @@ public class WnValue {
         if (null == this.valueRegion) {
             return true;
         }
-        Region<Integer> rg = Region.Int(this.valueRegion);
+        ValueRange<Integer> rg = ValueRange.Int(this.valueRegion);
         return rg.match(v);
     }
 
@@ -449,7 +449,7 @@ public class WnValue {
         if (null == this.valueRegion) {
             return true;
         }
-        Region<Long> rg = Region.Long(this.valueRegion);
+        ValueRange<Long> rg = ValueRange.Long(this.valueRegion);
         return rg.match(v);
     }
 
@@ -457,7 +457,7 @@ public class WnValue {
         if (null == this.valueRegion) {
             return true;
         }
-        Region<Float> rg = Region.Float(this.valueRegion);
+        ValueRange<Float> rg = ValueRange.Float(this.valueRegion);
         return rg.match(v);
     }
 
@@ -465,7 +465,7 @@ public class WnValue {
         if (null == this.valueRegion) {
             return true;
         }
-        Region<Double> rg = Region.Double(this.valueRegion);
+        ValueRange<Double> rg = ValueRange.Double(this.valueRegion);
         return rg.match(v);
     }
 
@@ -473,7 +473,7 @@ public class WnValue {
         if (null == this.valueRegion) {
             return true;
         }
-        Region<Date> rg = Region.Date(this.valueRegion);
+        ValueRange<Date> rg = ValueRange.Date(this.valueRegion);
         return rg.match(v);
     }
 

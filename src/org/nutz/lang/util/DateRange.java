@@ -5,13 +5,13 @@ import java.util.Date;
 import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 
-public class DateRegion extends Region<Date> {
+public class DateRange extends ValueRange<Date> {
 
-    public DateRegion() {
+    public DateRange() {
         super();
     }
 
-    public DateRegion(String str) {
+    public DateRange(String str) {
         super();
         this.valueOf(str);
     }

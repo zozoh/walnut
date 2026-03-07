@@ -1,17 +1,17 @@
 package org.nutz.validate.impl;
 
 import org.nutz.castor.Castors;
-import org.nutz.lang.util.IntRegion;
-import org.nutz.lang.util.Region;
+import org.nutz.lang.util.IntRange;
+import org.nutz.lang.util.ValueRange;
 import org.nutz.validate.NutValidateException;
 import org.nutz.validate.NutValidator;
 
 public class IntRangeValidator implements NutValidator {
 
-    private IntRegion range;
+    private IntRange range;
 
     public IntRangeValidator(String str) {
-        this.range = Region.Int(str);
+        this.range = ValueRange.Int(str);
     }
 
     @Override

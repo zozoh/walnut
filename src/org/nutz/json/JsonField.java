@@ -33,7 +33,7 @@ public @interface JsonField {
      * 这个声明，也将作用于数组，和集合
      * 
      * @return 这个字段是否被强制输出成字符串
-     * @see org.nutz.lang.util.Region
+     * @see org.nutz.lang.util.ValueRange
      */
     boolean forceString() default false;
     

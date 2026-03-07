@@ -8,15 +8,11 @@ import org.junit.runners.Suite;
                      LinkedByteBufferTest.class,
                      LinkedCharArrayTest.class,
                      LinkedIntArrayTest.class,
-                     IntRangeTest.class,
-                     FloatRangeTest.class,
-                     IntSetTest.class,
-                     FloatSetTest.class,
                      SimpleNodeTest.class,
                      DisksTest.class,
                      ContextTest.class,
                      NutMapTest.class,
-                     RegionTest.class,
+                     ValueRangeTest.class,
                      MultiLinePropertiesTest.class,
                      ResidentStatusTest.class})
 public class AllUtil {}

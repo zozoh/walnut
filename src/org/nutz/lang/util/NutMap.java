@@ -1053,30 +1053,30 @@ public class NutMap extends LinkedHashMap<String, Object> implements NutBean {
                 if (m.find()) {
                     String type = Strings.sBlank(m.group(1), "int");
                     String rval = m.group(2);
-                    Region<?> rg = null;
+                    ValueRange<?> rg = null;
                     // 整数区间
                     if ("int".equals(type)) {
-                        rg = Region.Int(rval);
+                        rg = ValueRange.Int(rval);
                     }
                     // 长整数区间
                     else if ("long".equals(type)) {
-                        rg = Region.Long(rval);
+                        rg = ValueRange.Long(rval);
                     }
                     // 浮点区间
                     else if ("float".equals(type)) {
-                        rg = Region.Float(rval);
+                        rg = ValueRange.Float(rval);
                     }
                     // 双精度浮点区间
                     else if ("double".equals(type)) {
-                        rg = Region.Double(rval);
+                        rg = ValueRange.Double(rval);
                     }
                     // 日期区间
                     else if ("date".equals(type)) {
-                        rg = Region.Date(rval);
+                        rg = ValueRange.Date(rval);
                     }
                     // 时间区间
                     else if ("time".equals(type)) {
-                        rg = Region.Time(rval);
+                        rg = ValueRange.Time(rval);
                     }
                     // Update
                     if (null != rg) {
@@ -1143,10 +1143,10 @@ public class NutMap extends LinkedHashMap<String, Object> implements NutBean {
             return re[0];
         }
         // 范围的话...
-        else if (mi.isOf(Region.class)) {
+        else if (mi.isOf(ValueRange.class)) {
             if (val instanceof Comparable) {
                 Comparable cp = (Comparable) val;
-                Region rg = (Region) mtc;
+                ValueRange rg = (ValueRange) mtc;
                 return rg.match(cp);
             }
         }

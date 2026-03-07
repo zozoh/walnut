@@ -1,14 +1,14 @@
 package com.site0.walnut.util.validate.impl;
 
-import org.nutz.lang.util.Region;
+import org.nutz.lang.util.ValueRange;
 import com.site0.walnut.util.validate.WnMatch;
 
 public class LongRegionMatch implements WnMatch {
 
-    private Region<Double> region = null;
+    private ValueRange<Double> region = null;
 
     public LongRegionMatch(String input) {
-        region = Region.Double(input);
+        region = ValueRange.Double(input);
     }
 
     @Override

@@ -43,62 +43,62 @@ import org.nutz.lang.Strings;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-public abstract class Region<T extends Comparable<T>> {
+public abstract class ValueRange<T extends Comparable<T>> {
 
-    public static IntRegion Int(String str) {
-        return new IntRegion(str);
+    public static IntRange Int(String str) {
+        return new IntRange(str);
     }
 
-    public static IntRegion Intf(String fmt, Object... args) {
-        return new IntRegion(String.format(fmt, args));
+    public static IntRange Intf(String fmt, Object... args) {
+        return new IntRange(String.format(fmt, args));
     }
 
-    public static LongRegion Long(String str) {
-        return new LongRegion(str);
+    public static LongRange Long(String str) {
+        return new LongRange(str);
     }
 
-    public static LongRegion Longf(String fmt, Object... args) {
-        return new LongRegion(String.format(fmt, args));
+    public static LongRange Longf(String fmt, Object... args) {
+        return new LongRange(String.format(fmt, args));
     }
 
-    public static FloatRegion Float(String str) {
-        return new FloatRegion(str);
+    public static FloatRange Float(String str) {
+        return new FloatRange(str);
     }
 
-    public static FloatRegion Floatf(String fmt, Object... args) {
-        return new FloatRegion(String.format(fmt, args));
+    public static FloatRange Floatf(String fmt, Object... args) {
+        return new FloatRange(String.format(fmt, args));
     }
 
-    public static DoubleRegion Double(String str) {
-        return new DoubleRegion(str);
+    public static DoubleRange Double(String str) {
+        return new DoubleRange(str);
     }
 
-    public static DoubleRegion Doublef(String fmt, Object... args) {
-        return new DoubleRegion(String.format(fmt, args));
+    public static DoubleRange Doublef(String fmt, Object... args) {
+        return new DoubleRange(String.format(fmt, args));
     }
 
-    public static StrRegion Str(String str) {
-        return new StrRegion(str);
+    public static StrRange Str(String str) {
+        return new StrRange(str);
     }
 
-    public static StrRegion Strf(String fmt, Object... args) {
-        return new StrRegion(String.format(fmt, args));
+    public static StrRange Strf(String fmt, Object... args) {
+        return new StrRange(String.format(fmt, args));
     }
 
-    public static DateRegion Date(String str) {
-        return new DateRegion(str);
+    public static DateRange Date(String str) {
+        return new DateRange(str);
     }
 
-    public static DateRegion Datef(String fmt, Object... args) {
-        return new DateRegion(String.format(fmt, args));
+    public static DateRange Datef(String fmt, Object... args) {
+        return new DateRange(String.format(fmt, args));
     }
 
-    public static TimeRegion Time(String str) {
-        return new TimeRegion(str);
+    public static TimeRange Time(String str) {
+        return new TimeRange(str);
     }
 
-    public static TimeRegion Timef(String fmt, Object... args) {
-        return new TimeRegion(String.format(fmt, args));
+    public static TimeRange Timef(String fmt, Object... args) {
+        return new TimeRange(String.format(fmt, args));
     }
 
     protected Class<T> eleType;
@@ -115,12 +115,12 @@ public abstract class Region<T extends Comparable<T>> {
         return left;
     }
 
-    public Region<T> left(T left) {
+    public ValueRange<T> left(T left) {
         this.left = left;
         return this;
     }
 
-    public Region<T> leftOpen(boolean open) {
+    public ValueRange<T> leftOpen(boolean open) {
         this.leftOpen = open;
         return this;
     }
@@ -129,12 +129,12 @@ public abstract class Region<T extends Comparable<T>> {
         return right;
     }
 
-    public Region<T> right(T right) {
+    public ValueRange<T> right(T right) {
         this.right = right;
         return this;
     }
 
-    public Region<T> rightOpen(boolean open) {
+    public ValueRange<T> rightOpen(boolean open) {
         this.rightOpen = open;
         return this;
     }
@@ -222,7 +222,7 @@ public abstract class Region<T extends Comparable<T>> {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public Region() {
+    public ValueRange() {
         eleType = (Class<T>) (Class) Mirror.getTypeParam(getClass(), 0);
     }
 
@@ -233,7 +233,7 @@ public abstract class Region<T extends Comparable<T>> {
      *            字符串
      * @return 自身
      */
-    public Region<T> valueOf(String str) {
+    public ValueRange<T> valueOf(String str) {
         String s2 = Strings.trim(str.substring(1, str.length() - 1));
         leftOpen = str.charAt(0) == '(';
         rightOpen = str.charAt(str.length() - 1) == ')';

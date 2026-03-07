@@ -1,12 +1,12 @@
 package org.nutz.lang.util;
 
-public class StrRegion extends Region<String> {
+public class StrRange extends ValueRange<String> {
 
-    public StrRegion() {
+    public StrRange() {
         super();
     }
 
-    public StrRegion(String str) {
+    public StrRange(String str) {
         super();
         this.valueOf(str);
     }

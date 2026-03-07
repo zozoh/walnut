@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Times;
-import org.nutz.lang.util.DateRegion;
+import org.nutz.lang.util.DateRange;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Region;
+import org.nutz.lang.util.ValueRange;
 import com.site0.walnut.ext.net.sms.SmsProvider;
 import com.site0.walnut.ext.net.sms.SmsQuery;
 import com.site0.walnut.ext.net.sms.cmd_sms;
@@ -38,7 +38,7 @@ public class sms_query implements JvmHdl {
         }
         // 那么就是时间区间咯
         catch (WebException e) {
-            DateRegion dr = Region.Date(str);
+            DateRange dr = ValueRange.Date(str);
             q.from = dr.left();
             q.to = dr.right();
         }

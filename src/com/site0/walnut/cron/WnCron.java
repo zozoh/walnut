@@ -11,9 +11,9 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import org.nutz.lang.born.Borning;
 import com.site0.walnut.util.tmpl.WnTmpl;
-import org.nutz.lang.util.DateRegion;
+import org.nutz.lang.util.DateRange;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Region;
+import org.nutz.lang.util.ValueRange;
 
 public class WnCron {
 
@@ -113,7 +113,7 @@ public class WnCron {
     /**
      * 限定日期区间: D[20170801,20170822)
      */
-    private DateRegion rgDate;
+    private DateRange rgDate;
 
     /**
      * 固定时间点重复器
@@ -241,7 +241,7 @@ public class WnCron {
         for (String s : items) {
             // 为日期范围
             if (s.startsWith("D")) {
-                rgDate = Region.Date(s.substring(1));
+                rgDate = ValueRange.Date(s.substring(1));
                 parts[3] = s;
             }
             // 为时间范围

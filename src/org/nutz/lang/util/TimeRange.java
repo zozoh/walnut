@@ -2,13 +2,13 @@ package org.nutz.lang.util;
 
 import org.nutz.lang.Times;
 
-public class TimeRegion extends Region<Integer> {
+public class TimeRange extends ValueRange<Integer> {
 
-    public TimeRegion() {
+    public TimeRange() {
         super();
     }
 
-    public TimeRegion(String str) {
+    public TimeRange(String str) {
         super();
         this.valueOf(str);
     }

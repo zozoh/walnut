@@ -3,17 +3,17 @@ package org.nutz.validate.impl;
 import java.util.Date;
 
 import org.nutz.castor.Castors;
-import org.nutz.lang.util.DateRegion;
-import org.nutz.lang.util.Region;
+import org.nutz.lang.util.DateRange;
+import org.nutz.lang.util.ValueRange;
 import org.nutz.validate.NutValidateException;
 import org.nutz.validate.NutValidator;
 
 public class DateRangeValidator implements NutValidator {
 
-    private DateRegion range;
+    private DateRange range;
 
     public DateRangeValidator(String str) {
-        this.range = Region.Date(str);
+        this.range = ValueRange.Date(str);
     }
 
     @Override

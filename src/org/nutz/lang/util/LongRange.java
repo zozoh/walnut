@@ -1,12 +1,12 @@
 package org.nutz.lang.util;
 
-public class LongRegion extends Region<Long> {
+public class LongRange extends ValueRange<Long> {
 
-    public LongRegion() {
+    public LongRange() {
         super();
     }
 
-    public LongRegion(String str) {
+    public LongRange(String str) {
         super();
         this.valueOf(str);
     }

@@ -11,8 +11,8 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Region;
-import org.nutz.lang.util.TimeRegion;
+import org.nutz.lang.util.ValueRange;
+import org.nutz.lang.util.TimeRange;
 
 class TimePointRepeater {
 
@@ -25,7 +25,7 @@ class TimePointRepeater {
     /**
      * 限定时间区间
      */
-    private TimeRegion region;
+    private TimeRange region;
 
     private boolean autoPadding;
 
@@ -94,7 +94,7 @@ class TimePointRepeater {
         // 有时间范围：
         String tmrg = m.group(1);
         if (!Strings.isBlank(tmrg))
-            this.region = Region.Time(tmrg);
+            this.region = ValueRange.Time(tmrg);
 
         // 处理时间点
         String tps = m.group(3);
@@ -139,7 +139,7 @@ class TimePointRepeater {
             }
             // ..............................................
             // 计算步长的真正区间
-            TimeRegion tr = this.region;
+            TimeRange tr = this.region;
             // 全天
             if (null == tr || !tr.isRegion()) {
                 this.tStart = 0;

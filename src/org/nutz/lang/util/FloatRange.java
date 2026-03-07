@@ -1,12 +1,12 @@
 package org.nutz.lang.util;
 
-public class FloatRegion extends Region<Float> {
+public class FloatRange extends ValueRange<Float> {
 
-    public FloatRegion() {
+    public FloatRange() {
         super();
     }
 
-    public FloatRegion(String str) {
+    public FloatRange(String str) {
         super();
         this.valueOf(str);
     }

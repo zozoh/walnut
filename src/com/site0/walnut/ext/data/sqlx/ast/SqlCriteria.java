@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 import org.nutz.castor.Castors;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Region;
+import org.nutz.lang.util.ValueRange;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.ext.data.sqlx.ast.cri.*;
 
@@ -128,8 +128,8 @@ public abstract class SqlCriteria {
             ex = new SqlCriExpSimpleEqNode(key, val);
         }
         // 范围
-        else if (val instanceof Region) {
-            ex = new SqlCriExpRangeNode(key, (Region<?>) val);
+        else if (val instanceof ValueRange) {
+            ex = new SqlCriExpRangeNode(key, (ValueRange<?>) val);
         }
         // Regex
         else if (val instanceof Pattern) {

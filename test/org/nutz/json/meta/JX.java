@@ -3,7 +3,7 @@ package org.nutz.json.meta;
 import java.util.List;
 
 import org.nutz.json.JsonField;
-import org.nutz.lang.util.IntRegion;
+import org.nutz.lang.util.IntRange;
 
 /**
  * 测试一下强制某字段输出 String
@@ -15,13 +15,13 @@ public class JX {
     private int n;
 
     @JsonField(forceString = true)
-    private IntRegion region;
+    private IntRange region;
 
     @JsonField(forceString = true)
-    private IntRegion[] regionArray;
+    private IntRange[] regionArray;
 
     @JsonField(forceString = true)
-    private List<IntRegion> regionList;
+    private List<IntRange> regionList;
 
     public int getN() {
         return n;
@@ -31,27 +31,27 @@ public class JX {
         this.n = n;
     }
 
-    public IntRegion getRegion() {
+    public IntRange getRegion() {
         return region;
     }
 
-    public void setRegion(IntRegion region) {
+    public void setRegion(IntRange region) {
         this.region = region;
     }
 
-    public IntRegion[] getRegionArray() {
+    public IntRange[] getRegionArray() {
         return regionArray;
     }
 
-    public void setRegionArray(IntRegion[] regionArray) {
+    public void setRegionArray(IntRange[] regionArray) {
         this.regionArray = regionArray;
     }
 
-    public List<IntRegion> getRegionList() {
+    public List<IntRange> getRegionList() {
         return regionList;
     }
 
-    public void setRegionList(List<IntRegion> regionList) {
+    public void setRegionList(List<IntRange> regionList) {
         this.regionList = regionList;
     }
 

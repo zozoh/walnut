@@ -6,9 +6,9 @@ import java.util.List;
 import org.nutz.dao.util.cri.SimpleCriteria;
 import org.nutz.dao.util.cri.SqlExpressionGroup;
 import org.nutz.lang.Strings;
-import org.nutz.lang.util.LongRegion;
+import org.nutz.lang.util.LongRange;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Region;
+import org.nutz.lang.util.ValueRange;
 import com.site0.walnut.util.Wregion;
 
 public class DaoEntityQuery {
@@ -63,7 +63,7 @@ public class DaoEntityQuery {
     protected void joinRegion(SqlExpressionGroup we, String name, String str) {
         if (!Strings.isBlank(str)) {
             String s = Wregion.extend_rg_macro(str);
-            LongRegion rg = Region.Long(s);
+            LongRange rg = ValueRange.Long(s);
             // Region
             if (rg.isRegion()) {
                 // [xxx, )
