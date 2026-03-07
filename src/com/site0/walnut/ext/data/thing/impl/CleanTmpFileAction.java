@@ -2,7 +2,8 @@ package com.site0.walnut.ext.data.thing.impl;
 
 import java.util.List;
 
-import org.nutz.lang.util.ValueRange;
+import org.nutz.lang.util.Ranges;
+
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.ext.data.thing.ThingAction;
@@ -19,7 +20,7 @@ public class CleanTmpFileAction extends ThingAction<List<WnObj>> {
         WnObj oTmpd = Things.dirTsTmpFile(io, oTs);
         long now = Wn.now();
         WnQuery q = Wn.Q.pid(oTmpd);
-        q.setv("expi", ValueRange.Longf("(,%d]", now));
+        q.setv("expi", Ranges.Longf("(,%d]", now));
         q.asc("lm"); // 最后活跃时间升序清理
         if (limit > 0)
             q.limit(limit);

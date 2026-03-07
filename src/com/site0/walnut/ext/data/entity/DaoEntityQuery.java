@@ -8,7 +8,8 @@ import org.nutz.dao.util.cri.SqlExpressionGroup;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.LongRange;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.ValueRange;
+import org.nutz.lang.util.Ranges;
+
 import com.site0.walnut.util.Wregion;
 
 public class DaoEntityQuery {
@@ -63,7 +64,7 @@ public class DaoEntityQuery {
     protected void joinRegion(SqlExpressionGroup we, String name, String str) {
         if (!Strings.isBlank(str)) {
             String s = Wregion.extend_rg_macro(str);
-            LongRange rg = ValueRange.Long(s);
+            LongRange rg = Ranges.Long(s);
             // Region
             if (rg.isRegion()) {
                 // [xxx, )

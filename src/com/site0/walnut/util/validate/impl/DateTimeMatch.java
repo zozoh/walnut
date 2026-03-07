@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.nutz.lang.Times;
+import org.nutz.lang.util.Ranges;
 import org.nutz.lang.util.ValueRange;
 import com.site0.walnut.util.validate.WnMatch;
 
@@ -12,7 +13,7 @@ public class DateTimeMatch implements WnMatch {
     private ValueRange<Date> region;
 
     public DateTimeMatch(String input) {
-        this.region = ValueRange.Date(input);
+        this.region = Ranges.Date(input);
     }
 
     @Override

@@ -18,6 +18,7 @@ import org.nutz.lang.util.FloatRange;
 import org.nutz.lang.util.IntRange;
 import org.nutz.lang.util.LongRange;
 import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.Ranges;
 import org.nutz.lang.util.ValueRange;
 import org.nutz.mongo.ZMo;
 import org.nutz.mongo.ZMoDoc;
@@ -181,30 +182,30 @@ public class Mongos {
                 }
                 // 整数范围
                 else if (s.matches(Wregion.intRegion())) {
-                    IntRange rg = ValueRange.Int(s);
+                    IntRange rg = Ranges.Int(s);
                     __set_region_to_doc(q, not, key, rg);
                 }
                 // 长整数范围
                 else if (s.matches(Wregion.longRegion())) {
-                    LongRange rg = ValueRange.Long(s);
+                    LongRange rg = Ranges.Long(s);
                     __set_region_to_doc(q, not, key, rg);
                 }
                 // 浮点范围
                 else if (s.matches(Wregion.floatRegion())) {
-                    FloatRange rg = ValueRange.Float(s);
+                    FloatRange rg = Ranges.Float(s);
                     __set_region_to_doc(q, not, key, rg);
                 }
                 // 日期范围
                 else if (s.matches(Wregion.dateRegion("^[Dd]ate"))) {
                     String s2 = s.substring(4).trim();
                     s2 = Wregion.extend_rg_macro(s2);
-                    DateRange rg = ValueRange.Date(s2);
+                    DateRange rg = Ranges.Date(s2);
                     __set_region_to_doc(q, not, key, rg);
                 }
                 // 日期范围当做毫秒数
                 else if (s.matches(Wregion.dateRegion("^[Mm][Ss]"))) {
                     String str = s.substring(2);
-                    DateRange rg = ValueRange.Date(str);
+                    DateRange rg = Ranges.Date(str);
 
                     LongRange rg2 = new LongRange();
                     rg2.leftOpen(rg.isLeftOpen()).rightOpen(rg.isRightOpen());

@@ -11,10 +11,26 @@ import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.util.Wlang;
 
 public class SqlCriteriaNodeTest {
-    
+
+    @Test
+    public void test_str_info_range() {
+        NutMap q = new NutMap();
+        NutMap r = new NutMap();
+        r.put("hasMinValue", true);
+        r.put("minValue", "2025");
+        r.put("minValueIncluded", true);
+        r.put("hasMaxValue", true);
+        r.put("maxValue", "2026");
+        r.put("maxValueIncluded", true);
+        q.put("ct", r);
+        SqlCriteriaNode cri = SqlCriteria.toCriNode(q);
+        assertEquals("(ct>='2025' AND ct<='2026')", cri.toSql(false));
+
+    }
+
     @Test
     public void test_str_map_range() {
-        NutMap q = NutMap.WRAP("{ct:'Str[2025,2026]'}");
+        NutMap q = NutMap.WRAP("{ct:{$gte:'2025', $lte:'2026'}}");
         SqlCriteriaNode cri = SqlCriteria.toCriNode(q);
         assertEquals("(ct>='2025' AND ct<='2026')", cri.toSql(false));
 
@@ -126,7 +142,8 @@ public class SqlCriteriaNodeTest {
         assertEquals("NOT a=? AND x<? AND NOT y<=?", cri.toSql(true));
 
         cri.setNot(true);
-        assertEquals("NOT (NOT a='AA' AND x<8 AND NOT y<=20)", cri.toSql(false));
+        assertEquals("NOT (NOT a='AA' AND x<8 AND NOT y<=20)",
+                     cri.toSql(false));
         assertEquals("NOT (NOT a=? AND x<? AND NOT y<=?)", cri.toSql(true));
 
         params.clear();
@@ -147,7 +164,8 @@ public class SqlCriteriaNodeTest {
         assertEquals("a LIKE ? AND b IN (?,?,?)", cri.toSql(true));
 
         cri.setNot(true);
-        assertEquals("NOT (a LIKE '%A_B' AND b IN (1,'X','Y'))", cri.toSql(false));
+        assertEquals("NOT (a LIKE '%A_B' AND b IN (1,'X','Y'))",
+                     cri.toSql(false));
         assertEquals("NOT (a LIKE ? AND b IN (?,?,?))", cri.toSql(true));
 
         params.clear();
@@ -165,11 +183,13 @@ public class SqlCriteriaNodeTest {
         NutMap q = Wlang.map("a:'[100,300)',b:'^xyz'");
         SqlCriteriaNode cri = SqlCriteria.toCriNode(q);
 
-        assertEquals("(a>=100 AND a<300) AND b REGEXP '^xyz'", cri.toSql(false));
+        assertEquals("(a>=100 AND a<300) AND b REGEXP '^xyz'",
+                     cri.toSql(false));
         assertEquals("(a>=? AND a<?) AND b REGEXP ?", cri.toSql(true));
 
         cri.setNot(true);
-        assertEquals("NOT ((a>=100 AND a<300) AND b REGEXP '^xyz')", cri.toSql(false));
+        assertEquals("NOT ((a>=100 AND a<300) AND b REGEXP '^xyz')",
+                     cri.toSql(false));
         assertEquals("NOT ((a>=? AND a<?) AND b REGEXP ?)", cri.toSql(true));
 
         params.clear();
@@ -186,12 +206,15 @@ public class SqlCriteriaNodeTest {
         NutMap q = Wlang.map("a:'AAA',b:null,c:''");
         SqlCriteriaNode cri = SqlCriteria.toCriNode(q);
 
-        assertEquals("a='AAA' AND b IS NULL AND NOT c IS NULL", cri.toSql(false));
+        assertEquals("a='AAA' AND b IS NULL AND NOT c IS NULL",
+                     cri.toSql(false));
         assertEquals("a=? AND b IS NULL AND NOT c IS NULL", cri.toSql(true));
 
         cri.setNot(true);
-        assertEquals("NOT (a='AAA' AND b IS NULL AND NOT c IS NULL)", cri.toSql(false));
-        assertEquals("NOT (a=? AND b IS NULL AND NOT c IS NULL)", cri.toSql(true));
+        assertEquals("NOT (a='AAA' AND b IS NULL AND NOT c IS NULL)",
+                     cri.toSql(false));
+        assertEquals("NOT (a=? AND b IS NULL AND NOT c IS NULL)",
+                     cri.toSql(true));
 
         params.clear();
         cri.joinParams(params);

@@ -2,7 +2,7 @@ package org.nutz.validate.impl;
 
 import org.nutz.castor.Castors;
 import org.nutz.lang.util.IntRange;
-import org.nutz.lang.util.ValueRange;
+import org.nutz.lang.util.Ranges;
 import org.nutz.validate.NutValidateException;
 import org.nutz.validate.NutValidator;
 
@@ -11,7 +11,7 @@ public class IntRangeValidator implements NutValidator {
     private IntRange range;
 
     public IntRangeValidator(String str) {
-        this.range = ValueRange.Int(str);
+        this.range = Ranges.Int(str);
     }
 
     @Override

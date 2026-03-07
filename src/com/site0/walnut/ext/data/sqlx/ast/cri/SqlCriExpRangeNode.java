@@ -7,6 +7,7 @@ import org.nutz.lang.util.DateRange;
 import org.nutz.lang.util.FloatRange;
 import org.nutz.lang.util.IntRange;
 import org.nutz.lang.util.LongRange;
+import org.nutz.lang.util.Ranges;
 import org.nutz.lang.util.ValueRange;
 import org.nutz.lang.util.StrRange;
 
@@ -19,37 +20,37 @@ public class SqlCriExpRangeNode extends SqlCriExpressionNode {
         String s = Wregion.extend_rg_macro(str);
         // 整数范围
         if (s.matches(Wregion.intRegion())) {
-            IntRange rg = ValueRange.Int(s);
+            IntRange rg = Ranges.Int(s);
             return new SqlCriExpRangeNode(name, rg);
         }
         // 长整数范围
         if (s.matches(Wregion.longRegion())) {
-            LongRange rg = ValueRange.Long(s);
+            LongRange rg = Ranges.Long(s);
             return new SqlCriExpRangeNode(name, rg);
         }
         // 浮点范围
         if (s.matches(Wregion.floatRegion())) {
-            FloatRange rg = ValueRange.Float(s);
+            FloatRange rg = Ranges.Float(s);
             return new SqlCriExpRangeNode(name, rg);
         }
         // 字符串范围
         String s_lower = s.trim().toLowerCase();
         if (s_lower.startsWith("str[") && s_lower.endsWith("]")) {
             String s2 = s_lower.substring(3);
-            StrRange rg = ValueRange.Str(s2);
+            StrRange rg = Ranges.Str(s2);
             return new SqlCriExpRangeNode(name, rg);
         }
         // 日期范围
         if (s.matches(Wregion.dateRegion("^[Dd]ate"))) {
             String s2 = s.substring(4).trim();
             s2 = Wregion.extend_rg_macro(s2);
-            DateRange rg = ValueRange.Date(s2);
+            DateRange rg = Ranges.Date(s2);
             return new SqlCriExpRangeNode(name, rg);
         }
         // 日期范围当做毫秒数
         else if (s.matches(Wregion.dateRegion("^[Mm][Ss]"))) {
             String s2 = s.substring(2);
-            DateRange rg = ValueRange.Date(s2);
+            DateRange rg = Ranges.Date(s2);
 
             LongRange rg2 = new LongRange();
             rg2.leftOpen(rg.isLeftOpen()).rightOpen(rg.isRightOpen());

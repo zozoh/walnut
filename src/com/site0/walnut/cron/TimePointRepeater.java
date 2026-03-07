@@ -11,7 +11,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.Times;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.ValueRange;
+import org.nutz.lang.util.Ranges;
 import org.nutz.lang.util.TimeRange;
 
 class TimePointRepeater {
@@ -94,7 +94,7 @@ class TimePointRepeater {
         // 有时间范围：
         String tmrg = m.group(1);
         if (!Strings.isBlank(tmrg))
-            this.region = ValueRange.Time(tmrg);
+            this.region = Ranges.Time(tmrg);
 
         // 处理时间点
         String tps = m.group(3);

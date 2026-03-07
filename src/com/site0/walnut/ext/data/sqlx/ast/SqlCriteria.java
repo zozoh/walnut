@@ -9,7 +9,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.castor.Castors;
+import org.nutz.lang.Mirror;
 import org.nutz.lang.util.NutMap;
+import org.nutz.lang.util.RangeInfo;
+import org.nutz.lang.util.Ranges;
 import org.nutz.lang.util.ValueRange;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.ext.data.sqlx.ast.cri.*;
@@ -47,17 +50,8 @@ public abstract class SqlCriteria {
         if (input instanceof Map) {
             @SuppressWarnings("unchecked")
             NutMap map = NutMap.WRAP((Map<String, Object>) input);
-            // List<SqlCriteriaNode> nodes = new ArrayList<>(map.size());
-            // for (Map.Entry<String, Object> en : map.entrySet()) {
-            // String k = en.getKey();
-            // if (k.startsWith("__") || k.matches("^[$](io|sys|vars)$")) {
-            // continue;
-            // }
-            // Object v = en.getValue();
-            // SqlCriteriaNode node = anyToExp(k, v);
-            // nodes.add(node);
-            // }
-            // return and(nodes);
+
+            // 那么就是一个条件集合
             SqlCriGroupNode grp = new SqlCriGroupNode();
             SqlCriteriaNode head = null;
             for (Map.Entry<String, Object> en : map.entrySet()) {
@@ -171,6 +165,32 @@ public abstract class SqlCriteria {
 
     public static SqlCriteriaNode mapToExp(String key,
                                            Map<String, Object> map) {
+        // 范围对象
+        NutMap mv = NutMap.WRAP(map);
+        RangeInfo info = Ranges.toRangeInfo(mv);
+        if (info.isValid()) {
+            Mirror<?> mi = info.getValueMirror();
+            ValueRange<?> rg = null;
+            if (mi.isStringLike()) {
+                rg = info.toStrRange();
+            } else if (mi.isLong()) {
+                rg = info.toLongRange();
+            } else if (mi.isInt()) {
+                rg = info.toIntRange();
+            } else if (mi.isFloat()) {
+                rg = info.toFloatRange();
+            } else if (mi.isDouble()) {
+                rg = info.toDoubleRange();
+            } else if (mi.isDateTimeLike()) {
+                rg = info.toDateRange();
+            }
+            if (null != rg) {
+                return new SqlCriExpRangeNode(key, rg);
+            }
+
+        }
+
+        // 一个条件集合
         List<SqlCriteriaNode> nodes = new ArrayList<>(map.size());
         for (Map.Entry<String, Object> en : map.entrySet()) {
             String k = en.getKey();

@@ -13,7 +13,7 @@ import org.nutz.lang.born.Borning;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.DateRange;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.ValueRange;
+import org.nutz.lang.util.Ranges;
 
 public class WnCron {
 
@@ -241,7 +241,7 @@ public class WnCron {
         for (String s : items) {
             // 为日期范围
             if (s.startsWith("D")) {
-                rgDate = ValueRange.Date(s.substring(1));
+                rgDate = Ranges.Date(s.substring(1));
                 parts[3] = s;
             }
             // 为时间范围

@@ -5,7 +5,7 @@ import java.util.Date;
 import org.nutz.lang.Each;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Times;
-import org.nutz.lang.util.ValueRange;
+import org.nutz.lang.util.Ranges;
 import org.nutz.log.Log;
 import org.nutz.trans.Atom;
 import com.site0.walnut.api.io.WnObj;
@@ -52,7 +52,7 @@ public class WnIoCleaner implements Atom {
     private void __in_loop() {
         long now = Wn.now();
         WnQuery q = new WnQuery();
-        q.setv("expi", ValueRange.Longf("(,%d]", now));
+        q.setv("expi", Ranges.Longf("(,%d]", now));
         q.limit(100);
         while (true) {
             int[] count = new int[1];
