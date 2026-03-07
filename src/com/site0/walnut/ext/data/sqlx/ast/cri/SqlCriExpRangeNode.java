@@ -8,6 +8,8 @@ import org.nutz.lang.util.FloatRegion;
 import org.nutz.lang.util.IntRegion;
 import org.nutz.lang.util.LongRegion;
 import org.nutz.lang.util.Region;
+import org.nutz.lang.util.StrRegion;
+
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.util.Wregion;
 
@@ -28,6 +30,13 @@ public class SqlCriExpRangeNode extends SqlCriExpressionNode {
         // 浮点范围
         if (s.matches(Wregion.floatRegion())) {
             FloatRegion rg = Region.Float(s);
+            return new SqlCriExpRangeNode(name, rg);
+        }
+        // 字符串范围
+        String s_lower = s.trim().toLowerCase();
+        if (s_lower.startsWith("str[") && s_lower.endsWith("]")) {
+            String s2 = s_lower.substring(3);
+            StrRegion rg = Region.Str(s2);
             return new SqlCriExpRangeNode(name, rg);
         }
         // 日期范围

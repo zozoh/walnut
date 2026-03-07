@@ -77,6 +77,14 @@ public abstract class Region<T extends Comparable<T>> {
         return new DoubleRegion(String.format(fmt, args));
     }
 
+    public static StrRegion Str(String str) {
+        return new StrRegion(str);
+    }
+
+    public static StrRegion Strf(String fmt, Object... args) {
+        return new StrRegion(String.format(fmt, args));
+    }
+
     public static DateRegion Date(String str) {
         return new DateRegion(str);
     }
