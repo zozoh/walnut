@@ -4,7 +4,7 @@ import java.util.Date;
 
 import org.nutz.castor.Castors;
 import org.nutz.lang.util.DateRange;
-import org.nutz.lang.util.ValueRange;
+import org.nutz.lang.util.Ranges;
 import org.nutz.validate.NutValidateException;
 import org.nutz.validate.NutValidator;
 
@@ -13,7 +13,7 @@ public class DateRangeValidator implements NutValidator {
     private DateRange range;
 
     public DateRangeValidator(String str) {
-        this.range = ValueRange.Date(str);
+        this.range = Ranges.Date(str);
     }
 
     @Override

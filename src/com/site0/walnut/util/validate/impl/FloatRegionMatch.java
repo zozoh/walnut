@@ -1,5 +1,6 @@
 package com.site0.walnut.util.validate.impl;
 
+import org.nutz.lang.util.Ranges;
 import org.nutz.lang.util.ValueRange;
 import com.site0.walnut.util.validate.WnMatch;
 
@@ -8,7 +9,7 @@ public class FloatRegionMatch implements WnMatch {
     private ValueRange<Float> region = null;
 
     public FloatRegionMatch(String input) {
-        region = ValueRange.Float(input);
+        region = Ranges.Float(input);
     }
 
     @Override

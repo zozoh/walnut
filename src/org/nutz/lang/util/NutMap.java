@@ -1056,27 +1056,27 @@ public class NutMap extends LinkedHashMap<String, Object> implements NutBean {
                     ValueRange<?> rg = null;
                     // 整数区间
                     if ("int".equals(type)) {
-                        rg = ValueRange.Int(rval);
+                        rg = Ranges.Int(rval);
                     }
                     // 长整数区间
                     else if ("long".equals(type)) {
-                        rg = ValueRange.Long(rval);
+                        rg = Ranges.Long(rval);
                     }
                     // 浮点区间
                     else if ("float".equals(type)) {
-                        rg = ValueRange.Float(rval);
+                        rg = Ranges.Float(rval);
                     }
                     // 双精度浮点区间
                     else if ("double".equals(type)) {
-                        rg = ValueRange.Double(rval);
+                        rg = Ranges.Double(rval);
                     }
                     // 日期区间
                     else if ("date".equals(type)) {
-                        rg = ValueRange.Date(rval);
+                        rg = Ranges.Date(rval);
                     }
                     // 时间区间
                     else if ("time".equals(type)) {
-                        rg = ValueRange.Time(rval);
+                        rg = Ranges.Time(rval);
                     }
                     // Update
                     if (null != rg) {
