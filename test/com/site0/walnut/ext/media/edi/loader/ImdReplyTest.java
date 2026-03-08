@@ -106,12 +106,11 @@ public class ImdReplyTest {
     @Test
     public void test_Imd_ErrRes_04() {
         String input = _read_input("imd_res_04");
-
         EdiInterchange ic = EdiInterchange.parse(input);
         EdiMessage msg = ic.getFirstMessage();
         IMDResLoader loader = EdiMsgs.getIMDResLoader();
         IcsReplyImdRes re = loader.load(msg);
-        System.out.println(Json.toJson(re, JsonFormat.full()));
+        //System.out.println(Json.toJson(re, JsonFormat.full()));
         assertEquals("IMDR", re.getMsgType());
         assertEquals(false, re.isSuccess());
         assertEquals("AAR399A", re.getMsgRecipient());
@@ -119,5 +118,29 @@ public class ImdReplyTest {
         assertEquals("mk0ygtpyy4rh0x9bws", re.getRefIdInLower());
         assertEquals(3, re.getRefVer());
         assertEquals(11, re.getFuncCode());
+        assertEquals(2, re.getHeadErrs().size());
+    }
+
+    @Test
+    public void test_Imd_ErrRes_05() {
+        String input = _read_input("imd_res_05");
+        EdiInterchange ic = EdiInterchange.parse(input);
+        EdiMessage msg = ic.getFirstMessage();
+        IMDResLoader loader = EdiMsgs.getIMDResLoader();
+        IcsReplyImdRes re = loader.load(msg);
+        // System.out.println(Json.toJson(re, JsonFormat.full()));
+        assertEquals("IMDR", re.getMsgType());
+        assertEquals(false, re.isSuccess());
+        assertEquals("MMGHH5X6CHZTKSSK3M", re.getRefId());
+        assertEquals("mmghh5x6chztkssk3m", re.getRefIdInLower());
+
+        assertEquals(2, re.getHeadErrs().size());
+        assertEquals("1", re.getHeadErrs().get(0).getErrLoc());
+        assertEquals(true, re.getHeadErrs().get(0).getErrId().indexOf("ID0251") != -1);
+        assertEquals(true, re.getHeadErrs().get(0).getErrDesc().indexOf("QUANTITY UNIT QUANTITY UNIT=NO REQUIRED FOR STATISTICAL CODE") != -1);
+        assertEquals("3", re.getHeadErrs().get(1).getErrLoc());
+        assertEquals(true, re.getHeadErrs().get(1).getErrId().indexOf("ID0251") != -1);
+        assertEquals(true, re.getHeadErrs().get(1).getErrDesc().indexOf("QUANTITY UNIT QUANTITY UNIT=NO REQUIRED FOR STATISTICAL CODE") != -1);
+
     }
 }

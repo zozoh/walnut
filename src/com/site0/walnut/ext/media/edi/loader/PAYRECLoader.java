@@ -86,7 +86,6 @@ public class PAYRECLoader implements EdiMsgLoader<PayRecRes> {
                 seg.fillBean(nutMap, null, "refCode,refVal,,refVer");
                 String refCode = nutMap.getString("refCode");
                 String refVal = nutMap.getString("refVal");
-                String refVer = nutMap.getString("refVer");
                 if ("ABO".equals(refCode)) {
                     if (Strings.isNotBlank(refVal)) {
                         re.setRefId(refVal);

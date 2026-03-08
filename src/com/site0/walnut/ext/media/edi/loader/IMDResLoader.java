@@ -336,7 +336,7 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
         boolean find = finder.moveToUtil("ERP", true, stopTag);
         while (find) {
             // 找到 ERP-ERC-FTX 报文组
-            List<EdiSegment> errs = finder.findContinueSegments("ERP", "^(ERP|ERC|FTX)$", "^(ERP|TAX)$");
+            List<EdiSegment> errs = finder.nextAllUntilStopTag(true, new String[]{"ERP", "ERC", "FTX"}, new String[]{"ERP","TAX"});
             // 看来找不到错误了，那么退出循环
             if (errs.isEmpty() || !errs.get(0).is("ERP")) {
                 break;
@@ -350,7 +350,7 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
             }
 
             if (isHeadErrs) {
-                headErrs.add(new ImdReplyHeadErr(errs));
+                headErrs.addAll(ImdReplyHeadErr.valueOf(errs));
             }
             find = finder.moveToUtil("ERP", true, "TAX");
         }

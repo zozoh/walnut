@@ -30,31 +30,39 @@ public class ImdReplyHeadErr {
     public ImdReplyHeadErr() {
     }
 
-    public ImdReplyHeadErr(List<EdiSegment> segs) {
+    public static List<ImdReplyHeadErr> valueOf(List<EdiSegment> segs) {
+        List<ImdReplyHeadErr> replyHeadErrList = new ArrayList<>();
+        ImdReplyHeadErr headErr = null;
         for (EdiSegment seg : segs) {
             if (seg.is("ERP")) {
+                headErr = new ImdReplyHeadErr();
+                replyHeadErrList.add(headErr);
                 NutBean bean = seg.getBean(null, ",,errLocation");
-                this.errLoc = bean.getString("errLocation");
+                headErr.setErrLoc(bean.getString("errLocation"));
             } else if (seg.is("ERC")) {
+                if (headErr == null) {
+                    continue;
+                }
                 NutBean bean = seg.getBean(null, "errId,,");
                 String errIdStr = bean.getString("errId");
                 if (!Ws.isBlank(errIdStr)) {
-                    if (this.errId == null) {
-                        this.errId = new ArrayList<>();
+                    if (headErr.getErrId() == null) {
+                        headErr.setErrId(new ArrayList<>());
                     }
-                    this.errId.add(errIdStr);
+                    headErr.getErrId().add(errIdStr);
                 }
             } else if (seg.is("FTX")) {
                 NutBean bean = seg.getBean(null, null, null, null, "errDesc");
                 String errDescStr = bean.getString("errDesc");
                 if (!Ws.isBlank(errDescStr)) {
-                    if (this.errDesc == null) {
-                        this.errDesc = new ArrayList<>();
+                    if (headErr.getErrDesc() == null){
+                        headErr.setErrDesc(new ArrayList<>());
                     }
-                    this.errDesc.add(errDescStr);
+                    headErr.getErrDesc().add(errDescStr);
                 }
             }
         }
+        return replyHeadErrList;
     }
 
     public String getErrLoc() {
