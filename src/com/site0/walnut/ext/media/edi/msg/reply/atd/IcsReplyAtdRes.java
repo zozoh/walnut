@@ -63,10 +63,6 @@ public class IcsReplyAtdRes extends IcsCommonReply {
     // --- RFF 相关 ---
     private String natureType; // AAE
 
-
-//    private String senderRef; // ABO
-//    private String senderRefVer;
-
     private String importerRef; // ABQ
     private String cusDecNum; // ABT
     private String cusDecVer;
@@ -77,8 +73,6 @@ public class IcsReplyAtdRes extends IcsCommonReply {
     private String goodsReceiptId;
 
     // --- CNT 相关 ---
-//    private Map<String, Integer> controlTotals;
-
     private Integer cntLine;
 
     private Integer cntLineAndSubItem;
@@ -364,15 +358,6 @@ public class IcsReplyAtdRes extends IcsCommonReply {
     public void setGoodsReceiptId(String goodsReceiptId) {
         this.goodsReceiptId = goodsReceiptId;
     }
-
-//    public Map<String, Integer> getControlTotals() {
-//        return controlTotals;
-//    }
-//
-//    public void setControlTotals(Map<String, Integer> controlTotals) {
-//        this.controlTotals = controlTotals;
-//    }
-
 
     public Integer getCntLine() {
         return cntLine;
