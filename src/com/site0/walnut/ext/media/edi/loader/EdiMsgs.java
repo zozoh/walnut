@@ -32,6 +32,7 @@ public abstract class EdiMsgs {
         loaders.put("IMDR", new IMDResLoader());
         loaders.put("PAYREC", new PAYRECLoader());
         loaders.put("REFACC", new REFACCLoader());
+        loaders.put("ATD", new ATDResLoader());
     }
 
     public static String getLoaderType(EdiMessage msg) {
@@ -96,4 +97,7 @@ public abstract class EdiMsgs {
         return (REFACCLoader) loaders.get("REFACC");
     }
 
+    public static ATDResLoader getATDResLoader() {
+        return (ATDResLoader) loaders.get("ATD");
+    }
 }
