@@ -68,7 +68,7 @@ public class IcsReplyAtdRes extends IcsCommonReply {
     private String cusDecVer;
     private String brokerRef; // ADU
     // Authority To Deal security code (RFF+AIA)
-    private String dealSecurityCode;
+    private String dealSecCode;
     // Customs receipt for goods identifier (RFF+REN)
     private String goodsReceiptId;
 
@@ -343,12 +343,12 @@ public class IcsReplyAtdRes extends IcsCommonReply {
         this.brokerRef = brokerRef;
     }
 
-    public String getDealSecurityCode() {
-        return dealSecurityCode;
+    public String getDealSecCode() {
+        return dealSecCode;
     }
 
-    public void setDealSecurityCode(String dealSecurityCode) {
-        this.dealSecurityCode = dealSecurityCode;
+    public void setDealSecCode(String dealSecCode) {
+        this.dealSecCode = dealSecCode;
     }
 
     public String getGoodsReceiptId() {

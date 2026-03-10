@@ -46,7 +46,7 @@ public class ATDMsgTest {
         assertEquals("1", re.getCusDecVer());
         assertEquals("SHS1073038299", re.getImporterRef());
         assertEquals("X25192139", re.getBrokerRef());
-        assertEquals("AFHCT3PKA", re.getDealSecurityCode());
+        assertEquals("AFHCT3PKA", re.getDealSecCode());
         assertEquals("N10", re.getNatureType());
 
         assertEquals(Integer.valueOf(5), re.getCntCusDetailLine());
@@ -89,7 +89,7 @@ public class ATDMsgTest {
         assertEquals("CXF677", re.getImporterRef());
 
         assertEquals("B00076191", re.getBrokerRef());
-        assertEquals("AE7AK4L74", re.getDealSecurityCode());
+        assertEquals("AE7AK4L74", re.getDealSecCode());
         assertEquals("N10", re.getNatureType());
 
         assertEquals(Integer.valueOf(3), re.getCntCusDetailLine());

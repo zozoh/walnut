@@ -235,7 +235,7 @@ public class ATDResLoader implements EdiMsgLoader<IcsReplyAtdRes> {
                 } else if ("ADU".equals(refCode)) {
                     re.setBrokerRef(refVal);
                 } else if ("AIA".equals(refCode)) {
-                    re.setDealSecurityCode(refVal);
+                    re.setDealSecCode(refVal);
                 } else if ("REN".equals(refCode)) {
                     re.setGoodsReceiptId(refVal);
                 }
