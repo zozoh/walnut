@@ -1,8 +1,11 @@
 package com.site0.walnut.ext.data.sqlx.loader;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
@@ -12,6 +15,8 @@ import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.validate.WnMatch;
+import com.site0.walnut.util.validate.impl.AutoMatch;
 
 /**
  * 针对某一个玉，会有一个唯一的实例，缓存这个域的所有sql模板
@@ -25,7 +30,7 @@ public class WnSqlHolder implements SqlHolder {
     private Map<String, SqlEntry> cache;
 
     public WnSqlHolder() {
-        cache = new HashMap<>();
+        cache = new WeakHashMap<>();
     }
 
     public WnSqlHolder(WnIo io, WnObj oHome) {
@@ -67,16 +72,7 @@ public class WnSqlHolder implements SqlHolder {
     }
 
     public String toString() {
-        StringBuilder sb = new StringBuilder(String.format("CACHE %d Items", cache.size()));
-        int i = 1;
-        for (Map.Entry<String, SqlEntry> en : cache.entrySet()) {
-            String key = en.getKey();
-            Object val = en.getValue();
-            sb.append("\n--------------------------------------------");
-            sb.append(String.format("\n%d) %s => %s", i++, key, val.toString()));
-        }
-        sb.append("\n--------------------------------------------");
-        return sb.toString();
+        return SqlEntry.dumpToStr(cache);
     }
 
     @Override
@@ -100,6 +96,25 @@ public class WnSqlHolder implements SqlHolder {
         }
         WnSqlTmpl sqlt = WnSqlTmpl.parse(sqle);
         return sqlt;
+    }
+
+    @Override
+    synchronized public Map<String, SqlEntry> find(String keywords) {
+        WnMatch am = AutoMatch.parse(keywords, false);
+        List<String> found_keys = new ArrayList<>(cache.size());
+        Set<String> kset = cache.keySet();
+        for (String key : kset) {
+            if (am.match(key)) {
+                found_keys.add(key);
+            }
+        }
+
+        Map<String, SqlEntry> map = new HashMap<>();
+        for (String key : found_keys) {
+            SqlEntry sqle = cache.get(key);
+            map.put(key, sqle.clone());
+        }
+        return map;
     }
 
     private SqlEntry loadEntry(String key) {

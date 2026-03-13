@@ -3,8 +3,9 @@ package org.nutz.log.impl;
 import java.util.Arrays;
 
 import org.nutz.log.Log;
-
 import com.site0.walnut.api.err.Er;
+import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.Ws;
 
 public abstract class AbstractLog implements Log {
 
@@ -128,8 +129,17 @@ public abstract class AbstractLog implements Log {
         } else {
             throw Er.create("e.nutz.log.InvalidLogLevel", level);
         }
-        LogInfo info = makeInfo(fmt, args);
-        printLog(level, info);
+        try {
+            LogInfo info = makeInfo(fmt, args);
+            printLog(level, info);
+        }
+        catch (Throwable e) {
+            throw Er
+                .create(e,
+                        "e.nutz.log.FailToMakeInfo",
+                        Wlang.map("fmt", fmt).setv("args", Ws.join(args, ",")));
+
+        }
     }
 
     public void debug(Object message) {

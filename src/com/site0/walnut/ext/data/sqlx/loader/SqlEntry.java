@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,6 +47,7 @@ public class SqlEntry {
                     list.add(en);
                     // 清理老实体
                     en = null;
+
                 }
                 // 开始新实体
                 if (null == en) {
@@ -66,7 +68,7 @@ public class SqlEntry {
                 continue;
             }
             // 其他行，就作为 SQL 模板
-            else if (null != sb) {
+            else if (null != sb && null != en && en.hasName()) {
                 if (sb.length() > 0) {
                     sb.append(' ');
                 }
@@ -95,6 +97,17 @@ public class SqlEntry {
     private Boolean defaultIgnoreNil;
 
     private String content;
+
+    public SqlEntry clone() {
+        SqlEntry re = new SqlEntry();
+        re.name = this.name;
+        re.type = this.type;
+        re.defaultPick = this.defaultPick;
+        re.defaultOmit = this.defaultOmit;
+        re.defaultIgnoreNil = this.defaultIgnoreNil;
+        re.content = this.content;
+        return re;
+    }
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -191,6 +204,21 @@ public class SqlEntry {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public static String dumpToStr(Map<String, SqlEntry> map) {
+        StringBuilder sb = new StringBuilder(String.format("CACHE %d Items",
+                                                           map.size()));
+        int i = 1;
+        for (Map.Entry<String, SqlEntry> en : map.entrySet()) {
+            String key = en.getKey();
+            Object val = en.getValue();
+            sb.append("\n--------------------------------------------");
+            sb.append(String
+                .format("\n%d) %s => %s", i++, key, val.toString()));
+        }
+        sb.append("\n--------------------------------------------");
+        return sb.toString();
     }
 
 }

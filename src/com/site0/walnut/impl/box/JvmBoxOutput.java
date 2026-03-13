@@ -15,7 +15,9 @@ import org.nutz.lang.Streams;
 import org.nutz.lang.stream.VoidOutputStream;
 import org.nutz.log.Log;
 import com.site0.walnut.util.Wlog;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.WnOutputable;
+import com.site0.walnut.api.err.Er;
 
 public class JvmBoxOutput implements WnOutputable {
 
@@ -128,7 +130,15 @@ public class JvmBoxOutput implements WnOutputable {
 
     @Override
     public void printlnf(String fmt, Object... args) {
-        print(String.format(fmt, args) + "\n");
+        try {
+            print(String.format(fmt, args) + "\n");
+        }
+        catch (Throwable e) {
+            throw Er
+                .create(e,
+                        "e.box.printlnf.FormatFailed",
+                        Wlang.map("fmt", fmt).setv("args", Ws.join(args, ",")));
+        }
     }
 
     @Override
