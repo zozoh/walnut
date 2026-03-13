@@ -557,11 +557,11 @@ public class ObjModule extends AbstractWnModule {
      * @return 对象的内容
      * 
      */
-    @At("/content")
+    @At("/content/*")
     @AdaptBy(type = JsonAdaptor.class)
-    public View content(@Param("str") String str,
+    public View content(String downloadName,
+                        @Param("str") String str,
                         @Param("d") String download,
-                        @Param("dnm") String downloadName,
                         @ReqHeader("User-Agent") String ua,
                         @ReqHeader("If-None-Match") String etag,
                         @ReqHeader("Range") String range,
