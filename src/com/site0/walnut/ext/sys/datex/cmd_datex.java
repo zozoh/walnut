@@ -59,7 +59,12 @@ public class cmd_datex extends JvmFilterExecutor<DatexContext, DatexFilter> {
             else {
                 str = Wtime.format(d, fc.fmt);
             }
-            sys.out.println(str);
+            if (fc.params.is("n")) {
+                sys.out.println(str);
+            } else {
+                sys.out.print(str);
+            }
+
         }
     }
 

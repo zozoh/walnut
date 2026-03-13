@@ -7,7 +7,8 @@
 # 用法
 
 ```
-datex [[@filter filter-args...]...]
+datex [-n] [[@filter filter-args...]...]
+[-n]     # 参数表示输出的时候带上换行符
 ```
 
 它支持的过滤器有：
