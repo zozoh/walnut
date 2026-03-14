@@ -4,14 +4,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.nutz.log.Log;
 import org.nutz.mvc.ActionContext;
 import org.nutz.mvc.impl.processor.AbstractProcessor;
-import com.site0.walnut.WnVersion;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.impl.io.WnEvalLink;
 import com.site0.walnut.util.Wlog;
@@ -29,13 +26,13 @@ public class CreateWnContext extends AbstractProcessor {
 
         WnContext wc = Wn.WC();
         HttpServletRequest req = ac.getRequest();
-        HttpServletResponse resp = ac.getResponse();
+        //HttpServletResponse resp = ac.getResponse();
 
         String ipv4 = Wlang.getIP(req, false);
         wc.setIPv4(ipv4);
 
         // 标识一下响应
-        resp.addHeader("X-Powered-By", WnVersion.getName());
+        //resp.addHeader("X-Powered-By", WnVersion.getName());
 
         // 设置上下文，主要是从 Cookie 里恢复 SEID
         setupWnContext(wc, req);
