@@ -2,9 +2,9 @@ package com.site0.walnut.ext.media.edi.msg.reply.pay;
 
 import com.site0.walnut.ext.media.edi.msg.reply.IcsCommonReply;
 
-public class RefundAdv extends IcsCommonReply {
+public class RefundAcc extends IcsCommonReply {
 
-    public RefundAdv() {
+    public RefundAcc() {
         super("REFACC");
     }
 
@@ -15,9 +15,22 @@ public class RefundAdv extends IcsCommonReply {
 
     // NAD
     private String msgRecipient; // MR
+    private String clientName;
+
     private String branchId;     // VT
+
     private String brokerLicNum; // CB
     private String brokerName;
+    private String brokerBoxNum;
+
+    // NAD+CM
+    private String cusState;
+    private String cusGroup;
+    private String cusName;
+
+    private String cusEmail;
+    private String cusFax;
+    private String cusTel;
 
     // RFF
     private String refId;        // ABO
@@ -54,6 +67,14 @@ public class RefundAdv extends IcsCommonReply {
         this.msgRecipient = msgRecipient;
     }
 
+    public String getClientName() {
+        return clientName;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
+    }
+
     public String getBranchId() {
         return branchId;
     }
@@ -76,6 +97,62 @@ public class RefundAdv extends IcsCommonReply {
 
     public void setBrokerName(String brokerName) {
         this.brokerName = brokerName;
+    }
+
+    public String getBrokerBoxNum() {
+        return brokerBoxNum;
+    }
+
+    public void setBrokerBoxNum(String brokerBoxNum) {
+        this.brokerBoxNum = brokerBoxNum;
+    }
+
+    public String getCusState() {
+        return cusState;
+    }
+
+    public void setCusState(String cusState) {
+        this.cusState = cusState;
+    }
+
+    public String getCusGroup() {
+        return cusGroup;
+    }
+
+    public void setCusGroup(String cusGroup) {
+        this.cusGroup = cusGroup;
+    }
+
+    public String getCusName() {
+        return cusName;
+    }
+
+    public void setCusName(String cusName) {
+        this.cusName = cusName;
+    }
+
+    public String getCusEmail() {
+        return cusEmail;
+    }
+
+    public void setCusEmail(String cusEmail) {
+        this.cusEmail = cusEmail;
+    }
+
+    public String getCusFax() {
+        return cusFax;
+    }
+
+    public void setCusFax(String cusFax) {
+        this.cusFax = cusFax;
+    }
+
+    public String getCusTel() {
+        return cusTel;
+    }
+
+    public void setCusTel(String cusTel) {
+        this.cusTel = cusTel;
     }
 
     public String getRefId() {

@@ -2,7 +2,7 @@ package com.site0.walnut.ext.media.edi.loader;
 
 import com.site0.walnut.ext.media.edi.bean.EdiInterchange;
 import com.site0.walnut.ext.media.edi.bean.EdiMessage;
-import com.site0.walnut.ext.media.edi.msg.reply.pay.RefundAdv;
+import com.site0.walnut.ext.media.edi.msg.reply.pay.RefundAcc;
 import org.junit.Test;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
@@ -10,7 +10,7 @@ import org.nutz.lang.Files;
 
 import static org.junit.Assert.*;
 
-public class REFACCLoaderTest {
+public class REFACCMsgTest {
 
     private String _read_input(String name) {
         String txt = Files.read("com/site0/walnut/ext/media/edi/bean/pack/" + name + ".edi.txt");
@@ -20,13 +20,13 @@ public class REFACCLoaderTest {
 
     @Test
     public void test_refundRes_01() {
-        //refund_res_01.edi.txt
-        String input = _read_input("refund_res_01");
+        //refund_acc_01.edi.txt
+        String input = _read_input("refund_acc_01");
 
         EdiInterchange ic = EdiInterchange.parse(input);
         EdiMessage msg = ic.getFirstMessage();
         REFACCLoader loader = EdiMsgs.getREFACCLoader();
-        RefundAdv re = loader.load(msg);
+        RefundAcc re = loader.load(msg);
         System.out.println(Json.toJson(re, JsonFormat.full()));
 
         assertNotNull(re);
@@ -44,14 +44,14 @@ public class REFACCLoaderTest {
         assertEquals("B00058894", re.getBrokerRef());
     }
 
-    //refund_res_02.edi.txt
+    //refund_acc_02.edi.txt
     @Test
     public void test_refundRes_02() {
-        String input = _read_input("refund_res_02");
+        String input = _read_input("refund_acc_02");
         EdiInterchange ic = EdiInterchange.parse(input);
         EdiMessage msg = ic.getFirstMessage();
         REFACCLoader loader = EdiMsgs.getREFACCLoader();
-        RefundAdv re = loader.load(msg);
+        RefundAcc re = loader.load(msg);
 
         assertNotNull(re);
         assertEquals(0, re.getRstVer());
@@ -68,14 +68,14 @@ public class REFACCLoaderTest {
         assertEquals("B00058425", re.getBrokerRef());
     }
 
-    //refund_res_03.edi.txt
+    //refund_acc_03.edi.txt
     @Test
     public void test_refundRes_03() {
-        String input = _read_input("refund_res_03");
+        String input = _read_input("refund_acc_03");
         EdiInterchange ic = EdiInterchange.parse(input);
         EdiMessage msg = ic.getFirstMessage();
         REFACCLoader loader = EdiMsgs.getREFACCLoader();
-        RefundAdv re = loader.load(msg);
+        RefundAcc re = loader.load(msg);
 
         assertNotNull(re);
         assertEquals(0, re.getRstVer());
@@ -90,6 +90,31 @@ public class REFACCLoaderTest {
         assertEquals("AE3J3CNXG", re.getImpDecNum());
         assertEquals("2", re.getImpDecNumVer());
         assertEquals("B00060706", re.getBrokerRef());
+    }
+
+    //refund_acc_04.edi.txt
+    @Test
+    public void test_refundRes_04() {
+        String input = _read_input("refund_acc_04");
+        EdiInterchange ic = EdiInterchange.parse(input);
+        EdiMessage msg = ic.getFirstMessage();
+        REFACCLoader loader = EdiMsgs.getREFACCLoader();
+        RefundAcc re = loader.load(msg);
+        // System.out.println(Json.toJson(re, JsonFormat.full()));
+        assertNotNull(re);
+        assertEquals(0, re.getRstVer());
+        assertEquals(true, re.isSuccess());
+        assertEquals("SHS1073038299", re.getDrawbackId());
+        assertEquals("FKG373X", re.getMsgRecipient());
+        assertEquals("AF46JR", re.getBranchId());
+        assertEquals("MASTER LOGISTICS PTY LTD", re.getBrokerName());
+
+        assertEquals("MMGHH5X6CHZTKSSK3M", re.getRefId());
+        assertEquals("mmghh5x6chztkssk3m", re.getRefIdInLower());
+        assertEquals(7, re.getRefVer());
+        assertEquals("AFHCT3PJG", re.getImpDecNum());
+        assertEquals("2", re.getImpDecNumVer());
+        assertEquals("X25192139", re.getBrokerRef());
     }
 
 

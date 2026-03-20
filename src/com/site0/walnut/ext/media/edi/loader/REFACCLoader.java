@@ -2,7 +2,7 @@ package com.site0.walnut.ext.media.edi.loader;
 
 import com.site0.walnut.ext.media.edi.bean.EdiMessage;
 import com.site0.walnut.ext.media.edi.bean.EdiSegment;
-import com.site0.walnut.ext.media.edi.msg.reply.pay.RefundAdv;
+import com.site0.walnut.ext.media.edi.msg.reply.pay.RefundAcc;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
 import com.site0.walnut.ext.media.edi.util.IcsLoaderHelper;
 import org.nutz.lang.Strings;
@@ -10,16 +10,16 @@ import org.nutz.lang.util.NutMap;
 
 import java.util.List;
 
-public class REFACCLoader implements EdiMsgLoader<RefundAdv> {
+public class REFACCLoader implements EdiMsgLoader<RefundAcc> {
 
     @Override
-    public Class<RefundAdv> getResultType() {
-        return RefundAdv.class;
+    public Class<RefundAcc> getResultType() {
+        return RefundAcc.class;
     }
 
     @Override
-    public RefundAdv load(EdiMessage msg) {
-        RefundAdv re = new RefundAdv();
+    public RefundAcc load(EdiMessage msg) {
+        RefundAcc re = new RefundAcc();
         re.setRstVer(0);
         re.setSuccess(true);
 
@@ -60,16 +60,103 @@ public class REFACCLoader implements EdiMsgLoader<RefundAdv> {
                 // 1st: FuncCode
                 // 2nd: PartyId (C082)
                 // 3rd: NameAndAddr (C058) -> Used for 'partyName' here for simple strings
-                seg.fillBean(nutMap, null, "funcCode", "partyId,,agencyCode", "nameAddr");
+                seg.fillBean(nutMap, null, "funcCode", "partyId,,agencyCode", "nameAddr1,nameAddr2,nameAddr3");
                 String funcCode = nutMap.getString("funcCode");
                 String partyId = nutMap.getString("partyId");
                 if ("CB".equals(funcCode)) {
                     re.setBrokerLicNum(partyId);
-                    re.setBrokerName(nutMap.getString("nameAddr"));
+
+                    // 将 nameAddr1/2 拼接成一个字符串，存储到 brokerName 中
+                    String nameAddr1 = nutMap.getString("nameAddr1");
+                    String nameAddr2 = nutMap.getString("nameAddr2");
+                    if (nameAddr1 == null || nameAddr1.length() == 0) {
+                        nameAddr1 = "";
+                    }
+                    if (nameAddr2 == null || nameAddr2.length() == 0) {
+                        nameAddr2 = "";
+                    }
+                    String fullNameAddr = (nameAddr1 + nameAddr2).trim();
+                    if (Strings.isNotBlank(fullNameAddr)) {
+                        re.setBrokerName(fullNameAddr);
+                    }
+
+                    String nameAddr3 = nutMap.getString("nameAddr3");
+                    if (nameAddr3 != null && nameAddr3.length() > 0) {
+                        if (Strings.isNotBlank(nameAddr3)) {
+                            re.setBrokerBoxNum(nameAddr3);
+                        }
+                    }
+                } else if ("CC".equals(funcCode)) {
+                    String nameAddr1 = nutMap.getString("nameAddr1");
+                    String nameAddr2 = nutMap.getString("nameAddr2");
+                    if (nameAddr1 == null || nameAddr1.length() == 0) {
+                        nameAddr1 = "";
+                    }
+                    if (nameAddr2 == null || nameAddr2.length() == 0) {
+                        nameAddr2 = "";
+                    }
+                    String fullNameAddr = (nameAddr1 + nameAddr2).trim();
+                    if (Strings.isNotBlank(fullNameAddr)) {
+                        re.setClientName(fullNameAddr);
+                    }
+                } else if ("CM".equals(funcCode)) {
+                    String nameAddr1 = nutMap.getString("nameAddr1");
+                    String nameAddr2 = nutMap.getString("nameAddr2");
+                    String nameAddr3 = nutMap.getString("nameAddr3");
+                    if (nameAddr1 != null && nameAddr1.length() > 0 && Strings.isNotBlank(nameAddr1)) {
+                        re.setCusState(nameAddr1);
+                    }
+                    if (nameAddr2 != null && nameAddr2.length() > 0 && Strings.isNotBlank(nameAddr2)) {
+                        re.setCusGroup(nameAddr2);
+                    }
+                    if (nameAddr3 != null && nameAddr3.length() > 0 && Strings.isNotBlank(nameAddr3)) {
+                        re.setCusName(nameAddr3);
+                    }
                 } else if ("MR".equals(funcCode)) {
                     re.setMsgRecipient(partyId);
                 } else if ("VT".equals(funcCode)) {
                     re.setBranchId(partyId);
+                }
+            }
+        }
+
+        // COM -> Contact
+        finder.reset();
+        find = finder.moveToUtil("COM", true, "UNT");
+        if (find) {
+            /*
+            * Segment:	COM Communication Contact
+                Position:	0130
+                Group:	Segment Group 2 (Contact Information) Conditional (Optional)
+                Level:	3
+                Usage:	Conditional (Optional)
+                Max Use:	9
+                >Data Element Summary
+                Data
+                Element	Component
+                Element	Name	Attributes
+                M	C076		COMMUNICATION CONTACT	M	1
+                M		3148	Communication number	M		an..512
+                Customs Officer Email Address
+                Customs Officer Facsimile Number
+                Customs Officer Telephone Number
+                M		3155	Communication number code qualifier	M		an..3
+                EM		Electronic mail
+                FX		Telefax
+                TE		Telephone
+            * */
+            segs = finder.nextAll(true, "COM");
+            for (EdiSegment seg : segs) {
+                nutMap.clear();
+                seg.fillBean(nutMap, null, "contactNum,contactType");
+                String contactNum = nutMap.getString("contactNum");
+                String contactType = nutMap.getString("contactType");
+                if ("EM".equals(contactType)) {
+                    re.setCusEmail(contactNum);
+                } else if ("FX".equals(contactType)) {
+                    re.setCusFax(contactNum);
+                } else if ("TE".equals(contactType)) {
+                    re.setCusTel(contactNum);
                 }
             }
         }
@@ -89,8 +176,8 @@ public class REFACCLoader implements EdiMsgLoader<RefundAdv> {
 
                 if ("ABO".equals(refCode)) {
                     if (Strings.isNotBlank(refVal)) {
-                        re.setRefId(refVal);
-                        re.setRefIdInLower(refVal.toLowerCase());
+                        re.setRefId(refVal.trim());
+                        re.setRefIdInLower(refVal.trim().toLowerCase());
                         re.setRefVer(nutMap.getInt("refVer"));
                     }
                 } else if ("ABT".equals(refCode)) {
