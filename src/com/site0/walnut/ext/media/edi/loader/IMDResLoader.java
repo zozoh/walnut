@@ -36,7 +36,7 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
         List<EdiSegment> segs;
 
         // 定位到 BGM 报文行，解析 FuncCode
-        IcsLoaderHelper.fillResFuncCode(re, finder);
+        IcsLoaderHelper.parseBgmUnt(re, finder);
 
         // 定位到 DTM 报文行
         boolean find = finder.moveToUtil("DTM", true, "NAD", "RFF");

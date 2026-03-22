@@ -2,7 +2,7 @@ package com.site0.walnut.ext.media.edi.loader;
 
 import com.site0.walnut.ext.media.edi.bean.EdiMessage;
 import com.site0.walnut.ext.media.edi.bean.EdiSegment;
-import com.site0.walnut.ext.media.edi.msg.reply.pay.RefundAcc;
+import com.site0.walnut.ext.media.edi.msg.reply.pay.RefundRej;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
 import com.site0.walnut.ext.media.edi.util.IcsLoaderHelper;
 import org.nutz.lang.Strings;
@@ -10,16 +10,16 @@ import org.nutz.lang.util.NutMap;
 
 import java.util.List;
 
-public class REFACCLoader implements EdiMsgLoader<RefundAcc> {
+public class REFREJLoader implements EdiMsgLoader<RefundRej> {
 
     @Override
-    public Class<RefundAcc> getResultType() {
-        return RefundAcc.class;
+    public Class<RefundRej> getResultType() {
+        return RefundRej.class;
     }
 
     @Override
-    public RefundAcc load(EdiMessage msg) {
-        RefundAcc re = new RefundAcc();
+    public RefundRej load(EdiMessage msg) {
+        RefundRej re = new RefundRej();
         re.setRstVer(0);
         re.setSuccess(true);
 
@@ -38,13 +38,15 @@ public class REFACCLoader implements EdiMsgLoader<RefundAcc> {
             for (EdiSegment seg : segs) {
                 nutMap.clear();
                 // 1:SubjectCode, 2:TextFunc, 3:TextRef, 4:textValue
-                seg.fillBean(nutMap, null, "subjectCode", null, null, "textValue");
+                seg.fillBean(nutMap, null, "subjectCode", null, null, "text1,text2");
                 String subjectCode = nutMap.getString("subjectCode");
-                String textValue = nutMap.getString("textValue");
+                String text1 = nutMap.getString("text1");
+                String text2 = nutMap.getString("text2");
                 if ("ACB".equals(subjectCode)) {
-                    re.setDrawbackId(textValue);
+                    re.setClientRef(text1);
                 } else if ("ACD".equals(subjectCode)) {
-                    re.setCusActReason(textValue);
+                    re.setCusActReason(text1);
+                    re.setRejectReason(text2);
                 }
             }
         }
@@ -56,10 +58,6 @@ public class REFACCLoader implements EdiMsgLoader<RefundAcc> {
             segs = finder.nextAll(true, "NAD");
             for (EdiSegment seg : segs) {
                 nutMap.clear();
-                // NAD+CB++MASTER LOGISTICS PTY LTD'
-                // 1st: FuncCode
-                // 2nd: PartyId (C082)
-                // 3rd: NameAndAddr (C058) -> Used for 'partyName' here for simple strings
                 seg.fillBean(nutMap, null, "funcCode", "partyId,,agencyCode", "nameAddr1,nameAddr2,nameAddr3");
                 String funcCode = nutMap.getString("funcCode");
                 String partyId = nutMap.getString("partyId");
@@ -124,27 +122,6 @@ public class REFACCLoader implements EdiMsgLoader<RefundAcc> {
         finder.reset();
         find = finder.moveToUtil("COM", true, "UNT");
         if (find) {
-            /*
-            * Segment:	COM Communication Contact
-                Position:	0130
-                Group:	Segment Group 2 (Contact Information) Conditional (Optional)
-                Level:	3
-                Usage:	Conditional (Optional)
-                Max Use:	9
-                >Data Element Summary
-                Data
-                Element	Component
-                Element	Name	Attributes
-                M	C076		COMMUNICATION CONTACT	M	1
-                M		3148	Communication number	M		an..512
-                Customs Officer Email Address
-                Customs Officer Facsimile Number
-                Customs Officer Telephone Number
-                M		3155	Communication number code qualifier	M		an..3
-                EM		Electronic mail
-                FX		Telefax
-                TE		Telephone
-            * */
             segs = finder.nextAll(true, "COM");
             for (EdiSegment seg : segs) {
                 nutMap.clear();

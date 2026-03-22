@@ -33,7 +33,7 @@ public class UBMErrLoader implements EdiMsgLoader<IcsReplyUbmErr> {
          * 定位到 BGM 报文行，解析 Version 和 FuncCode
          * BGM+961:::UBMREQE+1812 F23I 46AE:001+11'
          */
-        IcsLoaderHelper.fillResFuncCode(re, finder);
+        IcsLoaderHelper.parseBgmUnt(re, finder);
 
         // 解析 FTX 报文行 (根据目前的样例，这个报文行是不会出现在 UBMREQE 中的)
         segmentList = finder.nextAll(true, "FTX");

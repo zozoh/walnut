@@ -31,8 +31,9 @@ public abstract class EdiMsgs {
         loaders.put("UBMREQR", new UBMResLoader());
         loaders.put("IMDR", new IMDResLoader());
         loaders.put("PAYREC", new PAYRECLoader());
-        loaders.put("REFACC", new REFACCLoader());
         loaders.put("ATD", new ATDResLoader());
+        loaders.put("REFACC", new REFACCLoader());
+        loaders.put("REFREJ", new REFREJLoader());
     }
 
     public static String getLoaderType(EdiMessage msg) {
@@ -99,5 +100,9 @@ public abstract class EdiMsgs {
 
     public static ATDResLoader getATDResLoader() {
         return (ATDResLoader) loaders.get("ATD");
+    }
+
+    public static REFREJLoader getREFREJLoader() {
+        return (REFREJLoader) loaders.get("REFREJ");
     }
 }

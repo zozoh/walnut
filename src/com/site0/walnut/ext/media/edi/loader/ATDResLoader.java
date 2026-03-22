@@ -27,7 +27,7 @@ public class ATDResLoader implements EdiMsgLoader<IcsReplyAtdRes> {
         NutMap bean = new NutMap();
         List<EdiSegment> segs;
 
-        IcsLoaderHelper.fillResFuncCode(re, finder);
+        IcsLoaderHelper.parseBgmUnt(re, finder);
 
         boolean found = finder.moveToUtil("DTM", true, "FTX", "TDT", "LOC", "GIS", "NAD", "RFF", "DOC", "CNT", "UNT");
         if (found) {
