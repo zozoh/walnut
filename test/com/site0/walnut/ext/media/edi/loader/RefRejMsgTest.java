@@ -2,7 +2,6 @@ package com.site0.walnut.ext.media.edi.loader;
 
 import com.site0.walnut.ext.media.edi.bean.EdiInterchange;
 import com.site0.walnut.ext.media.edi.bean.EdiMessage;
-import com.site0.walnut.ext.media.edi.msg.reply.pay.RefundAcc;
 import com.site0.walnut.ext.media.edi.msg.reply.pay.RefundRej;
 import org.junit.Test;
 import org.nutz.json.Json;
