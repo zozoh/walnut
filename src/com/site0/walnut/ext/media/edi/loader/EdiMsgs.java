@@ -78,6 +78,10 @@ public abstract class EdiMsgs {
         return (CLNTDUPLoader) loaders.get("CLNTDUP");
     }
 
+    public static CARSTLoader getCARSTLoader() {
+        return (CARSTLoader) loaders.get("CARST");
+    }
+
     public static UBMErrLoader getUBMErrLoader() {
         return (UBMErrLoader) loaders.get("UBMREQE");
     }

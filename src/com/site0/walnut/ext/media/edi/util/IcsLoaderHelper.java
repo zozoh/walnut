@@ -16,19 +16,21 @@ public class IcsLoaderHelper {
         NutMap rff = new NutMap();
         finder.reset();
         EdiSegment seg = finder.next("BGM");
-        if (seg != null) {
-            seg.fillBean(rff, null, "docNameCode,,,docName", "docMsgNum,version", "funcCode");
-            re.setFuncCode(rff.getInt("funcCode"));
-            re.setDocName(rff.getString("docName"));
-        }
-        finder.reset();
-        seg = finder.next("UNT");
-        if (seg != null) {
-            seg.fillBean(rff, null, "segNum","refNum");
-            re.setSegNum(rff.getInt("segNum", -1));
-            re.setMsgIdx(rff.getInt("refNum", -1));
-        }
-        finder.reset();
+        seg.fillBean(rff, null, "docNameCode,,,docName", "docMsgNum,version", "funcCode");
+        re.setFuncCode(rff.getInt("funcCode"));
+        re.setDocName(rff.getString("docName"));
+
+//        finder.reset();
+//        boolean find = finder.moveTo("UNT", true);
+//        if (find) {
+//            seg = finder.next("UNT");
+//            if (seg != null) {
+//                seg.fillBean(rff, null, "segNum", "refNum");
+//                re.setSegNum(rff.getInt("segNum", -1));
+//                re.setMsgIdx(rff.getInt("refNum", -1));
+//            }
+//        }
+//        finder.reset();
     }
 
     /**
