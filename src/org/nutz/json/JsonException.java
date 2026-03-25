@@ -1,6 +1,5 @@
 package org.nutz.json;
 
-@SuppressWarnings("serial")
 public class JsonException extends RuntimeException {
 
     public JsonException(Throwable cause) {

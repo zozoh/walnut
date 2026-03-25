@@ -5,5 +5,5 @@ package org.nutz.lang;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-@SuppressWarnings("serial")
+
 public class ContinueLoop extends RuntimeException {}

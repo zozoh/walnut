@@ -13,7 +13,7 @@ public class tmpl_render extends TmplFilter {
         WnTmplX t = WnTmplX.parse(null, fc.expert, fc.tmpl);
         String s = t.render(fc.vars, fc.showKeys);
         fc.quiet = true;
-        sys.out.println(s);
+        sys.out.print(s);
     }
 
 }

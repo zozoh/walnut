@@ -1,6 +1,5 @@
 package org.nutz.dao;
 
-@SuppressWarnings("serial")
 public class SqlNotFoundException extends RuntimeException {
 
     public SqlNotFoundException(String key) {

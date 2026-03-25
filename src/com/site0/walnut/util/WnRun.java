@@ -101,7 +101,10 @@ public class WnRun {
         return exec(logPrefix, unm, null, cmdText);
     }
 
-    public String exec(String logPrefix, String unm, String input, String cmdText) {
+    public String exec(String logPrefix,
+                       String unm,
+                       String input,
+                       String cmdText) {
         // 检查用户和会话
         WnUser u = auth.checkUser(unm);
         int du = auth.getSessionDuration(false);
@@ -155,7 +158,10 @@ public class WnRun {
         return exec(logPrefix, se, null, cmdText);
     }
 
-    public String exec(String logPrefix, WnSession se, String input, String cmdText) {
+    public String exec(String logPrefix,
+                       WnSession se,
+                       String input,
+                       String cmdText) {
         StringBuilder sbOut = new StringBuilder();
         StringBuilder sbErr = new StringBuilder();
         OutputStream out = Wlang.ops(sbOut);
@@ -183,7 +189,14 @@ public class WnRun {
                                       OutputStream out,
                                       OutputStream err,
                                       InputStream ins) {
-        return new WnBoxRunning(logPrefix, io, services, allocTimeout, withHook, out, err, ins);
+        return new WnBoxRunning(logPrefix,
+                                io,
+                                services,
+                                allocTimeout,
+                                withHook,
+                                out,
+                                err,
+                                ins);
     }
 
     public void exec(String logPrefix,
@@ -212,6 +225,9 @@ public class WnRun {
 
         // 设置沙箱
         WnBoxContext bc = createBoxContext(se);
+
+        // boolean is_log_off = Wn.WC().isLogOff();
+        // System.out.printf("is_log_off: %s\n", is_log_off);
 
         if (boxLog.isTraceEnabled())
             boxLog.tracef("%sbox:setup: %s", logPrefix, bc);
@@ -250,7 +266,10 @@ public class WnRun {
         return bc;
     }
 
-    public void runWithHook(WnUser usr, String grp, NutMap env, Callback<WnSession> callback) {
+    public void runWithHook(WnUser usr,
+                            String grp,
+                            NutMap env,
+                            Callback<WnSession> callback) {
         int du = auth.getSessionDuration(false);
         WnSession se = auth.createSession(usr, Wn.SET_HOOK, du);
         try {
@@ -277,7 +296,8 @@ public class WnRun {
         ctx.setSession(se);
         ctx.core(new WnSecurityImpl(io, auth), false, hc, new Atom() {
             public void run() {
-                ctx.security(new WnSecurityImpl(io, auth), () -> callback.invoke(se));
+                ctx.security(new WnSecurityImpl(io, auth),
+                             () -> callback.invoke(se));
             }
         });
     }

@@ -167,6 +167,7 @@ public class ReflectTool {
      * @param tv
      * @return
      */
+    @SuppressWarnings("unlikely-arg-type")
     public static Type getInheritGenericType(Class<?> clazz, TypeVariable<?> tv) {
         Type type = null;
         GenericDeclaration gd = tv.getGenericDeclaration();

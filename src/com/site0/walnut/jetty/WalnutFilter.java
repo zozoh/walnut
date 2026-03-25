@@ -58,7 +58,9 @@ public class WalnutFilter implements Filter {
     private ArrayList<DmnMatcher> _dms;
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse resp, FilterChain chain)
+    public void doFilter(ServletRequest request,
+                         ServletResponse resp,
+                         FilterChain chain)
             throws IOException, ServletException {
         // 用 Jettry 的 Request 对象接口
         // Request req = (Request) arg0;
@@ -84,6 +86,12 @@ public class WalnutFilter implements Filter {
             if (host.startsWith("www.")) {
                 host = host.substring(4);
             }
+        }
+
+        String qs = req.getQueryString();
+        // 被偷偷标志了关闭日志
+        if (null != qs && qs.indexOf("log_off=true") >= 0) {
+            Wn.WC().setLogOff();
         }
 
         // 一定记录属性到请求对象
@@ -112,13 +120,18 @@ public class WalnutFilter implements Filter {
             if (log.isInfoEnabled()) {
                 // 这种 URL 暂时先不打印，因为负载均衡会狂请求 ...
                 if (!"/".equals(path)) {
-                    String qs = req.getQueryString();
                     if (!Ws.isBlank(qs)) {
                         qs = "?" + qs;
                     } else {
                         qs = "";
                     }
-                    log.infof("🌍[%s]<%s>:%s:%s:%s%s", method, usrip, host, port, path, qs);
+                    log.infof("🌍[%s]<%s>:%s:%s:%s%s",
+                              method,
+                              usrip,
+                              host,
+                              port,
+                              path,
+                              qs);
                 }
             }
 
@@ -141,7 +154,8 @@ public class WalnutFilter implements Filter {
             long expiAt = oDmn.getLong("expi_at", 0);
             if (expiAt > 0 && expiAt < Wn.now()) {
                 Mvcs.updateRequestAttributes(req);
-                req.setAttribute("obj", Wlang.map("host", host).setv("path", path));
+                req.setAttribute("obj",
+                                 Wlang.map("host", host).setv("path", path));
                 req.setAttribute("err_message", "域名转发过期");
                 req.getRequestDispatcher(errorPage).forward(req, resp);
                 if (log.isDebugEnabled()) {
@@ -270,7 +284,8 @@ public class WalnutFilter implements Filter {
         this.nutzFilterName = fc.getInitParameter("nutzFilterName");
         this.errorPage = fc.getInitParameter("errorPage");
         // 读取 hostmap 文件
-        String hmPath = Strings.sBlank(fc.getInitParameter("hostMap"), "hostmap");
+        String hmPath = Strings.sBlank(fc.getInitParameter("hostMap"),
+                                       "hostmap");
         BufferedReader br = Streams.buffr(Streams.fileInr(hmPath));
         try {
             _dms = new ArrayList<DmnMatcher>();

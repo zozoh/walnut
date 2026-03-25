@@ -60,8 +60,12 @@ public class JvmJsExecContext implements JsExecContext {
         this(sys, new JvmBoxOutput(Wlang.ops(sb)));
     }
 
-    public JvmJsExecContext(WnSystem sys, StringBuilder sbOut, StringBuilder sbErr) {
-        this(sys, new JvmBoxOutput(Wlang.ops(sbOut)), new JvmBoxOutput(Wlang.ops(sbErr)));
+    public JvmJsExecContext(WnSystem sys,
+                            StringBuilder sbOut,
+                            StringBuilder sbErr) {
+        this(sys,
+             new JvmBoxOutput(Wlang.ops(sbOut)),
+             new JvmBoxOutput(Wlang.ops(sbErr)));
     }
 
     public JvmJsExecContext(WnIo io,
@@ -155,7 +159,10 @@ public class JvmJsExecContext implements JsExecContext {
     }
 
     @Override
-    public void exec(String cmdText, OutputStream stdOut, OutputStream stdErr, InputStream stdIn) {
+    public void exec(String cmdText,
+                     OutputStream stdOut,
+                     OutputStream stdErr,
+                     InputStream stdIn) {
         sys.exec(cmdText, stdOut, stdErr, stdIn);
     }
 
@@ -189,7 +196,10 @@ public class JvmJsExecContext implements JsExecContext {
 
     @Override
     public String json(Object obj) {
-        return Json.toJson(obj, JsonFormat.compact().setQuoteName(true).setIgnoreNull(false));
+        return Json.toJson(obj,
+                           JsonFormat.compact()
+                               .setQuoteName(true)
+                               .setIgnoreNull(false));
     }
 
     @Override
@@ -226,7 +236,9 @@ public class JvmJsExecContext implements JsExecContext {
     public String safe(Object val) {
         if (val == null)
             return "null";
-        return WnStr.safeTrim(val.toString(), new char[]{'\r', '\n', ';', '$', '\'', '"'}, null);
+        return WnStr.safeTrim(val.toString(),
+                              new char[]{'\r', '\n', ';', '$', '\'', '"'},
+                              null);
     }
 
     /**
@@ -282,6 +294,14 @@ public class JvmJsExecContext implements JsExecContext {
         finally {
             Streams.safeClose(h);
         }
+    }
+
+    public void markLogOff() {
+        Wn.WC().setLogOff();
+    }
+
+    public void markLogOn() {
+        Wn.WC().setLogOn();
     }
 
     public String uu32() {

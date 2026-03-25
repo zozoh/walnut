@@ -9,7 +9,6 @@ import org.nutz.lang.util.NutMap;
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
-@SuppressWarnings("serial")
 public class RelationObjectMap extends NutMap {
 
     private ManyManyLinkField mm;// TODO 这个字段无法序列化

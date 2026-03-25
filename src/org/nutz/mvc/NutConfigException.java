@@ -1,6 +1,6 @@
 package org.nutz.mvc;
 
-@SuppressWarnings("serial")
+
 public class NutConfigException extends RuntimeException {
 
     public NutConfigException() {

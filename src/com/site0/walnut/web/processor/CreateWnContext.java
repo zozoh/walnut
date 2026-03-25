@@ -26,13 +26,13 @@ public class CreateWnContext extends AbstractProcessor {
 
         WnContext wc = Wn.WC();
         HttpServletRequest req = ac.getRequest();
-        //HttpServletResponse resp = ac.getResponse();
+        // HttpServletResponse resp = ac.getResponse();
 
         String ipv4 = Wlang.getIP(req, false);
         wc.setIPv4(ipv4);
 
         // 标识一下响应
-        //resp.addHeader("X-Powered-By", WnVersion.getName());
+        // resp.addHeader("X-Powered-By", WnVersion.getName());
 
         // 设置上下文，主要是从 Cookie 里恢复 SEID
         setupWnContext(wc, req);
@@ -46,6 +46,7 @@ public class CreateWnContext extends AbstractProcessor {
     }
 
     public static void setupWnContext(WnContext wc, HttpServletRequest req) {
+        wc.setLogOn();
         // if (!wc.hasSEID()) {
         if (null != req) {
             // 从 header 里获取 Session 的 ID
@@ -55,7 +56,8 @@ public class CreateWnContext extends AbstractProcessor {
             if (Ws.isBlank(ticket)) {
                 String qs = req.getQueryString();
                 if (!Ws.isBlank(qs)) {
-                    List<NameValuePair> pairs = URLEncodedUtils.parse(qs, StandardCharsets.UTF_8);
+                    List<NameValuePair> pairs = URLEncodedUtils
+                        .parse(qs, StandardCharsets.UTF_8);
                     if (null != pairs) {
                         for (NameValuePair pair : pairs) {
                             if ("_wn_ticket_".equals(pair.getName())) {

@@ -54,6 +54,26 @@ public class WnContext extends NutMap {
     public long _timestamp;
 
     /**
+     * 有时候，我们希望将系统的日志关闭短暂的时间，有些日志过于干扰<Br>
+     * 主要在 jsbin 场景下，我们可以开启这个选项。
+     * 
+     * 为了保险，我们在每个请求的时候，都会主动关闭这个选项
+     */
+    private boolean logOff;
+
+    public boolean isLogOff() {
+        return logOff;
+    }
+
+    public void setLogOff() {
+        this.logOff = true;
+    }
+
+    public void setLogOn() {
+        this.logOff = false;
+    }
+
+    /**
      * query|each 的时候，是否自动加载全路径，默认应该是 false
      */
     private boolean autoPath;
@@ -102,12 +122,18 @@ public class WnContext extends NutMap {
 
             WnHookService srv = hookContext.service;
             if (hookLog.isDebugEnabled()) {
-                hookLog.debugf("doHook<%s> for'%s' by: %s", action, o.name(), srv.toString());
+                hookLog.debugf("doHook<%s> for'%s' by: %s",
+                               action,
+                               o.name(),
+                               srv.toString());
             }
             List<WnHook> hooks = srv.get(action, o);
             if (null != hooks && hooks.size() > 0) {
                 if (hookLog.isInfoEnabled())
-                    hookLog.infof(" - HOOK(%d)%s:BEGIN:%s", hooks.size(), action, o.path());
+                    hookLog.infof(" - HOOK(%d)%s:BEGIN:%s",
+                                  hooks.size(),
+                                  action,
+                                  o.path());
 
                 // 为了防止无穷递归，钩子里不再触发钩子
                 WnHookContext hc = hookContext;
@@ -167,7 +193,8 @@ public class WnContext extends NutMap {
         // 木有钩子，是不符合预期的
         // （为单元测试开的一个支线逻辑）
         else if (o.getBoolean("__debug_hook")) {
-            hookLog.warnf("%s : %s ! without find hooks !", action, o.toString());
+            hookLog
+                .warnf("%s : %s ! without find hooks !", action, o.toString());
         }
         // 没有调用钩子，返回自身
         return o;
@@ -277,7 +304,10 @@ public class WnContext extends NutMap {
         return proton.get();
     }
 
-    public void core(WnSecurity secu, boolean synctimeOff, WnHookContext hc, Atom atom) {
+    public void core(WnSecurity secu,
+                     boolean synctimeOff,
+                     WnHookContext hc,
+                     Atom atom) {
         final WnContext wc = this;
 
         wc.security(secu, () -> {
@@ -291,12 +321,18 @@ public class WnContext extends NutMap {
         });
     }
 
-    public <T> T core(WnSecurity secu, boolean synctimeOff, WnHookContext hc, Proton<T> proton) {
+    public <T> T core(WnSecurity secu,
+                      boolean synctimeOff,
+                      WnHookContext hc,
+                      Proton<T> proton) {
         core(secu, synctimeOff, hc, (Atom) proton);
         return proton.get();
     }
 
-    public void suCore(WnUser user, WnSecurity secu, WnHookContext hc, Atom atom) {
+    public void suCore(WnUser user,
+                       WnSecurity secu,
+                       WnHookContext hc,
+                       Atom atom) {
         // 记录旧的值
         WnUser old_me = this._me;
         WnSecurity old_secu = this.security;
@@ -316,7 +352,10 @@ public class WnContext extends NutMap {
         }
     }
 
-    public <T> T suCore(WnUser user, WnSecurity secu, WnHookContext hc, Proton<T> proton) {
+    public <T> T suCore(WnUser user,
+                        WnSecurity secu,
+                        WnHookContext hc,
+                        Proton<T> proton) {
         suCore(user, secu, hc, (Atom) proton);
         return proton.get();
     }

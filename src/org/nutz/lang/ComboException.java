@@ -5,7 +5,7 @@ import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
-@SuppressWarnings("serial")
+
 public class ComboException extends RuntimeException {
 
     public ComboException() {

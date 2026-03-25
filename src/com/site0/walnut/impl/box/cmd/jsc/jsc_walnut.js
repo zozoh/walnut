@@ -17,6 +17,14 @@
       }
       return obj;
     },
+    
+    parseObjId: function(id) {
+	  var m = /^([^:]+):([^:]+)$/.exec(id);
+	  if (m) {
+	    return { homeId: m[1], selfId: m[2] };
+	  }
+	  return { selfId: id };
+	},
 
     /**
      * js转换为json字符串

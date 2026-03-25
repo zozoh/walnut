@@ -14,7 +14,7 @@ import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.tmpl.ele.TmplEle;
 
 public class WnTmplXTest {
-    
+
     @Test
     public void test_loop_break() {
         String json = "[{name:'A',age:12},{name:'B',age:8},{name:'C',age:20}]";
