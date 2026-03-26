@@ -16,6 +16,15 @@ import com.site0.walnut.util.tmpl.ele.TmplEle;
 public class WnTmplXTest {
 
     @Test
+    public void test_float_currency() {
+        NutMap vars = Wlang.map("a", "1234567.876");
+        WnTmplX tmpl = WnTmplX.parse("${a(float:#,###.##%.2f)}");
+
+        String str = tmpl.render(vars);
+        assertEquals("1,234,567.88", str);
+    }
+
+    @Test
     public void test_loop_break() {
         String json = "[{name:'A',age:12},{name:'B',age:8},{name:'C',age:20}]";
         NutMap vars = Wlang.map("users", Json.fromJson(json));

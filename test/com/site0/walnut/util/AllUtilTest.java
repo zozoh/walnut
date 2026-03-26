@@ -2,6 +2,8 @@ package com.site0.walnut.util;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+
+import com.site0.walnut.util.bank.WbankTest;
 import com.site0.walnut.util.obj.WnObjJoinFieldsTest;
 import com.site0.walnut.util.stream.MarkableInputStreamTest;
 import com.site0.walnut.util.time.WnDayTimeTest;
@@ -21,5 +23,6 @@ import com.site0.walnut.util.tmpl.AllTmplTest;
                      WnSortTest.class,
                      WregionTest.class,
                      ZParamsTest.class,
-                     JvmTunnelTest.class})
+                     JvmTunnelTest.class,
+                     WbankTest.class})
 public class AllUtilTest {}
