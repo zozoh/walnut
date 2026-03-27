@@ -21,7 +21,11 @@ public class PartitionOptions {
     public HDirecton to;
 
     /**
-     * 显示到小数点后几位，默认的则是自动不补零 如果指定了这个位数，后面需要补零
+     * 最多显示到小数点后几位
      */
     public int decimalPlaces;
+    /**
+     * 如果指定了 decimalPlaces，默认的则是自动不补零 如果指定了这个位数，后面需要补零
+     */
+    public Boolean decimalFixed;
 }
