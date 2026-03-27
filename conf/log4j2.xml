@@ -23,10 +23,11 @@
         <!-- 自定义日志记录器 -->
         <Logger name="MAIN" level="info"/>
         <Logger name="IO" level="info"/>
-        <Logger name="AUTH" level="info"/>
-        <Logger name="BOX" level="info"/>
+        <Logger name="AUTH" level="warn"/>
+        <Logger name="BOX" level="warn"/>
         <Logger name="HOOK" level="info"/>
-        <Logger name="CMD" level="debug"/>
+        <Logger name="CMD" level="info"/>
+        <Logger name="SQL" level="warn"/>
         <Logger name="APP" level="info"/>
         <Logger name="AC" level="info"/>
         <Logger name="BG_CLEANER" level="info"/>

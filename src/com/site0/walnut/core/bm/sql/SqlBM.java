@@ -46,7 +46,7 @@ public class SqlBM extends AbstractIoBM {
 
     private static final String DELETE_CONTENT = "delete_content";
 
-    private static final Log log = Wlog.getIO();
+    private static final Log log = Wlog.getSQL();
 
     BMSwapFiles swaps;
 
@@ -148,13 +148,20 @@ public class SqlBM extends AbstractIoBM {
         Object[] sqlParams = Sqlx.getSqlParamsValue(cps);
 
         try {
-            SqlExecResult re = Sqlx.sqlGet(auth, new SqlGetter<SqlExecResult>() {
-                public SqlExecResult doGet(Connection conn) throws SQLException {
-                    PreparedStatement sta = conn.prepareStatement(sql);
-                    Sqlx.setParmas(sta, sqlParams);
-                    return exec.runWithParams(conn, sql, sqlParams);
-                }
-            });
+            SqlExecResult re = Sqlx.sqlGet(auth,
+                                           new SqlGetter<SqlExecResult>() {
+                                               public SqlExecResult doGet(Connection conn)
+                                                       throws SQLException {
+                                                   PreparedStatement sta = conn
+                                                       .prepareStatement(sql);
+                                                   Sqlx.setParmas(sta,
+                                                                  sqlParams);
+                                                   return exec
+                                                       .runWithParams(conn,
+                                                                      sql,
+                                                                      sqlParams);
+                                               }
+                                           });
             if (re.updateCount <= 0) {
                 log.warnf("SqlBM writeBlob Fail: objId=%s, sqlName=%s, sql=%s, record=%s",
                           objId,
@@ -165,11 +172,12 @@ public class SqlBM extends AbstractIoBM {
             return 0;
         }
         catch (RuntimeException e) {
-            String msg = String.format("SqlBM remove Fail: objId=%s, sqlName=%s, sql=%s, record=%s",
-                                       objId,
-                                       sqlName,
-                                       sql,
-                                       Json.toJson(vars));
+            String msg = String
+                .format("SqlBM remove Fail: objId=%s, sqlName=%s, sql=%s, record=%s",
+                        objId,
+                        sqlName,
+                        sql,
+                        Json.toJson(vars));
             log.warn(msg, e);
             throw e;
         }
@@ -243,13 +251,20 @@ public class SqlBM extends AbstractIoBM {
         Object[] sqlParams = Sqlx.getSqlParamsValue(cps);
 
         try {
-            SqlExecResult re = Sqlx.sqlGet(auth, new SqlGetter<SqlExecResult>() {
-                public SqlExecResult doGet(Connection conn) throws SQLException {
-                    PreparedStatement sta = conn.prepareStatement(sql);
-                    Sqlx.setParmas(sta, sqlParams);
-                    return exec.runWithParams(conn, sql, sqlParams);
-                }
-            });
+            SqlExecResult re = Sqlx.sqlGet(auth,
+                                           new SqlGetter<SqlExecResult>() {
+                                               public SqlExecResult doGet(Connection conn)
+                                                       throws SQLException {
+                                                   PreparedStatement sta = conn
+                                                       .prepareStatement(sql);
+                                                   Sqlx.setParmas(sta,
+                                                                  sqlParams);
+                                                   return exec
+                                                       .runWithParams(conn,
+                                                                      sql,
+                                                                      sqlParams);
+                                               }
+                                           });
             if (re.updateCount <= 0) {
                 log.warnf("SqlBM writeBlob Fail: objId=%s, sqlName=%s, sql=%s, record=%s",
                           objId,
@@ -259,11 +274,12 @@ public class SqlBM extends AbstractIoBM {
             }
         }
         catch (RuntimeException e) {
-            String msg = String.format("SqlBM writeBlob Fail: objId=%s, sqlName=%s, sql=%s, record=%s",
-                                       objId,
-                                       sqlName,
-                                       sql,
-                                       Json.toJson(record));
+            String msg = String
+                .format("SqlBM writeBlob Fail: objId=%s, sqlName=%s, sql=%s, record=%s",
+                        objId,
+                        sqlName,
+                        sql,
+                        Json.toJson(record));
             log.warn(msg, e);
             throw e;
         }
@@ -313,7 +329,9 @@ public class SqlBM extends AbstractIoBM {
         }
     }
 
-    private ResultSet getResultSet(Connection conn, WnObj obj, String sqlSubName)
+    private ResultSet getResultSet(Connection conn,
+                                   WnObj obj,
+                                   String sqlSubName)
             throws SQLException {
         String objId = obj.OID().getMyId();
         String sqlName = getSqlName(sqlSubName);

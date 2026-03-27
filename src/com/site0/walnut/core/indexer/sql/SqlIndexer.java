@@ -43,7 +43,7 @@ import com.site0.walnut.util.Wlog;
 
 public class SqlIndexer extends AbstractIoDataIndexer {
 
-    private static Log log = Wlog.getIO();
+    private static Log log = Wlog.getSQL();
 
     private WnDaoAuth auth;
 
