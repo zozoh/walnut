@@ -28,8 +28,8 @@ public abstract class IcsCommonReply {
     private String docName;
 
     // UNT 报文行
-    private int segNum;
-    private int msgIdx;
+//    private int segNum;
+//    private int msgIdx;
 
     public IcsCommonReply(String msgType) {
         this.msgType = msgType;
@@ -102,19 +102,19 @@ public abstract class IcsCommonReply {
         this.docName = docName;
     }
 
-    public int getSegNum() {
-        return segNum;
-    }
-
-    public void setSegNum(int segNum) {
-        this.segNum = segNum;
-    }
-
-    public int getMsgIdx() {
-        return msgIdx;
-    }
-
-    public void setMsgIdx(int msgIdx) {
-        this.msgIdx = msgIdx;
-    }
+//    public int getSegNum() {
+//        return segNum;
+//    }
+//
+//    public void setSegNum(int segNum) {
+//        this.segNum = segNum;
+//    }
+//
+//    public int getMsgIdx() {
+//        return msgIdx;
+//    }
+//
+//    public void setMsgIdx(int msgIdx) {
+//        this.msgIdx = msgIdx;
+//    }
 }

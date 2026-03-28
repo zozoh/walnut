@@ -42,7 +42,7 @@ public class SEACRRLoader implements EdiMsgLoader<IcsReplySEACRR> {
          * 定位到 BGM 报文行，解析 Version 和 FuncCode
          * BGM+961:::SEACRR+193B JJ26 651E:001+11'
          */
-        IcsLoaderHelper.parseBgmUnt(re, finder);
+        IcsLoaderHelper.parseBgmSeg(re, finder);
 
         // 解析 FTX 报文行
         segs = finder.nextAllUtilNoMatch(false, "FTX");

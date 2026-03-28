@@ -28,7 +28,7 @@ public class REFREJLoader implements EdiMsgLoader<RefundRej> {
         List<EdiSegment> segs;
 
         // BGM -> FuncCode
-        IcsLoaderHelper.parseBgmUnt(re, finder);
+        IcsLoaderHelper.parseBgmSeg(re, finder);
 
         // FTX -> Sender/Client Ref
         // FTX+ACB+++ISMEL4106'

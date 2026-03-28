@@ -12,7 +12,7 @@ import java.util.List;
 public class IcsLoaderHelper {
 
 
-    public static void parseBgmUnt(IcsCommonReply re, EdiSegmentFinder finder) {
+    public static void parseBgmSeg(IcsCommonReply re, EdiSegmentFinder finder) {
         NutMap rff = new NutMap();
         finder.reset();
         EdiSegment seg = finder.next("BGM");
