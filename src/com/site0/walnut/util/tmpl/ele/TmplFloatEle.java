@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import org.nutz.castor.Castors;
 import org.nutz.lang.Strings;
 
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.bank.HDirecton;
 import com.site0.walnut.util.bank.PartitionOptions;
 import com.site0.walnut.util.bank.Wbank;
@@ -47,17 +48,18 @@ public class TmplFloatEle extends TmplDynamicEle {
                 this._bank_options.width = m.group(3).length();
                 this._bank_options.sep = m.group(2);
                 this._bank_options.decimalPlaces = m.group(4).length();
+                this._bank_options.decimalFixed = true;
                 this._bank_options.to = "-".equals(m.group(1)) ? HDirecton.right
                                                                : HDirecton.left;
-                fmt = "0.##";
+                fmt = Ws.sBlank(m.group(5), "%.2f");
             }
         }
 
+        // 格式化工具
         this.fmt = Strings.sNull(fmt, "0.##");
-        // 采用普通的格式化，那么就不需要 decFormat
-        if (this.fmt.indexOf('%') >= 0) {
 
-        }
+        // 采用普通的格式化，那么就不需要 decFormat
+        if (this.fmt.indexOf('%') >= 0) {}
         // 数字格式化
         else {
             this.decFormat = new DecimalFormat(this.fmt);
@@ -66,17 +68,19 @@ public class TmplFloatEle extends TmplDynamicEle {
 
     @Override
     protected String _val(Object val) {
-        Float n = Castors.me().castTo(val, Float.class);
+        Double n = Castors.me().castTo(val, Double.class);
         if (null != n) {
+            String v;
             if (null != decFormat) {
-                String re = decFormat.format(n);
-                if (null != _bank_options) {
-                    String r2 = Wbank.toBankText(re, _bank_options);
-                    return r2;
-                }
-                return re;
+                v = decFormat.format(n);
+            } else {
+                v = String.format(this.fmt, n);
             }
-            return String.format(this.fmt, n);
+
+            if (null != _bank_options) {
+                return Wbank.toBankText(v, _bank_options);
+            }
+            return v;
         }
         return null;
     }

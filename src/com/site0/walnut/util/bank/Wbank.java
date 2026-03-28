@@ -1,5 +1,7 @@
 package com.site0.walnut.util.bank;
 
+import java.util.ArrayList;
+
 import org.nutz.lang.Strings;
 
 import com.site0.walnut.util.Ws;
@@ -21,6 +23,7 @@ public abstract class Wbank {
         String sep = ",";
         HDirecton to = HDirecton.left;
         int decimalPlaces = 2;
+        boolean decimalFixed = true;
 
         if (null != options) {
             if (options.width > 0) {
@@ -34,6 +37,9 @@ public abstract class Wbank {
             }
             if (options.decimalPlaces >= 0) {
                 decimalPlaces = options.decimalPlaces;
+            }
+            if (null != options.decimalFixed) {
+                decimalFixed = options.decimalFixed.booleanValue();
             }
         }
 
@@ -66,25 +72,39 @@ public abstract class Wbank {
             partFra = s.substring(pos + 1).trim();
         }
 
-        StringBuilder sb = new StringBuilder();
-        sb.append(prefix);
-        sb.append(partitionInt(partInt, width, sep, to));
-
-        if (decimalPlaces > 0) {
-            String fra = partFra;
-            if (fra.length() < decimalPlaces) {
-                StringBuilder fsb = new StringBuilder(fra);
-                while (fsb.length() < decimalPlaces) {
-                    fsb.append('0');
-                }
-                fra = fsb.toString();
-            }
-            sb.append('.').append(fra);
-        } else if (!Strings.isBlank(partFra)) {
-            sb.append('.').append(partFra);
+        ArrayList<String> parts = new ArrayList<>(2);
+        String v = partitionInt(partInt, width, sep, to);
+        if (prefix.length() > 0) {
+            parts.add(prefix + v);
+        } else {
+            parts.add(v);
         }
 
-        return sb.toString();
+        // 对于小数部分，对齐精度
+        if (decimalPlaces > 0) {
+            if (partFra.length() > decimalPlaces) {
+                String dp = partFra.substring(0, decimalPlaces)
+                            + "."
+                            + partFra.substring(decimalPlaces);
+                long fr = Math.round(Double.valueOf(dp));
+                parts.add(Long.toString(fr));
+            }
+            // 强制对其精度
+            else if(decimalFixed){
+                parts.add(Ws.padEnd(partFra, decimalPlaces, '0'));
+            }
+            // 直接填入
+            else if (!Strings.isBlank(partFra)) {
+                parts.add(partFra);
+            }
+        }
+        // 默认填入小数部分
+        else if (!Strings.isBlank(partFra)) {
+            parts.add(partFra);
+        }
+
+        // 搞定
+        return Ws.join(parts, ".");
     }
 
     private static String partitionInt(String input,

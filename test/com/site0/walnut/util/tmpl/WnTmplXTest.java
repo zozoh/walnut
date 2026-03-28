@@ -14,6 +14,15 @@ import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.tmpl.ele.TmplEle;
 
 public class WnTmplXTest {
+    
+    @Test
+    public void test_float_big_neg() {
+        NutMap vars = Wlang.map("a", "-1223450.345678");
+        WnTmplX tmpl = WnTmplX.parse("${a(float:#,###.##%.2f)}");
+
+        String str = tmpl.render(vars);
+        assertEquals("-1,223,450.35", str);
+    }
 
     @Test
     public void test_float_currency() {

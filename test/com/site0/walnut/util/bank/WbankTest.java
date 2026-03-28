@@ -7,6 +7,24 @@ import org.junit.Test;
 public class WbankTest {
 
     @Test
+    public void test_02() {
+        PartitionOptions opt = new PartitionOptions();
+        opt.to = HDirecton.left;
+        opt.width = 3;
+        opt.sep = ",";
+        opt.decimalPlaces = 2;
+        opt.decimalFixed = true;
+
+        assertEquals("-1,223,450.35", Wbank.toBankText("-1223450.345678", opt));
+        assertEquals("-36,717,653,246.00",
+                     Wbank.toBankText("-36717653246", opt));
+
+        opt.decimalFixed = false;
+        assertEquals("-3,345.54", Wbank.toBankText("-3345.5432", opt));
+        assertEquals("-671,713.7", Wbank.toBankText("-671713.7", opt));
+    }
+
+    @Test
     public void test_01() {
         PartitionOptions opt = new PartitionOptions();
         opt.to = HDirecton.left;
@@ -41,7 +59,7 @@ public class WbankTest {
     public void test_00() {
         assertEquals("10.00", Wbank.toBankText("10", null));
         assertEquals("1,001.00", Wbank.toBankText("1001", null));
-        assertEquals("1,001.12345", Wbank.toBankText("1001.12345", null));
+        assertEquals("1,001.12", Wbank.toBankText("1001.12345", null));
         assertEquals("821,034,121,001.50",
                      Wbank.toBankText("821034121001.5", null));
 

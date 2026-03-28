@@ -34,7 +34,7 @@ import com.site0.walnut.util.Wn;
 
 public class SqlxContext extends JvmFilterContext {
 
-    private static Log log = Wlog.getCMD();
+    private static Log log = Wlog.getSQL();
 
     public boolean quiet;
 
@@ -140,13 +140,15 @@ public class SqlxContext extends JvmFilterContext {
     public NutMap getInputOrPipeVarAsMap(String key) {
         NutMap re = null;
         if (null != input) {
-            Map<String, Object> subMap = (Map<String, Object>) Mapl.cell(input, key);
+            Map<String, Object> subMap = (Map<String, Object>) Mapl.cell(input,
+                                                                         key);
             if (null != subMap) {
                 re = NutMap.WRAP(subMap);
             }
         }
         if (null == re) {
-            Map<String, Object> subMap = (Map<String, Object>) Mapl.cell(pipeContext, key);
+            Map<String, Object> subMap = (Map<String, Object>) Mapl
+                .cell(pipeContext, key);
             if (null != subMap) {
                 re = NutMap.WRAP(subMap);
             }
@@ -294,11 +296,14 @@ public class SqlxContext extends JvmFilterContext {
         return NutMap.WRAP(bean);
     }
 
-    public void appendVarList(List<? extends NutBean> varList, String[] picks, String[] omits) {
+    public void appendVarList(List<? extends NutBean> varList,
+                              String[] picks,
+                              String[] omits) {
         if (null == this.varList) {
             this.varList = new ArrayList<>(Math.max(20, varList.size()));
         }
-        if ((null != picks && picks.length > 0) || (null != omits && omits.length > 0)) {
+        if ((null != picks && picks.length > 0)
+            || (null != omits && omits.length > 0)) {
             List<NutMap> beans = new ArrayList<>(varList.size());
             for (NutBean bean : varList) {
                 NutMap bean2 = __filter_bean(bean, picks, omits);
@@ -326,7 +331,9 @@ public class SqlxContext extends JvmFilterContext {
         WnObj oLogConf = Wn.checkObj(sys, confPath);
         String json = sys.io.readText(oLogConf);
         if (log.isDebugEnabled()) {
-            log.debugf("sqlx hislog use id:%s, logConfPath=%s", oLogConf.id(), confPath);
+            log.debugf("sqlx hislog use id:%s, logConfPath=%s",
+                       oLogConf.id(),
+                       confPath);
         }
         SqlxHisConfig config = Json.fromJson(SqlxHisConfig.class, json);
 
@@ -405,7 +412,9 @@ public class SqlxContext extends JvmFilterContext {
         __close_connection(c);
     }
 
-    public Connection getConnectionBy(WnDaoAuth auth, int transLevel, boolean autoCommit) {
+    public Connection getConnectionBy(WnDaoAuth auth,
+                                      int transLevel,
+                                      boolean autoCommit) {
         Connection re = null;
         try {
             re = __get_connection_by(auth, this.transLevel);
@@ -419,7 +428,8 @@ public class SqlxContext extends JvmFilterContext {
         return re;
     }
 
-    private Connection __get_connection_by(WnDaoAuth auth, int transLevel) throws SQLException {
+    private Connection __get_connection_by(WnDaoAuth auth, int transLevel)
+            throws SQLException {
         if (null == auth) {
             throw Er.create("e.cmd.sqlx.conn.noAuth");
         }
