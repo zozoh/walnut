@@ -7,6 +7,6 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({EdiInterchangeTest.class, CARSTMsgTest.class, UbmInterchangeTest.class, ImdReplyTest.class,
-        PAYRECMsgTest.class, ATDMsgTest.class, REFACCMsgTest.class, RefRejMsgTest.class})
+        PAYRECMsgTest.class, ATDMsgTest.class, REFACCMsgTest.class, RefRejMsgTest.class, SAMResTest.class})
 public class AllEdiTest {
 }
