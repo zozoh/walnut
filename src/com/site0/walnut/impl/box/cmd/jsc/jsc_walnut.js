@@ -25,6 +25,17 @@
 	  }
 	  return { selfId: id };
 	},
+	
+	genIds: function(n, mode){
+      var cmdText = "val @gen '"+(mode||"snowQ::10")+"' -n "+(n||1)+" -json"
+      var ids = sys.exec2(cmdText)
+      return JSON.parse(ids)
+	},
+	
+	genId: function (mode){
+      var ids = this.genIds(1, mode);
+      return ids[0]
+	},
 
     /**
      * js转换为json字符串

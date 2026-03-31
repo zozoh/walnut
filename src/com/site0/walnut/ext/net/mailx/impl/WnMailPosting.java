@@ -6,6 +6,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutBean;
+import org.nutz.web.WebException;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
@@ -41,7 +42,7 @@ public class WnMailPosting {
         this.vars = sessionVars;
     }
 
-    public boolean send(MailxSmtpConfig smtp, WnSmtpMail mail) {
+    public WebException send(MailxSmtpConfig smtp, WnSmtpMail mail) {
         // 小防守一把
         if (!smtp.hasAccount()) {
             throw Er.create("e.mailx.smtp.WithoutAccount");
@@ -163,7 +164,15 @@ public class WnMailPosting {
             .buildMailer();
         Email mo = builder.buildEmail();
         CompletableFuture<Void> re = mailer.sendMail(mo);
-        return re.isDone();
+
+        // 同步等待发送结果
+        try {
+            re.get();
+            return null; // 没有错误
+        }
+        catch (Exception e) {
+            return Er.wrap(e);
+        }
     }
 
 }

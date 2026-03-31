@@ -69,7 +69,7 @@ mailx
 
 ```bash 
 # 发送邮件
-mailx @config ics @sub xxx @attchment ~/a.edi @send
+mailx @config ics @sub xxx @at ~/a.edi @send
 
 
 # 发送邮件

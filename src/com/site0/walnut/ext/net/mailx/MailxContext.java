@@ -51,7 +51,10 @@ public class MailxContext extends JvmFilterContext {
 
     public WnObj loadContentObj(String path) {
         WnObj oI18n = this.getI18nDir();
-        if (null == oI18n || !oI18n.isDIR()) {
+        if (null == oI18n
+            || !oI18n.isDIR()
+            || null == this.config
+            || null == this.config.smtp) {
             return null;
         }
         String tLang = Ws.sBlank(this.lang, config.smtp.getLang());
