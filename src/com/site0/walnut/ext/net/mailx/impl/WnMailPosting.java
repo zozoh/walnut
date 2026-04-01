@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import org.nutz.lang.Files;
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutBean;
 import org.nutz.web.WebException;
@@ -17,6 +18,8 @@ import com.site0.walnut.ext.net.mailx.util.Mailx;
 import com.site0.walnut.ext.net.mailx.bean.WnMailSecurity;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.Ws;
+
 import org.simplejavamail.api.email.Email;
 import org.simplejavamail.api.email.EmailPopulatingBuilder;
 import org.simplejavamail.api.mailer.Mailer;
@@ -95,6 +98,15 @@ public class WnMailPosting {
                     String aph = Wn.normalizeFullPath(atPath, vars);
                     WnObj ato = io.check(null, aph);
                     String name = ato.name();
+                    String suffix = Files.getSuffix(name);
+                    // 如果设置了 title 采用 title 作为名称
+                    String title = ato.getString("title");
+                    if (!Ws.isBlank(title)) {
+                        if (!title.endsWith(suffix)) {
+                            title += suffix;
+                        }
+                        name = title;
+                    }
                     String mime = ato.mime();
                     byte[] bs = io.readBytes(ato);
                     builder.withAttachment(name, bs, mime);
