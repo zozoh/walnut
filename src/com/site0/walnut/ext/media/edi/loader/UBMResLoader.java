@@ -37,7 +37,7 @@ public class UBMResLoader implements EdiMsgLoader<IcsReplyUbmRes> {
          * 定位到 BGM 报文行，解析 FuncCode
          * BGM+961:::UBMREQR+2A91 DI61 J6AE:1+32'
          */
-        IcsLoaderHelper.fillResFuncCode(re, finder);
+        IcsLoaderHelper.parseBgmSeg(re, finder);
 
         // 解析 DTM 报文行, DTM+9:20240612215114156647:ZZZ'
         boolean find = finder.moveToUtil("DTM", true, "RFF", "DOC");

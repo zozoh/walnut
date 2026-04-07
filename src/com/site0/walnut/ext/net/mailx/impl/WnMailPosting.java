@@ -4,8 +4,10 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import org.nutz.lang.Files;
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutBean;
+import org.nutz.web.WebException;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
@@ -16,6 +18,8 @@ import com.site0.walnut.ext.net.mailx.util.Mailx;
 import com.site0.walnut.ext.net.mailx.bean.WnMailSecurity;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.Ws;
+
 import org.simplejavamail.api.email.Email;
 import org.simplejavamail.api.email.EmailPopulatingBuilder;
 import org.simplejavamail.api.mailer.Mailer;
@@ -41,7 +45,7 @@ public class WnMailPosting {
         this.vars = sessionVars;
     }
 
-    public boolean send(MailxSmtpConfig smtp, WnSmtpMail mail) {
+    public WebException send(MailxSmtpConfig smtp, WnSmtpMail mail) {
         // 小防守一把
         if (!smtp.hasAccount()) {
             throw Er.create("e.mailx.smtp.WithoutAccount");
@@ -94,6 +98,15 @@ public class WnMailPosting {
                     String aph = Wn.normalizeFullPath(atPath, vars);
                     WnObj ato = io.check(null, aph);
                     String name = ato.name();
+                    String suffix = Files.getSuffix(name);
+                    // 如果设置了 title 采用 title 作为名称
+                    String title = ato.getString("title");
+                    if (!Ws.isBlank(title)) {
+                        if (!title.endsWith(suffix)) {
+                            title += suffix;
+                        }
+                        name = title;
+                    }
                     String mime = ato.mime();
                     byte[] bs = io.readBytes(ato);
                     builder.withAttachment(name, bs, mime);
@@ -163,7 +176,15 @@ public class WnMailPosting {
             .buildMailer();
         Email mo = builder.buildEmail();
         CompletableFuture<Void> re = mailer.sendMail(mo);
-        return re.isDone();
+
+        // 同步等待发送结果
+        try {
+            re.get();
+            return null; // 没有错误
+        }
+        catch (Exception e) {
+            return Er.wrap(e);
+        }
     }
 
 }

@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({EdiInterchangeTest.class, UbmInterchangeTest.class, ImdReplyTest.class, PAYRECMsgTest.class, REFACCLoaderTest.class, ATDMsgTest.class})
+@Suite.SuiteClasses({EdiInterchangeTest.class, CARSTMsgTest.class, UbmInterchangeTest.class, ImdReplyTest.class,
+        PAYRECMsgTest.class, ATDMsgTest.class, REFACCMsgTest.class, RefRejMsgTest.class, SAMResTest.class})
 public class AllEdiTest {
 }

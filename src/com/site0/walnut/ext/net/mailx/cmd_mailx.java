@@ -4,17 +4,20 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
+
+import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.net.mailx.bean.MailxConfig;
 import com.site0.walnut.ext.net.mailx.bean.WnSmtpMail;
 import com.site0.walnut.ext.net.mailx.impl.WnMailPosting;
 import com.site0.walnut.impl.box.JvmFilterExecutor;
 import com.site0.walnut.impl.box.WnSystem;
-import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
+
+import org.nutz.web.WebException;
 import org.nutz.web.ajax.Ajax;
 import org.nutz.web.ajax.AjaxReturn;
 
@@ -38,25 +41,32 @@ public class cmd_mailx extends JvmFilterExecutor<MailxContext, MailxFilter> {
 
     @Override
     protected void prepare(WnSystem sys, MailxContext fc) {
-        // 读取配置文件
-        String ph = fc.params.val(0, "default");
-        if (!ph.endsWith(".json")) {
-            ph += ".json";
+        try {
+            // 准备 Email 构造器
+            fc.mail = new WnSmtpMail();
+            fc.vars = new NutMap();
+
+            // 读取配置文件
+            String ph = fc.params.val(0, "default");
+            if (!ph.endsWith(".json")) {
+                ph += ".json";
+            }
+            String aph = Wn.appendPath("~/.mailx", ph);
+            WnObj oConf = Wn.checkObj(sys, aph);
+            String json = sys.io.readText(oConf);
+            fc.config = Json.fromJson(MailxConfig.class, json);
+
+            // 更多上下文设置
+            if (fc.params.has("lang")) {
+                fc.lang = fc.params.getString("lang", fc.config.smtp.getLang());
+            }
         }
-        String aph = Wn.appendPath("~/.mailx", ph);
-        WnObj oConf = Wn.checkObj(sys, aph);
-        String json = sys.io.readText(oConf);
-        fc.config = Json.fromJson(MailxConfig.class, json);
-
-        // 准备 Email 构造器
-        fc.mail = new WnSmtpMail();
-        fc.vars = new NutMap();
-
-        // 更多上下文设置
-        if (fc.params.has("lang")) {
-            fc.lang = fc.params.getString("lang", fc.config.smtp.getLang());
+        catch (Throwable e) {
+            fc.setQuiet(true);
+            AjaxReturn re = Ajax.fail().setData(e);
+            re.setErrCode("e.cmd.mailx.prepareFailed");
+            tryPrintOutput(sys, fc, re);
         }
-
     }
 
     @Override
@@ -87,26 +97,28 @@ public class cmd_mailx extends JvmFilterExecutor<MailxContext, MailxFilter> {
         // 发送
         try {
             WnMailPosting posting = new WnMailPosting(sys);
-            boolean sendResult = posting.send(fc.config.smtp, fc.mail);
+            WebException ree = posting.send(fc.config.smtp, fc.mail);
             AjaxReturn re = Ajax.ok().setData(fc.mail);
-            re.setOk(sendResult);
+            // 成功
+            if (null == ree) {
+                re = Ajax.ok().setData(fc.mail);
+            }
+            // 失败
+            else {
+                re = Ajax.fail().setData(ree);
+                re.setErrCode("e.cmd.mailx.sendFailed");
+            }
             tryPrintOutput(sys, fc, re);
         }
         catch (Exception e) {
             if (log.isDebugEnabled()) {
                 log.warn("Fail sendmail", e);
             }
-            NutMap data = Wlang.map("email", fc.mail)
-                .setv("error", e.toString());
-            if (null != e.getCause()) {
-                data.put("cause", e.getCause().toString());
-            }
+            WebException err = Er.wrap(e);
             AjaxReturn re = Ajax.fail()
                 .setErrCode("e.cmd.mailx.FailToSend")
-                .setData(data);
+                .setData(err);
             tryPrintOutput(sys, fc, re);
-
-            throw e;
         }
 
     }
@@ -137,7 +149,7 @@ public class cmd_mailx extends JvmFilterExecutor<MailxContext, MailxFilter> {
             }
             // 打印错误
             else {
-                sys.err.println(output);
+                sys.out.println(output);
             }
         }
     }

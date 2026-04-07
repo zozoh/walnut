@@ -33,6 +33,8 @@ public class WnLogWrapper implements Log {
 
     @Override
     public void log(int level, Object fmt, Object... args) {
+        if (Wn.WC().isLogOff())
+            return;
         log.log(level, fmt, args);
     }
 
@@ -85,50 +87,74 @@ public class WnLogWrapper implements Log {
     }
 
     public boolean isInfoEnabled() {
+        if (Wn.WC().isLogOff())
+            return false;
         return log.isInfoEnabled();
     }
 
     public void info(Object message) {
+        if (Wn.WC().isLogOff())
+            return;
         log.info(_wrap_msg(message));
     }
 
     public void infof(String fmt, Object... args) {
+        if (Wn.WC().isLogOff())
+            return;
         log.infof(_prefix() + fmt, args);
     }
 
     public void info(Object message, Throwable t) {
+        if (Wn.WC().isLogOff())
+            return;
         log.info(_wrap_msg(message), t);
     }
 
     public boolean isDebugEnabled() {
+        if (Wn.WC().isLogOff())
+            return false;
         return log.isDebugEnabled();
     }
 
     public void debug(Object message) {
+        if (Wn.WC().isLogOff())
+            return;
         log.debug(_wrap_msg(message));
     }
 
     public void debugf(String fmt, Object... args) {
+        if (Wn.WC().isLogOff())
+            return;
         log.debugf(_prefix() + fmt, args);
     }
 
     public void debug(Object message, Throwable t) {
+        if (Wn.WC().isLogOff())
+            return;
         log.debug(_wrap_msg(message), t);
     }
 
     public boolean isTraceEnabled() {
+        if (Wn.WC().isLogOff())
+            return false;
         return log.isTraceEnabled();
     }
 
     public void trace(Object message) {
+        if (Wn.WC().isLogOff())
+            return;
         log.trace(_wrap_msg(message));
     }
 
     public void tracef(String fmt, Object... args) {
+        if (Wn.WC().isLogOff())
+            return;
         log.tracef(_prefix() + fmt, args);
     }
 
     public void trace(Object message, Throwable t) {
+        if (Wn.WC().isLogOff())
+            return;
         log.trace(_wrap_msg(message), t);
     }
 

@@ -19,7 +19,6 @@ import org.nutz.web.Webs.Err;
 
 public class cmd_wordt extends JvmExecutor {
 
-    @SuppressWarnings("resource")
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         ZParams params = ZParams.parse(args, "c");
@@ -30,7 +29,8 @@ public class cmd_wordt extends JvmExecutor {
         String tmplPath = Wn.normalizeFullPath(params.vals[0], sys);
         String destPath = Wn.normalizeFullPath(params.vals[1], sys);
         WnObj tmplObj = sys.io.check(null, tmplPath);
-        WnObj destObj = params.is("c") ? sys.io.createIfNoExists(null, destPath, WnRace.FILE)
+        WnObj destObj = params.is("c") ? sys.io
+            .createIfNoExists(null, destPath, WnRace.FILE)
                                        : sys.io.check(null, destPath);
         // 替换参数
         String vars = params.get("vars");

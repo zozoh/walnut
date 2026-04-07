@@ -51,7 +51,14 @@ public class WnBoxRunning implements WnAuthExecutable {
                         WnServiceFactory services,
                         int boxAllocTimeout,
                         boolean withHook) {
-        this(logPrefix, io, services, boxAllocTimeout, withHook, null, null, null);
+        this(logPrefix,
+             io,
+             services,
+             boxAllocTimeout,
+             withHook,
+             null,
+             null,
+             null);
     }
 
     public WnBoxRunning(String logPrefix,
@@ -77,7 +84,10 @@ public class WnBoxRunning implements WnAuthExecutable {
     }
 
     @Override
-    public void exec(String cmdText, OutputStream out, OutputStream err, InputStream ins) {
+    public void exec(String cmdText,
+                     OutputStream out,
+                     OutputStream err,
+                     InputStream ins) {
         // 未设置会话
         if (null == bc.session) {
             throw Er.create("e.box.running.withoutSession");
@@ -144,6 +154,7 @@ public class WnBoxRunning implements WnAuthExecutable {
             wc.setHookContext(oldHc);
             wc.setSecurity(oldSecu);
             wc.setSynctimeOff(oldSyncOff);
+            wc.setLogOn();
         }
     }
 

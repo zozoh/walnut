@@ -4,7 +4,7 @@ import java.lang.reflect.Modifier;
 
 import com.site0.walnut.util.Wlang;
 
-@SuppressWarnings("serial")
+
 public class BorningException extends RuntimeException {
 
     public BorningException(Class<?> type, Object[] args) {

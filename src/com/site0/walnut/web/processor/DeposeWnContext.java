@@ -28,7 +28,12 @@ public class DeposeWnContext extends AbstractProcessor {
                 } else {
                     qs = "";
                 }
-                log.infof("✔️OK%d:%dms:%s%s", status, du, ph, qs);
+                // 被偷偷标志了关闭日志
+                if (null != qs && qs.indexOf("log_off=true") >= 0) {
+                    // Wn.WC().setLogOff();
+                } else {
+                    log.infof("✔️OK%d:%dms:%s%s", status, du, ph, qs);
+                }
             }
         }
 

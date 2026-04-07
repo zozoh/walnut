@@ -22,10 +22,14 @@ public abstract class IcsCommonReply {
 
     private int refVer;
 
-    /**
-     * 11: Response, 8: Status, 32: Approval
-     */
-    private int funcCode;
+
+    // BGM 报文行
+    private int funcCode; // 11: Response, 8: Status, 32: Approval
+    private String docName;
+
+    // UNT 报文行
+//    private int segNum;
+//    private int msgIdx;
 
     public IcsCommonReply(String msgType) {
         this.msgType = msgType;
@@ -89,4 +93,28 @@ public abstract class IcsCommonReply {
     public void setFuncCode(int funcCode) {
         this.funcCode = funcCode;
     }
+
+    public String getDocName() {
+        return docName;
+    }
+
+    public void setDocName(String docName) {
+        this.docName = docName;
+    }
+
+//    public int getSegNum() {
+//        return segNum;
+//    }
+//
+//    public void setSegNum(int segNum) {
+//        this.segNum = segNum;
+//    }
+//
+//    public int getMsgIdx() {
+//        return msgIdx;
+//    }
+//
+//    public void setMsgIdx(int msgIdx) {
+//        this.msgIdx = msgIdx;
+//    }
 }

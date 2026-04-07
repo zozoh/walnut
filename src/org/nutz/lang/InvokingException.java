@@ -2,7 +2,7 @@ package org.nutz.lang;
 
 import static java.lang.String.format;
 
-@SuppressWarnings("serial")
+
 public class InvokingException extends RuntimeException {
 
     public InvokingException(String format, Object... args) {

@@ -1,6 +1,8 @@
 package com.site0.walnut.ext.net.mailx.hdl;
 
 import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.Ws;
+
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.ext.net.mailx.MailxContext;
 import com.site0.walnut.ext.net.mailx.MailxFilter;
@@ -13,14 +15,16 @@ public class mailx_vars extends MailxFilter {
     protected void process(WnSystem sys, MailxContext fc, ZParams params) {
         // 读取标准输入
         if (params.vals.length == 0) {
-            String json = sys.in.readAll();
+            String str = sys.in.readAll();
+            String json = Ws.trim(str);
             NutMap map = Wlang.map(json);
             fc.vars.putAll(map);
         }
         // 指定了
         else {
             for (String str : params.vals) {
-                NutMap map = Wlang.map(str);
+                String json = Ws.trim(str);
+                NutMap map = Wlang.map(json);
                 fc.vars.putAll(map);
             }
         }

@@ -1,6 +1,6 @@
 package org.nutz.mvc.upload;
 
-@SuppressWarnings("serial")
+
 public class UploadUnsupportedFileTypeException extends RuntimeException {
 
     public UploadUnsupportedFileTypeException(FieldMeta meta) {

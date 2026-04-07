@@ -12,12 +12,25 @@ import java.util.List;
 public class IcsLoaderHelper {
 
 
-    public static void fillResFuncCode(IcsCommonReply re, EdiSegmentFinder finder) {
+    public static void parseBgmSeg(IcsCommonReply re, EdiSegmentFinder finder) {
         NutMap rff = new NutMap();
         finder.reset();
         EdiSegment seg = finder.next("BGM");
-        seg.fillBean(rff, null, null, null, "funcCode");
+        seg.fillBean(rff, null, "docNameCode,,,docName", "docMsgNum,version", "funcCode");
         re.setFuncCode(rff.getInt("funcCode"));
+        re.setDocName(rff.getString("docName"));
+
+//        finder.reset();
+//        boolean find = finder.moveTo("UNT", true);
+//        if (find) {
+//            seg = finder.next("UNT");
+//            if (seg != null) {
+//                seg.fillBean(rff, null, "segNum", "refNum");
+//                re.setSegNum(rff.getInt("segNum", -1));
+//                re.setMsgIdx(rff.getInt("refNum", -1));
+//            }
+//        }
+//        finder.reset();
     }
 
     /**

@@ -204,6 +204,11 @@ public class WnBeanMapping extends LinkedHashMap<String, WnBeanField> {
                     continue;
                 }
 
+                // 是否忽略 visible/hidden
+                if (fld.isIgnore(bean)) {
+                    continue;
+                }
+
                 // 执行映射
                 if (this.isFieldNameCanOutput(fld)) {
                     Object val;

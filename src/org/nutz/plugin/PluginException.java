@@ -1,6 +1,6 @@
 package org.nutz.plugin;
 
-@SuppressWarnings("serial")
+
 public class PluginException extends RuntimeException {
 
     public PluginException(String pluginName, Throwable cause) {

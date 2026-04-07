@@ -31,8 +31,10 @@ public abstract class EdiMsgs {
         loaders.put("UBMREQR", new UBMResLoader());
         loaders.put("IMDR", new IMDResLoader());
         loaders.put("PAYREC", new PAYRECLoader());
-        loaders.put("REFACC", new REFACCLoader());
         loaders.put("ATD", new ATDResLoader());
+        loaders.put("REFACC", new REFACCLoader());
+        loaders.put("REFREJ", new REFREJLoader());
+        loaders.put("SAM", new SAMResLoader());
     }
 
     public static String getLoaderType(EdiMessage msg) {
@@ -77,6 +79,10 @@ public abstract class EdiMsgs {
         return (CLNTDUPLoader) loaders.get("CLNTDUP");
     }
 
+    public static CARSTLoader getCARSTLoader() {
+        return (CARSTLoader) loaders.get("CARST");
+    }
+
     public static UBMErrLoader getUBMErrLoader() {
         return (UBMErrLoader) loaders.get("UBMREQE");
     }
@@ -99,5 +105,13 @@ public abstract class EdiMsgs {
 
     public static ATDResLoader getATDResLoader() {
         return (ATDResLoader) loaders.get("ATD");
+    }
+
+    public static REFREJLoader getREFREJLoader() {
+        return (REFREJLoader) loaders.get("REFREJ");
+    }
+
+    public static SAMResLoader getSAMResLoader() {
+        return (SAMResLoader) loaders.get("SAM");
     }
 }

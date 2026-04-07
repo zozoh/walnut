@@ -1,6 +1,6 @@
 package org.nutz.mvc.upload;
 
-@SuppressWarnings("serial")
+
 public class UploadInvalidFormatException extends UploadException {
 
     public UploadInvalidFormatException() {

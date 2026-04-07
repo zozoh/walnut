@@ -26,7 +26,7 @@ public class CARSTLoader implements EdiMsgLoader<IcsReplyCARST> {
         re.setSuccess(true);
 
         // 定位到 BGM 报文行
-        IcsLoaderHelper.fillResFuncCode(re, finder);
+        IcsLoaderHelper.parseBgmSeg(re, finder);
 
         // 解析 DTM 报文行(C-9)
         List<EdiSegment> segmentList = finder.nextAll(true, "DTM");

@@ -27,6 +27,10 @@ public class Wlog {
     public static Log getCMD() {
         return new WnLogWrapper(Logs.getLog("CMD"));
     }
+    
+    public static Log getSQL() {
+        return new WnLogWrapper(Logs.getLog("SQL"));
+    }
 
     public static Log getAPP() {
         return new WnLogWrapper(Logs.getLog("APP"));

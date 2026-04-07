@@ -391,7 +391,8 @@ public class AppModule extends AbstractWnModule {
         String cmd = map.getString("cmd");
         String in = map.getString("in");
         boolean ffb = map.getBoolean("ffb");
-        run(appName, mime, mos, PWD, cmd, in, ffb, req, resp);
+        boolean log_off = map.getBoolean("log_off");
+        run(appName, mime, mos, PWD, cmd, in, ffb, log_off, req, resp);
     }
 
     /**
@@ -419,6 +420,7 @@ public class AppModule extends AbstractWnModule {
                     @Param("cmd") String cmdText,
                     @Param("in") String in,
                     @Param("ffb") boolean forceFlushBuffer,
+                    @Param("log_off") boolean set_log_off,
                     final HttpServletRequest req,
                     final HttpServletResponse resp)
             throws IOException {
@@ -433,6 +435,10 @@ public class AppModule extends AbstractWnModule {
         // Options 无视
         if (WnWeb.isRequestOptions(req)) {
             return;
+        }
+
+        if (set_log_off) {
+            Wn.WC().setLogOff();
         }
 
         // 找到 app 所在目录

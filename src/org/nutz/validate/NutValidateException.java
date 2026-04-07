@@ -1,6 +1,6 @@
 package org.nutz.validate;
 
-@SuppressWarnings("serial")
+
 public class NutValidateException extends Exception {
 
     private Object expect;

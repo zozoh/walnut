@@ -19,7 +19,7 @@ import org.nutz.mvc.config.ServletNutConfig;
  * @author wendal(wendal1985@gmail.com)
  * @author juqkai(juqkai@gmail.com)
  */
-@SuppressWarnings("serial")
+
 public class NutServlet extends HttpServlet {
 
     protected ActionHandler handler;

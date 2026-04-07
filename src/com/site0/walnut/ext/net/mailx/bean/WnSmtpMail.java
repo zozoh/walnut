@@ -5,7 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.site0.walnut.util.Ws;
-import com.site0.walnut.util.tmpl.WnTmpl;
+import com.site0.walnut.util.tmpl.WnTmplX;
+
 import org.nutz.lang.util.NutBean;
 
 /**
@@ -43,24 +44,24 @@ public class WnSmtpMail extends WnMail {
 
     public void render(NutBean vars) {
         if (this.hasSubject())
-            subject = WnTmpl.exec(subject, vars);
+            subject = WnTmplX.exec(subject, vars);
 
         if (this.hasTo())
-            to = WnTmpl.exec(to, vars);
+            to = WnTmplX.exec(to, vars);
 
         if (this.hasCc())
-            cc = WnTmpl.exec(cc, vars);
+            cc = WnTmplX.exec(cc, vars);
 
         if (this.hasBcc())
-            bcc = WnTmpl.exec(bcc, vars);
+            bcc = WnTmplX.exec(bcc, vars);
 
         if (this.hasContent())
-            content = WnTmpl.exec(content, vars);
+            content = WnTmplX.exec(content, vars);
 
         if (null != attachmentPaths && attachmentPaths.size() > 0) {
             List<String> ats = new ArrayList<String>(attachmentPaths.size());
             for (String at : this.attachmentPaths) {
-                at = WnTmpl.exec(at, vars);
+                at = WnTmplX.exec(at, vars);
                 ats.add(at);
             }
             this.attachmentPaths = ats;
