@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import org.nutz.castor.Castors;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Regex;
 import com.site0.walnut.util.Wlang;
@@ -53,10 +54,18 @@ public class WnExplains {
         }
     }
 
-    private static final Pattern EO1 = Regex.getPattern("^:(:*(=|==|!=|->)(.+))$");
+    public static Object explainObj(NutBean context, Object src) {
+        WnExplain wx = parse(src);
+        return wx.explain(context);
+    }
+
+    private static final Pattern EO1 = Regex
+        .getPattern("^:(:*(=|==|!=|->)(.+))$");
     private static final Pattern EO2 = Regex.getPattern("^([-=]>)(.+)$");
-    private static final Pattern EO3 = Regex.getPattern("^(==?|!=)([^?]+)(\\?(.*))?$");
-    private static final Pattern EO4 = Regex.getPattern("^(([\\w\\d_.]+)\\?\\?)?(.+)$");
+    private static final Pattern EO3 = Regex
+        .getPattern("^(==?|!=)([^?]+)(\\?(.*))?$");
+    private static final Pattern EO4 = Regex
+        .getPattern("^(([\\w\\d_.]+)\\?\\?)?(.+)$");
 
     /**
      * 预先解析一个展开一个对象。可以是字符串，数组，集合，Map 等
@@ -169,8 +178,12 @@ public class WnExplains {
             String valKey = map.getString("key");
             Object mapping = map.get("mapping");
             Object dftValue = map.get("dft");
-            if (!Strings.isBlank(valKey) && null != mapping && (mapping instanceof Map)) {
-                return new WxExplainValMapping(valKey, (Map<String, Object>) mapping, dftValue);
+            if (!Strings.isBlank(valKey)
+                && null != mapping
+                && (mapping instanceof Map)) {
+                return new WxExplainValMapping(valKey,
+                                               (Map<String, Object>) mapping,
+                                               dftValue);
             }
 
             // 递归

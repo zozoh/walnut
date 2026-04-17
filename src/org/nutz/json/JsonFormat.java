@@ -80,13 +80,14 @@ public class JsonFormat extends NutMap {
      */
     public JsonFormat(boolean compact) {
         setCompact(compact);
+        setQuoteName(true);
     }
 
     public static class Function {
-    	/**
-    	 * 是否忽略 JsonShape 注解
-    	 */
-    	public static String ignoreJsonShape = "ignoreJsonShape";
+        /**
+         * 是否忽略 JsonShape 注解
+         */
+        public static String ignoreJsonShape = "ignoreJsonShape";
         /**
          * 缩进时用的字符串
          */
@@ -219,18 +220,20 @@ public class JsonFormat extends NutMap {
     public String getIndentBy() {
         return getString(Function.indentBy, "   ");
     }
+
     /**
      * 设置忽略 JsonShape 注解
+     * 
      * @return
      */
     public JsonFormat ignoreJsonShape() {
-		put(Function.ignoreJsonShape,true);
-		return this;
-	}
-    
+        put(Function.ignoreJsonShape, true);
+        return this;
+    }
+
     public boolean isIgnoreJsonShape() {
-		return getBoolean(Function.ignoreJsonShape);
-	}
+        return getBoolean(Function.ignoreJsonShape);
+    }
 
     /**
      * 设置Json输出格式的缩进时用的字符串
@@ -533,26 +536,26 @@ public class JsonFormat extends NutMap {
         put(Function.nullNumberAsZero, nullNumberAsZero);
         return this;
     }
-    
+
     public JsonFormat setLocale(String locale) {
         put(Function.locale, locale);
         return this;
     }
-    
+
     public String getLocale() {
         return getString(Function.locale);
     }
-    
+
     public String getDateFormatRaw() {
         return getString(Function.dateFormatRaw);
     }
-    
+
     public JsonFormat setLongAsString(boolean longAsString) {
-    	put(Function.longAsString, longAsString);
-    	return this;
+        put(Function.longAsString, longAsString);
+        return this;
     }
-    
+
     public boolean isLongAsString() {
-    	return getBoolean(Function.longAsString, false);
+        return getBoolean(Function.longAsString, false);
     }
 }

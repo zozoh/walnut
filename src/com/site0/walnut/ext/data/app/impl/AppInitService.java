@@ -76,7 +76,7 @@ public class AppInitService {
 
     private static final Pattern _P0 = Regex.getPattern(REGEX);
 
-    private static final Pattern _P1 = Regex.getPattern("^([%?])(COPY|TMPL)(\\{.+\\})?([:>])\\s*(.+)?$");
+    private static final Pattern _P1 = Regex.getPattern("^([%?])(COPY|TMPL|EXPLAIN)(\\{.+\\})?([:>])\\s*(.+)?$");
 
     private int loadItem(String[] lines, int index, AppInitItem item, NutBean vars) {
         // 解析首行
@@ -155,7 +155,7 @@ public class AppInitService {
             // 4:[ 12, 13) >
             // 5:[ 14, 26) path/to/file
             item.setOverrideContent("%".equals(mc.group(1)));
-            item.setContentAsTmpl("TMPL".equals(mc.group(2)));
+            item.setContentTypeByStr(mc.group(2));
             item.setContentFileVars(mc.group(3), vars);
             // 读取磁盘上的文件
             if (">".equals(mc.group(4))) {

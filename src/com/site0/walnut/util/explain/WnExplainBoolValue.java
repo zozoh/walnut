@@ -17,8 +17,8 @@ public class WnExplainBoolValue implements WnExplain {
 
     public WnExplainBoolValue(String key, Object dft, boolean asNot) {
         this.key = key;
-        this.dftBool = Castors.me().castTo(dft, Boolean.class);
-        this.dftBool = asNot ? (dftBool ? false : true) : dftBool;
+        Boolean bo = Castors.me().castTo(dft, Boolean.class);
+        this.dftBool = asNot ? (null != bo && bo ? false : true) : dftBool;
     }
 
     @Override

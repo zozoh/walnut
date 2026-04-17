@@ -4,6 +4,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import com.site0.walnut.util.bank.WbankTest;
+import com.site0.walnut.util.explain.WnExplainsTest;
 import com.site0.walnut.util.obj.WnObjJoinFieldsTest;
 import com.site0.walnut.util.stream.MarkableInputStreamTest;
 import com.site0.walnut.util.time.WnDayTimeTest;
@@ -15,6 +16,7 @@ import com.site0.walnut.util.tmpl.AllTmplTest;
                      MarkableInputStreamTest.class,
                      AllTmplTest.class,
                      CmdsTest.class,
+                     WnExplainsTest.class,
                      WnDayTimeTest.class,
                      WtimeTest.class,
                      WcharTest.class,
