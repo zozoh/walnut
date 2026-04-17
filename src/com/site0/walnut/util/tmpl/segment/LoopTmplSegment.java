@@ -1,6 +1,10 @@
 package com.site0.walnut.util.tmpl.segment;
 
+import java.util.Map;
+
 import org.nutz.mapl.Mapl;
+
+import com.site0.walnut.api.err.Er;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.each.WnBreakException;
@@ -36,15 +40,22 @@ public class LoopTmplSegment extends AbstractTmplSegment {
         this.base = 0;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void renderTo(WnTmplRenderContext rc) {
         if (null == children) {
             return;
         }
-        Object oldVar = rc.context.get(varName);
+        // 循环的上下文，只能是 Map
+        if (!(rc.context instanceof Map<?, ?>)) {
+            throw Er.create("e.tmplx.loop.contextNotMap", rc.context);
+        }
+        Map<String, Object> cmap = (Map<String, Object>) rc.context;
+
+        Object oldVar = cmap.get(varName);
         Object oldInx = null;
         if (null != indexName) {
-            oldInx = rc.context.get(indexName);
+            oldInx = cmap.get(indexName);
         }
         // 得到循环对象
         Object obj = Mapl.cell(rc.context, looperName);
@@ -54,9 +65,9 @@ public class LoopTmplSegment extends AbstractTmplSegment {
         WnEachIteratee<Object> iteratee = new WnEachIteratee<Object>() {
             public void invoke(int index, Object ele, Object src)
                     throws WnContinueException, WnBreakException {
-                rc.context.put(varName, ele);
+                cmap.put(varName, ele);
                 if (null != indexName) {
-                    rc.context.put(indexName, index + baseI);
+                    cmap.put(indexName, index + baseI);
                 }
                 try {
                     for (TmplSegment seg : children) {
@@ -77,9 +88,9 @@ public class LoopTmplSegment extends AbstractTmplSegment {
         }
         // 恢复
         finally {
-            rc.context.put(varName, oldVar);
+            cmap.put(varName, oldVar);
             if (null != indexName) {
-                rc.context.put(indexName, oldInx);
+                cmap.put(indexName, oldInx);
             }
         }
     }

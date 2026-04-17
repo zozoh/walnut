@@ -6,7 +6,6 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutBean;
-import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.ext.data.sqlx.SqlxContext;
 import com.site0.walnut.ext.data.sqlx.SqlxFilter;
@@ -48,63 +47,14 @@ public class sqlx_view extends SqlxFilter {
         fc.quiet = true;
 
         // 列表模式: INSERT,UPDATE,DELETE
-        if (fc.hasVarList()) {
-            int startI = params.getInt("start", 1);
-            boolean showI = params.is("i");
-            // 渲染原生 SQL
-            if (null == criParams) {
-                int index = startI;
-                for (NutBean ctx : fc.getVarList()) {
-                    String str = t.render(ctx, criParams);
-                    if (!str.endsWith(";")) {
-                        str += ';';
-                    }
-                    if (showI) {
-                        sys.out.printlnf("%d) %s", index++, str);
-                    } else {
-                        sys.out.println(str);
-                    }
-                }
-            }
-            // 渲染 SQL 模板
-            else {
-                NutBean c0 = fc.getVarList().get(0);
-                String str = t.render(c0, criParams);
-                sys.out.println(str);
-                outputParams(sys, criParams);
-                // 逐个显示 Bean
-                if (showI) {
-                    sys.out.println(HR);
-                    JsonFormat jfmt = Cmds.gen_json_format(params);
-                    int index = startI;
-                    for (NutBean ctx : fc.getVarList()) {
-                        String json = Json.toJson(ctx, jfmt);
-                        sys.out.printlnf("%d) %s", index++, json);
-                    }
-                }
-                // 直接将列表变成 JSON 展示
-                else {
-                    sys.out.println(HR);
-                    JsonFormat jfmt = Cmds.gen_json_format(params);
-                    sys.out.println(Json.toJson(fc.getVarList(), jfmt));
-                }
-            }
-
-            // 嗯，搞定
+        // 如果是 select 模板，那么无论如何都是输出一条查询语句
+        if (fc.hasVarList() && !t.isSELECT()) {
+            renderForVarList(sys, fc, params, t, criParams);
             return;
         }
 
         // 渲染
-        NutBean context;
-
-        // 单对象: SELECT,UPDATE,DELETE
-        if (fc.hasVarMap()) {
-            context = fc.getVarMap();
-        }
-        // 默认给一个空上下文
-        else {
-            context = new NutMap();
-        }
+        Object context = fc.getVars();
         String str = t.render(context, criParams);
         sys.out.println(str);
 
@@ -114,13 +64,63 @@ public class sqlx_view extends SqlxFilter {
 
     }
 
+    private void renderForVarList(WnSystem sys,
+                                  SqlxContext fc,
+                                  ZParams params,
+                                  WnSqlTmpl t,
+                                  List<SqlParam> criParams) {
+        int startI = params.getInt("start", 1);
+        boolean showI = params.is("i");
+        // 渲染原生 SQL
+        if (null == criParams) {
+            int index = startI;
+            for (NutBean ctx : fc.getVarList()) {
+                String str = t.render(ctx, criParams);
+                if (!str.endsWith(";")) {
+                    str += ';';
+                }
+                if (showI) {
+                    sys.out.printlnf("%d) %s", index++, str);
+                } else {
+                    sys.out.println(str);
+                }
+            }
+        }
+        // 渲染 SQL 模板
+        else {
+            NutBean c0 = fc.getVarList().get(0);
+            String str = t.render(c0, criParams);
+            sys.out.println(str);
+            outputParams(sys, criParams);
+            // 逐个显示 Bean
+            if (showI) {
+                sys.out.println(HR);
+                JsonFormat jfmt = Cmds.gen_json_format(params);
+                int index = startI;
+                for (NutBean ctx : fc.getVarList()) {
+                    String json = Json.toJson(ctx, jfmt);
+                    sys.out.printlnf("%d) %s", index++, json);
+                }
+            }
+            // 直接将列表变成 JSON 展示
+            else {
+                sys.out.println(HR);
+                JsonFormat jfmt = Cmds.gen_json_format(params);
+                sys.out.println(Json.toJson(fc.getVarList(), jfmt));
+            }
+        }
+    }
+
     private void outputParams(WnSystem sys, List<SqlParam> criParams) {
         sys.out.println(HR);
         sys.out.printlnf("Show %s params", criParams.size());
         sys.out.println(HR);
         int i = 1;
         for (SqlParam pa : criParams) {
-            sys.out.printlnf(" %d) %s => %s", i++, pa.getName(), Json.toJson(pa.getValue()));
+            sys.out.printlnf(" %d) %s => %s",
+                             i++,
+                             pa.getName(),
+                             Json.toJson(pa.getValue()));
         }
     }
 

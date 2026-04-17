@@ -2,7 +2,6 @@ package com.site0.walnut.ext.data.sqlx.tmpl;
 
 import java.util.List;
 
-import org.nutz.lang.util.NutBean;
 import com.site0.walnut.ext.data.sqlx.loader.SqlEntry;
 import com.site0.walnut.ext.data.sqlx.loader.SqlType;
 import com.site0.walnut.ext.data.sqlx.util.Sqlx;
@@ -53,7 +52,7 @@ public class WnSqlTmpl {
      *            参数表，如果传 null，则无视,将模板转换为传统的 SQL 语句
      * @return 渲染后的 SQL 模板
      */
-    public String render(NutBean context, List<SqlParam> params) {
+    public String render(Object context, List<SqlParam> params) {
         SqlRenderContext rc = new SqlRenderContext();
         rc.context = context;
         rc.showKey = true;

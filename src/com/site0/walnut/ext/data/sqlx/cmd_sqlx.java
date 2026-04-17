@@ -4,7 +4,6 @@ import java.sql.SQLException;
 import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 
 import com.site0.walnut.api.err.Er;
@@ -60,12 +59,13 @@ public class cmd_sqlx extends JvmFilterExecutor<SqlxContext, SqlxFilter> {
             log.debugf("sqlx prepare: json=%s", json);
         }
 
-        NutMap input = Json.fromJson(NutMap.class, json);
+        Object input = Json.fromJson(json);
         fc.setInput(input);
 
         if (log.isDebugEnabled()) {
-            log.debugf("sqlx prepare: input.size=%s",
-                       null == input ? "null" : input.size());
+            log.debugf("sqlx prepare: input=%s",
+                       null == input ? "null"
+                                     : input.getClass().getSimpleName());
         }
 
     }

@@ -24,7 +24,7 @@ public class BlockTmplSegment implements TmplSegment {
     }
 
     @Override
-    public boolean isEnable(NutBean context) {
+    public boolean isEnable(Object context) {
         return true;
     }
 

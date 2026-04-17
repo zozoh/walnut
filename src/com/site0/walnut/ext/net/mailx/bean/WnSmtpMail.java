@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmplX;
 
 import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
 
 /**
  * 封装了一个电子邮件的信息
@@ -35,6 +37,48 @@ public class WnSmtpMail extends WnMail {
      * 附件列表，如果不是html邮件，且无附件，则采用简单邮件发送
      */
     WnMailSecurity security;
+
+    public NutBean toInfo() {
+        NutMap info = new NutMap();
+        if (this.hasSubject())
+            info.put("subject", subject);
+
+        if (this.hasTo())
+            info.put("to", to);
+
+        if (this.hasCc())
+            info.put("cc", cc);
+
+        if (this.hasBcc())
+            info.put("bcc", bcc);
+
+        if (this.hasContent()) {
+            info.put("content", "<len=" + content.length() + ">");
+            info.put("asHtml", this.isAsHtml());
+        }
+
+        if (this.hasAttachments()) {
+            List<String> atPaths = getAttachmentPaths();
+
+            // 根据路径读取
+            if (null != atPaths && atPaths.size() > 0) {
+                info.put("attachmentPaths", atPaths);
+            }
+
+            // 设置的固定
+            List<WnMailAttachment> ats = getAttachment();
+            if (null != ats) {
+                for (WnMailAttachment at : ats) {
+                    String name = at.getName();
+                    String mime = at.getMime();
+                    info.addv2("attachments",
+                               Wlang.map("name", name).setv("mime", mime));
+                }
+            }
+        }
+
+        return info;
+    }
 
     public WnSmtpMail clone() {
         WnSmtpMail mail = new WnSmtpMail();

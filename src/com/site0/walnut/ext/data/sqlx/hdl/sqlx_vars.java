@@ -3,6 +3,7 @@ package com.site0.walnut.ext.data.sqlx.hdl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.nutz.lang.Mirror;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
@@ -29,12 +30,13 @@ public class sqlx_vars extends SqlxFilter {
 
     @Override
     protected void process(WnSystem sys, SqlxContext fc, ZParams params) {
-        String mode = params.getString("as", "map");
+        String as_mode = params.getString("as", "auto");
         String omit = params.getString("omit");
         String pick = params.getString("pick");
         String[] omits = Ws.splitIgnoreBlank(omit);
         String[] picks = Ws.splitIgnoreBlank(pick);
-        SqlVarsPutting[] puttings = SqlVarsPutting.parse(params.getString("put"));
+        SqlVarsPutting[] puttings = SqlVarsPutting
+            .parse(params.getString("put"));
         boolean reset = params.is("reset");
         boolean merge = params.is("merge");
         if (reset) {
@@ -42,13 +44,36 @@ public class sqlx_vars extends SqlxFilter {
             fc.resetVarList();
         }
 
+        // 自动决定模式
+        String mode;
+        if ("auto".equals(as_mode)) {
+            Object input = fc.getInput();
+            if (null == input) {
+                mode = "map";
+            } else {
+                Mirror<?> mi = Mirror.me(input);
+                if (mi.isColl()) {
+                    mode = "list";
+                } else {
+                    mode = "map";
+                }
+            }
+        }
+        // 调用者直接指定了模式
+        else {
+            mode = as_mode;
+        }
+
         if (log.isDebugEnabled()) {
-            log.debugf("sqlx.vars: %s", Ws.join(params.vals, " "));
+            log.debugf("sqlx.vars[as_mode=%s;mode=%s]: %s",
+                       as_mode,
+                       mode,
+                       Ws.join(params.vals, " "));
         }
 
         // For List
         if ("list".equals(mode)) {
-            List<NutBean> list = __read_as_list(sys, fc, params);
+            List<? extends NutBean> list = __read_as_list(sys, fc, params);
             fc.setVarMode(SqlxVarsMode.LIST);
 
             // 额外读取值
@@ -81,11 +106,14 @@ public class sqlx_vars extends SqlxFilter {
         }
 
         if (params.is("view")) {
-            fc.result = Wlang.map("map", fc.getVarMap()).setv("list", fc.getVarList());
+            fc.result = Wlang.map("map", fc.getVarMap())
+                .setv("list", fc.getVarList());
         }
     }
 
-    private List<NutBean> __read_as_list(WnSystem sys, SqlxContext fc, ZParams params) {
+    private List<? extends NutBean> __read_as_list(WnSystem sys,
+                                                   SqlxContext fc,
+                                                   ZParams params) {
         // 伪造列表数据
         if (params.has("fake")) {
             SqlVarsFaker faker = new SqlVarsFaker(params.getString("fake"));
@@ -94,15 +122,15 @@ public class sqlx_vars extends SqlxFilter {
         }
         // 直接采用上下文
         if (params.vals.length == 0) {
-            return Wlang.list(fc.getInput());
+            return fc.getInputAsList();
         }
         // 逐个解析参数
-        ArrayList<NutBean> beans = new ArrayList<>(params.vals.length);
+        ArrayList<NutMap> beans = new ArrayList<>(params.vals.length);
         for (String val : params.vals) {
             if (val.startsWith("=") || val.startsWith(":")) {
                 String key = val.substring(1).trim();
                 if ("..".equals(key)) {
-                    beans.add(fc.getInput());
+                    beans.addAll(fc.getInputAsList());
                 } else {
                     List<NutMap> list = fc.getInputOrPipeVarAsList(key);
                     for (NutMap li : list) {
@@ -126,7 +154,7 @@ public class sqlx_vars extends SqlxFilter {
         }
         // 从标准输入读取
         if (params.vals.length == 0) {
-            return fc.getInput();
+            return fc.getInputAsMap();
         }
         // 逐个解析参数
         NutMap re = new NutMap();
@@ -134,7 +162,10 @@ public class sqlx_vars extends SqlxFilter {
             if (val.startsWith("=") || val.startsWith(":")) {
                 String key = val.substring(1).trim();
                 if ("..".equals(key)) {
-                    re.putAll(fc.getInput());
+                    NutMap inputMap = fc.getInputAsMap();
+                    if (null != inputMap) {
+                        re.putAll(fc.getInputAsMap());
+                    }
                 } else {
                     NutMap vmap = fc.getInputOrPipeVarAsMap(key);
                     re.putAll(vmap);

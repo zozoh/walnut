@@ -65,9 +65,11 @@ public class sqlx_exec extends SqlxFilter {
             List<NutBean> beans = fc.getVarList();
 
             // 保护判断一下
-            NutMap input = fc.getInput();
-            if (null != am && !am.match(input)) {
-                return;
+            NutMap input = fc.getInputAsMap();
+            if (null != am) {
+                if (null == input || !am.match(input)) {
+                    return;
+                }
             }
 
             // 批量模式
@@ -87,7 +89,8 @@ public class sqlx_exec extends SqlxFilter {
                     List<SqlParam> cps = new ArrayList<>();
                     String sql = sqlt.render(context, cps);
                     Object[] sqlParams = Sqlx.getSqlParamsValue(cps);
-                    SqlExecResult updateResult = fc.exec.runWithParams(conn, sql, sqlParams);
+                    SqlExecResult updateResult = fc.exec
+                        .runWithParams(conn, sql, sqlParams);
                     re.batchTotal += updateResult.batchTotal;
                     re.updateCount += updateResult.updateCount;
                 }
@@ -147,7 +150,10 @@ public class sqlx_exec extends SqlxFilter {
      * @param conn
      * @param re
      */
-    private void _update_result(SqlxContext fc, ZParams params, Connection conn, SqlExecResult re) {
+    private void _update_result(SqlxContext fc,
+                                ZParams params,
+                                Connection conn,
+                                SqlExecResult re) {
         if (!params.is("noresult")) {
             // 合并
             if (fc.result instanceof SqlExecResult) {

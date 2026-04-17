@@ -1,7 +1,14 @@
 package com.site0.walnut.util.tmpl.ele;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
 import com.site0.walnut.util.tmpl.WnTmplRenderContext;
 
@@ -26,15 +33,19 @@ public abstract class TmplDynamicEle implements TmplEle {
 
     protected TmplDynamicEle() {}
 
-    protected TmplDynamicEle(String type, String key, String fmt, String dft_str) {
+    protected TmplDynamicEle(String type,
+                             String key,
+                             String fmt,
+                             String dft_str) {
         this._type = type;
         this.key = key;
-        this._is_key_as_path = key.indexOf('.') > 0
-                               || (key.indexOf('[') > 0 && key.indexOf(']') > 0);
+        this._is_key_as_path = key
+            .indexOf('.') > 0 || (key.indexOf('[') > 0 && key.indexOf(']') > 0);
         this._org_fmt = fmt;
 
         // 默认值取 key @xxx
-        if (!Strings.isBlank(dft_str) && (dft_str.startsWith("@") || dft_str.startsWith("="))) {
+        if (!Strings.isBlank(dft_str)
+            && (dft_str.startsWith("@") || dft_str.startsWith("="))) {
             this._dft_key = dft_str.substring(1);
         }
         // 默认值是静态的
@@ -95,13 +106,53 @@ public abstract class TmplDynamicEle implements TmplEle {
         }
     }
 
-    private Object __get_val(NutBean context, String k) {
+    @SuppressWarnings("unchecked")
+    private Object __get_val(Object context, String k) {
+        // 防空
+        if (null == context) {
+            return null;
+        }
+        // Map
+        if (context instanceof Map<?, ?>) {
+            NutMap map = NutMap.WRAP((Map<String, Object>) context);
+            return __get_val_from(map, k);
+        }
+        // 集合
+        if (context instanceof Collection<?>) {
+            Collection<?> col = (Collection<?>) context;
+            List<Object> vals = new ArrayList<>(col.size());
+            for (Object ele : col) {
+                Object v = __get_val(ele, k);
+                if (null != v) {
+                    vals.add(v);
+                }
+            }
+            return vals;
+        }
+        // 数组
+        else if (context.getClass().isArray()) {
+            int len = Array.getLength(context);
+            List<Object> vals = new ArrayList<>(len);
+            for (int i = 0; i < len; i++) {
+                Object ele = Array.get(context, i);
+                Object v = __get_val(ele, k);
+                if (null != v) {
+                    vals.add(v);
+                }
+            }
+            return vals;
+        }
+        // 不可获取的值
+        return null;
+    }
+
+    private Object __get_val_from(NutBean bean, String k) {
         // 得到值
-        Object val = context.getOr(k);
+        Object val = bean.getOr(k);
 
         // 如果没值，看看是否需要用 mapl 搞一下
         if (null == val && _is_key_as_path) {
-            val = Mapl.cell(context, k);
+            val = Mapl.cell(bean, k);
         }
         return val;
     }

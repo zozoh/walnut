@@ -14,6 +14,19 @@ import com.site0.walnut.util.Wlang;
 
 public class WnSqlTmplTest {
 
+    // @Test
+    public void test_top_or_query() {
+        String s = "SELECT t_pet WHERE ${@vars=where; fpref=A.}";
+        Object context = Json.fromJson("[{x:100},{y:99}]");
+        WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
+        List<SqlParam> params = new ArrayList<>(2);
+        String sql = sqlt.render(context, params);
+        assertEquals("SELECT t_pet WHERE A.x=? OR A.y=?", sql);
+        assertEquals(2, params.size());
+        assertEquals("A.x=100", params.get(0).toString());
+        assertEquals("A.y=99", params.get(1).toString());
+    }
+
     @Test
     public void test_where_with_fpref() {
         String s = "SELECT t_pet WHERE ${@vars=where; fpref=A.}";
@@ -29,7 +42,7 @@ public class WnSqlTmplTest {
         sql = sqlt.render(context, null);
         assertEquals("SELECT t_pet WHERE A.st>=1 AND A.name='xiaobai'", sql);
     }
-    
+
     @Test
     public void test_where_with_fpref2() {
         String s = "SELECT t_pet WHERE ${@vars=where; fpref=A.}";
@@ -37,14 +50,16 @@ public class WnSqlTmplTest {
         WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
         List<SqlParam> params = new ArrayList<>(2);
         String sql = sqlt.render(context, params);
-        assertEquals("SELECT t_pet WHERE (A.st>=? AND A.st<=?) AND A.name=?", sql);
+        assertEquals("SELECT t_pet WHERE (A.st>=? AND A.st<=?) AND A.name=?",
+                     sql);
         assertEquals(3, params.size());
         assertEquals("A.st=1", params.get(0).toString());
         assertEquals("A.st=6", params.get(1).toString());
         assertEquals("A.name=\"xiaobai\"", params.get(2).toString());
 
         sql = sqlt.render(context, null);
-        assertEquals("SELECT t_pet WHERE (A.st>=1 AND A.st<=6) AND A.name='xiaobai'", sql);
+        assertEquals("SELECT t_pet WHERE (A.st>=1 AND A.st<=6) AND A.name='xiaobai'",
+                     sql);
     }
 
     @Test

@@ -96,7 +96,8 @@ public abstract class SqlVarsElement implements TmplEle {
                 }
                 // 错误
                 else if (!acceptSetup(key, val)) {
-                    throw Er.create("e.sqlx.var.invalid", "'" + s + "' => '${" + content + "}'");
+                    throw Er.create("e.sqlx.var.invalid",
+                                    "'" + s + "' => '${" + content + "}'");
                 }
             }
         }
@@ -129,31 +130,40 @@ public abstract class SqlVarsElement implements TmplEle {
         return bean;
     }
 
-    protected NutBean getBean(NutBean context) {
+    @SuppressWarnings("unchecked")
+    protected NutBean getBean(Object context) {
         NutBean bean = new NutMap();
-        if (this.hasScope()) {
-            Object obj = context.get(scope);
-            context = Wlang.anyToMap(obj);
-        }
-        if (this.pick != null) {
-            bean = context.pick(this.pick);
-        } else if (null != context) {
-            bean.putAll(context);
-        }
-        if (this.omit != null) {
-            bean = bean.omit(this.omit);
-        }
-        if (null != this.ignoreNil && this.ignoreNil.booleanValue()) {
-            bean = __apply_ignore_nil(bean);
+        if (null!=context && context instanceof Map<?, ?>) {
+            NutMap map = NutMap.WRAP((Map<String, Object>) context);
+            // Scoped
+            if (this.hasScope()) {
+                Object obj = map.get(scope);
+                map = Wlang.anyToMap(obj);
+            }
+            // pick
+            if (this.pick != null) {
+                bean = map.pick(this.pick);
+            } else if (null != map) {
+                bean.putAll(map);
+            }
+            // omit
+            if (this.omit != null) {
+                bean = bean.omit(this.omit);
+            }
+            // Ignore Nil
+            if (null != this.ignoreNil && this.ignoreNil.booleanValue()) {
+                bean = __apply_ignore_nil(bean);
+            }
         }
         return bean;
     }
 
     @SuppressWarnings("unchecked")
-    protected Object getObject(NutBean context) {
+    protected Object getObject(Object context) {
         Object val = context;
-        if (this.hasScope()) {
-            val = context.get(scope);
+        if (this.hasScope() && context instanceof Map<?, ?>) {
+            Map<?, ?> map = (Map<?, ?>) context;
+            val = map.get(scope);
         }
 
         // 对于单个对象

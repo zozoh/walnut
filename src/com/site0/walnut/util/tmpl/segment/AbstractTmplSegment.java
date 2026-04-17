@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.util.Callback2;
-import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.util.Wlang;
@@ -21,7 +20,7 @@ public abstract class AbstractTmplSegment implements TmplSegment {
     }
 
     @Override
-    public boolean isEnable(NutBean context) {
+    public boolean isEnable(Object context) {
         return true;
     }
 

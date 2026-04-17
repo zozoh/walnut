@@ -37,7 +37,7 @@ public class sqlx_query extends SqlxFilter {
         WnSqlTmpl sqlt = fc.sqls.get(sqlName);
         Connection conn = fc.getConnection();
 
-        NutBean context = fc.getVarMap();
+        Object context = fc.getVars();
         List<NutBean> beans;
         // 参数模式防止注入
         if (useParam) {

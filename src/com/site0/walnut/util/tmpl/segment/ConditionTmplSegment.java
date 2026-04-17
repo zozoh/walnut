@@ -1,6 +1,5 @@
 package com.site0.walnut.util.tmpl.segment;
 
-import org.nutz.lang.util.NutBean;
 import com.site0.walnut.util.validate.WnMatch;
 
 public class ConditionTmplSegment extends AbstractTmplSegment {
@@ -18,7 +17,7 @@ public class ConditionTmplSegment extends AbstractTmplSegment {
     }
 
     @Override
-    public boolean isEnable(NutBean vars) {
+    public boolean isEnable(Object vars) {
         if (null == match) {
             return true;
         }

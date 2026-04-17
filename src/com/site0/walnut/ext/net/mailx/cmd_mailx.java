@@ -101,7 +101,7 @@ public class cmd_mailx extends JvmFilterExecutor<MailxContext, MailxFilter> {
             AjaxReturn re = Ajax.ok().setData(fc.mail);
             // 成功
             if (null == ree) {
-                re = Ajax.ok().setData(fc.mail);
+                re = Ajax.ok().setData(fc.mail.toInfo());
             }
             // 失败
             else {

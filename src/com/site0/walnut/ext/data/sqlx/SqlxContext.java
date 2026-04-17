@@ -1,5 +1,6 @@
 package com.site0.walnut.ext.data.sqlx;
 
+import java.lang.reflect.Array;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.Ws;
 
 public class SqlxContext extends JvmFilterContext {
 
@@ -52,7 +54,7 @@ public class SqlxContext extends JvmFilterContext {
      */
     private int transLevel;
 
-    private NutMap input;
+    private Object input;
 
     private NutMap varMap;
 
@@ -117,18 +119,20 @@ public class SqlxContext extends JvmFilterContext {
         pipeContext.put("session", sys.session.toBean(sys.auth));
     }
 
-    public NutMap getInput() {
+    public Object getInput() {
         return input;
     }
 
-    public void setInput(NutMap input) {
+    public void setInput(Object input) {
         this.input = input;
     }
 
+    @SuppressWarnings("unchecked")
     public NutMap getMergedInputAndPipeContext() {
         NutMap re = new NutMap();
-        if (null != input) {
-            re.putAll(input);
+        if (null != input && input instanceof Map<?, ?>) {
+            NutMap inputMap = NutMap.WRAP((Map<String, Object>) input);
+            re.putAll(inputMap);
         }
         if (null != pipeContext) {
             re.putAll(pipeContext);
@@ -139,7 +143,7 @@ public class SqlxContext extends JvmFilterContext {
     @SuppressWarnings("unchecked")
     public NutMap getInputOrPipeVarAsMap(String key) {
         NutMap re = null;
-        if (null != input) {
+        if (null != input && input instanceof Map<?, ?>) {
             Map<String, Object> subMap = (Map<String, Object>) Mapl.cell(input,
                                                                          key);
             if (null != subMap) {
@@ -156,11 +160,64 @@ public class SqlxContext extends JvmFilterContext {
         return re;
     }
 
+    @SuppressWarnings("unchecked")
+    public NutMap getInputAsMap() {
+        if (input instanceof Map<?, ?>) {
+            NutMap inputMap = NutMap.WRAP((Map<String, Object>) input);
+            return inputMap;
+        }
+        return new NutMap();
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<NutMap> getInputAsList() {
+        if (null == input) {
+            return new ArrayList<>(0);
+        }
+        // 输入是对象，那么包裹为一个列表
+        if (input instanceof Map<?, ?>) {
+            NutMap inputMap = NutMap.WRAP((Map<String, Object>) input);
+            return Wlang.list(inputMap);
+        }
+
+        // 输入可能是数组或者集合，归一化一下
+        List<NutMap> list = new ArrayList<>(0);
+        ;
+        if (input instanceof Collection<?>) {
+            Collection<?> col = (Collection<?>) input;
+            list = new ArrayList<>(col.size());
+            for (Object ele : col) {
+                NutMap eleMap = NutMap.WRAP((Map<String, Object>) ele);
+                list.add(eleMap);
+            }
+        } else if (input.getClass().isArray()) {
+            int len = Array.getLength(input);
+            list = new ArrayList<>(len);
+            for (int i = 0; i < len; i++) {
+                Object ele = Array.get(input, i);
+                NutMap eleMap = NutMap.WRAP((Map<String, Object>) ele);
+                list.add(eleMap);
+            }
+        }
+        return list;
+    }
+
     @SuppressWarnings({"unchecked", "rawtypes"})
     public List<NutMap> getInputOrPipeVarAsList(String key) {
         Object v = null;
         if (null != input) {
-            v = input.get(key);
+            // 如果指定了 key ，那么必须 input 是 Map 才能获取
+            if (!Ws.isBlank(key)) {
+                if (input instanceof Map<?, ?>) {
+                    NutMap inputMap = NutMap.WRAP((Map<String, Object>) input);
+                    v = inputMap.get(key);
+                }
+            }
+            // 否则，没指定 key， Input 如果是列表，就直接用了
+            else {
+                v = this.getInputAsList();
+            }
+
         }
         if (null == v) {
             v = pipeContext.get(key);
@@ -284,6 +341,16 @@ public class SqlxContext extends JvmFilterContext {
 
     public List<NutBean> getVarList() {
         return varList;
+    }
+
+    public Object getVars() {
+        if (null != varList && !varList.isEmpty()) {
+            return varList;
+        }
+        if (null != varMap) {
+            return varMap;
+        }
+        return new NutMap();
     }
 
     private NutMap __filter_bean(NutBean bean, String[] picks, String[] omits) {

@@ -39,7 +39,7 @@ public class WnTmplRenderContext {
 
     public StringBuilder out;
 
-    public NutBean context;
+    public Object context;
 
     public boolean showKey;
 
