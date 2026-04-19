@@ -50,6 +50,19 @@ public class WnMailPosting {
         if (!smtp.hasAccount()) {
             throw Er.create("e.mailx.smtp.WithoutAccount");
         }
+
+        // 添加固定收件人
+        if (smtp.hasMailTo()) {
+            mail.addTo(smtp.getMailTo());
+        }
+        if (smtp.hasMailCc()) {
+            mail.addCc(smtp.getMailCc());
+        }
+        if (smtp.hasMailBcc()) {
+            mail.addBcc(smtp.getMailBcc());
+        }
+
+        // 检查一下
         if (!mail.hasTo()) {
             throw Er.create("e.mailx.smtp.WithoutToAddress");
         }
@@ -68,7 +81,9 @@ public class WnMailPosting {
         }
 
         // to/cc/bcc
-        builder.to(mail.getTo().trim());
+        if (mail.hasTo()) {
+            builder.to(mail.getTo().trim());
+        }
         if (mail.hasCc()) {
             builder.cc(mail.getCc().trim());
         }

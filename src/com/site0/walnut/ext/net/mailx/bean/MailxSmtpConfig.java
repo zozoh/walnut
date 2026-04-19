@@ -44,6 +44,21 @@ public class MailxSmtpConfig {
      */
     private TransportStrategy strategy;
 
+    /**
+     * 发信时，默认固定要添加的 mail_to 如果不指定，则无视
+     */
+    private String[] mailTo;
+
+    /**
+     * 发信时，默认固定要添加的 mail_cc 如果不指定，则无视
+     */
+    private String[] mailCc;
+
+    /**
+     * 发信时，默认固定要添加的 mail_bcc 如果不指定，则无视
+     */
+    private String[] mailBcc;
+
     public String getHost() {
         return host;
     }
@@ -119,6 +134,42 @@ public class MailxSmtpConfig {
 
     public void setStrategy(TransportStrategy strategy) {
         this.strategy = strategy;
+    }
+
+    public boolean hasMailTo() {
+        return null != mailTo && mailTo.length > 0;
+    }
+
+    public String[] getMailTo() {
+        return mailTo;
+    }
+
+    public void setMailTo(String[] mailTo) {
+        this.mailTo = mailTo;
+    }
+
+    public boolean hasMailCc() {
+        return null != mailCc && mailCc.length > 0;
+    }
+
+    public String[] getMailCc() {
+        return mailCc;
+    }
+
+    public void setMailCc(String[] mailCc) {
+        this.mailCc = mailCc;
+    }
+
+    public boolean hasMailBcc() {
+        return null != mailBcc && mailBcc.length > 0;
+    }
+
+    public String[] getMailBcc() {
+        return mailBcc;
+    }
+
+    public void setMailBcc(String[] mailBcc) {
+        this.mailBcc = mailBcc;
     }
 
 }

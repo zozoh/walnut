@@ -58,7 +58,6 @@ public abstract class WnMail {
         String HR = Ws.repeat('-', 40);
         List<String> ss = Wlang.list(String.format("%s Email", this.getType().name()));
         ss.add(HR);
-        ss.add(HR);
         if (this.hasSubject()) {
             ss.add("Subject: " + this.getSubject(vars));
         } else {
