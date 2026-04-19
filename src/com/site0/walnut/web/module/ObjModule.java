@@ -53,6 +53,7 @@ import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnPagerObj;
 import com.site0.walnut.util.Wobj;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import com.site0.walnut.web.filter.WnCheckSession;
 import com.site0.walnut.web.filter.WnSetSecurity;
@@ -672,6 +673,9 @@ public class ObjModule extends AbstractWnModule {
      *            本地文件尺寸
      * @param mime
      *            本地文件的内容类型
+     * @param prefix
+     *            文件名固定前缀. 如果指定，则会检查 <code>nm</code>，如果不包含这个前缀 会为其添加一个，同时会为文件填写
+     *            title 来保留本来名称
      * @param tmpl
      *            只有在 <code>mode=a</code> 模式下才有效:
      * 
@@ -703,6 +707,7 @@ public class ObjModule extends AbstractWnModule {
                             @Param("m") String mode,
                             @Param("sz") long sz,
                             @Param("mime") String mime,
+                            @Param("prefix") String prefix,
                             @Param("tmpl") String tmpl,
                             InputStream ins,
                             HttpServletRequest req,
@@ -729,6 +734,11 @@ public class ObjModule extends AbstractWnModule {
 
         // 格式化一下，去掉文件名里奇怪的字符
         nm = Wobj.normalizeName(nm);
+        String localName = nm;
+        boolean hasPrefix = !Ws.isBlank(prefix);
+        if (hasPrefix) {
+            nm = prefix + nm;
+        }
 
         // 处理链接文件
         if (null != o)
@@ -786,12 +796,12 @@ public class ObjModule extends AbstractWnModule {
             }
             // 下面这个逻辑是去重的，因为的追加模式，所以需要一直确保找到一个文件名在给定目录下不存在
             int i = 1;
+            WnTmpl seg = WnTmpl.parse(tmpl);
             while (null != o) {
                 // 准备查找一个不存在的文件名
                 NutMap c = new NutMap();
                 c.put("major", Files.getMajorName(nm));
                 c.put("suffix", Files.getSuffix(nm));
-                WnTmpl seg = WnTmpl.parse(tmpl);
                 c.put("nb", i++);
                 fname = seg.render(c);
                 // 一直找到一个不存在的名称
@@ -812,10 +822,19 @@ public class ObjModule extends AbstractWnModule {
 
         // 计入原始数据
         NutMap localMeta = new NutMap();
-        localMeta.put("name", nm);
+        localMeta.put("name", localName);
         localMeta.put("mime", mime);
         localMeta.put("size", sz);
         NutMap meta = Wlang.map("local", localMeta);
+        // 如果有前缀，则设置一下 title 以便保留原始信息
+        if (hasPrefix) {
+            // 为了保留追加模式下的自增后缀，我们从新名字开始
+            String title = Files.getMajorName(o.name());
+            if (title.startsWith(prefix)) {
+                title = title.substring(prefix.length()).trim();
+            }
+            meta.put("title", title);
+        }
         io.appendMeta(o, meta);
 
         // 返回

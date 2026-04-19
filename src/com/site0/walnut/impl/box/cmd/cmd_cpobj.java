@@ -1,7 +1,10 @@
 package com.site0.walnut.impl.box.cmd;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.Disks;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmExecutor;
@@ -18,14 +21,18 @@ public class cmd_cpobj extends JvmExecutor {
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
         // 分析参数
-        ZParams params = ZParams.parse(args, "pmvrdQ", "^(mime)$");
+        ZParams params = ZParams.parse(args, "lcqnpmvrdQ", "^(mime|quiet)$");
         String ph_src = Wn.normalizeFullPath(params.val_check(0), sys);
         String ph_dst = Wn.normalizeFullPath(params.val_check(1), sys);
         ph_dst = Disks.getCanonicalPath(ph_dst);
+        boolean quiet = params.is("quiet");
+        boolean asList = params.is("l");
+        JsonFormat jfmt = Cmds.gen_json_format(params);
 
         try {
             // 得到源列表
-            List<WnObj> oSrcList = Cmds.evalCandidateObjsNoEmpty(sys, Wlang.array(ph_src), 0);
+            List<WnObj> oSrcList = Cmds
+                .evalCandidateObjsNoEmpty(sys, Wlang.array(ph_src), 0);
 
             // 准备 copy 模式
             WnObjCopying woc = new WnObjCopying(sys.io);
@@ -60,8 +67,22 @@ public class cmd_cpobj extends JvmExecutor {
             }
 
             // 执行 copy
-            for (WnObj oSrc : oSrcList)
-                woc.exec(oSrc, ph_dst);
+            List<WnObj> objs = new ArrayList<>(oSrcList.size());
+            for (WnObj oSrc : oSrcList) {
+                WnObj oDst = woc.exec(oSrc, ph_dst);
+                if (null != oDst) {
+                    objs.add(oDst);
+                }
+            }
+
+            if (!quiet) {
+                Object out = objs;
+                if (!asList && objs.size() == 1) {
+                    out = objs.get(0);
+                }
+                String json = Json.toJson(out, jfmt);
+                sys.out.print(json);
+            }
         }
         catch (WebException e) {
             if (!params.is("Q")) {
