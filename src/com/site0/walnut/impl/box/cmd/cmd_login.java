@@ -127,9 +127,18 @@ public class cmd_login extends JvmExecutor {
             site.assertHomeAccessable(newSe);
         }
 
-        //try_run_profile(sys, newSe);
+        try_run_profile(sys, newSe);
 
-        NutMap bean = newSe.toBean(sys.auth);
+        // 获取新 Session 的权鉴接口
+        WnLoginApi newAuth = sys.auth;
+
+        if (newSe.hasSite()) {
+            String sitePath = newSe.getSite();
+            WnLoginSite newSite = WnLoginSite.createByPath(sys.io, sitePath);
+            newAuth = newSite.auth();
+        }
+
+        NutMap bean = newSe.toBean(newAuth);
         return bean;
     }
 
@@ -142,7 +151,6 @@ public class cmd_login extends JvmExecutor {
                     public void invoke(WnAuthExecutable wae) {
                         wae.exec(cmd);
                     }
-
                 });
             }
         }
