@@ -146,6 +146,11 @@ public class WnHttpResponseWriter {
                 this.downloadName += "." + wobj.type();
             }
         }
+        // 确保下载名称以正确的后缀来结尾
+        else if (wobj.hasType()
+                 && !this.downloadName.endsWith("." + wobj.type())) {
+            this.downloadName += "." + wobj.type();
+        }
 
         // 准备对象
         WnGetInputStream getInput = new WnGetObjInputStream(io, wobj);
@@ -235,7 +240,8 @@ public class WnHttpResponseWriter {
                 List<RangeRange> rs = new ArrayList<RawView.RangeRange>();
                 if (!RawView2.parseRange(range, rs, objLen) || rs.size() != 1) {
                     this.status = 400;
-                    this.headers.put("Walnut-Http-Range-WARN", "Range Not Satisfiable");
+                    this.headers.put("Walnut-Http-Range-WARN",
+                                     "Range Not Satisfiable");
                 }
                 // 解析成功
                 else {
@@ -243,7 +249,10 @@ public class WnHttpResponseWriter {
                     headers.put("Content-Length", rr.end - rr.start);
                     headers.put("Accept-Ranges", "bytes");
                     headers.put("Content-Range",
-                                String.format("bytes %d-%d/%d", rr.start, rr.end - 1, objLen));
+                                String.format("bytes %d-%d/%d",
+                                              rr.start,
+                                              rr.end - 1,
+                                              objLen));
                     status = 206;
                     ins = getInput.getStream(rr.start);
                     ins = new LimitInputStream(ins, rr.end - rr.start);
@@ -326,10 +335,13 @@ public class WnHttpResponseWriter {
         }
 
         // 是否声明有下载目标信息呀？
-        if (!Strings.isBlank(this.userAgent) && !Strings.isBlank(this.downloadName)) {
-            headers.putDefault("Content-Disposition",
-                               WnWeb.genHttpRespHeaderContentDisposition(this.downloadName,
-                                                                         this.userAgent));
+        if (!Strings.isBlank(this.userAgent)
+            && !Strings.isBlank(this.downloadName)) {
+            headers
+                .putDefault("Content-Disposition",
+                            WnWeb
+                                .genHttpRespHeaderContentDisposition(this.downloadName,
+                                                                     this.userAgent));
         }
 
         // 输出Header
@@ -432,7 +444,8 @@ public class WnHttpResponseWriter {
         }
     }
 
-    private void __write_to_output(OutputStream ops, InputStream ins) throws IOException {
+    private void __write_to_output(OutputStream ops, InputStream ins)
+            throws IOException {
         // Covert base 64
         if (this.asBase64) {
             // Load bytes
@@ -469,6 +482,7 @@ public class WnHttpResponseWriter {
     }
 
     public WnHttpResponseWriter(String headers_str) {
-        this.headers = Strings.isBlank(headers_str) ? new NutMap() : Wlang.map(headers_str);
+        this.headers = Strings.isBlank(headers_str) ? new NutMap()
+                                                    : Wlang.map(headers_str);
     }
 }

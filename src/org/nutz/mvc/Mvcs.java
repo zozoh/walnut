@@ -3,11 +3,11 @@ package org.nutz.mvc;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.net.URLDecoder;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.io.OutputStream;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -22,6 +22,8 @@ import org.nutz.ioc.Ioc;
 import org.nutz.ioc.IocContext;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
+import org.nutz.lang.Encoding;
+import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Context;
 import org.nutz.lang.util.NutMap;
@@ -53,7 +55,9 @@ public abstract class Mvcs {
 
     public static boolean DISABLE_X_POWERED_BY = false;
 
-    public static String X_POWERED_BY = "nutz/" + Nutz.version() + " <nutzam.com>";
+    public static String X_POWERED_BY = "nutz/"
+                                        + Nutz.version()
+                                        + " <nutzam.com>";
 
     public static LocalizationManager localizationManager;
 
@@ -244,7 +248,8 @@ public abstract class Mvcs {
      *            HTTP 请求对象
      */
     public static RequestPath getRequestPathObject(HttpServletRequest req) {
-        Object includeUrl = req.getAttribute(RequestDispatcher.INCLUDE_PATH_INFO);
+        Object includeUrl = req
+            .getAttribute(RequestDispatcher.INCLUDE_PATH_INFO);
         if (includeUrl != null) {
             return getRequestPathObject(includeUrl.toString());
         }
@@ -309,27 +314,47 @@ public abstract class Mvcs {
      *            响应对象
      * @param obj
      *            数据对象
-     * @param format
+     * @param jfmt
      *            JSON 的格式化方式
      * @throws IOException
      *             写入失败
      */
-    public static void write(HttpServletResponse resp, Object obj, JsonFormat format)
-            throws IOException {
-        write(resp, resp.getWriter(), obj, format);
-    }
-
-    public static void write(HttpServletResponse resp, Writer writer, Object obj, JsonFormat format)
+    public static void write(HttpServletResponse resp,
+                             Object obj,
+                             JsonFormat jfmt)
             throws IOException {
         resp.setHeader("Cache-Control", "no-cache");
+
         if (resp.getContentType() == null)
-            resp.setContentType("text/plain");
+            resp.setContentType("text/json");
 
-        // by mawm 改为直接采用resp.getWriter()的方式直接输出!
-        Json.toJson(writer, obj, format);
+        // write(resp, resp.getWriter(), obj, jfmt);
+        String json = Json.toJson(obj, jfmt);
+        byte[] bs = json.getBytes(Encoding.CHARSET_UTF8);
 
-        resp.flushBuffer();
+        resp.setContentLength(bs.length);
+
+        OutputStream ops = resp.getOutputStream();
+        ops.write(bs);
+        ops.flush();
+        Streams.safeFlush(ops);
     }
+
+    // public static void write(HttpServletResponse resp,
+    // Writer writer,
+    // Object obj,
+    // JsonFormat jfmt)
+    // throws IOException {
+    // resp.setHeader("Cache-Control", "no-cache");
+    // if (resp.getContentType() == null)
+    // resp.setContentType("text/json");
+    //
+    // // by mawm 改为直接采用resp.getWriter()的方式直接输出!
+    // String json = Json.toJson(obj, jfmt);
+    // writer.write(json);
+    // writer.flush();
+    // resp.flushBuffer();
+    // }
 
     // ==================================================================
     private static final ThreadLocal<String> NAME = new ThreadLocal<String>();
@@ -347,7 +372,8 @@ public abstract class Mvcs {
                 ctx = new NutMvcContext();
             return ctx;
         }
-        NutMvcContext c = (NutMvcContext) getServletContext().getAttribute("__nutz__mvc__ctx");
+        NutMvcContext c = (NutMvcContext) getServletContext()
+            .getAttribute("__nutz__mvc__ctx");
         if (c == null) {
             c = new NutMvcContext();
             getServletContext().setAttribute("__nutz__mvc__ctx", c);
@@ -390,7 +416,9 @@ public abstract class Mvcs {
         return reqt().getAs(ActionContext.class, "ActionContext");
     }
 
-    public static void set(String name, HttpServletRequest req, HttpServletResponse resp) {
+    public static void set(String name,
+                           HttpServletRequest req,
+                           HttpServletResponse resp) {
         NAME.set(name);
         reqt().set("req", req);
         reqt().set("resp", resp);
@@ -535,7 +563,9 @@ public abstract class Mvcs {
         }
     }
 
-    public static void setSessionAttrSafe(String key, Object val, boolean sessionCreate) {
+    public static void setSessionAttrSafe(String key,
+                                          Object val,
+                                          boolean sessionCreate) {
         try {
             HttpSession session = getHttpSession(sessionCreate);
             if (session != null)
@@ -556,7 +586,8 @@ public abstract class Mvcs {
                 if (buf[0] == '&' || len < 0) {
                     String[] tmp = sb.toString().split("=");
                     if (tmp != null && tmp.length == 2) {
-                        map.put(URLDecoder.decode(tmp[0], enc), URLDecoder.decode(tmp[1], enc));
+                        map.put(URLDecoder.decode(tmp[0], enc),
+                                URLDecoder.decode(tmp[1], enc));
                     }
                     if (len < 0)
                         break;

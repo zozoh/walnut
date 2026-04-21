@@ -20,6 +20,11 @@ public class WnUserStoreProxy implements WnUserStore {
         this.impl = impl;
     }
 
+    @Override
+    public boolean isStdUserStore() {
+        return impl.isStdUserStore();
+    }
+
     public UserRace getUserRace() {
         return impl.getUserRace();
     }

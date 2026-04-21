@@ -1,7 +1,6 @@
 package org.nutz.mvc.view;
 
 import java.io.IOException;
-import java.io.Writer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -49,12 +48,14 @@ public class UTF8JsonView implements View {
     public UTF8JsonView(JsonFormat format) {
         this.format = format;
     }
-    
-    public UTF8JsonView() {
-    	this.format = new JsonFormat(false);
-	}
 
-    public void render(HttpServletRequest req, HttpServletResponse resp, Object obj)
+    public UTF8JsonView() {
+        this.format = new JsonFormat(false);
+    }
+
+    public void render(HttpServletRequest req,
+                       HttpServletResponse resp,
+                       Object obj)
             throws IOException {
 
         if (resp.getContentType() == null)
@@ -62,17 +63,20 @@ public class UTF8JsonView implements View {
                 resp.setContentType(JSONP_CT);
             else
                 resp.setContentType(CT);
-        Writer writer = resp.getWriter();
-        if (jsonp)
-            writer.write(req.getParameter(jsonpParam == null ? "callback" : jsonpParam) + "(");
-        Mvcs.write(resp, writer, null == obj ? data : obj, format);
-        if (jsonp)
-            writer.write(");");
+        // Writer writer = resp.getWriter();
+        // if (jsonp)
+        // writer.write(req.getParameter(jsonpParam == null ? "callback" :
+        // jsonpParam) + "(");
+        // Mvcs.write(resp, writer, null == obj ? data : obj, format);
+        // if (jsonp)
+        // writer.write(");");
+        Mvcs.write(resp, null == obj ? data : obj, format);
     }
 
     public static final View NICE = new UTF8JsonView(JsonFormat.nice());
     public static final View COMPACT = new UTF8JsonView(JsonFormat.compact());
     public static final View FULL = new UTF8JsonView(JsonFormat.full());
     public static final View FORLOOK = new UTF8JsonView(JsonFormat.forLook());
-    public static final View JSONP = new UTF8JsonView(JsonFormat.compact()).setJsonp(true);
+    public static final View JSONP = new UTF8JsonView(JsonFormat.compact())
+        .setJsonp(true);
 }

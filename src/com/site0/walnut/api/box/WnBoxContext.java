@@ -1,9 +1,15 @@
 package com.site0.walnut.api.box;
 
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+
+import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnLoginApiMaker;
+import com.site0.walnut.login.WnLoginOptions;
 import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.site.WnLoginSite;
 
 public class WnBoxContext {
 
@@ -23,6 +29,24 @@ public class WnBoxContext {
     }
 
     public WnLoginApi auth() {
+        if (null == session) {
+            throw Er.create("e.box.auth.NoSession");
+        }
+        if (null == io) {
+            throw Er.create("e.box.auth.NoIO");
+        }
+        // 域内站点
+        String sitePath = session.getSite();
+        if (null != sitePath) {
+            WnLoginSite site = WnLoginSite.createByPath(io, sitePath);
+            NutBean env = site.getSessionVarsBySiteHome();
+            WnLoginOptions options = site.getOptions();
+            WnLoginApi auth = WnLoginApiMaker.forHydrate()
+                .make(io, env, options);
+            return auth;
+        }
+
+        // 采用系统权鉴接口
         return services.getLoginApi();
     }
 

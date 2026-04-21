@@ -349,6 +349,42 @@ public class WnSystem implements WnAuthExecutable {
         }
     }
 
+    public void switchSession(WnSession newSession,
+                              Callback<WnAuthExecutable> callback) {
+        final WnSystem sys = this;
+
+        // 防空
+        if (null == newSession) {
+            return;
+        }
+
+        // 记录旧的 Session
+        WnSession old_se = this.session;
+        this.session = newSession;
+        WnContext wc = Wn.WC();
+        try {
+            // 切换沙箱的的会话
+            this._runner.bc.session = newSession;
+            // 切换 session
+            WnUser newUsr = newSession.getUser();
+            wc.setSession(newSession);
+            wc.su(newUsr, new Atom() {
+                public void run() {
+                    callback.invoke(sys);
+                }
+            });
+        }
+        // 释放 session
+        finally {
+            // 切换沙箱的的会话
+            this._runner.bc.session = old_se;
+            // 切换 session
+            this.session = old_se;
+            wc.setSession(old_se);
+            auth.removeSession(newSession);
+        }
+    }
+
     /**
      * 进入超级内核态（不执行钩子）执行操作
      * 

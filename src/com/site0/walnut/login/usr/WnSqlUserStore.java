@@ -76,6 +76,13 @@ public class WnSqlUserStore extends AbstractWnUserStore {
         this.sqls = Sqlx.getSqlHolderByPath(io, sessionVars, setup.sqlHome);
     }
 
+    @Override
+    public boolean isStdUserStore() {
+        // TODO 以后如果系统存储也用 SQL 的话，这个就不能写死
+        // 而是配置进来，全局的就是 true， 域动态生成的就是 false
+        return false;
+    }
+
     public WnUser addUser(WnUser u) {
         String uid = u.getId();
         if (Ws.isBlank(uid)) {
@@ -118,16 +125,22 @@ public class WnSqlUserStore extends AbstractWnUserStore {
             return;
         }
         NutMap delta = new NutMap();
-        delta.put("id", u.getId());
         __join_user_meta_to_bean(u, delta);
 
+        // 防空
+        if (delta.isEmpty()) {
+            return;
+        }
+
+        delta.put("id", u.getId());
         // 获取 SQL
         WnSqlTmpl sql = sqls.get(sqlUpdate);
 
         // 保存到数据库里
         int count = Sqlx.sqlRun(auth, new SqlAtom(log, sql, delta));
         if (count <= 0) {
-            throw Er.create("e.auth.session.FailToSaveUserMeta", Json.toJson(delta));
+            throw Er.create("e.auth.session.FailToSaveUserMeta",
+                            Json.toJson(delta));
         }
     }
 
@@ -142,7 +155,8 @@ public class WnSqlUserStore extends AbstractWnUserStore {
         // 保存到数据库里
         int count = Sqlx.sqlRun(auth, new SqlAtom(log, sql, delta));
         if (count <= 0) {
-            throw Er.create("e.auth.session.FailToUpdateUserName", u.toString());
+            throw Er.create("e.auth.session.FailToUpdateUserName",
+                            u.toString());
         }
     }
 
@@ -157,7 +171,8 @@ public class WnSqlUserStore extends AbstractWnUserStore {
         // 保存到数据库里
         int count = Sqlx.sqlRun(auth, new SqlAtom(log, sql, delta));
         if (count <= 0) {
-            throw Er.create("e.auth.session.FailToUpdateUserPhone", Json.toJson(delta));
+            throw Er.create("e.auth.session.FailToUpdateUserPhone",
+                            Json.toJson(delta));
         }
     }
 
@@ -172,7 +187,8 @@ public class WnSqlUserStore extends AbstractWnUserStore {
         // 保存到数据库里
         int count = Sqlx.sqlRun(auth, new SqlAtom(log, sql, delta));
         if (count <= 0) {
-            throw Er.create("e.auth.session.FailToUpdateUserEmail", Json.toJson(delta));
+            throw Er.create("e.auth.session.FailToUpdateUserEmail",
+                            Json.toJson(delta));
         }
     }
 
@@ -187,7 +203,8 @@ public class WnSqlUserStore extends AbstractWnUserStore {
         // 保存到数据库里
         int count = Sqlx.sqlRun(auth, new SqlAtom(log, sql, delta));
         if (count <= 0) {
-            throw Er.create("e.auth.session.FailToUpdateUserLastLoginAt", Json.toJson(delta));
+            throw Er.create("e.auth.session.FailToUpdateUserLastLoginAt",
+                            Json.toJson(delta));
         }
     }
 
@@ -204,7 +221,8 @@ public class WnSqlUserStore extends AbstractWnUserStore {
         // 保存到数据库里
         int count = Sqlx.sqlRun(auth, new SqlAtom(log, sql, delta));
         if (count <= 0) {
-            throw Er.create("e.auth.session.FailToUpdateUserPassword", Json.toJson(delta));
+            throw Er.create("e.auth.session.FailToUpdateUserPassword",
+                            Json.toJson(delta));
         }
     }
 

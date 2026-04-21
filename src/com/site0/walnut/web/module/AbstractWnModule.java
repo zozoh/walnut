@@ -10,15 +10,21 @@ import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
+import org.nutz.log.Log;
 import org.nutz.mvc.View;
 import org.nutz.mvc.view.HttpStatusView;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.MimeMap;
+import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
+import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnRun;
 
 public abstract class AbstractWnModule extends WnRun {
+
+    private static final Log log = Wlog.getMAIN();
 
     public static View HTTP_304 = new HttpStatusView(304);
 
@@ -112,5 +118,19 @@ public abstract class AbstractWnModule extends WnRun {
         // 返回
         return context;
     }
-    
+
+    protected void try_run_profile(WnSession se) {
+        if (null != se) {
+            WnIo io = io();
+            WnObj oProfile = Wn.getObj(io, se, "~/.profile");
+            if (null != oProfile && oProfile.isFILE()) {
+                String cmd = io.readText(oProfile);
+                String out = this.exec("profile", se, null, cmd);
+                if (log.isInfoEnabled()) {
+                    log.infof("run profile: %s :\n%s", oProfile.path(), out);
+                }
+            }
+        }
+    }
+
 }

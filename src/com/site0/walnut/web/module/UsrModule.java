@@ -107,7 +107,12 @@ public class UsrModule extends AbstractWnModule {
                     ua = WnWeb.autoUserAgent(o, ua, download);
 
                     // 返回下载视图
-                    return new WnObjDownloadView(io(), o, null, ua, etag, range);
+                    return new WnObjDownloadView(io(),
+                                                 o,
+                                                 null,
+                                                 ua,
+                                                 etag,
+                                                 range);
                 }
 
                 String input = io().readText(o);
@@ -225,6 +230,7 @@ public class UsrModule extends AbstractWnModule {
         if (null != se && se.isSameTicket(ticket)) {
             throw Er.create("e.web.u.chse.self");
         }
+        
 
         // 准备权鉴接口
         WnLoginApi _auth = this.auth();
@@ -273,12 +279,15 @@ public class UsrModule extends AbstractWnModule {
     @Ok("++cookie>>:/")
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root"}))
-    public NutMap do_login(@Param("nm") String nm, @Param("passwd") String passwd) {
+    public NutMap do_login(@Param("nm") String nm,
+                           @Param("passwd") String passwd) {
         WnSession se = auth().loginByPassword(nm, passwd);
         Wn.WC().setSession(se);
 
         // 执行登录后初始化脚本
-        this.exec("do_login", se, "setup -quiet -u 'id:" + se.getUser().getId() + "' usr/login");
+        // this.exec("do_login", se, "setup -quiet -u 'id:" +
+        // se.getUser().getId() + "' usr/login");
+        this.try_run_profile(se);
 
         return se.toBean(auth());
     }
@@ -288,7 +297,8 @@ public class UsrModule extends AbstractWnModule {
     @Ok("++cookie->ajax")
     @Fail("ajax")
     @Filters(@By(type = WnAsUsr.class, args = {"root"}))
-    public NutMap do_login_ajax(@Param("nm") String nm, @Param("passwd") String passwd) {
+    public NutMap do_login_ajax(@Param("nm") String nm,
+                                @Param("passwd") String passwd) {
         return do_login(nm, passwd);
     }
 

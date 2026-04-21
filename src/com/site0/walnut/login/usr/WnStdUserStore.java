@@ -81,6 +81,13 @@ public class WnStdUserStore extends AbstractWnUserStore {
         }
         return re;
     }
+    
+    
+
+    @Override
+    public boolean isStdUserStore() {
+        return true;
+    }
 
     @Override
     public WnUser addUser(WnUser u) {

@@ -31,9 +31,9 @@
         <Logger name="APP" level="info"/>
         <Logger name="AC" level="info"/>
         <Logger name="BG_CLEANER" level="info"/>
-        <Logger name="BG_TASK" level="info"/>
-        <Logger name="BG_SCHEDULE" level="info"/>
-        <Logger name="BG_CRON" level="info"/>
+        <Logger name="BG_TASK" level="warn"/>
+        <Logger name="BG_SCHEDULE" level="warn"/>
+        <Logger name="BG_CRON" level="warn"/>
         <Logger name="TEST" level="debug"/>
         
         <!-- 如果需要为自定义日志器指定输出，取消注释并修改 -->

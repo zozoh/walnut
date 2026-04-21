@@ -21,12 +21,22 @@ import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.io.WnSecurity;
+import com.site0.walnut.cache.simple.WnSimpleCache;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.impl.io.WnSecurityImpl;
 
 public class WnLoginSite {
 
-    public static WnLoginSite create(WnIo io, String siteIdOrPath, String hostName) {
+    static WnSimpleCache<WnLoginSite> Gen() {
+        return new WnSimpleCache<WnLoginSite>(100, 500, 600);
+    }
+
+    static final WnSimpleCache<WnLoginSite> CCH_PATH = Gen();
+    static final WnSimpleCache<WnLoginSite> CCH_HOST = Gen();
+
+    public static WnLoginSite create(WnIo io,
+                                     String siteIdOrPath,
+                                     String hostName) {
         return Wn.WC().nosecurity(io, new Proton<WnLoginSite>() {
             protected WnLoginSite exec() {
                 WnLoginSite site = null;
@@ -42,36 +52,61 @@ public class WnLoginSite {
     }
 
     public static WnLoginSite createByHost(WnIo io, String hostName) {
-        // 获取域的映射信息对象
-        WnObj oMapping = null;
-        if (!Ws.isBlank(hostName)) {
-            oMapping = io.fetch(null, "/domain/" + hostName);
+        WnLoginSite site = CCH_HOST.get(hostName);
+        if (null != site) {
+            return site;
         }
-        // 防空
-        if (null == oMapping) {
-            throw Er.create("e.login.site.NoHostMapping", hostName);
+        synchronized (WnLoginSite.class) {
+            site = CCH_HOST.get(hostName);
+            if (null != site) {
+                return site;
+            }
+            // 获取域的映射信息对象
+            WnObj oMapping = null;
+            if (!Ws.isBlank(hostName)) {
+                oMapping = io.fetch(null, "/domain/" + hostName);
+            }
+            // 防空
+            if (null == oMapping) {
+                throw Er.create("e.login.site.NoHostMapping", hostName);
+            }
+            String sitePath = oMapping.getString("site");
+            site = createByPath(io, sitePath);
+            site.hostName = hostName;
+            // 缓存
+            CCH_PATH.put(hostName, site);
+            return site;
         }
-        String sitePath = oMapping.getString("site");
-        WnLoginSite site = createByPath(io, sitePath);
-        site.hostName = hostName;
-        return site;
     }
 
     public static WnLoginSite createByPath(WnIo io, String siteIdOrPath) {
-        WnLoginSite site = new WnLoginSite(io);
-        // siteId 也可以是路径
-        if (siteIdOrPath.startsWith("id:") || siteIdOrPath.startsWith("/")) {
-            site.oSite = io.fetch(null, siteIdOrPath);
-        } else {
-            site.oSite = io.get(siteIdOrPath);
+        WnLoginSite site = CCH_PATH.get(siteIdOrPath);
+        if (null != site) {
+            return site;
         }
-        // 设置其他字段
-        if (null != site.oSite) {
-            site.domainHomePath = Wn.getObjHomePath(site.oSite);
-            site.domain = Files.getName(site.domainHomePath);
+        synchronized (WnLoginSite.class) {
+            site = CCH_PATH.get(siteIdOrPath);
+            if (null != site) {
+                return site;
+            }
+            site = new WnLoginSite(io);
+            // siteId 也可以是路径
+            if (siteIdOrPath.startsWith("id:")
+                || siteIdOrPath.startsWith("/")) {
+                site.oSite = io.fetch(null, siteIdOrPath);
+            } else {
+                site.oSite = io.get(siteIdOrPath);
+            }
+            // 设置其他字段
+            if (null != site.oSite) {
+                site.domainHomePath = Wn.getObjHomePath(site.oSite);
+                site.domain = Files.getName(site.domainHomePath);
+            }
+            // 缓存
+            CCH_PATH.put(siteIdOrPath, site);
+            // 搞定
+            return site;
         }
-        // 搞定
-        return site;
     }
 
     WnLoginSite(WnIo io) {
@@ -117,7 +152,8 @@ public class WnLoginSite {
 
             // 创建权鉴接口
             NutBean sessionVars = Wn.getVarsByObj(oSite);
-            this._auth = WnLoginApiMaker.forDomain().make(io, sessionVars, options);
+            this._auth = WnLoginApiMaker.forDomain()
+                .make(io, sessionVars, options);
 
         }
         return _auth;
@@ -169,14 +205,16 @@ public class WnLoginSite {
             throw Er.create("e.auth.home.forbidden");
         }
     }
-    
+
     public boolean isRoleOfHome(WnSystem sys, WnRoleType expectRole) {
         WnUser me = sys.getMe();
         WnRoleLoader roles = sys.roles();
         return isRoleOfHome(me, roles, expectRole);
     }
 
-    public boolean isRoleOfHome(WnUser u, WnRoleLoader loader, WnRoleType expectRole) {
+    public boolean isRoleOfHome(WnUser u,
+                                WnRoleLoader loader,
+                                WnRoleType expectRole) {
         WnRoleList roles = loader.getRoles(u);
         return isRoleOfHome(roles, expectRole);
     }

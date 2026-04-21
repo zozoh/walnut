@@ -122,7 +122,9 @@ public class WnCheckSession implements ActionFilter {
             re.setOk(false);
             re.setErrCode("e.se.noexists");
             re.setData(wc.getTicket());
-            return new ViewWrapper(new AjaxView(true), re);
+            ViewWrapper vw = new ViewWrapper(new AjaxView(true), re);
+            vw.setStatus(401);
+            return vw;
         }
 
         // 重定向到根

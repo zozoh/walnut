@@ -7,6 +7,20 @@ import com.site0.walnut.login.UserRace;
 
 public interface WnUserStore {
 
+    /**
+     * 由于我们有三种 WnLoginApi 的实现
+     * 
+     * - STD： 标准会话存储，标准用户存储，标准角色存储 - DOMAIN： 域SQL会话存储，域SQL用户存储，域SQL角色存储 -
+     * HYDRATE: 标准会话存储，域SQL用户存储，域SQL角色存储
+     * 
+     * 当从系统用户登录到了域用户，我们采用的是 HYDRATE 模式 然后在控制台用户执行 exit
+     * 
+     * 退回到父亲会话时，我们需要能感知到底用的是哪一个用户存储。 以便用能力切换到正确的用户存储接口
+     * 
+     * @return 当前实现是否是标准用户库实现
+     */
+    boolean isStdUserStore();
+
     UserRace getUserRace();
 
     void patchDefaultEnv(WnUser u);

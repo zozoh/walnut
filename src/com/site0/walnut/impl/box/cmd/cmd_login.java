@@ -4,12 +4,15 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import com.site0.walnut.util.Wlang;
 
+import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.web.ajax.Ajax;
 import org.nutz.web.ajax.AjaxReturn;
 
+import com.site0.walnut.api.WnAuthExecutable;
 import com.site0.walnut.api.err.Er;
+import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.impl.io.WnEvalLink;
@@ -99,14 +102,16 @@ public class cmd_login extends JvmExecutor {
         // 域管理员可以登录到域的子账号
         if (null != site) {
             if (!myRoles.isAdminOfRole(site.getDomain())) {
-                throw Er.create("e.cmd.login.me.forbid", "Need Admin of Domain");
+                throw Er.create("e.cmd.login.me.forbid",
+                                "Need Admin of Domain");
             }
         }
         // 那就是登录到别的域
         else {
             // 我必须是根管理员
             // 对方必须不能是根管理员
-            if (!myRoles.isAdminOfRole("root") || taRoles.isAdminOfRole("root")) {
+            if (!myRoles.isAdminOfRole("root")
+                || taRoles.isAdminOfRole("root")) {
                 throw Er.create("e.cmd.login.me.forbid");
             }
         }
@@ -122,8 +127,25 @@ public class cmd_login extends JvmExecutor {
             site.assertHomeAccessable(newSe);
         }
 
+        //try_run_profile(sys, newSe);
+
         NutMap bean = newSe.toBean(sys.auth);
         return bean;
+    }
+
+    public static void try_run_profile(WnSystem sys, WnSession se) {
+        if (null != se) {
+            WnObj oProfile = Wn.getObj(sys, "~/.profile");
+            if (null != oProfile && oProfile.isFILE()) {
+                String cmd = sys.io.readText(oProfile);
+                sys.switchSession(se, new Callback<WnAuthExecutable>() {
+                    public void invoke(WnAuthExecutable wae) {
+                        wae.exec(cmd);
+                    }
+
+                });
+            }
+        }
     }
 
 }

@@ -21,7 +21,8 @@ public class WnObjTable {
     private String[] keys;
 
     public WnObjTable(String keys) {
-        this.keys = null == keys ? new String[0] : Strings.splitIgnoreBlank(keys);
+        this.keys = null == keys ? new String[0]
+                                 : Strings.splitIgnoreBlank(keys);
         this.tt = new TextTable(this.keys.length + 1);
         // 搞搞居左居右
         for (int i = 0; i < this.keys.length; i++) {
@@ -43,7 +44,8 @@ public class WnObjTable {
                     val = 0L;
                 }
                 if (briefSize) {
-                    cells.add(__len((Long) val, 1000, 0, 'B', 'K', 'M', 'G', 'T'));
+                    long lsz = Long.valueOf(val.toString());
+                    cells.add(__len(lsz, 1000, 0, 'B', 'K', 'M', 'G', 'T'));
                 } else {
                     cells.add(val.toString());
                 }
@@ -76,7 +78,8 @@ public class WnObjTable {
             }
             // 其他变 JSON
             else {
-                cells.add(Json.toJson(val, JsonFormat.compact().setQuoteName(false)));
+                cells.add(Json
+                    .toJson(val, JsonFormat.compact().setQuoteName(false)));
             }
         }
         // 最后添加名称
@@ -95,7 +98,8 @@ public class WnObjTable {
             if (null != lbls && lbls.length > 0) {
                 sb.append(LinuxTerminal.wrapFont(" #", 0, 33));
                 for (String lb : lbls) {
-                    sb.append(LinuxTerminal.wrapFont("[" + lb + "]", 0, 33, 43));
+                    sb.append(LinuxTerminal
+                        .wrapFont("[" + lb + "]", 0, 33, 43));
                 }
             }
         }

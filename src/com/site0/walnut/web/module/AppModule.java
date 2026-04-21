@@ -500,6 +500,8 @@ public class AppModule extends AbstractWnModule {
         try {
             WnLoginApi auth = this.auth();
             WnSession se = auth.loginByPassword(name, passwd);
+            // 尝试初始化会话
+            try_run_profile(se);
             // 如果是 Ajax 视图
             if (ajax) {
                 // 获取 cookie 模板
@@ -627,6 +629,7 @@ public class AppModule extends AbstractWnModule {
         }
         // -------------------------------------------------
         // 如果这个域声明了默认登录站点，那么则试图用这个站点的账户系统登录
+        WnSession se = null;
         String redirectPath = "/";
         try {
             // 如果采用域用户登陆，则校验系统账户
@@ -636,7 +639,7 @@ public class AppModule extends AbstractWnModule {
                 if (log.isInfoEnabled()) {
                     log.infof("Login as domain-user: %s", name);
                 }
-                WnSession se = auth.loginByPassword(name, passwd);
+                se = auth.loginByPassword(name, passwd);
                 String appName = se.getEnv().getString("OPEN", "wn.console");
                 redirectPath = "/a/open/" + appName;
                 reo = se.toBean(auth());
@@ -665,8 +668,7 @@ public class AppModule extends AbstractWnModule {
                     int se_du = auth.getSessionDuration();
 
                     // 注册新会话
-                    WnSession se = auth
-                        .createSession(user, Wn.SET_LOGIN_APP, se_du);
+                    se = auth.createSession(user, Wn.SET_LOGIN_APP, se_du);
 
                     // 确保用户是可以访问域主目录的
                     site.assertHomeAccessable(se);
@@ -703,6 +705,9 @@ public class AppModule extends AbstractWnModule {
                 }
             }
 
+            // 尝试初始化会话
+            try_run_profile(se);
+
             // 根据选项包裹返回视图
             // AJAX 视图
             if (ajax) {
@@ -733,6 +738,8 @@ public class AppModule extends AbstractWnModule {
         // 包裹返回
         return new ViewWrapper(view, reo);
     }
+
+    
 
     @At("/me")
     @Ok("ajax")
