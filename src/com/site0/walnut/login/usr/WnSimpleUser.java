@@ -1,8 +1,8 @@
 package com.site0.walnut.login.usr;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.nutz.json.Json;
@@ -14,6 +14,7 @@ import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.login.UserRace;
 import com.site0.walnut.login.role.WnRoleRank;
+import com.site0.walnut.login.role.WnRoleType;
 import com.site0.walnut.login.role.WnRole;
 import com.site0.walnut.login.role.WnRoleList;
 import com.site0.walnut.login.role.WnRoleLoader;
@@ -345,16 +346,27 @@ public class WnSimpleUser implements WnUser {
     @Override
     public NutMap toBean(WnRoleLoader rl) {
         NutMap re = this.toBean();
+        // 各个组的角色
+        Map<String, WnRoleType> roleMap = new LinkedHashMap<>();
+
+        // 读取角色
         if (null != rl) {
-            WnRoleList roles = rl.getRoles(this);
-            List<NutBean> rlist = new ArrayList<>(roles.size());
-            for (WnRole role : roles) {
-                NutBean rb = role.toBean();
-                rb.pick("grp", "type", "role");
-                rlist.add(rb);
+            WnRoleList roleList = rl.getRoles(this);
+            for (WnRole role : roleList) {
+                // NutBean rb = role.toBean();
+                // rb.pick("grp", "type", "role");
+                // rlist.add(rb);
+                roleMap.put(role.getGroup(), role.getType());
             }
-            re.put("roles", roles);
+
         }
+
+        // 主组的角色
+        WnRoleType mainRole = roleMap.getOrDefault(mainGroup, WnRoleType.GUEST);
+
+        // 计入
+        re.put("roles", roleMap);
+        re.put("mainRole", mainRole);
         return re;
     }
 

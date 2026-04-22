@@ -110,13 +110,13 @@ public class WnBgRunCronConsumer implements Runnable {
                 // 这个有点巧，所以睡了几秒再试试，应该就能成功
                 if (e2 instanceof WnLockFailException) {
                     long ms = R.random(3000, 5000);
-                    log.infof("Fail to tryLoack, sleep %dms to retry", ms);
+                    log.warnf("Fail to tryLoack, sleep %dms to retry", ms);
                     Wlang.quiteSleep(ms);
                 }
                 // 忙锁：大家都很抢啊，多等一会儿
                 else if (e2 instanceof WnLockBusyException) {
                     long ms = R.random(1000, 2000);
-                    log.infof("Fail to askLoack, sleep %dms to retry", ms);
+                    log.warnf("Fail to askLoack, sleep %dms to retry", ms);
                     Wlang.quiteSleep(ms);
                 }
                 // 就是一个退出指令

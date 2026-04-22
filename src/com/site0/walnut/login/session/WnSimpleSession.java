@@ -158,7 +158,7 @@ public class WnSimpleSession implements WnSession {
     @Override
     public NutMap toBeanWithLoader(WnRoleLoader rl) {
         NutMap re = new NutMap();
-        this.mergeToBean(re, null);
+        this.mergeToBean(re, rl);
         if (null != rl) {
             WnRoleType rt = rl.getRoleTypeOfMainGroup(user);
             re.put("mainRole", rt);
@@ -179,7 +179,7 @@ public class WnSimpleSession implements WnSession {
         bean.put("expiAt", this.getExpiAtInUTC());
         bean.put("createTime", this.getCreateTimeInUTC());
         bean.put("lastModified", this.getLastModifiedInUTC());
-        bean.put("me", user.toBean());
+        bean.put("me", user.toBean(rl));
         if (null != user) {
             bean.put("unm", user.getName());
         }
