@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.mvc.Mvcs;
 
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnQuery;
@@ -13,6 +12,7 @@ import com.site0.walnut.login.UserRace;
 import com.site0.walnut.login.site.WnLoginSite;
 import com.site0.walnut.login.usr.WnLazyUser;
 import com.site0.walnut.login.usr.WnUserStore;
+import com.site0.walnut.web.setup.WnSetup;
 
 public abstract class AbstractWnSessionStore implements WnSessionStore {
 
@@ -150,7 +150,7 @@ public abstract class AbstractWnSessionStore implements WnSessionStore {
         else if (users.getUserRace() != UserRace.SYS
                  || !users.isStdUserStore()) {
             // TODO 这个代码味道不好，是不是应该采用全局函数之类的做个标准封装？
-            users = Mvcs.getIoc().get(WnUserStore.class, "sysUserStore");
+            users = WnSetup.getIoc().get(WnUserStore.class, "sysUserStore");
         }
 
         // 组合完用户加载条件

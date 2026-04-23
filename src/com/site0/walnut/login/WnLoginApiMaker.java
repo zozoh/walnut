@@ -2,7 +2,6 @@ package com.site0.walnut.login;
 
 import org.nutz.ioc.Ioc;
 import org.nutz.lang.util.NutBean;
-import org.nutz.mvc.Mvcs;
 
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.ext.net.xapi.impl.WnXApi;
@@ -11,6 +10,7 @@ import com.site0.walnut.login.session.WnSessionStoreMaker;
 import com.site0.walnut.login.session.WnSessionStoreProxy;
 import com.site0.walnut.login.usr.WnUserStoreMaker;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.web.setup.WnSetup;
 
 public class WnLoginApiMaker {
 
@@ -67,7 +67,7 @@ public class WnLoginApiMaker {
         
         // 混合模式，会话一定采用系统会话存储
         if (this.hydrated) {
-            Ioc ioc = Mvcs.getIoc();
+            Ioc ioc = WnSetup.getIoc();
             api.sessions = ioc.get(WnSessionStoreProxy.class, "sysSessionStore");
         }
         // 采用指定的会话存储方式

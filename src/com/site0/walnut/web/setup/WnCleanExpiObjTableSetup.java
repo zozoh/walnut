@@ -22,7 +22,8 @@ public class WnCleanExpiObjTableSetup implements Setup {
         Ioc ioc = nc.getIoc();
         WnConfig conf = ioc.get(WnConfig.class, "conf");
         WnIo io = ioc.get(WnIo.class, "rawIo");
-        WnExpiObjTable table = ioc.get(WnExpiObjTable.class, "safeExpiObjTable");
+        WnExpiObjTable table = ioc.get(WnExpiObjTable.class,
+                                       "safeExpiObjTable");
         long sleepInterval = conf.getLong("expi-obj-clean-interval", 60000L);
         int cleanLimit = conf.getInt("expi-obj-clean-limit", 100);
         long cleanHold = conf.getLong("expi-obj-clean-hold", sleepInterval);

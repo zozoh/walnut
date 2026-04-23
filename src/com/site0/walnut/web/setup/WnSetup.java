@@ -48,7 +48,7 @@ public class WnSetup implements Setup {
 
     private List<Setup> setups;
 
-    private Ioc ioc;
+    private static Ioc ioc;
 
     private WnConfig conf;
 
@@ -57,6 +57,10 @@ public class WnSetup implements Setup {
     private Thread bgtSchedule;
 
     private Thread bgtCron;
+
+    public static Ioc getIoc() {
+        return ioc;
+    }
 
     @Override
     public void init(NutConfig nc) {
@@ -72,7 +76,8 @@ public class WnSetup implements Setup {
         // 写入自身进程id
         try {
             String WL_PID_PATH = System.getenv("WL_PID_PATH");
-            if (Strings.isBlank(WL_PID_PATH) && new File("/etc/ssh/sshd_config").exists())
+            if (Strings.isBlank(WL_PID_PATH)
+                && new File("/etc/ssh/sshd_config").exists())
                 WL_PID_PATH = "/var/log/walnut.pid";
             String pid = Wlang.JdkTool.getProcessId(null);
             log.infof("path=%s pid=%s", WL_PID_PATH, pid);
@@ -177,8 +182,10 @@ public class WnSetup implements Setup {
 
         // 看看默认的系统 hook 是否被创建了出来
         log.info("check default sys hooks ...");
-        WnObj oSysHookWriteHome = io.createIfNoExists(null, "/sys/hook/write", WnRace.DIR);
-        WnObj oHookCreateThumb = io.fetch(oSysHookWriteHome, "create_thumbnail");
+        WnObj oSysHookWriteHome = io
+            .createIfNoExists(null, "/sys/hook/write", WnRace.DIR);
+        WnObj oHookCreateThumb = io.fetch(oSysHookWriteHome,
+                                          "create_thumbnail");
         if (null == oHookCreateThumb) {
             log.info("  ++ /sys/hook/write/create_thumbnail");
             oHookCreateThumb = io.createIfNoExists(oSysHookWriteHome,
@@ -217,7 +224,7 @@ public class WnSetup implements Setup {
         try {
             log.warn("manual setup websocket ... ");
             ServerContainer sc = (ServerContainer) nc.getServletContext()
-                                                     .getAttribute(ServerContainer.class.getName());
+                .getAttribute(ServerContainer.class.getName());
             if (null != sc)
                 sc.addEndpoint(WnWebSocket.class);
             else
@@ -236,7 +243,8 @@ public class WnSetup implements Setup {
         WnServiceFactory sf = ioc.get(WnServiceFactory.class, "serviceFactory");
         WnRun run = ioc.get(WnRun.class);
         int du = auth.getSessionDuration(true);
-        WnSession rootSession = auth.getSessionByUserNameAndType("root", Wn.SET_BG);
+        WnSession rootSession = auth.getSessionByUserNameAndType("root",
+                                                                 Wn.SET_BG);
         if (null == rootSession) {
             rootSession = auth.createSession(root, Wn.SET_BG, du);
         }
@@ -250,7 +258,8 @@ public class WnSetup implements Setup {
         rt.props().put("BGT_TASK", true);
 
         // 默认开始系统后台计划任务
-        boolean sysScheduleEnabled = conf.getBoolean("sys-schedule-enabled", true);
+        boolean sysScheduleEnabled = conf.getBoolean("sys-schedule-enabled",
+                                                     true);
         if (sysScheduleEnabled) {
             //
             // 分钟计划任务线程
@@ -314,13 +323,16 @@ public class WnSetup implements Setup {
             catch (ClassNotFoundException e) {
                 List<Class<?>> klasses = Scans.me().scanPackage(str);
                 if (log.isDebugEnabled()) {
-                    log.debugf("  - scan package: '%s' -> %d items", str, klasses.size());
+                    log.debugf("  - scan package: '%s' -> %d items",
+                               str,
+                               klasses.size());
                 }
                 for (Class<?> klass : klasses) {
                     Mirror<?> mi = Mirror.me(klass);
                     if (mi.isOf(Setup.class)) {
                         if (log.isDebugEnabled()) {
-                            log.debug("      - found Setup: " + klass.getName());
+                            log.debug("      - found Setup: "
+                                      + klass.getName());
                         }
                         Setup setup = (Setup) mi.born();
                         setups.add(setup);

@@ -29,6 +29,7 @@ import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.web.setup.WnSetup;
 
 public class WalnutFilter implements Filter {
 
@@ -260,7 +261,7 @@ public class WalnutFilter implements Filter {
         // 得到 IO 接口
         if (null == io) {
             Mvcs.set(nutzFilterName, null, null);
-            ioc = Mvcs.getIoc();
+            ioc = WnSetup.getIoc();
             io = ioc.get(WnIo.class, "io");
 
             // 处理域名的正则表达式，符合这个表达式的域名，统统不路由

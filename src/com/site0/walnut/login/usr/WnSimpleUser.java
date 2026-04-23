@@ -315,10 +315,14 @@ public class WnSimpleUser implements WnUser {
             bean.put("passwd", true);
         }
 
-        // 自定义元数据
+        // 自定义元数据(全大写)
         NutMap meta = new NutMap();
         if (null != this.meta) {
-            meta.putAll(this.meta);
+            for (Map.Entry<String, Object> en : this.meta.entrySet()) {
+                String key = en.getKey().toUpperCase();
+                Object val = en.getValue();
+                meta.put(key, val);
+            }
         }
         meta.put("HOME", this.getHomePath());
         bean.put("meta", meta);
