@@ -29,6 +29,11 @@ public class WnBgRunScheduleConsumer implements Runnable {
 
     @Override
     public void run() {
+        // 启动前，需要随机等几秒，否则 Cron 那边启动时，很大概率会有锁冲突，
+        // Log 上不好看
+        long delayMs = R.random(1000, 3000);
+        Wlang.quiteSleep(delayMs);
+
         // 进入主循环
         while (!Thread.interrupted()) {
             try {
@@ -63,10 +68,18 @@ public class WnBgRunScheduleConsumer implements Runnable {
 
                 // 那么应该睡多久呢
                 long sleepMs = Math.max(1, ams - System.currentTimeMillis());
+                // 为了尽量防止线程争抢，我们需要给一个时间槽范围内一个随机数
+                // 为了给线程执行留足够的时间，我们需要保留半个时间槽
+                long unitInMs = (long) unit * 1000;
+                long luckyMs = R.random(0, (unitInMs / 2));
+                long realSleepMs = sleepMs + luckyMs;
                 if (log.isDebugEnabled()) {
-                    log.debugf("sleep %dms", sleepMs);
+                    log.debugf("sleep=%dms, luck=%dms, real=%dms",
+                               sleepMs,
+                               luckyMs,
+                               realSleepMs);
                 }
-                Wlang.wait(scheduleApi, sleepMs);
+                Wlang.wait(scheduleApi, realSleepMs);
             }
             // 看看是不是锁服务的错误
             catch (WnSysScheduleException e) {

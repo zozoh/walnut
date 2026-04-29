@@ -33,6 +33,19 @@ public abstract class R {
     }
 
     /**
+     * 根据一个范围，生成一个随机的整数
+     * 
+     * @param min
+     *            最小值（包括）
+     * @param max
+     *            最大值（包括）
+     * @return 随机数
+     */
+    public static long random(long min, long max) {
+        return r.nextLong(max - min + 1) + min;
+    }
+
+    /**
      * 根据一个长度范围，生成一个随机的字符串，字符串内容为 [0-9a-zA-Z_]
      * 
      * @param min
@@ -58,12 +71,16 @@ public abstract class R {
     }
 
     public static StringGenerator sg36(int len) {
-        return new StringGenerator(len, len).setCharGenerator(CharGenerator.me36());
+        return new StringGenerator(len, len)
+            .setCharGenerator(CharGenerator.me36());
     }
 
-    private static final char[] _UU64 = "-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz".toCharArray();
-    private static final char[] _UU32 = "0123456789abcdefghijklmnopqrstuv".toCharArray();
-    private static final char[] _C = "23456789abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ".toCharArray();
+    private static final char[] _UU64 = "-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz"
+        .toCharArray();
+    private static final char[] _UU32 = "0123456789abcdefghijklmnopqrstuv"
+        .toCharArray();
+    private static final char[] _C = "23456789abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ"
+        .toCharArray();
 
     /**
      * @return 64进制表示的紧凑格式的 UUID
@@ -238,8 +255,10 @@ public abstract class R {
      * @return 16进制表示的紧凑格式的 UUID
      */
     public static String UU16(UUID uu) {
-        return Strings.alignRight(Long.toHexString(uu.getMostSignificantBits()), 16, '0')
-               + Strings.alignRight(Long.toHexString(uu.getLeastSignificantBits()), 16, '0');
+        return Strings
+            .alignRight(Long.toHexString(uu.getMostSignificantBits()), 16, '0')
+               + Strings.alignRight(Long
+                   .toHexString(uu.getLeastSignificantBits()), 16, '0');
     }
 
     /**
