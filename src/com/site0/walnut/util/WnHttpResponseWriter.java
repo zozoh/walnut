@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -152,8 +153,12 @@ public class WnHttpResponseWriter {
             this.downloadName += "." + wobj.type();
         }
 
+        // 解开链接对象
+        Map<String, WnObj> linkCache = new HashMap<>();
+        WnObj oReal = Wn.real(wobj, io, linkCache);
+
         // 准备对象
-        WnGetInputStream getInput = new WnGetObjInputStream(io, wobj);
+        WnGetInputStream getInput = new WnGetObjInputStream(io, oReal);
 
         // 准备
         this.prepare(range, getInput);
