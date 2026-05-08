@@ -8,7 +8,7 @@
 
 ```bash
 lock @get
-  [lockName ...]    # 锁名，可以说多个
+  [lockName ...]    # 锁名，可以多个
   [-strict]         # 严格模式，任何一个锁不存在，就会抛出异常
                     # 即，输出错误: e.cmd.lock.NoExists
 ```

@@ -17,7 +17,8 @@ public class lock_get extends LockFilter {
     @Override
     protected void process(WnSystem sys, LockContext fc, ZParams params) {
         boolean strictMode = params.is("strict", false);
-        for (String lockName : params.vals) {
+        for (String val : params.vals) {
+            String lockName = fc.normalizeLockName(val);
             WnLock lock = fc.api.getLock(lockName);
             if (null == lock) {
                 if (strictMode) {

@@ -13,7 +13,8 @@ public class lock_free extends LockFilter {
 
     @Override
     protected void process(WnSystem sys, LockContext fc, ZParams params) {
-        String lockName = params.val_check(0);
+        String val = params.val_check(0);
+        String lockName = fc.normalizeLockName(val);
         try {
             // 未指定锁，那么似乎用上下的锁对象
             if (Ws.isBlank(lockName)) {

@@ -20,12 +20,14 @@ public class cmd_lock extends JvmFilterExecutor<LockContext, LockFilter> {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "cqnl");
+        return ZParams.parse(args, "cqnlG");
     }
 
     @Override
     protected void prepare(WnSystem sys, LockContext fc) {
         fc.api = sys.services.getLockApi();
+        fc.setGlobleLock(fc.params.is("G"));
+        fc.setDomainName(sys.getMyGroup());
     }
 
     @Override

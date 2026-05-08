@@ -20,9 +20,11 @@ public class lock_try extends LockFilter {
 
     @Override
     protected void process(WnSystem sys, LockContext fc, ZParams params) {
-        String lockName = params.val_check(0);
+        String val = params.val_check(0);
         String owner = sys.getMyName();
         String hint = params.getString("hint", "USER_ASK");
+
+        String lockName = fc.normalizeLockName(val);
 
         int duInSec = params.getInt("du", 3);
         long duInMs = duInSec * 1000L;
