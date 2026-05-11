@@ -13,6 +13,7 @@ import com.site0.walnut.ext.data.app.impl.AppInitService;
 import com.site0.walnut.impl.box.JvmHdl;
 import com.site0.walnut.impl.box.JvmHdlContext;
 import com.site0.walnut.impl.box.WnSystem;
+import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 
 public class app_init implements JvmHdl {
@@ -115,14 +116,16 @@ public class app_init implements JvmHdl {
 
         // 2. ~/.domain/init/${grp}.init
         String grp = sys.getMyGroup();
-        ac.oInitFile = Wn.getObj(sys, "~/.domain/init/" + grp + ".init");
+        WnUser me = sys.getMe();
+        String initName = me.getMetaString("init_name", grp);
+        initName = me.getMetaString("INIT_NAME", initName);
+        ac.oInitFile = Wn.getObj(sys, "~/.domain/init/" + initName + ".init");
         if (null != ac.oInitFile) {
             ac.oHome = ac.oInitFile.parent();
             return;
         }
 
         // 看看是否在全局映射里
-        String initName = sys.getMe().getMetaString("init_name", grp);
         WnObj oMntHome = sys.io.check(null, "/mnt/project/" + initName);
 
         // 2. /mnt/project/${domain}/init/domain/_files
