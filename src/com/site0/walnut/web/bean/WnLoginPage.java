@@ -58,11 +58,15 @@ public class WnLoginPage {
                     String aph = Wn.normalizeFullPath(loginPath, vars);
                     oPageHome = io.fetch(null, aph);
                     if (null == oPageHome) {
-                        log.warnf("login page lost '%s' @(%s)", loginPath, domainUser.getName());
+                        log.warnf("login page lost '%s' @(%s)",
+                                  loginPath,
+                                  domainUser.getName());
                     }
                     if (!oPageHome.isDIR()) {
                         oPageHome = null;
-                        log.warnf("login page NoDir '%s' @(%s)", loginPath, domainUser.getName());
+                        log.warnf("login page NoDir '%s' @(%s)",
+                                  loginPath,
+                                  domainUser.getName());
                     }
                 }
             }
@@ -108,9 +112,15 @@ public class WnLoginPage {
             if (null != this.domainUser) {
                 c.putAll(domainUser.toBean());
             }
+            c.put("DOMAIN", domainUser.getMainGroup());
             String html = tmpl.render(c);
             byte[] buf = html.getBytes(Encoding.CHARSET_UTF8);
-            return new WnObjDownloadView(buf, null, "text/html", o.name(), o.sha1(), null);
+            return new WnObjDownloadView(buf,
+                                         null,
+                                         "text/html",
+                                         o.name(),
+                                         o.sha1(),
+                                         null);
         }
 
         // 显示内容

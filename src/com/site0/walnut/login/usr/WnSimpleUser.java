@@ -324,7 +324,11 @@ public class WnSimpleUser implements WnUser {
                 meta.put(key, val);
             }
         }
-        meta.put("HOME", this.getHomePath());
+        String homePath = this.getHomePath();
+        if (null != homePath && !homePath.endsWith("/")) {
+            homePath += "/";
+        }
+        meta.put("HOME", homePath);
         bean.put("meta", meta);
     }
 
