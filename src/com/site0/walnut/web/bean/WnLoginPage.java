@@ -112,7 +112,11 @@ public class WnLoginPage {
             if (null != this.domainUser) {
                 c.putAll(domainUser.toBean());
             }
-            c.put("DOMAIN", domainUser.getMainGroup());
+            if (null != domainUser) {
+                c.put("DOMAIN", domainUser.getMainGroup());
+            } else {
+                c.put("DOMAIN", "_default_");
+            }
             String html = tmpl.render(c);
             byte[] buf = html.getBytes(Encoding.CHARSET_UTF8);
             return new WnObjDownloadView(buf,

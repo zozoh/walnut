@@ -102,8 +102,9 @@ public class AppInitItem {
             }
 
             // 标志位
-            if (contentType != item.contentType)
-                return false;
+            if (null != contentType || null != item.contentType)
+                if (contentType != item.contentType)
+                    return false;
 
             if (overrideContent != item.overrideContent)
                 return false;
@@ -179,6 +180,7 @@ public class AppInitItem {
 
         // 内容
         if (this.hasContent()) {
+            sb.append('\n');
             sb.append(overrideContent ? '%' : '?');
             sb.append(this.contentType.toString());
             sb.append(":\n");
@@ -187,6 +189,7 @@ public class AppInitItem {
         }
         // 链接内容
         else if (this.hasContentFilePath()) {
+            sb.append('\n');
             sb.append(overrideContent ? '%' : '?');
             sb.append(this.contentType.toString());
             sb.append(">");

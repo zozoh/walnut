@@ -19,6 +19,7 @@ import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.util.Ws;
+import com.site0.walnut.ext.media.sheet.util.CsvUtil;
 
 public class CsvSheetHandler extends AbstractSheetHandler {
 
@@ -31,7 +32,8 @@ public class CsvSheetHandler extends AbstractSheetHandler {
         List<NutBean> list = new LinkedList<>();
 
         // 首先按行读取
-        BufferedReader br = Streams.buffr(new InputStreamReader(ins, Encoding.CHARSET_UTF8));
+        BufferedReader br = Streams
+            .buffr(new InputStreamReader(ins, Encoding.CHARSET_UTF8));
         String line;
         try {
             // 读取首行，作为键
@@ -39,11 +41,13 @@ public class CsvSheetHandler extends AbstractSheetHandler {
             if (null == line) {
                 return new SheetResult(list);
             }
-            String[] keys = Strings.split(line, false, true, sep_cs);
+            // String[] keys = Strings.split(line, false, true, sep_cs);
+            String[] keys = CsvUtil.splitLineAsArray(line, sep_cs);
 
             // 读取后续的行
             while (null != (line = br.readLine())) {
-                String[] ss = Strings.split(line, false, true, sep_cs);
+                // String[] ss = Strings.split(line, false, true, sep_cs);
+                String[] ss = CsvUtil.splitLineAsArray(line, sep_cs);
                 int len = Math.min(keys.length, ss.length);
                 NutMap map = new NutMap();
                 for (int i = 0; i < len; i++) {
@@ -61,7 +65,10 @@ public class CsvSheetHandler extends AbstractSheetHandler {
     }
 
     @Override
-    public void write(OutputStream ops, List<NutBean> list, List<String> headKeys, NutMap conf) {
+    public void write(OutputStream ops,
+                      List<NutBean> list,
+                      List<String> headKeys,
+                      NutMap conf) {
         String sep = conf.getString("sep", ",");
         boolean noheader = conf.getBoolean("noheader", false);
         String emptyCell = conf.getString("emptyCell", "--");

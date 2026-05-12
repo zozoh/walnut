@@ -48,10 +48,10 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
         assertEquals("xiaobai@nutzam.com", u.getEmail());
         assertEquals("xiaobai", u.getName());
         assertNull(u.getPhone());
-        assertEquals("/home/xiaobai", u.getMetaString("HOME"));
+        assertEquals("/home/xiaobai/", u.getMetaString("HOME"));
 
         // 检查主目录
-        assertEquals("/home/xiaobai", xiaobai.getHomePath());
+        assertEquals("/home/xiaobai/", xiaobai.getHomePath());
         WnObj oHome = io.check(null, u.getHomePath());
         assertEquals(u.getMainGroup(), oHome.name());
         assertEquals("xiaobai", oHome.creator());
@@ -116,7 +116,7 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
     public void usr_create_by_phone() {
         log.info("@Test WnSysAuthServiceTest.usr_create_by_phone Begin");
         WnUser xiaobai = user_passwd("13910110054", "123456");
-        assertEquals("/home/13910110054", xiaobai.getHomePath());
+        assertEquals("/home/13910110054/", xiaobai.getHomePath());
 
         // 获取一个
         WnUser u = auth.getUser("13910110054");
@@ -125,7 +125,7 @@ public class WnSysAuthServiceTest extends BaseUsrTest {
         assertTrue(u.isSameName(xiaobai.getName()));
         assertEquals("13910110054", u.getPhone());
         assertNull(u.getEmail());
-        assertEquals("/home/13910110054", u.getMetaString("HOME"));
+        assertEquals("/home/13910110054/", u.getMetaString("HOME"));
 
         WnObj oHome = io.check(null, u.getHomePath());
         assertEquals(u.getName(), oHome.name());
