@@ -98,6 +98,27 @@ public class WnSqlTmplTest {
     }
 
     @Test
+    public void test_update_with_self_field2() {
+        String s = "UPDATE t_pet SET ${@vars=update; scope=update;}"
+                   + " WHERE ${@vars=where; scope=filter;}";
+        NutMap context = new NutMap();
+        context.put("filter", Wlang.map("id", "F001"));
+        context.put("update",
+                    Wlang.map("key", ":=>id").setv("name", "xiaobai"));
+        WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
+        List<SqlParam> params = new ArrayList<>(2);
+        String sql = sqlt.render(context, params);
+        assertEquals("UPDATE t_pet SET key=id,name=? WHERE id=?", sql);
+        assertEquals(2, params.size());
+        assertEquals("[update]:name=\"xiaobai\"", params.get(0).toString());
+        assertEquals("[filter]:id=\"F001\"", params.get(1).toString());
+
+        sql = sqlt.render(context, null);
+        assertEquals("UPDATE t_pet SET key=id,name='xiaobai' WHERE id='F001'",
+                     sql);
+    }
+
+    @Test
     public void test_update_with_scope() {
         String s = "UPDATE t_dict SET ${@vars=update;omit=__pk} WHERE ${@vars=where; scope=__pk}";
         NutMap context = NutMap

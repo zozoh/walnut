@@ -41,7 +41,7 @@ public class VarsAsUpdateElement extends SqlVarsElement {
             if (null != vs && vs.startsWith(":=>")) {
                 String str = vs.substring(3).trim();
                 str = Sqlx.escapeSqlValue(str);
-                rc.out.append(key).append('=').append(str);
+                sb.append(key).append('=').append(str);
             }
             // 记入动态参数
             else if (null != src && null != src.params) {
