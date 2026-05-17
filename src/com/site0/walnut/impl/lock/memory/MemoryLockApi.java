@@ -36,7 +36,10 @@ public class MemoryLockApi implements WnLockApi {
     }
 
     @Override
-    public synchronized WnLock tryLock(String lockName, String owner, String hint, long duInMs)
+    public synchronized WnLock tryLock(String lockName,
+                                       String owner,
+                                       String hint,
+                                       long duInMs)
             throws WnLockFailException {
         // 那么尝试获取锁
         String key = _KEY(lockName);
@@ -72,7 +75,8 @@ public class MemoryLockApi implements WnLockApi {
     }
 
     @Override
-    public synchronized WnLock freeLock(WnLock lock) throws WnLockInvalidKeyException {
+    public synchronized WnLock freeLock(WnLock lock)
+            throws WnLockInvalidKeyException {
         return freeLock(lock.getName(), lock.getPrivateKey());
     }
 
@@ -113,7 +117,20 @@ public class MemoryLockApi implements WnLockApi {
         return list;
     }
 
-    private WnLock setLock(String lockName, String owner, String hint, long duInMs) {
+    @Override
+    public WnLockObj createLock(String lockName, String owner, String hint) {
+        WnLockObj lo = new WnLockObj();
+        lo.setOwner(owner);
+        lo.setHint(hint);
+        lo.genPrivateKey();
+        lo.setName(lockName);
+        return lo;
+    }
+
+    private WnLock setLock(String lockName,
+                           String owner,
+                           String hint,
+                           long duInMs) {
         String key = _KEY(lockName);
         long now = Wn.now();
         long expi = now + duInMs;

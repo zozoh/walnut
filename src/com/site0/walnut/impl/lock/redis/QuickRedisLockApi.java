@@ -81,7 +81,7 @@ public class QuickRedisLockApi implements WnLockApi {
     public WnLock tryLock(String lockName, String owner, String hint, long duInMs)
             throws WnLockFailException {
         // 准备锁
-        WnLockObj lo = this.genLock(lockName, owner, hint);
+        WnLockObj lo = this.createLock(lockName, owner, hint);
 
         // 准备结果
         boolean ok = false;
@@ -225,7 +225,8 @@ public class QuickRedisLockApi implements WnLockApi {
         return re;
     }
 
-    private WnLockObj genLock(String lockName, String owner, String hint) {
+    @Override
+    public WnLockObj createLock(String lockName, String owner, String hint) {
         WnLockObj lo = new WnLockObj();
         lo.setOwner(owner);
         lo.setHint(hint);

@@ -2,13 +2,15 @@ package com.site0.walnut.api.lock;
 
 import java.util.List;
 
+import com.site0.walnut.impl.lock.WnLockObj;
+
 /**
  * 锁服务接口
  * 
  * @author zozoh(zozohtnt@gmail.com)
  */
 public interface WnLockApi {
-    
+
     /**
      * 通知等待的消费线程，有新任务来了
      */
@@ -58,6 +60,19 @@ public interface WnLockApi {
     WnLock getLock(String lockName);
 
     /**
+     * 仅仅在内存里生成一个锁对象，主要用来调试，譬如看看锁前缀对不对等
+     * 
+     * @param lockName
+     *            锁名，必须全局唯一
+     * @param owner
+     *            请求者名称
+     * @param hint
+     *            请求者给这个锁一个线索，譬如因为要写某资源而请求的锁，以便锁拥堵等情况排查问题
+     * @return 锁对象
+     */
+    WnLockObj createLock(String lockName, String owner, String hint);
+
+    /**
      * 尝试释放一个锁对象
      * 
      * @param lock
@@ -85,7 +100,8 @@ public interface WnLockApi {
      * @throws WnLockInvalidKeyException
      *             释放锁时失败，譬如私钥错误
      */
-    WnLock freeLock(String lockName, String privateKey) throws WnLockInvalidKeyException;
+    WnLock freeLock(String lockName, String privateKey)
+            throws WnLockInvalidKeyException;
 
     /**
      * @return 当前所有锁的列表

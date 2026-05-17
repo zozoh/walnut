@@ -15,7 +15,7 @@ public class lock_try extends LockFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "^(block)$");
+        return ZParams.parse(args, "^(block|preview)$");
     }
 
     @Override
@@ -26,6 +26,14 @@ public class lock_try extends LockFilter {
 
         String lockName = fc.normalizeLockName(val);
 
+        // 预览模式
+        if (params.is("preview")) {
+            WnLockObj plock = fc.api.createLock(lockName, owner, hint);
+            fc.locks.add(plock);
+            return;
+        }
+
+        // 开始尝试加锁
         int duInSec = params.getInt("du", 3);
         long duInMs = duInSec * 1000L;
         WnLock lo = null;
