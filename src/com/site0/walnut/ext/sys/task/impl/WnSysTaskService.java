@@ -1,10 +1,12 @@
 package com.site0.walnut.ext.sys.task.impl;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.util.Callback;
+import org.nutz.log.Log;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import com.site0.walnut.api.WnAuthExecutable;
@@ -20,6 +22,7 @@ import com.site0.walnut.ext.sys.task.WnSysTaskQuery;
 import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 import com.site0.walnut.util.Ws;
@@ -30,6 +33,8 @@ import com.site0.walnut.util.Ws;
  * @author zozoh(zozohtnt@gmail.com)
  */
 public class WnSysTaskService implements WnSysTaskApi {
+
+    private static final Log log = Wlog.getBG_TASK();
 
     private WnIo io;
 
@@ -44,7 +49,10 @@ public class WnSysTaskService implements WnSysTaskApi {
     public WnSysTaskService() {}
 
     @Override
-    public void runTask(WnAuthExecutable runer, WnObj oTask, WnUser user, InputStream input)
+    public void runTask(WnAuthExecutable runer,
+                        WnObj oTask,
+                        WnUser user,
+                        InputStream input)
             throws WnSysTaskException {
         // 准备命令
         String cmdText = oTask.getString("command");
@@ -55,10 +63,18 @@ public class WnSysTaskService implements WnSysTaskApi {
 
         // 采用自己的账号执行
         if (null == user) {
+            if (log.isDebugEnabled()) {
+                log.debugf("self run: %s", cmdText);
+            }
             runer.exec(cmdText, null, null, input);
         }
         // 切换到目标账号执行
         else {
+            if (log.isDebugEnabled()) {
+                log.debugf("switchUser(%s) and run: %s",
+                           user.getName(),
+                           cmdText);
+            }
             runer.switchUser(user, new Callback<WnAuthExecutable>() {
                 public void invoke(WnAuthExecutable sys2) {
                     sys2.exec(cmdText, null, null, input);
@@ -174,6 +190,61 @@ public class WnSysTaskService implements WnSysTaskApi {
         return null;
     }
 
+    @Override
+    public List<WnSysTask> popAllTasks(WnSysTaskQuery query) {
+        // 准备操作任务的列表
+        WnObj home = this.taskHome;
+        WnContext wc = Wn.WC();
+
+        // 进入内核态，查询相应任务
+        List<WnObj> list = wc.nosecurity(io, new Proton<List<WnObj>>() {
+            protected List<WnObj> exec() {
+                // 逐个 ID 列表
+                if (query.hasIds()) {
+                    List<WnObj> list = new LinkedList<>();
+                    for (String id : query.getIds()) {
+                        WnObj oTask = io.checkById(id);
+                        // 如果限定了用户，那么 ID 指定的任务，也必须符合这个设定
+                        if (query.hasUserName()) {
+                            String unm = query.getUserName();
+                            if (!unm.equals(oTask.creator())) {
+                                continue;
+                            }
+                        }
+                        list.add(oTask);
+                        break;
+                    }
+                    return list;
+                }
+                // 范围 (1-10,000) 个任务
+                int limit = Math.max(1, query.getLimit());
+                // TODO 如果启用了虚拟线程，可以再扩大一些
+                if (limit > 1000) {
+                    limit = 1000;
+                }
+                // 范查
+                WnQuery q = Wn.Q.pid(home);
+                query.joinQuery(q);
+                q.sortBy("ct", -1);
+                q.limit(limit);
+                return io.query(q);
+            }
+        });
+
+        // 准备返回值
+        List<WnSysTask> reTasks = new ArrayList<>(list.size());
+        for (WnObj oTask : list) {
+            byte[] input = io.readBytes(oTask);
+            reTasks.add(new WnSysTask(oTask, input));
+            // 因为是弹出，所以删除
+            // TODO 看来应该移动到某个临时区域（或者做个标志），如果任务执行成功，再真正的删除
+            this.removeTask(oTask);
+        }
+
+        // 搞定
+        return reTasks;
+    }
+
     /**
      * 列出所有后台任务，按时间从早到晚排序
      * 
@@ -272,7 +343,8 @@ public class WnSysTaskService implements WnSysTaskApi {
             this.rootUser = auth.getUser("root");
         }
         if (null == this.taskHome) {
-            this.taskHome = io.createIfNoExists(null, "/sys/tasks/", WnRace.DIR);
+            this.taskHome = io
+                .createIfNoExists(null, "/sys/tasks/", WnRace.DIR);
         }
     }
 }

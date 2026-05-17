@@ -40,7 +40,10 @@ public interface WnSysTaskApi {
      *            命令执行的标准输入流
      * @throws WnSysTaskException
      */
-    void runTask(WnAuthExecutable runer, WnObj oTask, WnUser user, InputStream input)
+    void runTask(WnAuthExecutable runer,
+                 WnObj oTask,
+                 WnUser user,
+                 InputStream input)
             throws WnSysTaskException;
 
     /**
@@ -51,6 +54,8 @@ public interface WnSysTaskApi {
      * @return 任务对象（包括元数据，和内容）。 <code>null</code>表示没有更多任务对象了
      */
     WnSysTask popTask(WnSysTaskQuery query) throws WnSysTaskException;
+
+    List<WnSysTask> popAllTasks(WnSysTaskQuery query) throws WnSysTaskException;
 
     WnObj checkTask(String id);
 

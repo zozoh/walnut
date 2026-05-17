@@ -18,7 +18,7 @@ import com.site0.walnut.util.Ws;
 
 public class WnLookupMaker {
 
-    private static Log log = Wlog.getCMD();
+    private static Log log = Wlog.getMAIN();
 
     private WnIo io;
 
@@ -42,8 +42,8 @@ public class WnLookupMaker {
         // 譬如 name="demo/pets"
         // 则将会从 `/home/demo/.lookup/pets.lookup.json`
         // 处获取配置
-        if (log.isInfoEnabled()) {
-            log.infof("getLookup: '%s'", name);
+        if (log.isDebugEnabled()) {
+            log.debugf("getLookup: '%s'", name);
         }
         WnLookup lookup = lookups.get(name);
         if (null == lookup) {
@@ -56,7 +56,8 @@ public class WnLookupMaker {
                     }
                     // 不支持的类型
                     else {
-                        throw Er.create("e.lookup.type.Invalid", Json.toJson(config));
+                        throw Er.create("e.lookup.type.Invalid",
+                                        Json.toJson(config));
                     }
                     // 记入缓存
                     lookups.put(name, lookup);
@@ -75,7 +76,11 @@ public class WnLookupMaker {
         }
         String domainName = ss[0];
         String lookupName = ss[1];
-        String path = "/home/" + domainName + "/.lookup/" + lookupName + ".lookup.json";
+        String path = "/home/"
+                      + domainName
+                      + "/.lookup/"
+                      + lookupName
+                      + ".lookup.json";
         if (log.isInfoEnabled()) {
             log.infof("createLookup: '%s' => %s", name, path);
         }

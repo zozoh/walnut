@@ -36,18 +36,23 @@ public class WnSafeSysTaskService implements WnSysTaskApi {
 
     private long tryLockDuration;
 
-    public void runTask(WnAuthExecutable runer, WnObj oTask, WnUser user, InputStream input)
+    public void runTask(WnAuthExecutable runer,
+                        WnObj oTask,
+                        WnUser user,
+                        InputStream input)
             throws WnSysTaskException {
         tasks.runTask(runer, oTask, user, input);
     }
 
     @Override
-    public WnSysTask addTask(WnObj oTask, byte[] input) throws WnSysTaskException {
+    public WnSysTask addTask(WnObj oTask, byte[] input)
+            throws WnSysTaskException {
         String nodeName = Wn.getRuntime().getNodeName();
         WnLock lo = null;
         // 尝试加锁
         try {
-            lo = locks.tryLock(LOCK_NAME, nodeName, LOCK_HINT_ADD, tryLockDuration);
+            lo = locks
+                .tryLock(LOCK_NAME, nodeName, LOCK_HINT_ADD, tryLockDuration);
             return tasks.addTask(oTask, input);
         }
         // 败锁：没关系，就是取不到咯
@@ -73,7 +78,10 @@ public class WnSafeSysTaskService implements WnSysTaskApi {
         WnLock lo = null;
         // 尝试加锁
         try {
-            lo = locks.tryLock(LOCK_NAME, nodeName, LOCK_HINT_REMOVE, tryLockDuration);
+            lo = locks.tryLock(LOCK_NAME,
+                               nodeName,
+                               LOCK_HINT_REMOVE,
+                               tryLockDuration);
             tasks.removeTask(oTask);
         }
         // 败锁：没关系，就是取不到咯
@@ -99,7 +107,8 @@ public class WnSafeSysTaskService implements WnSysTaskApi {
         WnLock lo = null;
         // 尝试加锁
         try {
-            lo = locks.tryLock(LOCK_NAME, nodeName, LOCK_HINT_POP, tryLockDuration);
+            lo = locks
+                .tryLock(LOCK_NAME, nodeName, LOCK_HINT_POP, tryLockDuration);
             return tasks.popTask(query);
         }
         // 败锁：没关系，就是取不到咯
@@ -113,7 +122,35 @@ public class WnSafeSysTaskService implements WnSysTaskApi {
                 locks.freeLock(lo);
             }
             catch (WnLockInvalidKeyException e) {
-                log.warn("sysTaskApi.removeTask fail to freeLock", e);
+                log.warn("sysTaskApi.popTask fail to freeLock", e);
+                throw new WnSysTaskException(e);
+            }
+        }
+    }
+
+    @Override
+    public List<WnSysTask> popAllTasks(WnSysTaskQuery query)
+            throws WnSysTaskException {
+        String nodeName = Wn.getRuntime().getNodeName();
+        WnLock lo = null;
+        // 尝试加锁
+        try {
+            lo = locks
+                .tryLock(LOCK_NAME, nodeName, LOCK_HINT_POP, tryLockDuration);
+            return tasks.popAllTasks(query);
+        }
+        // 败锁：没关系，就是取不到咯
+        catch (WnLockFailException e) {
+            log.warn("sysTaskApi.removeTask fail to tryLock", e);
+            throw new WnSysTaskException(e);
+        }
+        // 确保释放锁
+        finally {
+            try {
+                locks.freeLock(lo);
+            }
+            catch (WnLockInvalidKeyException e) {
+                log.warn("sysTaskApi.popAllTasks fail to freeLock", e);
                 throw new WnSysTaskException(e);
             }
         }

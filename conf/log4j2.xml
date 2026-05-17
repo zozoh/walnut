@@ -31,7 +31,7 @@
         <Logger name="APP" level="info"/>
         <Logger name="AC" level="info"/>
         <Logger name="BG_CLEANER" level="info"/>
-        <Logger name="BG_TASK" level="warn"/>
+        <Logger name="BG_TASK" level="debug"/>
         <Logger name="BG_SCHEDULE" level="warn"/>
         <Logger name="BG_CRON" level="warn"/>
         <Logger name="TEST" level="debug"/>
