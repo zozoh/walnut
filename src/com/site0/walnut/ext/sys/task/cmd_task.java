@@ -89,8 +89,8 @@ public class cmd_task extends JvmHdlExecutor {
                     cmdText = cmd.toString();
                 }
                 cmdText = Ws.trim(cmdText);
-                if (cmdText.length() > 50) {
-                    cmdText = cmdText.substring(0, 50) + "..";
+                if (cmdText.length() > 80) {
+                    cmdText = cmdText.substring(0, 80) + "..";
                 }
                 o.put(key, cmdText);
             }
