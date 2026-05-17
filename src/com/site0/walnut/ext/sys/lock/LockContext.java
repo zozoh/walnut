@@ -19,6 +19,8 @@ public class LockContext extends JvmFilterContext {
     private String domainName;
 
     private String lockPrefix;
+    
+    public boolean quiet;
 
     public LockContext() {
         this.locks = new LinkedList<>();

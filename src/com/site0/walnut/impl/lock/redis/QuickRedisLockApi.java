@@ -31,6 +31,11 @@ public class QuickRedisLockApi implements WnLockApi {
     private WedisConfig conf;
 
     @Override
+    public String getInfo() {
+        return String.format("QuickRedisLockApi(%s)", this.conf.toString());
+    }
+
+    @Override
     public void notifyWhenLockFree() {
         Wlang.notifyOne(this);
     }
@@ -78,7 +83,10 @@ public class QuickRedisLockApi implements WnLockApi {
     }
 
     @Override
-    public WnLock tryLock(String lockName, String owner, String hint, long duInMs)
+    public WnLock tryLock(String lockName,
+                          String owner,
+                          String hint,
+                          long duInMs)
             throws WnLockFailException {
         // 准备锁
         WnLockObj lo = this.createLock(lockName, owner, hint);
@@ -160,7 +168,8 @@ public class QuickRedisLockApi implements WnLockApi {
     }
 
     @Override
-    public synchronized WnLock freeLock(WnLock lock) throws WnLockInvalidKeyException {
+    public synchronized WnLock freeLock(WnLock lock)
+            throws WnLockInvalidKeyException {
         if (null == lock) {
             return null;
         }
@@ -176,12 +185,15 @@ public class QuickRedisLockApi implements WnLockApi {
                                                 + "end";
 
     @Override
-    public WnLock freeLock(String lockName, String privateKey) throws WnLockInvalidKeyException {
+    public WnLock freeLock(String lockName, String privateKey)
+            throws WnLockInvalidKeyException {
         String key = _KEY(lockName);
         WnLock lo = _get_lock(key);
         if (null == lo) {
             if (log.isWarnEnabled()) {
-                log.warnf("Fail to freeLock, key=%s, privateKey=%s", key, privateKey);
+                log.warnf("Fail to freeLock, key=%s, privateKey=%s",
+                          key,
+                          privateKey);
             }
             return null;
         }

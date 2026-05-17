@@ -32,6 +32,9 @@ public class cmd_lock extends JvmFilterExecutor<LockContext, LockFilter> {
 
     @Override
     protected void output(WnSystem sys, LockContext fc) {
+        if (fc.quiet) {
+            return;
+        }
         if (fc.locks.isEmpty()) {
             if (fc.params.is("l")) {
                 sys.out.println("[]");

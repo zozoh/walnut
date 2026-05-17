@@ -12,6 +12,11 @@ import com.site0.walnut.impl.lock.WnLockObj;
 public interface WnLockApi {
 
     /**
+     * @return 实现类的自身信息
+     */
+    String getInfo();
+
+    /**
      * 通知等待的消费线程，有新任务来了
      */
     void notifyWhenLockFree();

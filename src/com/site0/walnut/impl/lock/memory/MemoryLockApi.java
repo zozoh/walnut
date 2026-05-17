@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.nutz.lang.random.R;
+import org.nutz.lang.random.StringGenerator;
+
 import com.site0.walnut.api.lock.WnLock;
 import com.site0.walnut.api.lock.WnLockApi;
 import com.site0.walnut.api.lock.WnLockFailException;
@@ -15,10 +18,21 @@ import com.site0.walnut.util.Wn;
 
 public class MemoryLockApi implements WnLockApi {
 
+    private static StringGenerator SG = R.sg(6);
+
+    private String name;
+
     private Map<String, WnLockObj> locks;
 
     public MemoryLockApi() {
+
+        this.name = SG.next();
         this.locks = new HashMap<>();
+    }
+
+    @Override
+    public String getInfo() {
+        return String.format("MemoryLockApi(%s)", this.name);
     }
 
     @Override
