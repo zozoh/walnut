@@ -26,7 +26,7 @@
         <Logger name="AUTH" level="warn"/>
         <Logger name="BOX" level="warn"/>
         <Logger name="HOOK" level="info"/>
-        <Logger name="CMD" level="info"/>
+        <Logger name="CMD" level="debug"/>
         <Logger name="SQL" level="warn"/>
         <Logger name="APP" level="info"/>
         <Logger name="AC" level="info"/>

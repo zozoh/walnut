@@ -34,7 +34,8 @@ public class WnBgRunTaskConsumer implements Runnable {
 
     private WnSysTaskApi taskApi;
     private WnLoginApi auth;
-    private WnBoxRunning running;
+    private WnRun _run;
+    // private WnBoxRunning running;
     private WnSession rootSession;
 
     // // 创建一个固定大小为 3 的线程池
@@ -46,7 +47,8 @@ public class WnBgRunTaskConsumer implements Runnable {
                                WnSession rootSe) {
         this.taskApi = sf.getTaskApi();
         this.auth = sf.getLoginApi();
-        this.running = _run.createRunning(true);
+        this._run = _run;
+        // this.running = _run.createRunning(true);
         this.rootSession = rootSe;
 
         // int corePoolSize = config.getInt("bg-task-pool-core-size", 5);
@@ -119,6 +121,22 @@ public class WnBgRunTaskConsumer implements Runnable {
                     Thread _rt = new Thread(new Atom() {
                         public void run() {
                             try {
+                                if (log.isDebugEnabled()) {
+                                    log.debugf("_run.createRuning: user(%s)=%s, cmd=%s",
+                                               user.getId(),
+                                               user.getName(),
+                                               task.meta.getString("command"));
+                                }
+
+                                WnBoxRunning running = _run.createRunning(true);
+
+                                if (log.isDebugEnabled()) {
+                                    log.debugf("runTask: user(%s)=%s, cmd=%s",
+                                               user.getId(),
+                                               user.getName(),
+                                               task.meta.getString("command"));
+                                }
+
                                 taskApi.runTask(running, task.meta, user, ins);
                             }
                             catch (WnSysTaskException e) {
