@@ -6,7 +6,7 @@
 	<packaging>jar</packaging>
 	<name>walnut</name>
 	<version>15.88</version>
-	<description>COLT[BGTT]</description>
+	<description>COLT[SECLONE]</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<elasticsearch.version>6.3.2</elasticsearch.version>
