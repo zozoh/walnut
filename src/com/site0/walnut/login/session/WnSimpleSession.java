@@ -91,11 +91,13 @@ public class WnSimpleSession implements WnSession {
     @Override
     public WnSession clone() {
         WnSimpleSession re = new WnSimpleSession();
+        re.user = this.user.clone();
         re.ticket = this.ticket;
+        re.type = this.type;
+        re.site = this.site;
         re.parentTicket = this.parentTicket;
         re.childTicket = this.childTicket;
         re.duration = this.duration;
-        re.user = this.user.clone();
         re.expiAt = this.expiAt;
         re.createTime = this.createTime;
         re.lastModified = this.lastModified;

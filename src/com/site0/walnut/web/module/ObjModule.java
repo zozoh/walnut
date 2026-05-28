@@ -56,7 +56,6 @@ import com.site0.walnut.util.Wobj;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import com.site0.walnut.web.filter.WnCheckSession;
-import com.site0.walnut.web.filter.WnSetSecurity;
 import com.site0.walnut.web.util.WnWeb;
 import com.site0.walnut.web.view.WnImageView;
 import com.site0.walnut.web.view.WnObjDownloadView;
@@ -67,7 +66,7 @@ import com.site0.walnut.web.view.WnObjDownloadView;
  * @author zozoh(zozohtnt@gmail.com)
  */
 @IocBean
-@Filters({@By(type = WnCheckSession.class), @By(type = WnSetSecurity.class)})
+@Filters({@By(type = WnCheckSession.class)})
 @At("/o")
 @Ok("ajax")
 @Fail("ajax")

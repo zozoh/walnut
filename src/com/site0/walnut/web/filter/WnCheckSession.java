@@ -1,6 +1,7 @@
 package com.site0.walnut.web.filter;
 
 import org.nutz.ioc.Ioc;
+import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.ActionContext;
 import org.nutz.mvc.ActionFilter;
@@ -13,8 +14,12 @@ import com.site0.walnut.api.box.WnServiceFactory;
 import com.site0.walnut.api.hook.WnHookContext;
 import com.site0.walnut.api.hook.WnHookService;
 import com.site0.walnut.api.io.WnIo;
+import com.site0.walnut.impl.io.WnSecurityImpl;
 import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnLoginApiMaker;
+import com.site0.walnut.login.WnLoginOptions;
 import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.site.WnLoginSite;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
@@ -46,21 +51,26 @@ public class WnCheckSession implements ActionFilter {
         this.allowDead = allowDead;
     }
 
-    public WnSession testSession(WnContext wc, WnLoginApi auth) {
+    public WnSession testSession(WnContext wc, Ioc ioc, WnIo io) {
         // 先看看上下文中的Session
         WnSession se = wc.getSession();
+
+        // 先通过标准权鉴接口，获取系统会话
+        WnLoginApi sysAuth = Wn.Service.auth(ioc);
 
         // 尝试从票据中获取
         if (null == se && wc.hasTicket()) {
             // 看看有没有合法的 Session 对象
             String ticket = wc.getTicket();
 
-            // 获取并更新 Sessoion 对象的最后访问时间
-            se = auth.getSession(ticket);
+            // 获取并 Sessoion
+            se = sysAuth.getSession(ticket);
+
             if (null != se) {
+
                 WnSession se2 = se;
-                Wn.WC().hooking(null, () -> {
-                    auth.touchSession(se2);
+                wc.hooking(null, () -> {
+                    sysAuth.touchSession(se2);
                 });
             }
 
@@ -69,6 +79,23 @@ public class WnCheckSession implements ActionFilter {
                 return null;
             }
         }
+
+        // 获取混合模式的 Session，默认还是系统的权鉴接口
+        WnLoginApi theAuth = sysAuth;
+        if (null != se) {
+            // 主要看看这个 Session 是否指定了一个域站点
+            String sitePath = se.getSite();
+            if (null != sitePath) {
+                WnLoginSite site = WnLoginSite.createByPath(io, sitePath);
+                NutBean env = site.getSessionVarsBySiteHome();
+                WnLoginOptions options = site.getOptions();
+                theAuth = WnLoginApiMaker.forHydrate().make(io, env, options);
+            }
+
+        }
+
+        // 线程上下文设置权鉴检查
+        wc.setSecurity(new WnSecurityImpl(io, theAuth));
 
         return se;
     }
@@ -82,17 +109,16 @@ public class WnCheckSession implements ActionFilter {
 
         WnContext wc = Wn.WC();
         Ioc ioc = ac.getIoc();
+        WnIo io = Wn.Service.io(ioc);
 
         // 如果有会话合法，那么就继续下一个操作
-        WnLoginApi auth = Wn.Service.auth(ioc);
-        WnSession se = testSession(wc, auth);
+        WnSession se = testSession(wc, ioc, io);
 
         if (null != se) {
             // 记录到上下文
             wc.setSession(se);
 
             // 读取服务类之类的
-            WnIo io = Wn.Service.io(ioc);
             WnBoxService boxes = Wn.Service.boxes(ioc);
 
             WnUser me = se.getUser();
