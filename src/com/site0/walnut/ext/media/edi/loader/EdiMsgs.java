@@ -35,6 +35,7 @@ public abstract class EdiMsgs {
         loaders.put("REFACC", new REFACCLoader());
         loaders.put("REFREJ", new REFREJLoader());
         loaders.put("SAM", new SAMResLoader());
+        loaders.put("ERM", new ERMLoader());
     }
 
     public static String getLoaderType(EdiMessage msg) {
@@ -113,5 +114,9 @@ public abstract class EdiMsgs {
 
     public static SAMResLoader getSAMResLoader() {
         return (SAMResLoader) loaders.get("SAM");
+    }
+
+    public static ERMLoader getERMLoader() {
+        return (ERMLoader) loaders.get("ERM");
     }
 }
