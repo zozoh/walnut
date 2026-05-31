@@ -67,6 +67,8 @@ public class ERMLoaderTest {
 		ERMLoader loader = EdiMsgs.getERMLoader();
 		IcsReplyERM re = loader.load(msg);
 
+		System.out.println(Json.toJson(re, JsonFormat.full()));
+
 		assertNotNull(re);
 		assertFalse(re.isSuccess());
 		assertEquals("ERM", re.getMsgType());
