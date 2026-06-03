@@ -825,15 +825,19 @@ public class ObjModule extends AbstractWnModule {
         localMeta.put("mime", mime);
         localMeta.put("size", sz);
         NutMap meta = Wlang.map("local", localMeta);
+
+        // 设置标题
+        String title = Files.getMajorName(o.name());
         // 如果有前缀，则设置一下 title 以便保留原始信息
         if (hasPrefix) {
             // 为了保留追加模式下的自增后缀，我们从新名字开始
-            String title = Files.getMajorName(o.name());
             if (title.startsWith(prefix)) {
                 title = title.substring(prefix.length()).trim();
             }
-            meta.put("title", title);
         }
+        meta.put("title", title);
+
+        // 写入数据
         io.appendMeta(o, meta);
 
         // 返回
