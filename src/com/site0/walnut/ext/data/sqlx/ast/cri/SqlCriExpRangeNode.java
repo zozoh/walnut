@@ -35,7 +35,8 @@ public class SqlCriExpRangeNode extends SqlCriExpressionNode {
         }
         // 字符串范围
         String s_lower = s.trim().toLowerCase();
-        if (s_lower.startsWith("str[") && s_lower.endsWith("]")) {
+        if ((s_lower.startsWith("str[") || s_lower.startsWith("str("))
+            && (s_lower.endsWith("]") || s_lower.endsWith(")"))) {
             String s2 = s_lower.substring(3);
             StrRange rg = Ranges.Str(s2);
             return new SqlCriExpRangeNode(name, rg);

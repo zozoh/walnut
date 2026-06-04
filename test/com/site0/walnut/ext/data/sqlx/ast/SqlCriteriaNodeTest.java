@@ -57,6 +57,14 @@ public class SqlCriteriaNodeTest {
         q = NutMap.WRAP("{ct:'Str[20251223]'}");
         cri = SqlCriteria.toCriNode(q);
         assertEquals("ct='20251223'", cri.toSql(false));
+        
+        q = NutMap.WRAP("{ct:'Str[2025,)'}");
+        cri = SqlCriteria.toCriNode(q);
+        assertEquals("ct>='2025'", cri.toSql(false));
+
+        q = NutMap.WRAP("{ct:'Str[,2026]'}");
+        cri = SqlCriteria.toCriNode(q);
+        assertEquals("ct<='2026'", cri.toSql(false));
     }
 
     @Test
