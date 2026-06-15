@@ -827,7 +827,7 @@ public class ObjModule extends AbstractWnModule {
         NutMap meta = Wlang.map("local", localMeta);
 
         // 设置标题
-        //String title = Files.getMajorName(o.name());
+        String title = Files.getMajorName(localName);
         // 如果有前缀，则设置一下 title 以便保留原始信息
         // if (hasPrefix) {
         // // 为了保留追加模式下的自增后缀，我们从新名字开始
@@ -835,7 +835,7 @@ public class ObjModule extends AbstractWnModule {
         // title = title.substring(prefix.length()).trim();
         // }
         // }
-        meta.put("title", localName);
+        meta.put("title", title);
 
         // 写入数据
         io.appendMeta(o, meta);
