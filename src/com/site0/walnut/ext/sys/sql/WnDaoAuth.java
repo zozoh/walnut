@@ -1,5 +1,6 @@
 package com.site0.walnut.ext.sys.sql;
 
+import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 
 import com.site0.walnut.util.Ws;
@@ -105,9 +106,10 @@ public class WnDaoAuth {
     }
 
     public String toKey() {
-        return String.format("%s%s@[%s](%d/%d)",
+        return String.format("%s%s:%s@[%s](%d/%d)",
                              testWhileIdle ? "=" : ":",
                              username,
+                             Wlang.md5(password),
                              url,
                              maxActive,
                              maxWait);
