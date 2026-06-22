@@ -24,10 +24,10 @@
         <Logger name="MAIN" level="info"/>
         <Logger name="IO" level="info"/>
         <Logger name="AUTH" level="warn"/>
-        <Logger name="BOX" level="warn"/>
+        <Logger name="BOX" level="info"/>
         <Logger name="HOOK" level="info"/>
         <Logger name="CMD" level="debug"/>
-        <Logger name="SQL" level="warn"/>
+        <Logger name="SQL" level="info"/>
         <Logger name="APP" level="info"/>
         <Logger name="AC" level="info"/>
         <Logger name="BG_CLEANER" level="info"/>

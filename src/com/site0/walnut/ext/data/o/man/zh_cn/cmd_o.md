@@ -38,6 +38,7 @@ o [options] [[@filter filter-args...]...]
 #
 # 进一步读取
 #
+@path       # 确保上下文对象都加载了路径
 @tree       # 将上下文对象归纳成一棵树
 @group      # 聚集对象
 @refer      # 读取上下文对象关联的对象详情
