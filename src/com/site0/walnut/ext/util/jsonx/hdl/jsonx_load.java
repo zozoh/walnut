@@ -1,8 +1,11 @@
 package com.site0.walnut.ext.util.jsonx.hdl;
 
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.nutz.json.Json;
+import org.nutz.lang.util.NutMap;
+import org.nutz.mapl.Mapl;
 
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.util.jsonx.JsonXContext;
@@ -21,16 +24,19 @@ public class jsonx_load extends JsonXFilter {
         return ZParams.parse(args, "^(ignore_nil)$");
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void process(WnSystem sys, JsonXContext fc, ZParams params) {
         String as = params.getString("as", "json");
         String loadPath = params.val_check(0);
 
+        Object loaded = null;
+
         // 普通 JSON
         if ("json".equals(as)) {
             WnObj o = Wn.checkObj(sys, loadPath);
             String json = sys.io.readText(o);
-            fc.obj = Json.fromJson(json);
+            loaded = Json.fromJson(json);
         }
         // TPLL 文件
         else if ("tpll".equals(as)) {
@@ -53,9 +59,53 @@ public class jsonx_load extends JsonXFilter {
                 WnObj oFrom = Wn.checkObj(sys, from);
                 input = sys.io.readText(oFrom);
             }
-            fc.obj = ing.parse(input);
+            loaded = ing.parse(input);
         }
 
+        // 对于 Map 对象，可以进一步处理结果
+        if (null != loaded && loaded instanceof Map<?, ?>) {
+
+            NutMap map = NutMap.WRAP((Map<String, Object>) loaded);
+
+            // 获取值
+            String getKey = params.getString("get");
+            if (!Ws.isBlank(getKey)) {
+                loaded = Mapl.cell(map, getKey);
+            }
+        }
+
+        // 过滤
+        if (null != loaded && loaded instanceof Map<?, ?>) {
+            String omit = params.getString("omit");
+            String pick = params.getString("pick");
+            boolean hasOmit = !Ws.isBlank(omit);
+            boolean hasPick = !Ws.isBlank(pick);
+            if (hasOmit || hasPick) {
+                NutMap map = NutMap.WRAP((Map<String, Object>) loaded);
+                if (hasOmit) {
+                    String[] omitKeys = Ws.splitIgnoreBlank(omit);
+                    map = map.omit(omitKeys);
+                }
+                if (hasPick) {
+                    String[] pickKeys = Ws.splitIgnoreBlank(pick);
+                    map = map.pick(pickKeys);
+                }
+                loaded = map;
+            }
+        }
+
+        String put = params.getString("put");
+
+        // 融合方式: 融合
+        if (null != fc.obj
+            && (fc.obj instanceof Map<?, ?>)
+            && !Ws.isBlank(put)) {
+            Mapl.put(fc.obj, put, loaded);
+        }
+        // 融合方式: 替换
+        else {
+            fc.obj = loaded;
+        }
     }
 
 }
