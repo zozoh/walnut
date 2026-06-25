@@ -109,7 +109,7 @@ public class S3XoService extends AbstractXoService<S3Client> {
             .key(objPath)
             .metadata(xmeta.userMeta)
             .contentType(xmeta.mime)
-            .contentDisposition(xmeta.title)
+            .contentDisposition(xmeta.contentDisposition)
             .build();
 
         // 准备请求体
@@ -135,7 +135,7 @@ public class S3XoService extends AbstractXoService<S3Client> {
             .key(objPath)
             .metadata(xmeta.userMeta)
             .contentType(xmeta.mime)
-            .contentDisposition(xmeta.title)
+            .contentDisposition(xmeta.contentDisposition)
             .build();
 
         CreateMultipartUploadResponse createResp = client
@@ -315,7 +315,7 @@ public class S3XoService extends AbstractXoService<S3Client> {
             xo.setLastModified(new Date(resp.lastModified().toEpochMilli()));
             xo.setStorageClass(resp.storageClassAsString());
             xo.putAllUserMeta(resp.metadata());
-            xo.setTitle(resp.contentDisposition());
+            xo.setContentDisposition(resp.contentDisposition());
             return xo;
         }
         catch (NoSuchKeyException e) {
@@ -351,7 +351,7 @@ public class S3XoService extends AbstractXoService<S3Client> {
         }
         // 恢复默认值
         xmeta.dftMime(head.contentType());
-        xmeta.dftTitle(head.contentDisposition());
+        xmeta.dftFileName(head.contentDisposition());
 
         // 2. 合并
         Map<String, String> merged = new HashMap<>(head.metadata()); // 只包含用户级
@@ -370,7 +370,7 @@ public class S3XoService extends AbstractXoService<S3Client> {
             .destinationBucket(bucket)
             .destinationKey(key)
             .contentType(xmeta.mime)
-            .contentDisposition(xmeta.title)
+            .contentDisposition(xmeta.contentDisposition)
             .metadata(merged)
             .metadataDirective(MetadataDirective.REPLACE) // 关键：用新元数据
             .build();

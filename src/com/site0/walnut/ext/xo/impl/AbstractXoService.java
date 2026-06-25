@@ -17,6 +17,7 @@ import com.site0.walnut.ext.xo.bean.XoBean;
 import com.site0.walnut.ext.xo.util.XoClientGetter;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Ws;
+import com.site0.walnut.web.util.WnWeb;
 
 public abstract class AbstractXoService<T> implements XoService {
 
@@ -25,8 +26,9 @@ public abstract class AbstractXoService<T> implements XoService {
     protected static class XoMeta {
         Map<String, String> userMeta;
         String mime = null;
-        String title = null;
+        String fileName = null;
         String sha1 = null;
+        String contentDisposition = null;
         long len = -1;
 
         void dftMime(String ct) {
@@ -35,9 +37,19 @@ public abstract class AbstractXoService<T> implements XoService {
             }
         }
 
-        void dftTitle(String cd) {
-            if (null == title && !Ws.isBlank(cd)) {
-                title = cd;
+        void dftFileName(String cd) {
+            if (null == fileName && !Ws.isBlank(cd)) {
+                fileName = cd;
+            }
+        }
+
+        void dftContentDisposition(String cd) {
+            if (null == contentDisposition && !Ws.isBlank(cd)) {
+                contentDisposition = cd;
+                try {
+                    fileName = WnWeb.decodeContentDisposition(cd);
+                }
+                catch (Throwable e) {}
             }
         }
 
@@ -87,8 +99,9 @@ public abstract class AbstractXoService<T> implements XoService {
                     re.len = null == s ? -1 : Long.parseLong(s);
                 }
                 // 固定 title
-                else if ("title".equals(key)) {
-                    re.title = s;
+                else if ("nm".equals(key)) {
+                    re.fileName = s;
+                    re.contentDisposition = WnWeb.encodeContentDisposition(s);
                 }
                 // SHA1 指纹
                 else if (!noSha1 && "sha1".equals(key)) {

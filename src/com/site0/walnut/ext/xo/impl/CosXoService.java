@@ -83,8 +83,8 @@ public class CosXoService extends AbstractXoService<COSClient> {
         if (null != xmeta.mime) {
             md.setContentType(xmeta.mime);
         }
-        if (null != xmeta.title) {
-            md.setContentDisposition(xmeta.title);
+        if (null != xmeta.contentDisposition) {
+            md.setContentDisposition(xmeta.contentDisposition);
         }
         // 貌似设置了也木有用
         // if (null != xmeta.sha1) {
@@ -307,6 +307,7 @@ public class CosXoService extends AbstractXoService<COSClient> {
             xo.setStorageClass(meta.getStorageClass());
             xo.putAllRawMeta(meta.getRawMetadata());
             xo.putAllUserMeta(meta.getUserMetadata());
+            xo.setContentDisposition(meta.getContentDisposition());
             return xo;
         }
         catch (CosServiceException e) {
@@ -356,7 +357,7 @@ public class CosXoService extends AbstractXoService<COSClient> {
         // 3. 构造新的 ObjectMetadata（仅保留用户元数据）
         ObjectMetadata freshMeta = new ObjectMetadata();
         xmeta.dftMime(oldMeta.getContentType());
-        xmeta.dftTitle(oldMeta.getContentDisposition());
+        xmeta.dftFileName(oldMeta.getContentDisposition());
         xmeta.dftSha1(oldMeta.getETag());
         __join_meta_data(freshMeta, xmeta);
         freshMeta.setUserMetadata(merged);

@@ -15,6 +15,7 @@ import com.site0.walnut.ooml.OomlsTest;
 import com.site0.walnut.util.AllUtilTest;
 import com.site0.walnut.val.AllValMakerTest;
 import com.site0.walnut.validate.WnMatchTest;
+import com.site0.walnut.web.AllWebTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({AllAlgTest.class,
@@ -28,6 +29,7 @@ import com.site0.walnut.validate.WnMatchTest;
                      WnCronTest.class,
                      WnMatchTest.class,
                      OomlsTest.class,
+                     AllWebTest.class,
                      AllImplTest.class,
                      AllExtTest.class})
 public class AllWnBaseTest {}

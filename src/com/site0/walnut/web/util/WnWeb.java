@@ -93,7 +93,9 @@ public abstract class WnWeb {
         return autoUserAgent(o, ua, md);
     }
 
-    public static String autoUserAgent(WnObj o, String ua, WnDownloadMode mode) {
+    public static String autoUserAgent(WnObj o,
+                                       String ua,
+                                       WnDownloadMode mode) {
         // 未指定模式，相当于自动
         if (null == mode) {
             mode = WnDownloadMode.auto;
@@ -127,7 +129,7 @@ public abstract class WnWeb {
     public static void setHttpRespHeaderContentDisposition(HttpServletResponse resp,
                                                            String fnm,
                                                            String ua) {
-        resp.setHeader("Content-Disposition", genHttpRespHeaderContentDisposition(fnm, ua));
+        resp.setHeader("Content-Disposition", autoContentDisposition(fnm, ua));
     }
 
     /**
@@ -151,7 +153,7 @@ public abstract class WnWeb {
         return new String(cs);
     }
 
-    public static String genHttpRespHeaderContentDisposition(String fnm, String ua) {
+    public static String autoContentDisposition(String fnm, String ua) {
         try {
             // Safari 狗屎
             if (null != ua && ua.contains(" Safari/")) {
@@ -169,11 +171,24 @@ public abstract class WnWeb {
         }
     }
 
-    public static void setCrossDomainHeaders(String origin, Callback2<String, String> callback) {
+    public static String encodeContentDisposition(String fname) {
+        String s0 = URLEncoder.encode(fname, Encoding.CHARSET_UTF8);
+        String s1 = s0.replace("+", "%20");
+        return "filename*=UTF-8''" + s1;
+    }
+
+    public static String decodeContentDisposition(String cd) {
+        return ContentDispositionDecoder.decode(cd);
+    }
+
+    public static void setCrossDomainHeaders(String origin,
+                                             Callback2<String, String> callback) {
         callback.invoke("ACCESS-CONTROL-ALLOW-ORIGIN", origin);
-        callback.invoke("ACCESS-CONTROL-ALLOW-METHODS", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
-        callback.invoke("ACCESS-CONTROL-ALLOW-HEADERS",
-                        "Origin, Content-Type, Accept, X-Requested-With, X-Walnut-Ticket");
+        callback.invoke("ACCESS-CONTROL-ALLOW-METHODS",
+                        "GET, POST, PUT, DELETE, OPTIONS, PATCH");
+        callback
+            .invoke("ACCESS-CONTROL-ALLOW-HEADERS",
+                    "Origin, Content-Type, Accept, X-Requested-With, X-Walnut-Ticket");
         callback.invoke("ACCESS-CONTROL-ALLOW-CREDENTIALS", "true");
     }
 

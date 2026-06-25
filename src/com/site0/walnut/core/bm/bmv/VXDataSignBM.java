@@ -263,7 +263,7 @@ public class VXDataSignBM extends AbstractIoBM {
                 // 不存在就创建
                 if (null == api.getObj(objKey)) {
                     InputStream ins = Streams.fileIn(swap);
-                    NutBean meta = o.pick("sha1", "mime", "title");
+                    NutBean meta = o.pick("sha1", "mime", "nm");
                     api.write(objKey, ins, meta);
                 }
 

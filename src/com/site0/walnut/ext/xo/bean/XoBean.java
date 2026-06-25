@@ -9,6 +9,8 @@ import org.nutz.lang.Files;
 import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.api.io.WnRace;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.web.util.WnWeb;
 
 public class XoBean {
 
@@ -27,7 +29,7 @@ public class XoBean {
 
     private Date lastModified;
 
-    private String title;
+    private String fileName;
 
     private String mime;
 
@@ -61,7 +63,7 @@ public class XoBean {
         ta.size = this.size;
         ta.storageClass = this.storageClass;
         ta.lastModified = this.lastModified;
-        ta.title = this.title;
+        ta.fileName = this.fileName;
         ta.mime = this.mime;
         if (null != this.expires)
             ta.expires = Instant.ofEpochMilli(this.expires.toEpochMilli());
@@ -196,12 +198,22 @@ public class XoBean {
         this.userMeta.putAll(meta);
     }
 
-    public String getTitle() {
-        return title;
+    public String getFileName() {
+        return fileName;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setFileName(String title) {
+        this.fileName = title;
+    }
+
+    public void setContentDisposition(String cd) {
+        this.fileName = null;
+        if (!Ws.isBlank(cd)) {
+            try {
+                this.fileName = WnWeb.decodeContentDisposition(cd);
+            }
+            catch (Throwable e) {}
+        }
     }
 
     public String getMime() {

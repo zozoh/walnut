@@ -23,7 +23,9 @@ public class S3XoServiceTest extends AbstractXoServiceTest {
     }
 
     @Override
-    protected void update_config(String prefix, String[] allowActions, NutMap conf) {
+    protected void update_config(String prefix,
+                                 String[] allowActions,
+                                 NutMap conf) {
         conf.put("secretId", setup.getConifg("s3-secret-id"));
         conf.put("secretKey", setup.getConifg("s3-secret-key"));
         conf.put("bucket", setup.getConifg("s3-bucket"));
@@ -49,9 +51,14 @@ public class S3XoServiceTest extends AbstractXoServiceTest {
         Region region = Region.of(setup.getConifg("s3-region"));
 
         // Create S3 client
-        AwsBasicCredentials cred = AwsBasicCredentials.create(accessKey, secretKey);
-        StaticCredentialsProvider provider = StaticCredentialsProvider.create(cred);
-        S3Client s3 = S3Client.builder().region(region).credentialsProvider(provider).build();
+        AwsBasicCredentials cred = AwsBasicCredentials.create(accessKey,
+                                                              secretKey);
+        StaticCredentialsProvider provider = StaticCredentialsProvider
+            .create(cred);
+        S3Client s3 = S3Client.builder()
+            .region(region)
+            .credentialsProvider(provider)
+            .build();
 
         // List objects in the bucket
         Builder bd = ListObjectsV2Request.builder();
@@ -63,7 +70,8 @@ public class S3XoServiceTest extends AbstractXoServiceTest {
 
         System.out.println("Files in bucket:");
         for (S3Object obj : listRes.contents()) {
-            System.out.println(" - " + obj.key() + " (" + obj.size() + " bytes)");
+            System.out
+                .println(" - " + obj.key() + " (" + obj.size() + " bytes)");
         }
         s3.close();
     }

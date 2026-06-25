@@ -345,7 +345,7 @@ public class WnHttpResponseWriter {
             headers
                 .putDefault("Content-Disposition",
                             WnWeb
-                                .genHttpRespHeaderContentDisposition(this.downloadName,
+                                .autoContentDisposition(this.downloadName,
                                                                      this.userAgent));
         }
 

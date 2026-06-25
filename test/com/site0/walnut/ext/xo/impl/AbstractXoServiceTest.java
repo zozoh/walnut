@@ -71,8 +71,35 @@ public abstract class AbstractXoServiceTest extends BaseSessionTest {
 
     protected abstract XoService create_service(String confName);
 
+    @Test
+    public void test_write_cn_title() throws IOException {
+        XoService api = service("pet/");
+
+        // 首先清除数据
+        api.clear("*");
+
+        // 准备一个中文元数据
+        NutMap meta = Wlang.map("nm", "这是一个中文标题");
+
+        // 创建一个文件
+        api.writeText("hello/world.txt", "Hello World", meta);
+
+        List<XoBean> list = api.listObj("hello/world.txt");
+        assertEquals(1, list.size());
+        XoBean xo = list.get(0);
+        assertEquals("hello/world.txt", xo.getKey());
+        assertEquals("world.txt", xo.getName());
+        assertFalse(xo.isVirtual());
+        assertTrue(xo.isFILE());
+
+        String str = api.readText("hello/world.txt");
+        assertEquals("Hello World", str);
+        XoBean xo2 = api.getObj("hello/world.txt");
+        assertEquals("这是一个中文标题", xo2.getFileName());
+    }
+
     // @Test
-    public void test_zwrite_big_file() throws IOException {
+    public void test_write_big_file() throws IOException {
         XoService api = service("video/");
 
         // 首先清除数据
