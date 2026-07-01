@@ -27,6 +27,8 @@ walnut.iml
 .classpath
 .project
 .settings
+.claude
+.claude/**
 
 # .................................
 /ROOT/app/**/*.css
@@ -61,3 +63,4 @@ bin/main/
 bin/test/
 
 /test/test_local.properties
+/.claude/

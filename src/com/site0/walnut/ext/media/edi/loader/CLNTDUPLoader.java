@@ -69,8 +69,23 @@ public class CLNTDUPLoader implements EdiMsgLoader<IcsReplyCLNTDUP> {
          * ROAD::XIAMEN:361000:FJ+CN' TAX+RN+:::SUPPLIER'
          */
         if (re.isSuccess()) {
+            // 解析 FTX+AFM+++TITLE:FIRST NAME:SECOND NAME:FAMILY NAME:SUFFIX',
+            // 个人名称, indName: 将 FIRST NAME , SECOND NAME, FAMILY NAME 拼接为 Name
+            finder.reset();
+            seg = finder.next("FTX", "AFM");
+            if (seg != null) {
+                rff.clear();
+                seg.fillBean(rff, null, null, null, null, "title,name_first,name_second,name_family,suffix");
+                String firstName = rff.getString("name_first", "");
+                String secondName = rff.getString("name_second", "");
+                String familyName = rff.getString("name_family", "");
+                String name = (firstName + " " + secondName + " " + familyName).trim().replaceAll("\\s+", " ");
+                if (!Ws.isBlank(name)) {
+                    re.setName(name);
+                }
+            }
 
-            // 解析 重复的 Client 的 Name
+            // 组织名称, orgName: 解析 重复的 Client 的 Name
             finder.reset();
             seg = finder.next("LOC", "ZZZ");
             if (seg != null) {
