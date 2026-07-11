@@ -381,18 +381,25 @@ public class AppModule extends AbstractWnModule {
                            final HttpServletRequest req,
                            final HttpServletResponse resp)
             throws IOException {
-        Reader r = new InputStreamReader(req.getInputStream(),
-                                         Encoding.CHARSET_UTF8);
-        String json = Streams.readAndClose(r);
-        NutMap map = Json.fromJson(NutMap.class, json);
-        String mime = map.getString("mime");
-        String mos = map.getString("mos");
-        String PWD = map.getString("PWD");
-        String cmd = map.getString("cmd");
-        String in = map.getString("in");
-        boolean ffb = map.getBoolean("ffb");
-        boolean log_off = map.getBoolean("log_off");
-        run(appName, mime, mos, PWD, cmd, in, ffb, log_off, req, resp);
+        try {
+            Reader r = new InputStreamReader(req.getInputStream(),
+                                             Encoding.CHARSET_UTF8);
+            String json = Streams.readAndClose(r);
+            NutMap map = Json.fromJson(NutMap.class, json);
+            // 防守一下，有时候会传入空
+            if (null == map) {
+                return;
+            }
+            String mime = map.getString("mime");
+            String mos = map.getString("mos");
+            String PWD = map.getString("PWD");
+            String cmd = map.getString("cmd");
+            String in = map.getString("in");
+            boolean ffb = map.getBoolean("ffb");
+            boolean log_off = map.getBoolean("log_off");
+            run(appName, mime, mos, PWD, cmd, in, ffb, log_off, req, resp);
+        }
+        catch (Exception err) {}
     }
 
     /**
@@ -738,8 +745,6 @@ public class AppModule extends AbstractWnModule {
         // 包裹返回
         return new ViewWrapper(view, reo);
     }
-
-    
 
     @At("/me")
     @Ok("ajax")
