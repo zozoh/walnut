@@ -129,6 +129,7 @@ public class PAYRECLoader implements EdiMsgLoader<PayRecRes> {
             }
             re.setMoaList(moaList);
         }
+        re.setSuccess(true);
         return re;
     }
 }
