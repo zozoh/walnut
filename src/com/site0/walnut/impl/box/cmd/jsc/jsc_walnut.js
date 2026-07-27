@@ -103,8 +103,19 @@
       if (!duration || duration < 0) {
         duration = 3600;
       }
-      var lockName = "job_booking";
       var cmdText = "lock -cqn @try -du " + duration + " '" + lockName + "'";
+      $log.info("Try lock: %s", cmdText);
+      var re = sys.exec2(cmdText);
+      return JSON.parse(re);
+    },
+    
+    tryLockBlock: function(lockName, duration, retry, interval) {
+      if (!duration || duration < 0) {
+        duration = 3600;
+      }
+      retry = retry || 3;
+      interval = interval || 3;
+      var cmdText = "lock -cqn @try -block -du " + duration + " -retry " + retry + " -interval " + interval + " '" + lockName + "'";
       $log.info("Try lock: %s", cmdText);
       var re = sys.exec2(cmdText);
       return JSON.parse(re);
