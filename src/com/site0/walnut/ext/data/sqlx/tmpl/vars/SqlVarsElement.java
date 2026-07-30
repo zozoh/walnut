@@ -9,6 +9,7 @@ import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.Wmap;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.ele.TmplEle;
 
@@ -25,6 +26,12 @@ public abstract class SqlVarsElement implements TmplEle {
     protected String scope;
 
     protected String defaultValue;
+
+    /**
+     * 处理字段映射,默认会在 fieldPrefix 之前执行 输入的映射形式为: <code>a:A1;b:B1</code> 即，将输入的 "a"
+     * 键变成 "A1"， "b" 键变成 "B1" 其他保持不变
+     */
+    protected Map<String, String> mapping;
 
     /**
      * 动态前缀，对于 WHERE 条件特别合适
@@ -90,6 +97,10 @@ public abstract class SqlVarsElement implements TmplEle {
                 else if ("prefix".equalsIgnoreCase(key)) {
                     this.prefix = val;
                 }
+                // mapping=a:A1;b:B2
+                else if ("mapping".equals(key)) {
+                    this.mapping = Wmap.parseMapping(val);
+                }
                 // fpref=P.
                 else if ("fpref".equalsIgnoreCase(key)) {
                     this.fieldPrefix = val;
@@ -133,7 +144,7 @@ public abstract class SqlVarsElement implements TmplEle {
     @SuppressWarnings("unchecked")
     protected NutBean getBean(Object context) {
         NutBean bean = new NutMap();
-        if (null!=context && context instanceof Map<?, ?>) {
+        if (null != context && context instanceof Map<?, ?>) {
             NutMap map = NutMap.WRAP((Map<String, Object>) context);
             // Scoped
             if (this.hasScope()) {
@@ -154,6 +165,12 @@ public abstract class SqlVarsElement implements TmplEle {
             if (null != this.ignoreNil && this.ignoreNil.booleanValue()) {
                 bean = __apply_ignore_nil(bean);
             }
+        }
+        // 指定了字段映射
+        if (null != this.mapping && !this.mapping.isEmpty()) {
+            NutMap b2 = new NutMap();
+            Wmap.doMapping(bean, b2, mapping);
+            return b2;
         }
         return bean;
     }
@@ -197,6 +214,12 @@ public abstract class SqlVarsElement implements TmplEle {
         }
         if (null != this.ignoreNil && this.ignoreNil.booleanValue()) {
             bean = __apply_ignore_nil(bean);
+        }
+        // 指定了字段映射
+        if (null != this.mapping && !this.mapping.isEmpty()) {
+            NutMap b2 = new NutMap();
+            Wmap.doMapping(bean, b2, mapping);
+            return b2;
         }
         return bean;
     }

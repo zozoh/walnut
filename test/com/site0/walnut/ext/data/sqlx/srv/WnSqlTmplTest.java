@@ -14,7 +14,22 @@ import com.site0.walnut.util.Wlang;
 
 public class WnSqlTmplTest {
 
-    // @Test
+    @Test
+    public void test_query_mapping_key() {
+        String s = "SELECT t_pet WHERE ${@vars=where;mapping=a:b}";
+        Object context = Json.fromJson("{a:'^ABC$'}");
+        WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
+        List<SqlParam> params = new ArrayList<>(1);
+        String sql = sqlt.render(context, params);
+        assertEquals("SELECT t_pet WHERE b REGEXP ?", sql);
+        assertEquals(1, params.size());
+        assertEquals("b=\"^ABC$\"", params.get(0).toString());
+
+        sql = sqlt.render(context, null);
+        assertEquals("SELECT t_pet WHERE b REGEXP '^ABC$'", sql);
+    }
+
+    @Test
     public void test_top_or_query() {
         String s = "SELECT t_pet WHERE ${@vars=where; fpref=A.}";
         Object context = Json.fromJson("[{x:100},{y:99}]");
