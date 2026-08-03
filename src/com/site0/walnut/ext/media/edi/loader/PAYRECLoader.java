@@ -101,7 +101,7 @@ public class PAYRECLoader implements EdiMsgLoader<PayRecRes> {
                 } else if ("AII".equals(refCode)) {
                     re.setBankTransNum(refVal);
                 } else if ("RA".equals(refCode)) {
-                    re.setBankReceiptNum(refVal);
+                    re.setIcsReceiptNum(refVal);
                 }
             }
         }

@@ -31,7 +31,7 @@ public class PayRecRes extends IcsCommonReply {
 
     private String bankTransNum;
 
-    private String bankReceiptNum;
+    private String icsReceiptNum;
 
     List<Map<String, String>> moaList;
 
@@ -135,12 +135,12 @@ public class PayRecRes extends IcsCommonReply {
         this.bankTransNum = bankTransNum;
     }
 
-    public String getBankReceiptNum() {
-        return bankReceiptNum;
+    public String getIcsReceiptNum() {
+        return icsReceiptNum;
     }
 
-    public void setBankReceiptNum(String bankReceiptNum) {
-        this.bankReceiptNum = bankReceiptNum;
+    public void setIcsReceiptNum(String icsReceiptNum) {
+        this.icsReceiptNum = icsReceiptNum;
     }
 
     public List<Map<String, String>> getMoaList() {

@@ -53,7 +53,7 @@ public class PAYRECMsgTest {
         // RFF+ABT:AEWMK9NHW'
         assertEquals("AEWMK9NHW", re.getImpDecNum());
         // RFF+RA:AEWMK9PA9'
-        assertEquals("AEWMK9PA9", re.getBankReceiptNum());
+        assertEquals("AEWMK9PA9", re.getIcsReceiptNum());
 
         // TAX/MOA
         List<Map<String, String>> moaList = re.getMoaList();
@@ -152,7 +152,7 @@ public class PAYRECMsgTest {
         // RFF+ABT:AE3AHWF4H'
         assertEquals("AE3AHWF4H", re.getImpDecNum());
         // RFF+RA:AE3AHWGEK'
-        assertEquals("AE3AHWGEK", re.getBankReceiptNum());
+        assertEquals("AE3AHWGEK", re.getIcsReceiptNum());
 
         // TAX/MOA
         List<Map<String, String>> moaList = re.getMoaList();
