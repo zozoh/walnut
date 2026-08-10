@@ -125,10 +125,10 @@ public class UBMResLoader implements EdiMsgLoader<IcsReplyUbmRes> {
                 String locType = rff.getString("locType");
                 String locCode = rff.getString("locCode");
                 if ("4".equals(locType)) {
-                    re.getLocInfo().put("discEstId", locCode);
+                    re.getLocInfo().put("destEstId", locCode);
                 } else if ("5".equals(locType)) {
                     re.getLocInfo().put("oriEstId", locCode);
-                } else if ("6".equals(locType)) {
+                } else if ("20".equals(locType)) {
                     re.getLocInfo().put("destNextPort", locCode);
                 }
             }

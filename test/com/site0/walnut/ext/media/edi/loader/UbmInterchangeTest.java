@@ -79,7 +79,7 @@ public class UbmInterchangeTest {
         assertEquals("9953846", re.getMainTrans().get("vesselId"));
         assertEquals("11", re.getMainTrans().get("transType"));
 
-        assertEquals("GE65A", re.getLocInfo().get("discEstId"));
+        assertEquals("GE65A", re.getLocInfo().get("destEstId"));
         assertEquals("FM27N", re.getLocInfo().get("oriEstId"));
 
         assertEquals("UNDERBOND APPROVAL", re.getUbmNotice());
