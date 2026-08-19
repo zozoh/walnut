@@ -10,7 +10,7 @@ public abstract class Wuu {
 
     private static final char[] _UU64 = "-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz".toCharArray();
     private static final char[] _UU32 = "0123456789abcdefghijklmnopqrstuv".toCharArray();
-    private static final char[] _C = "23456789abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ".toCharArray();
+    private static final char[] _C = "0123456789abcdefghijklmnopqrstuvwxyz".toCharArray();
 
     public static char nextChar() {
         int i = _RA.nextInt(_C.length);
@@ -241,21 +241,8 @@ public abstract class Wuu {
      * @return 随机字符串
      */
     public static String captchaChar(int length) {
-        return captchaChar(length, false);
-    }
-
-    /**
-     * 返回指定长度随机数字+字母(大小写敏感)组成的字符串
-     * 
-     * @param length
-     *            指定长度
-     * @param caseSensitivity
-     *            是否区分大小写
-     * @return 随机字符串
-     */
-    public static String captchaChar(int length, boolean caseSensitivity) {
         StringBuilder sb = new StringBuilder();
-        int t = caseSensitivity ? _C.length : _C.length - 24;
+        int t = _C.length;
         for (int i = 0; i < length; i++)
             sb.append(_C[_RA.nextInt(t)]);
         return sb.toString();
