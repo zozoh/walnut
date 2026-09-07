@@ -15,7 +15,7 @@ public class sqlx_pipe extends SqlxFilter {
 
     @Override
     protected ZParams parseParams(String[] args) {
-        return ZParams.parse(args, "^(view)$");
+        return ZParams.parse(args, "cqn", "^(view)$");
     }
 
     @Override

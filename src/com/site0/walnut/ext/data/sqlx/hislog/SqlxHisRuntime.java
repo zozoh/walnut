@@ -65,7 +65,8 @@ public class SqlxHisRuntime {
             for (HisConfigItem confItem : config.getLogs()) {
                 if (!confItem.isValid()) {
                     if (log.isWarnEnabled()) {
-                        log.warnf("hislog item is invalid: %s", Json.toJson(confItem));
+                        log.warnf("hislog item is invalid: %s",
+                                  Json.toJson(confItem));
                     }
                     continue;
                 }
@@ -75,7 +76,9 @@ public class SqlxHisRuntime {
         }
     }
 
-    public void buildHislogForList(Date now, String sqlName, List<NutBean> records) {
+    public void buildHislogForList(Date now,
+                                   String sqlName,
+                                   List<NutBean> records) {
         NutBean myContext = createGlobalContext();
         for (NutBean record : records) {
             NutMap theContext = new NutMap();
@@ -89,18 +92,29 @@ public class SqlxHisRuntime {
         __build_hislog(now, sqlName, myContext, record);
     }
 
-    private void __build_hislog(Date now, String sqlName, NutBean myContext, NutBean record) {
+    private void __build_hislog(Date now,
+                                String sqlName,
+                                NutBean myContext,
+                                NutBean record) {
         for (HisRuntimeItem rtItem : logs) {
-            if (!rtItem.isMatchRecord(record, myContext) || !rtItem.hasToPipeKey()) {
+            // 首先拆解 sql，那么上下文里就可以有两段 sqlName1 以及 sqlName2
+            // 后面的 match 逻辑，就有更多的判断依据
+            if (!rtItem.trySqlName(sqlName, myContext)) {
                 continue;
             }
-            if (rtItem.trySqlName(sqlName, myContext)) {
-                myContext.put("item", record);
-                NutBean hisMeta = rtItem.createLogRecord(now, myContext, record);
-                String pipeKey = rtItem.getToPipeKey();
-                fc.appendToPipeContext(pipeKey, hisMeta);
-                break;
+            myContext.put("item", record);
+            
+            // 这个项目时候需要记录历史
+            if (!rtItem.isMatchRecord(record, myContext)
+                || !rtItem.hasToPipeKey()) {
+                continue;
             }
+            
+            // 确认要记录历史
+            NutBean hisMeta = rtItem.createLogRecord(now, myContext, record);
+            String pipeKey = rtItem.getToPipeKey();
+            fc.appendToPipeContext(pipeKey, hisMeta);
+            break;
         }
     }
 
@@ -113,7 +127,8 @@ public class SqlxHisRuntime {
             // 确保设置是正确的
             if (!ta.isValid()) {
                 if (log.isWarnEnabled()) {
-                    log.warnf("sqlx hislog invalid target: %s", Json.toJson(ta));
+                    log.warnf("sqlx hislog invalid target: %s",
+                              Json.toJson(ta));
                 }
                 continue;
             }
@@ -122,7 +137,8 @@ public class SqlxHisRuntime {
             List<NutMap> beans = pipe.getAsList(ta.getFrom(), NutMap.class);
             if (null == beans || beans.isEmpty()) {
                 if (log.isDebugEnabled()) {
-                    log.debugf("sqlx hislog empty-target from=%s", ta.getFrom());
+                    log.debugf("sqlx hislog empty-target from=%s",
+                               ta.getFrom());
                 }
                 continue;
             }
@@ -170,7 +186,9 @@ public class SqlxHisRuntime {
                     conn.rollback();
                 }
                 catch (SQLException e1) {
-                    log.errorf("!!Rollback Fail for dao=%s: %s", ta.getDao(), e1.toString());
+                    log.errorf("!!Rollback Fail for dao=%s: %s",
+                               ta.getDao(),
+                               e1.toString());
                 }
             }
             throw Er.wrap(e);
