@@ -3,8 +3,6 @@ package com.site0.walnut.ext.data.sqlx.tmpl.vars;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.nutz.json.Json;
-
 import com.site0.walnut.ext.data.sqlx.ast.SqlCriteria;
 import com.site0.walnut.ext.data.sqlx.ast.SqlCriteriaNode;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
