@@ -9,18 +9,14 @@ import com.site0.walnut.ext.data.sqlx.ast.SqlCriteria;
 import com.site0.walnut.ext.data.sqlx.ast.SqlCriteriaNode;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlRenderContext;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmplRenderContext;
 
 public class VarsAsWhereElement extends SqlVarsElement {
 
-    private Object dftInput;
-
     public VarsAsWhereElement(String content) {
         super(content);
-        if (null != this.defaultValue) {
-            this.dftInput = Json.fromJson(this.defaultValue);
-        }
     }
 
     @Override
@@ -30,8 +26,11 @@ public class VarsAsWhereElement extends SqlVarsElement {
             src = (SqlRenderContext) rc;
         }
         Object input = this.getObject(rc.context);
-        if (null == input) {
-            input = dftInput;
+        if (null == input || Wlang.isEmpty(input)) {
+            if (null != this.defaultValue) {
+                rc.out.append(this.defaultValue);
+            }
+            return;
         }
 
         SqlCriteriaNode cri = SqlCriteria.toCriNode(input, this.aliasOr);

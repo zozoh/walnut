@@ -76,14 +76,14 @@ public abstract class SqlVarsElement implements TmplEle {
                     continue;
                 }
                 // 解析
-                String[] tt = Ws.splitIgnoreBlank(s, "=");
+                int pe = s.indexOf('=');
                 String key, val;
 
-                if (tt.length == 2) {
-                    key = tt[0];
-                    val = tt[1];
+                if (pe > 0) {
+                    key = s.substring(0, pe).trim();
+                    val = s.substring(pe + 1).trim();
                 } else {
-                    key = tt[0];
+                    key = s.trim();
                     val = null;
                 }
 

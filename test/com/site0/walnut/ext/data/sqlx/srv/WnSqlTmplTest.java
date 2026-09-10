@@ -13,7 +13,21 @@ import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
 import com.site0.walnut.util.Wlang;
 
 public class WnSqlTmplTest {
-    
+
+    @Test
+    public void test_query_dft_val() {
+        String s = "SELECT t_pet WHERE ${@vars=where;dft=1=0}";
+        Object context = new NutMap();
+        WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
+        List<SqlParam> params = new ArrayList<>(1);
+        String sql = sqlt.render(context, params);
+        assertEquals("SELECT t_pet WHERE 1=0", sql);
+        assertEquals(0, params.size());
+
+        sql = sqlt.render(context, null);
+        assertEquals("SELECT t_pet WHERE 1=0", sql);
+    }
+
     @Test
     public void test_query_alias_or() {
         String s = "SELECT t_pet WHERE ${@vars=where;alias_or=a:b|c,x:y|z}";
@@ -21,14 +35,16 @@ public class WnSqlTmplTest {
         WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
         List<SqlParam> params = new ArrayList<>(1);
         String sql = sqlt.render(context, params);
-        assertEquals("SELECT t_pet WHERE (a REGEXP ? OR b REGEXP ? OR c REGEXP ?)", sql);
+        assertEquals("SELECT t_pet WHERE (a REGEXP ? OR b REGEXP ? OR c REGEXP ?)",
+                     sql);
         assertEquals(3, params.size());
         assertEquals("a=\"^ABC$\"", params.get(0).toString());
         assertEquals("b=\"^ABC$\"", params.get(1).toString());
         assertEquals("c=\"^ABC$\"", params.get(2).toString());
 
         sql = sqlt.render(context, null);
-        assertEquals("SELECT t_pet WHERE (a REGEXP '^ABC$' OR b REGEXP '^ABC$' OR c REGEXP '^ABC$')", sql);
+        assertEquals("SELECT t_pet WHERE (a REGEXP '^ABC$' OR b REGEXP '^ABC$' OR c REGEXP '^ABC$')",
+                     sql);
     }
 
     @Test
