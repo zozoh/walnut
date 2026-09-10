@@ -1,6 +1,7 @@
 package com.site0.walnut.ext.data.sqlx.tmpl.vars;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -44,6 +45,14 @@ public abstract class SqlVarsElement implements TmplEle {
     protected String fieldPrefix;
 
     /**
+     * 在 Mapping 之后，对于每一个 Node，如果别名设定 会自动形成一个 OR 的条件组
+     * 
+     * 譬如 <code>${@vars=where;alias_or=a:b|c,x:y|z}</code> 会形成
+     * <code>(a=? OR b=? OR c=?) AND (x=? OR y=? OR z=?)</code>
+     */
+    protected Map<String, String[]> aliasOr;
+
+    /**
      * 处理这样的占位符:
      * 
      * <ul>
@@ -57,6 +66,7 @@ public abstract class SqlVarsElement implements TmplEle {
      */
     protected SqlVarsElement(String content) {
         this.content = content;
+        this.aliasOr = new HashMap<>();
         if (null != content) {
             String[] ss = Ws.splitIgnoreBlank(content, ";");
             for (String s : ss) {
@@ -104,6 +114,20 @@ public abstract class SqlVarsElement implements TmplEle {
                 // fpref=P.
                 else if ("fpref".equalsIgnoreCase(key)) {
                     this.fieldPrefix = val;
+                }
+                // alias_or=a:b|c,x:y|z
+                else if ("alias_or".equalsIgnoreCase(key)) {
+                    String[] aas = Ws.splitIgnoreBlank(val, ",");
+                    if (null != aas && aas.length > 0) {
+                        for (String aa : aas) {
+                            int pos = aa.indexOf(':');
+                            if (pos <= 0)
+                                continue;
+                            String akey = aa.substring(0, pos).trim();
+                            String aval = aa.substring(pos + 1).trim();
+                            aliasOr.put(akey, Ws.splitIgnoreBlank(aval, "[|]"));
+                        }
+                    }
                 }
                 // 错误
                 else if (!acceptSetup(key, val)) {

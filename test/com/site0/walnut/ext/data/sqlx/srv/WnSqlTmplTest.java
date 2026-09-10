@@ -13,6 +13,23 @@ import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
 import com.site0.walnut.util.Wlang;
 
 public class WnSqlTmplTest {
+    
+    @Test
+    public void test_query_alias_or() {
+        String s = "SELECT t_pet WHERE ${@vars=where;alias_or=a:b|c,x:y|z}";
+        Object context = Json.fromJson("{a:'^ABC$'}");
+        WnSqlTmpl sqlt = WnSqlTmpl.parse(s);
+        List<SqlParam> params = new ArrayList<>(1);
+        String sql = sqlt.render(context, params);
+        assertEquals("SELECT t_pet WHERE (a REGEXP ? OR b REGEXP ? OR c REGEXP ?)", sql);
+        assertEquals(3, params.size());
+        assertEquals("a=\"^ABC$\"", params.get(0).toString());
+        assertEquals("b=\"^ABC$\"", params.get(1).toString());
+        assertEquals("c=\"^ABC$\"", params.get(2).toString());
+
+        sql = sqlt.render(context, null);
+        assertEquals("SELECT t_pet WHERE (a REGEXP '^ABC$' OR b REGEXP '^ABC$' OR c REGEXP '^ABC$')", sql);
+    }
 
     @Test
     public void test_query_mapping_key() {

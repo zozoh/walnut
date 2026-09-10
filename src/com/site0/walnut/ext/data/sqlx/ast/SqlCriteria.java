@@ -20,6 +20,11 @@ import com.site0.walnut.ext.data.sqlx.ast.cri.*;
 public abstract class SqlCriteria {
 
     public static SqlCriteriaNode toCriNode(Object input) {
+        return toCriNode(input, null);
+    }
+
+    public static SqlCriteriaNode toCriNode(Object input,
+                                            Map<String, String[]> aliasOr) {
         // 防空
         if (null == input) {
             input = new NutMap();
@@ -30,7 +35,7 @@ public abstract class SqlCriteria {
             Collection<Object> col = (Collection<Object>) input;
             List<SqlCriteriaNode> nodes = new ArrayList<>(col.size());
             for (Object item : col) {
-                SqlCriteriaNode node = toCriNode(item);
+                SqlCriteriaNode node = toCriNode(item, aliasOr);
                 nodes.add(node);
             }
             return or(nodes);
@@ -40,7 +45,7 @@ public abstract class SqlCriteria {
             Object[] vv = (Object[]) input;
             List<SqlCriteriaNode> nodes = new ArrayList<>(vv.length);
             for (Object item : vv) {
-                SqlCriteriaNode node = toCriNode(item);
+                SqlCriteriaNode node = toCriNode(item, aliasOr);
                 nodes.add(node);
             }
             return or(nodes);
@@ -67,16 +72,30 @@ public abstract class SqlCriteria {
 
                 // 特殊 $and: ...
                 if (k.matches("^[$#]and(:.*)?$")) {
-                    node = toCriNode(v);
+                    node = toCriNode(v, aliasOr);
                 }
                 // 特殊 $or: ...
                 else if (k.matches("^[$#]or(:.*)?$")) {
-                    node = toCriNode(v);
+                    node = toCriNode(v, aliasOr);
                     join = SqlCriJoin.OR;
                 }
                 // 普通表达式
                 else {
-                    node = anyToExp(k, v);
+                    String[] aliass = null == aliasOr ? null : aliasOr.get(k);
+                    // 多个并行
+                    if (null != aliass && aliass.length > 0) {
+                        List<SqlCriteriaNode> or_nds = new ArrayList<>(aliass.length
+                                                                       + 1);
+                        or_nds.add(anyToExp(k, v));
+                        for (String alias : aliass) {
+                            or_nds.add(anyToExp(alias, v));
+                        }
+                        node = orGroup(or_nds);
+                    }
+                    // 就是普通转换
+                    else {
+                        node = anyToExp(k, v);
+                    }
                 }
 
                 // 第一个节点

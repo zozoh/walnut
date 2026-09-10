@@ -34,7 +34,7 @@ public class VarsAsWhereElement extends SqlVarsElement {
             input = dftInput;
         }
 
-        SqlCriteriaNode cri = SqlCriteria.toCriNode(input);
+        SqlCriteriaNode cri = SqlCriteria.toCriNode(input, this.aliasOr);
         // 防空
         if (cri.isEmpty()) {
             return;
