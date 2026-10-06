@@ -34,9 +34,20 @@ public class WnSmtpMail extends WnMail {
     List<WnMailAttachment> attachments;
 
     /**
-     * 附件列表，如果不是html邮件，且无附件，则采用简单邮件发送
+     * 加密邮件的加密解密方式
      */
     WnMailSecurity security;
+    
+    /**
+     * 在系统切换加密证书的期间，进行邮件解密时，可能需要的
+     * 记录这个 fallbackSecurity 属性
+     */
+    WnMailSecurity fallbackSecurity;
+    
+    /**
+     * 一个 UTC 时间戳，指明 fallbackSecurity 的有效期
+     */
+    String fallbackExpired;
 
     public NutBean toInfo() {
         NutMap info = new NutMap();
