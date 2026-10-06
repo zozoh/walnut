@@ -7,7 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
+import org.nutz.lang.ExitLoop;
 import org.nutz.lang.Streams;
 
 import com.qcloud.cos.COSClient;
@@ -244,7 +246,15 @@ public class CosXoService extends AbstractXoService<COSClient> {
                     xo.setKey(key);
                     xo.setSize(0L);
                     if (null != callback) {
-                        callback.invoke(count, xo, -1);
+                        try {
+                            callback.invoke(count, xo, -1);
+                        }
+                        catch (ExitLoop e) {
+                            break;
+                        }
+                        catch (ContinueLoop e) {
+                            continue;
+                        }
                     }
                     count++;
                     if (--remaining <= 0)
@@ -274,7 +284,15 @@ public class CosXoService extends AbstractXoService<COSClient> {
                 xo1.setLastModified(osum.getLastModified());
                 XoBean xo = xo1;
                 if (null != callback) {
-                    callback.invoke(count, xo, -1);
+                    try {
+                        callback.invoke(count, xo, -1);
+                    }
+                    catch (ExitLoop e) {
+                        break;
+                    }
+                    catch (ContinueLoop e) {
+                        continue;
+                    }
                 }
                 count++;
                 if (--remaining <= 0)
