@@ -1,11 +1,13 @@
 package com.site0.walnut.ext.net.mailx.bean;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wtime;
 import com.site0.walnut.util.tmpl.WnTmplX;
 
 import org.nutz.lang.util.NutBean;
@@ -37,13 +39,12 @@ public class WnSmtpMail extends WnMail {
      * 加密邮件的加密解密方式
      */
     WnMailSecurity security;
-    
+
     /**
-     * 在系统切换加密证书的期间，进行邮件解密时，可能需要的
-     * 记录这个 fallbackSecurity 属性
+     * 在系统切换加密证书的期间，进行邮件解密时，可能需要的 记录这个 fallbackSecurity 属性
      */
     WnMailSecurity fallbackSecurity;
-    
+
     /**
      * 一个 UTC 时间戳，指明 fallbackSecurity 的有效期
      */
@@ -238,6 +239,48 @@ public class WnSmtpMail extends WnMail {
 
     public void setSecurity(WnMailSecurity security) {
         this.security = security;
+    }
+
+    public boolean hasFallbackSecurity() {
+        if (null == this.fallbackSecurity) {
+            return false;
+        }
+        if (this.isFallbackExpired(null)) {
+            return false;
+        }
+        return true;
+    }
+
+    public WnMailSecurity getFallbackSecurity() {
+        return fallbackSecurity;
+    }
+
+    public void setFallbackSecurity(WnMailSecurity fallbackSecurity) {
+        this.fallbackSecurity = fallbackSecurity;
+    }
+
+    public boolean isFallbackExpired(Date now) {
+        if (null == this.fallbackExpired) {
+            return false;
+        }
+        if (null == now) {
+            now = new Date();
+        }
+        Date expi = Wtime.parseAnyDate(this.fallbackExpired);
+        if (null == expi) {
+            return false;
+        }
+        long expiAt = expi.getTime();
+        long nowAt = now.getTime();
+        return expiAt < nowAt;
+    }
+
+    public String getFallbackExpired() {
+        return fallbackExpired;
+    }
+
+    public void setFallbackExpired(String fallbackExpired) {
+        this.fallbackExpired = fallbackExpired;
     }
 
 }

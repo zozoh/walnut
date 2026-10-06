@@ -13,6 +13,8 @@ import java.util.Properties;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
+import org.simplejavamail.utils.mail.smime.SmimeException;
+
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.ext.net.mailx.util.Mailx;
 import com.site0.walnut.util.Ws;
@@ -95,21 +97,30 @@ public class WnMimeMail extends WnMail {
         if (null == msg)
             return;
         // 读取消息信息
+        String msgId = "#" + msg.getMessageNumber();
         try {
             // IMAPMessage imsg = (IMAPMessage) msg;
             MimeMessage imsg = (MimeMessage) msg;
+            msgId = imsg.getMessageID();
             this.receiveAt = msg.getReceivedDate().getTime();
             this.messageId = imsg.getMessageID();
             this.number = msg.getMessageNumber();
+
+            // 读取头
+            this.loadHeadInfo(msg);
+
+            // 读取邮件正文
+            this.loadBody(msg, asContent);
         }
         catch (MessagingException e) {
-            throw Er.wrap(e);
+            String reason = String.format("msgId=%s", msgId);
+            throw Er.create(e, "e.mailx.FailParseMessage", reason);
         }
-        // 读取头
-        this.loadHeadInfo(msg);
+        catch (SmimeException e) {
+            String reason = String.format("msgId=%s", msgId);
+            throw Er.create(e, "e.mailx.FailParseSmimeMessage", reason);
+        }
 
-        // 读取邮件正文
-        this.loadBody(msg, asContent);
     }
 
     public void fromMessage(String mimeText, String asContent) {
@@ -118,7 +129,8 @@ public class WnMimeMail extends WnMail {
         Session session = Session.getDefaultInstance(props, null);
 
         // 将 MIME 文本转换为输入流
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(mimeText.getBytes(StandardCharsets.UTF_8));
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(mimeText
+            .getBytes(StandardCharsets.UTF_8));
 
         // 从输入流构建 MimeMessage
         try {
@@ -268,7 +280,8 @@ public class WnMimeMail extends WnMail {
     public String dumpString(boolean showHeader) {
         String HR = Ws.repeat('-', 40);
         String HR2 = Ws.repeat('.', 40);
-        List<String> ss = Wlang.list(String.format("%s Email", this.getType().name()));
+        List<String> ss = Wlang
+            .list(String.format("%s Email", this.getType().name()));
         ss.add(HR);
         ss.add(String.format("[%s]%s %s",
                              number,
@@ -342,13 +355,13 @@ public class WnMimeMail extends WnMail {
         return null;
     }
 
-//    public int getNumber() {
-//        return number;
-//    }
-//
-//    public void setNumber(int number) {
-//        this.number = number;
-//    }
+    // public int getNumber() {
+    // return number;
+    // }
+    //
+    // public void setNumber(int number) {
+    // this.number = number;
+    // }
 
     public String getMessageId() {
         return messageId;

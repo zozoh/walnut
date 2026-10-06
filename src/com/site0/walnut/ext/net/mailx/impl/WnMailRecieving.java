@@ -126,17 +126,31 @@ public abstract class WnMailRecieving implements Runnable {
     }
 
     protected WnMimeMail buildMail(Message msg) throws MessagingException {
-        WnMimeMail mail;
+        WnMimeMail mail = null;
 
         // 获取邮件内容类型
         String contentType = Mailx.evalContentType(msg.getContentType(), null);
 
         // 加密邮件尝试解密
         if (isAutoDecrypt && "application/pkcs7-mime".equals(contentType)) {
-            SmimeKey smimeKey = preparePkcs7SmimeKey();
-
-            mail = new WnMimePkcs12Mail(session, smimeKey);
-            mail.fromMessage(msg, asContent);
+            try {
+                SmimeKey smimeKey = preparePkcs7SmimeKey(fc.mail.getSecurity());
+                mail = new WnMimePkcs12Mail(session, smimeKey);
+                mail.fromMessage(msg, asContent);
+            }
+            // 如果解密失败，尝试 fallback
+            catch (RuntimeException e) {
+                if (fc.mail.hasFallbackSecurity()) {
+                    SmimeKey smimeKey = preparePkcs7SmimeKey(fc.mail
+                        .getFallbackSecurity());
+                    mail = new WnMimePkcs12Mail(session, smimeKey);
+                    mail.fromMessage(msg, asContent);
+                }
+                // 没有的话，就直接抛出就好
+                else {
+                    throw e;
+                }
+            }
         }
         // 普通邮件
         else {
@@ -145,8 +159,7 @@ public abstract class WnMailRecieving implements Runnable {
         return mail;
     }
 
-    protected SmimeKey preparePkcs7SmimeKey() {
-        WnMailSecurity secu = fc.mail.getSecurity();
+    protected SmimeKey preparePkcs7SmimeKey(WnMailSecurity secu) {
         Pkcs12Config pkcs12 = Mailx.createPkcs12Config(sys, secu);
         ByteArrayInputStream storeIns = new ByteArrayInputStream(pkcs12
             .getPkcs12StoreData());
