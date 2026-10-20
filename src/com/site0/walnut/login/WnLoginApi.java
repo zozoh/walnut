@@ -87,13 +87,20 @@ public interface WnLoginApi {
 
     WnSession createSession(WnUser u, String type, int duInSec);
 
-    WnSession createSession(WnSession parentSe, WnUser u, String type, int duInSec);
+    WnSession createSession(WnSession parentSe,
+                            WnUser u,
+                            String type,
+                            int duInSec);
 
     WnSession removeSession(WnSession se);
 
     WnSession loginByPassword(String nameOrPhoneOrEmail, String rawPassword);
 
     WnSession loginByWechatMPCode(String code, boolean autoCreateUser);
+
+    boolean verifyPassword(String nameOrPhoneOrEmail, String rawPassword);
+
+    boolean verifyPassword(WnUser u, String rawPassword);
 
     WnSession logout(String ticket);
 

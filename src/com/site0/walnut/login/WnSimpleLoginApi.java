@@ -241,6 +241,25 @@ public class WnSimpleLoginApi implements WnLoginApi {
     }
 
     @Override
+    public boolean verifyPassword(String nameOrPhoneOrEmail,
+                                  String rawPassword) {
+        WnUser u = users.getUser(nameOrPhoneOrEmail);
+        return verifyPassword(u, rawPassword);
+    }
+
+    @Override
+    public boolean verifyPassword(WnUser u, String rawPassword) {
+        if (null == u) {
+            throw Er.create("e.auth.login.UsrNoExists");
+        }
+        String saltedPassword = Wn.genSaltPassword(rawPassword, u.getSalt());
+        if (saltedPassword.equals(u.getPasswd())) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public WnSession loginByWechatMPCode(String code, boolean autoCreateUser) {
         if (Ws.isBlank(this.wechatMpOpenIdKey)) {
             throw Er.create("e.auth.wechatMpOpenIdKey.NotDefined");

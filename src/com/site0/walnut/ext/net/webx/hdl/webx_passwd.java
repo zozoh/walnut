@@ -6,7 +6,6 @@ import com.site0.walnut.ext.net.webx.WebxFilter;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.login.role.WnRoleList;
-import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
 
@@ -34,7 +33,8 @@ public class webx_passwd extends WebxFilter {
                 WnRoleList roles = sys.roles().getRoles(me);
 
                 String mainGroup = sys.getMyGroup();
-                if (roles.isMemberOfRole("root") || roles.isAdminOfRole(mainGroup)) {
+                if (roles.isMemberOfRole("root")
+                    || roles.isAdminOfRole(mainGroup)) {
                     String name = params.get("name");
                     u = fc.api.checkUser(name);
                 }
@@ -45,9 +45,11 @@ public class webx_passwd extends WebxFilter {
             }
             // 否则必须有票据
             else {
-                String ticket = params.val_check(0);
-                WnSession se = fc.api.checkSession(ticket);
-                u = se.getUser();
+                u = sys.getMe();
+                String oldPassword = params.check("oldpass");
+                if (!fc.api.verifyPassword(u, oldPassword)) {
+                    throw Er.create("e.cmd.webx.passwd.NoValid");
+                }
             }
 
             // 再次防空，虽然不太可能
