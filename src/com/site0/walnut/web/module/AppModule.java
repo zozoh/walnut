@@ -647,7 +647,7 @@ public class AppModule extends AbstractWnModule {
                     log.infof("Login as domain-user: %s", name);
                 }
                 se = auth.loginByPassword(name, passwd);
-                String appName = se.getEnv().getString("OPEN", "wn.console");
+                String appName = se.getEnv().getString("OPEN", "wn-term");
                 redirectPath = "/a/open/" + appName;
                 reo = se.toBean(auth());
             }
