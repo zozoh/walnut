@@ -73,14 +73,12 @@ curl 'http://localhost:8080/api/root/hello?name=walnut'
 
 ## 常用套路
 
-| 想要 | 做法 |
-|------|------|
-| 返回对象内容 | `o id:${http-qs-id} -cqn` 或 `cat id:${id}` |
-| 返回文件 | `cat ~/data/report.pdf` + 元数据 `http-header-Content-Type:application/pdf` |
-| 接收 POST body | `cat id:${id}` 即请求体流，直接转存：`cat id:${id} > ~/uploads/a.bin` |
-| 动态响应头/302 | 元数据 `http-dynamic-header:true`，命令输出 `HTTP/1.1 302 ...` 头部 |
-| 跨域 | 元数据 `http-cross-origin:"*"` |
-| 防注入 | 默认开启（`http-safe-params`），Query String 会过滤引号/分号 |
+- **返回对象内容**：`o id:${http-qs-id} -cqn` 或 `cat id:${id}`
+- **返回文件**：`cat ~/data/report.pdf` + 元数据 `http-header-Content-Type:application/pdf`
+- **接收 POST body**：`cat id:${id}` 即请求体流，直接转存：`cat id:${id} > ~/uploads/a.bin`
+- **动态响应头/302**：元数据 `http-dynamic-header:true`，命令输出 `HTTP/1.1 302 ...` 头部
+- **跨域**：元数据 `http-cross-origin:"*"`
+- **防注入**：默认开启（`http-safe-params`），Query String 会过滤引号/分号
 
 ## 下一步
 

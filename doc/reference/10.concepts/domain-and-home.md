@@ -48,25 +48,23 @@ related: [everything-is-obj, accounts, quick-start]
 
 域主目录下有一批**约定目录**，系统各模块按约定自动识别：
 
-| 路径 | 用途 | 详见 |
-|------|------|------|
-| `~/.regapi/api/` | HTTP 注册接口（一文件一 API） | [first-api](../00.start-here/first-api.md) |
-| `~/.regapi/tmp/` | 请求对象临时区 | [request-object](../50.regapi/request-object.md) |
-| `~/.dao/*.dao.json` | SQL 数据源定义 | [dao-mapping](../20.io-storage/dao-mapping.md) |
-| `~/.io/ix/*.json` | SQL 表映射定义（索引器） | [dao-mapping](../20.io-storage/dao-mapping.md) |
-| `~/.io/bm/*.json` | Redis 桶管理器定义 | [mount-mapping](../20.io-storage/mount-mapping.md) |
-| `~/.sqlx/*.sql` | SQL 模板（sqlx 命令） | [data-cmd](../40.commands/data-cmd.md) |
-| `~/.weixin/{name}/` | 微信配置（wxconf + access_token） | [weixin](../70.integrations/weixin.md) |
-| `~/.aliyun/{oss,vod}/` | 阿里云配置 | [alipay-aliyun](../70.integrations/alipay-aliyun.md) |
-| `~/.alipay/{name}/` | 支付宝配置 | [payment](../70.integrations/payment.md) |
-| `~/.mediax/{host}/` | 媒体平台账号 | [media-cmd](../40.commands/media-cmd.md) |
-| `~/.mq/secret` | MQ 密钥 | [mq](../60.sched-async/mq.md) |
-| `~/.env` | 用户环境变量 | [env-vars](env-vars.md) |
-| `~/.pvg/*.json` | 业务权限表（推荐位置） | [biz-privilege](../30.auth/biz-privilege.md) |
-| `~/.hook/` | 用户钩子 | [hooks](../60.sched-async/hooks.md) |
-| `~/.dsync/*.json` | 数据同步配置 | [data-sync](../70.integrations/data-sync.md) |
-| `~/buck/ ~/swap/` | 域级本地桶（默认映射在域下时） | [io-model](../20.io-storage/io-model.md) |
-| `~/bin/` | 用户命令目录（PATH 含 `~/bin`，可 JS 覆盖系统命令） | [command-model](../40.commands/command-model.md) |
+- **`~/.regapi/api/`** — 用途：HTTP 注册接口（一文件一 API） — 详见：[first-api](../00.start-here/first-api.md)
+- **`~/.regapi/tmp/`** — 用途：请求对象临时区 — 详见：[request-object](../50.regapi/request-object.md)
+- **`~/.dao/*.dao.json`** — 用途：SQL 数据源定义 — 详见：[dao-mapping](../20.io-storage/dao-mapping.md)
+- **`~/.io/ix/*.json`** — 用途：SQL 表映射定义（索引器） — 详见：[dao-mapping](../20.io-storage/dao-mapping.md)
+- **`~/.io/bm/*.json`** — 用途：Redis 桶管理器定义 — 详见：[mount-mapping](../20.io-storage/mount-mapping.md)
+- **`~/.sqlx/*.sql`** — 用途：SQL 模板（sqlx 命令） — 详见：[data-cmd](../40.commands/data-cmd.md)
+- **`~/.weixin/{name}/`** — 用途：微信配置（wxconf + access_token） — 详见：[weixin](../70.integrations/weixin.md)
+- **`~/.aliyun/{oss,vod}/`** — 用途：阿里云配置 — 详见：[alipay-aliyun](../70.integrations/alipay-aliyun.md)
+- **`~/.alipay/{name}/`** — 用途：支付宝配置 — 详见：[payment](../70.integrations/payment.md)
+- **`~/.mediax/{host}/`** — 用途：媒体平台账号 — 详见：[media-cmd](../40.commands/media-cmd.md)
+- **`~/.mq/secret`** — 用途：MQ 密钥 — 详见：[mq](../60.sched-async/mq.md)
+- **`~/.env`** — 用途：用户环境变量 — 详见：[env-vars](env-vars.md)
+- **`~/.pvg/*.json`** — 用途：业务权限表（推荐位置） — 详见：[biz-privilege](../30.auth/biz-privilege.md)
+- **`~/.hook/`** — 用途：用户钩子 — 详见：[hooks](../60.sched-async/hooks.md)
+- **`~/.dsync/*.json`** — 用途：数据同步配置 — 详见：[data-sync](../70.integrations/data-sync.md)
+- **`~/buck/ ~/swap/`** — 用途：域级本地桶（默认映射在域下时） — 详见：[io-model](../20.io-storage/io-model.md)
+- **`~/bin/`** — 用途：用户命令目录（PATH 含 `~/bin`，可 JS 覆盖系统命令） — 详见：[command-model](../40.commands/command-model.md)
 
 ## HOME 与 ~
 

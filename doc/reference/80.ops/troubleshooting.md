@@ -53,16 +53,14 @@ xapi req <api> <account> <req> -vars ...    # 第三方请求 dry-run
 
 ## 常见错误速查
 
-| 报错 | 原因与处理 |
-|---|---|
-| `e.api.nofound` | API 路径未命中（含 `_ANY`）：确认对象存在、`http-api:true`、可执行位 |
-| `e.api.forbid` | 站点鉴权失败：票据无效/过期，或 `pvg-assert` 角色不够 |
-| `e.api.auth` | `api-access-token` 校验失败 |
-| `e.box.auth.NoSession` | 无会话执行了需要登录的命令 |
-| `e.cmd.vcode.check_fail` | 动态密码校验失败 |
-| `e.hook.home.noDir` | 钩子主目录存在但不是目录（`~/.hook/<action>` 被文件占用） |
-| `域名转发过期` | /domain 记录 `expi_at` 到期 |
-| `e.cmd.thing.*` | 撞上了已弃用的 Thing 体系，迁移到 obj/WnQuery |
+- **`e.api.nofound`**：API 路径未命中（含 `_ANY`）：确认对象存在、`http-api:true`、可执行位
+- **`e.api.forbid`**：站点鉴权失败：票据无效/过期，或 `pvg-assert` 角色不够
+- **`e.api.auth`**：`api-access-token` 校验失败
+- **`e.box.auth.NoSession`**：无会话执行了需要登录的命令
+- **`e.cmd.vcode.check_fail`**：动态密码校验失败
+- **`e.hook.home.noDir`**：钩子主目录存在但不是目录（`~/.hook/<action>` 被文件占用）
+- **`域名转发过期`**：/domain 记录 `expi_at` 到期
+- **`e.cmd.thing.*`**：撞上了已弃用的 Thing 体系，迁移到 obj/WnQuery
 
 ## 典型症状
 

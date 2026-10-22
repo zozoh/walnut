@@ -16,12 +16,10 @@ related: [deploy, ../50.regapi/api-object.md]
 
 `/domain` 目录下每个对象的**名字就是域名**，元数据决定路由：
 
-| 元数据 | 说明 |
-|---|---|
-| `domain`（兼容旧键 `dmn_grp`） | 目标域（组名），写入请求属性 `wn_www_grp` |
-| `site`（兼容 `dmn_site`） | 站点名，写入 `wn_www_site` |
-| `tp` | `A`（静态跳转/全路径重写）/ `B`（只记录域信息，路径不改） |
-| `expi_at` | 过期时间（毫秒时间戳）；不设置 = 永久有效；过期显示「域名转发过期」错误页 |
+- **`domain`（兼容旧键 `dmn_grp`）**：目标域（组名），写入请求属性 `wn_www_grp`
+- **`site`（兼容 `dmn_site`）**：站点名，写入 `wn_www_site`
+- **`tp`**：`A`（静态跳转/全路径重写）/ `B`（只记录域信息，路径不改）
+- **`expi_at`**：过期时间（毫秒时间戳）；不设置 = 永久有效；过期显示「域名转发过期」错误页
 
 添加映射：
 
@@ -55,13 +53,11 @@ main-host=^(127.0.0.1|192.168.\d+.\d+|localhost)$
 
 后续处理器（regapi、下载、websocket 等）从 request 属性拿路由结果：
 
-| 属性 | 内容 |
-|---|---|
-| `wn_www_path_org` | 原始路径 |
-| `wn_www_host` / `wn_www_ip` / `wn_www_port` | 请求主机/IP/端口 |
-| `wn_www_grp` / `wn_www_site` | 路由出的域与站点 |
-| `wn_www_path_new` / `wn_www_url` | A 类跳转重写后的路径/完整 URL |
-| `wn_www_static` | A 类静态跳转标记 |
+- **`wn_www_path_org`**：原始路径
+- **`wn_www_host` / `wn_www_ip` / `wn_www_port`**：请求主机/IP/端口
+- **`wn_www_grp` / `wn_www_site`**：路由出的域与站点
+- **`wn_www_path_new` / `wn_www_url`**：A 类跳转重写后的路径/完整 URL
+- **`wn_www_static`**：A 类静态跳转标记
 
 ## 典型场景
 

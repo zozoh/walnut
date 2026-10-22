@@ -14,19 +14,15 @@ Walnut 的模块间协作靠**元数据约定**：看懂这些键，就能看懂
 
 ## 存储映射
 
-| 键 | 值示例 | 说明 | 详见 |
-|----|--------|------|------|
-| `mnt` | `dao(demo/t_news)://lbm(A)` | 把子树映射到其他索引器/桶 | [mount-mapping](../20.io-storage/mount-mapping.md) |
-| `data` | `1f76...` | 对象在桶管理器内的数据段 ID | [io-model](../20.io-storage/io-model.md) |
-| `expi` | `1720000000000` | 过期绝对毫秒，到期自动删除 | [expiration](../20.io-storage/expiration.md) |
+- **`mnt`** — 值示例：`dao(demo/t_news)://lbm(A)` — 说明：把子树映射到其他索引器/桶 — 详见：[mount-mapping](../20.io-storage/mount-mapping.md)
+- **`data`** — 值示例：`1f76...` — 说明：对象在桶管理器内的数据段 ID — 详见：[io-model](../20.io-storage/io-model.md)
+- **`expi`** — 值示例：`1720000000000` — 说明：过期绝对毫秒，到期自动删除 — 详见：[expiration](../20.io-storage/expiration.md)
 
 ## 权限与安全
 
-| 键 | 值示例 | 说明 |
-|----|--------|------|
-| `mode`(`m`) | `448` | 三段八进制权限（admin/member/others） |
-| `pvg` | `{xiaobai:5,@op:7}` | 扩展 ACL，可指定用户或 `@角色` |
-| `api-access-token` | `http-qs-at=~/.domain/token` | regapi 访问密钥校验规则 |
+- **`mode`(`m`)** — 值示例：`448` — 说明：三段八进制权限（admin/member/others）
+- **`pvg`** — 值示例：`{xiaobai:5,@op:7}` — 说明：扩展 ACL，可指定用户或 `@角色`
+- **`api-access-token`** — 值示例：`http-qs-at=~/.domain/token` — 说明：regapi 访问密钥校验规则
 
 ## 展示与分类
 
@@ -41,22 +37,18 @@ Walnut 的模块间协作靠**元数据约定**：看懂这些键，就能看懂
 
 ## HTTP API（regapi）专用 `*`
 
-| 键前缀 | 说明 | 详见 |
-|--------|------|------|
-| `http-header-*` | 固定写入响应头 | [api-object](../50.regapi/api-object.md) |
-| `http-qs-*` / `http-cookie-*` / `http-header-*`（请求对象上） | 请求参数注入 | [request-object](../50.regapi/request-object.md) |
-| `http-resp-code` / `http-dynamic-header` / `http-cross-origin` | 响应行为控制 | [api-object](../50.regapi/api-object.md) |
-| `cache-test` / `cache-duration` / `cache-finger-key` / `cache-redirect` | 缓存策略 | [cache](../50.regapi/cache.md) |
-| `preload` / `history` / `pvg-setup` / `pvg-assert` | 预加载/埋点/权限 | [auth-history](../50.regapi/auth-history.md) |
+- **`http-header-*`** — 说明：固定写入响应头 — 详见：[api-object](../50.regapi/api-object.md)
+- **`http-qs-*` / `http-cookie-*` / `http-header-*`（请求对象上）** — 说明：请求参数注入 — 详见：[request-object](../50.regapi/request-object.md)
+- **`http-resp-code` / `http-dynamic-header` / `http-cross-origin`** — 说明：响应行为控制 — 详见：[api-object](../50.regapi/api-object.md)
+- **`cache-test` / `cache-duration` / `cache-finger-key` / `cache-redirect`** — 说明：缓存策略 — 详见：[cache](../50.regapi/cache.md)
+- **`preload` / `history` / `pvg-setup` / `pvg-assert`** — 说明：预加载/埋点/权限 — 详见：[auth-history](../50.regapi/auth-history.md)
 
 ## 任务与调度
 
-| 键 | 说明 |
-|----|------|
-| `tp: "cron_task"` | 定期任务对象（内容=命令模板） |
-| `tp: "schedule_task"` | 分钟计划任务（cron 展开产物） |
-| `tp: "task"` | 后台任务堆栈项 |
-| `cron` | WnCron 表达式 |
+- **`tp: "cron_task"`**：定期任务对象（内容=命令模板）
+- **`tp: "schedule_task"`**：分钟计划任务（cron 展开产物）
+- **`tp: "task"`**：后台任务堆栈项
+- **`cron`**：WnCron 表达式
 
 ## 典型对象长什么样
 

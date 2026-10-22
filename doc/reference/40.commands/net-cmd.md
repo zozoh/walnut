@@ -14,19 +14,17 @@ Walnut 内置了 HTTP 客户端、邮件、短信、FTP、MQTT 等网络能力�
 
 ## 命令一览
 
-| 命令 | 用途 | 手册 |
-|---|---|---|
-| `curl` / `wget` | 内置的 HTTP 下载（类 shell 习惯） | ✅ |
-| `httpc` | 通用 HTTP 客户端（过滤器管道） | ✅（10 子页） |
-| `xapi` | 第三方平台 API 调用框架 | ✅（含子页） |
-| `mailx` | 邮件收发（SMTP/POP3/IMAP，附件、模板） | ✅（20 子页） |
-| `sms` | 短信发送与查询 | ✅ |
-| `ftp` | FTP 客户端（ls/upload/download/mv/rm） | ✅（5 子页） |
-| `webx` | 站点用户自助操作（登录/改密/绑定手机邮箱） | ✅ |
-| `whoisx` | 域名 WHOIS 友好查询 | ✅ |
-| `icp` | ICP 备案查询 | ✅ |
-| `ip2region` | IP 归属地/运营商查询 | ✅ |
-| `mqttc` | MQTT 客户端（pub/sub） | ✅ |
+- **`curl` / `wget`** — 用途：内置的 HTTP 下载（类 shell 习惯） — 手册：✅
+- **`httpc`** — 用途：通用 HTTP 客户端（过滤器管道） — 手册：✅（10 子页）
+- **`xapi`** — 用途：第三方平台 API 调用框架 — 手册：✅（含子页）
+- **`mailx`** — 用途：邮件收发（SMTP/POP3/IMAP，附件、模板） — 手册：✅（20 子页）
+- **`sms`** — 用途：短信发送与查询 — 手册：✅
+- **`ftp`** — 用途：FTP 客户端（ls/upload/download/mv/rm） — 手册：✅（5 子页）
+- **`webx`** — 用途：站点用户自助操作（登录/改密/绑定手机邮箱） — 手册：✅
+- **`whoisx`** — 用途：域名 WHOIS 友好查询 — 手册：✅
+- **`icp`** — 用途：ICP 备案查询 — 手册：✅
+- **`ip2region`** — 用途：IP 归属地/运营商查询 — 手册：✅
+- **`mqttc`** — 用途：MQTT 客户端（pub/sub） — 手册：✅
 
 ## curl / wget
 

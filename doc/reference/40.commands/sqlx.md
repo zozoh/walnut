@@ -42,12 +42,10 @@ UPDATE t_pet SET${@vars=update} WHERE id=?;
 
 ## 适用场景
 
-| 场景 | 说明 |
-|---|---|
-| 业务报表 | 复杂 SQL 封装成 `sqlx @query report.monthly -vars {...}` |
-| 写接口 | `sqlx @exec` + `@dvcheck` 乐观锁，防止并发写冲突 |
-| 多步事务 | `@trans` 把多条 exec 包成一个事务 |
-| 数据迁移 | SQL 模板 + `sheet`/`jsonx` 管道导入导出 |
+- **业务报表**：复杂 SQL 封装成 `sqlx @query report.monthly -vars {...}`
+- **写接口**：`sqlx @exec` + `@dvcheck` 乐观锁，防止并发写冲突
+- **多步事务**：`@trans` 把多条 exec 包成一个事务
+- **数据迁移**：SQL 模板 + `sheet`/`jsonx` 管道导入导出
 
 ## 用法：上下文流水线
 

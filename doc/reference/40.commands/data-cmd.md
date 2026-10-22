@@ -45,12 +45,10 @@ sqlx pet exec 'DELETE FROM t_pet WHERE age>20'
 
 高频轻量数据，按类型选存储（`man like/favor/score/history`）：
 
-| 命令 | 存储 | 场景 |
-|------|------|------|
-| `like` | Redis Set | 点赞：yes/no/all/count/isLike |
-| `favor` | Redis ZSet(时间分) | 收藏：含收藏时间排序 |
-| `score` | Redis ZSet | 打分：一人一次，sum/resum |
-| `history` | SQL 表 | 操作历史（结构见通用实体文档） |
+- **`like`** — 存储：Redis Set — 场景：点赞：yes/no/all/count/isLike
+- **`favor`** — 存储：Redis ZSet(时间分) — 场景：收藏：含收藏时间排序
+- **`score`** — 存储：Redis ZSet — 场景：打分：一人一次，sum/resum
+- **`history`** — 存储：SQL 表 — 场景：操作历史（结构见通用实体文档）
 
 ```bash
 like yes target_1 $UID            # 点赞
@@ -97,12 +95,10 @@ fake sentence          # 一句话
 
 ## 场景速查
 
-| 任务 | 做法 |
-|------|------|
-| 给已有 MySQL 库做查询接口 | `~/.dao` 配源 + sqlx 模板 + regapi 包装 |
-| 内容平台点赞收藏打分 | entity 三件套（Redis），零建表 |
-| 需要原子发号 | `seq` 对象 |
-| 压测/演示数据 | `fake` + `run` 批量 |
+- **给已有 MySQL 库做查询接口**：`~/.dao` 配源 + sqlx 模板 + regapi 包装
+- **内容平台点赞收藏打分**：entity 三件套（Redis），零建表
+- **需要原子发号**：`seq` 对象
+- **压测/演示数据**：`fake` + `run` 批量
 
 ## 注意事项
 

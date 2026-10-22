@@ -14,20 +14,18 @@ related: [command-model, ../60.sched-async/cron-pipeline.md, ../60.sched-async/h
 
 ## 命令一览
 
-| 命令 | 用途 | 手册 |
-|---|---|---|
-| `cron` / `schedule` / `task` | 定时任务调度（详见第 60 章） | ✅ |
-| `mq` | 系统消息队列（send / secret） | ✅ |
-| `lock` | 全局锁（try / get / free / list） | ✅ |
-| `hookx` | 钩子调试与触发（get/query/invoke/view） | ✅ |
-| `trash` | 回收站（mv / recover） | ✅ |
-| `refer` | 对象引用计数（add/remove/view/count/objsha1） | ✅ |
-| `mgadmin` | MongoDB 直连管理（仅 root） | ✅ |
-| `aclog` | 访问日志分析 | ✅ |
-| `os` | 系统信息（字体列表等） | ✅ |
-| `path` | 路径工具（JVM Handler） | ❌ |
-| `datex` | 日期时间管道（8 个 @过滤器） | ✅ |
-| `redis` | Redis 直连操作（JVM Handler） | ❌ |
+- **`cron` / `schedule` / `task`** — 用途：定时任务调度（详见第 60 章） — 手册：✅
+- **`mq`** — 用途：系统消息队列（send / secret） — 手册：✅
+- **`lock`** — 用途：全局锁（try / get / free / list） — 手册：✅
+- **`hookx`** — 用途：钩子调试与触发（get/query/invoke/view） — 手册：✅
+- **`trash`** — 用途：回收站（mv / recover） — 手册：✅
+- **`refer`** — 用途：对象引用计数（add/remove/view/count/objsha1） — 手册：✅
+- **`mgadmin`** — 用途：MongoDB 直连管理（仅 root） — 手册：✅
+- **`aclog`** — 用途：访问日志分析 — 手册：✅
+- **`os`** — 用途：系统信息（字体列表等） — 手册：✅
+- **`path`** — 用途：路径工具（JVM Handler） — 手册：❌
+- **`datex`** — 用途：日期时间管道（8 个 @过滤器） — 手册：✅
+- **`redis`** — 用途：Redis 直连操作（JVM Handler） — 手册：❌
 
 ## lock：全局锁
 

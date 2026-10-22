@@ -14,19 +14,17 @@ Walnut 内置统一的支付单模型（`WnPayObj` / `WnPay3x`），一个 `pay`
 
 支付单就是 `/var/payment/` 下的普通对象，关键元数据（常量见 `WnPays`）：
 
-| 键 | 说明 |
-|---|---|
-| `brief` | 支付简介 |
-| `pay_st` | 状态：`NEW`（已创建）/ `WAIT`（等待支付）/ `OK`（成功）/ `FAIL`（失败） |
-| `pay_tp` | 支付类型：`wx.qrcode / wx.jsapi / wx.scan / zfb.qrcode / zfb.scan / ...` |
-| `pay_target` | 目标商户（发送时指定） |
-| `fee` / `cur` | 金额（分）/ 货币（默认 RMB） |
-| `buyer_id` / `buyer_nm` / `buyer_tp` | 买家（`walnut:用户ID` 或 `域账户库ID`） |
-| `seller_id` / `seller_nm` | 卖家（默认操作者所在域） |
-| `send_at` / `close_at` | 发送时间 / 关闭时间 |
-| `apply_at` / `apply_re` | 回调执行时间 / 回调输出（防重复回调） |
-| `re_tp` / `re_obj` | 支付返回的数据类型（`LINK/QRCODE/JSON/TEXT`）与数据 |
-| `pay_return_url` | 支付完成后的跳转 URL |
+- **`brief`**：支付简介
+- **`pay_st`**：状态：`NEW`（已创建）/ `WAIT`（等待支付）/ `OK`（成功）/ `FAIL`（失败）
+- **`pay_tp`**：支付类型：`wx.qrcode / wx.jsapi / wx.scan / zfb.qrcode / zfb.scan / ...`
+- **`pay_target`**：目标商户（发送时指定）
+- **`fee` / `cur`**：金额（分）/ 货币（默认 RMB）
+- **`buyer_id` / `buyer_nm` / `buyer_tp`**：买家（`walnut:用户ID` 或 `域账户库ID`）
+- **`seller_id` / `seller_nm`**：卖家（默认操作者所在域）
+- **`send_at` / `close_at`**：发送时间 / 关闭时间
+- **`apply_at` / `apply_re`**：回调执行时间 / 回调输出（防重复回调）
+- **`re_tp` / `re_obj`**：支付返回的数据类型（`LINK/QRCODE/JSON/TEXT`）与数据
+- **`pay_return_url`**：支付完成后的跳转 URL
 
 **支付单文件内容**是回调命令模板——支付成功后以执行者身份执行（见下文回调）。
 
@@ -78,13 +76,11 @@ pay query -match '{pay_st:"WAIT", lm:{$lt:两小时前}}'   # 找出超时未付
 
 ## 渠道实现状态
 
-| 渠道 | 实现 | 状态 |
-|---|---|---|
-| 支付宝二维码 | `alipay/ZfbQrcodePay3x` | ✅ 启用 |
-| 支付宝条码 | `alipay/ZfbScanPay3x` | ✅ 启用 |
-| 内部免费支付 | `free/FreePay3x` | ✅ 启用（测试/内部结算） |
-| PayPal | `paypal/PaypalPay3x` | ✅ 代码在（需自验配置） |
-| 微信三种 | `weixin/Wx*.java.txt` | ⚠️ **源码被停用**（文件改为 .txt 后缀），启用微信渠道需恢复这些文件并补齐商户配置 |
+- **支付宝二维码** — 实现：`alipay/ZfbQrcodePay3x` — 状态：✅ 启用
+- **支付宝条码** — 实现：`alipay/ZfbScanPay3x` — 状态：✅ 启用
+- **内部免费支付** — 实现：`free/FreePay3x` — 状态：✅ 启用（测试/内部结算）
+- **PayPal** — 实现：`paypal/PaypalPay3x` — 状态：✅ 代码在（需自验配置）
+- **微信三种** — 实现：`weixin/Wx*.java.txt` — 状态：⚠️ **源码被停用**（文件改为 .txt 后缀），启用微信渠道需恢复这些文件并补齐商户配置
 
 ## 典型场景：扫码收款闭环
 

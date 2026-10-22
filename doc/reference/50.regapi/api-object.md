@@ -42,52 +42,42 @@ API 对象的执行内容可以是命令（默认），也可以用 `http-body`/
 
 ### 访问控制
 
-| 元数据 | 说明 |
-|---|---|
-| `http-api:true` | 声明本对象是 API |
-| `api-access-token` | 访问令牌名——客户端必须在请求参数里带同名 key 的正确 token，否则 `e.api.auth` 拒绝 |
-| `pvg-setup` / `pvg-assert` | 站点权限：设置上下文角色、断言动作权限（见 [鉴权与历史](auth-history.md)） |
+- **`http-api:true`**：声明本对象是 API
+- **`api-access-token`**：访问令牌名——客户端必须在请求参数里带同名 key 的正确 token，否则 `e.api.auth` 拒绝
+- **`pvg-setup` / `pvg-assert`**：站点权限：设置上下文角色、断言动作权限（见 [鉴权与历史](auth-history.md)）
 
 ### 请求解析
 
-| 元数据 | 说明 |
-|---|---|
-| `api-param-name` | 路径参数注入名（配合 `_ANY`，见 [路径参数](path-params.md)） |
-| `http-method` | 限定请求方法（GET/POST...），不匹配报 404/405 |
-| `http-body` | 请求体类型：`text` / `form` / `json` |
-| `http-post-json-merge` | 为 true 时把 JSON body 的字段合并进参数表 |
-| `http-qs-*` | 在 API 对象上预设参数（`http-qs-mime`、`http-qs-ticket` 等） |
-| `http-safe-params` | 安全参数名列表，防注入 |
+- **`api-param-name`**：路径参数注入名（配合 `_ANY`，见 [路径参数](path-params.md)）
+- **`http-method`**：限定请求方法（GET/POST...），不匹配报 404/405
+- **`http-body`**：请求体类型：`text` / `form` / `json`
+- **`http-post-json-merge`**：为 true 时把 JSON body 的字段合并进参数表
+- **`http-qs-*`**：在 API 对象上预设参数（`http-qs-mime`、`http-qs-ticket` 等）
+- **`http-safe-params`**：安全参数名列表，防注入
 
 ### 响应控制
 
-| 元数据 | 说明 |
-|---|---|
-| `http-output` | 输出类型：`text`（原始流）/ `json`（格式化 JSON 响应） |
-| `http-header-<NAME>` | 预设响应头；值支持 `${key}` 占位（从请求参数取值），如 `http-header-X-FOO:${name}` |
-| `http-dynamic-header` | 动态头开关——配合模板动态生成响应头 |
-| `http-resp-code` | 预设响应码 |
-| `http-resp-buff-size` | 响应缓冲大小 |
-| `http-cross-origin` | 跨域许可（`Access-Control-Allow-Origin`） |
-| `copy-cookie` | 从请求复制哪些 Cookie 到响应 |
+- **`http-output`**：输出类型：`text`（原始流）/ `json`（格式化 JSON 响应）
+- **`http-header-<NAME>`**：预设响应头；值支持 `${key}` 占位（从请求参数取值），如 `http-header-X-FOO:${name}`
+- **`http-dynamic-header`**：动态头开关——配合模板动态生成响应头
+- **`http-resp-code`**：预设响应码
+- **`http-resp-buff-size`**：响应缓冲大小
+- **`http-cross-origin`**：跨域许可（`Access-Control-Allow-Origin`）
+- **`copy-cookie`**：从请求复制哪些 Cookie 到响应
 
 ### 执行环境
 
-| 元数据 | 说明 |
-|---|---|
-| `run-with-hook` | 为 true 时执行前先触发钩子（等同写入动作） |
-| `http-tmp-duraion` / `api-tmp-duration` | API 临时对象（http-api 对象）的过期时长 |
-| `http-home` | API 工作目录（默认 API 所在目录） |
-| `http-protocol` | 协议约束（http/https） |
+- **`run-with-hook`**：为 true 时执行前先触发钩子（等同写入动作）
+- **`http-tmp-duraion` / `api-tmp-duration`**：API 临时对象（http-api 对象）的过期时长
+- **`http-home`**：API 工作目录（默认 API 所在目录）
+- **`http-protocol`**：协议约束（http/https）
 
 ### 预加载与记录
 
-| 元数据 | 说明 |
-|---|---|
-| `preload` | 执行前预加载数据到上下文（数组：`test`/`appends`/`run`），见 [鉴权与历史](auth-history.md) |
-| `history` | 为 true 时写历史记录对象（默认名 `_history`） |
-| `hisname` | 历史记录对象的键名（默认 `_history`） |
-| `hismetas` | 历史记录要保存的元数据白名单 |
+- **`preload`**：执行前预加载数据到上下文（数组：`test`/`appends`/`run`），见 [鉴权与历史](auth-history.md)
+- **`history`**：为 true 时写历史记录对象（默认名 `_history`）
+- **`hisname`**：历史记录对象的键名（默认 `_history`）
+- **`hismetas`**：历史记录要保存的元数据白名单
 
 ## 场景速查
 

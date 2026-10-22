@@ -14,13 +14,11 @@ related: [what-is-walnut, first-api, deploy, io-model]
 
 ## 依赖环境
 
-| 依赖 | 必需 | 说明 |
-|------|------|------|
-| JDK 17+ | ✅ | pom 指定 source/target 17 |
-| Maven 3.x | ✅ | 标准 Maven 工程 |
-| MongoDB | ✅ | 主索引（对象树元数据） |
-| Redis | 建议 | 锁/句柄/引用计数/可选桶；缺省配置下 io.js 需要可连接的 Redis |
-| ffmpeg / ImageMagick | 可选 | 视频转码、图像处理命令用 |
+- **JDK 17+** — 必需：✅ — 说明：pom 指定 source/target 17
+- **Maven 3.x** — 必需：✅ — 说明：标准 Maven 工程
+- **MongoDB** — 必需：✅ — 说明：主索引（对象树元数据）
+- **Redis** — 必需：建议 — 说明：锁/句柄/引用计数/可选桶；缺省配置下 io.js 需要可连接的 Redis
+- **ffmpeg / ImageMagick** — 必需：可选 — 说明：视频转码、图像处理命令用
 
 ## 构建
 

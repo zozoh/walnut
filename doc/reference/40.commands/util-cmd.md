@@ -14,17 +14,15 @@ related: [command-model, data-cmd, jsonx]
 
 ## 命令一览
 
-| 命令 | 用途 | 手册 |
-|---|---|---|
-| `base64` | base64 编码/解码（管道） | ✅ |
-| `hexbin` | 二进制 ⇄ HEX 字符串 | ✅ |
-| `btea` | btea 加解密（管道） | ✅ |
-| `crc` | CRC 校验（hdl 子命令） | ❌ |
-| `jsonx` | JSON 过滤器管道（30+ @过滤器） | ✅（30+ 子页） |
-| `strx` | 字符串过滤器管道 | ✅ |
-| `seq` | 序列生成器（create） | ✅ |
-| `react` | 数据联动（@vars/@config/@happen） | ✅ |
-| `shorturl` | 短链接生成（JVM Handler） | ❌ |
+- **`base64`** — 用途：base64 编码/解码（管道） — 手册：✅
+- **`hexbin`** — 用途：二进制 ⇄ HEX 字符串 — 手册：✅
+- **`btea`** — 用途：btea 加解密（管道） — 手册：✅
+- **`crc`** — 用途：CRC 校验（hdl 子命令） — 手册：❌
+- **`jsonx`** — 用途：JSON 过滤器管道（30+ @过滤器） — 手册：✅（30+ 子页）
+- **`strx`** — 用途：字符串过滤器管道 — 手册：✅
+- **`seq`** — 用途：序列生成器（create） — 手册：✅
+- **`react`** — 用途：数据联动（@vars/@config/@happen） — 手册：✅
+- **`shorturl`** — 用途：短链接生成（JVM Handler） — 手册：❌
 
 ## base64 / hexbin / btea
 

@@ -13,12 +13,10 @@ related: [session, privilege, domain-and-home, auto-login]
 
 Walnut 有两套账户体系，服务两类场景：
 
-| | 系统账户 | 域账户（站点用户库） |
-|---|---------|---------------------|
-| 存哪 | `/sys/usr/`（每用户一文件） | `~/accounts/`（域内 ThingSet 或映射表） |
-| 谁管理 | root / 系统服务 | 域主（站点运营者） |
-| 登录到什么 | Walnut 系统（域 Shell / 管理界面） | 域自己的站点/App |
-| 能做什么 | 操作自己的域和系统资源 | 只能访问该站点的业务接口 |
+- **存哪** — 系统账户：`/sys/usr/`（每用户一文件） — 域账户（站点用户库）：`~/accounts/`（域内 ThingSet 或映射表）
+- **谁管理** — 系统账户：root / 系统服务 — 域账户（站点用户库）：域主（站点运营者）
+- **登录到什么** — 系统账户：Walnut 系统（域 Shell / 管理界面） — 域账户（站点用户库）：域自己的站点/App
+- **能做什么** — 系统账户：操作自己的域和系统资源 — 域账户（站点用户库）：只能访问该站点的业务接口
 
 **桥接**：域账户可凭站点票据创建系统会话（混合登录），登录后进入域主目录——这就是「用域账户使用 Walnut」的路径（`/a/auth_login_by_domain_*`）。
 
@@ -92,13 +90,11 @@ role                            # 角色操作（man role）
 
 ## 命令速查
 
-| 命令 | 作用 |
-|------|------|
-| `adduser` / `usermod` / `passwd` | 系统账户管理 |
-| `whoami` / `me` | 当前身份与元数据 |
-| `grp` / `role` | 组与角色管理 |
-| `login <user>` | 切换身份（需特权） |
-| `vcode` / `captcha` | 验证码体系（见 [vcode-captcha](vcode-captcha.md)） |
+- **`adduser` / `usermod` / `passwd`**：系统账户管理
+- **`whoami` / `me`**：当前身份与元数据
+- **`grp` / `role`**：组与角色管理
+- **`login <user>`**：切换身份（需特权）
+- **`vcode` / `captcha`**：验证码体系（见 [vcode-captcha](vcode-captcha.md)）
 
 ## 注意事项
 

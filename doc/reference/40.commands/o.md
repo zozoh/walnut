@@ -34,13 +34,11 @@ o ~/orders @query '{status:"NEW"}' -sort '{ct:-1}' -limit 10 @update 'tp:"X"' @j
 
 ## 适用场景
 
-| 场景 | 说明 |
-|---|---|
-| 数据 CRUD | 任何「记录=对象」的数据操作（订单、文章、配置） |
-| 元数据批量治理 | 改标签、补字段、按模板批量执行 |
-| 统计报表 | `@count / @agg / @summary` 三级聚合 |
-| 树形数据整理 | `@tree/@flat/@children/@ancestors` |
-| 关联查询 | `@join_one/@join_many` 把别的对象嵌入结果 |
+- **数据 CRUD**：任何「记录=对象」的数据操作（订单、文章、配置）
+- **元数据批量治理**：改标签、补字段、按模板批量执行
+- **统计报表**：`@count / @agg / @summary` 三级聚合
+- **树形数据整理**：`@tree/@flat/@children/@ancestors`
+- **关联查询**：`@join_one/@join_many` 把别的对象嵌入结果
 
 ## 用法：按流程分组
 

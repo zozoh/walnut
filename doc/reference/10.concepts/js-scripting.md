@@ -29,11 +29,9 @@ jsc ~/bin/hello.js -vars 'name:"walnut"'
 
 ## 脚本上下文（全局对象）
 
-| 全局 | 类型 | 说明 |
-|------|------|------|
-| `sys` | WnSystem | **核心入口**：io/exec/me/se/envs/params |
-| `obj` | WnObj/Map | 钩子场景下：当前操作的对象 |
-| `print(x)` | 函数 | 输出到 stdout（等同 `sys.out.println`） |
+- **`sys`** — 类型：WnSystem — 说明：**核心入口**：io/exec/me/se/envs/params
+- **`obj`** — 类型：WnObj/Map — 说明：钩子场景下：当前操作的对象
+- **`print(x)`** — 类型：函数 — 说明：输出到 stdout（等同 `sys.out.println`）
 
 `sys` 常用成员：
 
@@ -51,14 +49,12 @@ sys.params      // 命令行参数
 
 ## 挂载点一览（JS 在哪些地方生效）
 
-| 位置 | 触发时机 | 上下文特点 |
-|------|----------|-----------|
-| `jsc` 命令 | 手动 | 完整 sys |
-| 钩子文件 `~/.hook/write/xxx.js` | 对象写入后 | 有全局 `obj` |
-| 全局钩子 `/sys/hook/*` | 系统级对象事件 | root 身份或指定用户 |
-| cron 任务命令体 | 定时触发 | 任务所属用户身份 |
-| MQ 消息 body | 消费时 | 消息 user 身份 |
-| regapi 命令模板 | API 调用时 | 请求对象为上下文 |
+- **`jsc` 命令** — 触发时机：手动 — 上下文特点：完整 sys
+- **钩子文件 `~/.hook/write/xxx.js`** — 触发时机：对象写入后 — 上下文特点：有全局 `obj`
+- **全局钩子 `/sys/hook/*`** — 触发时机：系统级对象事件 — 上下文特点：root 身份或指定用户
+- **cron 任务命令体** — 触发时机：定时触发 — 上下文特点：任务所属用户身份
+- **MQ 消息 body** — 触发时机：消费时 — 上下文特点：消息 user 身份
+- **regapi 命令模板** — 触发时机：API 调用时 — 上下文特点：请求对象为上下文
 
 钩子示例（图片上传后自动处理）：
 

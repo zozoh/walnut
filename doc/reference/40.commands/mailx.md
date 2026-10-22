@@ -26,12 +26,10 @@ related: [net-cmd, ../70.integrations/sms-mail.md, tmpl, ../60.sched-async/notif
 
 ## 适用场景
 
-| 场景 | 说明 |
-|---|---|
-| 业务通知邮件 | 注册确认、订单状态、账单（模板 + 变量） |
-| 告警 | cron 任务失败通知（见 [通知](../60.sched-async/notify.md)） |
-| 收信处理 | 客服邮箱自动分拣：`@imap` 拉取 → 命令处理 |
-| 敏感邮件 | S/MIME 加密/签名发送 |
+- **业务通知邮件**：注册确认、订单状态、账单（模板 + 变量）
+- **告警**：cron 任务失败通知（见 [通知](../60.sched-async/notify.md)）
+- **收信处理**：客服邮箱自动分拣：`@imap` 拉取 → 命令处理
+- **敏感邮件**：S/MIME 加密/签名发送
 
 ## 发信：过滤器分组
 
@@ -39,16 +37,14 @@ related: [net-cmd, ../70.integrations/sms-mail.md, tmpl, ../60.sched-async/notif
 mailx [ConfigName] [-lang zh-cn] [-quiet] [-json] [-cqn] [-ajax] [[@filter ...]...]
 ```
 
-| 分组 | 过滤器 | 作用 |
-|---|---|---|
-| 收件人 | `@to @cc @bcc` | 添加接收者（可多个） |
-| | `@fto @fcc @fbcc` | 从文件/目录批量添加（`-match` 过滤） |
-| 标题 | `@sub` | 邮件标题 |
-| 内容 | `@content` | 正文（`-html` 富文本） |
-| | `@tmpl` | 正文用模板（`@vars` 提供变量） |
-| 变量 | `@vars @load @set` | 模板变量：直接给 / 从文件读 / 从对象元数据映射 |
-| 附件 | `@fs` 等 | 附件与 MIME 处理（见子页） |
-| 其他 | `@trans @meta @raw_msg @json` | 转换脚本、元数据、原始消息、JSON 输出 |
+- **收件人** — 过滤器：`@to @cc @bcc` — 作用：添加接收者（可多个）
+- **** — 过滤器：`@fto @fcc @fbcc` — 作用：从文件/目录批量添加（`-match` 过滤）
+- **标题** — 过滤器：`@sub` — 作用：邮件标题
+- **内容** — 过滤器：`@content` — 作用：正文（`-html` 富文本）
+- **** — 过滤器：`@tmpl` — 作用：正文用模板（`@vars` 提供变量）
+- **变量** — 过滤器：`@vars @load @set` — 作用：模板变量：直接给 / 从文件读 / 从对象元数据映射
+- **附件** — 过滤器：`@fs` 等 — 作用：附件与 MIME 处理（见子页）
+- **其他** — 过滤器：`@trans @meta @raw_msg @json` — 作用：转换脚本、元数据、原始消息、JSON 输出
 
 ## 示例
 

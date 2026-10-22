@@ -25,16 +25,14 @@ o ~/orders -match 'status:"NEW",ct:[..,)' -sort 'ct:-1' -limit 20 -skip 0 -cqn
 
 查询条件对象语法（多处复用：match、hook_by、cache-test）：
 
-| 写法 | 含义 |
-|------|------|
-| `"^abc$"` | `^` 开头=正则 |
-| `"!^abc"` | `!` 前缀=取反 |
-| `"hello Mr. *"` | `*`=通配符 |
-| `"~~abc"` | 无视大小写精确匹配 |
-| `[1,100)` / `(,100]` | 数字/日期区间（见 [动态校验语法](../50.regapi/auth-history.md)） |
-| `null` / `!KEY:null` | 存在性判断 |
-| `""` / `[BLANK]` | 空串 / 空白串判断 |
-| `true` | 布尔 |
+- **`"^abc$"`**：`^` 开头=正则
+- **`"!^abc"`**：`!` 前缀=取反
+- **`"hello Mr. *"`**：`*`=通配符
+- **`"~~abc"`**：无视大小写精确匹配
+- **`[1,100)` / `(,100]`**：数字/日期区间（见 [动态校验语法](../50.regapi/auth-history.md)）
+- **`null` / `!KEY:null`**：存在性判断
+- **`""` / `[BLANK]`**：空串 / 空白串判断
+- **`true`**：布尔
 
 > 完整语义见 [auth-history](../50.regapi/auth-history.md) 的验证语法一节（c2-sxm 体系）。
 
@@ -58,12 +56,10 @@ o ~/orders -match 'ct:[..,)' -agg 'group:status,func:count'
 
 聚合要素（`api/io/agg/`）：
 
-| 概念 | 说明 |
-|------|------|
-| `WnAggGroupKey` | 分组键，支持字段、日期截断（按天/按月）、范围桶 |
-| `WnAggFunc` | 聚合函数：count/sum/avg/max/min/first/last |
-| `WnAggOptions` | 整体选项：条件、分组、排序、翻页 |
-| `WnAggTransMode` | 结果形态：树形/扁平/表格 |
+- **`WnAggGroupKey`**：分组键，支持字段、日期截断（按天/按月）、范围桶
+- **`WnAggFunc`**：聚合函数：count/sum/avg/max/min/first/last
+- **`WnAggOptions`**：整体选项：条件、分组、排序、翻页
+- **`WnAggTransMode`**：结果形态：树形/扁平/表格
 
 ## 编程接口
 

@@ -12,15 +12,13 @@ Walnut 的安全模型：域隔离 + 元数据权限 + 会话票据。本节是�
 
 ## 密钥存放约定
 
-| 秘密 | 位置 | 说明 |
-|---|---|---|
-| MQ 发送密钥 | `~/.mq/secret` | `mq secret` 生成 |
-| API 访问令牌 | API 对象 `api-access-token` 元数据 | 客户端经参数携带 |
-| 邮箱 SMTP 密码 | `~/.mail/<账户>.json` | |
-| 短信 apikey | `~/.sms/config_<provider>` | |
-| 阿里云 RAM 密钥 | `~/.aliyun/oss|vod/<名>.json` | 用 RAM 子账号，最小权限 |
-| 微信 appsecret | `~/.xapi/<平台>/<账号>/config.json5` | 见 [xapi](../70.integrations/xapi.md) |
-| xapi 动态票据 | `access_token` 文件 | 框架自动维护 |
+- **MQ 发送密钥** — 位置：`~/.mq/secret` — 说明：`mq secret` 生成
+- **API 访问令牌** — 位置：API 对象 `api-access-token` 元数据 — 说明：客户端经参数携带
+- **邮箱 SMTP 密码** — 位置：`~/.mail/<账户>.json`
+- **短信 apikey** — 位置：`~/.sms/config_<provider>`
+- **阿里云 RAM 密钥** — 位置：`~/.aliyun/oss — 说明：vod/<名>.json`
+- **微信 appsecret** — 位置：`~/.xapi/<平台>/<账号>/config.json5` — 说明：见 [xapi](../70.integrations/xapi.md)
+- **xapi 动态票据** — 位置：`access_token` 文件 — 说明：框架自动维护
 
 原则：**密钥集中放 root 家目录**，业务用户通过任务身份借用；不要把含密钥的对象放到公共目录。
 

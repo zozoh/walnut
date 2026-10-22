@@ -14,15 +14,13 @@ Walnut 的 JS 脚本由 `JsExec` 引擎执行（`src/com/site0/walnut/jsexec/`�
 
 每个脚本运行前自动注入这些全局变量（见 `JsExec.java` 的 bindings）：
 
-| 变量 | 内容 |
-|---|---|
-| `sys` | `WnSystem` —— 命令沙箱入口 |
-| `$wn` | Walnut 助手库（`jsc_walnut.js`） |
-| `$log` / `log` / `logx` | 日志（带 trace ID） |
-| `wc` | `Wn.WC()` 当前上下文 |
-| `_` | lodash（预载） |
-| `$g` | 域级全局 JS 对象（见下） |
-| `_TRACE_ID` | 本次执行链路 ID |
+- **`sys`**：`WnSystem` —— 命令沙箱入口
+- **`$wn`**：Walnut 助手库（`jsc_walnut.js`）
+- **`$log` / `log` / `logx`**：日志（带 trace ID）
+- **`wc`**：`Wn.WC()` 当前上下文
+- **`_`**：lodash（预载）
+- **`$g`**：域级全局 JS 对象（见下）
+- **`_TRACE_ID`**：本次执行链路 ID
 
 ## WnSystem 在 JS 中的用法
 

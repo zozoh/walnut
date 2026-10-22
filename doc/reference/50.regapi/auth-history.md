@@ -29,12 +29,10 @@ o /home/demo/api/order/list -e '
 
 注入的元数据（命令/JS 中直接可用）：
 
-| 元数据 | 内容 |
-|---|---|
-| `http-www-se-ticket` | 站点会话票据 |
-| `http-www-me-id` / `http-www-me-nm` | 用户 ID / 登录名 |
-| `http-www-me` | 用户完整元数据 JSON |
-| `http-www-me-phone` / `http-www-me-email` / `http-www-me-mainGroup` | 手机 / 邮箱 / 主域 |
+- **`http-www-se-ticket`**：站点会话票据
+- **`http-www-me-id` / `http-www-me-nm`**：用户 ID / 登录名
+- **`http-www-me`**：用户完整元数据 JSON
+- **`http-www-me-phone` / `http-www-me-email` / `http-www-me-mainGroup`**：手机 / 邮箱 / 主域
 
 > 站点登录本身由 webx 命令完成（见 [网络命令](../40.commands/net-cmd.md)）；这里只负责「拿着票据认出用户」。
 

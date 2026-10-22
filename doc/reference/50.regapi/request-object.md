@@ -43,17 +43,15 @@ Walnut 把**每个 HTTP 请求也变成一个临时对象**（即 http-api 对�
 
 ## 常用元数据速查
 
-| 元数据 | 内容 |
-|---|---|
-| `http-url` / `http-uri` | 完整 URL / 路径 |
-| `http-method` | GET / POST / ... |
-| `http-qs-<名>` | 查询参数（小写原名） |
-| `http-header-<NAME>` | 请求头（**大写**，如 `http-header-CONTENT-TYPE`） |
-| `http-cookie-<NAME>` | Cookie（**大写**） |
-| `http-usr` / `http-grp` | 当前登录用户与域 |
-| `http-se-*` | 系统会话（见 [会话](../30.auth/session.md)） |
-| `http-www-*` | 站点会话（见 [鉴权与历史](auth-history.md)） |
-| `http-remote-addr/host/port` | 客户端网络信息 |
+- **`http-url` / `http-uri`**：完整 URL / 路径
+- **`http-method`**：GET / POST / ...
+- **`http-qs-<名>`**：查询参数（小写原名）
+- **`http-header-<NAME>`**：请求头（**大写**，如 `http-header-CONTENT-TYPE`）
+- **`http-cookie-<NAME>`**：Cookie（**大写**）
+- **`http-usr` / `http-grp`**：当前登录用户与域
+- **`http-se-*`**：系统会话（见 [会话](../30.auth/session.md)）
+- **`http-www-*`**：站点会话（见 [鉴权与历史](auth-history.md)）
+- **`http-remote-addr/host/port`**：客户端网络信息
 
 ## 在命令/JS 中读取
 

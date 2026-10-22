@@ -14,21 +14,19 @@ Walnut 把一批媒体处理能力做成了内置命令：图像、视频、二�
 
 ## 命令一览
 
-| 命令 | 用途 | 手册 |
-|---|---|---|
-| `imagic` | 图像处理（缩放/裁剪/水印/旋转等，基于 java.awt） | ✅ |
-| `videoc` | 视频转码（封装 ffmpeg） | ✅ |
-| `videoi` | 读取视频元信息（时长/码率/分辨率等） | ✅ |
-| `qrcode` | 生成二维码图片 | ✅ |
-| `sheet` | 电子表格读写（csv/xls/xlsx 互转、取行） | ✅ |
-| `subtitle` | 字幕格式转换（srt） | ✅ |
-| `ooml` | Office 模板渲染（docx/xlsx 占位符与循环） | ✅（10+ 子页） |
-| `avatar` | 生成头像图（文字/颜色） | ✅ |
-| `dom` | jsoup 风格的 HTML/XML  DOM 操作 | ✅（11 子页） |
-| `edi` | EDI 电子数据交换（加载/解析/渲染报文） | ✅ |
-| `mediax` | 媒体抓取与下载（crawl/download/post） | ✅ |
-| `pdf` | PDF 处理（JVM Handler 结构） | ❌ |
-| `tpassport` | 证件照排版绘制 | ❌ |
+- **`imagic`** — 用途：图像处理（缩放/裁剪/水印/旋转等，基于 java.awt） — 手册：✅
+- **`videoc`** — 用途：视频转码（封装 ffmpeg） — 手册：✅
+- **`videoi`** — 用途：读取视频元信息（时长/码率/分辨率等） — 手册：✅
+- **`qrcode`** — 用途：生成二维码图片 — 手册：✅
+- **`sheet`** — 用途：电子表格读写（csv/xls/xlsx 互转、取行） — 手册：✅
+- **`subtitle`** — 用途：字幕格式转换（srt） — 手册：✅
+- **`ooml`** — 用途：Office 模板渲染（docx/xlsx 占位符与循环） — 手册：✅（10+ 子页）
+- **`avatar`** — 用途：生成头像图（文字/颜色） — 手册：✅
+- **`dom`** — 用途：jsoup 风格的 HTML/XML  DOM 操作 — 手册：✅（11 子页）
+- **`edi`** — 用途：EDI 电子数据交换（加载/解析/渲染报文） — 手册：✅
+- **`mediax`** — 用途：媒体抓取与下载（crawl/download/post） — 手册：✅
+- **`pdf`** — 用途：PDF 处理（JVM Handler 结构） — 手册：❌
+- **`tpassport`** — 用途：证件照排版绘制 — 手册：❌
 
 ## imagic：图像处理
 

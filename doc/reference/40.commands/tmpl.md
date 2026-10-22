@@ -22,13 +22,11 @@ related: [sqlx, extend-regapi, command-model]
 
 ## 适用场景
 
-| 场景 | 说明 |
-|---|---|
-| API 响应组装 | regapi 命令里拼 JSON/文本响应 |
-| SQL 生成 | sqlx 模板（见 [sqlx](sqlx.md)） |
-| 批量命令生成 | `o ... @tmpl '...' \| run` 生成命令再执行 |
-| 邮件/通知正文 | mailx 模板、短信文案 |
-| 配置文件生成 | 按环境变量渲染配置 |
+- **API 响应组装**：regapi 命令里拼 JSON/文本响应
+- **SQL 生成**：sqlx 模板（见 [sqlx](sqlx.md)）
+- **批量命令生成**：`o ... @tmpl '...' | run` 生成命令再执行
+- **邮件/通知正文**：mailx 模板、短信文案
+- **配置文件生成**：按环境变量渲染配置
 
 ## 语法
 

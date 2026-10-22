@@ -14,13 +14,11 @@ Walnut 是一个**业务系统开发基座平台**（Java 17 / Maven / 内嵌 Je
 
 ## 五大核心机制
 
-| 机制 | 一句话 | 详见 |
-|------|--------|------|
-| 一切皆对象 | 所有数据是树形空间（WnObj）里的对象，字段用缩写（id/nm/sha1/mode/expi...），Unix 风格 | [everything-is-obj](../10.concepts/everything-is-obj.md) |
-| 统一存储 | 任何目录可声明 `mnt` 映射到 MongoDB / SQL / Redis / 本地文件 / 内存 / MQ，索引与内容（桶）分离 | [io-model](../20.io-storage/io-model.md) |
-| 命令拼装 | 一切操作是命令，支持管道 `\|`、重定向 `>`；内置 76 个 + 扩展 85 个命令 | [command-pipeline](../10.concepts/command-pipeline.md) |
-| JS 动态逻辑 | `jsc` 命令在域内执行 JS，脚本可读写对象、执行命令，业务逻辑可热更新 | [js-scripting](../10.concepts/js-scripting.md) |
-| 文件即 HTTP 接口 | `~/.regapi/` 下一个文件就是一个 API，内容是命令模板，请求被对象化后注入 | [api-object](../50.regapi/api-object.md) |
+- **一切皆对象** — 一句话：所有数据是树形空间（WnObj）里的对象，字段用缩写（id/nm/sha1/mode/expi...），Unix 风格 — 详见：[everything-is-obj](../10.concepts/everything-is-obj.md)
+- **统一存储** — 一句话：任何目录可声明 `mnt` 映射到 MongoDB / SQL / Redis / 本地文件 / 内存 / MQ，索引与内容（桶）分离 — 详见：[io-model](../20.io-storage/io-model.md)
+- **命令拼装** — 一句话：一切操作是命令，支持管道 `|`、重定向 `>`；内置 76 个 + 扩展 85 个命令 — 详见：[command-pipeline](../10.concepts/command-pipeline.md)
+- **JS 动态逻辑** — 一句话：`jsc` 命令在域内执行 JS，脚本可读写对象、执行命令，业务逻辑可热更新 — 详见：[js-scripting](../10.concepts/js-scripting.md)
+- **文件即 HTTP 接口** — 一句话：`~/.regapi/` 下一个文件就是一个 API，内容是命令模板，请求被对象化后注入 — 详见：[api-object](../50.regapi/api-object.md)
 
 ## 系统全景
 
@@ -53,15 +51,13 @@ Walnut 是一个**业务系统开发基座平台**（Java 17 / Maven / 内嵌 Je
 
 ## 常用术语速查
 
-| 术语 | 含义 |
-|------|------|
-| WnObj / 对象 | 文件系统节点的统一抽象（DIR/FILE/LINK/OBJ） |
-| 域 (domain/group) | 一组数据的归属单位；用户主组即其域 |
-| 桶 (Bucket) | 对象内容的实际存储（SHA1 去重的块存储） |
-| 句柄 (Handle) | 打开对象读写的凭证，写句柄独占且限时 |
-| mnt / 映射 | 目录的 `mnt` 元数据，把子树委托给其他存储 |
-| regapi | HTTP 注册接口机制 |
-| box / 沙箱 | 命令执行容器，保证每条命令有确定的用户身份 |
+- **WnObj / 对象**：文件系统节点的统一抽象（DIR/FILE/LINK/OBJ）
+- **域 (domain/group)**：一组数据的归属单位；用户主组即其域
+- **桶 (Bucket)**：对象内容的实际存储（SHA1 去重的块存储）
+- **句柄 (Handle)**：打开对象读写的凭证，写句柄独占且限时
+- **mnt / 映射**：目录的 `mnt` 元数据，把子树委托给其他存储
+- **regapi**：HTTP 注册接口机制
+- **box / 沙箱**：命令执行容器，保证每条命令有确定的用户身份
 
 ## 已弃用
 

@@ -26,13 +26,11 @@ Walnut 是一个 Servlet 应用（war 包或内嵌 jetty），运行骨架由 `w
 
 `src/com/site0/walnut/web/WnMainModule.java` 的注解即启动装配方式：
 
-| 注解 | 作用 |
-|---|---|
-| `@SetupBy(WnSetup.class)` | 启动初始化（建 /sys、/domain、默认钩子等） |
-| `@IocBy(ComboIocProvider, "*js", "ioc")` | IoC 容器读 `conf/ioc/*.js` |
-| `@Modules(by = "ioc:webscan")` | MVC 模块从 IoC 扫描 |
-| `@ChainBy("chain/walnut-chain.js")` | 动作链配置 |
-| `@Localization("msg")` / `@Views` | 国际化与视图（AjaxViewMaker/WnViewMaker） |
+- **`@SetupBy(WnSetup.class)`**：启动初始化（建 /sys、/domain、默认钩子等）
+- **`@IocBy(ComboIocProvider, "*js", "ioc")`**：IoC 容器读 `conf/ioc/*.js`
+- **`@Modules(by = "ioc:webscan")`**：MVC 模块从 IoC 扫描
+- **`@ChainBy("chain/walnut-chain.js")`**：动作链配置
+- **`@Localization("msg")` / `@Views`**：国际化与视图（AjaxViewMaker/WnViewMaker）
 
 ## conf/ 目录
 
@@ -56,31 +54,27 @@ conf/
 
 同一个接口有单机/集群两套实现，换 bean 名即切换：
 
-| 接口 | 单机 | 集群 |
-|---|---|---|
-| 锁 | `lockApiByMemory` | Redis 锁 |
-| 句柄管理 | `ioHandleManagerByMemory` | `ioHandleManager` |
-| 桶管理 | `redisBM` 内存 | `redisBMFactory` |
-| 索引器 | — | `mongoFlatIndexerFactory` |
+- **锁** — 单机：`lockApiByMemory` — 集群：Redis 锁
+- **句柄管理** — 单机：`ioHandleManagerByMemory` — 集群：`ioHandleManager`
+- **桶管理** — 单机：`redisBM` 内存 — 集群：`redisBMFactory`
+- **索引器** — 单机：— — 集群：`mongoFlatIndexerFactory`
 
 ## web.properties 关键键
 
-| 键 | 说明 |
-|---|---|
-| `app-port` / `admin-port` | 服务端口 / 管理端口 |
-| `mongo-host` / `mongo-db` | MongoDB 连接 |
-| `redis-host/port/ssl/database` | Redis 连接 |
-| `global-bm-bucket/swap/autocreate` | 全局桶映射缓存位置 |
-| `hdl-timeout` | 句柄超时（秒，默认 3600） |
-| `mq-enabled` / `mq-*` | 外部 MQ（RocketMQ 接入） |
-| `init-mnt` | 启动挂载表（`路径 : file://本地目录`） |
-| `init-usr-envs` / `usr-dft-meta` | 新用户默认环境变量与元数据 |
-| `root-init-passwd` | root 初始密码（**生产必须改**） |
-| `se-sys-du` / `se-tmp-du` | 会话时长（系统/临时，分钟） |
-| `expi-obj-clean-*` | 过期对象清理线程参数 |
-| `main-host` | 不做域名路由的主机白名单（正则） |
-| `jvmbox-pkgs` | JVM 命令扫描包（加自定义命令包） |
-| `web-module-pkgs` | MVC 模块扫描包 |
+- **`app-port` / `admin-port`**：服务端口 / 管理端口
+- **`mongo-host` / `mongo-db`**：MongoDB 连接
+- **`redis-host/port/ssl/database`**：Redis 连接
+- **`global-bm-bucket/swap/autocreate`**：全局桶映射缓存位置
+- **`hdl-timeout`**：句柄超时（秒，默认 3600）
+- **`mq-enabled` / `mq-*`**：外部 MQ（RocketMQ 接入）
+- **`init-mnt`**：启动挂载表（`路径 : file://本地目录`）
+- **`init-usr-envs` / `usr-dft-meta`**：新用户默认环境变量与元数据
+- **`root-init-passwd`**：root 初始密码（**生产必须改**）
+- **`se-sys-du` / `se-tmp-du`**：会话时长（系统/临时，分钟）
+- **`expi-obj-clean-*`**：过期对象清理线程参数
+- **`main-host`**：不做域名路由的主机白名单（正则）
+- **`jvmbox-pkgs`**：JVM 命令扫描包（加自定义命令包）
+- **`web-module-pkgs`**：MVC 模块扫描包
 
 ## 集群部署要点
 

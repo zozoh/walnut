@@ -96,13 +96,11 @@ archive ...                          # 归档体系（man archive）
 
 ## 场景速查
 
-| 任务 | 命令 |
-|------|------|
-| 「这个对象是什么」 | `o <path/id> -cqn` |
-| 「按标签找图」 | `o ~/photos -match 'lbls:"trip",tp:"jpg"'` |
-| 「批量改元数据」 | `o ... -tmpl '...' \| run` |
-| 「目录瘦身」 | `find ~ -size +100m \| xargs rm` |
-| 「建测试数据」 | 见 [data-cmd](data-cmd.md) 的 fake |
+- **「这个对象是什么」**：`o <path/id> -cqn`
+- **「按标签找图」**：`o ~/photos -match 'lbls:"trip",tp:"jpg"'`
+- **「批量改元数据」**：`o ... -tmpl '...' | run`
+- **「目录瘦身」**：`find ~ -size +100m | xargs rm`
+- **「建测试数据」**：见 [data-cmd](data-cmd.md) 的 fake
 
 ## 注意事项
 

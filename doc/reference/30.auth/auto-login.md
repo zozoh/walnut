@@ -74,11 +74,9 @@ sign = sha256(nonce, timestamp, token, 业务参数...)
 
 ## 选型
 
-| 场景 | 机制 |
-|------|------|
-| 第三方系统免密跳入 Walnut 界面 | ackey 自动登录 |
-| 服务端对服务端的 API 调用 | Token + sign |
-| 用户手持设备访问 | 正常登录 + 会话票据（见 [session](session.md)） |
+- **第三方系统免密跳入 Walnut 界面**：ackey 自动登录
+- **服务端对服务端的 API 调用**：Token + sign
+- **用户手持设备访问**：正常登录 + 会话票据（见 [session](session.md)）
 
 ## 注意事项
 
