@@ -17,7 +17,6 @@ related: [quick-start, ../20.io-storage/01-io-model.md, source-layout]
 10.concepts/
 |-- README.md             # 本篇：设计初衷、逻辑结构、概念导览
 |-- 01-std-obj.md         # 标准对象：一切皆对象（WnObj）
-|-- 02-io-indexer-bm.md   # IO / Indexer / BM：统一数据接口的两层实现
 |-- 03-domain-home.md     # Domain 与 Home：域、主目录与目录布局
 |-- 04-session-env.md     # 会话与环境变量
 |-- 05-command-model.md   # 命令模型：沙箱、管道与三种命令写法
@@ -100,7 +99,8 @@ HTTP 注册接口（regapi）、定时任务、消息队列、邮件短信、支
 管对象的**内容**：字节流的读写（BM = Bucket Manager）。
 
 **对象的两部分分开保存**：元数据与内容由 Indexer 与 BM 分开保存、可存不同介质，按实现任意组合
-（元数据进 SQL 表 + 内容进 Redis 桶，或 Mongo + 本地文件，皆可）。以上四个接口的详解见 [02](02-io-indexer-bm.md)。
+（元数据进 SQL 表 + 内容进 Redis 桶，或 Mongo + 本地文件，皆可）。以上四个接口的详解见
+[数据存储与映射](../20.io-storage/README.md)。
 
 ### Domain 与 Home: 域与主目录
 

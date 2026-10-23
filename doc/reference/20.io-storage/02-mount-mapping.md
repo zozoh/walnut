@@ -8,7 +8,7 @@ source:
   - core/mapping/indexer/
   - core/mapping/bm/
   - conf/ioc/io.js
-related: [01-io-model, 03-dao-mapping, 04-xo-storage, ../10.concepts/02-io-indexer-bm.md]
+related: [01-io-model, 03-dao-mapping, 04-xo-storage, ../10.concepts/01-std-obj.md]
 ---
 
 # mnt 映射语法全集

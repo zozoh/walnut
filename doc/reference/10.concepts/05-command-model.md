@@ -9,7 +9,7 @@ source:
   - impl/box/JvmExecutor.java
   - impl/box/JvmHdlExecutor.java
   - impl/box/JvmFilterExecutor.java
-related: [io-indexer-bm, session-env, custom-command]
+related: [01-std-obj, session-env, custom-command]
 ---
 
 # 命令模型（沙箱、管道与三种写法）
