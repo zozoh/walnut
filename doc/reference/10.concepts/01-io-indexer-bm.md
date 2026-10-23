@@ -12,18 +12,44 @@ related: [std-obj, io-model, mount-mapping, query-agg, 3x-data-source]
 
 # IO / Indexer / BM
 
-WnIO 是 Walnut 的统一数据接口：**一切数据都是树形空间里的对象，一切读写查都走 WnIO**。
-它背后由两个可插拔的实现接口组成：
+数据访问是任何系统的核心。Walnut 用四个接口把这件事讲清楚：
 
-- **Indexer（索引器，接口 `WnIoIndexer`）**：管**元数据**——对象的树结构、字段、查询、聚合
-- **BM（Bucket Manager，接口 `WnIoBM`）**：管**内容**——对象的字节流（文件内容）
+## 四个核心接口
 
-两者正交：元数据放哪、内容放哪，可以独立选择、自由组合。
+- **IO — 统一数据读写接口**（`interface WnIo`，`api/io/WnIo.java`）
+  对外的唯一数据入口：**一切数据都是树形空间里的对象，一切读写查都走 WnIO**。
+  使用者（命令、regapi、服务类）只面对它，不需要知道底层存储是什么。
 
-## 为什么分成两层
+- **对象 — 一条数据的基本单位**（`interface WnObj`，`api/io/WnObj.java`）
+  文件、目录、会话、支付单……任何一条数据都是一个对象。一个对象有**两部分信息**：
+  **元数据**（id、名称、权限、标签、时间等业务字段）和**内容**（字节流，即文件内容）。
 
-- 元数据需要查询能力（按字段查、按标签查、聚合统计），内容是大块字节流——两者的存储诉求完全不同
-- 分开之后可以按需选型：小站点「Mongo + 本地文件」即可，大规模可以「SQL + Redis」
+- **Indexer — 对象元数据索引管理器**（`interface WnIoIndexer`，`api/io/WnIoIndexer.java`）
+  管对象的**元数据**：树结构、字段、查询、聚合。
+
+- **BM — 对象内容桶管理器**（`interface WnIoBM`，`core/WnIoBM.java`）
+  管对象的**内容**：字节流的读写（BM = Bucket Manager，桶管理器）。
+
+## 关键设计：元数据与内容分开保存
+
+**一个对象的元数据与内容桶是分开保存的，可以存在不同的介质上**——
+Indexer 和 BM 是两个独立的可插拔接口，按接口的实现可以**任意组合**：
+
+```bash
+# 元数据在 MongoDB，内容在本地文件 —— 最常见组合
+Indexer = mongo    BM = file
+
+# 元数据在 SQL 表（海量结构化数据可聚合），内容在 Redis
+Indexer = sql      BM = redis
+
+# 一个目录一个组合：子树整体切到另一组 Indexer/BM（mnt 映射）
+mnt = "dao(demo/t_news)://lbm(news-data)"
+```
+
+分开的理由：
+
+- 元数据需要查询能力（按字段查、按标签查、聚合统计），内容是大块字节流——存储诉求完全不同
+- 按需选型：小站点「Mongo + 本地文件」即可，大规模可以「SQL + Redis」
 - 目录树通过 **mnt 映射**挂接：任何一个目录对象声明 `mnt` 元数据，它的子树就整体切到另一组 Indexer/BM 上
 
 ## 现有的实现
