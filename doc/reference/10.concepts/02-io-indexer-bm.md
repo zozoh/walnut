@@ -7,7 +7,7 @@ source:
   - api/io/WnIoIndexer.java
   - core/WnIoBM.java
   - core/mapping/WnIoMappingFactoryImpl.java
-related: [std-obj, io-model, mount-mapping, query-agg, 3x-data-source]
+related: [std-obj, io-model, mount-mapping, 3x-data-source]
 ---
 
 # IO / Indexer / BM
@@ -107,5 +107,4 @@ umount ~/data/news
 
 - [IO 模型](../20.io-storage/io-model.md)：WnIO 的完整读写流程、缓存与句柄
 - [挂载与映射](../20.io-storage/mount-mapping.md)：mnt 语法全集、~/.io 配置
-- [查询与聚合](../20.io-storage/query-agg.md)：Indexer 的查询能力
 - [3X 数据源](06-3x-data-source.md)：更多外部数据如何接进来

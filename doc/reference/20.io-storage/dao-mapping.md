@@ -9,7 +9,7 @@ source:
   - core/mapping/bm/SqlBMFactory.java
   - core/mapping/support/SqlIoArgs.java
   - core/mapping/support/SqlIoOptions.java
-related: [mount-mapping, sqlx, io-model, query-agg]
+related: [mount-mapping, sqlx, io-model, ../40.commands/o.md]
 ---
 
 # .dao 数据源与 SQL 表映射
@@ -85,7 +85,7 @@ mnt : "sql(demo:t_news:AMS:{species:\"dog\"})"
 ## 查询怎么用
 
 映射目录照常支持 `WnQuery`（相等、区间、正则、排序、翻页），由 SqlIndexer 翻译成 SQL，
-语义见 [query-agg](query-agg.md)：
+查询条件语法与 `o` 命令的 `-match` 一致，见 [o](../40.commands/o.md)：
 
 ```bash
 o ~/biz/orders -match 'status:"NEW",ct:[1720000000000,)' -sort 'ct:-1' -limit 20 -cqn

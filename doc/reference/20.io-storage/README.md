@@ -18,7 +18,6 @@ related: [../10.concepts/02-io-indexer-bm.md, ../10.concepts/01-std-obj.md, io-m
 |-- dao-mapping.md     # .dao 数据源与 SQL 表映射：元数据/内容进关系库
 |-- xo-storage.md      # 对象存储集成（xo）：s3/cos 配置与 vofs/vxds 挂载
 |-- expiration.md      # 过期对象机制：expi 自动删除
-|-- query-agg.md       # 查询与聚合：WnQuery / agg 在所有索引器上的统一语义
 ```
 
 ## 阅读路径
@@ -28,7 +27,7 @@ related: [../10.concepts/02-io-indexer-bm.md, ../10.concepts/01-std-obj.md, io-m
 - **要用某种介质** [mount-mapping](mount-mapping.md) — 每种索引器/桶的 `mnt` 写法、组合示例、注意事项
 - **要进关系库** [dao-mapping](dao-mapping.md) — 数据源、SQL 模板、内容进表
 - **要上对象存储** [xo-storage](xo-storage.md) — 云桶配置，以及 vofs/vxds 挂载
-- **辅助机制** [expiration](expiration.md)（到期自动删）与 [query-agg](query-agg.md)（怎么查）在所有映射上通用
+- **辅助机制** [expiration](expiration.md)（到期自动删）与查询（`o` 命令的 `-match`/`@query`）在所有映射上通用
 
 ## 一页速查
 

@@ -33,7 +33,6 @@
 - **20.io-storage/dao-mapping.md** — .dao 数据源与 SQL 表映射 — 模块：core.indexer.sql — 关键词：dao,数据源,SQL映射,sqlx,模板
 - **20.io-storage/xo-storage.md** — 对象存储集成（xo） — 模块：ext.xo — 关键词：xo,对象存储,s3,cos,oss,临时密钥,vofs,vxds
 - **20.io-storage/expiration.md** — 过期对象机制 — 模块：core.eot — 关键词：expi,EOT,清理线程,多节点竞争
-- **20.io-storage/query-agg.md** — 查询与聚合 — 模块：api.io — 关键词：WnQuery,agg,分组,排序,翻页
 
 ## 30.auth
 

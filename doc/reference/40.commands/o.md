@@ -3,7 +3,7 @@ title: o 命令：对象操作瑞士军刀
 module: 40.commands
 keywords: [o, 对象操作, @query, @update, @agg, 上下文, 过滤器]
 source: [ext/data/o/]
-related: [03_cmd_filter, ../20.io-storage/query-agg.md, ../10.concepts/01-std-obj.md]
+related: [03_cmd_filter, ../50.regapi/auth-history.md, ../10.concepts/01-std-obj.md]
 ---
 
 # o 命令：对象操作瑞士军刀
@@ -117,7 +117,7 @@ o ~/categories @tree -subkey children @json -cqn
 
 ## 注意事项
 
-- `@query` 的 `-match` 语法与 WnQuery 一致（见 [查询与聚合](../20.io-storage/query-agg.md)）；
+- `@query` 的 `-match` 语法即 WnQuery 条件语法（`^` 正则、`!` 取反、`*` 通配、区间、存在性等，完整语义见 [验证语法](../50.regapi/auth-history.md)）；
 - 默认只输出一个对象时不带列表包裹，加 `-l` 强制列表输出（脚本里建议永远加）；
 - `@inc` 是原子操作，适合发号器场景（订单号、ID）；
 - 批量操作前先 `@query ... @json` 预览命中集，确认无误再 `@update/@delete`。
@@ -126,4 +126,3 @@ o ~/categories @tree -subkey children @json -cqn
 
 - [过滤命令](03_cmd_filter.md) — 过滤器管道机制
 - [一切皆对象](../10.concepts/01-std-obj.md)
-- [查询与聚合](../20.io-storage/query-agg.md)

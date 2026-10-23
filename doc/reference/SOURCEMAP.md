@@ -29,8 +29,8 @@
 
 - **api/io/WnObj.java** — 说明：对象模型 — 文档：[01-std-obj](10.concepts/01-std-obj.md) ✅
 - **api/io/WnIo.java** — 说明：IO 主接口 — 文档：20.io-storage/io-model.md ✅
-- **api/io/WnQuery.java** — 说明：查询抽象 — 文档：20.io-storage/query-agg.md ✅
-- **api/io/agg/** — 说明：聚合查询 — 文档：20.io-storage/query-agg.md ✅
+- **api/io/WnQuery.java** — 说明：查询抽象 — 文档：[o](40.commands/o.md) ✅
+- **api/io/agg/** — 说明：聚合查询 — 文档：[o](40.commands/o.md) ✅
 - **api/io/WnExpiObjTable.java** — 说明：过期对象表 — 文档：20.io-storage/expiration.md ✅
 - **api/lock/** — 说明：锁接口 — 文档：[03_cmd_filter](40.commands/03_cmd_filter.md) ✅
 - **api/hook/** — 说明：钩子接口 — 文档：60.sched-async/hooks.md ✅

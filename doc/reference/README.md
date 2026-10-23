@@ -42,7 +42,6 @@ doc/reference/
 |   |-- dao-mapping.md            #   .dao 数据源 + ~/.sqlx 模板，元数据/内容进 SQL 表
 |   |-- xo-storage.md             #   对象存储集成：xo 命令、s3/cos 配置、vofs/vxds 挂载
 |   |-- expiration.md             #   过期对象机制：expi、EOT 表、多节点清理竞争
-|   |-- query-agg.md              #   WnQuery 查询语法与聚合(agg)分组
 |
 |-- 30.auth/                      # 账户、会话与权限
 |   |-- accounts.md               #   系统账户(/sys/usr)与域账户(~/accounts)双轨模型
