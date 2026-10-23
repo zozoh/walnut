@@ -27,7 +27,7 @@
 
 ## API 层（api/）——核心接口
 
-- **api/io/WnObj.java** — 说明：对象模型 — 文档：[02-std-obj](10.concepts/02-std-obj.md) ✅
+- **api/io/WnObj.java** — 说明：对象模型 — 文档：[01-std-obj](10.concepts/01-std-obj.md) ✅
 - **api/io/WnIo.java** — 说明：IO 主接口 — 文档：20.io-storage/io-model.md ✅
 - **api/io/WnQuery.java** — 说明：查询抽象 — 文档：20.io-storage/query-agg.md ✅
 - **api/io/agg/** — 说明：聚合查询 — 文档：20.io-storage/query-agg.md ✅
@@ -45,7 +45,7 @@
 - **core/hdl/{memory,redis}** — 说明：句柄管理 — 文档：20.io-storage/io-model.md ✅
 - **core/eot/** — 说明：过期对象表实现 — 文档：20.io-storage/expiration.md ✅
 - **core/refer/{mongo,redis}** — 说明：桶引用计数 — 文档：20.io-storage/io-model.md ✅
-- **core/bean/** — 说明：WnIoObj — 文档：[02-std-obj](10.concepts/02-std-obj.md) ✅
+- **core/bean/** — 说明：WnIoObj — 文档：[01-std-obj](10.concepts/01-std-obj.md) ✅
 
 ## 服务实现（impl/）
 

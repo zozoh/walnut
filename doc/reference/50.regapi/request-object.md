@@ -3,7 +3,7 @@ title: 请求对象：一次请求一个对象
 module: 50.regapi
 keywords: [http-api 对象, 请求元数据, http-qs, 上传下载, http-body, http-output]
 source: [ext/sys/httpapi/]
-related: [api-object, path-params, ../10.concepts/02-std-obj.md]
+related: [api-object, path-params, ../10.concepts/01-std-obj.md]
 ---
 
 # 请求对象：一次请求一个对象
@@ -101,4 +101,4 @@ echo '{"ok":true,"id":"${http-qs-file}"}'
 
 - [API 对象](api-object.md) — API 侧元数据全集
 - [会话](../30.auth/session.md) — http-se-* 注入流程
-- [一切皆对象](../10.concepts/02-std-obj.md)
+- [一切皆对象](../10.concepts/01-std-obj.md)

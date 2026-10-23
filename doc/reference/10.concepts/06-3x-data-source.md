@@ -18,7 +18,7 @@ Walnut 的目标是让这些数据源**用起来与普通对象无异**——同
 
 ## 方式一：mnt 映射（数据就在树里）
 
-通过目录对象的 `mnt` 元数据，把整棵子树委托给外部存储（见 [IO / Indexer / BM](01-io-indexer-bm.md)）：
+通过目录对象的 `mnt` 元数据，把整棵子树委托给外部存储（见 [IO / Indexer / BM](02-io-indexer-bm.md)）：
 
 ```bash
 # 子树元数据存 SQL 表、内容存域级桶
@@ -70,7 +70,7 @@ cron add '*/10 * * * *' 'xapi send myshop orders /list > ~/data/orders.json'
 
 ## 深入阅读
 
-- [IO / Indexer / BM](01-io-indexer-bm.md)：统一接口的两层实现
+- [IO / Indexer / BM](02-io-indexer-bm.md)：统一接口的两层实现
 - [mnt 映射语法全集](../20.io-storage/mount-mapping.md)：所有映射方案
 - [DAO 映射](../20.io-storage/dao-mapping.md)：SQL 数据源与表映射
 - [xapi](../70.integrations/xapi.md)：第三方 API 网关

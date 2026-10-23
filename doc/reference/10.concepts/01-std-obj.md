@@ -21,7 +21,7 @@ Walnut 中**所有数据都是树形空间里的对象（WnObj）**：文件、�
 `WnRace` 枚举只有两种取值，没有第三种：
 
 - `DIR` — 目录，可有子对象
-- `FILE` — 文件，有内容（内容存于桶，见 [IO / Indexer / BM](01-io-indexer-bm.md)）
+- `FILE` — 文件，有内容（内容存于桶，见 [IO / Indexer / BM](02-io-indexer-bm.md)）
 
 初学者常见的疑惑：「链接是不是第三种 race？」**不是**。链接不是一个 race，
 它只是**对象的一个元数据**——详见下文[链接（ln）](#链接ln)。
@@ -202,7 +202,7 @@ o ~/docs -match 'lbls:"x"' -cqn
 
 模块间协作靠**元数据约定**，看懂这些键就能看懂任何域的配置：
 
-- **`mnt`** — 存储映射（值示例 `dao(demo/t_news)://lbm(A)`） — 详见 [io-indexer-bm](01-io-indexer-bm.md)
+- **`mnt`** — 存储映射（值示例 `dao(demo/t_news)://lbm(A)`） — 详见 [io-indexer-bm](02-io-indexer-bm.md)
 - **`data`** — 对象在桶管理器内的数据段 ID
 - **`expi`** — 过期绝对毫秒，到期自动删除 — 机制见上文 [expi 删除机制](#expi-删除机制)，更多见 [过期清理](../20.io-storage/expiration.md)
 - **`tp` / `mime` / `thumb`** — 类型后缀 / 内容类型 / 缩略图对象引用
@@ -218,6 +218,6 @@ o ~/docs -match 'lbls:"x"' -cqn
 
 ## 深入阅读
 
-- [IO / Indexer / BM](01-io-indexer-bm.md)：对象的存储模型
+- [IO / Indexer / BM](02-io-indexer-bm.md)：对象的存储模型
 - [域与主目录](03-domain-home.md)：对象树的全局布局
 - [IO 模型](../20.io-storage/io-model.md)：WnIO 读写流程

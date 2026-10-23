@@ -83,4 +83,4 @@ echo "args0=${args[0]}"               # args 是数组（JS 里也支持 args[0]
 
 - [API 对象](api-object.md)
 - [请求对象](request-object.md) — args / params 注入位置
-- [一切皆对象](../10.concepts/02-std-obj.md)
+- [一切皆对象](../10.concepts/01-std-obj.md)

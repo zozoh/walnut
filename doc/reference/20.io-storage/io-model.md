@@ -7,12 +7,12 @@ source:
   - core/indexer/
   - core/bm/
   - core/hdl/
-related: [../10.concepts/02-std-obj.md, mount-mapping, expiration]
+related: [../10.concepts/01-std-obj.md, mount-mapping, expiration]
 ---
 
 # 索引器 / 桶 / 句柄模型
 
-数据访问的核心是四个接口（概念详见 [IO / Indexer / BM](../10.concepts/01-io-indexer-bm.md)）：
+数据访问的核心是四个接口（概念详见 [IO / Indexer / BM](../10.concepts/02-io-indexer-bm.md)）：
 统一读写接口 `WnIo`、数据基本单位 `WnObj`（元数据 + 内容）、元数据索引管理器 `WnIoIndexer`、
 内容桶管理器 `WnIoBM`。**元数据与内容分开保存、可存不同介质，按实现任意组合**。
 在此之上，WnIo 的执行侧还有句柄层：

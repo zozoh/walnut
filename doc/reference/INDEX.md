@@ -18,8 +18,8 @@
 ## 10.concepts
 
 - **10.concepts/README.md** — Walnut 核心概念 — 模块：api.io — 关键词：设计初衷,逻辑结构,概念导览
-- **10.concepts/01-io-indexer-bm.md** — IO / Indexer / BM — 模块：api.io — 关键词：WnIo,Indexer,BM,索引器,桶管理器,mnt
-- **10.concepts/02-std-obj.md** — 标准对象（一切皆对象） — 模块：api.io — 关键词：WnObj,字段缩写,race,mode,元数据,pvg
+- **10.concepts/01-std-obj.md** — 标准对象（一切皆对象） — 模块：api.io — 关键词：WnObj,字段缩写,race,mode,元数据,pvg
+- **10.concepts/02-io-indexer-bm.md** — IO / Indexer / BM — 模块：api.io — 关键词：WnIo,Indexer,BM,索引器,桶管理器,mnt
 - **10.concepts/03-domain-home.md** — Domain 与 Home — 模块：api.io — 关键词：域,主目录,HOME,/sys,/var,约定目录
 - **10.concepts/04-session-env.md** — 会话与环境变量 — 模块：login — 关键词：会话,session,env,PATH,.env
 - **10.concepts/05-command-model.md** — 命令模型 — 模块：impl.box — 关键词：命令,沙箱,管道,简单命令,复杂命令,过滤命令

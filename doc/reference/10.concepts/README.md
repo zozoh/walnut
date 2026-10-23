@@ -16,8 +16,8 @@ related: [quick-start, io-model, source-layout]
 ```bash
 10.concepts/
 |-- README.md             # 本篇：设计初衷、逻辑结构、概念导览
-|-- 01-io-indexer-bm.md   # IO / Indexer / BM：统一数据接口的两层实现
-|-- 02-std-obj.md         # 标准对象：一切皆对象（WnObj）
+|-- 01-std-obj.md         # 标准对象：一切皆对象（WnObj）
+|-- 02-io-indexer-bm.md   # IO / Indexer / BM：统一数据接口的两层实现
 |-- 03-domain-home.md     # Domain 与 Home：域、主目录与目录布局
 |-- 04-session-env.md     # 会话与环境变量
 |-- 05-command-model.md   # 命令模型：沙箱、管道与三种命令写法
@@ -67,12 +67,12 @@ HTTP 注册接口（regapi）、定时任务、消息队列、邮件短信、支
 
 ## 3. 特殊的抽象概念
 
+- **标准对象（一切皆对象）**：文件、目录、会话、支付单、任务……所有数据都是树形空间里的 WnObj，
+  有统一的字段体系（id/pid/nm/race/mode…），业务字段直接放元数据上，不用建表。见 [01](01-std-obj.md)。
 - **IO / Indexer / BM**：数据访问由四个接口组成——统一读写接口 `WnIo`、数据基本单位 `WnObj`（元数据 + 内容）、
   元数据索引管理器 `WnIoIndexer`、内容桶管理器 `WnIoBM`。**一个对象的元数据与内容桶分开保存、
   可存不同介质，按实现任意组合**：元数据进 SQL 表 + 内容进 Redis 桶，或 Mongo + 本地文件，皆可。
-  见 [01](01-io-indexer-bm.md)。
-- **标准对象（一切皆对象）**：文件、目录、会话、支付单、任务……所有数据都是树形空间里的 WnObj，
-  有统一的字段体系（id/pid/nm/race/mode…），业务字段直接放元数据上，不用建表。见 [02](02-std-obj.md)。
+  见 [02](02-io-indexer-bm.md)。
 - **Domain 与 Home**：域 = 用户主组，是一个独立的数据空间与权限边界；每个用户有自己的主目录（`~`），
   系统目录有全局布局约定（/home /sys /var /etc）。见 [03](03-domain-home.md)。
 - **会话与环境变量**：会话是命令执行的身份载体（登录即建会话），环境变量是会话级的名值对，
