@@ -17,7 +17,7 @@ o @put
 # 假设有一个对象，pet={name:"xiaobai", age:15}
 #--------------------------------------------------------
 # 从对象的 pet 键内文档删除 age 字段
-$demo:> o abc @remove pet age @json '^(id|pet)$' -cqn
+o abc @remove pet age @json '^(id|pet)$' -cqn
 {"id":"0cnhdbir8sin3q88himugvf40h","pet":{"name":"xiaobai"}}
 ```
 

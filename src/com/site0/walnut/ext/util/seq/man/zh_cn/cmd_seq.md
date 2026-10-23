@@ -1,65 +1,41 @@
-# 命令简介 
+# 命令简介
 
- `seq` 序列生成器
+`seq` 序列生成器：为一组对象生成序列值，或直接渲染一段序列文本。
 
-## 用法
+# 用法
 
-    seq [$cmd] [$args]
-
-## 支持的命令
-
-```
-seq create      # 为一组对象生成序列值
+```bash
+seq @create [参数...]
 ```
 
-## 序列生成规则
+支持的处理器：
 
-1. 输入所需要的额外变量
-2. 输入起始值,可选
-3. 输入模板字符串
-4. 输出序列值
-5. 更新对象字段
-
-可用的变量:
-1. seq  当前序列值,是一个自增的值,可设置开始值,每步增量
-2. obj 当前WnObj对象,列表模式下有效
-3. 其他自定义变量
-
-默认使用Tmpl的语法, 也许会增加更多语法支持
-
-### 例子A, 单纯数值序列, 简单+1
-
-```
-${seq}   = 1
-${seq}   = 2
-${seq}   = 3
-${seq}   = 4
+```bash
+@create    # 生成序列
 ```
 
-### 例子B, 固定长度3的数值序列
+# 序列生成规则
 
-```
-${seq<int:%03d>} = 001
-${seq<int:%03d>} = 002
-${seq<int:%03d>} = 003
-${seq<int:%03d>} = 004
-```
+模板用 Tmpl 语法渲染，可用的变量：
 
-### 例子C, 含当前对象某个字段的值
-
-```
-${seq<int:%03d>}${wobj.u_sex} = 001M // 当前WnObj的u_sex属性的值是M
-${seq<int:%03d>}${wobj.u_sex} = 002F // 当前WnObj的u_sex属性的值是F
-${seq<int:%03d>}${wobj.u_sex} = 003F
-${seq<int:%03d>}${wobj.u_sex} = 004M
+```bash
+${seq}                 # 当前序列值，可设置开始值与步进
+${obj.u_xxx}           # 列表模式下，当前 WnObj 的字段值
+${自定义变量}          # 由 -vars 传入的其他变量
 ```
 
-### 例子D, 含参考对象的某个字段的值,也含当前对象某个字段的值,还有额外的字符串
+# 示例
 
-```
-${prefix}${seq<int:%03d>}${wobj.u_sex} = A001M // 当前WnObj的u_sex属性的值是M,prefix的值为A
-${prefix}${seq<int:%03d>}${wobj.u_sex} = B002F // 当前WnObj的u_sex属性的值是F,prefix的值为B
-${prefix}${seq<int:%03d>}${wobj.u_sex} = A003F
-${prefix}${seq<int:%03d>}${wobj.u_sex} = B004M
-```
+```bash
+# 简单数值序列，从 1 开始，输出 100 个
+seq @create -tmpl '${seq}'
 
+# 固定长度 3 的数值序列
+seq @create -tmpl '${seq<int:%03d>}'
+
+# 列表模式：给一组对象生成序列并存入 u_code 字段
+seq @create -tmpl '${seq<int:%03d>}' -match '{tp:"thing"}' -key u_code
+
+# 带自定义变量
+seq @create -tmpl '${prefix}${seq<int:%03d>}' -vars '{prefix:"A"}' -count 5
+```

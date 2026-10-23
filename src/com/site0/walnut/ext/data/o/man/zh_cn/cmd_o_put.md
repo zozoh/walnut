@@ -19,11 +19,11 @@ o @put
 # 假设有一个对象，pet={name:"xiaobai"}
 #--------------------------------------------------------
 # 向对象的 pet 键推入内容
-$demo:> o abc @put pet '{age:15}' @json '^(id|pet)$' -cqn
+o abc @put pet '{age:15}' @json '^(id|pet)$' -cqn
 {"id":"0cnhdbir8sin3q88himugvf40h","pet":{"name":"xiaobai","age":15}}
 
 # 向对象的 pet 键推入默认内容
-$demo:> o abc @put pet '{name:"haha"}' -dft @json '^(id|pet)$' -cqn
+o abc @put pet '{name:"haha"}' -dft @json '^(id|pet)$' -cqn
 {"id":"0cnhdbir8sin3q88himugvf40h","pet":{"name":"xiaobai"}}
 ```
 

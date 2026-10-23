@@ -25,7 +25,7 @@ o @zip
 # 示例
 
 ```bash
-$demo:> o ~/mydir @query @zip 
+o ~/mydir @query @zip 
 {
   id: "xxxx",
   ...

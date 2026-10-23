@@ -19,6 +19,6 @@ o @inc
 
 ```bash
 # 生成一个四位的序号
-$demo> o @fetch -race FILE ~/tmp/seq1 @inc -pad 4
+o @fetch -race FILE ~/tmp/seq1 @inc -pad 4
 0001
 ```

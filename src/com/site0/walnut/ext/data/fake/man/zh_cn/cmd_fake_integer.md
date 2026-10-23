@@ -1,39 +1,31 @@
 # 过滤器简介
 
-`@integer` 生成随机整数
+`@integer` 生成随机整数。
 
 # 用法
 
 ```bash
-fake [N] @integer 
-    [$MIN-$MAX]     # 数值范围，或者是最小值
-    [$MAX]          # 最大值
+fake [个数] @integer [范围|最小值] [最大值]
+  # 个数        # 生成多少个，默认 1
+  # 范围        # 形如 20-50；一个值时表示 0 到该值
+  # 最大值      # 两个值时表示范围
 ```
 
 # 示例
 
 ```bash
 # 生成 0-100 的整数
-demo> fake 3 @integer
-40
-68
-71
+fake 3 @integer
+# 40
+# 68
+# 71
 
 # 生成 20-50 的整数
-demo> fake 3 @integer 20-50
-27
-39
-26
+fake 3 @integer 20-50
 
 # 生成 0-8 的整数
-demo> fake 3 @integer 8
-0
-2
-5
+fake 3 @integer 8
 
 # 生成 1-9 的整数
-demo> fake 3 @integer 1 9
-2
-6
-4
+fake 3 @integer 1 9
 ```

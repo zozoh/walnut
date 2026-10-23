@@ -19,9 +19,9 @@ o @tree
 
 ```bash
 # 将某个文件夹向下展开 2 层
-$demo:> o path/to/dir @tree -depth 2
+o path/to/dir @tree -depth 2
 
 # 将一组给定的文件对象，归纳为一棵树
-$demo:> o f1 f2 f3 @tree
+o f1 f2 f3 @tree
 ```
 

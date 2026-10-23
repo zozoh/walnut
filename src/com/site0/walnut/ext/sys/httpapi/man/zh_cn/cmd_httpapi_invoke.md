@@ -1,32 +1,34 @@
-# 命令简介 
+# 过滤器简介
 
-    `httpapi invoke` 将会调用某一个指定的 api
+`@invoke` 调用某一个指定的 API。
 
 # 用法
 
-    httpapi invoke path/to/api               # api 路径（相对于 "~/.regapi/api")     
-                   [-req /path/to/request]   # 请求文件，没有会自动创建一个
-                   [-cookie String]          # 请求的 Cookie 内容
-                   [-get JSON|@pipe]         # 请求的QueryString
-                   [-post JSON|@pipe]        # 表单提交参数，会自动将请求对象设置为 POST
-                   [-file /path/to/file]     # 将一个文件的内容 copy 成请求文件
-                   [-body String]            # 自由的 Body 内容，如果没有内容，仅声明
-                                             # 则从 pipe 里读取
-                   [-u xxxx]                 # 指定一个用户。只有 root 和 op 组成员才能执行这个操作
-                   [-ncnd pa_cnd_keys]       # 指定，如果 api 对象包含一个给定键，则用其来检查是否给了必要的条件
-    
-**注意**
+```bash
+httpapi @invoke API路径 [-req 路径] [-cookie 内容] [-get JSON|@pipe] [-post JSON|@pipe] [-file 路径] [-body 内容] [-u 用户] [-ncnd 键] [-cqn]
+       # API路径    # 相对于 API 主目录的路径
+  -req      # 请求文件，没有会自动创建一个
+  -cookie   # 请求的 Cookie 内容
+  -get      # 请求的 QueryString；JSON 或 @pipe 从管道读
+  -post     # 表单提交参数，会自动将请求设置为 POST
+  -file     # 将一个文件的内容拷贝成请求文件
+  -body     # 自由的 Body 内容；声明但无内容则从管道读
+  -u        # 指定一个用户，只有 root 和 op 组成员才能执行这个操作
+  -ncnd     # 如果 API 对象包含给定键，用其检查是否给了必要条件
+  -cqn      # 输出的 JSON 格式化开关
+```
 
-- `get|post|body` 都可以从 pipe 里读取内容，但是只能一个有效，即，一个读完了 pipe 其他的就读不到了
-- 优先级为 `get > post > body`
+注意：`get|post|body` 都可以从管道读内容，但只有一个有效（管道读一次就没了），优先级 `get > post > body`。
 
 # 示例
-    
-    # 用 GET 方式执行某个 api
-    demo@~$ httpapi invoke demo/get -get "id:'12345'"
-    
-    # 用 POST 方式执行某个 api
-    demo@~$ httpapi invoke demo/get -post "id:'12345'"
-    
-    # 从某个请求文件里读参数，并执行 api
-    demo@~$ httpparam id:xxx | httpapi invoke demo/get -get @pipe
+
+```bash
+# 用 GET 方式执行某个 API
+httpapi @invoke demo/get -get "id:'12345'"
+
+# 用 POST 方式执行某个 API
+httpapi @invoke demo/get -post "id:'12345'"
+
+# 参数从管道读
+httpparam id:xxx | httpapi @invoke demo/get -get @pipe
+```

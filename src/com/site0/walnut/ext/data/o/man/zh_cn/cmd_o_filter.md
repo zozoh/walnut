@@ -13,6 +13,6 @@ o @filter
 
 ```bash
 # 将某个文件夹向下展开 2 层，并将名为 abc 的对象作为上下文的当前对象
-$demo:> o @filter 'nm:"abc"'
+o @filter 'nm:"abc"'
 ```
 

@@ -1,23 +1,26 @@
-过滤器简介
-======= 
+# 过滤器简介
 
-`@to` 设置转换目标，同时确定转换模式
+`@to` 设置转换目标，同时确定转换模式。
 
-- `INDEXER` 仅转换索引
-- `BM` 仅转换桶
-- `BOTH` 转换索引和桶
- 
-
-用法
-=======
+# 用法
 
 ```bash
-@to 
-  [~/path/to]        # 【选】目录路径，默认采用 @from 的路径
-                     # 同时也会确定这个目录默认管理器就是目标管理器
-  [-mode INDEXER]    # 转换方式，默认为 INDEXER
-  [-noexists]        # 打开这个开关，只有不存在的，才插入（会预先检查，所以慢一些）
-  [-genid]           # 转换的数据，需要新生成 ID
+truck @to [目录] [-mode 模式] [-noexists] [-genid]
+       # 目录     # 默认采用 @from 的路径，该目录的管理器即目标管理器
+  -mode      # 转换方式：INDEXER 仅索引 | BM 仅桶 | BOTH 索引和桶，默认 INDEXER
+  -noexists  # 只有不存在的才插入（预先检查，速度慢一些）
+  -genid     # 转换的数据需要新生成 ID
 ```
 
+# 示例
 
+```bash
+# 转换到当前目录的默认管理器
+truck @from ~/account -index mongo @to
+
+# 转换索引和桶
+truck @from ~/account @to -mode BOTH
+
+# 预检查插入
+truck @from ~/account @to -noexists
+```

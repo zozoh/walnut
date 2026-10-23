@@ -18,5 +18,5 @@ wf ... @update
 
 ```bash
 # 如果工作流进入下一个节点，则更新一个标准对象
-$demo> wf ~/demo.json @current =obj.name @process @update id:${obj.id} '{status:"${NEXT_NAME}"}'
+wf ~/demo.json @current =obj.name @process @update id:${obj.id} '{status:"${NEXT_NAME}"}'
 ```

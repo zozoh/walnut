@@ -11,5 +11,5 @@ wf ... @reload
 # 示例
 
 ```bash
-$demo> wf ~/demo.json @current =obj.name @reload @view
+wf ~/demo.json @current =obj.name @reload @view
 ```

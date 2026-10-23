@@ -1,16 +1,17 @@
-命令简介
-======= 
+# 过滤器简介
 
-`mediax download` 从第三方平台下载指定资源
-    
+`@download` 从第三方平台下载指定资源（暂未实现）。
 
-用法
-=======
+# 用法
 
+```bash
+mediax [账号] @download URL
+       # URL    # 要下载的资源地址
 ```
-# 匿名下载
-demo@~$ mediax download http://host/path/to/a/f/demo.pdf
 
-# 指定一个用户权限下载
-demo@~$ mediax zozoh download http://host/path/to/a/f/demo.pdf  
+# 示例
+
+```bash
+# 暂未实现，调用无效果
+mediax @download http://host/path/to/a/f/demo.pdf
 ```

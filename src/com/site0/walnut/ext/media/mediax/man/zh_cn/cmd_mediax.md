@@ -1,17 +1,30 @@
-命令简介
-======= 
+# 命令简介
 
-`mediax` 提供第三方媒体平台信息的爬取和发送功能
-    
+`mediax` 提供第三方媒体平台信息的爬取和发送功能。
 
-用法
-=======
+# 用法
 
+```bash
+mediax [账号] @处理器 [参数...]
+  # 账号    # ~/.mediax 下的账号目录名，可省略
 ```
-mediax post        # 投递一条图文素材到指定目标
-mediax crawl       # 爬取一批内容索引，返回的总是一个 JSON 数组
-mediax fetch       # 获取指定资源的全部信息 
-mediax download    # 下载指定资源的全部二进制信息（视频|PDF|图片）  
-mediax target      # 显示每个媒体平台的快捷目标
-mediax explain     # 将快捷目标，解析为真实的 URL
+
+支持的处理器：
+
+```bash
+@post       # 投递一条图文素材到指定目标（暂未实现）
+@crawl      # 爬取一批内容索引，返回的总是一个 JSON 数组
+@download   # 下载指定资源（暂未实现）
+@target     # 显示每个媒体平台的快捷目标
+@explain    # 将快捷目标解析为真实的 URL
+```
+
+# 示例
+
+```bash
+# 匿名爬取
+mediax @crawl http://host/path/to/resource
+
+# 指定账号爬取
+mediax zozoh @crawl http://host/path/to/resource
 ```

@@ -15,13 +15,13 @@ o @prepend
 
 ```bash
 # 向某字段推入值
-$demo:> echo '[{N:1}]' | jsonx -cqn @prepend '{N:2}'
+echo '[{N:1}]' | jsonx -cqn @prepend '{N:2}'
 [{N:2}, {N:1}]
 
-$demo:> echo '{N:1}' | jsonx -cqn @prepend '{N:2}'
+echo '{N:1}' | jsonx -cqn @prepend '{N:2}'
 [{N:2}, {N:1}]
 
-$demo:> echo '{x:["A"]}' | jsonx -cqn @prepend -to "x" 'B'
+echo '{x:["A"]}' | jsonx -cqn @prepend -to "x" 'B'
 {x:["B", "A"]}
 ```
 

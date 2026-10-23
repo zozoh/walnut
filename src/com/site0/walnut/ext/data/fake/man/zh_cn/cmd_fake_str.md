@@ -1,27 +1,25 @@
 # 过滤器简介
 
-`fake @str` 生成随机字符串
+`@str` 生成随机字符串。
 
 # 用法
 
 ```bash
-fake [N] @str 
-    [$MIN-$MAX]     # 字符范围，或最小字符数
-    [$N]          # 固定长度字符串
+fake [个数] @str [字符集|最小长度] [最大长度]
+  # 个数        # 生成多少个，默认 1
+  # 字符集      # 一个值时，作为字符集（默认数字+字母）
+  # 最小/最大   # 两个值时，作为长度范围
 ```
 
 # 示例
 
 ```bash
-# 输出三个6-12长度的字符串
-demo> fake 3 @str
-tktMS7
-ssrnJ4G
-6MBr5u
+# 输出三个 6-12 长度的字符串
+fake 3 @str
 
-# 输出三个20-40长度的字符串
-demo> fake 3 @str 20 40
-cwgbBJb23tGBqWR4hhka
-VWh7Kxb2Jxuyt7ymhrArgzihzVZfFG
-gHL3bUmVA4tJgQqutpqb3svuQ8
+# 输出三个 20-40 长度的字符串
+fake 3 @str 20 40
+
+# 指定字符集
+fake 5 @str abc
 ```

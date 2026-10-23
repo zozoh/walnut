@@ -1,14 +1,30 @@
-# 命令简介 
+# 命令简介
 
-    `httpapi` 处理 httpapi 相关的数据操作。
+`httpapi` 处理 HTTP API 相关的数据操作：把声明好的 API（目录 + 元数据）当作函数来调用。
 
 # 用法
 
-    httpapi [操作] [..参数]
-    
-    操作可以是:
-    
-    list    : 列出所有的 api， @see `man httpapi list`
-    invoke  : 执行某个 api,   @see `main httpai invoke`
-    recall  : 重新执行某个请求文件
-    
+```bash
+httpapi @处理器 [参数...]
+```
+
+支持的处理器：
+
+```bash
+@list      # 列出所有的 API
+@invoke    # 执行某个 API
+@recall    # 重新执行某个请求文件
+```
+
+# 示例
+
+```bash
+# 列出所有 API
+httpapi @list
+
+# 执行某个 API
+httpapi @invoke myapi
+
+# 重新执行某个请求文件
+httpapi @recall myapi ~/req/xxx.req
+```

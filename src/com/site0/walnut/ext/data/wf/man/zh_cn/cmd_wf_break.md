@@ -13,5 +13,5 @@ wf ... @break
 
 ```bash
 # 如果工作流进入下一个节点，则创建一个数据集对象
-$demo> wf ~/demo.json @current =obj.name @process @break '{NEXT_NAME:"[EXISTS]"}'
+wf ~/demo.json @current =obj.name @process @break '{NEXT_NAME:"[EXISTS]"}'
 ```

@@ -1,42 +1,35 @@
-命令简介
-=======
+# 过滤器简介
 
-`pvg can` 根据权限矩阵检查给定权限
+`@can` 根据权限矩阵检查给定权限，输出是否具备这些行为的权限。
 
-用法
-=======
+# 用法
 
 ```bash
-pvg [PvgPath] can
-    [Role1]        # 【必】角色名称
-    [Action-A ..]  # 【必】新密码
-    [-ajax]        # 【选】是否为 ajax 输出
-    [-cqn]         # 【选】ajax 模式下的 JSON格式化参数
+pvg [权限矩阵路径] @can 角色 [行为...] [-or] [-ajax] [-cqn]
+       # 权限矩阵路径    # 不给则从管道读取矩阵 JSON
+       # 角色            # 角色名称，多个用半角逗号分隔
+       # 行为            # 要检测的行为，可多个
+  -or      # 只要求具备其中至少一个行为的权限；默认要求全部具备
+  -ajax    # 结果用 Ajax 格式包裹（{ok:true,data:{行为:bool,...}}）
+  -cqn     # JSON 输出的格式化开关
 ```
-  
-示例
-=======
+
+# 示例
 
 ```bash
 # 是否具备某个行为的权限
-demo:> pvg ~/my-pvg.json can Role1 Action-B
-true
+pvg ~/my-pvg.json @can Role1 Action-B
+# true
 
 # 是否全部具备某几个行为的权限
-demo:> pvg ~/my-pvg.json can Role1 Action-B Action-C
-false
+pvg ~/my-pvg.json @can Role1 Action-B Action-C
+# false
 
 # 是否具备某几个行为中至少一个的权限
-demo:> pvg ~/my-pvg.json can -or Role1 Action-B Action-C
-true
+pvg ~/my-pvg.json @can -or Role1 Action-B Action-C
+# true
 
-# 返回结果用 Ajax 格式包裹
-demo:> pvg ~/my-pvg.json can Role1 Action-B Action-C -ajax -cqn
-{"ok":true,"data":{"Action-B":true,"Action-C":true}}
-
-# 返回结果用 Ajax 格式包裹
-demo:> pvg ~/my-pvg.json can Role1 Action-B Action-E -ajax -cqn
-{"ok":false,"data":{"Action-B":true,"Action-E":false}}
+# Ajax 格式输出
+pvg ~/my-pvg.json @can Role1 Action-B Action-C -ajax -cqn
+# {"ok":true,"data":{"Action-B":true,"Action-C":true}}
 ```
-    
-    

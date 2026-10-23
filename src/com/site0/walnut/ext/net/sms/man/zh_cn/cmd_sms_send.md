@@ -1,39 +1,34 @@
-命令简介
-=======  
+# 过滤器简介
 
-`sms send` 用来发送短信
-    
-用法
-======= 
+`@send` 发送短信（默认处理器，可省略不写）。
 
+消息正文来自参数（多个参数用空格连接）或管道；配合 `-t` 模板时，正文是填充模板的 JSON 上下文。
+
+# 用法
+
+```bash
+sms @send -r 手机号 [消息...] [-t 模板] [-lang 语言] [-header 头部] [-provider 名] [-config 配置名] [-vars JSON]
+  -r         # 接收者手机号，多个用半角逗号分隔
+  -t         # 模板文件名（存放在 ~/.sms 下）；'i18n:xxx' 则在 ~/.sms/i18n/<lang>/ 下读取
+  -lang      # 模板语言，默认取配置里的 lang，再没有则用 zh-cn
+  -header    # 指定消息头部
+  -provider  # 提供商，默认 Yunpian
+  -config    # 配置文件名，默认 config_<provider>
+  -vars      # 更多操作变量，根据 provider 的不同有不同的解释
 ```
-sms [send]                      # 可以不写子命令 send，默认表示 send
-    [-r 13910223421]            # 接受者手机
-    [-config /path/to/conf]     # 「选」配置文件路径 
-    [-provider Yunpian]         # 「选」提供商(当前仅Yunpian)
-    
-    [-vars {..}]                # 更多操作变量，根据 provider 的不同，有不同的解释
 
-    [-debug]           # 开启调试模式
-    [-t 模板文件名称]    # 短信模板文件名，模板文件必须存放在 ~/.sms 下
-                       # 如果是 i18n:xxx 格式，则在 ~/.sms/i18n/$lang/ 下读取
-    <msg|json>         # 消息正文，如果 -t 模式，则为一个 JSON，表示填充上下文
-                       # 如果不填写，则从管道读取
-    [-lang zh-cn]      # 「选」指定模板语言，默认为从 conf 里读取，还是没有的话用 zh-cn
-    [-header xxxx]     # 「选」指定消息头部
-```
- 
-示例
-======= 
+# 示例
 
-```
+```bash
 # 发送一条自定义消息
-sms send -debug -header 【nutz科技】-r 13910223421 机器AABBCCDDEEFF流量异常500mb
+sms -r 13910223421 机器AABBCCDDEEFF流量异常500mb
 
-# 发送模板消息
-sms send -r 13910223421 -t signup "code:8976"
+# 正文从管道读
+echo "磁盘已满" | sms -r 13910223421
 
-# 发送 i18n 模板消息
-sms send -r 13910223421 -t i18n:signup "code:8976"
+# 发送模板短信
+sms -r 13910223421 -t signup "code:8976"
+
+# 发送 i18n 模板短信
+sms -r 13910223421 -t i18n:signup "code:8976"
 ```
-    

@@ -14,5 +14,5 @@ wf ... @current [EXPLAIN...]
 
 ```bash
 # 尝试从上下文中寻找 obj.name 如果没有，就用 'Peter' 字符串作为当前节点名称
-$demo> wf ~/demo.json @current =obj.name Peter
+wf ~/demo.json @current =obj.name Peter
 ```

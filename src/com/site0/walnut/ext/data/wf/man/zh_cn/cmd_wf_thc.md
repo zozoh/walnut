@@ -20,5 +20,5 @@ wf ... @thc
 
 ```bash
 # 如果工作流进入下一个节点，则创建一个数据集对象
-$demo> wf ~/demo.json @current =obj.name @process @thc ~/tmp '{nm:"${NEXT_NAME}"}'
+wf ~/demo.json @current =obj.name @process @thc ~/tmp '{nm:"${NEXT_NAME}"}'
 ```

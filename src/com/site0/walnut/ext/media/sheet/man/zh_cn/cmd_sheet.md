@@ -1,124 +1,90 @@
-# 命令简介 
+# 命令简介
 
-    `sheet` 可以将JSON数组，转换成数据表格，或者将数据表格转换成JSON数组
+`sheet` 可以在 JSON 数组与数据表格之间互转：把 JSON 数组渲染成 csv/xls，或把 csv/xls 解析成 JSON 数组。
 
----------------------------------------
+转换时可用字段映射（`-flds`/`-mapping`）挑选、重命名、格式化字段。
+
 # 用法
 
 ```bash
-sheet /path/to/file      # 输入文件，如果为空，则从管道读取
-     [-out /path/to/out] # 输入的文件路径，没有就会创建
-     [-tpi csv]          # 输入的内容格式，如果是从管道读取，这个必须需要
-                         # 如果没有设置，则看输入文件类型，从管道的话，默认 json
-     [-tpo xls]          # 输出的内容格式，如果没指定输入文件，而是直接写到输出流里，这个必须需要
-     [-flds ...]         # 字段映射内容，字段用半角逗号 `,` 分隔
-     [-mapping /path]    # 字段映射文件路径，比 -flds 优先，字段用换行符分隔
-                         # 如果这个文件是 json，那么则采用 BeanMapping 的方式映射
-     [-ci {..}]          # 输入处理器需要的配置项
-     [-co {..}]          # 输出处理器需要的配置项 譬如 noheader 或者 sep 等
-     [-process TMPL]     # 进度模式，只有当 -out 指向有效文件时才会生效，
-                         # 因为这时标准输出可以用来打印日志了
-                         # 表示不要输出创建的数据详情，而是输出创建的进度
-                         # 参数值是一个模板，占位符用 ${xxx} 来表示
-                         # 占位符会用创建的对象作为上下文，唯一特殊的是
-                         # ${P} 这个是上传比例字符串，格式为 %[10/982]
-                         # 由导入命令来填充
-                         # ${I} 则表示创建的记录下标（1base）
-                         # 特殊值 "<auto>" 表示 "${P}: ${前三个字段}"
-     [-keys AutoMatch]   # 只有匹配的键才会被保留(对应 fld.key)
-     [-names AutoMatch]  # 只有匹配的输出字段名才会被保留(对应 fld.name)
-     [-pick AutoMatch]   # 仅保留哪些记录
-     [-omit AutoMatch]   # 过滤掉哪些记录
-     [-skip 0]           # 从输入列表要跳过的选项，默认 0，从头开始
-     [-limit 0]          # 最多输出的条目，默认0，表示不限
+sheet [输入文件] [-out 输出文件] [-tpi 格式] [-tpo 格式] [-flds 映射] [-mapping 映射文件] [-ci JSON] [-co JSON] [-process 模板] [-keys AutoMatch] [-names AutoMatch] [-pick AutoMatch] [-omit AutoMatch] [-skip N] [-limit N]
+  # 输入文件    # 不给则从管道读取
+  -out        # 输出文件路径；不给则输出到标准输出
+  -tpi        # 输入内容格式：json|csv|xls；从管道读取时默认 json
+  -tpo        # 输出内容格式：json|csv|xls；默认取输出文件的类型
+  -flds       # 字段映射内容，字段用半角逗号或换行分隔
+  -mapping    # 字段映射文件路径，比 -flds 优先；文件是 json 时采用 BeanMapping 映射
+  -ci         # 输入处理器的配置项 JSON
+  -co         # 输出处理器的配置项 JSON（如 noheader、sep 等）
+  -process    # 进度模式：输出到文件时，向标准输出打印每条的处理进度
+              # 模板占位符 ${xxx} 取当前记录字段，${P} 为进度串 %[10/982]，${I} 为记录下标（1base）
+              # 特殊值 "<auto>" 表示输出 "${P}: 前三个字段"
+  -keys       # 只有匹配的键才被保留（对应 fld.key）
+  -names      # 只有匹配的输出字段名才被保留（对应 fld.name）
+  -pick       # 仅保留匹配的记录
+  -omit       # 过滤掉匹配的记录
+  -skip       # 跳过输入列表的前 N 条，默认 0
+  -limit      # 最多输出多少条，默认 0 表示不限
 ```
 
-对于 `-tpi` 和 `-tpo` 支持下面的格式
+# 映射写法
 
-- `json`
-- `csv`
-- `xls`
-
----------------------------------------
-# 映射文件
-
-映射文件 `-mapping` 可以是一个文件路径，也可以直接用 `-flds` 给出映射内容。
-
-```
+```bash
 th_nm:名称
 phone:电话
 lm[$date%yyyy-MM-dd HH:mm:ss]:最后修改日期
 lbls[$n]:标签
-th_media_list[$n.id]:媒体
 sex[${1=男;2=女}]:性别
-th_enabled[$boolean]:生效 
 th_enabled[$boolean->Yes/No]:生效
-生效[$boolean<-Yes/No]:th_enabled
 phone[$str]:电话
-email[$str=未设置]:电子邮件
 th_price[$int]:价格
-th_price[$int=-1]:价格
 ```
 
-- 字段之间可以用半角逗号分隔，也可以用换行符分隔
-- `$date` 表示日期，`%` 后面的表示日期格式，不写的话，默认 `yyyy-MM-dd HH:mm:ss`
-- `$n` 表示数组，会用半角逗号连接
-- `$n.id` 表示对象数组，输出的值为每个对象的 `id`，用半角逗号连接
-- `${1=男;2=女}]` 这样的写法表示一个映射，将 `1` 映射为 `男`
-- 所有的 `$xxx` 都可以写成 `@xxx` 譬如 `lbls[@n]:标签` 也是合法的
-    - 这是为了有的时候怕 `$` 字符被某些程序处理
+- 字段之间用半角逗号或换行分隔
+- `$date` 日期，`%` 后是格式，默认 `yyyy-MM-dd HH:mm:ss`
+- `$n` 数组，用半角逗号连接；`$n.id` 对象数组取每个的 `id`
+- `${1=男;2=女}` 值映射表
+- 所有 `$xxx` 都可写成 `@xxx`（避免 `$` 被其他程序处理）
+- Key 的完整写法：`a.b.c` 子对象、`key1||key2` 多重获取、`key[$n]` 数组、`key[$date]` 日期、`key[$boolean->Yes/No]` 布尔转字符串、`key[$int]` 整数
 
-Key 的全部写法为：
-
-- 子对象   :  `a.b.c`
-- 多重获取 : `key1||key2`
-- 数组    : `key[$n]`
-- 数组值   : `key[$n.name]`
-- 日期    : `key[$date]`
-- 日期    : `key[$date%yyyy-MM-dd HH:mm]`
-- 布尔（转字符串）: `th_enabled[$boolean->Yes/No]:生效`
-- 布尔（来自字符串）: `生效[$boolean<-Yes/No]:th_enabled`
-- 字符串 : `phone[$str]:电话`
-- 整数 : `th_price[$int]:价格`
-
----------------------------------------
 # 处理器配置
 
-## json 处理器
+csv 输出（`-co`）：
 
-```
-参见 JsonFormat
-```
-
-## csv 处理器
-
-```
+```bash
 {
-    sep : ",",          // 分隔符，默认 ","
-    noheader  : false,  // 是否输出标题栏，默认 false
-    emptyCell : "--"    // 空单元格输出的占位符
+    sep : ",",          # 分隔符，默认 ","
+    noheader  : false,  # 不输出标题栏，默认 false
+    emptyCell : "--"    # 空单元格的占位符
 }
 ```
 
-## xls 处理器
+xls（`-ci`/`-co`）：
 
-```
+```bash
 {
-    sheetIndex : 0,        //「选」指明工作标签下标，默认0
-    sheetName  : "xxx",    //「选」指明工作标签名称，比 sheetIndex 优先
-    noheader   : false,    // 是否输出标题栏，默认 false
-    rowOffset  : 0,        // 起始行，默认 0
-    colOffset  : 0,        // 起始列，默认 0
-    images     : "/xx/xx", // 导出图片数据
-    addRowIndex: 123 ,     // 添加行号
+    sheetIndex : 0,        # 工作标签下标，默认 0
+    sheetName  : "xxx",    # 工作标签名称，比 sheetIndex 优先
+    noheader   : false,    # 不输出标题栏，默认 false
+    rowOffset  : 0,        # 起始行
+    colOffset  : 0,        # 起始列
+    images     : "/xx/xx", # 导出图片数据
+    addRowIndex: 123,      # 添加行号
 }
 ```
 
----------------------------------------
 # 示例
 
-```
-# 将 JSON 数据变成一个 csv 并输出到标准输出
-obj * -json | sheet -tpo csv -flds "key1:title1:dft1,key2:title2:dft2..."
-```
+```bash
+# 将 JSON 数组渲染成 csv 输出到标准输出
+echo '[{nm:"wendal",age:18},{nm:"zozoh",age:20}]' | sheet -tpo csv
 
+# 指定字段映射和标题
+echo '[{nm:"wendal"}]' | sheet -tpo csv -flds 'nm:名称,age:年龄'
+
+# 解析 xls 成 JSON
+sheet ~/data/users.xls -tpi xls -tpo json
+
+# 转换并输出到文件，同时打印进度
+sheet ~/data/users.xls -out ~/data/users.csv -process '<auto>'
+```

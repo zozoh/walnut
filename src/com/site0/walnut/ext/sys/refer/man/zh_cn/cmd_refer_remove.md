@@ -1,18 +1,18 @@
-# 命令简介 
+# 过滤器简介
 
-`@remove` 将会为某个目标增加一个引用
+`@remove` 为某个目标移除引用。
 
 # 用法
 
 ```bash
-refer @remove 
-  [TargetId]        # 【必】引用者 ID
-  [ReferId...]      # 【必】被引用者 ID，可多个
+refer @remove 引用者ID 被引用者ID...
+       # 引用者ID      # 目标 ID（如 SHA1）
+       # 被引用者ID    # 引用它的对象 ID，可多个
 ```
 
 # 示例
-    
+
 ```bash
 # 为某自定义目标删除引用
-demo:> refer @remove $SHA1 $ID1 $ID2
+refer @remove $SHA1 $ID1 $ID2
 ```

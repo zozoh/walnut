@@ -20,5 +20,5 @@ wf ... @view
 
 ```bash
 # 查看工作流的上下文
-$demo> wf ~/demo.json @current =obj.name Peter @view
+wf ~/demo.json @current =obj.name Peter @view
 ```

@@ -23,5 +23,5 @@ wf ... @var
 # 示例
 
 ```bash
-$demo> wf @var -f ~/abc.json
+wf @var -f ~/abc.json
 ```

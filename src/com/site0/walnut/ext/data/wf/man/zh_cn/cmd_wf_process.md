@@ -38,5 +38,5 @@ wf ... @process
 # 示例
 
 ```bash
-$demo> wf ~/demo.json @var -f ~/abc.json @process
+wf ~/demo.json @var -f ~/abc.json @process
 ```

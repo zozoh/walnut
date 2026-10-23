@@ -1,23 +1,28 @@
-命令简介
-======= 
+# 过滤器简介
 
-`bizhook test` 用来真正运行一个 `bizhook`
+`@run` 对输入的每个对象匹配钩子并执行命中的命令模板。
 
-用法
-=======
-
-请参看 `man bizhook`
-
-示例
-=======
+# 用法
 
 ```bash
-# 根据指定对象的元数据，执行一个 hook
-bizhook ~/myhook.json run id:4t8a..23a0
+bizhook 配置文件 @run [对象...] [-batch] [-tail] [-limit N]
+  -batch    # 批量模式：执行所有命中的钩子；默认只执行第一个命中的
+  -tail     # 从钩子列表尾部开始查找
+  -limit    # 限定最多命中多少个钩子，批量模式默认不限，非批量默认 1
+```
 
-# 根据多个对象元数据分别执行 hook
-bizhook ~/myhook.json run a.txt b.txt c.txt
+# 示例
 
-# 根据对象内容执行 hook
-cat demo.json | bizhook ~/myhook.json run
+```bash
+# 执行单个对象命中的钩子
+bizhook ~/myhook.json @run id:4t8a..23a0
+
+# 多个对象分别执行
+bizhook ~/myhook.json @run a.txt b.txt c.txt
+
+# 对象内容从管道读入
+cat demo.json | bizhook ~/myhook.json @run
+
+# 批量执行所有命中的钩子
+bizhook ~/myhook.json @run -batch demo.json
 ```

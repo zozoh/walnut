@@ -16,6 +16,6 @@ o @enter
 
 ```bash
 # 将某个文件夹向下展开 2 层，并将名为 abc 的对象作为上下文的当前对象
-$demo:> o path/to/dir @tree -depth 2 @enter 'nm:"abc"'
+o path/to/dir @tree -depth 2 @enter 'nm:"abc"'
 ```
 

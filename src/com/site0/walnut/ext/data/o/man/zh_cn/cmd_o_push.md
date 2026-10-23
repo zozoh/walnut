@@ -16,19 +16,19 @@ o @push
 
 ```bash
 # 向某字段推入值
-$demo:> o abc @push -to names A B C @json '^(id|names)$'
+o abc @push -to names A B C @json '^(id|names)$'
 {"id":"0cnhdbir8sin3q88himugvf40h","names":["A", "B", "C"]}
 
 # 向某字段推入值，并保持唯一
-$demo:> o abc @push -uniq -to names A A C @json '^(id|names)$'
+o abc @push -uniq -to names A A C @json '^(id|names)$'
 {"id":"0cnhdbir8sin3q88himugvf40h","names":["A", "C"]}
 
 # 根据推入的值，自动转换为对应的变量类型
-$demo:> o abc @push -to names 1 true A @json -cqn '^(id|names)$'
+o abc @push -to names 1 true A @json -cqn '^(id|names)$'
 {"id":"0cnhdbir8sin3q88himugvf40h","names":[1, true, "A"]}
 
 # 强制将推入的值全都当作字符串来处理
-$demo:> o abc @push -to names 1 true A -raw @json -cqn '^(id|names)$'
+o abc @push -to names 1 true A -raw @json -cqn '^(id|names)$'
 {"id":"0cnhdbir8sin3q88himugvf40h","names":["1", "true", "A"]}
 ```
 

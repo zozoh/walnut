@@ -18,7 +18,7 @@ o @count
 # 示例
 
 ```bash
-$demo:> o ~/mydir @count -as today '{ct:"[today,today+1d)"}' @summary -cqn
+o ~/mydir @count -as today '{ct:"[today,today+1d)"}' @summary -cqn
 {"today":4}
 ```
 

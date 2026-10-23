@@ -1,13 +1,18 @@
-命令简介
-======= 
+# 过滤器简介
 
-`mediax post` 向第三方平台发送图文素材或者评论
-    
+`@post` 向第三方平台发送图文素材或者评论（暂未实现）。
 
-用法
-=======
+# 用法
 
+```bash
+mediax [账号] @post 对象ID -to URL
+       # 对象ID    # 要投递的素材对象
+       # -to       # 目标地址
 ```
-# 执行微信业务逻辑处理的响应
-demo@~$ mediax zozoh post id:xxx -to http://www.toutiao.com/a6534863050338468356#comment_area
+
+# 示例
+
+```bash
+# 暂未实现，调用无效果
+mediax zozoh @post id:xxx -to http://www.toutiao.com/a6534863050338468356#comment_area
 ```
