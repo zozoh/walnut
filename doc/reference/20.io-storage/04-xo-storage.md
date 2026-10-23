@@ -7,7 +7,7 @@ source:
   - ext/xo/impl/
   - ext/xo/builder/
   - ext/xo/util/
-related: [mount-mapping, dao-mapping, ../40.commands/cmd_xo.md]
+related: [02-mount-mapping, 03-dao-mapping, ../../../src/com/site0/walnut/ext/xo/man/zh_cn/cmd_xo.md]
 ---
 
 # 对象存储集成（xo）
@@ -17,7 +17,7 @@ related: [mount-mapping, dao-mapping, ../40.commands/cmd_xo.md]
 各云服务厂商（AWS S3、腾讯云 COS、阿里云 OSS、华为云 OBS、七牛 Kodo）都提供对象存储服务，
 功能大同小异——上传、下载、删除、列出、改元数据——但各家 SDK 和权鉴方式各不相同。
 Walnut 用统一的 `xo` 命令和配置格式封装它们，并且让对象存储可以直接挂载成 IO 映射
-（[vofs 索引器 / 桶](mount-mapping.md)、[vxds 内容签名桶](mount-mapping.md)），
+（[vofs 索引器 / 桶](02-mount-mapping.md)、[vxds 内容签名桶](02-mount-mapping.md)），
 对象存储里的文件用起来和普通对象无异。
 
 ## 配置布局
@@ -92,7 +92,7 @@ mnt : "://vxds(s3:sha1:22:/home/demo#backup@redis)"
 ```
 
 vxds 的引用计数配置（`{域主目录}/.redis/{配置名}.io.refer.json`）与系统 Redis 授权规则，
-见 [mount-mapping](mount-mapping.md) 的 vxds 一节。
+见 [mount-mapping](02-mount-mapping.md) 的 vxds 一节。
 
 ## 当前支持度
 
@@ -108,5 +108,5 @@ vxds 的引用计数配置（`{域主目录}/.redis/{配置名}.io.refer.json`�
 
 ## 扩展阅读
 
-- [mount-mapping](mount-mapping.md) — `vofs` / `vxds` 映射语法与引用计数安全
+- [mount-mapping](02-mount-mapping.md) — `vofs` / `vxds` 映射语法与引用计数安全
 - [cmd_xo](../../../src/com/site0/walnut/ext/xo/man/zh_cn/cmd_xo.md) — `xo` 命令手册

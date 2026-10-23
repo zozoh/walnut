@@ -7,7 +7,7 @@ source:
   - core/indexer/
   - core/bm/
   - core/hdl/
-related: [../10.concepts/01-std-obj.md, mount-mapping, expiration]
+related: [../10.concepts/01-std-obj.md, 02-mount-mapping, 05-expiration]
 ---
 
 # 索引器 / 桶 / 句柄模型
@@ -101,4 +101,4 @@ o ~/a.txt -cqn    # 看 sha1/len
 
 - 桶一旦封盖只读；再写会复制出新桶（引用计数 1 时可原地打开）。
 - 引用计数异常丢失时，可用 `refer` 命令族检查修复（见 [过滤命令](../40.commands/03_cmd_filter.md)）。
-- 映射子树的细节见 [mount-mapping](mount-mapping.md)。
+- 映射子树的细节见 [mount-mapping](02-mount-mapping.md)。

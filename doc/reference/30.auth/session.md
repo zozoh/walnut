@@ -47,7 +47,7 @@ exit               # 退回父会话；没有父会话则登出
 
 - **创建**：登录成功即建；时长取 `se-sys-du`（默认 3600s），临时会话 `se-tmp-du`（默认 10s）
 - **触摸**：每次请求自动顺延 expi
-- **过期**：过期对象机制自动删除（见 [expiration](../20.io-storage/expiration.md)）；登录时也会顺带清理
+- **过期**：过期对象机制自动删除（见 [expiration](../20.io-storage/05-expiration.md)）；登录时也会顺带清理
 
 ## 票据与安全
 

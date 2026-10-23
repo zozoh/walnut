@@ -37,11 +37,11 @@ doc/reference/
 |
 |-- 20.io-storage/                # 存储体系：虚拟文件系统的全部机制
 |   |-- README.md                 #   目录导航：阅读路径与一页速查
-|   |-- io-model.md               #   索引器/桶管理器/句柄三分模型、读写路径、SHA1 去重
-|   |-- mount-mapping.md          #   mnt 语法全集：mongo/sql/file/filew/vofs × sha1/redis/sql/vofs/vxds
-|   |-- dao-mapping.md            #   .dao 数据源 + ~/.sqlx 模板，元数据/内容进 SQL 表
-|   |-- xo-storage.md             #   对象存储集成：xo 命令、s3/cos 配置、vofs/vxds 挂载
-|   |-- expiration.md             #   过期对象机制：expi、EOT 表、多节点清理竞争
+|   |-- 01-io-model.md               #   索引器/桶管理器/句柄三分模型、读写路径、SHA1 去重
+|   |-- 02-mount-mapping.md          #   mnt 语法全集：mongo/sql/file/filew/vofs × sha1/redis/sql/vofs/vxds
+|   |-- 03-dao-mapping.md            #   .dao 数据源 + ~/.sqlx 模板，元数据/内容进 SQL 表
+|   |-- 04-xo-storage.md             #   对象存储集成：xo 命令、s3/cos 配置、vofs/vxds 挂载
+|   |-- 05-expiration.md             #   过期对象机制：expi、EOT 表、多节点清理竞争
 |
 |-- 30.auth/                      # 账户、会话与权限
 |   |-- accounts.md               #   系统账户(/sys/usr)与域账户(~/accounts)双轨模型

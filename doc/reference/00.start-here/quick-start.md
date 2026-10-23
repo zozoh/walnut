@@ -7,7 +7,7 @@ source:
   - web/setup/WnSetup.java
   - web/WnConfig.java
   - conf/web.properties
-related: [what-is-walnut, first-api, deploy, io-model]
+related: [what-is-walnut, first-api, deploy, ../20.io-storage/01-io-model.md]
 ---
 
 # 快速开始：把 Walnut 跑起来

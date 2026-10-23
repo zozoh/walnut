@@ -3,7 +3,7 @@ title: 数据同步与迁移
 module: 70.integrations
 keywords: [dsync, truck, 同步, 归档, tree 索引, 迁移, 备份]
 source: [ext/sys/dsync/, ext/sys/truck/]
-related: [../20.io-storage/mount-mapping.md, ../80.ops/sys-admin.md]
+related: [../20.io-storage/02-mount-mapping.md, ../80.ops/sys-admin.md]
 ---
 
 # 数据同步与迁移
@@ -71,7 +71,7 @@ truck @to ...      # 设置目标
 truck @buf ...     # 迁移缓冲/选项
 ```
 
-前提：目标目录已用 `mount` 命令映射好（见 [挂载映射](../20.io-storage/mount-mapping.md)）。手册：`man truck` / `man truck from` / `man truck to` / `man truck buf`。
+前提：目标目录已用 `mount` 命令映射好（见 [挂载映射](../20.io-storage/02-mount-mapping.md)）。手册：`man truck` / `man truck from` / `man truck to` / `man truck buf`。
 
 ## bulk 备份体系
 
@@ -91,5 +91,5 @@ truck @buf ...     # 迁移缓冲/选项
 
 ## 延伸阅读
 
-- [挂载映射](../20.io-storage/mount-mapping.md)
-- [I/O 模型](../20.io-storage/io-model.md) — SHA1/内容寻址
+- [挂载映射](../20.io-storage/02-mount-mapping.md)
+- [I/O 模型](../20.io-storage/01-io-model.md) — SHA1/内容寻址

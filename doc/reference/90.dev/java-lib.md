@@ -83,4 +83,4 @@ WnSession se = run.creatSession("zozoh", true);
 
 - [源码包结构](source-layout.md)
 - [自定义命令](custom-command.md)
-- [I/O 模型](../20.io-storage/io-model.md)
+- [I/O 模型](../20.io-storage/01-io-model.md)

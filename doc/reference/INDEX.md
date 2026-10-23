@@ -28,11 +28,11 @@
 ## 20.io-storage
 
 - **20.io-storage/README.md** — 数据存储与映射（目录导航） — 模块：core — 关键词：io,存储,映射,阅读路径
-- **20.io-storage/io-model.md** — 索引器/桶/句柄模型 — 模块：core — 关键词：索引器,桶,句柄,SHA1去重,读写路径
-- **20.io-storage/mount-mapping.md** — mnt 映射语法全集 — 模块：core.mapping — 关键词：mnt,映射,sql,mongo,vofs,vxds,file,redis,sha1
-- **20.io-storage/dao-mapping.md** — .dao 数据源与 SQL 表映射 — 模块：core.indexer.sql — 关键词：dao,数据源,SQL映射,sqlx,模板
-- **20.io-storage/xo-storage.md** — 对象存储集成（xo） — 模块：ext.xo — 关键词：xo,对象存储,s3,cos,oss,临时密钥,vofs,vxds
-- **20.io-storage/expiration.md** — 过期对象机制 — 模块：core.eot — 关键词：expi,EOT,清理线程,多节点竞争
+- **20.io-storage/01-io-model.md** — 索引器/桶/句柄模型 — 模块：core — 关键词：索引器,桶,句柄,SHA1去重,读写路径
+- **20.io-storage/02-mount-mapping.md** — mnt 映射语法全集 — 模块：core.mapping — 关键词：mnt,映射,sql,mongo,vofs,vxds,file,redis,sha1
+- **20.io-storage/03-dao-mapping.md** — .dao 数据源与 SQL 表映射 — 模块：core.indexer.sql — 关键词：dao,数据源,SQL映射,sqlx,模板
+- **20.io-storage/04-xo-storage.md** — 对象存储集成（xo） — 模块：ext.xo — 关键词：xo,对象存储,s3,cos,oss,临时密钥,vofs,vxds
+- **20.io-storage/05-expiration.md** — 过期对象机制 — 模块：core.eot — 关键词：expi,EOT,清理线程,多节点竞争
 
 ## 30.auth
 

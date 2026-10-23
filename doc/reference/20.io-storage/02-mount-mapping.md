@@ -8,7 +8,7 @@ source:
   - core/mapping/indexer/
   - core/mapping/bm/
   - conf/ioc/io.js
-related: [io-model, dao-mapping, xo-storage, ../10.concepts/02-io-indexer-bm.md]
+related: [01-io-model, 03-dao-mapping, 04-xo-storage, ../10.concepts/02-io-indexer-bm.md]
 ---
 
 # mnt 映射语法全集
@@ -43,7 +43,7 @@ sql(demo:t_news)://sha1
  conf/ioc/io.js 的 `ioMappingFactory.indexers` 注册了这些类型：
 
 - **`mongo`** — 写法：`mongo` — 元数据存于 MongoDB `obj` 集合 — 全局默认索引器；复杂查询、海量字段对象
-- **`sql`** — 写法：`sql({daoName}:{entityName}:{options}:{filter})` — 元数据存于 SQL 表 — 海量结构化数据，模板与数据源定义见 [dao-mapping](dao-mapping.md)
+- **`sql`** — 写法：`sql({daoName}:{entityName}:{options}:{filter})` — 元数据存于 SQL 表 — 海量结构化数据，模板与数据源定义见 [dao-mapping](03-dao-mapping.md)
 - **`file`** — 写法：`file:///{绝对路径}` — 元数据由本地文件系统即时生成 — 只读目录镜像
 - **`filew`** — 写法：`filew:///{绝对路径}` — 同上，可写版本
 - **`vofs`** — 写法：`vofs://{s3|cos|oss|obs|kodo}:{域主目录}#{配置名}` — 元数据存于对象存储桶 — 海量非结构化内容（视频、图片库等）
@@ -54,11 +54,11 @@ sql(demo:t_news)://sha1
 
  conf/ioc/io.js 的 `ioMappingFactory.bms` 注册了这些类型：
 
-- **（省略）** — 内容存于 `globalBM`：本地 SHA1 去重桶，见 [io-model](io-model.md)
+- **（省略）** — 内容存于 `globalBM`：本地 SHA1 去重桶，见 [io-model](01-io-model.md)
 - **`sha1`** — 写法：`sha1` — 同全局桶，显式声明
 - **`redis`** — 写法：`redis({配置名})` — 内容存于 Redis 字符串 — 小文件高频读写（如会话对象）；root 组成员可用 ioc 预定义配置，其他用户读 `~/.io/bm/{配置名}.json`（WedisConfig 格式）
 - **`file` / `filew`** — 写法：`file:///{绝对路径}` — 内容按自然目录结构存放（如挂载静态站点目录）
-- **`sql`** — 写法：`sql({daoName}:{entityName})` — 内容存于 SQL 表的 Blob 字段 — 与索引共用一张表，适合小文件，见 [dao-mapping](dao-mapping.md)
+- **`sql`** — 写法：`sql({daoName}:{entityName})` — 内容存于 SQL 表的 Blob 字段 — 与索引共用一张表，适合小文件，见 [dao-mapping](03-dao-mapping.md)
 - **`vofs`** — 写法：`vofs({s3|cos|oss|obs|kodo}:{域主目录}#{配置名})` — 内容直接存对象存储
 - **`vxds`** — 写法：`vxds({s3|cos|oss|obs|kodo}:sha1:{段数}:{域主目录}#{配置名}[@redis])` — 内容按内容签名（SHA1）存对象存储，带引用计数，见下文
 
@@ -86,7 +86,7 @@ mnt : "vofs://s3:/home/demo#test"
 - `sha1` — 签名算法：对象键取内容的 SHA1（去重，天然内容寻址）
 - `22` — 键的前 `N` 个字符每两位一段作为路径层级，如 `ea890abcd...` → `ea/89/0abcd...`
 - `/home/demo` — 配置所在域的主目录
-- `test` — 对象存储连接配置名，存放在 `~/.io/{type}/{name}.json5`，见 [xo-storage](xo-storage.md)
+- `test` — 对象存储连接配置名，存放在 `~/.io/{type}/{name}.json5`，见 [xo-storage](04-xo-storage.md)
 - `@redis` — 【可选】引用计数服务，目前仅支持 `redis`，配置文件为 `{域主目录}/.redis/{配置名}.io.refer.json`
 
 **引用计数安全**：内容按 SHA1 去重后，桶内物理文件靠引用计数管理生命周期（归零才删除）。
@@ -135,7 +135,7 @@ mnt : "://redis(my_redis_bm)"
 mnt : "sql(demo:t_news)"
 ```
 
-文件格式详见 [dao-mapping](dao-mapping.md) 与 [xo-storage](xo-storage.md)。
+文件格式详见 [dao-mapping](03-dao-mapping.md) 与 [xo-storage](04-xo-storage.md)。
 
 ## 操作命令
 
@@ -152,4 +152,4 @@ mount -l                             # 列出（具体子命令见 man mount）
 - 换映射介质不是迁移数据——改 `mnt` 只影响新写入；老数据仍在旧桶里。
 - `file://` 映射的目录**只读**；写入请用 `filew://`。
 - 映射声明在目录元数据上，改映射 = 改元数据（`o -u 'mnt:"..."'`）。
-- `vofs` / `vxds` 的对象存储配置（`~/.io/{type}/{name}.json5`）由 `xo` 命令体系管理，见 [xo-storage](xo-storage.md)。
+- `vofs` / `vxds` 的对象存储配置（`~/.io/{type}/{name}.json5`）由 `xo` 命令体系管理，见 [xo-storage](04-xo-storage.md)。

@@ -8,7 +8,7 @@ source:
   - api/io/WnRace.java
   - core/io/WnIoHookedWrapper.java
   - web/clean/WnExpiObjTableCleaner.java
-related: [io-indexer-bm, domain-home, io-model, privilege]
+related: [02-io-indexer-bm.md, 03-domain-home.md, ../20.io-storage/01-io-model.md, privilege]
 ---
 
 # 标准对象（一切皆对象）
@@ -178,7 +178,7 @@ o ~/tmp/a.txt -u 'expi:1730265600000'
 o ~/tmp/a.txt -u 'expi:0'
 ```
 
-更完整的机制说明见 [过期清理](../20.io-storage/expiration.md)。
+更完整的机制说明见 [过期清理](../20.io-storage/05-expiration.md)。
 
 ## 常用操作示例
 
@@ -204,7 +204,7 @@ o ~/docs -match 'lbls:"x"' -cqn
 
 - **`mnt`** — 存储映射（值示例 `sql(demo:t_news)`） — 详见 [io-indexer-bm](02-io-indexer-bm.md)
 - **`data`** — 对象在桶管理器内的数据段 ID
-- **`expi`** — 过期绝对毫秒，到期自动删除 — 机制见上文 [expi 删除机制](#expi-删除机制)，更多见 [过期清理](../20.io-storage/expiration.md)
+- **`expi`** — 过期绝对毫秒，到期自动删除 — 机制见上文 [expi 删除机制](#expi-删除机制)，更多见 [过期清理](../20.io-storage/05-expiration.md)
 - **`tp` / `mime` / `thumb`** — 类型后缀 / 内容类型 / 缩略图对象引用
 - **`lbls` / `d0` / `d1`** — 标签数组（可查询）/ 一二级目录名（加速范围查询）
 - **`title` / `brief`** — 显示名与摘要（业务通用）
@@ -220,4 +220,4 @@ o ~/docs -match 'lbls:"x"' -cqn
 
 - [IO / Indexer / BM](02-io-indexer-bm.md)：对象的存储模型
 - [域与主目录](03-domain-home.md)：对象树的全局布局
-- [IO 模型](../20.io-storage/io-model.md)：WnIO 读写流程
+- [IO 模型](../20.io-storage/01-io-model.md)：WnIO 读写流程

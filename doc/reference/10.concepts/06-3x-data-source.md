@@ -7,7 +7,7 @@ source:
   - core/mapping/support/MountInfo.java
   - ext/net/xapi/XApi.java
   - ext/data/xo/impl/XoService.java
-related: [io-indexer-bm, std-obj, mount-mapping, dao-mapping, xapi]
+related: [io-indexer-bm, std-obj, ../20.io-storage/02-mount-mapping.md, ../20.io-storage/03-dao-mapping.md, xapi]
 ---
 
 # 3X 数据源（外部数据接入统一 IO）
@@ -41,13 +41,13 @@ mnt = "vofs://s3:/home/demo#backup"
 - **`~/.io/bm/*.json`** — Redis 桶管理器定义
 - **`~/.io/{s3,cos}/*.json5`** — 对象存储连接配置（vofs/vxds 映射共用）
 
-详见 [mnt 映射语法全集](../20.io-storage/mount-mapping.md)与 [DAO 映射](../20.io-storage/dao-mapping.md)。
+详见 [mnt 映射语法全集](../20.io-storage/02-mount-mapping.md)与 [DAO 映射](../20.io-storage/03-dao-mapping.md)。
 
 ## 方式二：对象存储挂载（vofs / vxds）
 
 对象存储桶可以直接挂载为 IO 映射：元数据与内容都在桶里（`vofs`），
 或元数据在 Mongo、内容按 SHA1 去重进桶并带引用计数（`vxds`）。
-配置用 `~/.io/{type}/{name}.json5`，由 `xo` 命令统一管理。见 [xo-storage](../20.io-storage/xo-storage.md)。
+配置用 `~/.io/{type}/{name}.json5`，由 `xo` 命令统一管理。见 [xo-storage](../20.io-storage/04-xo-storage.md)。
 
 ## 方式三：XApi 网关（把第三方 API 变成命令）
 
@@ -73,6 +73,6 @@ cron add '*/10 * * * *' 'xapi send myshop orders /list > ~/data/orders.json'
 ## 深入阅读
 
 - [IO / Indexer / BM](02-io-indexer-bm.md)：统一接口的两层实现
-- [mnt 映射语法全集](../20.io-storage/mount-mapping.md)：所有映射方案
-- [DAO 映射](../20.io-storage/dao-mapping.md)：SQL 数据源与表映射
+- [mnt 映射语法全集](../20.io-storage/02-mount-mapping.md)：所有映射方案
+- [DAO 映射](../20.io-storage/03-dao-mapping.md)：SQL 数据源与表映射
 - [xapi](../70.integrations/xapi.md)：第三方 API 网关

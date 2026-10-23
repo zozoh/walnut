@@ -2,7 +2,7 @@
 title: 数据存储与映射
 module: core
 keywords: [io, 存储, 映射, mnt, 索引器, 桶, 过期, 查询, 对象存储]
-related: [../10.concepts/02-io-indexer-bm.md, ../10.concepts/01-std-obj.md, io-model]
+related: [../10.concepts/02-io-indexer-bm.md, ../10.concepts/01-std-obj.md, 01-io-model.md]
 ---
 
 # 数据存储与映射
@@ -13,21 +13,21 @@ related: [../10.concepts/02-io-indexer-bm.md, ../10.concepts/01-std-obj.md, io-m
 ```bash
 20.io-storage/
 |-- README.md          # 本篇：目录导航与阅读路径
-|-- io-model.md        # 索引器/桶/句柄模型：读写路径、SHA1 去重、交换区
-|-- mount-mapping.md   # mnt 映射语法全集：索引器 × 桶管理器 的任意组合
-|-- dao-mapping.md     # .dao 数据源与 SQL 表映射：元数据/内容进关系库
-|-- xo-storage.md      # 对象存储集成（xo）：s3/cos 配置与 vofs/vxds 挂载
-|-- expiration.md      # 过期对象机制：expi 自动删除
+|-- 01-io-model.md        # 索引器/桶/句柄模型：读写路径、SHA1 去重、交换区
+|-- 02-mount-mapping.md   # mnt 映射语法全集：索引器 × 桶管理器 的任意组合
+|-- 03-dao-mapping.md     # .dao 数据源与 SQL 表映射：元数据/内容进关系库
+|-- 04-xo-storage.md      # 对象存储集成（xo）：s3/cos 配置与 vofs/vxds 挂载
+|-- 05-expiration.md      # 过期对象机制：expi 自动删除
 ```
 
 ## 阅读路径
 
-- **先读** [io-model](io-model.md) — 全局默认组合（Mongo 索引 + SHA1 桶）、读写路径、去重与句柄规则，
+- **先读** [io-model](01-io-model.md) — 全局默认组合（Mongo 索引 + SHA1 桶）、读写路径、去重与句柄规则，
   这是所有映射的基础
-- **要用某种介质** [mount-mapping](mount-mapping.md) — 每种索引器/桶的 `mnt` 写法、组合示例、注意事项
-- **要进关系库** [dao-mapping](dao-mapping.md) — 数据源、SQL 模板、内容进表
-- **要上对象存储** [xo-storage](xo-storage.md) — 云桶配置，以及 vofs/vxds 挂载
-- **辅助机制** [expiration](expiration.md)（到期自动删）与查询（`o` 命令的 `-match`/`@query`）在所有映射上通用
+- **要用某种介质** [mount-mapping](02-mount-mapping.md) — 每种索引器/桶的 `mnt` 写法、组合示例、注意事项
+- **要进关系库** [dao-mapping](03-dao-mapping.md) — 数据源、SQL 模板、内容进表
+- **要上对象存储** [xo-storage](04-xo-storage.md) — 云桶配置，以及 vofs/vxds 挂载
+- **辅助机制** [expiration](05-expiration.md)（到期自动删）与查询（`o` 命令的 `-match`/`@query`）在所有映射上通用
 
 ## 一页速查
 

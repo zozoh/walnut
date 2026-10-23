@@ -3,7 +3,7 @@ title: sqlx 命令：SQL 数据库网关
 module: 40.commands
 keywords: [sqlx, SQL, 模板, @vars, @dvcheck, 事务, 乐观锁]
 source: [ext/data/sqlx/]
-related: [tmpl, 03_cmd_filter, ../20.io-storage/dao-mapping.md]
+related: [tmpl, 03_cmd_filter, ../20.io-storage/03-dao-mapping.md]
 ---
 
 # sqlx 命令：SQL 数据库网关
@@ -139,4 +139,4 @@ sqlx @vars '{shop_id:"${http-qs-shop}", ct:{$gte:"${http-qs-from?2026-01-01}", $
 
 - [tmpl](tmpl.md) — 模板语法（sqlx 模板的基础）
 - [o](o.md) — `@pipe` 可把 sqlx 结果转存对象
-- [数据源映射](../20.io-storage/dao-mapping.md)
+- [数据源映射](../20.io-storage/03-dao-mapping.md)

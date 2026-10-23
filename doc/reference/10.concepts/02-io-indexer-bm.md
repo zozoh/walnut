@@ -7,7 +7,7 @@ source:
   - api/io/WnIoIndexer.java
   - core/WnIoBM.java
   - core/mapping/WnIoMappingFactoryImpl.java
-related: [std-obj, io-model, mount-mapping, 3x-data-source]
+related: [01-std-obj.md, ../20.io-storage/01-io-model.md, ../20.io-storage/02-mount-mapping.md, 06-3x-data-source.md]
 ---
 
 # IO / Indexer / BM
@@ -68,7 +68,7 @@ mnt = "sql(demo:t_news)://sha1"
 - `redis` — Redis
 - `sql` — SQL 大字段表
 - `vofs` — 虚拟对象文件系统
-- `vxds` — XO 数据集签名内容（配合 [xo](../20.io-storage/xo-storage.md)）
+- `vxds` — XO 数据集签名内容（配合 [xo](../20.io-storage/04-xo-storage.md)）
 
 ## mnt 映射语法
 
@@ -85,7 +85,7 @@ mnt = "mongo"
 ```
 
 > 完整方案清单（`mongo` / `sql` / `file` / `filew` / `vofs` / `sha1` / `redis` / `vxds` 等）
-> 见 [mnt 映射语法全集](../20.io-storage/mount-mapping.md)。
+> 见 [mnt 映射语法全集](../20.io-storage/02-mount-mapping.md)。
 
 相关命令：`mount` / `umount` 设置与卸载映射，`o` 命令可直接读写映射后的子树——
 对使用者完全透明，不需要关心底层是 Mongo 还是 SQL。
@@ -105,6 +105,6 @@ umount ~/data/news
 
 ## 深入阅读
 
-- [IO 模型](../20.io-storage/io-model.md)：WnIO 的完整读写流程、缓存与句柄
-- [挂载与映射](../20.io-storage/mount-mapping.md)：mnt 语法全集、~/.io 配置
+- [IO 模型](../20.io-storage/01-io-model.md)：WnIO 的完整读写流程、缓存与句柄
+- [挂载与映射](../20.io-storage/02-mount-mapping.md)：mnt 语法全集、~/.io 配置
 - [3X 数据源](06-3x-data-source.md)：更多外部数据如何接进来

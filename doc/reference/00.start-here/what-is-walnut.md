@@ -5,7 +5,7 @@ keywords: [概述, 设计思想, 架构, 虚拟文件系统, 命令, 域]
 source:
   - README.md
   - WnVersion.java
-related: [quick-start, ../10.concepts/01-std-obj.md, ../10.concepts/05-command-model.md, ../20.io-storage/io-model.md]
+related: [quick-start, ../10.concepts/01-std-obj.md, ../10.concepts/05-command-model.md, ../20.io-storage/01-io-model.md]
 ---
 
 # 什么是 Walnut
@@ -15,7 +15,7 @@ Walnut 是一个**业务系统开发基座平台**（Java 17 / Maven / 内嵌 Je
 ## 五大核心机制
 
 - **一切皆对象** — 一句话：所有数据是树形空间（WnObj）里的对象，字段用缩写（id/nm/sha1/mode/expi...），Unix 风格 — 详见：[标准对象](../10.concepts/01-std-obj.md)
-- **统一存储** — 一句话：任何目录可声明 `mnt` 映射到 MongoDB / SQL / Redis / 本地文件 / 内存 / MQ，索引与内容（桶）分离 — 详见：[io-model](../20.io-storage/io-model.md)
+- **统一存储** — 一句话：任何目录可声明 `mnt` 映射到 MongoDB / SQL / Redis / 本地文件 / 内存 / MQ，索引与内容（桶）分离 — 详见：[io-model](../20.io-storage/01-io-model.md)
 - **命令拼装** — 一句话：一切操作是命令，支持管道 `|`、重定向 `>`；内置 73 个 + 扩展 84 个命令 — 详见：[命令模型](../10.concepts/05-command-model.md)
 - **JS 动态逻辑** — 一句话：`jsc` 命令在域内执行 JS，脚本可读写对象、执行命令，业务逻辑可热更新 — 详见：[jsexec-api](../90.dev/jsexec-api.md)
 - **文件即 HTTP 接口** — 一句话：`~/.regapi/` 下一个文件就是一个 API，内容是命令模板，请求被对象化后注入 — 详见：[api-object](../50.regapi/api-object.md)
