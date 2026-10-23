@@ -36,9 +36,11 @@ doc/reference/
 |   |-- 06-3x-data-source.md      #   3X 数据源：SQL/Redis/OSS/XApi 接入统一 IO
 |
 |-- 20.io-storage/                # 存储体系：虚拟文件系统的全部机制
+|   |-- README.md                 #   目录导航：阅读路径与一页速查
 |   |-- io-model.md               #   索引器/桶管理器/句柄三分模型、读写路径、SHA1 去重
-|   |-- mount-mapping.md          #   mnt 语法全集：mongo/dao/mem/file/redis/mq × 各桶
-|   |-- dao-mapping.md            #   .dao 数据源 + .io/ix 表映射定义（字段/索引/分表）
+|   |-- mount-mapping.md          #   mnt 语法全集：mongo/sql/file/filew/vofs × sha1/redis/sql/vofs/vxds
+|   |-- dao-mapping.md            #   .dao 数据源 + ~/.sqlx 模板，元数据/内容进 SQL 表
+|   |-- xo-storage.md             #   对象存储集成：xo 命令、s3/cos 配置、vofs/vxds 挂载
 |   |-- expiration.md             #   过期对象机制：expi、EOT 表、多节点清理竞争
 |   |-- query-agg.md              #   WnQuery 查询语法与聚合(agg)分组
 |

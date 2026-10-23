@@ -43,7 +43,7 @@ Indexer = mongo    BM = file
 Indexer = sql      BM = redis
 
 # 一个目录一个组合：子树整体切到另一组 Indexer/BM（mnt 映射）
-mnt = "dao(demo/t_news)://lbm(news-data)"
+mnt = "sql(demo:t_news)://sha1"
 ```
 
 分开的理由：
@@ -57,7 +57,7 @@ mnt = "dao(demo/t_news)://lbm(news-data)"
 **Indexer（`core/mapping/indexer/`，ioc 键：mongo / file / filew / sql / vofs）**：
 
 - `mongo` — MongoDB（flat 扁平集合模式）
-- `sql` — SQL 数据库表（表映射定义在 `~/.io/ix/*.json`）
+- `sql` — SQL 数据库表（SQL 模板定义在 `~/.sqlx/*.sql`，数据源在 `~/.dao/*.dao.json`）
 - `file` / `filew` — 本地文件（单文件 / 整树）
 - `vofs` — 虚拟对象文件系统（对象即文件）
 
@@ -68,15 +68,15 @@ mnt = "dao(demo/t_news)://lbm(news-data)"
 - `redis` — Redis
 - `sql` — SQL 大字段表
 - `vofs` — 虚拟对象文件系统
-- `vxds` — XO 数据集签名内容（配合 [xo](../40.commands/03_cmd_filter.md)）
+- `vxds` — XO 数据集签名内容（配合 [xo](../20.io-storage/xo-storage.md)）
 
 ## mnt 映射语法
 
 映射写在目录对象的 `mnt` 元数据上，语法为 `索引方案(参数)://桶方案(参数)`（可省略桶部分）：
 
 ```bash
-# 整个子树的元数据存 SQL 表 t_news（数据源 demo），内容存域级 SHA1 桶 news-data
-mnt = "dao(demo/t_news)://lbm(news-data)"
+# 整个子树的元数据存 SQL 表（数据源 demo，实体模板 ~/.sqlx/t_news.sql），内容存全局 SHA1 桶
+mnt = "sql(demo:t_news)"
 
 # 元数据 Mongo，内容全局桶（最常见组合，等同不写 mnt）
 mnt = "mongo"
@@ -84,7 +84,7 @@ mnt = "mongo"
 # 系统启动时的默认根映射，由 web.properties 的 io-mounts 配置
 ```
 
-> 完整方案清单（`dao` / `mongo` / `redis` / `file` / `mem` / `mq` / `lbm` / `aliyunoss` 等）
+> 完整方案清单（`mongo` / `sql` / `file` / `filew` / `vofs` / `sha1` / `redis` / `vxds` 等）
 > 见 [mnt 映射语法全集](../20.io-storage/mount-mapping.md)。
 
 相关命令：`mount` / `umount` 设置与卸载映射，`o` 命令可直接读写映射后的子树——
@@ -97,7 +97,7 @@ mnt = "mongo"
 o ~/data/news -cqn | grep mnt
 
 # 给目录设置映射（把 ~/data/news 切到 SQL 表）
-mount ~/data/news 'dao(demo/t_news)://lbm(A)'
+mount ~/data/news 'sql(demo:t_news)'
 
 # 解除映射（子树回归父级映射）
 umount ~/data/news

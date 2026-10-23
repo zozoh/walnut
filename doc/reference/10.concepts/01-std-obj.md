@@ -85,7 +85,7 @@ d1  : "demo"    # 所属二级目录名（通常=域名）
 lbls: ["bug","A"]# 自由标签，可查询
 #--------------------------
 # 映射与链接
-mnt : "dao(x/t)://lbm(A)"   # 存储映射（见 io-indexer-bm）
+mnt : "sql(x:t)"              # 存储映射（见 io-indexer-bm）
 ln  : "id:xxx"              # 链接目标（见上文「链接（ln）」）
 #--------------------------
 # 时间
@@ -202,7 +202,7 @@ o ~/docs -match 'lbls:"x"' -cqn
 
 模块间协作靠**元数据约定**，看懂这些键就能看懂任何域的配置：
 
-- **`mnt`** — 存储映射（值示例 `dao(demo/t_news)://lbm(A)`） — 详见 [io-indexer-bm](02-io-indexer-bm.md)
+- **`mnt`** — 存储映射（值示例 `sql(demo:t_news)`） — 详见 [io-indexer-bm](02-io-indexer-bm.md)
 - **`data`** — 对象在桶管理器内的数据段 ID
 - **`expi`** — 过期绝对毫秒，到期自动删除 — 机制见上文 [expi 删除机制](#expi-删除机制)，更多见 [过期清理](../20.io-storage/expiration.md)
 - **`tp` / `mime` / `thumb`** — 类型后缀 / 内容类型 / 缩略图对象引用

@@ -41,7 +41,7 @@
 - **core/io/** — 说明：WnIoImpl2 + 缓存/钩子包装 — 文档：20.io-storage/io-model.md ✅
 - **core/mapping/** — 说明：映射工厂（mnt 解析） — 文档：20.io-storage/mount-mapping.md ✅
 - **core/indexer/{mongo,sql,localfile,vofs}** — 说明：四种索引器 — 文档：20.io-storage/mount-mapping.md ✅
-- **core/bm/** — 说明：桶管理器（bml/localfile/redis/sql/vofs） — 文档：20.io-storage/io-model.md ✅
+- **core/bm/** — 说明：桶管理器（bml/bmv/localfile/redis/sql/vofs） — 文档：20.io-storage/io-model.md、20.io-storage/mount-mapping.md ✅
 - **core/hdl/{memory,redis}** — 说明：句柄管理 — 文档：20.io-storage/io-model.md ✅
 - **core/eot/** — 说明：过期对象表实现 — 文档：20.io-storage/expiration.md ✅
 - **core/refer/{mongo,redis}** — 说明：桶引用计数 — 文档：20.io-storage/io-model.md ✅
@@ -94,7 +94,7 @@
 - **ext/data/vcode,captcha** — 说明：验证码 — 文档：30.auth/vcode-captcha.md ✅
 - **ext/data/app** — 说明：域应用初始化 — 文档：80.ops/deploy.md ✅
 - **ext/data/domain** — 说明：域名映射 — 文档：80.ops/domain-mapping.md ✅
-- **ext/data/xo(xo/)** — 说明：XO 数据集框架 — 文档：[03_cmd_filter](40.commands/03_cmd_filter.md) ✅
+- **ext/xo/** — 说明：对象存储集成（s3/cos） — 文档：20.io-storage/xo-storage.md、[cmd_xo](../../src/com/site0/walnut/ext/xo/man/zh_cn/cmd_xo.md) ✅
 - **ext/media/imagic,videoc,ffmpeg** — 说明：图像/视频 — 文档：[01_cmd_simple](40.commands/01_cmd_simple.md) ✅
 - **ext/media/ooml,sheet,edi** — 说明：文档/表格 — 文档：[03_cmd_filter](40.commands/03_cmd_filter.md)、[01_cmd_simple](40.commands/01_cmd_simple.md) ✅
 - **ext/media/qrcode,pdf,subtitle,avatar** — 说明：其他媒体 — 文档：[01_cmd_simple](40.commands/01_cmd_simple.md)、[02_cmd_complex](40.commands/02_cmd_complex.md) ✅

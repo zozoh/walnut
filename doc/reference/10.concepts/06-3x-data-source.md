@@ -21,14 +21,14 @@ Walnut 的目标是让这些数据源**用起来与普通对象无异**——同
 通过目录对象的 `mnt` 元数据，把整棵子树委托给外部存储（见 [IO / Indexer / BM](02-io-indexer-bm.md)）：
 
 ```bash
-# 子树元数据存 SQL 表、内容存域级桶
-mnt = "dao(demo/t_news)://lbm(news-data)"
+# 子树元数据存 SQL 表、内容存全局 SHA1 桶
+mnt = "sql(demo:t_news)"
 
 # 整树挂本地静态目录
 mnt = "file:///var/www/static/"
 
-# 元数据进 Redis
-mnt = "redis"
+# 元数据与内容都进对象存储
+mnt = "vofs://s3:/home/demo#backup"
 ```
 
 映射之后，对使用者完全透明：`o ~/data/news @query ...` 查的是 SQL 表，
@@ -36,16 +36,18 @@ mnt = "redis"
 
 常用配置约定：
 
-- **`~/.dao/*.dao.json`** — SQL 数据源定义（连接串、账号），被 `dao(源/表)` 引用
-- **`~/.io/ix/*.json`** — SQL 表映射定义（字段、索引、主键）
+- **`~/.dao/*.dao.json`** — SQL 数据源定义（连接串、账号），被 `sql(源:实体)` 引用
+- **`~/.sqlx/*.sql`** — SQL 模板（元数据/内容的读写语句）
 - **`~/.io/bm/*.json`** — Redis 桶管理器定义
+- **`~/.io/{s3,cos}/*.json5`** — 对象存储连接配置（vofs/vxds 映射共用）
 
 详见 [mnt 映射语法全集](../20.io-storage/mount-mapping.md)与 [DAO 映射](../20.io-storage/dao-mapping.md)。
 
-## 方式二：XO 数据集（把目录变成 REST 数据集）
+## 方式二：对象存储挂载（vofs / vxds）
 
-`xo` 命令把任意目录封装成标准 REST 数据集（CRUD + 挂 API），内容以 sha1 签名 JSON 存储（`vxds` 桶）。
-适合快速把一个目录对外发布成数据服务，不用写任何 Java。见 [xo](../40.commands/03_cmd_filter.md)。
+对象存储桶可以直接挂载为 IO 映射：元数据与内容都在桶里（`vofs`），
+或元数据在 Mongo、内容按 SHA1 去重进桶并带引用计数（`vxds`）。
+配置用 `~/.io/{type}/{name}.json5`，由 `xo` 命令统一管理。见 [xo-storage](../20.io-storage/xo-storage.md)。
 
 ## 方式三：XApi 网关（把第三方 API 变成命令）
 
@@ -62,7 +64,7 @@ mnt = "redis"
 
 ```bash
 # SQL 表里的新闻 → JSON API（无需写代码）
-mount ~/data/news 'dao(demo/t_news)'
+mount ~/data/news 'sql(demo:t_news)'
 
 # 第三方平台的订单 → 定时拉到本地目录，再挂 API
 cron add '*/10 * * * *' 'xapi send myshop orders /list > ~/data/orders.json'
