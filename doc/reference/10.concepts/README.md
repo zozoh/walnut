@@ -67,19 +67,41 @@ HTTP 注册接口（regapi）、定时任务、消息队列、邮件短信、支
 
 ## 3. 特殊的抽象概念
 
-- `WnObj`: **一条数据的基本单位**，文件、目录、会话、支付单……任何数据都是一个对象；
-  一个对象有两部分信息：元数据与内容（桶）。`com.site0.walnut.api.io.WnObj`
-- `WnIo`: **统一数据读写接口**，对外的唯一数据入口，一切读写查都走它，
-  使用者不需要知道底层存储是什么。`com.site0.walnut.api.io.WnIo`
-- `WnIoIndexer`: **对象元数据索引管理器**，管对象的元数据——树结构、字段、查询、聚合。
-  `com.site0.walnut.api.io.WnIoIndexer`
-- `WnIoBM`: **对象内容桶管理器**，管对象的内容——字节流的读写（BM = Bucket Manager）。
-  `com.site0.walnut.core.WnIoBM`
-- **对象的两部分分开保存**：元数据与内容由 Indexer 与 BM **分开保存、可存不同介质，
-  按实现任意组合**（元数据进 SQL 表 + 内容进 Redis 桶，或 Mongo + 本地文件，皆可）。
-  以上四个接口的详解见 [02](02-io-indexer-bm.md)。
-- **标准对象（一切皆对象）**：文件、目录、会话、支付单、任务……所有数据都是树形空间里的 WnObj，
-  有统一的字段体系（id/pid/nm/race/mode…），业务字段直接放元数据上，不用建表。见 [01](01-std-obj.md)。
+### `WnObj`: 标准对象
+
+> `com.site0.walnut.api.io.WnObj`
+
+对象是 `Walnut` 概念里的基本单位， 文件、目录、会话、支付单……任何数据都是一个对象。
+系统有两种对象 `文件:FILE` 与 `目录:DIR`。
+
+一个对象有两部分信息:
+1. 元数据
+2. 内容桶。
+
+字段缩写体系、mode 权限、链接与 expi 机制等，详见 [01](01-std-obj.md)。
+
+### `WnIo`: 统一数据读写接口
+
+> `com.site0.walnut.api.io.WnIo`
+
+对外的唯一数据入口：**一切读写查都走 WnIo**。
+使用者（命令、regapi、服务类）只面对它，不需要知道底层存储是什么。
+
+### `WnIoIndexer`: 对象元数据索引管理器
+
+> `com.site0.walnut.api.io.WnIoIndexer`
+
+管对象的**元数据**：树结构、字段、查询、聚合。
+
+### `WnIoBM`: 对象内容桶管理器
+
+> `com.site0.walnut.core.WnIoBM`
+
+管对象的**内容**：字节流的读写（BM = Bucket Manager）。
+
+**对象的两部分分开保存**：元数据与内容由 Indexer 与 BM 分开保存、可存不同介质，按实现任意组合
+（元数据进 SQL 表 + 内容进 Redis 桶，或 Mongo + 本地文件，皆可）。以上四个接口的详解见 [02](02-io-indexer-bm.md)。
+
 - **Domain 与 Home**：域 = 用户主组，是一个独立的数据空间与权限边界；每个用户有自己的主目录（`~`），
   系统目录有全局布局约定（/home /sys /var /etc）。见 [03](03-domain-home.md)。
 - **会话与环境变量**：会话是命令执行的身份载体（登录即建会话），环境变量是会话级的名值对，
