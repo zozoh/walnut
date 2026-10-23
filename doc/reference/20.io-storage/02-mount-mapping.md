@@ -35,9 +35,6 @@ sql(demo:t_news)://sha1
 - 映射声明在 `DIR` 上才有意义——只有目录有子节点；在 `FILE` 上声明不影响子孙（它没有子孙）
 - 读取对象内容时，系统从对象自身开始**向上逐级**寻找桶映射设定
 
-两段式 ID `$HomeID:$ReferID` 定位映射根：`HomeID` 是全局索引里的映射根对象 ID，
-`ReferID` 是子索引器内部的 ID（譬如 vofs 映射里它是 base64 编码的对象存储路径）。
-
 ## 索引器（`mnt` 冒号左边的部分）
 
  conf/ioc/io.js 的 `ioMappingFactory.indexers` 注册了这些类型：
@@ -148,7 +145,7 @@ mount -l                             # 列出（具体子命令见 man mount）
 
 ## 注意事项
 
-- 映射子树的对象 **ID 是两段式**（`HomeID:ReferID`），`o` 命令可直接用。
+- 映射子树的对象 **ID 是两段式**（`HomeID:ReferID`，对象模型见 [标准对象](../10.concepts/01-std-obj.md)），`o` 命令可直接用。
 - 换映射介质不是迁移数据——改 `mnt` 只影响新写入；老数据仍在旧桶里。
 - `file://` 映射的目录**只读**；写入请用 `filew://`。
 - 映射声明在目录元数据上，改映射 = 改元数据（`o -u 'mnt:"..."'`）。
