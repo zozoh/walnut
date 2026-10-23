@@ -43,13 +43,12 @@
 
 ## 40.commands
 
-- **40.commands/command-model.md** — 命令执行模型 — 模块：impl.box — 关键词：JvmExecutor,man,自定义命令
-- **40.commands/file-obj.md** — 文件对象命令组 — 模块：impl.box.cmd — 关键词：ls,cat,cp,find,obj,mount,touch
-- **40.commands/data-cmd.md** — 数据处理命令组 — 模块：ext.data — 关键词：sqlx,entity,like,favor,score,xo,val
-- **40.commands/media-cmd.md** — 媒体命令组 — 模块：ext.media — 关键词：imagic,videoc,qrcode,pdf,sheet,ooml
-- **40.commands/net-cmd.md** — 网络命令组 — 模块：ext.net — 关键词：curl,httpc,xapi,mailx,sms,ftp
-- **40.commands/sys-cmd.md** — 系统命令组 — 模块：ext.sys — 关键词：cron,schedule,task,mq,hook,lock
-- **40.commands/util-cmd.md** — 工具命令组 — 模块：ext.util — 关键词：base64,hexbin,strx,jsonx,datex,seq
+- **40.commands/README.md** — Walnut 命令机制 — 模块：impl.box — 关键词：命令机制,简单命令,复杂命令,过滤命令,管道,重定向,man
+- **40.commands/01_cmd_simple.md** — 简单命令 — 模块：impl.box — 关键词：JvmExecutor,cmd_cat,ZParams,WnSystem,man
+- **40.commands/02_cmd_complex.md** — 复杂命令 — 模块：impl.box — 关键词：JvmHdlExecutor,JvmHdl,cmd_xapi,子命令,服务类
+- **40.commands/03_cmd_filter.md** — 过滤命令 — 模块：impl.box — 关键词：JvmFilterExecutor,JvmFilter,过滤器,cmd_tmpl,上下文
+- **40.commands/04_cmd_pipe.md** — 命令管道 — 模块：impl.box — 关键词：管道,pipe,JvmAtomRunner,run,变量替换
+- **40.commands/05_cmd_std_in_out.md** — 命令输入输出 — 模块：impl.box — 关键词：stdin,stdout,stderr,重定向,JvmBoxInput,JvmBoxOutput
 - **40.commands/o.md** — o 命令：对象操作瑞士军刀 — 模块：ext.data.o — 关键词：@query,@update,@agg,上下文,过滤器
 - **40.commands/sqlx.md** — sqlx：SQL 数据库网关 — 模块：ext.data.sqlx — 关键词：模板SQL,@vars,@dvcheck,事务,乐观锁
 - **40.commands/webx.md** — webx：站点用户自助 — 模块：ext.net.webx — 关键词：@auth,@session,@passwd,微信登录,动态密码

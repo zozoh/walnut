@@ -3,7 +3,7 @@ title: webx 命令：站点用户自助操作
 module: 40.commands
 keywords: [webx, 站点登录, @auth, @session, @passwd, 微信登录, 动态密码]
 source: [ext/net/webx/]
-related: [../50.regapi/auth-history.md, net-cmd, weixin, ../30.auth/vcode-captcha.md]
+related: [../50.regapi/auth-history.md, 03_cmd_filter, weixin, ../30.auth/vcode-captcha.md]
 ---
 
 # webx 命令：站点用户自助操作
@@ -97,5 +97,5 @@ webx ~/www/site @bindemail -email a@b.com -captcha 3421
 ## 延伸阅读
 
 - [站点鉴权与历史](../50.regapi/auth-history.md) — 登录后的请求侧
-- [网络命令组](net-cmd.md) — sms / mailx
+- [复杂命令](02_cmd_complex.md) — sms / [过滤命令](03_cmd_filter.md) — mailx
 - [微信集成](../70.integrations/weixin.md) — wxmp / wxgh 票据获取

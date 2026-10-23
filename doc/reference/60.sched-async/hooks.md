@@ -3,7 +3,7 @@ title: 钩子机制（Hook）
 module: 60.sched-async
 keywords: [hook, hook_by, hook_user, ~/.hook, /sys/hook, 六类事件, JS 钩子]
 source: [api/hook/, impl/hook/]
-related: [mq, cron-pipeline, ../40.commands/sys-cmd.md]
+related: [mq, cron-pipeline, ../40.commands/03_cmd_filter.md]
 ---
 
 # 钩子机制（Hook）
@@ -51,7 +51,7 @@ echo 'sys.exec("obj "+obj.id()+" -e \"thumb:done\"")' \
 
 ## 调试
 
-用 `hookx` 命令离线查看/触发钩子（见 [系统管理命令](../40.commands/sys-cmd.md)）：
+用 `hookx` 命令离线查看/触发钩子（见 [过滤命令](../40.commands/03_cmd_filter.md)）：
 
 ```bash
 # 看某个对象会触发哪些钩子（不执行）

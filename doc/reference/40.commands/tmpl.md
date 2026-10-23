@@ -3,7 +3,7 @@ title: tmpl 命令：文本模板渲染
 module: 40.commands
 keywords: [tmpl, 模板, 占位符, 循环, 分支, WnTmpl]
 source: [ext/data/tmpl/, util/tmpl/]
-related: [sqlx, extend-regapi, command-model]
+related: [sqlx, extend-regapi, 03_cmd_filter]
 ---
 
 # tmpl 命令：文本模板渲染

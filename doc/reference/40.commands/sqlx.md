@@ -3,7 +3,7 @@ title: sqlx 命令：SQL 数据库网关
 module: 40.commands
 keywords: [sqlx, SQL, 模板, @vars, @dvcheck, 事务, 乐观锁]
 source: [ext/data/sqlx/]
-related: [tmpl, command-model, ../20.io-storage/dao-mapping.md]
+related: [tmpl, 03_cmd_filter, ../20.io-storage/dao-mapping.md]
 ---
 
 # sqlx 命令：SQL 数据库网关

@@ -70,4 +70,4 @@ mq send '{body:"o /data/orders -match \"{st:0}\" -l | sheet -tpo xls -out ~/repo
 
 - [定时任务流水线](cron-pipeline.md)
 - [钩子](hooks.md)
-- [系统管理命令](../40.commands/sys-cmd.md) — `mq` 命令索引
+- [复杂命令](../40.commands/02_cmd_complex.md) — `mq` 命令索引

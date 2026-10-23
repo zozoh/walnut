@@ -3,12 +3,12 @@ title: 短信与邮件
 module: 70.integrations
 keywords: [sms, mailx, 短信, 邮件, 模板邮件, SMTP, IMAP, 云片]
 source: [ext/net/sms/, ext/net/mailx/]
-related: [xapi, ../60.sched-async/notify.md, ../40.commands/net-cmd.md]
+related: [xapi, ../60.sched-async/notify.md, ../40.commands/03_cmd_filter.md]
 ---
 
 # 短信与邮件
 
-两个最常用的触达通道。命令细节见 [网络命令](../40.commands/net-cmd.md)，本文侧重配置与落地模式。
+两个最常用的触达通道。命令细节见 [网络命令](../40.commands/03_cmd_filter.md)，本文侧重配置与落地模式。
 
 ## 短信（sms）
 
@@ -80,5 +80,5 @@ mailx alert @to ops@example.com @sub '服务告警' @content 'CPU 90%'
 
 ## 延伸阅读
 
-- [网络命令](../40.commands/net-cmd.md) — sms / mailx 完整过滤器列表
+- [网络命令](../40.commands/03_cmd_filter.md) — sms / mailx 完整过滤器列表
 - [通知与提醒](../60.sched-async/notify.md) — 告警模式

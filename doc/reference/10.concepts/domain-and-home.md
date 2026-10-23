@@ -53,18 +53,18 @@ related: [everything-is-obj, accounts, quick-start]
 - **`~/.dao/*.dao.json`** — 用途：SQL 数据源定义 — 详见：[dao-mapping](../20.io-storage/dao-mapping.md)
 - **`~/.io/ix/*.json`** — 用途：SQL 表映射定义（索引器） — 详见：[dao-mapping](../20.io-storage/dao-mapping.md)
 - **`~/.io/bm/*.json`** — 用途：Redis 桶管理器定义 — 详见：[mount-mapping](../20.io-storage/mount-mapping.md)
-- **`~/.sqlx/*.sql`** — 用途：SQL 模板（sqlx 命令） — 详见：[data-cmd](../40.commands/data-cmd.md)
+- **`~/.sqlx/*.sql`** — 用途：SQL 模板（sqlx 命令） — 详见：[sqlx](../40.commands/sqlx.md)
 - **`~/.weixin/{name}/`** — 用途：微信配置（wxconf + access_token） — 详见：[weixin](../70.integrations/weixin.md)
 - **`~/.aliyun/{oss,vod}/`** — 用途：阿里云配置 — 详见：[alipay-aliyun](../70.integrations/alipay-aliyun.md)
 - **`~/.alipay/{name}/`** — 用途：支付宝配置 — 详见：[payment](../70.integrations/payment.md)
-- **`~/.mediax/{host}/`** — 用途：媒体平台账号 — 详见：[media-cmd](../40.commands/media-cmd.md)
+- **`~/.mediax/{host}/`** — 用途：媒体平台账号 — 详见：[复杂命令](../40.commands/02_cmd_complex.md)
 - **`~/.mq/secret`** — 用途：MQ 密钥 — 详见：[mq](../60.sched-async/mq.md)
 - **`~/.env`** — 用途：用户环境变量 — 详见：[env-vars](env-vars.md)
 - **`~/.pvg/*.json`** — 用途：业务权限表（推荐位置） — 详见：[biz-privilege](../30.auth/biz-privilege.md)
 - **`~/.hook/`** — 用途：用户钩子 — 详见：[hooks](../60.sched-async/hooks.md)
 - **`~/.dsync/*.json`** — 用途：数据同步配置 — 详见：[data-sync](../70.integrations/data-sync.md)
 - **`~/buck/ ~/swap/`** — 用途：域级本地桶（默认映射在域下时） — 详见：[io-model](../20.io-storage/io-model.md)
-- **`~/bin/`** — 用途：用户命令目录（PATH 含 `~/bin`，可 JS 覆盖系统命令） — 详见：[command-model](../40.commands/command-model.md)
+- **`~/bin/`** — 用途：用户命令目录（PATH 含 `~/bin`，可 JS 覆盖系统命令） — 详见：[自定义命令](../90.dev/custom-command.md)
 
 ## HOME 与 ~
 

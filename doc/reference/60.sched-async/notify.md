@@ -27,7 +27,7 @@ o ~/logs -match '{lv:"ERROR", lm:{$gt:昨夜时间戳}}' -l \
 
 可用的发送通道：
 
-- `sms` — 短信（见 [网络命令](../40.commands/net-cmd.md)）；
+- `sms` — 短信（见 [复杂命令](../40.commands/02_cmd_complex.md)）；
 - `mailx` — 邮件（含模板邮件）；
 - `weixin tmpl -send` — 微信模板消息（见 [微信](../70.integrations/weixin.md)）；
 - 任意自建命令 — 比如写 WebSocket 给前端推送（`ext/sys/websocket/`）。

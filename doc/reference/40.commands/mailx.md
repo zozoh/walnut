@@ -3,7 +3,7 @@ title: mailx 命令：邮件收发一体化
 module: 40.commands
 keywords: [mailx, 邮件, SMTP, IMAP, 模板邮件, 附件, S/MIME]
 source: [ext/net/mailx/]
-related: [net-cmd, ../70.integrations/sms-mail.md, tmpl, ../60.sched-async/notify.md]
+related: [03_cmd_filter, ../70.integrations/sms-mail.md, tmpl, ../60.sched-async/notify.md]
 ---
 
 # mailx 命令：邮件收发一体化
@@ -102,6 +102,6 @@ mailx default @fs ~/incoming -json
 
 ## 延伸阅读
 
-- [网络命令组](net-cmd.md) — sms 等其他触达通道
+- [复杂命令](02_cmd_complex.md) — sms 等其他触达通道
 - [tmpl](tmpl.md) — 模板语法
 - [集成：短信与邮件](../70.integrations/sms-mail.md)

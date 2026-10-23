@@ -97,5 +97,5 @@ o ~/a.txt -cqn    # 看 sha1/len
 ## 注意事项
 
 - 桶一旦封盖只读；再写会复制出新桶（引用计数 1 时可原地打开）。
-- 引用计数异常丢失时，可用 `refer` 命令族检查修复（见 [sys-cmd](../40.commands/sys-cmd.md)）。
+- 引用计数异常丢失时，可用 `refer` 命令族检查修复（见 [过滤命令](../40.commands/03_cmd_filter.md)）。
 - 映射子树的细节见 [mount-mapping](mount-mapping.md)。

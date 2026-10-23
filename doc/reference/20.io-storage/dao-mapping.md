@@ -86,7 +86,7 @@ o ~/biz/orders -match 'status:"NEW",ct:[1720000000000,)' -sort 'ct:-1' -limit 20
 - **适合** — dao 映射：对象生命周期管理（增删改查带元数据） — sqlx：报表、联查、批量写、复杂 SQL
 - **身份** — dao 映射：任何命令/脚本透明使用 — sqlx：`sqlx` 命令显式调用
 
-两者共用 `~/.dao/` 数据源。sqlx 详见 [data-cmd](../40.commands/data-cmd.md)。
+两者共用 `~/.dao/` 数据源。sqlx 详见 [sqlx](../40.commands/sqlx.md)。
 
 ## 注意事项
 

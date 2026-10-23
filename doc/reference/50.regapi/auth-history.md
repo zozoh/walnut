@@ -34,7 +34,7 @@ o /home/demo/api/order/list -e '
 - **`http-www-me`**：用户完整元数据 JSON
 - **`http-www-me-phone` / `http-www-me-email` / `http-www-me-mainGroup`**：手机 / 邮箱 / 主域
 
-> 站点登录本身由 webx 命令完成（见 [网络命令](../40.commands/net-cmd.md)）；这里只负责「拿着票据认出用户」。
+> 站点登录本身由 webx 命令完成（见 [过滤命令](../40.commands/03_cmd_filter.md)）；这里只负责「拿着票据认出用户」。
 
 ## 权限断言（pvg-setup + pvg-assert）
 

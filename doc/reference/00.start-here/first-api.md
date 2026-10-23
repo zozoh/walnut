@@ -69,7 +69,7 @@ curl 'http://localhost:8080/api/root/hello?name=walnut'
 ```
 
 > 这里用 `o -u` 修改元数据、`json` 生成 JSON，都是 Walnut 命令，语法详见
-> [命令参考：文件对象组](../40.commands/file-obj.md)。
+> [简单命令](../40.commands/01_cmd_simple.md)。
 
 ## 常用套路
 

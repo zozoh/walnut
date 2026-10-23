@@ -3,7 +3,7 @@ title: 微信集成
 module: 70.integrations
 keywords: [微信, wxmp, wxgh, wxjssdk, access_token, 小程序登录, 公众号]
 source: [ext/net/webx/, ext/net/xapi/hdl/xapi_wxjssdk.java, ext/net/payment/weixin/]
-related: [payment, xapi, ../40.commands/net-cmd.md]
+related: [payment, xapi, ../40.commands/03_cmd_filter.md]
 ---
 
 # 微信集成
@@ -12,7 +12,7 @@ related: [payment, xapi, ../40.commands/net-cmd.md]
 
 ## 1. 微信登录（站点账号）
 
-`webx` 命令支持用微信票据登录站点账号（见 [网络命令](../40.commands/net-cmd.md)）：
+`webx` 命令支持用微信票据登录站点账号（见 [网络命令](../40.commands/03_cmd_filter.md)）：
 
 ```bash
 # 微信小程序 code 换登录态（用户不存在可 -autoadd 自动建号）

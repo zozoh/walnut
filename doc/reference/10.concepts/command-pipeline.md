@@ -7,7 +7,7 @@ source:
   - impl/box/WnSystem.java
   - impl/box/JvmExecutorFactory.java
   - impl/box/cmd/man/zh_cn/
-related: [everything-is-obj, js-scripting, env-vars, command-model]
+related: [everything-is-obj, js-scripting, env-vars, ../40.commands/README.md]
 ---
 
 # 命令机制

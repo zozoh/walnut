@@ -3,7 +3,7 @@ title: o 命令：对象操作瑞士军刀
 module: 40.commands
 keywords: [o, 对象操作, @query, @update, @agg, 上下文, 过滤器]
 source: [ext/data/o/]
-related: [command-model, file-obj, ../20.io-storage/query-agg.md, ../20.io-storage/everything-is-obj.md]
+related: [03_cmd_filter, ../20.io-storage/query-agg.md, ../20.io-storage/everything-is-obj.md]
 ---
 
 # o 命令：对象操作瑞士军刀
@@ -124,6 +124,6 @@ o ~/categories @tree -subkey children @json -cqn
 
 ## 延伸阅读
 
-- [命令模型](command-model.md) — 过滤器管道机制
+- [过滤命令](03_cmd_filter.md) — 过滤器管道机制
 - [一切皆对象](../10.concepts/everything-is-obj.md)
 - [查询与聚合](../20.io-storage/query-agg.md)

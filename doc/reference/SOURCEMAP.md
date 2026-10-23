@@ -17,7 +17,7 @@
 
 - **web/module/AppModule.java** — 说明：/a 应用打开/登录/run — 文档：50.regapi/* ✅
 - **web/module/UsrModule.java** — 说明：/u 登录/登出/会话切换 — 文档：30.auth/session.md ✅
-- **web/module/ObjModule.java** — 说明：/o 缩略图/下载 — 文档：40.commands/file-obj.md ✅
+- **web/module/ObjModule.java** — 说明：/o 缩略图/下载 — 文档：[o](40.commands/o.md) ✅
 - **web/module/FuseModule.java** — 说明：域名转发路由 — 文档：80.ops/domain-mapping.md ✅
 - **web/module/GuestModule.java** — 说明：/g 访客接口 — 文档：✅
 - **web/filter/** — 说明：WnAsUsr/WnCheckSession 等 — 文档：30.auth/* ✅
@@ -32,7 +32,7 @@
 - **api/io/WnQuery.java** — 说明：查询抽象 — 文档：20.io-storage/query-agg.md ✅
 - **api/io/agg/** — 说明：聚合查询 — 文档：20.io-storage/query-agg.md ✅
 - **api/io/WnExpiObjTable.java** — 说明：过期对象表 — 文档：20.io-storage/expiration.md ✅
-- **api/lock/** — 说明：锁接口 — 文档：40.commands/sys-cmd.md ✅
+- **api/lock/** — 说明：锁接口 — 文档：[03_cmd_filter](40.commands/03_cmd_filter.md) ✅
 - **api/hook/** — 说明：钩子接口 — 文档：60.sched-async/hooks.md ✅
 - **api/box/** — 说明：沙箱/执行上下文 — 文档：10.concepts/command-pipeline.md ✅
 
@@ -50,10 +50,10 @@
 ## 服务实现（impl/）
 
 - **impl/box/** — 说明：WnSystem/WnBox/JvmExecutorFactory — 文档：10.concepts/command-pipeline.md ✅
-- **impl/box/cmd/** — 说明：74 个内置命令 — 文档：40.commands/file-obj.md ✅
-- **impl/box/cmd/man/zh_cn/** — 说明：内置命令中文手册 — 文档：40.commands/command-model.md ✅
+- **impl/box/cmd/** — 说明：73 个内置命令 — 文档：[01_cmd_simple](40.commands/01_cmd_simple.md) ✅
+- **impl/box/cmd/man/zh_cn/** — 说明：内置命令中文手册 — 文档：[01_cmd_simple](40.commands/01_cmd_simple.md) ✅
 - **impl/io/** — 说明：WnSecurityImpl — 文档：30.auth/privilege.md ✅
-- **impl/lock/{memory,redis}** — 说明：锁实现 — 文档：40.commands/sys-cmd.md ✅
+- **impl/lock/{memory,redis}** — 说明：锁实现 — 文档：[03_cmd_filter](40.commands/03_cmd_filter.md) ✅
 - **impl/hook/** — 说明：钩子实现 — 文档：60.sched-async/hooks.md ✅
 
 ## 账户（login/）
@@ -68,16 +68,16 @@
 
 - **util/WnRun.java** — 说明：命令运行器 — 文档：10.concepts/command-pipeline.md ✅
 - **util/Wn.java、WnContext.java** — 说明：全局工具与线程上下文 — 文档：90.dev/java-lib.md ✅
-- **util/{Wobj,WnStr,Wtime,Wpath,Ws}.java** — 说明：高频工具 — 文档：40.commands/util-cmd.md ✅
+- **util/{Wobj,WnStr,Wtime,Wpath,Ws}.java** — 说明：高频工具 — 文档：[01_cmd_simple](40.commands/01_cmd_simple.md) ✅
 - **cron/WnCron.java** — 说明：WnCron 表达式引擎 — 文档：60.sched-async/cron-syntax.md ✅
 - **jsexec/JsExec.java** — 说明：JS 引擎封装 — 文档：10.concepts/js-scripting.md ✅
-- **val/** — 说明：值生成器（ID/序列/日期/IP） — 文档：40.commands/data-cmd.md ✅
-- **lookup/** — 说明：快捷查询 — 文档：40.commands/data-cmd.md ✅
+- **val/** — 说明：值生成器（ID/序列/日期/IP） — 文档：[03_cmd_filter](40.commands/03_cmd_filter.md) ✅
+- **lookup/** — 说明：快捷查询 — 文档：[o](40.commands/o.md) ✅
 - **cache/** — 说明：缓存抽象 — 文档：20.io-storage/io-model.md ✅
 - **cheap/** — 说明：Cheap 文档解析器（dom/css/markdown/xml） — 文档：90.dev/jsexec-api.md ✅
-- **ooml/** — 说明：OOML Office 模板 — 文档：40.commands/media-cmd.md ✅
+- **ooml/** — 说明：OOML Office 模板 — 文档：[03_cmd_filter](40.commands/03_cmd_filter.md) ✅
 - **security/** — 说明：安全权鉴（建设中） — 文档：80.ops/security-notes.md ✅
-- **alg/** — 说明：算法工具 — 文档：40.commands/util-cmd.md ✅
+- **alg/** — 说明：算法工具 — 文档：[01_cmd_simple](40.commands/01_cmd_simple.md) ✅
 
 ## 扩展层（ext/）
 
@@ -86,23 +86,23 @@
 - **ext/sys/mq,websocket** — 说明：消息队列 / WebSocket — 文档：60.sched-async/mq.md ✅
 - **ext/sys/hookx,lock,refer,trash** — 说明：钩子/锁/引用/回收站 — 文档：60.sched-async/hooks.md ✅
 - **ext/sys/dsync,truck** — 说明：数据同步与搬运 — 文档：70.integrations/data-sync.md ✅
-- **ext/sys/redis,mgadmin,aclog,i18n,datex** — 说明：系统工具命令 — 文档：40.commands/sys-cmd.md、util-cmd.md ✅
-- **ext/data/sqlx** — 说明：SQL 操作 — 文档：40.commands/data-cmd.md ✅
-- **ext/data/entity** — 说明：通用实体(like/favor/score/history) — 文档：40.commands/data-cmd.md ✅
-- **ext/data/o** — 说明：o 增强命令 — 文档：40.commands/file-obj.md ✅
+- **ext/sys/redis,mgadmin,aclog,i18n,datex** — 说明：系统工具命令 — 文档：[02_cmd_complex](40.commands/02_cmd_complex.md)、[03_cmd_filter](40.commands/03_cmd_filter.md) ✅
+- **ext/data/sqlx** — 说明：SQL 操作 — 文档：[sqlx](40.commands/sqlx.md) ✅
+- **ext/data/entity** — 说明：通用实体(like/favor/score/history) — 文档：[01_cmd_simple](40.commands/01_cmd_simple.md) ✅
+- **ext/data/o** — 说明：o 增强命令 — 文档：[o](40.commands/o.md) ✅
 - **ext/data/pvg** — 说明：业务权限 — 文档：30.auth/biz-privilege.md ✅
 - **ext/data/vcode,captcha** — 说明：验证码 — 文档：30.auth/vcode-captcha.md ✅
 - **ext/data/app** — 说明：域应用初始化 — 文档：80.ops/deploy.md ✅
 - **ext/data/domain** — 说明：域名映射 — 文档：80.ops/domain-mapping.md ✅
-- **ext/data/xo(xo/)** — 说明：XO 数据集框架 — 文档：40.commands/data-cmd.md ✅
-- **ext/media/imagic,videoc,ffmpeg** — 说明：图像/视频 — 文档：40.commands/media-cmd.md ✅
-- **ext/media/ooml,sheet,edi** — 说明：文档/表格 — 文档：40.commands/media-cmd.md ✅
-- **ext/media/qrcode,pdf,subtitle,avatar** — 说明：其他媒体 — 文档：40.commands/media-cmd.md ✅
+- **ext/data/xo(xo/)** — 说明：XO 数据集框架 — 文档：[03_cmd_filter](40.commands/03_cmd_filter.md) ✅
+- **ext/media/imagic,videoc,ffmpeg** — 说明：图像/视频 — 文档：[01_cmd_simple](40.commands/01_cmd_simple.md) ✅
+- **ext/media/ooml,sheet,edi** — 说明：文档/表格 — 文档：[03_cmd_filter](40.commands/03_cmd_filter.md)、[01_cmd_simple](40.commands/01_cmd_simple.md) ✅
+- **ext/media/qrcode,pdf,subtitle,avatar** — 说明：其他媒体 — 文档：[01_cmd_simple](40.commands/01_cmd_simple.md)、[02_cmd_complex](40.commands/02_cmd_complex.md) ✅
 - **ext/net/payment,alipay** — 说明：支付 — 文档：70.integrations/payment.md ✅
 - **ext/net/xapi** — 说明：XAPI 第三方 API — 文档：70.integrations/xapi.md ✅
 - **ext/net/sms,mailx** — 说明：短信/邮件 — 文档：70.integrations/sms-mail.md ✅
 - **ext/net/aliyun,ftp,http** — 说明：阿里云/FTP/HTTP 客户端 — 文档：70.integrations/alipay-aliyun.md ✅
-- **ext/util/{base64,hexbin,jsonx,strx,seq,shorturl,btea,crc,react}** — 说明：工具命令 — 文档：40.commands/util-cmd.md ✅
+- **ext/util/{base64,hexbin,jsonx,strx,seq,shorturl,btea,crc,react}** — 说明：工具命令 — 文档：[01_cmd_simple](40.commands/01_cmd_simple.md)、[02_cmd_complex](40.commands/02_cmd_complex.md)、[03_cmd_filter](40.commands/03_cmd_filter.md) ✅
 - **ext/data/thing ⚠️、ext/data/titanium ⚠️** — 说明：已弃用（仅维护） — 文档：不投入文档
 
 ## 配置

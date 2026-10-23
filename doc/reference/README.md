@@ -49,14 +49,13 @@ doc/reference/
 |   |-- auto-login.md             #   ackey 签名自动登录与 Token 机制(nonce/timestamp)
 |   |-- vcode-captcha.md          #   验证码：图形/短信/邮箱、场景与目录布局
 |
-|-- 40.commands/                  # 命令参考：159 个命令的用法与组合
-|   |-- command-model.md          #   执行模型、三种写法（简单/过滤/复杂）、74+85 全量清单
-|   |-- file-obj.md               #   文件对象组：ls/cat/cp/mv/rm/find/o/mount...
-|   |-- data-cmd.md               #   数据组：sqlx/entity(like,favor,score,history)/xo/val
-|   |-- media-cmd.md              #   媒体组：imagic/videoc/qrcode/pdf/sheet/ooml...
-|   |-- net-cmd.md                #   网络组：curl/httpc/xapi/mailx/sms/ftp/aliyun...
-|   |-- sys-cmd.md                #   系统组：cron/schedule/task/mq/hook/lock/trash...
-|   |-- util-cmd.md               #   工具组：base64/hexbin/strx/jsonx/datex/seq...
+|-- 40.commands/                  # 命令参考：73 内置 + 84 扩展，三种写法与组合手段
+|   |-- README.md                 #   命令机制概览：要解决的问题、三种模式、管道与 IO
+|   |-- 01_cmd_simple.md          #   简单命令（JvmExecutor）：代码形态、96 个命令清单
+|   |-- 02_cmd_complex.md         #   复杂命令（JvmHdlExecutor）：hdl 子命令 + 服务类
+|   |-- 03_cmd_filter.md          #   过滤命令（JvmFilterExecutor）：@过滤器共享上下文
+|   |-- 04_cmd_pipe.md            #   命令管道：| 组合、变量替换、run 批量执行
+|   |-- 05_cmd_std_in_out.md      #   命令输入输出：三流、> >> 2>&1 重定向、输出惯例
 |   |-- o.md                      #   【重点】o 命令：对象操作瑞士军刀（上下文+过滤器）
 |   |-- sqlx.md                   #   【重点】sqlx：SQL 数据库网关（模板/事务/乐观锁）
 |   |-- webx.md                   #   【重点】webx：站点用户自助（登录/会话/改密/绑定）
