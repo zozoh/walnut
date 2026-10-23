@@ -1,35 +1,27 @@
-命令简介
-=======
+# 命令简介
 
-`str` 命令用来对输入的字符串参数进行转换
+`str` 对管道输入的字符串做转换
 
-用法
-=======
+支持 URI 解码、去空白、替换三种模式。
+
+# 用法
 
 ```bash
-str
-    [-decodeURI UTF-8]  # 【选】对字符串解码，默认 UTF-8
-    [-trim]             # 【选】去掉字符串左右空白
-    [-replace]          # 【选】替换模式，读取两个路径参数
-                        #  1. -模式-
-                        #  2. -替换- 如果没有就是空字符串
+[上游命令] | str [-decodeURI [编码]] [-trim] [-replace 模式 替换]
+  -decodeURI    # URI 解码（默认 UTF-8）
+  -trim         # 去掉左右空白
+  -replace      # 替换：第一个参数是模式，第二个是替换串（缺省为空串）
 ```
-  
-示例
-=======
+
+# 示例
 
 ```bash
 # 去掉空白
-demo:$ echo ' Hello ' | str -trim
-Hello
+echo ' Hello ' | str -trim
 
-# URI解码(UTF-8)
-demo:$ echo '"a=%2012"' | str -decodeURI
-a= 12
+# URI 解码
+echo 'a=%2012' | str -decodeURI
 
 # 替换字符串
-demo:$ echo '"a=%2012"' | str -replace % '&#37;'
-a=&#37;2012
+echo 'a=%2012' | str -replace % '&#37;'
 ```
-    
-    

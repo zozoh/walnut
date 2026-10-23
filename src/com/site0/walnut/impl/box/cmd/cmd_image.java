@@ -116,9 +116,9 @@ public class cmd_image extends JvmExecutor {
             return;
         }
         if (imgObj.hasMime() && imgObj.mime().startsWith("image/")) {
-            sys.err.printf("obj %s(%s) is not a image", imgObj.name(), imgObj.id());
-        } else {
             sys.out.println(Json.toJson(getImgInfo(sys, imgObj, params.is("more", false))));
+        } else {
+            sys.err.printf("obj %s(%s) is not a image", imgObj.name(), imgObj.id());
         }
     }
 

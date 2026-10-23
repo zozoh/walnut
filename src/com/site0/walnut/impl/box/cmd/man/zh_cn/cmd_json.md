@@ -1,132 +1,76 @@
-# 命令简介 
+# 命令简介
 
-`json` 将输入的 JSON 文本进行格式后再输出
+`json` 将管道输入的 JSON 文本加工后再输出
+
+加工动作按固定顺序执行：解析（`-type`）→ 容错（`-err`）→ 取值（`-get`/`-val`）
+→ 过滤键（`-key`）→ 映射（`-mapping`）→ 加前缀（`-prefix`）→ 修改（`-u`/`-a`）
+→ 打包（`-put`）→ 输出（JSON / `-out` 模板 / `-str`）。是 regapi 里组装
+响应数据的核心工具。
 
 # 用法
 
-    cat xxx | json [-cqnr] [-e $REGEX+] [-d yyyyMMdd] [-u '{xx:xxx}'] [-out Tmpl]
-    
-    -c            # 紧凑格式输出
-    -q            # 不用双引号包裹键值
-    -n            # 忽略 null 值
-    -e            # 正则表达式表示指定输出的字段，! 开始表示取反
-    -d            # 对日期时间格式的字段格式化
-    -prefix       # 对 JSON 字段增加前缀
-    -prefix_key   # 一个正则表达式说明特殊的字段才增加前缀
-    -r            # 遇到对象，的值也递归修改前缀
-    
-    -type         # 指名输入的类型，默认会调用 JSON 解析，如果输入的是数字或者字符串
-                  # 可以用这个来指明，支持的值为：
-                  # String|Integer|Floot|Long|Double|Boolean|Object
-    
-    -err          # 如果遇到输入是 "e.xxx" 这样的错误信息，直接从标准输出打印出来
-                  # 不声明这个选项，则会抛 Json 解析失败的错误
-    
-    -key          # 如果输入是一个 Map，那么被这个值描述到键会被保留，其他到会被删掉
-                  # 指明保留到 :  ^(a|b|c)$
-                  # 指明不保留 :  !^(a|b|c)$
-    
-    -mapping      # 映射字段。即改变字段的键值
-                  # 譬如 -mapping '{a:"AA", b:"BB"}'
-                  # 那么会把输入的键 a 变成 AA, 键b变成BB
-                  # 在映射中可以合并值，如果 a:"AA:@{a}-@{b}" 实际上表示一个模板替换
-                  # 将对象 {a:"pet",b:"good"} 变成 {AA:"pet-good"}
-                  # 不会递归的映射，第一层对象，或者第一层容器里面所有的对象才会被其影响
-                  # 它会作用在 -prefix,-get,-put,-u 这些处理操作之前
-                  # 在 -key 操作之后
-    -mapping_only # 指明，只有在声明了 mapping 的字段才会保留
-                  # 只有声明了 mapping 选项，本选项才起作用
-    
-    -get          # 从一个 JSON 文本中取值，键值支持 . 的路径操作
-                  # 如果是列表，则参数是下标
+```bash
+[上游] | json [-cqnr] [-type 类型] [-err] [-get 路径] [-val 键] [-key 正则]
+        [-mapping '{映射}'] [-mapping_only] [-prefix 前缀] [-prefix_key 正则]
+        [-u '{更新}'] [-a '{默认值}'] [-put 键] [-keys] [-e 正则] [-d 日期格式]
+        [-out 模板] [-str]
+  -cqn        # JSON 格式开关：-c 紧凑、-q 键名加引号、-n 输出 null 值
+  -type       # 输入类型：String|Integer|Float|Long|Double|Boolean|Object（默认）
+  -err        # 输入为空或以 e. 开头（错误串）时原样输出，不抛解析错误
+  -get        # 按路径取值，支持 . 与 [下标]，如 pos.x / 0.pos.x / obj[0].x
+  -val        # 取对象的键值；输入是数组时生成值数组
+  -key        # 只保留匹配正则的键；! 开头表示反选
+  -mapping    # 映射字段键值，如 '{a:"AA", b:"BB:@{a}-@{b}"}'；值部分支持 @{x} 模板
+  -mapping_only   # 只保留 mapping 中声明的字段（需配合 -mapping）
+  -prefix     # 给键名加前缀，如 -prefix "pos_"
+  -prefix_key # 只处理匹配正则的键；! 开头表示反选
+  -r          # -prefix 递归处理内层对象
+  -u          # 深合并更新（已存在的键覆盖）
+  -a          # 深合并更新（只补充不存在的键）
+  -put        # 把整个对象包到指定键下，如 -put pos
+  -keys       # 输出对象的键数组
+  -e          # 只输出匹配正则的字段；! 开头表示排除
+  -d          # 日期字段的格式化模板，如 yyyy-MM-dd
+  -out        # 按 @{xxx} 模板输出（集合则逐元素渲染）
+  -str        # 按字符串输出（否则转 JSON）
+```
 
-    -keys         # 从当前对象（可以是 -get 处理之后）获取对象的键数组
-                  # 当然，如果对象不是 Map，则返回空数组
-    
-    -val          # 从JSON对象里取值，如果对象是个数组，则生成一个值的数组
-                  
-    -put          # 将这段 JSON 加入到一个新到 map，并指定 key
-                  
-    -u            # 更新 map(深层递归)，
-    -a            # 更新 map(深层递归)，没有的键才加上
-    
-    -out          # 采用模板方式输出，模板占位符格式化为 "@{xxx}"
-    -str          # 直接作为字符串方式输出，否则会转 JSON 输出 
-    
-    
 # 示例
 
-    # 格式化输出
-    $:> echo '{x:100,y:80}' | json
-    {
-       "x" : 100,
-       "y" : 80
-    }
-    
-    # 增加前缀
-    $:> echo '{x:100,y:80}' | json -prefix "pos_"
-    {
-       "pos_x" : 100,
-       "pos_y" : 80
-    }
-    
-    # 为指定字段增加前缀
-    $:> echo '{x:100,y:80}' | json -prefix "pos_" -prefix_key "^x$"
-    {
-       "pos_x" : 100,
-       "y" : 80
-    }
-    
-    $:> echo '{x:100,y:80}' | json -prefix "pos_" -prefix_key "!^x$"
-    {
-       "x" : 100,
-       "pos_y" : 80
-    }
-    
-    # 形成新到 map
-    $:> echo '{x:100,y:80}' | json -put "pos"
-    {
-        pos : {
-           "x" : 100,
-           "y" : 80
-        }
-    }
-    
-    # 取出某值到新 map
-    $:> echo '{pos:{x:100,y:80}}' | json -get "pos" -put "position"
-    {
-        position : {
-           "x" : 100,
-           "y" : 80
-        }
-    }
-    
-    # 除了某几个 key 剩下的都输出
-    $:> echo '{x:100,y:80,z:66}' | json -key "!^(x|y)$"
-    {
-        "z" : 66
-    }
-    
-    # 除了某几个 key 剩下的都不输出
-    $:> echo '{x:100,y:80,z:66}' | json -key "^(x|y)$"
-    {
-        "x" : 100
-        "y" : 80
-    }
-    
-    # 从复杂对象里取值
-    $:> echo '{pos : {x:100,y:80}}' | json -get "pos.x"
-    100
-    
-    # 从复杂列表里取值
-    $:> echo '[{pos : {x:100,y:80}},{}]' | json -get "0.pos.x"
-    100
-    
-    # 从复杂列表里取值
-    $:> echo '{obj: [{pos : {x:100,y:80}},{}]}' | json -get "obj[0].pos.x"
-    100
-    
-    # 将对象某个字段值变成一个数组
-    $:> echo '[{x:1,y:2},{x:9,y:8}]' | json -val x
-    [1,9]
-    
+```bash
+# 格式化
+echo '{x:100,y:80}' | json
+
+# 增加前缀
+echo '{x:100,y:80}' | json -prefix "pos_"
+
+# 只为指定字段加前缀
+echo '{x:100,y:80}' | json -prefix "pos_" -prefix_key "^x$"
+
+# 打包成新 map
+echo '{x:100,y:80}' | json -put "pos"
+
+# 取值后打包
+echo '{pos:{x:100,y:80}}' | json -get "pos" -put "position"
+
+# 过滤键（反选）
+echo '{x:100,y:80,z:66}' | json -key "!^(x|y)$"
+
+# 深取值
+echo '{pos : {x:100,y:80}}' | json -get "pos.x"
+
+# 列表深取值
+echo '[{pos : {x:100,y:80}},{}]' | json -get "0.pos.x"
+
+# 数组提取字段为值数组
+echo '[{x:1,y:2},{x:9,y:8}]' | json -val x
+
+# 字段映射改名
+echo '{a:"pet",b:"good"}' | json -mapping '{a:"AA",b:"BB:@{a}-@{b}"}' -mapping_only
+
+# 错误串原样透传
+echo 'e.io.noexist' | json -err
+
+# 模板输出
+echo '{x:100,y:80}' | json -out 'X=@{x} Y=@{y}'
+```

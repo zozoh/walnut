@@ -1,21 +1,30 @@
-# 命令简介 
+# 命令简介
 
-	`alias` 定义一个带参数的别名命令
+`alias` 定义带参数的别名命令
+
+别名保存在会话中，展开后执行真实命令并原样转发额外参数。
 
 # 用法
 
-	alias [-p] [-r] [key=cmds..] [key1=cmds2..]
-	
+```bash
+alias            # 显示当前已存在的别名
+alias -p         # 同上
+alias -r 名称     # 移除一个别名
+alias 名称=命令   # 定义别名
+```
+
 # 示例
 
-	显示当前已经存在的别名命令
-	alias -p
-	
-	移除之前定义的别名命令
-	alias -r qq
-	
-	定义一个别名命令
-	alias qq="ll -A"
-	
-	执行一个别名命令, 与普通方法无异,只是实际执行的命令为 ll -A /home,即展开式
-	qq /home
+```bash
+# 显示已存在的别名
+alias -p
+
+# 移除别名
+alias -r qq
+
+# 定义别名
+alias qq="ll -A"
+
+# 执行别名（实际执行 ll -A /home）
+qq /home
+```

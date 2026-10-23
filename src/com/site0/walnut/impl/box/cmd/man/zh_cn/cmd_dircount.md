@@ -1,34 +1,34 @@
-# 命令简介 
+# 命令简介
 
-	`dircount` 将列出某目录下的子对象数量, 并跟根据deep值进行深度遍历。
-	
-	返回结果为json格式。
-	
-	{
-	   "id": "XXXXXXX",
-	   "name": "XXXXX",
-	   "path": "/home/pw/test",
-	   "count": 11
-	}
+`dircount` 统计目录的子对象数量，支持按深度遍历
+
+对每个给定目录输出一条 JSON 记录（`id`/`name`/`path`/`count`）。
 
 # 用法
 
-	count [-A] [-tp txt] [-match '{...}'] [-deep 0] [/path/to/dir]..
-	
+```bash
+dircount [-A] [-tp 类型] [-match '{条件}'] [-deep 深度] [目录...]
+  -A       # 包含隐藏对象
+  -tp      # 只统计指定类型
+  -match   # 只统计匹配条件的对象
+  -deep    # 遍历深度（默认 1）
+```
+
 # 示例
 
-	显示当前目录所非隐藏对象数量
-	dircount
-	
-	计算当前目录下所有对象数量，包括隐藏对象
-	dircount -A
-	
-	计算txt类型的对象数量
-	dircount -tp txt
-	
-	计算符合match的对象数量
-	dircount -match 'tp:"txt"'
-	
-	计算2层深度目录
-	dircount -deep 2
-	
+```bash
+# 当前目录（非隐藏）对象数量
+dircount
+
+# 包含隐藏对象
+dircount -A
+
+# 统计 txt 类型
+dircount -tp txt
+
+# 按条件统计
+dircount -match '{tp:"txt"}'
+
+# 2 层深度统计
+dircount -deep 2
+```

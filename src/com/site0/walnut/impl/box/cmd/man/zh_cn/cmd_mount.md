@@ -1,30 +1,29 @@
-# 命令简介 
+# 命令简介
 
-    `mount` 命令将扩展媒介的内容挂载到
+`mount` 把扩展媒介挂载到目录（设置目录的 `mnt` 元数据）
+
+不带参数列出所有挂载点（需 root 组成员）；两个参数时执行挂载
+（需目标域管理员）。本地文件类映射（file 索引器/桶）仅限 root
+组成员，且路径必须在 `mnt-file-allow` 白名单内。映射语法详见
+`mount-mapping` 参考手册。
 
 # 用法
 
-    mount [媒介] [挂载点]
-    
+```bash
+mount                       # 列出全部挂载点（root）
+mount -init                 # 重新同步 web.properties 里的 init-mnt 配置
+mount 映射语法 挂载点目录
+```
+
 # 示例
 
-    // 将一个本地磁盘目录挂载到一个已存在的目录上
-    mount file://~/worksapce/data/abc ~/abc
-    
-    // 将一个七牛云存储的库挂载到一个已存在的目录上
-    // 该目录必须有这些属性: 
-    //    qiniu_ak 密钥AK
-    //    qiniu_sk 密钥SK
-    //    qiniu_bucket 仓库名
-    //    qiniu_domain 七牛分配的域名或自定义域名,需要http://或https://前缀
-    
-    mount qiniu://walnut-wendal
-    
-    // 列出所有挂载点
-    
-    mount
-    
-    // 重新挂载配置文件中的挂载点
-    
-    mount -init
-    
+```bash
+# 列出所有挂载点
+mount
+
+# 挂载本地目录
+mount file://~/workspace/data/abc ~/abc
+
+# 重新挂载配置文件中的挂载点
+mount -init
+```

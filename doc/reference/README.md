@@ -49,8 +49,8 @@ doc/reference/
 |   |-- auto-login.md             #   ackey 签名自动登录与 Token 机制(nonce/timestamp)
 |   |-- vcode-captcha.md          #   验证码：图形/短信/邮箱、场景与目录布局
 |
-|-- 40.commands/                  # 命令参考：161 个命令的用法与组合
-|   |-- command-model.md          #   执行模型、三种写法（简单/过滤/复杂）、76+85 全量清单
+|-- 40.commands/                  # 命令参考：159 个命令的用法与组合
+|   |-- command-model.md          #   执行模型、三种写法（简单/过滤/复杂）、74+85 全量清单
 |   |-- file-obj.md               #   文件对象组：ls/cat/cp/mv/rm/find/o/mount...
 |   |-- data-cmd.md               #   数据组：sqlx/entity(like,favor,score,history)/xo/val
 |   |-- media-cmd.md              #   媒体组：imagic/videoc/qrcode/pdf/sheet/ooml...

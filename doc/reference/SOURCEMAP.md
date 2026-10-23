@@ -50,7 +50,7 @@
 ## 服务实现（impl/）
 
 - **impl/box/** — 说明：WnSystem/WnBox/JvmExecutorFactory — 文档：10.concepts/command-pipeline.md ✅
-- **impl/box/cmd/** — 说明：76 个内置命令 — 文档：40.commands/file-obj.md ✅
+- **impl/box/cmd/** — 说明：74 个内置命令 — 文档：40.commands/file-obj.md ✅
 - **impl/box/cmd/man/zh_cn/** — 说明：内置命令中文手册 — 文档：40.commands/command-model.md ✅
 - **impl/io/** — 说明：WnSecurityImpl — 文档：30.auth/privilege.md ✅
 - **impl/lock/{memory,redis}** — 说明：锁实现 — 文档：40.commands/sys-cmd.md ✅

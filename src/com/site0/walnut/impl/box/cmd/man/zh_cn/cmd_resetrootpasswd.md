@@ -1,10 +1,18 @@
-# 命令简介 
+# 命令简介
 
-    `resetrootpasswd` 将会把 root 用户密码重置。
-    重置的值会根据应用的 web.properties 配置项目 `root-init-passwd`
-    
-    如果没有配置这个项，这个命令将会抛错 
+`resetrootpasswd` 重置 root 用户密码
+
+重置为 `web.properties` 配置的 `root-init-passwd`；未配置则抛错。
 
 # 用法
 
-    $:> resetrootpasswd
+```bash
+resetrootpasswd
+```
+
+# 示例
+
+```bash
+# 重置 root 密码
+resetrootpasswd
+```

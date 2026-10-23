@@ -1,32 +1,44 @@
-# 命令简介 
+# 命令简介
 
-    `httpparam` 命令一次性将某 HTTP 请求文件的参数解析，并输出成 JSON
+`httpparam` 将 HTTP 请求参数解析成 JSON 或模板输出
+
+是 regapi 体系里解析请求的第一环：输入为请求对象文件（`-in`）或管道内容，
+自动按 JSON 或 form 表单解析，并合并请求对象上的 `http-qs-*` 查询参数。
+之后可按需做类型转换、收缩到子 Map、模板输出。
 
 # 用法
 
-    httpparam -in id:xxx 
-        [-cqn]            # JSON 格式化器
-        [-out xxx]        # 输出模板
-        [-map [key]]      # 是否将参数收缩到一个 Map 的 key 里，默认key为 params
-        [-varray nm1:'sep',nm2:'sep']   # 将指定的参数根据分隔符拆分成数组
-        [-vint   nm1,nm2,nm3..]         # 将指定的参数变成整数
-        [-vbool  nm1,nm2,nm3..]         # 将指定的参数变成布尔
-        [-vfloat nm1,nm2,nm3..]         # 将指定的参数变成浮点数
-    
+```bash
+httpparam (-in 请求对象 | 管道) [-cqn] [-out 模板] [-map [键]]
+          [-varray 名:分隔符,...] [-vint 名,...] [-vbool 名,...] [-vfloat 名,...]
+  -in      # 请求对象（如 id:xxx），缺省读管道
+  -out     # 输出模板（@{xxx} 占位符），缺省输出 JSON
+  -map     # 收缩到子 Map：-map 键为 params，-map REQ 键为 REQ
+  -varray  # 按分隔符拆分成数组，如 -varray 'ids:,' 
+  -vint    # 转成整数，如 -vint 'a,b'
+  -vbool   # 转成布尔
+  -vfloat  # 转成浮点数
+  -cqn     # JSON 格式开关：-c 紧凑、-q 键名加引号、-n 输出 null 值
+```
+
 # 示例
 
-    // 输出请求中的 id 字段
-    httpparam -in id:xxx -out 'ID is @{id}' 
-    
-    // 将请求对象变成 JSON，紧凑格式输入
-    httpparam -in id:xxx -c
-    
-    // 将请求对象变成 JSON 并将 price 字段变成浮点，d 和 a 字段变成布尔
-    httpparam -in id:xxx -vfloot price -vbool 'd,a'
-    
-    // 将请求对象变成一个 {params:{请求参数集合}} 格式的 JSON
-    httpparam -in id:xxx -map
-    
-    // 将请求对象变成一个 {REQ:{请求参数集合}} 格式的 JSON
-    httpparam -in id:xxx -map REQ
-    
+```bash
+# 输出请求中的 id 字段
+httpparam -in id:xxx -out 'ID is @{id}'
+
+# 请求参数转 JSON（紧凑）
+httpparam -in id:xxx -c
+
+# 类型转换：price 转浮点，d 和 a 转布尔
+httpparam -in id:xxx -vfloat price -vbool 'd,a'
+
+# 拆分数组：ids=a,b,c 变成数组
+httpparam -in id:xxx -varray 'ids:,'
+
+# 收缩为 {params:{...}}
+httpparam -in id:xxx -map
+
+# 收缩为 {REQ:{...}}
+httpparam -in id:xxx -map REQ
+```

@@ -1,23 +1,33 @@
-# 命令简介 
+# 命令简介
 
-`output` 和 `echo` 类似，也是输出内容，不过它支持延迟输出和随机输出，主要是用来测试
+`output` 输出内容，支持延迟、间隔、批量
+
+与 `echo` 类似，主要用于测试管道行为（如异步输出、缓慢输出场景）。
 
 # 用法
 
-	output [-delay ms] [-n number] [-te] ...
-	
-	-delay      延迟多少毫秒输出
-	-n          输出多少条信息
-	-interval   输出每条信息的时间间隔(毫秒)
-	-e          将输出输入到错误输出
-	-t          是否在每条信息前打上一个时间戳
-	-i          是否输出每条信息的序号
-	
+```bash
+output [-delay 毫秒] [-n 条数] [-interval 毫秒] [-tei] 内容...
+  -delay      # 延迟多少毫秒后输出
+  -n          # 输出多少条信息
+  -interval   # 每条信息的时间间隔（毫秒）
+  -e          # 输出到错误流
+  -t          # 每条信息前加时间戳
+  -i          # 输出每条信息的序号
+```
+
 # 示例
 
-	// 直接输出一段文字
-	output hello
-	
-	// 延迟  500ms 输出一段文件
-	output -delay 500 hello
-	
+```bash
+# 直接输出
+output hello
+
+# 延迟 500ms 输出
+output -delay 500 hello
+
+# 每秒输出一条，共 5 条
+output -n 5 -interval 1000 hello
+
+# 输出到错误流
+output -e hello
+```

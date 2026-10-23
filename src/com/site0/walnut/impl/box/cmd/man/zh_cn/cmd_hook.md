@@ -5,10 +5,9 @@
 # 用法
 
 ```bash
-hook [-get o]             # 获取某个对象的钩子信息 
-    [ACTION -do o]        # 重新执行对象的的某一钩子
-    [ACTION -all {Query}]
-    [-v]                  # 显示对每个对象的执行
+hook [-get 对象]             # 获取某个对象的钩子信息 
+    [ACTION -do 对象]         # 重新执行对象的某一钩子
+    [-v]                      # 显示对每个对象的执行
 ```
 
 其中 `ACTION` 可以是 `write|create|delete|meta|mount|move`

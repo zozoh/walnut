@@ -9,6 +9,7 @@ unzip [-f] <zipfile> <dir1>
 
 	-f              # 文件已存在强制写入
 	-l              # 查看压缩包文件内容
+	-read           # 只读取包内容（不解压）
 	-quiet          # 静默输出。当然 read 模式下，即使静默，还是要输出内容的
 	-hidden         # 如果包内有隐藏文件，也写入
 	-macosx         # 如果包内有 __MACOSX 文件，也写入

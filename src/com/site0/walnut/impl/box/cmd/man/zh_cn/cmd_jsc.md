@@ -6,8 +6,10 @@
 
 ```bash
 jsc 
-[path/to/js]            # 执行文件路径
+[脚本内容]              # 直接给出脚本源码执行
+[-f 路径]               # 执行 js 文件
 [-debug]                # 调试模式
+[-clear]                # 清除本域的全局 JS 缓存
 [-lsengine]             # 列出可用引擎
 [-engine nashorn]       # 指定执行引擎，默认 nashorn
 [-vars {...}]           # 指定脚本参数，

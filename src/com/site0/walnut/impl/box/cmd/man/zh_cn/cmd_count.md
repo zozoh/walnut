@@ -1,28 +1,33 @@
-# 命令简介 
+# 命令简介
 
-	`count` 将列出某目录下的子对象数量。如果没有给入参数，则将 "." 作为默认参数
+`count` 统计目录下的子对象数量
+
+不带参数统计当前目录。默认不计隐藏对象。
 
 # 用法
 
-	count [-A] [-tp txt] [-match '{...}'][/path/to/dir]..
-	
+```bash
+count [-A] [-tp 类型] [-match '{条件}'] [目录...]
+  -A       # 包含隐藏对象
+  -tp      # 只统计指定类型（如 txt）
+  -match   # 只统计匹配条件的对象
+```
+
 # 示例
 
-	显示当前目录所非隐藏对象数量
-	count
-	
-	显示上一级目录的对象数量
-	count ..
-	
-	计算当前目录下，所有以 a 开头的对象对象数量
-	count 
-	
-	计算当前目录下所有对象数量，包括隐藏对象
-	count -A
-	
-	计算txt类型的对象数量
-	count .. -tp txt
-	
-	计算符合match的对象数量
-	count -match 'tp:"txt"'
-	
+```bash
+# 当前目录（非隐藏）对象数量
+count
+
+# 上一级目录
+count ..
+
+# 包含隐藏对象
+count -A
+
+# 统计 txt 类型
+count -tp txt
+
+# 按条件统计
+count -match '{tp:"txt"}'
+```
