@@ -1,11 +1,13 @@
 ---
 title: 标准对象（一切皆对象）
 module: api.io
-keywords: [WnObj, 对象, 字段缩写, race, mode, 元数据, pvg, 一切皆对象]
+keywords: [WnObj, 对象, 字段缩写, race, ln, 链接, expi, mode, 元数据, pvg, 一切皆对象]
 source:
   - api/io/WnObj.java
   - core/bean/WnIoObj.java
   - api/io/WnRace.java
+  - core/io/WnIoHookedWrapper.java
+  - web/clean/WnExpiObjTableCleaner.java
 related: [io-indexer-bm, domain-home, io-model, privilege]
 ---
 
@@ -16,9 +18,44 @@ Walnut 中**所有数据都是树形空间里的对象（WnObj）**：文件、�
 
 ## 种族（race）
 
+`WnRace` 枚举只有两种取值，没有第三种：
+
 - `DIR` — 目录，可有子对象
 - `FILE` — 文件，有内容（内容存于桶，见 [IO / Indexer / BM](01-io-indexer-bm.md)）
-- `LINK` — 链接，指向另一个对象（`ln` 字段）
+
+初学者常见的疑惑：「链接是不是第三种 race？」**不是**。链接不是一个 race，
+它只是**对象的一个元数据**——详见下文[链接（ln）](#链接ln)。
+
+## 链接（ln）
+
+一个对象只要带上了 `ln` 元数据，它就成了**链接对象**：`isLink()` 的判定就是
+「`ln` 字段非空」（`core/bean/WnIoObj.java`）。除此之外它和普通对象没有任何区别——
+创建链接时它的 race 继承目标对象的 race（`cmd_ln`：`sys.io.create(p, dst, oSrc.race())`），
+所以它仍是 DIR 或 FILE，只是读它的时候，系统会顺着 `ln` 找到真正的目标。
+
+`ln` 的值有三种形态（`util/Wn.java` 的 `Wn.real` 负责解析）：
+
+```bash
+ln = "id:xxxxx"      # 按对象 ID 定位（最可靠，目标移动后仍然有效）
+ln = "/home/demo/a"  # 绝对路径定位
+ln = "sub/a.txt"     # 相对路径定位（相对链接对象所在的父目录）
+```
+
+解析规则（`Wn.real(o, io, memo)`）：
+
+- `id:` 前缀 → `io.get(id)`；绝对路径 → 从根 fetch；相对路径 → 从链接对象的父目录 fetch
+- **递归展开**：目标本身也是链接就继续展开，直到找到非链接对象；用 memo 记录展开过的对象 ID，
+  若重复出现说明成环，返回 null（不会死循环）
+- 目标不存在时抛 `e.io.obj.noexists`
+- 展开后真实对象上会记下 `fromLink`（原链接路径），用于缓存包装层及时清理链接目录的缓存
+
+日常用法：
+
+```bash
+ln -s ~/docs/readme.md ~/links/rm      # 软链接（默认，ln 值为路径）
+ln -s id:9mXkVf ~/links/rm              # 也可以直接写 id，更抗移动
+rm ~/links/rm                           # 删除链接不影响目标
+```
 
 ## 字段缩写体系
 
@@ -28,7 +65,7 @@ Walnut 中**所有数据都是树形空间里的对象（WnObj）**：文件、�
 id  : ID        # 对象唯一 ID（UUID32）
 pid : ID        # 父对象 ID
 nm  : "abc.txt" # 名称（同级唯一）
-race: DIR|FILE|LINK
+race: DIR|FILE
 #--------------------------
 # 权限（三段八进制，第一段是 admin 不是 owner！见下）
 c : "root"      # 创建者(creater)
@@ -49,12 +86,12 @@ lbls: ["bug","A"]# 自由标签，可查询
 #--------------------------
 # 映射与链接
 mnt : "dao(x/t)://lbm(A)"   # 存储映射（见 io-indexer-bm）
-ln  : "id:xxx"              # 链接目标
+ln  : "id:xxx"              # 链接目标（见上文「链接（ln）」）
 #--------------------------
 # 时间
 ct   : AMS      # 创建时间（绝对毫秒）
 lm   : AMS      # 最后修改时间
-expi : AMS      # 过期时间，到期系统自动删除（0=永不过期）
+expi : AMS      # 过期时间，到期系统自动删除（0=永不过期，见下文「expi 删除机制」）
 ```
 
 对象上还可以有**任意自定义元数据**：业务字段直接放对象上（MongoDB 索引支持查询），
@@ -87,6 +124,62 @@ expi : AMS      # 过期时间，到期系统自动删除（0=永不过期）
 
 详见 [三层权限](../30.auth/privilege.md)与[业务权限](../30.auth/biz-privilege.md)。
 
+## expi 删除机制
+
+`expi`（过期时间，绝对毫秒）是对象的「自毁装置」：`expi <= 0` 永不过期；否则到期后由系统**自动、不可逆地删除**。
+临时文件、验证码、短期会话都靠它回收，不需要任何手工清理。完整链路分四步（源码：`core/io/WnIoHookedWrapper.java`、
+`core/io/AbstractWnIoWrapper.java`、`web/clean/WnExpiObjTableCleaner.java`）：
+
+**1. 注册**——所有写路径自动登记
+
+系统的 IO 是一层包装链：`rawIo` → `hookedIo`（钩子 + expi 登记）→ 缓存包装（`conf/ioc/io.js`）。
+每次创建对象或修改元数据（`setBy` / `move`），只要对象带 `expi > 0`，
+`tryAddExpiObj` 就把 `(对象ID, expi)` 写入**过期记录表** `WnExpiObjTable`（Mongo 实现，
+`WnSafeExpiObjTable` 加锁包装，保证多节点安全）。`expi <= 0` 的写法不会登记。
+
+**2. 候命**——过期记录表只记两件事
+
+`WnExpiObjTable` 是一张「id → 过期时间」的登记表，按过期时间排序，最老的在前。
+它不参与日常读写，只给清理线程当工单。
+
+**3. 清理**——后台线程定期接管并删除
+
+`WnExpiObjTableCleaner` 是启动时创建的后台线程（`web/clean/`），循环逻辑：
+
+```bash
+每 expi-obj-clean-interval（默认 60000ms）醒一次：
+  1. takeover(节点名, cleanHold, cleanLimit)
+     ── 借助锁服务集群安全地「接管」最老的一批记录（默认 100 条）
+  2. 逐条处理：
+     对象还在 + 已过期   → io.delete(o, true) 递归删除（真正清理）
+     对象还在 + 未过期   → 从表里移除（有人设了又撤了 expi，撤单）
+     对象已不存在        → 仅记日志（残留工单）
+  3. 睡一个间隔，回到 1
+```
+
+配置项（`conf/web.properties`）：`expi-obj-clean-interval`（轮询间隔）、
+`expi-obj-clean-limit`（每批数量）、`expi-obj-clean-hold`（接管持有时间，默认与间隔相同）。
+
+**4. 注销**——删除对象时同步清表
+
+任何路径删除对象（`WnIoImpl2.whenDelete` 回调）都会把它的过期记录一并从表里移除，
+避免残留工单。
+
+实用提示：
+
+```bash
+# 查看当前毫秒（date -ms），再加上偏移量得到目标过期时间
+date -ms
+
+# 给对象设置过期时间（写绝对毫秒，例如 1 小时后就加 3600000）
+o ~/tmp/a.txt -u 'expi:1730265600000'
+
+# 撤销过期（设回 0），清理线程下次扫描时会把登记表里的工单撤掉
+o ~/tmp/a.txt -u 'expi:0'
+```
+
+更完整的机制说明见 [过期清理](../20.io-storage/expiration.md)。
+
 ## 常用操作示例
 
 ```bash
@@ -111,7 +204,7 @@ o ~/docs -match 'lbls:"x"' -cqn
 
 - **`mnt`** — 存储映射（值示例 `dao(demo/t_news)://lbm(A)`） — 详见 [io-indexer-bm](01-io-indexer-bm.md)
 - **`data`** — 对象在桶管理器内的数据段 ID
-- **`expi`** — 过期绝对毫秒，到期自动删除 — 详见 [过期清理](../20.io-storage/expiration.md)
+- **`expi`** — 过期绝对毫秒，到期自动删除 — 机制见上文 [expi 删除机制](#expi-删除机制)，更多见 [过期清理](../20.io-storage/expiration.md)
 - **`tp` / `mime` / `thumb`** — 类型后缀 / 内容类型 / 缩略图对象引用
 - **`lbls` / `d0` / `d1`** — 标签数组（可查询）/ 一二级目录名（加速范围查询）
 - **`title` / `brief`** — 显示名与摘要（业务通用）
@@ -121,7 +214,7 @@ o ~/docs -match 'lbls:"x"' -cqn
 
 - `id` 全库唯一；路径由树推导，对象移动后路径即变
 - 大字段内容不要放元数据，写入文件内容（桶）并用 `sha1` 关联
-- `expi` 一旦设置，到期即被系统删除（不可逆）
+- `expi` 一旦设置，到期即被系统删除（不可逆），机制见上文[expi 删除机制](#expi-删除机制)
 
 ## 深入阅读
 

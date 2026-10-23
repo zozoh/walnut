@@ -12,7 +12,10 @@ related: [../10.concepts/02-std-obj.md, mount-mapping, expiration]
 
 # 索引器 / 桶 / 句柄模型
 
-WnIo 把对象拆成三部分，各自独立扩展：
+数据访问的核心是四个接口（概念详见 [IO / Indexer / BM](../10.concepts/01-io-indexer-bm.md)）：
+统一读写接口 `WnIo`、数据基本单位 `WnObj`（元数据 + 内容）、元数据索引管理器 `WnIoIndexer`、
+内容桶管理器 `WnIoBM`。**元数据与内容分开保存、可存不同介质，按实现任意组合**。
+在此之上，WnIo 的执行侧还有句柄层：
 
 ```bash
 WnObj（元数据）── WnIoIndexer（索引器：元数据存哪、怎么查）
