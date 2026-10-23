@@ -5,7 +5,7 @@ keywords: [会话, session, 票据, ticket, 多级登录, su, exit, 过期]
 source:
   - login/session/
   - login/WnLoginApi.java
-related: [accounts, auto-login, command-pipeline]
+related: [accounts, auto-login, ../10.concepts/05-command-model.md]
 ---
 
 # 会话机制
@@ -28,7 +28,7 @@ related: [accounts, auto-login, command-pipeline]
 }
 ```
 
-文件内容：JSON 环境变量（见 [env-vars](../10.concepts/env-vars.md)）。
+文件内容：JSON 环境变量（见 [会话与环境变量](../10.concepts/04-session-env.md)）。
 
 ## 多级登录（会话树）
 

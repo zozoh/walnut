@@ -6,7 +6,7 @@ source:
   - core/mapping/
   - core/indexer/
   - core/bm/
-related: [io-model, dao-mapping, metadata-conventions]
+related: [io-model, dao-mapping, ../10.concepts/02-std-obj.md]
 ---
 
 # mnt 映射语法全集

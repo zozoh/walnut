@@ -8,7 +8,7 @@ source:
   - impl/box/JvmCmd.java
   - impl/box/JvmAtomRunner.java
   - util/Cmds.java
-related: [command-pipeline, custom-command, o, sqlx]
+related: [../10.concepts/05-command-model.md, custom-command, o, sqlx]
 ---
 
 # 命令输入输出

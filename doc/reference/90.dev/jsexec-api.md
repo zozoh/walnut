@@ -3,7 +3,7 @@ title: JS 执行环境（JsExec）
 module: 90.dev
 keywords: [JS, jsc, JsExec, nashorn, $wn, sys.exec, jsbin, _g.js]
 source: [jsexec/, impl/box/cmd/cmd_jsc.java, impl/box/cmd/jsc/]
-related: [custom-command, extend-regapi, ../10.concepts/js-scripting.md]
+related: [custom-command, extend-regapi, ../40.commands/01_cmd_simple.md]
 ---
 
 # JS 执行环境（JsExec）
@@ -82,6 +82,6 @@ echo 'sys.exec2("ls")' | jsc        # 从管道执行
 
 ## 延伸阅读
 
-- [JS 脚本概念](../10.concepts/js-scripting.md)
+- [jsc 命令](../40.commands/01_cmd_simple.md)
 - [实战：扩展 API](extend-regapi.md)
 - [钩子](../60.sched-async/hooks.md) — .js 钩子的执行环境

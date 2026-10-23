@@ -7,7 +7,7 @@ source:
   - impl/box/JvmHdlExecutor.java
   - impl/box/JvmFilterExecutor.java
   - impl/box/JvmAtomRunner.java
-related: [command-pipeline, custom-command, o, sqlx, tmpl]
+related: [../10.concepts/05-command-model.md, custom-command, o, sqlx, tmpl]
 ---
 
 # Walnut 命令机制
@@ -83,7 +83,7 @@ cat ~/logs/app.log | grep ERROR > ~/archive/errors.txt
 ## 扩展阅读
 
 - [命令管道](04_cmd_pipe.md) / [命令输入输出](05_cmd_std_in_out.md)：横向组合手段的完整规则
-- [命令执行的整体流程](../10.concepts/command-pipeline.md)：从命令行文本到沙箱执行
+- [命令执行的整体流程](../10.concepts/05-command-model.md)：从命令行文本到沙箱执行
 - [自定义命令](../90.dev/custom-command.md)：如何编写自己的命令（覆盖系统命令或新增扩展）
 - 重点命令专篇：[o](o.md) / [sqlx](sqlx.md) / [webx](webx.md) / [mailx](mailx.md) / [tmpl](tmpl.md)
 - [全量索引](../INDEX.md)：按关键词定位全部参考文档

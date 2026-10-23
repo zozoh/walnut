@@ -6,7 +6,7 @@ source:
   - impl/box/JvmExecutor.java
   - impl/box/cmd/cmd_cat.java
   - util/ZParams.java
-related: [command-pipeline, custom-command, o, sqlx]
+related: [../10.concepts/05-command-model.md, custom-command, o, sqlx]
 ---
 
 # 简单命令

@@ -27,14 +27,14 @@
 
 ## API 层（api/）——核心接口
 
-- **api/io/WnObj.java** — 说明：对象模型 — 文档：10.concepts/everything-is-obj.md ✅
+- **api/io/WnObj.java** — 说明：对象模型 — 文档：[02-std-obj](10.concepts/02-std-obj.md) ✅
 - **api/io/WnIo.java** — 说明：IO 主接口 — 文档：20.io-storage/io-model.md ✅
 - **api/io/WnQuery.java** — 说明：查询抽象 — 文档：20.io-storage/query-agg.md ✅
 - **api/io/agg/** — 说明：聚合查询 — 文档：20.io-storage/query-agg.md ✅
 - **api/io/WnExpiObjTable.java** — 说明：过期对象表 — 文档：20.io-storage/expiration.md ✅
 - **api/lock/** — 说明：锁接口 — 文档：[03_cmd_filter](40.commands/03_cmd_filter.md) ✅
 - **api/hook/** — 说明：钩子接口 — 文档：60.sched-async/hooks.md ✅
-- **api/box/** — 说明：沙箱/执行上下文 — 文档：10.concepts/command-pipeline.md ✅
+- **api/box/** — 说明：沙箱/执行上下文 — 文档：[05-command-model](10.concepts/05-command-model.md) ✅
 
 ## 核心实现（core/）
 
@@ -45,11 +45,11 @@
 - **core/hdl/{memory,redis}** — 说明：句柄管理 — 文档：20.io-storage/io-model.md ✅
 - **core/eot/** — 说明：过期对象表实现 — 文档：20.io-storage/expiration.md ✅
 - **core/refer/{mongo,redis}** — 说明：桶引用计数 — 文档：20.io-storage/io-model.md ✅
-- **core/bean/** — 说明：WnIoObj — 文档：10.concepts/everything-is-obj.md ✅
+- **core/bean/** — 说明：WnIoObj — 文档：[02-std-obj](10.concepts/02-std-obj.md) ✅
 
 ## 服务实现（impl/）
 
-- **impl/box/** — 说明：WnSystem/WnBox/JvmExecutorFactory — 文档：10.concepts/command-pipeline.md ✅
+- **impl/box/** — 说明：WnSystem/WnBox/JvmExecutorFactory — 文档：[05-command-model](10.concepts/05-command-model.md) ✅
 - **impl/box/cmd/** — 说明：73 个内置命令 — 文档：[01_cmd_simple](40.commands/01_cmd_simple.md) ✅
 - **impl/box/cmd/man/zh_cn/** — 说明：内置命令中文手册 — 文档：[01_cmd_simple](40.commands/01_cmd_simple.md) ✅
 - **impl/io/** — 说明：WnSecurityImpl — 文档：30.auth/privilege.md ✅
@@ -66,11 +66,11 @@
 
 ## 其他顶层模块
 
-- **util/WnRun.java** — 说明：命令运行器 — 文档：10.concepts/command-pipeline.md ✅
+- **util/WnRun.java** — 说明：命令运行器 — 文档：[05-command-model](10.concepts/05-command-model.md) ✅
 - **util/Wn.java、WnContext.java** — 说明：全局工具与线程上下文 — 文档：90.dev/java-lib.md ✅
 - **util/{Wobj,WnStr,Wtime,Wpath,Ws}.java** — 说明：高频工具 — 文档：[01_cmd_simple](40.commands/01_cmd_simple.md) ✅
 - **cron/WnCron.java** — 说明：WnCron 表达式引擎 — 文档：60.sched-async/cron-syntax.md ✅
-- **jsexec/JsExec.java** — 说明：JS 引擎封装 — 文档：10.concepts/js-scripting.md ✅
+- **jsexec/JsExec.java** — 说明：JS 引擎封装 — 文档：[jsexec-api](90.dev/jsexec-api.md) ✅
 - **val/** — 说明：值生成器（ID/序列/日期/IP） — 文档：[03_cmd_filter](40.commands/03_cmd_filter.md) ✅
 - **lookup/** — 说明：快捷查询 — 文档：[o](40.commands/o.md) ✅
 - **cache/** — 说明：缓存抽象 — 文档：20.io-storage/io-model.md ✅

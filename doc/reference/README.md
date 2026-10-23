@@ -27,12 +27,13 @@ doc/reference/
 |   |-- first-api.md              #   第一个 HTTP 接口：.regapi 从建文件到 curl 调通
 |
 |-- 10.concepts/                  # 核心概念：Walnut 的思维模型
-|   |-- everything-is-obj.md      #   一切皆对象：WnObj 字段缩写体系、race、mode 三段权限
-|   |-- domain-and-home.md        #   域与主目录：/home/$grp、~ 展开、/sys /var /etc 布局
-|   |-- command-pipeline.md       #   命令机制：管道/重定向、WnBox 沙箱、身份切换、man
-|   |-- env-vars.md               #   环境变量：.env 文件、会话变量、PATH/APP_PATH 约定
-|   |-- js-scripting.md           #   JS 脚本：jsc、执行上下文、挂载点一览
-|   |-- metadata-conventions.md   #   元数据约定速查：mnt/expi/pvg/thumb/lbls/d0-d1...
+|   |-- README.md                 #   设计初衷、逻辑结构图、概念导览
+|   |-- 01-io-indexer-bm.md       #   IO/Indexer/BM：统一数据接口的两层实现、mnt 映射
+|   |-- 02-std-obj.md             #   标准对象：WnObj 字段缩写体系、race、mode、pvg
+|   |-- 03-domain-home.md         #   Domain 与 Home：/home/$grp、~ 展开、约定目录
+|   |-- 04-session-env.md         #   会话与环境变量：.env 文件、会话变量、PATH 约定
+|   |-- 05-command-model.md       #   命令模型：沙箱、管道、简单/复杂/过滤三种写法
+|   |-- 06-3x-data-source.md      #   3X 数据源：SQL/Redis/OSS/XApi 接入统一 IO
 |
 |-- 20.io-storage/                # 存储体系：虚拟文件系统的全部机制
 |   |-- io-model.md               #   索引器/桶管理器/句柄三分模型、读写路径、SHA1 去重

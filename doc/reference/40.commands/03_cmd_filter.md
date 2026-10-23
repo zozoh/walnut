@@ -7,7 +7,7 @@ source:
   - impl/box/JvmFilter.java
   - impl/box/JvmFilterContext.java
   - ext/data/tmpl/cmd_tmpl.java
-related: [command-pipeline, o, sqlx, tmpl, custom-command]
+related: [../10.concepts/05-command-model.md, o, sqlx, tmpl, custom-command]
 ---
 
 # 过滤命令

@@ -7,7 +7,7 @@ source:
   - core/eot/
   - web/clean/WnExpiObjTableCleaner.java
   - web/clean/WnIoCleaner.java
-related: [io-model, everything-is-obj, metadata-conventions]
+related: [io-model, ../10.concepts/02-std-obj.md]
 ---
 
 # 过期对象机制

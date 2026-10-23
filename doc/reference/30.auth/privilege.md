@@ -6,7 +6,7 @@ source:
   - api/io/WnSecurity.java
   - impl/io/WnSecurityImpl.java
   - core/bean/WnIoObj.java
-related: [everything-is-obj, accounts, biz-privilege]
+related: [../10.concepts/02-std-obj.md, accounts, biz-privilege]
 ---
 
 # 三层权限模型

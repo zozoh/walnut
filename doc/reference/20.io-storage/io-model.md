@@ -7,7 +7,7 @@ source:
   - core/indexer/
   - core/bm/
   - core/hdl/
-related: [everything-is-obj, mount-mapping, expiration]
+related: [../10.concepts/02-std-obj.md, mount-mapping, expiration]
 ---
 
 # 索引器 / 桶 / 句柄模型

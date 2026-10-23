@@ -6,7 +6,7 @@ source:
   - api/io/WnQuery.java
   - api/io/agg/
   - core/indexer/mongo/
-related: [everything-is-obj, dao-mapping, file-obj]
+related: [../10.concepts/02-std-obj.md, dao-mapping, ../40.commands/o.md]
 ---
 
 # 查询与聚合
