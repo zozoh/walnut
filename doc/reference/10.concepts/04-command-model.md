@@ -99,4 +99,4 @@ cmds             # 列出全部可用命令
 
 - [40.commands 命令参考](../40.commands/README.md)：三种写法的完整参考与全部命令清单
 - [自定义命令](../90.dev/custom-command.md)：编写自己的命令
-- [会话与环境变量](04-session-env.md)：命令执行的身份与变量
+- [会话与环境变量](03-session-env.md)：命令执行的身份与变量

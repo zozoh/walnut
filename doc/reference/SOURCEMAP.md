@@ -34,7 +34,7 @@
 - **api/io/WnExpiObjTable.java** — 说明：过期对象表 — 文档：20.io-storage/05-expiration.md ✅
 - **api/lock/** — 说明：锁接口 — 文档：[03_cmd_filter](40.commands/03_cmd_filter.md) ✅
 - **api/hook/** — 说明：钩子接口 — 文档：60.sched-async/hooks.md ✅
-- **api/box/** — 说明：沙箱/执行上下文 — 文档：[05-command-model](10.concepts/05-command-model.md) ✅
+- **api/box/** — 说明：沙箱/执行上下文 — 文档：[04-command-model](10.concepts/04-command-model.md) ✅
 
 ## 核心实现（core/）
 
@@ -49,7 +49,7 @@
 
 ## 服务实现（impl/）
 
-- **impl/box/** — 说明：WnSystem/WnBox/JvmExecutorFactory — 文档：[05-command-model](10.concepts/05-command-model.md) ✅
+- **impl/box/** — 说明：WnSystem/WnBox/JvmExecutorFactory — 文档：[04-command-model](10.concepts/04-command-model.md) ✅
 - **impl/box/cmd/** — 说明：73 个内置命令 — 文档：[01_cmd_simple](40.commands/01_cmd_simple.md) ✅
 - **impl/box/cmd/man/zh_cn/** — 说明：内置命令中文手册 — 文档：[01_cmd_simple](40.commands/01_cmd_simple.md) ✅
 - **impl/io/** — 说明：WnSecurityImpl — 文档：30.auth/privilege.md ✅
@@ -66,7 +66,7 @@
 
 ## 其他顶层模块
 
-- **util/WnRun.java** — 说明：命令运行器 — 文档：[05-command-model](10.concepts/05-command-model.md) ✅
+- **util/WnRun.java** — 说明：命令运行器 — 文档：[04-command-model](10.concepts/04-command-model.md) ✅
 - **util/Wn.java、WnContext.java** — 说明：全局工具与线程上下文 — 文档：90.dev/java-lib.md ✅
 - **util/{Wobj,WnStr,Wtime,Wpath,Ws}.java** — 说明：高频工具 — 文档：[01_cmd_simple](40.commands/01_cmd_simple.md) ✅
 - **cron/WnCron.java** — 说明：WnCron 表达式引擎 — 文档：60.sched-async/cron-syntax.md ✅

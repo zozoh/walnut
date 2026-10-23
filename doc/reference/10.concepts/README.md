@@ -17,10 +17,10 @@ related: [quick-start, ../20.io-storage/01-io-model.md, source-layout]
 10.concepts/
 |-- README.md             # 本篇：设计初衷、逻辑结构、概念导览
 |-- 01-std-obj.md         # 标准对象：一切皆对象（WnObj）
-|-- 03-domain-home.md     # Domain 与 Home：域、主目录与目录布局
-|-- 04-session-env.md     # 会话与环境变量
-|-- 05-command-model.md   # 命令模型：沙箱、管道与三种命令写法
-|-- 06-3x-data-source.md  # 3X 数据源：各种外部数据接入统一 IO
+|-- 02-domain-home.md     # Domain 与 Home：域、主目录与目录布局
+|-- 03-session-env.md     # 会话与环境变量
+|-- 04-command-model.md   # 命令模型：沙箱、管道与三种命令写法
+|-- 05-3x-data-source.md  # 3X 数据源：各种外部数据接入统一 IO
 ```
 
 ## 1. 设计初衷
@@ -62,7 +62,7 @@ HTTP 注册接口（regapi）、定时任务、消息队列、邮件短信、支
 - **实现接口**：元数据索引管理器 `WnIoIndexer`（查），内容桶管理器 `WnIoBM`（读写）——
   两者独立可插拔，元数据与内容可以存不同介质、任意组合
 - **具体实现**：索引器有 Mongo/SQL/本地文件/VOF 等实现，桶有 本地文件/Redis/SQL/BML/VOF 等实现
-- **3X 数据源**：各种各样的第三方数据，都可以通过映射挂进这棵统一的树（见 [06](06-3x-data-source.md)）
+- **3X 数据源**：各种各样的第三方数据，都可以通过映射挂进这棵统一的树（见 [06](05-3x-data-source.md)）
 
 ## 3. 特殊的抽象概念
 
@@ -108,28 +108,28 @@ HTTP 注册接口（regapi）、定时任务、消息队列、邮件短信、支
 
 域（Domain）= 用户的主组，是一个独立的数据空间与权限边界；每个用户有自己的主目录（`~`），
 系统目录有全局布局约定（/home /sys /var /etc）。域内还有一组约定目录（regapi、job、lib 等），
-是二次开发的核心知识。详见 [03](03-domain-home.md)。
+是二次开发的核心知识。详见 [03](02-domain-home.md)。
 
 ### 会话与环境变量
 
 > `com.site0.walnut.login.session.WnSession`
 
 会话是命令执行的身份载体（登录即建会话），环境变量是会话级的名值对，
-承担路径查找、行为开关与业务上下文三类职责。详见 [04](04-session-env.md)。
+承担路径查找、行为开关与业务上下文三类职责。详见 [04](03-session-env.md)。
 
 ### 命令沙箱与管道
 
 > `com.site0.walnut.impl.box.JvmBox`
 
 一切操作都是命令，基本高仿 Linux/Unix 命令模型——有标准三流、管道 `|`、
-重定向 `>`，命令按写法分简单/复杂/过滤三种模式，可模块化扩展。详见 [05](05-command-model.md)。
+重定向 `>`，命令按写法分简单/复杂/过滤三种模式，可模块化扩展。详见 [05](04-command-model.md)。
 
 ### 3X 数据源
 
 > `com.site0.walnut.ext.data.*` 等
 
 SQL 表、Redis、阿里云 OSS、第三方 API 等外部数据，都可以通过映射或网关接入统一 IO，
-用起来与普通对象无异。详见 [06](06-3x-data-source.md)。
+用起来与普通对象无异。详见 [06](05-3x-data-source.md)。
 
 ## 4. 总结
 

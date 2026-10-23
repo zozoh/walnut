@@ -60,7 +60,7 @@ related: [std-obj, accounts, session-env, quick-start]
 - **`~/.alipay/{name}/`** — 支付宝配置 — 详见 [payment](../70.integrations/payment.md)
 - **`~/.mediax/{host}/`** — 媒体平台账号 — 详见 [复杂命令](../40.commands/02_cmd_complex.md)
 - **`~/.mq/secret`** — MQ 密钥 — 详见 [mq](../60.sched-async/mq.md)
-- **`~/.env`** — 用户环境变量 — 详见 [会话与环境变量](04-session-env.md)
+- **`~/.env`** — 用户环境变量 — 详见 [会话与环境变量](03-session-env.md)
 - **`~/.pvg/*.json`** — 业务权限表（推荐位置） — 详见 [biz-privilege](../30.auth/biz-privilege.md)
 - **`~/.hook/`** — 用户钩子 — 详见 [hooks](../60.sched-async/hooks.md)
 - **`~/.dsync/*.json`** — 数据同步配置 — 详见 [data-sync](../70.integrations/data-sync.md)
@@ -82,5 +82,5 @@ related: [std-obj, accounts, session-env, quick-start]
 ## 深入阅读
 
 - [账户模型](../30.auth/accounts.md)：系统账户与域账户的双轨结构
-- [会话与环境变量](04-session-env.md)：登录之后发生的事
-- [命令模型](05-command-model.md)：在域里执行命令的安全模型
+- [会话与环境变量](03-session-env.md)：登录之后发生的事
+- [命令模型](04-command-model.md)：在域里执行命令的安全模型

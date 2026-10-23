@@ -7,7 +7,7 @@ source:
   - impl/box/JvmAtom.java
   - impl/box/JvmCmd.java
   - util/Cmds.java
-related: [../10.concepts/05-command-model.md, custom-command, o, sqlx]
+related: [../10.concepts/04-command-model.md, custom-command, o, sqlx]
 ---
 
 # 命令管道

@@ -7,7 +7,7 @@ source:
   - impl/box/JvmHdl.java
   - impl/box/JvmHdlContext.java
   - ext/net/xapi/cmd_xapi.java
-related: [../10.concepts/05-command-model.md, xapi, sqlx, custom-command]
+related: [../10.concepts/04-command-model.md, xapi, sqlx, custom-command]
 ---
 
 # 复杂命令

@@ -96,5 +96,5 @@ env set DEBUG=true
 ## 深入阅读
 
 - [会话](../30.auth/session.md)：会话对象、多级登录、票据与自动过期
-- [命令模型](05-command-model.md)：命令如何在会话身份下执行
-- [域与主目录](03-domain-home.md)：`~/.env` 在目录布局中的位置
+- [命令模型](04-command-model.md)：命令如何在会话身份下执行
+- [域与主目录](02-domain-home.md)：`~/.env` 在目录布局中的位置

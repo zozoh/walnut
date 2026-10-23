@@ -8,7 +8,7 @@ source:
   - api/io/WnRace.java
   - core/io/WnIoHookedWrapper.java
   - web/clean/WnExpiObjTableCleaner.java
-related: [03-domain-home.md, ../20.io-storage/README.md, privilege]
+related: [02-domain-home.md, ../20.io-storage/README.md, privilege]
 ---
 
 # 标准对象（一切皆对象）
@@ -227,5 +227,5 @@ o ~/docs -match 'lbls:"x"' -cqn
 ## 深入阅读
 
 - [数据存储与映射](../20.io-storage/README.md)：Indexer/BM 模型与 mnt 映射
-- [域与主目录](03-domain-home.md)：对象树的全局布局
+- [域与主目录](02-domain-home.md)：对象树的全局布局
 - [IO 模型](../20.io-storage/01-io-model.md)：WnIO 读写流程

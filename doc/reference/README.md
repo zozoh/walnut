@@ -29,10 +29,10 @@ doc/reference/
 |-- 10.concepts/                  # 核心概念：Walnut 的思维模型
 |   |-- README.md                 #   设计初衷、逻辑结构图、概念导览
 |   |-- 01-std-obj.md             #   标准对象：WnObj 字段缩写体系、race、mode、pvg
-|   |-- 03-domain-home.md         #   Domain 与 Home：/home/$grp、~ 展开、约定目录
-|   |-- 04-session-env.md         #   会话与环境变量：.env 文件、会话变量、PATH 约定
-|   |-- 05-command-model.md       #   命令模型：沙箱、管道、简单/复杂/过滤三种写法
-|   |-- 06-3x-data-source.md      #   3X 数据源：SQL/Redis/OSS/XApi 接入统一 IO
+|   |-- 02-domain-home.md         #   Domain 与 Home：/home/$grp、~ 展开、约定目录
+|   |-- 03-session-env.md         #   会话与环境变量：.env 文件、会话变量、PATH 约定
+|   |-- 04-command-model.md       #   命令模型：沙箱、管道、简单/复杂/过滤三种写法
+|   |-- 05-3x-data-source.md      #   3X 数据源：SQL/Redis/OSS/XApi 接入统一 IO
 |
 |-- 20.io-storage/                # 存储体系：虚拟文件系统的全部机制
 |   |-- README.md                 #   目录导航：阅读路径与一页速查

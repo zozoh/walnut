@@ -6,7 +6,7 @@ source:
   - login/usr/
   - login/role/
   - login/WnLoginApi.java
-related: [session, privilege, ../10.concepts/03-domain-home.md, auto-login]
+related: [session, privilege, ../10.concepts/02-domain-home.md, auto-login]
 ---
 
 # 系统账户与域账户
