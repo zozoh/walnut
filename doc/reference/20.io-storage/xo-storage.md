@@ -7,7 +7,7 @@ source:
   - ext/xo/impl/
   - ext/xo/builder/
   - ext/xo/util/
-related: [02-mount-mapping, 03-dao-mapping, ../../../src/com/site0/walnut/ext/xo/man/zh_cn/cmd_xo.md]
+related: [01-io-mapping, dao-mapping, ../../../src/com/site0/walnut/ext/xo/man/zh_cn/cmd_xo.md]
 ---
 
 # 对象存储集成（xo）
@@ -17,7 +17,7 @@ related: [02-mount-mapping, 03-dao-mapping, ../../../src/com/site0/walnut/ext/xo
 各云服务厂商（AWS S3、腾讯云 COS、阿里云 OSS、华为云 OBS、七牛 Kodo）都提供对象存储服务，
 功能大同小异——上传、下载、删除、列出、改元数据——但各家 SDK 和权鉴方式各不相同。
 Walnut 用统一的 `xo` 命令和配置格式封装它们，并且让对象存储可以直接挂载成 IO 映射
-（[vofs 索引器 / 桶](02-mount-mapping.md)、[vxds 内容签名桶](02-mount-mapping.md)），
+（[vofs 索引器 / 桶](01-io-mapping.md)、[vxds 内容签名桶](01-io-mapping.md)），
 对象存储里的文件用起来和普通对象无异。
 
 ## 配置布局
@@ -91,8 +91,32 @@ mnt : "vofs://s3:/home/demo#backup"
 mnt : "://vxds(s3:sha1:22:/home/demo#backup@redis)"
 ```
 
-vxds 的引用计数配置（`{域主目录}/.redis/{配置名}.io.refer.json`）与系统 Redis 授权规则，
-见 [mount-mapping](02-mount-mapping.md) 的 vxds 一节。
+### `vxds` 各段含义
+
+`vxds(s3:sha1:22:/home/demo#test@redis)`：
+
+- `s3` — 对象存储类型：`s3 | cos | oss | obs | kodo`（当前实现：s3、cos）
+- `sha1` — 签名算法：对象键取内容的 SHA1（去重，天然内容寻址）
+- `22` — 键的前 `N` 个字符每两位一段作为路径层级，如 `ea890abcd...` → `ea/89/0abcd...`
+- `/home/demo` — 配置所在域的主目录
+- `test` — 对象存储连接配置名，即 `~/.io/{type}/{name}.json5`
+- `@redis` — 【可选】引用计数服务，目前仅支持 `redis`，配置文件为 `{域主目录}/.redis/{配置名}.io.refer.json`
+
+### 引用计数安全
+
+vxds 的内容按 SHA1 去重后，桶内物理文件靠引用计数管理生命周期（归零才删除）。
+为了防止普通用户借引用计数搞乱全局 Redis，连接系统内置 Redis 时需在 web 配置中显式授权：
+
+```properties
+# 允许所有域使用系统内置 Redis
+redis-host-allow-domain=*
+# 或只允许指定域
+redis-host-allow-domain=demo,admin
+# 限允许连接的数据库（不限制则省略）
+redis-database-allow=5,6
+```
+
+用户自己的 Redis 连接（与系统 `redis-host` 不一致）不受限制。
 
 ## 当前支持度
 
@@ -108,5 +132,5 @@ vxds 的引用计数配置（`{域主目录}/.redis/{配置名}.io.refer.json`�
 
 ## 扩展阅读
 
-- [mount-mapping](02-mount-mapping.md) — `vofs` / `vxds` 映射语法与引用计数安全
+- [mount-mapping](01-io-mapping.md) — `vofs` / `vxds` 映射语法与引用计数安全
 - [cmd_xo](../../../src/com/site0/walnut/ext/xo/man/zh_cn/cmd_xo.md) — `xo` 命令手册

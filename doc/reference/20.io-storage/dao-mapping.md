@@ -9,7 +9,7 @@ source:
   - core/mapping/bm/SqlBMFactory.java
   - core/mapping/support/SqlIoArgs.java
   - core/mapping/support/SqlIoOptions.java
-related: [02-mount-mapping, sqlx, 01-io-model, ../40.commands/o.md]
+related: [01-io-mapping, sqlx, README, ../40.commands/o.md]
 ---
 
 # .dao 数据源与 SQL 表映射
@@ -138,4 +138,4 @@ sqlx 命令详见 [sqlx](../40.commands/sqlx.md)。
 - **没有自动建表**：表结构由你掌控，建表/迁移用 `sqlx` 命令执行 DDL。
 - 高频筛选的字段请建真实表列并在 `select` 模板里输出；塞在 meta JSON 里的字段不走 SQL 索引。
 - `options` 声明与真实表结构必须一致，否则查询/写入会因缺列报错。
-- 内容进表适合小文件；大文件走全局 SHA1 桶或 [vxds 对象存储](02-mount-mapping.md)。
+- 内容进表适合小文件；大文件走全局 SHA1 桶或 [vxds 对象存储](01-io-mapping.md)。

@@ -18,7 +18,7 @@
 ## 10.concepts
 
 - **10.concepts/README.md** — Walnut 核心概念 — 模块：api.io — 关键词：设计初衷,逻辑结构,概念导览
-- **10.concepts/01-std-obj.md** — 标准对象（一切皆对象） — 模块：api.io — 关键词：WnObj,字段缩写,race,mode,元数据,pvg
+- **10.concepts/01-std-obj.md** — 一切皆对象 — 模块：api.io — 关键词：WnObj,对象,id,nm,race,ln,expi,元数据
 - **10.concepts/02-domain-home.md** — Domain 与 Home — 模块：api.io — 关键词：域,主目录,HOME,/sys,/var,约定目录
 - **10.concepts/03-session-env.md** — 会话与环境变量 — 模块：login — 关键词：会话,session,env,PATH,.env
 - **10.concepts/04-command-model.md** — 命令模型 — 模块：impl.box — 关键词：命令,沙箱,管道,简单命令,复杂命令,过滤命令
@@ -26,12 +26,22 @@
 
 ## 20.io-storage
 
-- **20.io-storage/README.md** — 数据存储与映射（目录导航） — 模块：core — 关键词：io,存储,映射,阅读路径
-- **20.io-storage/01-io-model.md** — 索引器/桶/句柄模型 — 模块：core — 关键词：索引器,桶,句柄,SHA1去重,读写路径
-- **20.io-storage/02-mount-mapping.md** — mnt 映射语法全集 — 模块：core.mapping — 关键词：mnt,映射,sql,mongo,vofs,vxds,file,redis,sha1
-- **20.io-storage/03-dao-mapping.md** — .dao 数据源与 SQL 表映射 — 模块：core.indexer.sql — 关键词：dao,数据源,SQL映射,sqlx,模板
-- **20.io-storage/04-xo-storage.md** — 对象存储集成（xo） — 模块：ext.xo — 关键词：xo,对象存储,s3,cos,oss,临时密钥,vofs,vxds
-- **20.io-storage/05-expiration.md** — 过期对象机制 — 模块：core.eot — 关键词：expi,EOT,清理线程,多节点竞争
+- **20.io-storage/README.md** — 数据存储与映射（核心模型 + 目录导航） — 模块：core — 关键词：io,存储,映射,阅读路径
+- **20.io-storage/01-io-mapping.md** — IO 映射 — 模块：core.mapping — 关键词：mnt,映射,索引管理器,桶管理器,两段式ID
+- **20.io-storage/dao-mapping.md** — .dao 数据源与 SQL 表映射 — 模块：core.indexer.sql — 关键词：dao,数据源,SQL映射,sqlx,模板
+- **20.io-storage/xo-storage.md** — 对象存储集成（xo） — 模块：ext.xo — 关键词：xo,对象存储,s3,cos,oss,临时密钥,vofs,vxds
+- **20.io-storage/expiration.md** — 过期对象机制 — 模块：core.eot — 关键词：expi,EOT,清理线程,多节点竞争
+- **20.io-storage/20-indexer-mongo.md** — 索引管理器 - MongoDB — 模块：core.indexer.mongo — 关键词：mongo,默认索引器,集合
+- **20.io-storage/21-indexer-redis.md** — 索引管理器 - Redis（规划中） — 模块：core.indexer.redis — 关键词：redis,规划中,键值
+- **20.io-storage/22-indexer-sql.md** — 索引管理器 - SQL — 模块：core.indexer.sql — 关键词：sql,SqlIndexer,sqlx,dao,AMS,cmg,filter
+- **20.io-storage/30-bm-sha1.md** — 桶管理器 - sha1 — 模块：core.bm.bml — 关键词：sha1,内容寻址,去重,引用计数,全局桶
+- **20.io-storage/31-bm-vxds.md** — 桶管理器 - vxds — 模块：core.bm.bmv — 关键词：vxds,对象存储,内容签名,引用计数
+- **20.io-storage/32-bm-sql.md** — 桶管理器 - sql — 模块：core.bm.sql — 关键词：sql,SqlBM,blob,内容进表
+- **20.io-storage/33-bm-redis.md** — 桶管理器 - redis — 模块：core.bm.redis — 关键词：redis,小文件,会话,WedisConfig
+- **20.io-storage/34-bm-mem.md** — 桶管理器 - mem（规划中） — 模块：core.bm.mem — 关键词：mem,内存,规划中
+- **20.io-storage/35-bm-multi.md** — 桶管理器 - multi（规划中） — 模块：core.bm.multi — 关键词：multi,条件映射,规划中
+- **20.io-storage/40-indexer-file.md** — 文件系统映射 — 模块：core.indexer.localfile — 关键词：file,filew,本地目录,只读,挂载
+- **20.io-storage/41-indexer-vofs.md** — 对象存储映射 — 模块：core.indexer.vofs — 关键词：vofs,虚拟对象文件系统,s3,cos,两段式ID
 
 ## 30.auth
 

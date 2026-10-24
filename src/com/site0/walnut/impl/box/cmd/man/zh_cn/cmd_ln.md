@@ -25,3 +25,9 @@ ln -s ~/myfolder ~/newfolder
 # 创建硬链接
 ln ~/abc.txt ~/hard.txt
 ```
+
+# 链接解析规则
+
+- 访问链接时顺着 `ln` 找到真正目标；目标还是链接就继续展开，直到找到非链接对象
+- 展开过程记录已访问的对象 ID，若重复出现说明成环，返回 null（不会死循环）
+- 目标不存在时抛 `e.io.obj.noexists`

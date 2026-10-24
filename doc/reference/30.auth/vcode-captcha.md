@@ -42,7 +42,7 @@ related: [accounts, auto-login, sms-mail]
 }
 ```
 
-过期由过期对象机制自动清理（见 [expiration](../20.io-storage/05-expiration.md)）。
+过期由过期对象机制自动清理（见 [expiration](../20.io-storage/expiration.md)）。
 
 ## 使用流程
 

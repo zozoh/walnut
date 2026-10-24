@@ -28,19 +28,22 @@ doc/reference/
 |
 |-- 10.concepts/                  # 核心概念：Walnut 的思维模型
 |   |-- README.md                 #   设计初衷、逻辑结构图、概念导览
-|   |-- 01-std-obj.md             #   标准对象：WnObj 字段缩写体系、race、mode、pvg
+|   |-- 01-std-obj.md             #   一切皆对象：id/nm、race、标准元数据、ln、expi
 |   |-- 02-domain-home.md         #   Domain 与 Home：/home/$grp、~ 展开、约定目录
 |   |-- 03-session-env.md         #   会话与环境变量：.env 文件、会话变量、PATH 约定
 |   |-- 04-command-model.md       #   命令模型：沙箱、管道、简单/复杂/过滤三种写法
 |   |-- 05-3x-data-source.md      #   3X 数据源：SQL/Redis/OSS/XApi 接入统一 IO
 |
 |-- 20.io-storage/                # 存储体系：虚拟文件系统的全部机制
-|   |-- README.md                 #   目录导航：阅读路径与一页速查
-|   |-- 01-io-model.md               #   索引器/桶管理器/句柄三分模型、读写路径、SHA1 去重
-|   |-- 02-mount-mapping.md          #   mnt 语法全集：mongo/sql/file/filew/vofs × sha1/redis/sql/vofs/vxds
-|   |-- 03-dao-mapping.md            #   .dao 数据源 + ~/.sqlx 模板，元数据/内容进 SQL 表
-|   |-- 04-xo-storage.md             #   对象存储集成：xo 命令、s3/cos 配置、vofs/vxds 挂载
-|   |-- 05-expiration.md             #   过期对象机制：expi、EOT 表、多节点清理竞争
+|   |-- README.md                 #   核心模型：IO/Indexer/BM 四接口 + 目录导航与阅读路径
+|   |-- 01-io-mapping.md          #   IO 映射：索引管理器 × 桶管理器、全局映射与自定义映射
+|   |-- dao-mapping.md            #   .dao 数据源 + ~/.sqlx 模板，元数据/内容进 SQL 表
+|   |-- xo-storage.md             #   对象存储集成：xo 命令、s3/cos 配置、vofs/vxds 挂载
+|   |-- expiration.md             #   过期对象机制：expi、EOT 表、多节点清理竞争
+|   |-- 20/21/22-indexer-*.md     #   索引管理器专题：mongo（默认）/ redis（规划）/ sql
+|   |-- 30~35-bm-*.md             #   桶管理器专题：sha1（默认）/ vxds / sql / redis / mem / multi
+|   |-- 40-indexer-file.md        #   文件系统映射：file/filew 本地目录挂载
+|   |-- 41-indexer-vofs.md        #   对象存储映射：vofs 桶即目录树
 |
 |-- 30.auth/                      # 账户、会话与权限
 |   |-- accounts.md               #   系统账户(/sys/usr)与域账户(~/accounts)双轨模型

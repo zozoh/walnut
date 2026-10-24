@@ -22,29 +22,29 @@
 - **web/module/GuestModule.java** — 说明：/g 访客接口 — 文档：✅
 - **web/filter/** — 说明：WnAsUsr/WnCheckSession 等 — 文档：30.auth/* ✅
 - **web/bgt/** — 说明：后台三消费线程 — 文档：60.sched-async/cron-pipeline.md ✅
-- **web/clean/** — 说明：过期清理线程 — 文档：20.io-storage/05-expiration.md ✅
+- **web/clean/** — 说明：过期清理线程 — 文档：20.io-storage/expiration.md ✅
 - **web/setup/** — 说明：启动 Setup 集合 — 文档：[quick-start](00.start-here/quick-start.md)
 
 ## API 层（api/）——核心接口
 
 - **api/io/WnObj.java** — 说明：对象模型 — 文档：[01-std-obj](10.concepts/01-std-obj.md) ✅
-- **api/io/WnIo.java** — 说明：IO 主接口 — 文档：20.io-storage/01-io-model.md ✅
+- **api/io/WnIo.java** — 说明：IO 主接口 — 文档：20.io-storage/README.md ✅
 - **api/io/WnQuery.java** — 说明：查询抽象 — 文档：[o](40.commands/o.md) ✅
 - **api/io/agg/** — 说明：聚合查询 — 文档：[o](40.commands/o.md) ✅
-- **api/io/WnExpiObjTable.java** — 说明：过期对象表 — 文档：20.io-storage/05-expiration.md ✅
+- **api/io/WnExpiObjTable.java** — 说明：过期对象表 — 文档：20.io-storage/expiration.md ✅
 - **api/lock/** — 说明：锁接口 — 文档：[03_cmd_filter](40.commands/03_cmd_filter.md) ✅
 - **api/hook/** — 说明：钩子接口 — 文档：60.sched-async/hooks.md ✅
 - **api/box/** — 说明：沙箱/执行上下文 — 文档：[04-command-model](10.concepts/04-command-model.md) ✅
 
 ## 核心实现（core/）
 
-- **core/io/** — 说明：WnIoImpl2 + 缓存/钩子包装 — 文档：20.io-storage/01-io-model.md ✅
-- **core/mapping/** — 说明：映射工厂（mnt 解析） — 文档：20.io-storage/02-mount-mapping.md ✅
-- **core/indexer/{mongo,sql,localfile,vofs}** — 说明：四种索引器 — 文档：20.io-storage/02-mount-mapping.md ✅
-- **core/bm/** — 说明：桶管理器（bml/bmv/localfile/redis/sql/vofs） — 文档：20.io-storage/01-io-model.md、20.io-storage/02-mount-mapping.md ✅
-- **core/hdl/{memory,redis}** — 说明：句柄管理 — 文档：20.io-storage/01-io-model.md ✅
-- **core/eot/** — 说明：过期对象表实现 — 文档：20.io-storage/05-expiration.md ✅
-- **core/refer/{mongo,redis}** — 说明：桶引用计数 — 文档：20.io-storage/01-io-model.md ✅
+- **core/io/** — 说明：WnIoImpl2 + 缓存/钩子包装 — 文档：20.io-storage/README.md ✅
+- **core/mapping/** — 说明：映射工厂（mnt 解析） — 文档：20.io-storage/01-io-mapping.md ✅
+- **core/indexer/{mongo,sql,localfile,vofs}** — 说明：四种索引器 — 文档：20.io-storage/01-io-mapping.md ✅
+- **core/bm/** — 说明：桶管理器（bml/bmv/localfile/redis/sql/vofs） — 文档：20.io-storage/README.md、20.io-storage/01-io-mapping.md ✅
+- **core/hdl/{memory,redis}** — 说明：句柄管理 — 文档：20.io-storage/README.md ✅
+- **core/eot/** — 说明：过期对象表实现 — 文档：20.io-storage/expiration.md ✅
+- **core/refer/{mongo,redis}** — 说明：桶引用计数 — 文档：20.io-storage/README.md ✅
 - **core/bean/** — 说明：WnIoObj — 文档：[01-std-obj](10.concepts/01-std-obj.md) ✅
 
 ## 服务实现（impl/）
@@ -73,7 +73,7 @@
 - **jsexec/JsExec.java** — 说明：JS 引擎封装 — 文档：[jsexec-api](90.dev/jsexec-api.md) ✅
 - **val/** — 说明：值生成器（ID/序列/日期/IP） — 文档：[03_cmd_filter](40.commands/03_cmd_filter.md) ✅
 - **lookup/** — 说明：快捷查询 — 文档：[o](40.commands/o.md) ✅
-- **cache/** — 说明：缓存抽象 — 文档：20.io-storage/01-io-model.md ✅
+- **cache/** — 说明：缓存抽象 — 文档：20.io-storage/README.md ✅
 - **cheap/** — 说明：Cheap 文档解析器（dom/css/markdown/xml） — 文档：90.dev/jsexec-api.md ✅
 - **ooml/** — 说明：OOML Office 模板 — 文档：[03_cmd_filter](40.commands/03_cmd_filter.md) ✅
 - **security/** — 说明：安全权鉴（建设中） — 文档：80.ops/security-notes.md ✅
@@ -94,7 +94,7 @@
 - **ext/data/vcode,captcha** — 说明：验证码 — 文档：30.auth/vcode-captcha.md ✅
 - **ext/data/app** — 说明：域应用初始化 — 文档：80.ops/deploy.md ✅
 - **ext/data/domain** — 说明：域名映射 — 文档：80.ops/domain-mapping.md ✅
-- **ext/xo/** — 说明：对象存储集成（s3/cos） — 文档：20.io-storage/04-xo-storage.md、[cmd_xo](../../src/com/site0/walnut/ext/xo/man/zh_cn/cmd_xo.md) ✅
+- **ext/xo/** — 说明：对象存储集成（s3/cos） — 文档：20.io-storage/xo-storage.md、[cmd_xo](../../src/com/site0/walnut/ext/xo/man/zh_cn/cmd_xo.md) ✅
 - **ext/media/imagic,videoc,ffmpeg** — 说明：图像/视频 — 文档：[01_cmd_simple](40.commands/01_cmd_simple.md) ✅
 - **ext/media/ooml,sheet,edi** — 说明：文档/表格 — 文档：[03_cmd_filter](40.commands/03_cmd_filter.md)、[01_cmd_simple](40.commands/01_cmd_simple.md) ✅
 - **ext/media/qrcode,pdf,subtitle,avatar** — 说明：其他媒体 — 文档：[01_cmd_simple](40.commands/01_cmd_simple.md)、[02_cmd_complex](40.commands/02_cmd_complex.md) ✅

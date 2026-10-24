@@ -8,7 +8,7 @@ source:
   - api/io/WnIoIndexer.java
   - core/WnIoBM.java
   - core/mapping/WnIoMappingFactoryImpl.java
-related: [../10.concepts/01-std-obj.md, 01-io-model.md, 02-mount-mapping.md]
+related: [../10.concepts/01-std-obj.md, 01-io-mapping.md]
 ---
 
 # 数据存储与映射
@@ -73,7 +73,7 @@ mnt = "sql(demo:t_news)://sha1"
 - `redis` — Redis
 - `sql` — SQL 大字段表
 - `vofs` — 虚拟对象文件系统
-- `vxds` — 对象存储内容签名存储（配合 [xo](04-xo-storage.md)）
+- `vxds` — 对象存储内容签名存储（配合 [xo](xo-storage.md)）
 
 ### mnt 映射语法
 
@@ -88,7 +88,7 @@ mnt = "mongo"
 ```
 
 > 完整方案清单（`mongo` / `sql` / `file` / `filew` / `vofs` / `sha1` / `redis` / `vxds` 等）
-> 见 [mnt 映射语法全集](02-mount-mapping.md)。
+> 见 [对象的存储映射](01-io-mapping.md)。
 
 相关命令：`mount` / `umount` 设置与卸载映射，`o` 命令可直接读写映射后的子树——
 对使用者完全透明，不需要关心底层是 Mongo 还是 SQL。
@@ -106,21 +106,31 @@ umount ~/data/news
 
 ```bash
 20.io-storage/
-|-- README.md               # 本篇：核心模型 + 目录导航
-|-- 01-io-model.md          # 索引器/桶/句柄模型：读写路径、SHA1 去重、交换区
-|-- 02-mount-mapping.md     # mnt 映射语法全集：索引器 × 桶管理器 的任意组合
-|-- 03-dao-mapping.md       # .dao 数据源与 SQL 表映射：元数据/内容进关系库
-|-- 04-xo-storage.md        # 对象存储集成（xo）：s3/cos 配置与 vofs/vxds 挂载
-|-- 05-expiration.md        # 过期对象机制：expi 自动删除
+|-- README.md               # 本篇：核心模型（IO/Indexer/BM）+ 目录导航
+|-- 01-io-mapping.md        # IO 映射：索引管理器 × 桶管理器、全局映射与自定义映射
+|-- dao-mapping.md          # .dao 数据源与 SQL 表映射：元数据/内容进关系库
+|-- xo-storage.md           # 对象存储集成（xo）：s3/cos 配置与 vofs/vxds 挂载
+|-- expiration.md           # 过期对象机制：expi 自动删除
+|-- 20-indexer-mongo.md     # 索引管理器 - MongoDB（全局默认）
+|-- 21-indexer-redis.md     # 索引管理器 - Redis（规划中）
+|-- 22-indexer-sql.md       # 索引管理器 - SQL（模板 ~/.sqlx + 数据源 ~/.dao）
+|-- 30-bm-sha1.md           # 桶管理器 - sha1（全局默认，内容寻址去重）
+|-- 31-bm-vxds.md           # 桶管理器 - vxds（对象存储内容签名）
+|-- 32-bm-sql.md            # 桶管理器 - sql（内容进表 Blob 字段）
+|-- 33-bm-redis.md          # 桶管理器 - redis（小文件高频读写）
+|-- 34-bm-mem.md            # 桶管理器 - mem（规划中）
+|-- 35-bm-multi.md          # 桶管理器 - multi（条件映射，规划中）
+|-- 40-indexer-file.md      # 文件系统映射（file/filew，本地目录挂载）
+|-- 41-indexer-vofs.md      # 对象存储映射（vofs，桶即目录树）
 ```
 
 ## 阅读路径
 
-- **要懂读写流程** [01-io-model](01-io-model.md) — 全局默认组合（Mongo 索引 + SHA1 桶）、读写路径、去重与句柄规则
-- **要用某种介质** [02-mount-mapping](02-mount-mapping.md) — 每种索引器/桶的 `mnt` 写法、组合示例、注意事项
-- **要进关系库** [03-dao-mapping](03-dao-mapping.md) — 数据源、SQL 模板、内容进表
-- **要上对象存储** [04-xo-storage](04-xo-storage.md) — 云桶配置，以及 vofs/vxds 挂载
-- **辅助机制** [05-expiration](05-expiration.md)（到期自动删）与查询（`o` 命令的 `-match`/`@query`）在所有映射上通用
+- **要懂映射机制** [01-io-mapping](01-io-mapping.md) — 什么是索引管理器/桶管理器、`mnt` 如何为子树切换映射
+- **要挑介质** 各管理器专题（`20`~`41` 开头）— 每篇先讲 `mnt` 语法，再详解配置参数
+- **要进关系库** [dao-mapping](dao-mapping.md) — 数据源、SQL 模板、内容进表
+- **要上对象存储** [xo-storage](xo-storage.md) — 云桶配置，以及 vofs/vxds 挂载
+- **辅助机制** [expiration](expiration.md)（到期自动删）与查询（`o` 命令的 `-match`/`@query`）在所有映射上通用
 
 ## 一页速查
 

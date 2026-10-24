@@ -1,152 +1,143 @@
 ---
-title: mnt 映射语法全集
+title: IO 映射
 module: core.mapping
-keywords: [mnt, 映射, sql, mongo, vofs, vxds, file, filew, redis, sha1, 桶管理器, 索引器]
+keywords: [mnt, 映射, IO映射, 索引管理器, 桶管理器, 全局映射, 两段式ID]
 source:
   - core/mapping/support/MountInfo.java
   - core/mapping/WnIoMappingFactoryImpl.java
   - core/mapping/indexer/
   - core/mapping/bm/
   - conf/ioc/io.js
-related: [01-io-model, 03-dao-mapping, 04-xo-storage, ../10.concepts/01-std-obj.md]
+related: [README, dao-mapping, xo-storage, ../10.concepts/01-std-obj.md]
 ---
 
-# mnt 映射语法全集
+# 什么是 IO 映射
 
-任何 **目录** 声明 `mnt` 元数据，就把它的**子树委托**给指定的索引器 + 桶管理器组合。
-这是 Walnut「一套 API 操作所有存储」的实现机制：元数据与内容分开保存，
-各自可以指向不同的介质，按接口实现任意组合。
+在 [一切皆对象](../10.concepts/01-std-obj.md) 里我们知道，一个对象 = 元数据 + 内容。
+所谓 **IO 映射**，就是说明一个对象的这两部分信息**分别由谁来管理**。
 
-## 语法
+管理元数据的，我们称为**索引管理器**（Indexer）：树结构、字段、查询、聚合，都归它管。
+管理内容的，我们称为**桶管理器**（BM，Bucket Manager）：字节流的读写归它管。
 
-```bash
-mnt : "$IndexType[($Setting)][://$BMType[($Setting)]]"
-# 兼容双冒号写法
-mnt : "$IndexType[($Setting)]::$BMType[($Setting)]"
+一个对象总归是由一个索引管理器 + 一个桶管理器共同管理的。
+目录对象没有内容，所以目录只有索引管理器，没有桶管理器。
 
-# 例子
-sql(demo:t_news)://sha1
-└─┬─┘└─┬─┘    └──┬─┘
-索引器 设置      桶管理器(可选)
-```
+# 全局映射
 
-- 只写索引器：桶用全局默认（`globalBM`，本地 SHA1 去重桶）
-- 只写桶（以 `://` 开头）：索引用全局默认（`globalIndexer`，MongoDB）
-- 映射声明在 `DIR` 上才有意义——只有目录有子节点；在 `FILE` 上声明不影响子孙（它没有子孙）
-- 读取对象内容时，系统从对象自身开始**向上逐级**寻找桶映射设定
+系统启动时有一个**全局索引管理器**和一个**全局桶管理器**。
+不做任何声明的对象，元数据交给全局索引管理器，内容交给全局桶管理器——
+这就是默认形态，很多对象一辈子都活在全局映射里，你完全不用关心它们的存在。
 
-## 索引器（`mnt` 冒号左边的部分）
+# 对象的自定义映射
 
- conf/ioc/io.js 的 `ioMappingFactory.indexers` 注册了这些类型：
+但 Walnut 的数据要存到各种各样的介质上：SQL 表、Redis、对象存储、本地目录……
+所以我给每个**目录对象**一个 `mnt` 元数据，它可以为自己的整棵子树指定另外一组
+索引管理器和桶管理器。
 
-- **`mongo`** — 写法：`mongo` — 元数据存于 MongoDB `obj` 集合 — 全局默认索引器；复杂查询、海量字段对象
-- **`sql`** — 写法：`sql({daoName}:{entityName}:{options}:{filter})` — 元数据存于 SQL 表 — 海量结构化数据，模板与数据源定义见 [dao-mapping](03-dao-mapping.md)
-- **`file`** — 写法：`file:///{绝对路径}` — 元数据由本地文件系统即时生成 — 只读目录镜像
-- **`filew`** — 写法：`filew:///{绝对路径}` — 同上，可写版本
-- **`vofs`** — 写法：`vofs://{s3|cos|oss|obs|kodo}:{域主目录}#{配置名}` — 元数据存于对象存储桶 — 海量非结构化内容（视频、图片库等）
-
-> `mem` / `redis` / `mq` 在 ioc 配置中为 `null`（预留，暂无实现类）。
-
-## 桶管理器（`://` 右边的部分，可省略）
-
- conf/ioc/io.js 的 `ioMappingFactory.bms` 注册了这些类型：
-
-- **（省略）** — 内容存于 `globalBM`：本地 SHA1 去重桶，见 [io-model](01-io-model.md)
-- **`sha1`** — 写法：`sha1` — 同全局桶，显式声明
-- **`redis`** — 写法：`redis({配置名})` — 内容存于 Redis 字符串 — 小文件高频读写（如会话对象）；root 组成员可用 ioc 预定义配置，其他用户读 `~/.io/bm/{配置名}.json`（WedisConfig 格式）
-- **`file` / `filew`** — 写法：`file:///{绝对路径}` — 内容按自然目录结构存放（如挂载静态站点目录）
-- **`sql`** — 写法：`sql({daoName}:{entityName})` — 内容存于 SQL 表的 Blob 字段 — 与索引共用一张表，适合小文件，见 [dao-mapping](03-dao-mapping.md)
-- **`vofs`** — 写法：`vofs({s3|cos|oss|obs|kodo}:{域主目录}#{配置名})` — 内容直接存对象存储
-- **`vxds`** — 写法：`vxds({s3|cos|oss|obs|kodo}:sha1:{段数}:{域主目录}#{配置名}[@redis])` — 内容按内容签名（SHA1）存对象存储，带引用计数，见下文
-
-### `file://` 的合并声明规则
-
-`file` / `filew` / `vofs` 是**索引与内容一起映射**的简写——元数据按目录树组织，
-内容桶也由同一介质管理：
+举两个例子感受一下：
 
 ```bash
-# 只读挂载静态站点目录
-mnt : "file:///var/www/static/"
+# 子树的元数据存进 SQL 表（订单、新闻这类海量结构化数据）
+mount ~/biz/orders 'sql(:t_order:cmg)'
 
-# 读写挂载
-mnt : "filew:///opt/mnt/project/demo"
-
-# 对象存储文件系统（元数据与内容都在桶里）
-mnt : "vofs://s3:/home/demo#test"
+# 子树的内容按 SHA1 存进对象存储桶（视频、图片这类海量文件）
+mount ~/videos '://vxds(s3:sha1:22:/home/demo#backup)'
 ```
 
-### `vxds`: 内容签名对象存储
+声明之后一切照旧——`o`、`cat`、查询、授权，对使用者完全透明。
+改主意了就 `umount` 把映射卸掉，子树回归全局映射。
 
-`vxds(s3:sha1:22:/home/demo#test@redis)` 各段含义：
+有两个规则顺带知道就好：映射**不能嵌套**（子树里的对象不能再声明 `mnt`，
+一个对象只属于一个映射）；读取对象内容时，系统从对象自身开始**向上逐级**
+寻找桶映射设定。
 
-- `s3` — 对象存储类型：`s3 | cos | oss | obs | kodo`（当前实现：s3、cos）
-- `sha1` — 签名算法：对象键取内容的 SHA1（去重，天然内容寻址）
-- `22` — 键的前 `N` 个字符每两位一段作为路径层级，如 `ea890abcd...` → `ea/89/0abcd...`
-- `/home/demo` — 配置所在域的主目录
-- `test` — 对象存储连接配置名，存放在 `~/.io/{type}/{name}.json5`，见 [xo-storage](04-xo-storage.md)
-- `@redis` — 【可选】引用计数服务，目前仅支持 `redis`，配置文件为 `{域主目录}/.redis/{配置名}.io.refer.json`
+# 现有映射方式
 
-**引用计数安全**：内容按 SHA1 去重后，桶内物理文件靠引用计数管理生命周期（归零才删除）。
-为了防止普通用户借引用计数搞乱全局 Redis，连接系统内置 Redis 时需在 web 配置中显式授权：
-
-```properties
-# 允许所有域使用系统内置 Redis
-redis-host-allow-domain=*
-# 或只允许指定域
-redis-host-allow-domain=demo,admin
-# 限允许连接的数据库（不限制则省略）
-redis-database-allow=5,6
-```
-
-用户自己的 Redis 连接（与系统 `redis-host` 不一致）不受限制。
-
-## 组合示例
+映射写在一个字符串里，语法是「索引管理器(配置) + 分隔符 + 桶管理器(配置)」：
 
 ```bash
-# MongoDB 索引 + 全局桶（最常见，等于不写 mnt）
-mnt : "mongo"
-
-# SQL 表索引 + 全局桶
-mnt : "sql(demo:t_news)"
-
-# SQL 表索引 + Redis 桶
-mnt : "sql(demo:t_news)://redis(sess)"
-
-# 只换桶：索引用全局 Mongo，内容进本地目录
-mnt : "://file:///var/www/static/"
-
-# 会话对象：Redis 桶（索引仍走全局 Mongo）
-mnt : "://redis(sess)"
+sql(:attachment:cmg)::vxds(s3:sha1:22:/home/demo#attachment)
 ```
 
-## 定义自己的映射资源
+其中：
 
-```bash
-# Redis 桶：定义连接配置
-~/.io/bm/my_redis_bm.json        # WedisConfig: {host,port,password,database,setup:{prefix}}
-mnt : "://redis(my_redis_bm)"
+- `sql` — 索引管理器名称，`:attachment:cmg` 是它的配置信息
+- `::` — 分隔符（也支持 `://`），分隔符及其右边整体可以省略（桶管理器用全局默认）
+- `vxds` — 桶管理器名称，`s3:sha1:22:/home/demo#attachment` 是它的配置信息
 
-# SQL 索引器：数据源 + SQL 模板
-~/.dao/demo.dao.json             # {url,username,password,maxActive,...}
-~/.sqlx/t_news.sql               # insert/update_by/count/select/remove/inc 模板
-mnt : "sql(demo:t_news)"
+具体每个管理器的配置信息格式，参见后续的专题文档，这里先给你一张全名单。
+
+**索引管理器**（管元数据）：
+
+- `mongo` — MongoDB
+- `redis` — Redis
+- `sql` — `RDS` 数据库
+- `file` — 文件系统，只读
+- `filew` — 文件系统，可写入
+- `vofs` — 对象存储的虚拟文件系统
+
+**桶管理器**（管内容）：
+
+- `sha1` — 按照内容 `SHA1` 存储到本地
+- `vxds` — 对象存储
+- `sql` — `RDS` 数据库的 `blob` 字段
+- `redis` — Redis
+- `mem` — 内存
+- `multi` — 条件映射（规划中）
+
+# 特殊映射：文件系统
+
+有一种映射你在语法名单里看不到 `file` 桶管理器——因为 `file` / `filew` 是
+**索引与内容一起映射**的简写：元数据按目录树组织，内容就放在文件本来的位置。
+
+```json5
+{
+    // ... 其他元数据
+    "mnt": "filew://D:/tmp/path/to/dir"
+}
 ```
 
-文件格式详见 [dao-mapping](03-dao-mapping.md) 与 [xo-storage](04-xo-storage.md)。
+声明之后，这个目录就是你磁盘上那个目录的影子，`cat`、`o` 直接读写文件。
+`file://` 是只读版本，`filew://` 可写。
 
-## 操作命令
+# 特殊映射：对象存储
 
-```bash
-mount ~/data 'sql(demo:t_news)'     # 设置映射
-umount ~/data                        # 移除映射
-o ~/data -cqn                      # 映射目录照常使用
-mount -l                             # 列出（具体子命令见 man mount）
+`vofs` 也是同样的合并简写——元数据与内容都在对象存储桶里，
+桶本身就是一棵「目录树」：
+
+```json5
+{
+    // ... 其他元数据
+    "mnt": "vofs://s3:/home/demo#backup"
+}
 ```
 
-## 注意事项
+对象存储的连接配置（`~/.io/{s3,cos}/*.json5`）由 `xo` 命令体系管理，
+详见 [对象存储集成](xo-storage.md)。
 
-- 映射子树的对象 **ID 是两段式**（`HomeID:ReferID`，对象模型见 [标准对象](../10.concepts/01-std-obj.md)），`o` 命令可直接用。
-- 换映射介质不是迁移数据——改 `mnt` 只影响新写入；老数据仍在旧桶里。
-- `file://` 映射的目录**只读**；写入请用 `filew://`。
-- 映射声明在目录元数据上，改映射 = 改元数据（`o -u 'mnt:"..."'`）。
-- `vofs` / `vxds` 的对象存储配置（`~/.io/{type}/{name}.json5`）由 `xo` 命令体系管理，见 [xo-storage](04-xo-storage.md)。
+# 两段式 ID
+
+被映射的子树，其对象的 `ID` 会变成两段式 `$HomeID:$ReferID`：
+
+- `HomeID` — 全局索引里映射根对象的 ID
+- `ReferID` — 子索引器内部的 ID（譬如 vofs 映射里它是 base64 编码的对象存储路径）
+
+这样全局索引只需记录映射根这一个对象，子树里再多对象也不占全局索引的条目，访问更快。
+
+# 总结
+
+读到这里，我想你已经基本对 `Walnut` 如何存储对象的策略有了基本了解。
+
+你还想了解这些存储方式的细节，可以进一步阅读：
+
+- [索引管理器 - MongoDB](20-indexer-mongo.md)
+- [索引管理器 - Redis](21-indexer-redis.md)
+- [索引管理器 - SQL](22-indexer-sql.md)
+- [桶管理器 - sha1](30-bm-sha1.md)
+- [桶管理器 - vxds](31-bm-vxds.md)
+- [桶管理器 - sql](32-bm-sql.md)
+- [桶管理器 - redis](33-bm-redis.md)
+- [桶管理器 - mem](34-bm-mem.md)
+- [桶管理器 - multi](35-bm-multi.md)
+- [文件系统映射](40-indexer-file.md)
+- [对象存储映射](41-indexer-vofs.md)

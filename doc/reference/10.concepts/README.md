@@ -6,7 +6,7 @@ source:
   - api/io/WnIo.java
   - api/io/WnObj.java
   - impl/box/WnSystem.java
-related: [quick-start, ../20.io-storage/01-io-model.md, source-layout]
+related: [quick-start, ../20.io-storage/README.md, source-layout]
 ---
 
 # Walnut 核心概念
@@ -16,7 +16,7 @@ related: [quick-start, ../20.io-storage/01-io-model.md, source-layout]
 ```bash
 10.concepts/
 |-- README.md             # 本篇：设计初衷、逻辑结构、概念导览
-|-- 01-std-obj.md         # 标准对象：一切皆对象（WnObj）
+|-- 01-std-obj.md         # 一切皆对象：id/nm、race、标准元数据、ln、expi
 |-- 02-domain-home.md     # Domain 与 Home：域、主目录与目录布局
 |-- 03-session-env.md     # 会话与环境变量
 |-- 04-command-model.md   # 命令模型：沙箱、管道与三种命令写法
