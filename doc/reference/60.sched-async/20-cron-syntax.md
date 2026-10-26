@@ -3,7 +3,7 @@ title: WnCron 定期表达式
 module: 60.sched-async
 keywords: [WnCron, cron 表达式, Quartz, 定时, 区间语法, fill, toText]
 source: [cron/]
-related: [cron-pipeline, mq, hooks]
+related: [README, 10-cron-task]
 ---
 
 # WnCron 定期表达式

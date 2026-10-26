@@ -3,12 +3,16 @@ title: 路径参数与动态路由（_ANY）
 module: 50.regapi
 keywords: [_ANY, api-param-name, args, params, 通配, 动态路由]
 source: [ext/sys/httpapi/HttpApiModule.java]
-related: [api-object, request-object, cache]
+related: [10-api-object, 20-request-object, 40-cache]
 ---
 
 # 路径参数与动态路由（_ANY）
 
-regapi 的路由就是文件系统路径匹配。找不到精确文件时，Walnut 会逐层尝试名为 `_ANY` 的通配对象，从而支持 `/api/user/123/order/456` 这样的动态路由。
+`/api/user/123/order/456` 这样的 REST 路径，树上显然不可能为每个 ID 建一个文件。
+怎么办？
+
+regapi 的路由就是**文件系统路径匹配**：找不到精确文件时，Walnut 会逐层尝试
+名为 `_ANY` 的通配对象——这就是动态路由的全部机制。
 
 匹配逻辑（源码 `HttpApiModule` 的路径解析循环）：
 
@@ -40,7 +44,9 @@ GET /api/user/zozoh/order/W20261021
 文件型 `_ANY` 捕获剩余全部路径：
 
 ```bash
-echo 'cat -' > /home/demo/api/files/_ANY     # 捕获 /api/files/a/b/c.txt
+o /home/demo/api/files/_ANY -e 'api-param-name:ph'
+echo 'cat /home/demo/files/${params.ph}' > /home/demo/api/files/_ANY
+# 捕获 /api/files/a/b/c.txt，输出 /home/demo/files/a/b/c.txt 的内容
 ```
 
 ## 命名参数：api-param-name
@@ -64,8 +70,10 @@ echo "args0=${args[0]}"               # args 是数组（JS 里也支持 args[0]
 ## 404 规则
 
 - 路径中某一层既没有精确对象也没有 `_ANY` → `e.api.nofound`（404）；
-- 对象存在但不是 API（没有 `http-api:true` 或不可执行）→ 按静态/下载逻辑或拒绝；
-- `http-method` 不匹配 → 报错。
+- 目录型 `_ANY` 下没有 `_action` 子文件 → `e.io.obj.noexists`（同样 404）；
+- `http-api` 不是 API 对象的声明属性——它是**请求对象**上的元数据（记录本次命中的
+  API 对象名，见 20-request-object）；服务端也不校验可执行位——`.regapi/api/` 树下
+  凡是被路由命中的对象，都会被执行。
 
 ## 典型场景
 

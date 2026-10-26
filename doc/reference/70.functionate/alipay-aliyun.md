@@ -1,6 +1,6 @@
 ---
 title: 支付宝与阿里云
-module: 70.integrations
+module: 70.functionate
 keywords: [alipay, alipayconf, aliyunoss, aliyunvod, OSS, VOD, RAM]
 source: [ext/net/alipay/, ext/net/aliyun/]
 related: [payment, xapi, sms-mail]

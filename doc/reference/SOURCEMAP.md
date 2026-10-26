@@ -21,7 +21,7 @@
 - **web/module/FuseModule.java** — 说明：域名转发路由 — 文档：80.ops/domain-mapping.md ✅
 - **web/module/GuestModule.java** — 说明：/g 访客接口 — 文档：✅
 - **web/filter/** — 说明：WnAsUsr/WnCheckSession 等 — 文档：30.auth/* ✅
-- **web/bgt/** — 说明：后台三消费线程 — 文档：60.sched-async/cron-pipeline.md ✅
+- **web/bgt/** — 说明：后台三消费线程 — 文档：60.sched-async/README.md ✅
 - **web/clean/** — 说明：过期清理线程 — 文档：[01-std-obj](10.concepts/01-std-obj.md)（expi 回收机制） ✅
 - **web/setup/** — 说明：启动 Setup 集合 — 文档：[quick-start](00.start-here/quick-start.md)
 
@@ -33,7 +33,7 @@
 - **api/io/agg/** — 说明：聚合查询 — 文档：[cmd_o](../../src/com/site0/walnut/ext/data/o/man/zh_cn/cmd_o.md) ✅
 - **api/io/WnExpiObjTable.java** — 说明：过期对象表 — 文档：[01-std-obj](10.concepts/01-std-obj.md)（expi 回收机制） ✅
 - **api/lock/** — 说明：锁接口 — 文档：[03-cmd-filter](40.commands/03-cmd-filter.md) ✅
-- **api/hook/** — 说明：钩子接口 — 文档：60.sched-async/hooks.md ✅
+- **api/hook/** — 说明：钩子接口 — 文档：20.io-storage/11-io-hooks.md ✅
 - **api/box/** — 说明：沙箱/执行上下文 — 文档：[04-command-model](10.concepts/04-command-model.md) ✅
 
 ## 核心实现（core/）
@@ -54,7 +54,7 @@
 - **impl/box/cmd/man/zh_cn/** — 说明：内置命令中文手册 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
 - **impl/io/** — 说明：WnSecurityImpl — 文档：30.auth/0-auth-pvg.md ✅
 - **impl/lock/{memory,redis}** — 说明：锁实现 — 文档：[03-cmd-filter](40.commands/03-cmd-filter.md) ✅
-- **impl/hook/** — 说明：钩子实现 — 文档：60.sched-async/hooks.md ✅
+- **impl/hook/** — 说明：钩子实现 — 文档：20.io-storage/11-io-hooks.md ✅
 
 ## 账户（login/）
 
@@ -69,7 +69,7 @@
 - **util/WnRun.java** — 说明：命令运行器 — 文档：[04-command-model](10.concepts/04-command-model.md) ✅
 - **util/Wn.java、WnContext.java** — 说明：全局工具与线程上下文 — 文档：90.dev/java-lib.md ✅
 - **util/{Wobj,WnStr,Wtime,Wpath,Ws}.java** — 说明：高频工具 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
-- **cron/WnCron.java** — 说明：WnCron 表达式引擎 — 文档：60.sched-async/cron-syntax.md ✅
+- **cron/WnCron.java** — 说明：WnCron 表达式引擎 — 文档：60.sched-async/20-cron-syntax.md ✅
 - **jsexec/JsExec.java** — 说明：JS 引擎封装 — 文档：[jsexec-api](90.dev/jsexec-api.md) ✅
 - **val/** — 说明：值生成器（ID/序列/日期/IP） — 文档：[03-cmd-filter](40.commands/03-cmd-filter.md) ✅
 - **lookup/** — 说明：快捷查询 — 文档：[cmd_o](../../src/com/site0/walnut/ext/data/o/man/zh_cn/cmd_o.md) ✅
@@ -82,10 +82,10 @@
 ## 扩展层（ext/）
 
 - **ext/sys/httpapi/** — 说明：HTTP 注册接口（HttpApiModule + cmd） — 文档：[first-api](00.start-here/first-api.md)、50.regapi/* ✅
-- **ext/sys/cron,schedule,task** — 说明：定时任务三件套 — 文档：60.sched-async/cron-pipeline.md ✅
-- **ext/sys/mq,websocket** — 说明：消息队列 / WebSocket — 文档：60.sched-async/mq.md ✅
-- **ext/sys/hookx,lock,refer,trash** — 说明：钩子/锁/引用/回收站 — 文档：60.sched-async/hooks.md ✅
-- **ext/sys/dsync,truck** — 说明：数据同步与搬运 — 文档：70.integrations/data-sync.md ✅
+- **ext/sys/cron,schedule,task** — 说明：定时任务三件套 — 文档：60.sched-async/README.md ✅
+- **ext/sys/mq,websocket** — 说明：消息队列 / WebSocket — 文档：待补充（mq 机制将重新实现）⚠️
+- **ext/sys/hookx,lock,refer,trash** — 说明：钩子/锁/引用/回收站 — 文档：20.io-storage/11-io-hooks.md ✅
+- **ext/sys/dsync,truck** — 说明：数据同步与搬运 — 文档：70.functionate/data-sync.md ✅
 - **ext/sys/redis,mgadmin,aclog,i18n,datex** — 说明：系统工具命令 — 文档：[02-cmd-complex](40.commands/02-cmd-complex.md)、[03-cmd-filter](40.commands/03-cmd-filter.md) ✅
 - **ext/data/sqlx** — 说明：SQL 操作 — 文档：[cmd_sqlx](../../src/com/site0/walnut/ext/data/sqlx/man/zh_cn/cmd_sqlx.md) ✅
 - **ext/data/entity** — 说明：通用实体(like/favor/score/history) — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
@@ -98,10 +98,10 @@
 - **ext/media/imagic,videoc,ffmpeg** — 说明：图像/视频 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
 - **ext/media/ooml,sheet,edi** — 说明：文档/表格 — 文档：[03-cmd-filter](40.commands/03-cmd-filter.md)、[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
 - **ext/media/qrcode,pdf,subtitle,avatar** — 说明：其他媒体 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md)、[02-cmd-complex](40.commands/02-cmd-complex.md) ✅
-- **ext/net/payment,alipay** — 说明：支付 — 文档：70.integrations/payment.md ✅
-- **ext/net/xapi** — 说明：XAPI 第三方 API — 文档：70.integrations/xapi.md ✅
-- **ext/net/sms,mailx** — 说明：短信/邮件 — 文档：70.integrations/sms-mail.md ✅
-- **ext/net/aliyun,ftp,http** — 说明：阿里云/FTP/HTTP 客户端 — 文档：70.integrations/alipay-aliyun.md ✅
+- **ext/net/payment,alipay** — 说明：支付 — 文档：70.functionate/payment.md ✅
+- **ext/net/xapi** — 说明：XAPI 第三方 API — 文档：70.functionate/xapi.md ✅
+- **ext/net/sms,mailx** — 说明：短信/邮件 — 文档：70.functionate/sms-mail.md ✅
+- **ext/net/aliyun,ftp,http** — 说明：阿里云/FTP/HTTP 客户端 — 文档：70.functionate/alipay-aliyun.md ✅
 - **ext/util/{base64,hexbin,jsonx,strx,seq,shorturl,btea,crc,react}** — 说明：工具命令 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md)、[02-cmd-complex](40.commands/02-cmd-complex.md)、[03-cmd-filter](40.commands/03-cmd-filter.md) ✅
 - **ext/data/thing ⚠️、ext/data/titanium ⚠️** — 说明：已弃用（仅维护） — 文档：不投入文档
 

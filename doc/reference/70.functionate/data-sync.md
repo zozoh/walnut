@@ -1,6 +1,6 @@
 ---
 title: 数据同步与迁移
-module: 70.integrations
+module: 70.functionate
 keywords: [dsync, truck, 同步, 归档, tree 索引, 迁移, 备份]
 source: [ext/sys/dsync/, ext/sys/truck/]
 related: [../20.io-storage/10-io-mapping.md, ../80.ops/sys-admin.md]

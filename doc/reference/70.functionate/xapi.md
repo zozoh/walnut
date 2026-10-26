@@ -1,6 +1,6 @@
 ---
 title: ThirdXApi：第三方 API 框架
-module: 70.integrations
+module: 70.functionate
 keywords: [xapi, 专家配置, expert, accessKey, @AK, 动态票据, requests]
 source: [ext/net/xapi/]
 related: [weixin, alipay-aliyun, ../40.commands/03-cmd-filter.md]

@@ -53,7 +53,7 @@ xapi req <api> <account> <req> -vars ...    # 第三方请求 dry-run
 
 ## 常见错误速查
 
-- **`e.api.nofound`**：API 路径未命中（含 `_ANY`）：确认对象存在、`http-api:true`、可执行位
+- **`e.api.nofound`**：API 路径未命中（含 `_ANY`）：确认对象存在（服务端不校验声明元数据与可执行位）
 - **`e.api.forbid`**：站点鉴权失败：票据无效/过期，或 `pvg-assert` 角色不够
 - **`e.api.auth`**：`api-access-token` 校验失败
 - **`e.box.auth.NoSession`**：无会话执行了需要登录的命令

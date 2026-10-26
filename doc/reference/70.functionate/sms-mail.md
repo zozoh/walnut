@@ -1,6 +1,6 @@
 ---
 title: 短信与邮件
-module: 70.integrations
+module: 70.functionate
 keywords: [sms, mailx, 短信, 邮件, 模板邮件, SMTP, IMAP, 云片]
 source: [ext/net/sms/, ext/net/mailx/]
 related: [xapi, ../60.sched-async/notify.md, ../40.commands/03-cmd-filter.md]

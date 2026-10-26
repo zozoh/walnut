@@ -8,7 +8,7 @@ source:
   - api/io/WnIoIndexer.java
   - core/WnIoBM.java
   - core/mapping/WnIoMappingFactoryImpl.java
-related: [../10.concepts/01-std-obj.md, 10-io-mapping.md]
+related: [../10.concepts/01-std-obj.md, 10-io-mapping.md, 11-io-hooks.md]
 ---
 
 # 数据存储与映射
@@ -108,6 +108,7 @@ umount ~/data/news
 20.io-storage/
 |-- README.md               # 本篇：核心模型（IO/Indexer/BM）+ 目录导航
 |-- 10-io-mapping.md        # IO 映射：索引管理器 × 桶管理器、全局映射与自定义映射
+|-- 11-io-hooks.md          # IO 钩子：对象生命周期六类事件的自动响应
 |-- 20-indexer-mongo.md     # 索引管理器 - MongoDB（全局默认）
 |-- 21-indexer-redis.md     # 索引管理器 - Redis（规划中）
 |-- 22-indexer-sql.md       # 索引管理器 - SQL（模板 ~/.sqlx + 数据源 ~/.dao）
@@ -124,6 +125,7 @@ umount ~/data/news
 ## 阅读路径
 
 - **要懂映射机制** 10-io-mapping — 什么是索引管理器/桶管理器、`mnt` 如何为子树切换映射
+- **要做生命周期联动** 11-io-hooks — 写文件生成缩略图、删对象清理关联数据等钩子
 - **要挑介质** 各管理器专题（`20`~`41` 开头）— 每篇先讲 `mnt` 语法，再详解配置参数
 - **要进关系库** 索引管理器 - SQL — 数据源、SQL 模板、内容进表
 - **要上对象存储** xo-storage — 云桶配置，以及 vofs/vxds 挂载

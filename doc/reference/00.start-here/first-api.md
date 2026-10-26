@@ -5,7 +5,7 @@ keywords: [regapi, HTTP接口, 快速上手, curl, API, hello world]
 source:
   - ext/sys/httpapi/HttpApiModule.java
   - ext/sys/httpapi/HttpApis.java
-related: [quick-start, api-object, request-object]
+related: [quick-start, 10-api-object, 20-request-object]
 ---
 
 # 第一个 HTTP 接口
@@ -82,5 +82,5 @@ curl 'http://localhost:8080/api/root/hello?name=walnut'
 
 ## 下一步
 
-- api-object：API 对象全部元数据与行为定制
-- request-object：请求对象元数据全集
+- 10-api-object：API 对象全部元数据与行为定制
+- 20-request-object：请求对象元数据全集

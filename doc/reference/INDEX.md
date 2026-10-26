@@ -28,6 +28,7 @@
 
 - **20.io-storage/README.md** — 数据存储与映射（核心模型 + 目录导航） — 模块：core — 关键词：io,存储,映射,阅读路径
 - **20.io-storage/10-io-mapping.md** — IO 映射 — 模块：core.mapping — 关键词：mnt,映射,索引管理器,桶管理器,两段式ID
+- **20.io-storage/11-io-hooks.md** — IO 钩子 — 模块：api.hook — 关键词：hook,hook_by,六类事件,JS钩子,缩略图
 - **20.io-storage/xo-storage.md** — 对象存储集成（xo） — 模块：ext.xo — 关键词：xo,对象存储,s3,cos,oss,临时密钥,vofs,vxds
 - **20.io-storage/20-indexer-mongo.md** — 索引管理器 - MongoDB — 模块：core.indexer.mongo — 关键词：mongo,默认索引器,集合
 - **20.io-storage/21-indexer-redis.md** — 索引管理器 - Redis（规划中） — 模块：core.indexer.redis — 关键词：redis,规划中,键值
@@ -59,32 +60,33 @@
 - **40.commands/03-cmd-filter.md** — 过滤命令 — 模块：impl.box — 关键词：JvmFilterExecutor,JvmFilter,过滤器,cmd_tmpl,上下文
 - **40.commands/04-cmd-pipe.md** — 命令管道 — 模块：impl.box — 关键词：管道,pipe,JvmAtomRunner,run,变量替换
 - **40.commands/05-cmd-std-in-out.md** — 命令输入输出 — 模块：impl.box — 关键词：stdin,stdout,stderr,重定向,JvmBoxInput,JvmBoxOutput
-- **40.commands/60-cmd-table.md** — 命令总表（158 个命令的来源/写法/分类） — 模块：impl.box / ext — 关键词：命令清单,内置,扩展,简单命令,复杂命令,过滤命令,分类
+- **40.commands/60-cmd-table.md** — 命令总表（157 个命令的来源/写法/分类） — 模块：impl.box / ext — 关键词：命令清单,内置,扩展,简单命令,复杂命令,过滤命令,分类
 
 ## 50.regapi
 
-- **50.regapi/api-object.md** — API 对象与元数据 — 模块：ext.sys.httpapi — 关键词：API对象,命令模板,http-header,跨域
-- **50.regapi/request-object.md** — 请求对象 — 模块：ext.sys.httpapi — 关键词：http-qs,http-header,http-cookie,body
-- **50.regapi/path-params.md** — 路径参数 — 模块：ext.sys.httpapi — 关键词：_ANY,通配,REST,api-param-name
-- **50.regapi/cache.md** — 缓存策略 — 模块：ext.sys.httpapi — 关键词：cache-test,cache-duration,finger,302
-- **50.regapi/auth-history.md** — 鉴权与历史埋点 — 模块：ext.sys.httpapi — 关键词：站点会话,pvg,preload,history
+- **50.regapi/README.md** — HTTP 注册接口（文件即接口的机制概述） — 模块：ext.sys.httpapi — 关键词：regapi,文件即接口,请求对象,命令模板,动态API
+- **50.regapi/10-api-object.md** — API 对象与元数据 — 模块：ext.sys.httpapi — 关键词：API对象,命令模板,http-header,跨域
+- **50.regapi/20-request-object.md** — 请求对象 — 模块：ext.sys.httpapi — 关键词：http-qs,http-header,http-cookie,body
+- **50.regapi/30-path-params.md** — 路径参数 — 模块：ext.sys.httpapi — 关键词：_ANY,通配,REST,api-param-name
+- **50.regapi/40-cache.md** — 缓存策略 — 模块：ext.sys.httpapi — 关键词：cache-test,cache-duration,finger,302
+- **50.regapi/50-auth-history.md** — 鉴权与历史埋点 — 模块：ext.sys.httpapi — 关键词：站点会话,pvg,preload,history
 
 ## 60.sched-async
 
-- **60.sched-async/cron-syntax.md** — WnCron 表达式 — 模块：cron — 关键词：Quartz,T[],D[],区间,fill
-- **60.sched-async/cron-pipeline.md** — cron→schedule→task 流转 — 模块：ext.sys — 关键词：分钟槽,任务栈,后台线程
-- **60.sched-async/mq.md** — 消息队列 — 模块：ext.sys.mq — 关键词：mq,CMD消息,secret,消费者
-- **60.sched-async/hooks.md** — 钩子机制 — 模块：api.hook — 关键词：六类事件,hook_by,JS钩子
-- **60.sched-async/notify.md** — 通知与提醒 — 模块：ext.sys.task — 关键词：通知,短信,邮件,告警,task notify
+- **60.sched-async/README.md** — 定时任务 — 模块：60.sched-async — 关键词：三张表,后台线程,sys-schedule-enabled
+- **60.sched-async/10-cron-task.md** — cron 命令与任务定义 — 模块：ext.sys.cron — 关键词：cron_task,cron add,cron preview,user
+- **60.sched-async/20-cron-syntax.md** — WnCron 表达式 — 模块：cron — 关键词：Quartz,T[],D[],区间,fill
+- **60.sched-async/30-schedule-slot.md** — 分钟计划表 — 模块：ext.sys.schedule — 关键词：分钟槽,schedule load,schedule push,预加载
+- **60.sched-async/40-task-queue.md** — 后台任务栈 — 模块：ext.sys.task — 关键词：task add,task notify,弹出即删除,BGT_TASK
 
-## 70.integrations
+## 70.functionate
 
-- **70.integrations/payment.md** — 通用支付模型 — 模块：ext.net.payment — 关键词：支付单,pay,回调,wx,zfb,paypal
-- **70.integrations/weixin.md** — 微信集成 — 模块：ext.net.webx — 关键词：小程序,公众号,wxmp,wxgh,wxjssdk
-- **70.integrations/alipay-aliyun.md** — 支付宝与阿里云 — 模块：ext.net — 关键词：支付宝,aliyunoss,aliyunvod
-- **70.integrations/sms-mail.md** — 短信与邮件 — 模块：ext.net — 关键词：sms,mailx,供应商,模板
-- **70.integrations/xapi.md** — XAPI 第三方 API 框架 — 模块：ext.net.xapi — 关键词：ThirdXApi,配置驱动,动态票据
-- **70.integrations/data-sync.md** — 数据同步与迁移 — 模块：ext.sys.dsync — 关键词：dsync,truck,tree索引,归档,还原
+- **70.functionate/payment.md** — 通用支付模型 — 模块：ext.net.payment — 关键词：支付单,pay,回调,wx,zfb,paypal
+- **70.functionate/weixin.md** — 微信集成 — 模块：ext.net.webx — 关键词：小程序,公众号,wxmp,wxgh,wxjssdk
+- **70.functionate/alipay-aliyun.md** — 支付宝与阿里云 — 模块：ext.net — 关键词：支付宝,aliyunoss,aliyunvod
+- **70.functionate/sms-mail.md** — 短信与邮件 — 模块：ext.net — 关键词：sms,mailx,供应商,模板
+- **70.functionate/xapi.md** — XAPI 第三方 API 框架 — 模块：ext.net.xapi — 关键词：ThirdXApi,配置驱动,动态票据
+- **70.functionate/data-sync.md** — 数据同步与迁移 — 模块：ext.sys.dsync — 关键词：dsync,truck,tree索引,归档,还原
 
 ## 80.ops
 

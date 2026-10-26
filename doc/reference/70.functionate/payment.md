@@ -1,9 +1,9 @@
 ---
 title: 支付集成
-module: 70.integrations
+module: 70.functionate
 keywords: [pay, 支付单, WnPayment, wx.qrcode, zfb.qrcode, 回调, pay re]
 source: [ext/net/payment/]
-related: [weixin, alipay-aliyun, ../50.regapi/api-object.md]
+related: [weixin, alipay-aliyun, ../50.regapi/10-api-object.md]
 ---
 
 # 支付集成

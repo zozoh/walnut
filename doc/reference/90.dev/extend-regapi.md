@@ -3,7 +3,7 @@ title: 实战：开发完整 API
 module: 90.dev
 keywords: [regapi 实战, API 示例, http-output, 模板, jsonx, 上传, 缓存]
 source: [ext/sys/httpapi/]
-related: [../50.regapi/api-object.md, ../50.regapi/request-object.md, ../50.regapi/cache.md, jsexec-api]
+related: [../50.regapi/10-api-object.md, ../50.regapi/20-request-object.md, ../50.regapi/40-cache.md, jsexec-api]
 ---
 
 # 实战：开发完整 API
@@ -20,7 +20,6 @@ o /home/demo/data/news -match '{race:"FILE", live:1}' -sort 'lm:1' -limit '${htt
 EOF
 chmod +x /home/demo/api/news/list
 o /home/demo/api/news/list -e '
-  http-api:true;
   http-output:json;
   cache-test:[{path:"/var/cache/news-list-${params.tp?all}.json",mime:"application/json"}];
   cache-duration:300;
@@ -44,7 +43,6 @@ echo '{"ok":true,"id":"${id}"}'
 EOF
 chmod +x /home/demo/api/news/create
 o /home/demo/api/news/create -e '
-  http-api:true;
   http-output:json;
   http-body:json;
   http-method:POST;
@@ -69,7 +67,6 @@ echo '{"ok":true}'
 EOF
 chmod +x /home/demo/api/avatar/upload
 o /home/demo/api/avatar/upload -e '
-  http-api:true;
   http-output:json;
   http-body:form;
   http-www-home:/home/demo/website'
@@ -85,7 +82,7 @@ xapi send openweather default now -vars '{city:"${params.city}"}' \
   | tmpl ~/tmpl/weather.txt
 EOF
 chmod +x /home/demo/api/weather
-o /home/demo/api/weather -e 'http-api:true; api-param-name:city'
+o /home/demo/api/weather -e 'api-param-name:city'
 ```
 
 `~/tmpl/weather.txt` 用 `tmpl` 语法渲染（`${}` 占位、`${#loop}` 循环、`${#if}` 分支，见 `man tmpl`）。

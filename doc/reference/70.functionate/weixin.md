@@ -1,6 +1,6 @@
 ---
 title: 微信集成
-module: 70.integrations
+module: 70.functionate
 keywords: [微信, wxmp, wxgh, wxjssdk, access_token, 小程序登录, 公众号]
 source: [ext/net/webx/, ext/net/xapi/hdl/xapi_wxjssdk.java, ext/net/payment/weixin/]
 related: [payment, xapi, ../40.commands/03-cmd-filter.md]

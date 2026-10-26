@@ -37,6 +37,7 @@ doc/reference/
 |-- 20.io-storage/                # 存储体系：虚拟文件系统的全部机制
 |   |-- README.md                 #   核心模型：IO/Indexer/BM 四接口 + 目录导航与阅读路径
 |   |-- 10-io-mapping.md          #   IO 映射：索引管理器 × 桶管理器、全局映射与自定义映射
+|   |-- 11-io-hooks.md            #   IO 钩子：对象生命周期六类事件的自动响应
 |   |-- xo-storage.md             #   对象存储集成：xo 命令、s3/cos 配置、vofs/vxds 挂载
 |   |-- 20/21/22-indexer-*.md     #   索引管理器专题：mongo（默认）/ redis（规划）/ sql
 |   |-- 30~35-bm-*.md             #   桶管理器专题：sha1（默认）/ vxds / sql / redis / mem / multi
@@ -59,23 +60,24 @@ doc/reference/
 |   |-- 03-cmd-filter.md          #   过滤命令（JvmFilterExecutor）：@过滤器共享上下文
 |   |-- 04-cmd-pipe.md            #   命令管道：| 组合、变量替换、run 批量执行
 |   |-- 05-cmd-std-in-out.md      #   命令输入输出：三流、> >> 2>&1 重定向、输出惯例
-|   |-- 60-cmd-table.md           #   命令总表：158 个命令的来源/写法/逻辑分类
+|   |-- 60-cmd-table.md           #   命令总表：157 个命令的来源/写法/逻辑分类
 |
 |-- 50.regapi/                    # HTTP 注册接口（动态 API 的核心机制）
-|   |-- api-object.md             #   API 对象：文件即接口、元数据全集、命令模板
-|   |-- request-object.md         #   请求对象：http-qs-*/http-header-*/body 注入规则
-|   |-- path-params.md            #   路径参数：_ANY 通配、形参命名、REST 风格
-|   |-- cache.md                  #   缓存策略：cache-test/duration/finger/redirect
-|   |-- auth-history.md           #   站点会话注入、业务权限校验、preload、history 埋点
+|   |-- README.md                 #   本篇：文件即接口的思路、请求对象化、机制全景
+|   |-- 10-api-object.md             #   API 对象：文件即接口、元数据全集、命令模板
+|   |-- 20-request-object.md         #   请求对象：http-qs-*/http-header-*/body 注入规则
+|   |-- 30-path-params.md            #   路径参数：_ANY 通配、形参命名、REST 风格
+|   |-- 40-cache.md                  #   缓存策略：cache-test/duration/finger/redirect
+|   |-- 50-auth-history.md           #   站点会话注入、业务权限校验、preload、history 埋点
 |
 |-- 60.sched-async/               # 定时任务与异步机制
-|   |-- cron-syntax.md            #   WnCron 表达式：Quartz 兼容 + T[]/D[] 扩展语法
-|   |-- cron-pipeline.md          #   cron→schedule→task 三表流转与后台消费线程
-|   |-- mq.md                     #   消息队列：消息格式、secret 鉴权、消费端扩展
-|   |-- hooks.md                  #   钩子：六类事件、全局/用户钩子、条件匹配、JS 钩子
-|   |-- notify.md                 #   通知队列：短信/微信模板消息、优先级与重试
+|   |-- README.md                 #   本篇：三张表流水线、三个后台线程、可靠性
+|   |-- 10-cron-task.md           #   cron 命令与 /sys/cron 任务定义
+|   |-- 20-cron-syntax.md         #   WnCron 表达式：Quartz 兼容 + T[]/D[] 扩展语法
+|   |-- 30-schedule-slot.md       #   /sys/schedule 分钟计划表：槽对象、预加载与推送线程
+|   |-- 40-task-queue.md          #   /sys/tasks 后台任务栈：消费线程、弹出即删除
 |
-|-- 70.integrations/              # 第三方整合
+|-- 70.functionate/               # 功能场景：支付、ooml 解析、购物车等业务功能
 |   |-- payment.md                #   通用支付模型：支付单、pay 命令、多平台回调
 |   |-- weixin.md                 #   微信：公号/小程序配置、模板消息、oauth、JS-SDK
 |   |-- alipay-aliyun.md          #   支付宝与阿里云（OSS/VOD）

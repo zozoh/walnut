@@ -1,9 +1,9 @@
 ---
-title: 钩子机制（Hook）
-module: 60.sched-async
+title: IO 钩子（Hook）
+module: 20.io-storage
 keywords: [hook, hook_by, hook_user, ~/.hook, /sys/hook, 六类事件, JS 钩子]
 source: [api/hook/, impl/hook/]
-related: [mq, cron-pipeline, ../40.commands/03-cmd-filter.md]
+related: [README, 10-io-mapping.md]
 ---
 
 # 钩子机制（Hook）
@@ -40,7 +40,7 @@ chmod +x /sys/hook/write/gen_200
 o /sys/hook/write/gen_200 -e 'hook_by:[{mime:"^image/"}]'
 
 # JS 钩子：全局 obj 变量是当前对象，sys.exec 执行命令
-echo 'sys.exec("obj "+obj.id()+" -e \"thumb:done\"")' \
+echo 'sys.exec("o "+obj.id()+" -e \"thumb:done\"")' \
   > /sys/hook/write/mark_done.js
 ```
 
@@ -69,5 +69,4 @@ hookx @get ~/photo/a.jpg @invoke write
 
 ## 延伸阅读
 
-- 定时任务 — 钩子里跑长任务要投递给 task/mq
-- 消息队列
+- 定时任务 — 钩子里跑长任务要投递给后台任务栈（task）

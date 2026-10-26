@@ -7,7 +7,7 @@ source:
   - impl/io/WnSecurityImpl.java
   - core/bean/WnIoObj.java
   - ext/data/pvg/
-related: [README, 10-auth-user-role, ../10.concepts/01-std-obj.md, ../50.regapi/auth-history.md]
+related: [README, 10-auth-user-role, ../10.concepts/01-std-obj.md, ../50.regapi/50-auth-history.md]
 ---
 
 # 标准对象的权限体系
@@ -86,7 +86,7 @@ pvg ~/my-pvg.json can operator view export -ajax -cqn  # Ajax 包装（API 场�
 ```
 
 regapi 入口校验：`pvg_setup`（权限表位置）+ `pvg-assert`（要求的动作清单，
-数组间 AND、元素内 `|` 分隔 OR），不满足直接 403——详见 auth-history。
+数组间 AND、元素内 `|` 分隔 OR），不满足直接 403——详见 50-auth-history。
 
 ## 判定流程（简化）
 
