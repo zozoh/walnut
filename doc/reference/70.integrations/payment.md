@@ -99,5 +99,5 @@ pay query -match '{pay_st:"WAIT", lm:{$lt:两小时前}}'   # 找出超时未付
 
 ## 延伸阅读
 
-- [xapi](xapi.md) — 更多第三方 API 走 xapi 框架
-- [API 对象](../50.regapi/api-object.md) — 回调接口的实现方式
+- xapi — 更多第三方 API 走 xapi 框架
+- API 对象 — 回调接口的实现方式

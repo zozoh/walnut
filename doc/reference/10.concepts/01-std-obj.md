@@ -97,7 +97,7 @@ This is ABC.md
 设计动机是强调**组内协作**——一个域的数据由多人共同维护。
 
 对象还能声明 `pvg` 元数据做更细的授权（按用户、按业务角色）。
-完整的权限模型见 [三层权限](../30.auth/privilege.md)与[业务权限](../30.auth/biz-privilege.md)，
+完整的权限模型见 对象的权限体系，
 这里你只需要知道 `m` 和 `pvg` 这两个键的存在。
 
 # 过期自动删除
@@ -105,15 +105,45 @@ This is ABC.md
 通过元数据 `expi` 可以指定一个对象的过期时间（精确到毫秒）。
 到时，对象会被回收任务自动清除。
 
-我们这里不详细展开，你只需要知道：如果你指定了一个 `expi`，到了你指定的时间，
-这个对象会自动被系统删除掉。
-
 并且如果这个对象是一个`目录`，那么其内所有的子目录/文件也都会被删除。
 
 如果你是一名经验丰富的开发者，我想你自然会知道，这个功能在很多场景下有多省事——
 会话、验证码、订单超时、临时文件，都不用再自己起清理线程了。
 
-> 具体的回收机制，可以参看 [过期对象机制](../20.io-storage/expiration.md)
+它是这样工作的：
+
+```bash
+创建/修改对象，元数据带 expi
+   │
+   ▼
+EOT 表（Expired Object Table，接口 WnExpiObjTable）登记 {id, expi, hold, ow}
+   │
+   ▼
+清理线程（每节点一个，间隔 expi-obj-clean-interval，默认 60s）
+   ├─ 抢锁（WnLockApi，多节点只有一个干活）
+   ├─ 批量取已到期的记录（上限 expi-obj-clean-limit，默认 100）
+   ├─ 占用：hold=现在+interval, ow=本节点（防其他节点重复处理）
+   ├─ 删除对象本体（走正常删除，触发钩子）
+   └─ 清掉 EOT 记录
+```
+
+`hold` 字段是**多节点竞争的关键**：一个节点领取记录后设置占用窗口，窗口内其他节点跳过；
+节点崩溃则窗口过期后由别的节点接手。
+
+```bash
+# 设置 1 小时后过期（%ms:now+1h 是时间表达式，见 datex）
+o ~/tmp/session.json -u 'expi:%ms:now+1h'
+
+# 永不 Exp（默认 0）
+o ~/tmp/session.json -u 'expi:0'
+```
+
+配置在 `web.properties`：`expi-obj-clean-interval`（清理间隔）、
+`expi-obj-clean-limit`（每轮上限）、`expi-obj-clean-hold`（占用窗口）。
+实现代码在 `core/eot/`，清理线程在 `web/clean/WnExpiObjTableCleaner.java`。
+
+需要注意：过期即**物理删除**，不可恢复。`expi` 是元数据，修改元数据即重新登记 EOT；
+手动 `rm` 的对象，其 EOT 记录会在下一轮被清。
 
 # 链接对象
 
@@ -156,7 +186,7 @@ rm ~/links/rm                           # 删除链接不影响目标
 
 你可能还想知道对象的`元数据`与`内容`是如何被管理的。
 
-这个话题我们会在 [数据存储与映射](../20.io-storage/README.md) 中详细展开。
+这个话题我们会在 数据存储与映射 中详细展开。
 你只需要知道：对象还有一个标准元数据 `mnt`，专门用来指定它的存储映射方式。
 被映射的子树，其对象 `ID` 会变为两段式（`映射根ID:子索引ID`），对使用者完全透明。
 
@@ -168,6 +198,6 @@ rm ~/links/rm                           # 删除链接不影响目标
 
 ## 深入阅读
 
-- [数据存储与映射](../20.io-storage/README.md)：Indexer/BM 模型与 mnt 映射
-- [域与主目录](02-domain-home.md)：对象树的全局布局
-- [过期对象机制](../20.io-storage/expiration.md)：expi 的完整回收链路
+- 数据存储与映射：Indexer/BM 模型与 mnt 映射
+- 域与主目录：对象树的全局布局
+- 对象的权限体系：mode / pvg / 业务权限矩阵

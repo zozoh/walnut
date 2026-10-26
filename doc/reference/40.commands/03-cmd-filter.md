@@ -172,50 +172,14 @@ echo '{a:{b:1}}' | jsonx @flatten @pick 'b'
 
 ## 文档放在哪里
 
-- 主命令手册：`man/zh_cn/cmd_<命令名>.md` —— 总览 + 全部 `@过滤器` 列表（如 [cmd_tmpl](../../../src/com/site0/walnut/ext/data/tmpl/man/zh_cn/cmd_tmpl.md)）
+- 主命令手册：`man/zh_cn/cmd_<命令名>.md` —— 总览 + 全部 `@过滤器` 列表（如 cmd_tmpl）
 - 过滤器手册：`man/zh_cn/cmd_<命令名>_<过滤器名>.md` —— 与过滤器源码同名，格式与简单命令手册一致（简介 / 用法 / 示例）
 - 过滤器较多的命令（如 `jsonx` 30+ 个过滤器），主手册只列清单，细节见各过滤器手册
 
 ## 现有的过滤命令
 
-共 28 个（均为扩展命令），命令名链接指向其源码包内的中文手册：
-
-### 数据管道
-
-- **[o](../../../src/com/site0/walnut/ext/data/o/man/zh_cn/cmd_o.md)**：对象操作瑞士军刀：CRUD/聚合/树形/批量
-- **[sqlx](../../../src/com/site0/walnut/ext/data/sqlx/man/zh_cn/cmd_sqlx.md)**：SQL 数据库网关：模板 SQL + 变量/事务/乐观锁
-- **[tmpl](../../../src/com/site0/walnut/ext/data/tmpl/man/zh_cn/cmd_tmpl.md)**：文本模板渲染：占位/循环/分支
-- **[val](../../../src/com/site0/walnut/ext/data/val/man/zh_cn/cmd_val.md)**：值生成器（ID/序列/随机值）
-- **[fake](../../../src/com/site0/walnut/ext/data/fake/man/zh_cn/cmd_fake.md)**：生成模拟测试数据
-- **[expl](../../../src/com/site0/walnut/ext/data/expl/man/zh_cn/cmd_expl.md)**：解释执行表达式（WnExplain 语法）
-- **[jsonx](../../../src/com/site0/walnut/ext/util/jsonx/man/zh_cn/cmd_jsonx.md)**：JSON 过滤器管道（30+ @过滤器）
-- **[archive](../../../src/com/site0/walnut/ext/data/archive/man/zh_cn/cmd_archive.md)**：归档文件处理（zip/tar/tgz）
-- **[unzipx](../../../src/com/site0/walnut/ext/data/unzipx/man/zh_cn/cmd_unzipx.md)**：压缩包解包/预览
-- **[edi](../../../src/com/site0/walnut/ext/media/edi/man/zh_cn/cmd_edi.md)**：EDI 报文解析/渲染
-- **[strx](../../../src/com/site0/walnut/ext/util/strx/man/zh_cn/cmd_strx.md)**：字符串过滤器管道
-- **[domain](../../../src/com/site0/walnut/ext/data/domain/man/zh_cn/cmd_domain.md)**：系统域名（/domain）管理
-- **[refer](../../../src/com/site0/walnut/ext/sys/refer/man/zh_cn/cmd_refer.md)**：内容引用计数
-- **[react](../../../src/com/site0/walnut/ext/util/react/man/zh_cn/cmd_react.md)**：数据联动修改（配置 + 变量触发）
-- **[datex](../../../src/com/site0/walnut/ext/sys/datex/man/zh_cn/cmd_datex.md)**：日期时间过滤器管道
-- **[dsync](../../../src/com/site0/walnut/ext/sys/dsync/man/zh_cn/cmd_dsync.md)**：目录同步与归档（树索引/打包/恢复）
-- **[truck](../../../src/com/site0/walnut/ext/sys/truck/man/zh_cn/cmd_truck.md)**：索引/桶管理器间数据迁移
-
-### 网络管道
-
-- **[httpc](../../../src/com/site0/walnut/ext/net/http/man/zh_cn/cmd_httpc.md)**：HTTP 客户端（@过滤器组装请求）
-- **[mailx](../../../src/com/site0/walnut/ext/net/mailx/man/zh_cn/cmd_mailx.md)**：邮件收发：SMTP/IMAP/模板/附件/S-MIME
-- **[webx](../../../src/com/site0/walnut/ext/net/webx/man/zh_cn/cmd_webx.md)**：站点用户自助：登录/会话/改密/绑定
-- **[redis](../../../src/com/site0/walnut/ext/sys/redis/man/zh_cn/cmd_redis.md)**：Redis 客户端（KV/哈希/集合操作）
-- **[lock](../../../src/com/site0/walnut/ext/sys/lock/man/zh_cn/cmd_lock.md)**：全局锁（申请/释放/查看）
-- **[hookx](../../../src/com/site0/walnut/ext/sys/hookx/man/zh_cn/cmd_hookx.md)**：钩子调试与触发
-- **[ipv4](../../../src/com/site0/walnut/ext/net/ipv4/man/zh_cn/cmd_ipv4.md)**：IPv4 地址工具
-
-### 媒体与其他
-
-- **[ooml](../../../src/com/site0/walnut/ext/media/ooml/man/zh_cn/cmd_ooml.md)**：Office 模板渲染（docx/xlsx 占位与循环）
-- **[dom](../../../src/com/site0/walnut/ext/media/dom/man/zh_cn/cmd_dom.md)**：jsoup 风格 HTML DOM 过滤操作
-- **[wf](../../../src/com/site0/walnut/ext/data/wf/man/zh_cn/cmd_wf.md)**：工作流（加载流程配置执行）
-- **[xo](../../../src/com/site0/walnut/ext/xo/man/zh_cn/cmd_xo.md)**：对象数据集框架：目录封装成标准 REST 数据集
+全部命令（含类型与分类）的统一清单见 60-cmd-table.md，这里不再单独罗列。
+过滤命令共有 20 余个，典型代表：`o`（对象瑞士军刀）、`sqlx`（SQL 网关）、`jsonx`（JSON 管道）、`tmpl`。
 
 > **类型边界说明**：三型命令按**写法（继承关系）**划分，复杂度是光谱而非绝对——
 > `sqlx`、`o` 虽然属于过滤型（`@vars`/`@query` 共享 `SqlxContext`），

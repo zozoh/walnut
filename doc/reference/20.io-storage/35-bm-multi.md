@@ -4,7 +4,7 @@ module: core.bm.multi
 keywords: [桶管理器, multi, 条件映射, 规划中, 动态选择]
 source:
   - conf/ioc/io.js
-related: [01-io-mapping, 30-bm-sha1, 31-bm-vxds]
+related: [10-io-mapping, 30-bm-sha1, 31-bm-vxds]
 ---
 
 # 桶管理器 - multi
@@ -18,8 +18,8 @@ related: [01-io-mapping, 30-bm-sha1, 31-bm-vxds]
 根据一个配置文件和当时的上下文（对象大小、类型、所在目录），把不同的内容
 分流到不同的桶里。想象这样的规则：
 
-- 小文件（< 1M）→ [sha1](30-bm-sha1.md) 本地桶，读得快
-- 大文件 → [vxds](31-bm-vxds.md) 对象存储，存得便宜
+- 小文件（< 1M）→ sha1 本地桶，读得快
+- 大文件 → vxds 对象存储，存得便宜
 - 临时文件 → Redis，自动消失
 
 一次写入，系统替你选最合适的介质；读取时按对象元数据里记录的位置找回。
@@ -37,5 +37,5 @@ mnt : "://multi({规则配置名})"
 
 ## 扩展阅读
 
-- [IO 映射](01-io-mapping.md) — 映射机制总览
-- [桶管理器 - vxds](31-bm-vxds.md) — 规划中 multi 规则的主要受益者之一
+- IO 映射 — 映射机制总览
+- 桶管理器 - vxds — 规划中 multi 规则的主要受益者之一

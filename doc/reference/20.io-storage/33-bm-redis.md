@@ -5,7 +5,7 @@ keywords: [桶管理器, redis, RedisBM, 小文件, 会话, WedisConfig, io/bm]
 source:
   - core/mapping/bm/RedisBMFactory.java
   - core/bm/redis/
-related: [01-io-mapping, 21-indexer-redis, 30-bm-sha1]
+related: [10-io-mapping, 21-indexer-redis, 30-bm-sha1]
 ---
 
 # 桶管理器 - redis
@@ -59,9 +59,9 @@ mnt : "://redis(sess)"
 - Redis 有容量上限且内存昂贵：**大文件不要进 Redis**（经验值：1M 以内的小内容）
 - 非持久化的 Redis 实例重启后内容即失——存进去的东西必须是「丢了也能重建」的
 - 高频筛选的对象元数据不要指望 Redis（它没有查询能力），元数据侧请用
-  [MongoDB](20-indexer-mongo.md) 或 [SQL](22-indexer-sql.md)
+  MongoDB 或 SQL
 
 ## 扩展阅读
 
-- [IO 映射](01-io-mapping.md) — 映射机制总览
-- [索引管理器 - Redis](21-indexer-redis.md) — Redis 做索引器（规划中），与做桶是两种用法
+- IO 映射 — 映射机制总览
+- 索引管理器 - Redis — Redis 做索引器（规划中），与做桶是两种用法

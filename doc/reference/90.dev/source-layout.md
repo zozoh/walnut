@@ -56,13 +56,13 @@ ext/
 
 ## 给 AI Agent 的读码建议
 
-1. 从 [SOURCEMAP.md](../SOURCEMAP.md) 反查「功能 → 包」；
+1. 从 SOURCEMAP.md 反查「功能 → 包」；
 2. 命令行为先看 `cmd_xxx.java`，子命令看 `hdl/`；
 3. 元数据语义以使用它的类为准（grep 键名字符串）；
 4. 手册页 `src/**/man/zh_cn/*.md` 是命令行为的最可靠文字描述。
 
 ## 延伸阅读
 
-- [SOURCEMAP.md](../SOURCEMAP.md) — 双向映射
-- [自定义命令](custom-command.md)
-- [Java 库模式](java-lib.md)
+- SOURCEMAP.md — 双向映射
+- 自定义命令
+- Java 库模式

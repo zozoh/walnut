@@ -4,7 +4,7 @@ module: core.bm.mem
 keywords: [桶管理器, mem, 内存, 规划中, 临时内容]
 source:
   - conf/ioc/io.js
-related: [01-io-mapping, 33-bm-redis, 30-bm-sha1]
+related: [10-io-mapping, 33-bm-redis, 30-bm-sha1]
 ---
 
 # 桶管理器 - mem
@@ -14,7 +14,7 @@ related: [01-io-mapping, 33-bm-redis, 30-bm-sha1]
 
 ## 设计意图
 
-内容直接放内存，速度最快、重启即失。比 [Redis 桶](33-bm-redis.md) 更极致的临时性：
+内容直接放内存，速度最快、重启即失。比 Redis 桶 更极致的临时性：
 
 - 内容极小（1K 左右）、读写极其频繁
 - 完全不需要持久化，甚至不跨节点共享（纯本机 JVM 内存）
@@ -29,9 +29,9 @@ mnt : "://mem(名称)"
 ```
 
 在实现落地前，以上语法仅供参考，不要用于生产配置。
-现在就要类似的效果，可以用 [Redis 桶](33-bm-redis.md) 加短 `expi` 代替。
+现在就要类似的效果，可以用 Redis 桶 加短 `expi` 代替。
 
 ## 扩展阅读
 
-- [IO 映射](01-io-mapping.md) — 映射机制总览
-- [桶管理器 - redis](33-bm-redis.md) — 已实现的内存级桶
+- IO 映射 — 映射机制总览
+- 桶管理器 - redis — 已实现的内存级桶

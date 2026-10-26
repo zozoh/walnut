@@ -8,7 +8,7 @@ source:
   - core/mapping/support/SqlIoArgs.java
   - core/mapping/support/SqlIoOptions.java
   - ext/sys/sql/WnDaos.java
-related: [01-io-mapping, dao-mapping, 32-bm-sql, ../40.commands/sqlx.md]
+related: [10-io-mapping, 32-bm-sql, sqlx]
 ---
 
 # 索引管理器 - SQL
@@ -59,7 +59,7 @@ mnt : "sql(:t_news:AMS:{species:\"dog\"})"
 - **`inc`** — 按条件将指定字段增加 `val`
 
 **没有定义的指令，对应的 IO 操作会抛错**——用不到的操作可以不实现。
-模板语法与变量体系见 [sqlx](../40.commands/sqlx.md)。
+模板语法与变量体系见 sqlx。
 
 ## 数据源：`~/.dao/{daoName}.dao.json`
 
@@ -88,9 +88,8 @@ o ~/biz/news -match 'status:"NEW"' -sort 'ct:-1' -limit 20 -cqn
 - **没有自动建表**：表结构由你掌控，建表/迁移用 `sqlx` 命令执行 DDL
 - `options` 声明必须与真实表结构一致，否则查询/写入会因缺列报错
 - 高频筛选字段请建真实表列并在 `select` 模板里输出；塞进 meta JSON 的字段不走 SQL 索引
-- 想让**内容也进同一张表**？见 [桶管理器 - sql](32-bm-sql.md)
+- 想让**内容也进同一张表**？见 桶管理器 - sql
 
 ## 扩展阅读
 
-- [.dao 数据源与 SQL 表映射](dao-mapping.md) — 与 sqlx 的分工、完整工作流
-- [sqlx](../40.commands/sqlx.md) — SQL 模板语法
+- sqlx — SQL 模板语法

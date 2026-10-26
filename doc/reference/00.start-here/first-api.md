@@ -69,7 +69,7 @@ curl 'http://localhost:8080/api/root/hello?name=walnut'
 ```
 
 > 这里用 `o -u` 修改元数据、`json` 生成 JSON，都是 Walnut 命令，语法详见
-> [简单命令](../40.commands/01_cmd_simple.md)。
+> 简单命令。
 
 ## 常用套路
 
@@ -82,5 +82,5 @@ curl 'http://localhost:8080/api/root/hello?name=walnut'
 
 ## 下一步
 
-- [api-object](../50.regapi/api-object.md)：API 对象全部元数据与行为定制
-- [request-object](../50.regapi/request-object.md)：请求对象元数据全集
+- api-object：API 对象全部元数据与行为定制
+- request-object：请求对象元数据全集

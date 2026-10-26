@@ -7,7 +7,7 @@ source:
   - ext/xo/impl/
   - ext/xo/builder/
   - ext/xo/util/
-related: [01-io-mapping, dao-mapping, ../../../src/com/site0/walnut/ext/xo/man/zh_cn/cmd_xo.md]
+related: [10-io-mapping, ../../../src/com/site0/walnut/ext/xo/man/zh_cn/cmd_xo.md]
 ---
 
 # 对象存储集成（xo）
@@ -17,7 +17,7 @@ related: [01-io-mapping, dao-mapping, ../../../src/com/site0/walnut/ext/xo/man/z
 各云服务厂商（AWS S3、腾讯云 COS、阿里云 OSS、华为云 OBS、七牛 Kodo）都提供对象存储服务，
 功能大同小异——上传、下载、删除、列出、改元数据——但各家 SDK 和权鉴方式各不相同。
 Walnut 用统一的 `xo` 命令和配置格式封装它们，并且让对象存储可以直接挂载成 IO 映射
-（[vofs 索引器 / 桶](01-io-mapping.md)、[vxds 内容签名桶](01-io-mapping.md)），
+（vofs 索引器 / 桶、vxds 内容签名桶），
 对象存储里的文件用起来和普通对象无异。
 
 ## 配置布局
@@ -77,7 +77,7 @@ xo s3:backup reset                           # 重置缓存的客户端实例
 ```
 
 完整的子命令手册在各子命令的 man 文档里（`man xo`、`man xo write` 等），
-写法见 [cmd_xo](../../../src/com/site0/walnut/ext/xo/man/zh_cn/cmd_xo.md)。
+写法见 cmd_xo。
 
 ## 与 IO 映射的关系
 
@@ -132,5 +132,5 @@ redis-database-allow=5,6
 
 ## 扩展阅读
 
-- [mount-mapping](01-io-mapping.md) — `vofs` / `vxds` 映射语法与引用计数安全
-- [cmd_xo](../../../src/com/site0/walnut/ext/xo/man/zh_cn/cmd_xo.md) — `xo` 命令手册
+- IO 映射 — `vofs` / `vxds` 映射语法与引用计数安全
+- cmd_xo — `xo` 命令手册

@@ -29,12 +29,12 @@ curl 'http://host/api/hello?name=zozoh'
 
 ## 执行模型
 
-1. 请求路径 → 定位 API 对象（支持 `_ANY` 通配，见 [路径参数](path-params.md)）；
+1. 请求路径 → 定位 API 对象（支持 `_ANY` 通配，见 路径参数）；
 2. 组装 **API 上下文**（`apc`）：请求对象（http-api 临时对象）+ 元数据 NutMap；
 3. 依次执行各阶段：鉴权 → 会话/权限 → preload → 执行命令 → 输出 → 历史记录；
 4. 输出响应（`http-output` 决定 text/json）。
 
-API 对象的执行内容可以是命令（默认），也可以用 `http-body`/`http-output` 声明输入输出类型（见 [请求对象](request-object.md)）。
+API 对象的执行内容可以是命令（默认），也可以用 `http-body`/`http-output` 声明输入输出类型（见 请求对象）。
 
 ## API 对象元数据全集
 
@@ -44,11 +44,11 @@ API 对象的执行内容可以是命令（默认），也可以用 `http-body`/
 
 - **`http-api:true`**：声明本对象是 API
 - **`api-access-token`**：访问令牌名——客户端必须在请求参数里带同名 key 的正确 token，否则 `e.api.auth` 拒绝
-- **`pvg-setup` / `pvg-assert`**：站点权限：设置上下文角色、断言动作权限（见 [鉴权与历史](auth-history.md)）
+- **`pvg-setup` / `pvg-assert`**：站点权限：设置上下文角色、断言动作权限（见 鉴权与历史）
 
 ### 请求解析
 
-- **`api-param-name`**：路径参数注入名（配合 `_ANY`，见 [路径参数](path-params.md)）
+- **`api-param-name`**：路径参数注入名（配合 `_ANY`，见 路径参数）
 - **`http-method`**：限定请求方法（GET/POST...），不匹配报 404/405
 - **`http-body`**：请求体类型：`text` / `form` / `json`
 - **`http-post-json-merge`**：为 true 时把 JSON body 的字段合并进参数表
@@ -74,7 +74,7 @@ API 对象的执行内容可以是命令（默认），也可以用 `http-body`/
 
 ### 预加载与记录
 
-- **`preload`**：执行前预加载数据到上下文（数组：`test`/`appends`/`run`），见 [鉴权与历史](auth-history.md)
+- **`preload`**：执行前预加载数据到上下文（数组：`test`/`appends`/`run`），见 鉴权与历史
 - **`history`**：为 true 时写历史记录对象（默认名 `_history`）
 - **`hisname`**：历史记录对象的键名（默认 `_history`）
 - **`hismetas`**：历史记录要保存的元数据白名单
@@ -85,7 +85,7 @@ API 对象的执行内容可以是命令（默认），也可以用 `http-body`/
 - **内部接口**：`api-access-token`，客户端带 `?token=xxx`；
 - **JSON 接口**：`http-output:json`，命令最后向 stdout 输出 JSON 文本；
 - **CORS**：`http-cross-origin:*`；
-- **文件上传**：`http-body:form`，然后命令里 `cp id:${id} ~/uploads/`（见 [请求对象](request-object.md)）。
+- **文件上传**：`http-body:form`，然后命令里 `cp id:${id} ~/uploads/`（见 请求对象）。
 
 ## 注意事项
 
@@ -95,7 +95,7 @@ API 对象的执行内容可以是命令（默认），也可以用 `http-body`/
 
 ## 延伸阅读
 
-- [请求对象](request-object.md) — 请求侧元数据全集
-- [路径参数](path-params.md) — _ANY 与动态路由
-- [缓存](cache.md) — cache-* 元数据
-- [第一个 API](../00.start-here/first-api.md)
+- 请求对象 — 请求侧元数据全集
+- 路径参数 — _ANY 与动态路由
+- 缓存 — cache-* 元数据
+- 第一个 API

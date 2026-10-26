@@ -36,35 +36,30 @@ doc/reference/
 |
 |-- 20.io-storage/                # 存储体系：虚拟文件系统的全部机制
 |   |-- README.md                 #   核心模型：IO/Indexer/BM 四接口 + 目录导航与阅读路径
-|   |-- 01-io-mapping.md          #   IO 映射：索引管理器 × 桶管理器、全局映射与自定义映射
-|   |-- dao-mapping.md            #   .dao 数据源 + ~/.sqlx 模板，元数据/内容进 SQL 表
+|   |-- 10-io-mapping.md          #   IO 映射：索引管理器 × 桶管理器、全局映射与自定义映射
 |   |-- xo-storage.md             #   对象存储集成：xo 命令、s3/cos 配置、vofs/vxds 挂载
-|   |-- expiration.md             #   过期对象机制：expi、EOT 表、多节点清理竞争
 |   |-- 20/21/22-indexer-*.md     #   索引管理器专题：mongo（默认）/ redis（规划）/ sql
 |   |-- 30~35-bm-*.md             #   桶管理器专题：sha1（默认）/ vxds / sql / redis / mem / multi
 |   |-- 40-indexer-file.md        #   文件系统映射：file/filew 本地目录挂载
 |   |-- 41-indexer-vofs.md        #   对象存储映射：vofs 桶即目录树
 |
-|-- 30.auth/                      # 账户、会话与权限
-|   |-- accounts.md               #   系统账户(/sys/usr)与域账户(~/accounts)双轨模型
-|   |-- session.md                #   会话对象、多级登录(su/exit)、票据、自动过期
-|   |-- privilege.md              #   三层权限：mode 八进制 / pvg 元数据 / 组角色
-|   |-- biz-privilege.md          #   业务权限模型：角色×动作 JSON、pvg 命令与服务
-|   |-- auto-login.md             #   ackey 签名自动登录与 Token 机制(nonce/timestamp)
-|   |-- vcode-captcha.md          #   验证码：图形/短信/邮箱、场景与目录布局
+|-- 30.auth/                      # 账号认证、会话与权限
+|   |-- README.md                 #   概述：基于 WnIo 的认证思路、三种存储模式、权限与验证码
+|   |-- 10-auth-user-role.md      #   系统用户(/sys/usr)与组角色：密码 salt、Std/Sql 双存储
+|   |-- 20-auth-session.md        #   会话管理：会话对象、票据轮换、su 会话树、过期
+|   |-- 30-auth-in-domain.md      #   域内用户存储与认证：WnLoginSite、accounts/roles 配置
+|   |-- 40-auth-hydrate.md        #   混合认证：域内用户登录建立标准账户会话
+|   |-- 0-auth-pvg.md             #   标准对象的权限体系：mode / pvg / 业务权限矩阵
+|   |-- 60-auth-otp-captcha.md    #   验证码、OTP：图形/短信/邮箱、场景、一发一验
 |
 |-- 40.commands/                  # 命令参考：73 内置 + 84 扩展，三种写法与组合手段
 |   |-- README.md                 #   命令机制概览：要解决的问题、三种模式、管道与 IO
-|   |-- 01_cmd_simple.md          #   简单命令（JvmExecutor）：代码形态、96 个命令清单
-|   |-- 02_cmd_complex.md         #   复杂命令（JvmHdlExecutor）：hdl 子命令 + 服务类
-|   |-- 03_cmd_filter.md          #   过滤命令（JvmFilterExecutor）：@过滤器共享上下文
-|   |-- 04_cmd_pipe.md            #   命令管道：| 组合、变量替换、run 批量执行
-|   |-- 05_cmd_std_in_out.md      #   命令输入输出：三流、> >> 2>&1 重定向、输出惯例
-|   |-- o.md                      #   【重点】o 命令：对象操作瑞士军刀（上下文+过滤器）
-|   |-- sqlx.md                   #   【重点】sqlx：SQL 数据库网关（模板/事务/乐观锁）
-|   |-- webx.md                   #   【重点】webx：站点用户自助（登录/会话/改密/绑定）
-|   |-- mailx.md                  #   【重点】mailx：邮件收发一体化（SMTP/IMAP/模板）
-|   |-- tmpl.md                   #   【重点】tmpl：文本模板渲染（占位/循环/分支）
+|   |-- 01-cmd-simple.md          #   简单命令（JvmExecutor）：代码形态、接口与参数详解
+|   |-- 02-cmd-complex.md         #   复杂命令（JvmHdlExecutor）：hdl 子命令 + 服务类
+|   |-- 03-cmd-filter.md          #   过滤命令（JvmFilterExecutor）：@过滤器共享上下文
+|   |-- 04-cmd-pipe.md            #   命令管道：| 组合、变量替换、run 批量执行
+|   |-- 05-cmd-std-in-out.md      #   命令输入输出：三流、> >> 2>&1 重定向、输出惯例
+|   |-- 60-cmd-table.md           #   命令总表：158 个命令的来源/写法/逻辑分类
 |
 |-- 50.regapi/                    # HTTP 注册接口（动态 API 的核心机制）
 |   |-- api-object.md             #   API 对象：文件即接口、元数据全集、命令模板

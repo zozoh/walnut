@@ -90,4 +90,4 @@ curl http://localhost:8080/u/do/login/ajax?nm=root&passwd=123456
 
 ## 下一步
 
-[第一个 HTTP 接口](first-api.md)：3 分钟调通 `~/.regapi`。
+第一个 HTTP 接口：3 分钟调通 `~/.regapi`。

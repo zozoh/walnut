@@ -27,10 +27,8 @@
 ## 20.io-storage
 
 - **20.io-storage/README.md** — 数据存储与映射（核心模型 + 目录导航） — 模块：core — 关键词：io,存储,映射,阅读路径
-- **20.io-storage/01-io-mapping.md** — IO 映射 — 模块：core.mapping — 关键词：mnt,映射,索引管理器,桶管理器,两段式ID
-- **20.io-storage/dao-mapping.md** — .dao 数据源与 SQL 表映射 — 模块：core.indexer.sql — 关键词：dao,数据源,SQL映射,sqlx,模板
+- **20.io-storage/10-io-mapping.md** — IO 映射 — 模块：core.mapping — 关键词：mnt,映射,索引管理器,桶管理器,两段式ID
 - **20.io-storage/xo-storage.md** — 对象存储集成（xo） — 模块：ext.xo — 关键词：xo,对象存储,s3,cos,oss,临时密钥,vofs,vxds
-- **20.io-storage/expiration.md** — 过期对象机制 — 模块：core.eot — 关键词：expi,EOT,清理线程,多节点竞争
 - **20.io-storage/20-indexer-mongo.md** — 索引管理器 - MongoDB — 模块：core.indexer.mongo — 关键词：mongo,默认索引器,集合
 - **20.io-storage/21-indexer-redis.md** — 索引管理器 - Redis（规划中） — 模块：core.indexer.redis — 关键词：redis,规划中,键值
 - **20.io-storage/22-indexer-sql.md** — 索引管理器 - SQL — 模块：core.indexer.sql — 关键词：sql,SqlIndexer,sqlx,dao,AMS,cmg,filter
@@ -45,26 +43,23 @@
 
 ## 30.auth
 
-- **30.auth/accounts.md** — 系统账户与域账户 — 模块：login — 关键词：账户,用户组,角色,域账户库
-- **30.auth/session.md** — 会话机制 — 模块：login.session — 关键词：会话,票据,多级登录,su,exit
-- **30.auth/privilege.md** — 三层权限模型 — 模块：api.io — 关键词：mode,pvg,组角色,admin
-- **30.auth/biz-privilege.md** — 业务权限模型 — 模块：ext.data.pvg — 关键词：角色×动作,pvg命令,WnPvgMoreService
-- **30.auth/auto-login.md** — 自动登录与 Token — 模块：login — 关键词：ackey,签名,nonce,timestamp,防重放
-- **30.auth/vcode-captcha.md** — 验证码机制 — 模块：ext.data.vcode — 关键词：验证码,图形,短信,邮箱,场景
+- **30.auth/README.md** — 账号认证机制概述 — 模块：login — 关键词：WnIo模型,for_sys,for_domain,for_hydrate,权限,验证码
+- **30.auth/10-auth-user-role.md** — 系统用户、角色与密码存储 — 模块：login — 关键词：/sys/usr,/sys/grp,密码salt,组角色,Std/Sql
+- **30.auth/20-auth-session.md** — 系统用户会话管理 — 模块：login.session — 关键词：会话票据,轮换,su会话树,过期
+- **30.auth/30-auth-in-domain.md** — 域内用户存储与认证 — 模块：login.domain — 关键词：WnLoginSite,accounts,roles,forDomain
+- **30.auth/40-auth-hydrate.md** — 混合认证机制 — 模块：login.hydrate — 关键词：域内登录,标准会话,sysSessionStore,site属性
+- **30.auth/0-auth-pvg.md** — 标准对象的权限体系 — 模块：api.io / ext.data.pvg — 关键词：mode,pvg,业务权限矩阵,组角色,admin
+- **30.auth/60-auth-otp-captcha.md** — 验证码、OTP 等认证机制 — 模块：ext.data.vcode — 关键词：vcode,图形验证码,短信,邮箱,场景,一发一验
 
 ## 40.commands
 
 - **40.commands/README.md** — Walnut 命令机制 — 模块：impl.box — 关键词：命令机制,简单命令,复杂命令,过滤命令,管道,重定向,man
-- **40.commands/01_cmd_simple.md** — 简单命令 — 模块：impl.box — 关键词：JvmExecutor,cmd_cat,ZParams,WnSystem,man
-- **40.commands/02_cmd_complex.md** — 复杂命令 — 模块：impl.box — 关键词：JvmHdlExecutor,JvmHdl,cmd_xapi,子命令,服务类
-- **40.commands/03_cmd_filter.md** — 过滤命令 — 模块：impl.box — 关键词：JvmFilterExecutor,JvmFilter,过滤器,cmd_tmpl,上下文
-- **40.commands/04_cmd_pipe.md** — 命令管道 — 模块：impl.box — 关键词：管道,pipe,JvmAtomRunner,run,变量替换
-- **40.commands/05_cmd_std_in_out.md** — 命令输入输出 — 模块：impl.box — 关键词：stdin,stdout,stderr,重定向,JvmBoxInput,JvmBoxOutput
-- **40.commands/o.md** — o 命令：对象操作瑞士军刀 — 模块：ext.data.o — 关键词：@query,@update,@agg,上下文,过滤器
-- **40.commands/sqlx.md** — sqlx：SQL 数据库网关 — 模块：ext.data.sqlx — 关键词：模板SQL,@vars,@dvcheck,事务,乐观锁
-- **40.commands/webx.md** — webx：站点用户自助 — 模块：ext.net.webx — 关键词：@auth,@session,@passwd,微信登录,动态密码
-- **40.commands/mailx.md** — mailx：邮件收发一体化 — 模块：ext.net.mailx — 关键词：SMTP,IMAP,模板邮件,附件,S/MIME
-- **40.commands/tmpl.md** — tmpl：文本模板渲染 — 模块：ext.data.tmpl — 关键词：占位符,循环,分支,默认值,WnTmpl
+- **40.commands/01-cmd-simple.md** — 简单命令 — 模块：impl.box — 关键词：JvmExecutor,cmd_cat,ZParams,WnSystem,man
+- **40.commands/02-cmd-complex.md** — 复杂命令 — 模块：impl.box — 关键词：JvmHdlExecutor,JvmHdl,cmd_xapi,子命令,服务类
+- **40.commands/03-cmd-filter.md** — 过滤命令 — 模块：impl.box — 关键词：JvmFilterExecutor,JvmFilter,过滤器,cmd_tmpl,上下文
+- **40.commands/04-cmd-pipe.md** — 命令管道 — 模块：impl.box — 关键词：管道,pipe,JvmAtomRunner,run,变量替换
+- **40.commands/05-cmd-std-in-out.md** — 命令输入输出 — 模块：impl.box — 关键词：stdin,stdout,stderr,重定向,JvmBoxInput,JvmBoxOutput
+- **40.commands/60-cmd-table.md** — 命令总表（158 个命令的来源/写法/分类） — 模块：impl.box / ext — 关键词：命令清单,内置,扩展,简单命令,复杂命令,过滤命令,分类
 
 ## 50.regapi
 

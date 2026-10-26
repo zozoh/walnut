@@ -1,78 +1,74 @@
 ---
-title: 3X 数据源（外部数据接入统一 IO）
+title: 第三方数据源
 module: core.mapping
 keywords: [数据源, 3X, 第三方, dao, mnt, SQL, Redis, OSS, XApi, XO, 数据接入]
-source:
-  - core/mapping/WnIoMappingFactoryImpl.java
-  - core/mapping/support/MountInfo.java
-  - ext/net/xapi/XApi.java
-  - ext/data/xo/impl/XoService.java
-related: [std-obj, ../20.io-storage/README.md, ../20.io-storage/01-io-mapping.md, ../20.io-storage/dao-mapping.md, xapi]
 ---
 
-# 3X 数据源（外部数据接入统一 IO）
+# 概述
 
-「3X」指各种各样的第三方数据源：SQL 数据库、Redis、阿里云 OSS、第三方平台的 API……
-Walnut 的目标是让这些数据源**用起来与普通对象无异**——同一套 `o` 命令、同一套权限、同一套 regapi。
-接入方式有三种：映射接入、数据集封装、API 网关。
+所谓第三方数据源包括：SQL 数据库、Redis、阿里云 OSS、等第三方平台提供数据保存服务。
+Walnut 的目标是让这些数据源**用起来与普通对象无异**。
 
-## 方式一：mnt 映射（数据就在树里）
+这样在用户构建自己项目的业务代码是，它可以无需关心数据具体是怎么存储的。
+连接数据源的各种细节被 Walnut 统一管理，用户只需要关注业务逻辑。
 
-通过目录对象的 `mnt` 元数据，把整棵子树委托给外部存储（见 [数据存储与映射](../20.io-storage/README.md)）：
+这些数据源，一种是像 SQL 数据库、Redis 这样的开源组件，用户自己部署在自己的服务器上。
+另一种是像阿里云 OSS 这样的云服务，用户需要申请账号、配置权限。
 
-```bash
-# 子树元数据存 SQL 表、内容存全局 SHA1 桶
-mnt = "sql(demo:t_news)"
+无论怎么，在 Walnut 都可以透明地接入。
 
-# 整树挂本地静态目录
-mnt = "file:///var/www/static/"
+当然，考虑到真正生产环境的效率，Walnut 也提供了直接访问这些数据源的命令。
+以便让你有最接近原生用法的性能。
 
-# 元数据与内容都进对象存储
-mnt = "vofs://s3:/home/demo#backup"
-```
-
-映射之后，对使用者完全透明：`o ~/data/news @query ...` 查的是 SQL 表，
-`cat` 读的是 OSS 对象——命令不需要知道底层是什么。
-
-常用配置约定：
-
-- **`~/.dao/*.dao.json`** — SQL 数据源定义（连接串、账号），被 `sql(源:实体)` 引用
-- **`~/.sqlx/*.sql`** — SQL 模板（元数据/内容的读写语句）
-- **`~/.io/bm/*.json`** — Redis 桶管理器定义
-- **`~/.io/{s3,cos}/*.json5`** — 对象存储连接配置（vofs/vxds 映射共用）
-
-详见 [对象的存储映射](../20.io-storage/01-io-mapping.md)与 [DAO 映射](../20.io-storage/dao-mapping.md)。
-
-## 方式二：对象存储挂载（vofs / vxds）
-
-对象存储桶可以直接挂载为 IO 映射：元数据与内容都在桶里（`vofs`），
-或元数据在 Mongo、内容按 SHA1 去重进桶并带引用计数（`vxds`）。
-配置用 `~/.io/{type}/{name}.json5`，由 `xo` 命令统一管理。见 [xo-storage](../20.io-storage/xo-storage.md)。
-
-## 方式三：XApi 网关（把第三方 API 变成命令）
-
-外部数据不在任何存储里、只能从第三方 API 拉取时，用 `xapi`：
-
-- 专家配置（API 清单、密钥、签名规则）放在 `~/.xapi/experts/<apiName>.expert.json`，
-  账号主目录如 `~/.xapi/wechat-gh/`
-- `xapi req` 生成请求、`xapi send` 直接调用，输出统一为 JSON 进管道
-- 同一套配置可被命令、cron、regapi 复用，签名/缓存/密钥管理由 `XApi` 服务类兜底
-
-详见 [xapi](../70.integrations/xapi.md)。
-
-## 典型组合
+下面是一个这个思路的示意图(我们用 SQL 数据库来举例):
 
 ```bash
-# SQL 表里的新闻 → JSON API（无需写代码）
-mount ~/data/news 'sql(demo:t_news)'
-
-# 第三方平台的订单 → 定时拉到本地目录，再挂 API
-cron add '*/10 * * * *' 'xapi send myshop orders /list > ~/data/orders.json'
++-----------+   `cmd_sqlx`          +-----------+
+| User Code | -------------------▶  |   SQL DB  |
++-----------+                       +-----------+
+    │ Call IO Read/Write                 ▲ Invoke
+    ▼                                    │ Driver API  
++-----------+       Mapping        +--------------+
+| WnIo      | -------------------▶ | SQl Io Impl  |
++-----------+                      +--------------+
 ```
 
-## 深入阅读
+你既可以通过标准方式，直接访问 `WnIo` 的某个映射对象，来访问数据表。
+也可以通过 `cmd_sqlx` 命令，来直接访问 SQL 数据库。
+标准方式你将获得更大的业务代码兼容性，数据源变更，你甚至可能不需改任何一行业务代码。
+直接通过 `cmd_sqlx` 命令，你可以获得更高效的性能，基本上接近直接写 JDBC 语句。
 
-- [数据存储与映射](../20.io-storage/README.md)：统一接口的两层实现
-- [对象的存储映射](../20.io-storage/01-io-mapping.md)：所有映射方案
-- [DAO 映射](../20.io-storage/dao-mapping.md)：SQL 数据源与表映射
-- [xapi](../70.integrations/xapi.md)：第三方 API 网关
+# 标准方式: 数据映射
+
+思路很简单：**给对象树上的一个目录挂上数据源，它的整个子树就存在那个数据源里**。
+业务代码照常读写对象，完全不感知底下是 Mongo 还是 MySQL。
+数据源怎么连接、数据怎么翻译成对象，全部由 Walnut 在背后打理。
+
+这是 Walnut 最推荐的方式：业务代码与数据源彻底解耦，
+哪天要把数据从 MySQL 迁到 Mongo，业务代码一行都不用改。
+
+# 直接调用: cmd_sqlx
+
+映射方式适合对象化的读写。但聚合统计、批量变更这类操作，走映射就绕了。
+`cmd_sqlx` 让你直接对 SQL 数据库执行模板化的 SQL 语句，
+性能基本接近原生 JDBC，同时还保留了变量绑定、事务、乐观锁等生产环境必备的能力。
+
+# 直接调用: xapi
+
+第三方平台的数据不在任何存储里，只能通过它的 API 拉取。
+`xapi` 的思路是把一个平台的接入方式（地址、密钥、签名规则）写成一份**专家配置**，
+配好之后，调用第三方 API 就像调用一个命令一样简单，输出统一为 JSON，可以直接进管道。
+
+# 直接调用: xo
+
+对象存储除了可以挂成映射，也可以用 `xo` 命令直接操作。
+批量上传下载、跨桶迁移这类场景，直连比走映射更顺手。
+连接配置与映射方式共用一套，两边互不冲突。
+
+## 总结
+
+- 数据存储与映射：统一接口的两层实现
+- 对象的存储映射：所有映射方案
+- 索引管理器 - SQL：SQL 数据源与表映射
+- xo-storage：对象存储集成
+- sqlx / xapi：直接调用第三方数据源

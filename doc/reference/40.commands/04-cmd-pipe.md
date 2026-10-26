@@ -111,6 +111,6 @@ o ~/docs @query 'tp:"A"' -l -json | o ~/docs @update @json -c
 ## 注意事项
 
 - **写句柄独占**：管道中 `>` 打开的文件同时只能有一个写者，多原子并发写同一对象会出错
-- **命令超时**：box 分配有超时（`box-alloc-timeout`，默认 5000ms），长任务应放到 [task / cron](../60.sched-async/cron-pipeline.md) 里跑
+- **命令超时**：box 分配有超时（`box-alloc-timeout`，默认 5000ms），长任务应放到 task / cron 里跑
 - **每行一个沙箱**：`run` 执行的每行命令是独立沙箱，无共享变量（环境变量除外）
-- 重定向（`>` / `>>` / `2>&1`）的完整规则见 [命令输入输出](05_cmd_std_in_out.md)
+- 重定向（`>` / `>>` / `2>&1`）的完整规则见 命令输入输出

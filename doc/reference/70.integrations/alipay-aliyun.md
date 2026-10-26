@@ -31,7 +31,7 @@ alipay <confHome> pay     # 从 stdin 读支付参数（out_trade_no/amount...�
 alipay <confHome> payre   # 从 stdin 读回调请求，验签并解析
 ```
 
-> 这是老的支付宝即时到账接口（mapi 网关）。新对接建议优先用 [支付](payment.md) 的 `zfb.qrcode/zfb.scan` 渠道。
+> 这是老的支付宝即时到账接口（mapi 网关）。新对接建议优先用 支付 的 `zfb.qrcode/zfb.scan` 渠道。
 
 ## 阿里云 OSS（aliyunoss）
 
@@ -73,7 +73,7 @@ aliyunvod <名称> video     -videoId xxx          # 视频详情
 
 - **静态资源加速**：`aliyunoss upload` 发布 → `url` 取链 → 前端 CDN；
 - **视频站**：`aliyunvod playauth` + 前端 Aliplayer 播放；
-- **支付回调**：regapi 收 `pay_notify_url` → `pay re`（见 [支付](payment.md)）。
+- **支付回调**：regapi 收 `pay_notify_url` → `pay re`（见 支付）。
 
 ## 注意事项
 
@@ -83,5 +83,5 @@ aliyunvod <名称> video     -videoId xxx          # 视频详情
 
 ## 延伸阅读
 
-- [支付](payment.md)
-- [xapi](xapi.md) — 阿里云更多 OpenAPI 可走 xapi 专家配置
+- 支付
+- xapi — 阿里云更多 OpenAPI 可走 xapi 专家配置

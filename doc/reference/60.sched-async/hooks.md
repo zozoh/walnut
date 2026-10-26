@@ -3,7 +3,7 @@ title: 钩子机制（Hook）
 module: 60.sched-async
 keywords: [hook, hook_by, hook_user, ~/.hook, /sys/hook, 六类事件, JS 钩子]
 source: [api/hook/, impl/hook/]
-related: [mq, cron-pipeline, ../40.commands/03_cmd_filter.md]
+related: [mq, cron-pipeline, ../40.commands/03-cmd-filter.md]
 ---
 
 # 钩子机制（Hook）
@@ -46,12 +46,12 @@ echo 'sys.exec("obj "+obj.id()+" -e \"thumb:done\"")' \
 
 ## 元数据
 
-- **`hook_by`**：匹配条件数组（全部满足才触发），条件语法同 [缓存匹配](../50.regapi/cache.md#动态校验语法automatch)：等值、`^正则`、`!` 取反、`*` 通配、`a..b` 区间、`null` 存在性等
+- **`hook_by`**：匹配条件数组（全部满足才触发），条件语法同 缓存匹配：等值、`^正则`、`!` 取反、`*` 通配、`a..b` 区间、`null` 存在性等
 - **`hook_user`**：以谁的身份执行（**仅全局钩子有效**；用户钩子强制以对象属主身份执行）
 
 ## 调试
 
-用 `hookx` 命令离线查看/触发钩子（见 [过滤命令](../40.commands/03_cmd_filter.md)）：
+用 `hookx` 命令离线查看/触发钩子（见 过滤命令）：
 
 ```bash
 # 看某个对象会触发哪些钩子（不执行）
@@ -69,5 +69,5 @@ hookx @get ~/photo/a.jpg @invoke write
 
 ## 延伸阅读
 
-- [定时任务](cron-pipeline.md) — 钩子里跑长任务要投递给 task/mq
-- [消息队列](mq.md)
+- 定时任务 — 钩子里跑长任务要投递给 task/mq
+- 消息队列

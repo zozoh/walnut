@@ -6,7 +6,7 @@ source:
   - core/mapping/indexer/MongoFlatIndexerFactory.java
   - core/mapping/indexer/MongoIndexerFactory.java
   - core/indexer/mongo/
-related: [01-io-mapping, 20-indexer-mongo, 30-bm-sha1]
+related: [10-io-mapping, 20-indexer-mongo, 30-bm-sha1]
 ---
 
 # 索引管理器 - MongoDB
@@ -49,5 +49,5 @@ MongoDB 的连接信息不在 `mnt` 里，而在 `conf/ioc/mongo.js`（Ioc  Bean
 
 ## 扩展阅读
 
-- [IO 映射](01-io-mapping.md) — 映射机制总览
-- [桶管理器 - sha1](30-bm-sha1.md) — 全局默认桶，最常与 mongo 搭配
+- IO 映射 — 映射机制总览
+- 桶管理器 - sha1 — 全局默认桶，最常与 mongo 搭配

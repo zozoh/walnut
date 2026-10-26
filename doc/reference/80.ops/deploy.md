@@ -85,10 +85,10 @@ conf/
 
 ## 启动初始化（WnSetup）
 
-首次启动自动创建：`/sys` 体系（cron/schedule/tasks/hook/...）、`/domain`、`/root` 账号（用 `root-init-passwd`）、默认全局钩子（图片缩略图）。详见 [快速开始](../00.start-here/quick-start.md)。
+首次启动自动创建：`/sys` 体系（cron/schedule/tasks/hook/...）、`/domain`、`/root` 账号（用 `root-init-passwd`）、默认全局钩子（图片缩略图）。详见 快速开始。
 
 ## 延伸阅读
 
-- [域名映射](domain-mapping.md)
-- [故障排查](troubleshooting.md)
-- [快速开始](../00.start-here/quick-start.md)
+- 域名映射
+- 故障排查
+- 快速开始

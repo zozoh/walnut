@@ -8,7 +8,7 @@ source:
   - api/io/WnIoIndexer.java
   - core/WnIoBM.java
   - core/mapping/WnIoMappingFactoryImpl.java
-related: [../10.concepts/01-std-obj.md, 01-io-mapping.md]
+related: [../10.concepts/01-std-obj.md, 10-io-mapping.md]
 ---
 
 # 数据存储与映射
@@ -27,7 +27,7 @@ related: [../10.concepts/01-std-obj.md, 01-io-mapping.md]
 - **对象 — 一条数据的基本单位**（`interface WnObj`，`api/io/WnObj.java`）
   文件、目录、会话、支付单……任何一条数据都是一个对象。一个对象有**两部分信息**：
   **元数据**（id、名称、权限、标签、时间等业务字段）和**内容**（字节流，即文件内容）。
-  对象模型详见 [标准对象](../10.concepts/01-std-obj.md)。
+  对象模型详见 标准对象。
 
 - **Indexer — 对象元数据索引管理器**（`interface WnIoIndexer`，`api/io/WnIoIndexer.java`）
   管对象的**元数据**：树结构、字段、查询、聚合。
@@ -73,7 +73,7 @@ mnt = "sql(demo:t_news)://sha1"
 - `redis` — Redis
 - `sql` — SQL 大字段表
 - `vofs` — 虚拟对象文件系统
-- `vxds` — 对象存储内容签名存储（配合 [xo](xo-storage.md)）
+- `vxds` — 对象存储内容签名存储（配合 xo）
 
 ### mnt 映射语法
 
@@ -88,7 +88,7 @@ mnt = "mongo"
 ```
 
 > 完整方案清单（`mongo` / `sql` / `file` / `filew` / `vofs` / `sha1` / `redis` / `vxds` 等）
-> 见 [对象的存储映射](01-io-mapping.md)。
+> 见 对象的存储映射。
 
 相关命令：`mount` / `umount` 设置与卸载映射，`o` 命令可直接读写映射后的子树——
 对使用者完全透明，不需要关心底层是 Mongo 还是 SQL。
@@ -107,10 +107,7 @@ umount ~/data/news
 ```bash
 20.io-storage/
 |-- README.md               # 本篇：核心模型（IO/Indexer/BM）+ 目录导航
-|-- 01-io-mapping.md        # IO 映射：索引管理器 × 桶管理器、全局映射与自定义映射
-|-- dao-mapping.md          # .dao 数据源与 SQL 表映射：元数据/内容进关系库
-|-- xo-storage.md           # 对象存储集成（xo）：s3/cos 配置与 vofs/vxds 挂载
-|-- expiration.md           # 过期对象机制：expi 自动删除
+|-- 10-io-mapping.md        # IO 映射：索引管理器 × 桶管理器、全局映射与自定义映射
 |-- 20-indexer-mongo.md     # 索引管理器 - MongoDB（全局默认）
 |-- 21-indexer-redis.md     # 索引管理器 - Redis（规划中）
 |-- 22-indexer-sql.md       # 索引管理器 - SQL（模板 ~/.sqlx + 数据源 ~/.dao）
@@ -126,11 +123,11 @@ umount ~/data/news
 
 ## 阅读路径
 
-- **要懂映射机制** [01-io-mapping](01-io-mapping.md) — 什么是索引管理器/桶管理器、`mnt` 如何为子树切换映射
+- **要懂映射机制** 10-io-mapping — 什么是索引管理器/桶管理器、`mnt` 如何为子树切换映射
 - **要挑介质** 各管理器专题（`20`~`41` 开头）— 每篇先讲 `mnt` 语法，再详解配置参数
-- **要进关系库** [dao-mapping](dao-mapping.md) — 数据源、SQL 模板、内容进表
-- **要上对象存储** [xo-storage](xo-storage.md) — 云桶配置，以及 vofs/vxds 挂载
-- **辅助机制** [expiration](expiration.md)（到期自动删）与查询（`o` 命令的 `-match`/`@query`）在所有映射上通用
+- **要进关系库** 索引管理器 - SQL — 数据源、SQL 模板、内容进表
+- **要上对象存储** xo-storage — 云桶配置，以及 vofs/vxds 挂载
+- **辅助机制** 过期自动删除（expi 到期自动删）与查询（`o` 命令的 `-match`/`@query`）在所有映射上通用
 
 ## 一页速查
 

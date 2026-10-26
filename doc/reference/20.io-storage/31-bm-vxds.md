@@ -6,7 +6,7 @@ source:
   - core/mapping/bm/VXDataSignBMFactory.java
   - core/mapping/support/WnVoBMOptions.java
   - core/bm/bmv/VXDataSignBM.java
-related: [01-io-mapping, xo-storage, 41-indexer-vofs]
+related: [10-io-mapping, xo-storage, 41-indexer-vofs]
 ---
 
 # 桶管理器 - vxds
@@ -35,7 +35,7 @@ mnt : "://vxds(s3:sha1:22:/home/demo#attachment@redis)"
   （段数取值 1~9；这是为了让一个目录下的文件数别太多）
 - `{域主目录}` — 配置所在域的主目录（如 `/home/demo`）
 - `{配置名}` — 对象存储连接配置，存放在 `{域主目录}/.io/{type}/{配置名}.json5`，
-  格式与 `xo` 命令的配置完全一致，见 [对象存储集成](xo-storage.md)
+  格式与 `xo` 命令的配置完全一致，见 对象存储集成
 - `@redis` — 【可选】引用计数服务，目前仅支持 `redis`，
   配置文件为 `{域主目录}/.redis/{配置名}.io.refer.json`
 
@@ -56,9 +56,9 @@ redis-database-allow=5,6           # 限允许连接的数据库（可省略）
 ## 注意事项
 
 - 对象键是内容签名，**没有目录层级**——遍历时按段数前缀列举，语义与 vofs 不同
-- 想保留对象存储里的目录结构（元数据也在桶里），见 [对象存储映射](41-indexer-vofs.md)
+- 想保留对象存储里的目录结构（元数据也在桶里），见 对象存储映射
 
 ## 扩展阅读
 
-- [对象存储集成](xo-storage.md) — json5 连接配置、xo 命令
-- [对象存储映射](41-indexer-vofs.md) — vofs：元数据与内容都在桶里
+- 对象存储集成 — json5 连接配置、xo 命令
+- 对象存储映射 — vofs：元数据与内容都在桶里

@@ -5,12 +5,12 @@ keywords: [桶管理器, sql, SqlBM, blob, 内容进表, 小文件, _content]
 source:
   - core/mapping/bm/SqlBMFactory.java
   - core/bm/sql/SqlBM.java
-related: [01-io-mapping, 22-indexer-sql, dao-mapping]
+related: [10-io-mapping, 22-indexer-sql]
 ---
 
 # 桶管理器 - sql
 
-内容存进 SQL 表的 **Blob 字段**。和 [索引管理器 - sql](22-indexer-sql.md) 搭配，
+内容存进 SQL 表的 **Blob 字段**。和 索引管理器 - sql 搭配，
 元数据与内容可以落在**同一张表**——大量小文件（头像、缩略图、配置快照）的场景非常合适：
 一份数据一条 SQL 事务，备份联查都方便。
 
@@ -59,10 +59,10 @@ content BLOB                 -- 字节内容
 
 ## 注意事项
 
-- 适合**小文件**；大文件请走 [sha1](30-bm-sha1.md) 或 [vxds](31-bm-vxds.md)
+- 适合**小文件**；大文件请走 sha1 或 vxds
 - 没有自动建表：DDL 用 `sqlx` 命令执行
 
 ## 扩展阅读
 
-- [索引管理器 - sql](22-indexer-sql.md) — 元数据侧的模板指令（insert/select/...）
-- [.dao 数据源与 SQL 表映射](dao-mapping.md) — 完整工作流与 sqlx 的分工
+- 索引管理器 - sql — 元数据侧的模板指令（insert/select/...）
+- .dao 数据源与 SQL 表映射 — 完整工作流与 sqlx 的分工

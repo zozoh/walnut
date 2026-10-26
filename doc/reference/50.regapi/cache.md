@@ -107,5 +107,5 @@ curl 'http://host/api/report/day?day=20261021'   # 第二次：直接命中
 
 ## 延伸阅读
 
-- [API 对象](api-object.md) — 全部 API 元数据
-- [鉴权与历史](auth-history.md) — 同样的匹配语法在权限断言中的应用
+- API 对象 — 全部 API 元数据
+- 鉴权与历史 — 同样的匹配语法在权限断言中的应用

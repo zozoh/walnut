@@ -10,77 +10,56 @@ related: [std-obj, accounts, session-env, quick-start]
 
 # Domain 与 Home（域与主目录）
 
-**域（domain）= 用户主组**。每个系统账户注册时自动创建同名组，该组的数据空间就是一个域。
-所有数据、应用、配置都挂在域下，系统按域做权限隔离与资源计量。理解域，就理解了 Walnut 的多租户模型。
+Walnut 是一个多租户系统，**域（domain）就是它的租户单元**。
+一个域本质上就是一个用户主组：账户注册时自动创建同名组，这个组的数据空间就是一个域。
+所有数据、应用、配置都挂在某个域下，系统按域做权限隔离与资源计量。
 
-## 全局目录布局
+理解了域，就理解了 Walnut 的数据归属：树上的每一个对象，都生活在某个域里。
+
+# 全局目录布局
+
+既然是树，就得有全局的布局约定。整棵树与 Linux 神似，大致分几个区：
 
 ```bash
 /                    # 逻辑根（root 组所有）
-|-- home/
-|   |-- demo/        # demo 域的主目录（demo 用户即域主）
-|   |-- zozoh/       # 每个用户一个域
-|-- sys/             # 系统区（root 所有）
-|   |-- usr/         # 系统账户
-|   |-- role/        # 系统角色（uid,grp,role）
-|   |-- grp/         # 用户组（旧结构，自动迁移到 role）
-|   |-- hook/        # 全局钩子（create/write/delete/move/meta/mount）
-|   |-- cron/        # 定期任务表
-|   |-- schedule/    # 分钟计划表（含 index/）
-|   |-- tasks/       # 后台任务堆栈
-|   |-- job/         # 旧任务机制（已由 cron 体系取代）
-|   |-- setup/usr/   # 用户创建/登录初始化脚本
-|-- var/             # 运行数据区
-|   |-- session/     # 系统会话
-|   |-- payment/     # 支付单
-|   |-- vcode/       # 验证码（/域/场景/账号）
-|   |-- noti/        # 通知队列
-|-- etc/             # 配置区
-|   |-- hostmap      # 域名转发规则
-|   |-- thumbnail/   # 默认缩略图
-|   |-- sysconf      # 系统配置 JSON
-|-- bin/  /sbin/     # 系统命令目录（PATH 默认含）
+|-- home/            # 各域的主目录，一个用户一个域
+|-- sys/             # 系统区：账户、角色、钩子、定时任务……（root 所有）
+|-- var/             # 运行数据区：会话、支付单、验证码、通知……
+|-- etc/             # 配置区：域名转发、系统配置
+|-- bin/  /sbin/     # 系统命令目录
 |-- tmp/             # 系统临时区
 ```
 
-> 具体清单以 `WnSetup` 启动时创建为准；上表覆盖主要目录。
+这个布局回答了最基本的问题：什么数据该放哪里、哪里是权限禁区。
+具体清单以系统启动时的初始化为准，这里只需要建立整体印象。
 
-## 域内约定目录（二次开发的核心知识）
+# 域内约定目录
 
-域主目录下有一批**约定目录**，系统各模块按约定自动识别：
+每个模块要工作，都需要一点自己的配置。Walnut 不给配置发明注册表，
+而是沿用 Unix 的思路：**按约定，在域主目录下识别自己的目录**。
 
-- **`~/.regapi/api/`** — HTTP 注册接口（一文件一 API） — 详见 [first-api](../00.start-here/first-api.md)
-- **`~/.regapi/tmp/`** — 请求对象临时区 — 详见 [request-object](../50.regapi/request-object.md)
-- **`~/.dao/*.dao.json`** — SQL 数据源定义 — 详见 [dao-mapping](../20.io-storage/dao-mapping.md)
-- **`~/.io/bm/*.json`** — Redis 桶管理器定义 — 详见 [mount-mapping](../20.io-storage/01-io-mapping.md)
-- **`~/.io/{s3,cos}/`** — 对象存储连接配置 — 详见 [xo-storage](../20.io-storage/xo-storage.md)
-- **`~/.sqlx/*.sql`** — SQL 模板（sqlx 命令） — 详见 [sqlx](../40.commands/sqlx.md)
-- **`~/.weixin/{name}/`** — 微信配置（wxconf + access_token） — 详见 [weixin](../70.integrations/weixin.md)
-- **`~/.aliyun/{oss,vod}/`** — 阿里云配置 — 详见 [alipay-aliyun](../70.integrations/alipay-aliyun.md)
-- **`~/.alipay/{name}/`** — 支付宝配置 — 详见 [payment](../70.integrations/payment.md)
-- **`~/.mediax/{host}/`** — 媒体平台账号 — 详见 [复杂命令](../40.commands/02_cmd_complex.md)
-- **`~/.mq/secret`** — MQ 密钥 — 详见 [mq](../60.sched-async/mq.md)
-- **`~/.env`** — 用户环境变量 — 详见 [会话与环境变量](03-session-env.md)
-- **`~/.pvg/*.json`** — 业务权限表（推荐位置） — 详见 [biz-privilege](../30.auth/biz-privilege.md)
-- **`~/.hook/`** — 用户钩子 — 详见 [hooks](../60.sched-async/hooks.md)
-- **`~/.dsync/*.json`** — 数据同步配置 — 详见 [data-sync](../70.integrations/data-sync.md)
-- **`~/buck/ ~/swap/`** — 域级本地桶（默认映射在域下时） — 详见 [数据存储与映射](../20.io-storage/README.md)
-- **`~/bin/`** — 用户命令目录（PATH 含 `~/bin`，可 JS 覆盖系统命令） — 详见 [自定义命令](../90.dev/custom-command.md)
+比如 regapi 认 `~/.regapi/`，sqlx 认 `~/.sqlx/`，对象存储认 `~/.io/`，
+权限表认 `~/.pvg/`……你按约定把文件放好，模块自动找到它。
 
-## HOME 与 ~
+这些约定目录的完整清单，分散在对应模块的文档里。这里只需要建立一个习惯：
+**找模块的配置，先到域主目录下的 `~/.*` 约定目录里看**。
 
-- 登录后 `~` 展开为当前用户主目录（默认 `/home/$USER`），可用元数据 `home` 改写
-- 命令中 `~`、环境变量 `$HOME`、`${domain}` 等占位符在模板渲染时展开
-- 域账户登录系统后，`!HOME` 强制设置目标主目录，避免 `ti` 等命令越权读错目录
+# HOME 与 ~
 
-## 权限边界
+登录后，每个用户都有一个当前主目录：`~` 展开为它，`HOME` 环境变量也是它
+（默认 `/home/$USER`，可用元数据改写）。命令与模板里的 `~`、`$HOME` 都基于它解析——
+它是用户在树上的「落脚点」。
 
-- 非 root 用户默认只能读写自己域（`/home/$USER`）下的对象
-- `/sys`、`/var`、`/etc` 属 root 组；域用户只能通过服务接口（登录、验证码、支付回调）间接产生其中对象
-- 域名绑定即路由：`www.example.com` 的请求按 hostmap 转发到对应域的应用（详见 [域名映射](../80.ops/domain-mapping.md)）
+# 权限边界
+
+非 root 用户默认只能读写自己域下的对象；`/sys`、`/var`、`/etc` 属 root 组，
+域用户只能通过服务接口（登录、验证码、支付回调）间接产生其中的对象。
+
+域名绑定即路由：一个域名按 hostmap 转发到对应域的应用。
+权限体系如何拦截越权访问，是 30.auth 的主题。
 
 ## 深入阅读
 
-- [账户模型](../30.auth/accounts.md)：系统账户与域账户的双轨结构
-- [会话与环境变量](03-session-env.md)：登录之后发生的事
-- [命令模型](04-command-model.md)：在域里执行命令的安全模型
+- 账号认证机制：系统账户与域账户的双轨结构
+- 会话与环境变量：登录之后发生的事
+- 命令模型：在域里执行命令的安全模型

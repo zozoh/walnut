@@ -100,4 +100,4 @@ regapi（`.regapi` 文件）执行命令时，三个流映射到 HTTP：
 - 错误会被包装成 HTTP 错误响应（或 AjaxReturn，配合 `ajaxre`/`httpout`）
 
 因此写 API 时只需关心 stdout 输出什么——这正是 Walnut「命令即 API」的基础
-（参见 [API 对象与元数据](../50.regapi/api-object.md)）。
+（参见 API 对象与元数据）。

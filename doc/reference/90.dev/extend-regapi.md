@@ -30,7 +30,7 @@ o /home/demo/api/news/list -e '
 要点：
 
 - `http-output:json` 响应按 JSON 返回；
-- `cache-test` 把结果缓存 5 分钟（见 [API 缓存](../50.regapi/cache.md)）；
+- `cache-test` 把结果缓存 5 分钟（见 API 缓存）；
 - 模板占位符支持默认值：`${http-qs-limit?20}`（缺失时用 20），还可 `${key?@otherKey}` 取备用键。
 
 ## 例 2：创建接口（POST + JSON body）
@@ -75,7 +75,7 @@ o /home/demo/api/avatar/upload -e '
   http-www-home:/home/demo/website'
 ```
 
-要点：`http-body:form` 时文件字段变 `id:xxx` 临时对象（见 [请求对象](../50.regapi/request-object.md)）；站点会话注入 `http-www-me-id`。
+要点：`http-body:form` 时文件字段变 `id:xxx` 临时对象（见 请求对象）；站点会话注入 `http-www-me-id`。
 
 ## 例 4：第三方聚合（模板渲染响应）
 
@@ -100,6 +100,6 @@ o /home/demo/api/weather -e 'http-api:true; api-param-name:city'
 
 ## 延伸阅读
 
-- [API 对象](../50.regapi/api-object.md) / [请求对象](../50.regapi/request-object.md) / [缓存](../50.regapi/cache.md)
-- [JS 执行环境](jsexec-api.md) — 复杂逻辑换 JS 写
-- [xapi](../70.integrations/xapi.md)
+- API 对象 / 请求对象 / 缓存
+- JS 执行环境 — 复杂逻辑换 JS 写
+- xapi

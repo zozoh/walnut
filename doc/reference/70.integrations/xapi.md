@@ -3,7 +3,7 @@ title: ThirdXApi：第三方 API 框架
 module: 70.integrations
 keywords: [xapi, 专家配置, expert, accessKey, @AK, 动态票据, requests]
 source: [ext/net/xapi/]
-related: [weixin, alipay-aliyun, ../40.commands/03_cmd_filter.md]
+related: [weixin, alipay-aliyun, ../40.commands/03-cmd-filter.md]
 ---
 
 # ThirdXApi：第三方 API 框架
@@ -103,5 +103,5 @@ xapi wxjssdk wxgh gh_xxxx jssdk -url https://...            # JSSDK 签名专用
 
 ## 延伸阅读
 
-- [微信](weixin.md) — wxgh/wxmp 专家的实际应用
-- [网络命令](../40.commands/03_cmd_filter.md) — httpc（不想配专家时的轻量替代）
+- 微信 — wxgh/wxmp 专家的实际应用
+- 网络命令 — httpc（不想配专家时的轻量替代）

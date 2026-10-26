@@ -71,7 +71,7 @@ WnSession se = run.creatSession("zozoh", true);
 - **存取文件/元数据**：直接 `WnIo` 编程
 - **复用 Walnut 命令生态（sheet/ooml/dsync...）**：`WnRun.exec`
 - **复用定时任务调度**：`Wn.Service.crons/tasks`
-- **全新业务能力**：[自定义命令](custom-command.md) 或 xapi
+- **全新业务能力**：自定义命令 或 xapi
 
 ## 注意事项
 
@@ -81,6 +81,6 @@ WnSession se = run.creatSession("zozoh", true);
 
 ## 延伸阅读
 
-- [源码包结构](source-layout.md)
-- [自定义命令](custom-command.md)
-- [I/O 模型](../20.io-storage/README.md)
+- 源码包结构
+- 自定义命令
+- I/O 模型

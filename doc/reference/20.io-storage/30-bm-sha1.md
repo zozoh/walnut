@@ -6,7 +6,7 @@ source:
   - core/mapping/bm/LocalSha1BMFactory.java
   - core/bm/bml/LocalSha1BM.java
   - conf/ioc/io.js
-related: [01-io-mapping, 20-indexer-mongo, 33-bm-redis]
+related: [10-io-mapping, 20-indexer-mongo, 33-bm-redis]
 ---
 
 # 桶管理器 - sha1
@@ -63,5 +63,5 @@ global-bm-autocreate=true            # 目录不存在时自动创建
 
 ## 扩展阅读
 
-- [IO 映射](01-io-mapping.md) — 映射机制总览
-- [索引管理器 - MongoDB](20-indexer-mongo.md) — 最经典的搭配：mongo 索引 + sha1 桶
+- IO 映射 — 映射机制总览
+- 索引管理器 - MongoDB — 最经典的搭配：mongo 索引 + sha1 桶

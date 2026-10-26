@@ -3,7 +3,7 @@ title: 站点鉴权、权限断言与历史记录
 module: 50.regapi
 keywords: [http-www-home, http-www-auth, pvg-setup, pvg-assert, preload, history, histest]
 source: [ext/sys/httpapi/HttpApiModule.java, ext/data/pvg/]
-related: [api-object, cache, ../30.auth/session.md, ../30.auth/biz-privilege.md]
+related: [api-object, cache, ../30.auth/20-auth-session.md, ../30.auth/0-auth-pvg.md]
 ---
 
 # 站点鉴权、权限断言与历史记录
@@ -34,11 +34,11 @@ o /home/demo/api/order/list -e '
 - **`http-www-me`**：用户完整元数据 JSON
 - **`http-www-me-phone` / `http-www-me-email` / `http-www-me-mainGroup`**：手机 / 邮箱 / 主域
 
-> 站点登录本身由 webx 命令完成（见 [过滤命令](../40.commands/03_cmd_filter.md)）；这里只负责「拿着票据认出用户」。
+> 站点登录本身由 webx 命令完成（见 过滤命令）；这里只负责「拿着票据认出用户」。
 
 ## 权限断言（pvg-setup + pvg-assert）
 
-在站点会话的基础上做动作级权限检查，底层是 [业务权限](../30.auth/biz-privilege.md) 的 `BizPvgService`：
+在站点会话的基础上做动作级权限检查，底层是 业务权限 的 `BizPvgService`：
 
 ```bash
 o /home/demo/api/order/del -e '
@@ -49,7 +49,7 @@ o /home/demo/api/order/del -e '
 ```
 
 - `pvg-assert`：字符串数组，每项是一组 `动作|动作`（`|` 表“或”），多项之间是“与”；当前用户的站点角色任意命中一组才放行，否则 `e.api.forbid`；
-- `pvg-setup`：权限表对象路径；不设置时回落到站点 auth 选项里的 `pvg_setup`（站点目录对象上的 SnakeCase 键）。权限表格式见 [业务权限](../30.auth/biz-privilege.md)。
+- `pvg-setup`：权限表对象路径；不设置时回落到站点 auth 选项里的 `pvg_setup`（站点目录对象上的 SnakeCase 键）。权限表格式见 业务权限。
 
 ## preload：执行前预加载
 
@@ -118,6 +118,6 @@ o /home/demo/api/order/del -e '
 
 ## 延伸阅读
 
-- [API 对象](api-object.md) — 元数据全集
-- [会话](../30.auth/session.md) / [业务权限](../30.auth/biz-privilege.md)
-- [缓存](cache.md) — 同样的匹配语法
+- API 对象 — 元数据全集
+- 会话 / 对象的权限体系
+- 缓存 — 同样的匹配语法

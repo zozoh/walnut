@@ -59,7 +59,7 @@ echo '{"uid":"${params.uid}"}'        # params 是 Map
 echo "args0=${args[0]}"               # args 是数组（JS 里也支持 args[0]）
 ```
 
-这两个键（`args`、`params`）在执行前被注入请求元数据（见 [请求对象](request-object.md)）。
+这两个键（`args`、`params`）在执行前被注入请求元数据（见 请求对象）。
 
 ## 404 规则
 
@@ -81,6 +81,6 @@ echo "args0=${args[0]}"               # args 是数组（JS 里也支持 args[0]
 
 ## 延伸阅读
 
-- [API 对象](api-object.md)
-- [请求对象](request-object.md) — args / params 注入位置
-- [一切皆对象](../10.concepts/01-std-obj.md)
+- API 对象
+- 请求对象 — args / params 注入位置
+- 一切皆对象

@@ -84,5 +84,5 @@ www.shop-b.com/api/goods   →  {domain:shop-b}  →  /api/shop-b/goods
 
 ## 延伸阅读
 
-- [部署](deploy.md)
-- [API 对象](../50.regapi/api-object.md) — 路由之后的请求处理
+- 部署
+- API 对象 — 路由之后的请求处理

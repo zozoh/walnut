@@ -3,7 +3,7 @@ title: JS 执行环境（JsExec）
 module: 90.dev
 keywords: [JS, jsc, JsExec, nashorn, $wn, sys.exec, jsbin, _g.js]
 source: [jsexec/, impl/box/cmd/cmd_jsc.java, impl/box/cmd/jsc/]
-related: [custom-command, extend-regapi, ../40.commands/01_cmd_simple.md]
+related: [custom-command, extend-regapi, ../40.commands/01-cmd-simple.md]
 ---
 
 # JS 执行环境（JsExec）
@@ -77,11 +77,11 @@ echo 'sys.exec2("ls")' | jsc        # 从管道执行
 ## 注意事项
 
 - nashorn 已随 JDK 演进有变化，高版本 JDK 需关注 `jsc-dft-engine` 的可用性；
-- 长循环/大内存操作别放在 API 的 JS 里——投递给 [任务栈](../60.sched-async/cron-pipeline.md)；
+- 长循环/大内存操作别放在 API 的 JS 里——投递给 任务栈；
 - JS 错误栈会进 `BOX` 日志，配合 `_TRACE_ID` 串联。
 
 ## 延伸阅读
 
-- [jsc 命令](../40.commands/01_cmd_simple.md)
-- [实战：扩展 API](extend-regapi.md)
-- [钩子](../60.sched-async/hooks.md) — .js 钩子的执行环境
+- jsc 命令
+- 实战：扩展 API
+- 钩子 — .js 钩子的执行环境

@@ -64,10 +64,10 @@ mq send '{body:"o /data/orders -match \"{st:0}\" -l | sheet -tpo xls -out ~/repo
 
 - 消息体里的命令以**入队用户的身份**执行，注意该用户权限；
 - `secret` 文件丢失会导致发消息失败，可重新 `mq secret` 生成；
-- mq 只管投递不保证顺序；需要顺序的场景用 [任务栈](cron-pipeline.md) 或锁。
+- mq 只管投递不保证顺序；需要顺序的场景用 任务栈 或锁。
 
 ## 延伸阅读
 
-- [定时任务流水线](cron-pipeline.md)
-- [钩子](hooks.md)
-- [复杂命令](../40.commands/02_cmd_complex.md) — `mq` 命令索引
+- 定时任务流水线
+- 钩子
+- 复杂命令 — `mq` 命令索引

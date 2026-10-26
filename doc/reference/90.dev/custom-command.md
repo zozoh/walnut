@@ -84,7 +84,7 @@ throw Er.create("e.cmd.hello.badInput", args);
 
 ## JS 快速覆盖
 
-不想写 Java 时，同名 JS 文件优先于 JVM 命令执行（`~/bin` 或在 PATH 里的 `.js` 文件），适合原型验证，细节见 [jsexec-api](jsexec-api.md)。
+不想写 Java 时，同名 JS 文件优先于 JVM 命令执行（`~/bin` 或在 PATH 里的 `.js` 文件），适合原型验证，细节见 jsexec-api。
 
 ## 完整最小例子
 
@@ -117,5 +117,5 @@ com.mycompany.mycmds
 
 ## 延伸阅读
 
-- [源码包结构](source-layout.md)
-- [jsexec-api](jsexec-api.md)
+- 源码包结构
+- jsexec-api

@@ -8,7 +8,7 @@ source:
   - core/mapping/bm/LocalFileBMFactory.java
   - core/indexer/localfile/
   - core/bm/localfile/
-related: [01-io-mapping, 20-indexer-mongo, 30-bm-sha1]
+related: [10-io-mapping, 20-indexer-mongo, 30-bm-sha1]
 ---
 
 # 文件系统映射
@@ -65,5 +65,5 @@ mount ~/ddl 'filew:///mnt/project/bunya/init/ddl/'
 
 ## 扩展阅读
 
-- [IO 映射](01-io-mapping.md) — 映射机制总览
-- [对象存储映射](41-indexer-vofs.md) — 同样的合并简写思路，介质换成对象存储
+- IO 映射 — 映射机制总览
+- 对象存储映射 — 同样的合并简写思路，介质换成对象存储

@@ -3,7 +3,7 @@ title: 数据同步与迁移
 module: 70.integrations
 keywords: [dsync, truck, 同步, 归档, tree 索引, 迁移, 备份]
 source: [ext/sys/dsync/, ext/sys/truck/]
-related: [../20.io-storage/01-io-mapping.md, ../80.ops/sys-admin.md]
+related: [../20.io-storage/10-io-mapping.md, ../80.ops/sys-admin.md]
 ---
 
 # 数据同步与迁移
@@ -71,7 +71,7 @@ truck @to ...      # 设置目标
 truck @buf ...     # 迁移缓冲/选项
 ```
 
-前提：目标目录已用 `mount` 命令映射好（见 [挂载映射](../20.io-storage/01-io-mapping.md)）。手册：`man truck` / `man truck from` / `man truck to` / `man truck buf`。
+前提：目标目录已用 `mount` 命令映射好（见 挂载映射）。手册：`man truck` / `man truck from` / `man truck to` / `man truck buf`。
 
 ## bulk 备份体系
 
@@ -80,7 +80,7 @@ truck @buf ...     # 迁移缓冲/选项
 ## 典型场景
 
 - **域搬家**：`dsync @tree @archive` 打包 → 新环境 `@unpack @restore`；
-- **上云冷备**：cron 定时 `@archive`，`aliyunoss upload` 传包（见 [支付宝与阿里云](alipay-aliyun.md)）；
+- **上云冷备**：cron 定时 `@archive`，`aliyunoss upload` 传包（见 支付宝与阿里云）；
 - **存储后端切换**：`truck @from @to` 从旧桶迁到新桶。
 
 ## 注意事项
@@ -91,5 +91,5 @@ truck @buf ...     # 迁移缓冲/选项
 
 ## 延伸阅读
 
-- [挂载映射](../20.io-storage/01-io-mapping.md)
-- [I/O 模型](../20.io-storage/README.md) — SHA1/内容寻址
+- 挂载映射
+- I/O 模型 — SHA1/内容寻址

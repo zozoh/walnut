@@ -49,8 +49,8 @@ Walnut 把**每个 HTTP 请求也变成一个临时对象**（即 http-api 对�
 - **`http-header-<NAME>`**：请求头（**大写**，如 `http-header-CONTENT-TYPE`）
 - **`http-cookie-<NAME>`**：Cookie（**大写**）
 - **`http-usr` / `http-grp`**：当前登录用户与域
-- **`http-se-*`**：系统会话（见 [会话](../30.auth/session.md)）
-- **`http-www-*`**：站点会话（见 [鉴权与历史](auth-history.md)）
+- **`http-se-*`**：系统会话（见 会话）
+- **`http-www-*`**：站点会话（见 鉴权与历史）
 - **`http-remote-addr/host/port`**：客户端网络信息
 
 ## 在命令/JS 中读取
@@ -89,16 +89,16 @@ cp id:${http-qs-file} ~/uploads/${http-qs-file-nm}
 echo '{"ok":true,"id":"${http-qs-file}"}'
 ```
 
-**下载**：API 命令向 stdout 输出内容，`http-output:text` 原样返回；或输出 `302:${id}` 触发重定向（见 [缓存](cache.md) 的 `cache-redirect`）。
+**下载**：API 命令向 stdout 输出内容，`http-output:text` 原样返回；或输出 `302:${id}` 触发重定向（见 缓存 的 `cache-redirect`）。
 
 ## 注意事项
 
 - 请求头是**大写键**（`http-header-USER-AGENT`），查询参数保留原名（`http-qs-name`）；
 - 请求对象是临时的，请求结束即过期（时长由 `http-tmp-duraion`/`api-tmp-duration` 控制）；
-- 拿到 `http-usr` 不等于已通过权限断言——还要配 `pvg-assert`（见 [鉴权与历史](auth-history.md)）。
+- 拿到 `http-usr` 不等于已通过权限断言——还要配 `pvg-assert`（见 鉴权与历史）。
 
 ## 延伸阅读
 
-- [API 对象](api-object.md) — API 侧元数据全集
-- [会话](../30.auth/session.md) — http-se-* 注入流程
-- [一切皆对象](../10.concepts/01-std-obj.md)
+- API 对象 — API 侧元数据全集
+- 会话 — http-se-* 注入流程
+- 一切皆对象

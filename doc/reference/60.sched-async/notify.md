@@ -27,9 +27,9 @@ o ~/logs -match '{lv:"ERROR", lm:{$gt:昨夜时间戳}}' -l \
 
 可用的发送通道：
 
-- `sms` — 短信（见 [复杂命令](../40.commands/02_cmd_complex.md)）；
+- `sms` — 短信（见 复杂命令）；
 - `mailx` — 邮件（含模板邮件）；
-- `weixin tmpl -send` — 微信模板消息（见 [微信](../70.integrations/weixin.md)）；
+- `weixin tmpl -send` — 微信模板消息（见 微信）；
 - 任意自建命令 — 比如写 WebSocket 给前端推送（`ext/sys/websocket/`）。
 
 ## 调度侧的唤醒通知
@@ -62,6 +62,6 @@ echo '~/bin/alert.sh "订单任务失败" "$(cat ~/logs/order.err)"' ...
 
 ## 延伸阅读
 
-- [定时任务](cron-pipeline.md)
-- [消息队列](mq.md) — 通知量大时先投 mq 再批量发
-- [集成：短信与邮件](../70.integrations/sms-mail.md)
+- 定时任务
+- 消息队列 — 通知量大时先投 mq 再批量发
+- 集成：短信与邮件

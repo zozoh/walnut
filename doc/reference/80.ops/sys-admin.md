@@ -3,12 +3,12 @@ title: 系统管理与运维命令
 module: 80.ops
 keywords: [mgadmin, redis, refer, aclog, sysconf, domain list, os, 运维]
 source: [ext/sys/, ext/data/domain/, util/Wn.java]
-related: [../40.commands/03_cmd_filter.md, deploy, security-notes]
+related: [../40.commands/03-cmd-filter.md, deploy, security-notes]
 ---
 
 # 系统管理与运维命令
 
-面向 root/运维的日常管理操作。命令索引详见 [系统管理命令](../40.commands/03_cmd_filter.md)，本文是运维视角的用法汇编。
+面向 root/运维的日常管理操作。命令索引详见 系统管理命令，本文是运维视角的用法汇编。
 
 ## 域名管理（/domain）
 
@@ -20,7 +20,7 @@ o /domain/abc.com -e 'domain:abc; site:main; tp:B; expi_at:1790000000000'
 o /domain/abc.com -del          # 下线
 ```
 
-见 [域名映射](domain-mapping.md)。
+见 域名映射。
 
 ## Mongo 体检（mgadmin，root 专用）
 
@@ -100,6 +100,6 @@ disk                                 # 存储水位
 
 ## 延伸阅读
 
-- [系统管理命令](../40.commands/03_cmd_filter.md) — lock/hookx/trash/refer 细节
-- [部署](deploy.md)
-- [故障排查](troubleshooting.md)
+- 系统管理命令 — lock/hookx/trash/refer 细节
+- 部署
+- 故障排查

@@ -8,12 +8,12 @@ source:
   - core/mapping/indexer/
   - core/mapping/bm/
   - conf/ioc/io.js
-related: [README, dao-mapping, xo-storage, ../10.concepts/01-std-obj.md]
+related: [README, xo-storage, ../10.concepts/01-std-obj.md]
 ---
 
 # 什么是 IO 映射
 
-在 [一切皆对象](../10.concepts/01-std-obj.md) 里我们知道，一个对象 = 元数据 + 内容。
+在 一切皆对象 里我们知道，一个对象 = 元数据 + 内容。
 所谓 **IO 映射**，就是说明一个对象的这两部分信息**分别由谁来管理**。
 
 管理元数据的，我们称为**索引管理器**（Indexer）：树结构、字段、查询、聚合，都归它管。
@@ -113,7 +113,7 @@ sql(:attachment:cmg)::vxds(s3:sha1:22:/home/demo#attachment)
 ```
 
 对象存储的连接配置（`~/.io/{s3,cos}/*.json5`）由 `xo` 命令体系管理，
-详见 [对象存储集成](xo-storage.md)。
+详见 对象存储集成。
 
 # 两段式 ID
 
@@ -130,14 +130,14 @@ sql(:attachment:cmg)::vxds(s3:sha1:22:/home/demo#attachment)
 
 你还想了解这些存储方式的细节，可以进一步阅读：
 
-- [索引管理器 - MongoDB](20-indexer-mongo.md)
-- [索引管理器 - Redis](21-indexer-redis.md)
-- [索引管理器 - SQL](22-indexer-sql.md)
-- [桶管理器 - sha1](30-bm-sha1.md)
-- [桶管理器 - vxds](31-bm-vxds.md)
-- [桶管理器 - sql](32-bm-sql.md)
-- [桶管理器 - redis](33-bm-redis.md)
-- [桶管理器 - mem](34-bm-mem.md)
-- [桶管理器 - multi](35-bm-multi.md)
-- [文件系统映射](40-indexer-file.md)
-- [对象存储映射](41-indexer-vofs.md)
+- 索引管理器 - MongoDB
+- 索引管理器 - Redis
+- 索引管理器 - SQL
+- 桶管理器 - sha1
+- 桶管理器 - vxds
+- 桶管理器 - sql
+- 桶管理器 - redis
+- 桶管理器 - mem
+- 桶管理器 - multi
+- 文件系统映射
+- 对象存储映射

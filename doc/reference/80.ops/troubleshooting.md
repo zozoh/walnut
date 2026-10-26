@@ -97,5 +97,5 @@ xapi req <api> <account> <req> -vars ...    # 第三方请求 dry-run
 
 ## 延伸阅读
 
-- [部署](deploy.md) — 日志配置与运行参数
-- [系统管理](sys-admin.md)
+- 部署 — 日志配置与运行参数
+- 系统管理

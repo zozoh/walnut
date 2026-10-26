@@ -16,7 +16,7 @@ related: [../10.concepts/04-command-model.md, xapi, sqlx, custom-command]
 它适合「一个领域、多种操作」的场景：主命令只是入口壳，按第一个参数把请求分发给子命令处理器；
 领域里的关键逻辑还会封装成**服务类**，供其他模块复用——命令本身只是这些服务的接线员。
 
-系统现有 33 个复杂命令（全部是扩展命令），典型代表：`xapi`、`cron`、`task`、`pay`、`ti`。
+系统现有 30 余个复杂命令（全部是扩展命令），典型代表：`xapi`、`cron`、`task`、`pay`、`ti`。
 
 ## 代码形态
 
@@ -158,50 +158,6 @@ man xapi req                  # 查看子命令手册
 
 ## 现有的复杂命令
 
-共 33 个（均为扩展命令），命令名链接指向其源码包内的中文手册：
-
-### 数据服务
-
-- **[app](../../../src/com/site0/walnut/ext/data/app/man/zh_cn/cmd_app.md)**：为界面（obrowser）提供应用信息
-- **[bizhook](../../../src/com/site0/walnut/ext/data/bizhook/man/zh_cn/cmd_bizhook.md)**：按配置文件对对象执行业务钩子命令
-- **[esi](../../../src/com/site0/walnut/ext/data/esi/man/zh_cn/cmd_esi.md)**：Elasticsearch 交互
-- **[lbs](../../../src/com/site0/walnut/ext/geo/lbs/man/zh_cn/cmd_lbs.md)**：位置服务（LBS）操作
-- **[pvg](../../../src/com/site0/walnut/ext/data/pvg/man/zh_cn/cmd_pvg.md)**：业务权限（角色×动作）配置与检查
-- **[seq](../../../src/com/site0/walnut/ext/util/seq/man/zh_cn/cmd_seq.md)**：序列生成器（批量编号）
-- **[vcode](../../../src/com/site0/walnut/ext/data/vcode/man/zh_cn/cmd_vcode.md)**：验证码：生成、发送（短信/邮箱）、校验
-
-### 网络服务
-
-- **[alipay](../../../src/com/site0/walnut/ext/net/alipay/man/zh_cn/cmd_alipay.md)**：老支付宝接口（支付表单/回调验签）
-- **[ftp](../../../src/com/site0/walnut/ext/net/ftp/man/zh_cn/cmd_ftp.md)**：FTP 客户端
-- **[httpapi](../../../src/com/site0/walnut/ext/sys/httpapi/man/zh_cn/cmd_httpapi.md)**：regapi 数据操作
-- **[icp](../../../src/com/site0/walnut/ext/net/icp/man/zh_cn/cmd_icp.md)**：ICP 备案查询
-- **[ip2region](../../../src/com/site0/walnut/ext/net/ip2region/man/zh_cn/cmd_ip2region.md)**：IP 归属地查询
-- **[mediax](../../../src/com/site0/walnut/ext/media/mediax/man/zh_cn/cmd_mediax.md)**：媒体抓取/下载/投递
-- **[mqttc](../../../src/com/site0/walnut/ext/net/mqttc/man/zh_cn/cmd_mqttc.md)**：MQTT 客户端（pub/sub）
-- **[pay](../../../src/com/site0/walnut/ext/net/payment/man/zh_cn/cmd_pay.md)**：通用支付单（微信/支付宝/PayPal/内部）
-- **[sms](../../../src/com/site0/walnut/ext/net/sms/man/zh_cn/cmd_sms.md)**：短信发送与查询
-- **[websocket](../../../src/com/site0/walnut/ext/sys/websocket/man/zh_cn/cmd_websocket.md)**：WebSocket 操作（事件推送）
-- **[xapi](../../../src/com/site0/walnut/ext/net/xapi/man/zh_cn/cmd_xapi.md)**：第三方平台 API 调用框架（专家配置）
-
-### 媒体处理
-
-- **[pdf](../../../src/com/site0/walnut/ext/media/pdf/man/zh_cn/cmd_pdf.md)**：PDF 处理（hdl 子命令）
-- **[subtitle](../../../src/com/site0/walnut/ext/media/subtitle/man/zh_cn/cmd_subtitle.md)**：字幕转换（srt）
-- **[tpassport](../../../src/com/site0/walnut/ext/media/tpassport/man/zh_cn/cmd_tpassport.md)**：证件照排版绘制
-- **[ti](../../../src/com/site0/walnut/ext/data/titanium/man/zh_cn/cmd_ti.md)**：Titanium 框架（界面层）服务器操作
-
-### 系统管理
-
-- **[aclog](../../../src/com/site0/walnut/ext/sys/aclog/man/zh_cn/cmd_aclog.md)**：访问日志读写/分析
-- **[cron](../../../src/com/site0/walnut/ext/sys/cron/man/zh_cn/cmd_cron.md)**：定期任务（cron_task）管理
-- **[crontab](../../../src/com/site0/walnut/ext/sys/crontab/man/zh_cn/cmd_crontab.md)**：WnCrontabService 控制
-- **[crc](../../../src/com/site0/walnut/ext/util/crc/man/zh_cn/cmd_crc.md)**：CRC 校验
-- **[mgadmin](../../../src/com/site0/walnut/ext/sys/mgadmin/man/zh_cn/cmd_mgadmin.md)**：MongoDB 直连管理（root）
-- **[mq](../../../src/com/site0/walnut/ext/sys/mq/man/zh_cn/cmd_mq.md)**：系统消息队列（发送/密钥）
-- **[path](../../../src/com/site0/walnut/ext/sys/path/man/zh_cn/cmd_path.md)**：路径工具（输出路径的绝对形式）
-- **[schedule](../../../src/com/site0/walnut/ext/sys/schedule/man/zh_cn/cmd_schedule.md)**：分钟计划表（schedule_task）管理
-- **[task](../../../src/com/site0/walnut/ext/sys/task/man/zh_cn/cmd_task.md)**：后台任务栈（task）管理
-- **[trash](../../../src/com/site0/walnut/ext/sys/trash/man/zh_cn/cmd_trash.md)**：回收站（mv/recover）
-- **[wup](../../../src/com/site0/walnut/ext/sys/wup/man/zh_cn/cmd_wup.md)**：通用更新服务
+全部命令（含类型与分类）的统一清单见 60-cmd-table.md，这里不再单独罗列。
+复杂命令全部是扩展命令，共有 30 余个，典型代表：`xapi`、`cron`、`task`、`pay`、`ti`。
 
