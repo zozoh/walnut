@@ -1,6 +1,6 @@
 ---
 title: 域名映射与路由
-module: 80.ops
+module: 100.ops
 keywords: [/domain, hostmap, main-host, WalnutFilter, 域名路由, wn_www_grp]
 source: [jetty/WalnutFilter.java, jetty/DmnMatcher.java, conf/hostmap]
 related: [deploy, ../50.regapi/10-api-object.md]

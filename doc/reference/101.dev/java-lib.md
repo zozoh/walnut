@@ -1,6 +1,6 @@
 ---
 title: Java 库模式嵌入
-module: 90.dev
+module: 101.dev
 keywords: [嵌入, Java API, WnIo, WnRun, IoC, 二次开发]
 source: [util/Wn.java, util/WnRun.java, api/]
 related: [source-layout, custom-command, jsexec-api]

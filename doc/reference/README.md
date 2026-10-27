@@ -11,7 +11,7 @@
    不相关就换下一篇，不要通读全文碰运气。
 3. 下钻实现：需要核对行为时查 `SOURCEMAP.md` 找到源码入口文件，直接读源码。
 4. 找不到：回到 `INDEX.md` 按「场景 → 命令 → 模块」重新检索，或读源码包结构导览
-   （`90.dev/source-layout.md`）。
+   （`101.dev/source-layout.md`）。
 
 ## 目录结构（两层）
 
@@ -77,22 +77,24 @@ doc/reference/
 |   |-- 30-schedule-slot.md       #   /sys/schedule 分钟计划表：槽对象、预加载与推送线程
 |   |-- 40-task-queue.md          #   /sys/tasks 后台任务栈：消费线程、弹出即删除
 |
-|-- 70.functionate/               # 功能场景：支付、ooml 解析、购物车等业务功能
-|   |-- payment.md                #   通用支付模型：支付单、pay 命令、多平台回调
-|   |-- weixin.md                 #   微信：公号/小程序配置、模板消息、oauth、JS-SDK
-|   |-- alipay-aliyun.md          #   支付宝与阿里云（OSS/VOD）
-|   |-- sms-mail.md               #   短信（多供应商）与邮件（mailx）
-|   |-- xapi.md                   #   XAPI 通用第三方 API：配置驱动接入任意 HTTP API
-|   |-- data-sync.md              #   数据同步与备份：dsync/bulk/truck/导入导出
+|-- 70.functionate/               # 功能场景：开箱即用的业务功能命令
+|   |-- README.md                 #   本篇：功能扩展一览
+|   |-- 10-email-mailx.md         #   Email 收发（mailx）
+|   |-- 20-sms.md                 #   SMS 短信（占位，待重写）
+|   |-- 30-office-ooml.md         #   Office 文档解析与模板渲染（ooml）
+|   |-- 40-sheet-csv.md           #   表格与 CSV 输出（sheet）
+|   |-- 50-image-imagic.md        #   图片处理（imagic）
+|   |-- 60-video-ffmpeg.md        #   视频信息与封图（videoi / videoc）
+|   |-- 70-qrcode.md              #   二维码（qrcode）
 |
-|-- 80.ops/                       # 部署与运维
+|-- 100.ops/                       # 部署与运维
 |   |-- deploy.md                 #   部署形态：内嵌 Jetty、web.xml/chain、ioc 配置详解
 |   |-- domain-mapping.md         #   域名映射：/domain 记录、hostmap 转发规则
 |   |-- sys-admin.md              #   系统管理命令：mgadmin/redis/refer/aclog/sysconf
 |   |-- security-notes.md         #   安全实践：secret 存放、权限边界、常见坑
 |   |-- troubleshooting.md        #   排查手册：日志位置、常见错误码、诊断命令
 |
-|-- 90.dev/                       # 二次开发
+|-- 101.dev/                       # 二次开发
 |   |-- source-layout.md          #   src 包结构导览：每个包一句话 + 关键类
 |   |-- java-lib.md               #   作为 Java 库嵌入：核心 IoC beans、WnIo 直接编程
 |   |-- custom-command.md         #   编写 cmd_* 命令：JvmExecutor、参数、注册、man 手册
@@ -124,7 +126,7 @@ related: [accounts, biz-privilege]          # 本文档内相关文件（不带�
    `doc/_old/markdown`、`doc/_old/draft` 不作迁移。
 
 5. **与代码同步**：改动 `src/` 中已 documented 的行为时，同步更新对应文档；
-   新增模块必须先有对应 `90.dev/source-layout.md` 条目与 INDEX.md 行。
+   新增模块必须先有对应 `101.dev/source-layout.md` 条目与 INDEX.md 行。
 
 ## INDEX.md / SOURCEMAP.md 维护
 

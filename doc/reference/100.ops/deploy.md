@@ -1,6 +1,6 @@
 ---
 title: 部署与运行配置
-module: 80.ops
+module: 100.ops
 keywords: [部署, web.xml, WnMainModule, conf/ioc, web.properties, 集群, Redis 锁]
 source: [web/, jetty/, conf/]
 related: [domain-mapping, sys-admin, security-notes, troubleshooting, ../00.start-here/quick-start.md]

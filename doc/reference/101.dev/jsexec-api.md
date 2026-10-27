@@ -1,6 +1,6 @@
 ---
 title: JS 执行环境（JsExec）
-module: 90.dev
+module: 101.dev
 keywords: [JS, jsc, JsExec, nashorn, $wn, sys.exec, jsbin, _g.js]
 source: [jsexec/, impl/box/cmd/cmd_jsc.java, impl/box/cmd/jsc/]
 related: [custom-command, extend-regapi, ../40.commands/01-cmd-simple.md]

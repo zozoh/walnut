@@ -1,6 +1,6 @@
 ---
 title: 安全注意事项
-module: 80.ops
+module: 100.ops
 keywords: [安全, secret, 权限, root, api-access-token, https, 注入]
 source: [web/, ext/sys/httpapi/, api/auth/]
 related: [deploy, sys-admin, ../30.auth/0-auth-pvg.md]

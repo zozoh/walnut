@@ -8,17 +8,17 @@
 - **WnVersion.java** — 说明：版本声明 — 文档：—
 - **web/WnLauncher.java** — 说明：main 入口，内嵌 Jetty 启动 — 文档：[quick-start](00.start-here/quick-start.md)
 - **web/WnSetup.java** — 说明：启动 Setup 链 + 后台线程 — 文档：[quick-start](00.start-here/quick-start.md)
-- **web/WnConfig.java** — 说明：web.properties 封装 — 文档：[quick-start](00.start-here/quick-start.md)、80.ops/deploy.md ✅
-- **web/WnInitMount.java** — 说明：init-mnt 初始化映射 — 文档：80.ops/deploy.md ✅
-- **web/WnMainModule.java** — 说明：Nutz MVC 主模块 — 文档：80.ops/deploy.md ✅
-- **jetty/WalnutFilter.java** — 说明：域名转发过滤器 — 文档：80.ops/domain-mapping.md ✅
+- **web/WnConfig.java** — 说明：web.properties 封装 — 文档：[quick-start](00.start-here/quick-start.md)、100.ops/deploy.md ✅
+- **web/WnInitMount.java** — 说明：init-mnt 初始化映射 — 文档：100.ops/deploy.md ✅
+- **web/WnMainModule.java** — 说明：Nutz MVC 主模块 — 文档：100.ops/deploy.md ✅
+- **jetty/WalnutFilter.java** — 说明：域名转发过滤器 — 文档：100.ops/domain-mapping.md ✅
 
 ## Web 层（web/）
 
 - **web/module/AppModule.java** — 说明：/a 应用打开/登录/run — 文档：50.regapi/* ✅
 - **web/module/UsrModule.java** — 说明：/u 登录/登出/会话切换 — 文档：30.auth/20-auth-session.md ✅
 - **web/module/ObjModule.java** — 说明：/o 缩略图/下载 — 文档：[cmd_o](../../src/com/site0/walnut/ext/data/o/man/zh_cn/cmd_o.md) ✅
-- **web/module/FuseModule.java** — 说明：域名转发路由 — 文档：80.ops/domain-mapping.md ✅
+- **web/module/FuseModule.java** — 说明：域名转发路由 — 文档：100.ops/domain-mapping.md ✅
 - **web/module/GuestModule.java** — 说明：/g 访客接口 — 文档：✅
 - **web/filter/** — 说明：WnAsUsr/WnCheckSession 等 — 文档：30.auth/* ✅
 - **web/bgt/** — 说明：后台三消费线程 — 文档：60.sched-async/README.md ✅
@@ -67,16 +67,16 @@
 ## 其他顶层模块
 
 - **util/WnRun.java** — 说明：命令运行器 — 文档：[04-command-model](10.concepts/04-command-model.md) ✅
-- **util/Wn.java、WnContext.java** — 说明：全局工具与线程上下文 — 文档：90.dev/java-lib.md ✅
+- **util/Wn.java、WnContext.java** — 说明：全局工具与线程上下文 — 文档：101.dev/java-lib.md ✅
 - **util/{Wobj,WnStr,Wtime,Wpath,Ws}.java** — 说明：高频工具 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
 - **cron/WnCron.java** — 说明：WnCron 表达式引擎 — 文档：60.sched-async/20-cron-syntax.md ✅
-- **jsexec/JsExec.java** — 说明：JS 引擎封装 — 文档：[jsexec-api](90.dev/jsexec-api.md) ✅
+- **jsexec/JsExec.java** — 说明：JS 引擎封装 — 文档：[jsexec-api](101.dev/jsexec-api.md) ✅
 - **val/** — 说明：值生成器（ID/序列/日期/IP） — 文档：[03-cmd-filter](40.commands/03-cmd-filter.md) ✅
 - **lookup/** — 说明：快捷查询 — 文档：[cmd_o](../../src/com/site0/walnut/ext/data/o/man/zh_cn/cmd_o.md) ✅
 - **cache/** — 说明：缓存抽象 — 文档：20.io-storage/README.md ✅
-- **cheap/** — 说明：Cheap 文档解析器（dom/css/markdown/xml） — 文档：90.dev/jsexec-api.md ✅
-- **ooml/** — 说明：OOML Office 模板 — 文档：[03-cmd-filter](40.commands/03-cmd-filter.md) ✅
-- **security/** — 说明：安全权鉴（建设中） — 文档：80.ops/security-notes.md ✅
+- **cheap/** — 说明：Cheap 文档解析器（dom/css/markdown/xml） — 文档：101.dev/jsexec-api.md ✅
+- **ooml/** — 说明：OOML Office 底层解析库 — 文档：70.functionate/30-office-ooml.md ✅
+- **security/** — 说明：安全权鉴（建设中） — 文档：100.ops/security-notes.md ✅
 - **alg/** — 说明：算法工具 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
 
 ## 扩展层（ext/）
@@ -85,29 +85,32 @@
 - **ext/sys/cron,schedule,task** — 说明：定时任务三件套 — 文档：60.sched-async/README.md ✅
 - **ext/sys/mq,websocket** — 说明：消息队列 / WebSocket — 文档：待补充（mq 机制将重新实现）⚠️
 - **ext/sys/hookx,lock,refer,trash** — 说明：钩子/锁/引用/回收站 — 文档：20.io-storage/11-io-hooks.md ✅
-- **ext/sys/dsync,truck** — 说明：数据同步与搬运 — 文档：70.functionate/data-sync.md ✅
+- **ext/sys/dsync,truck** — 说明：数据同步与搬运 — 文档：待补充 ⚠️
 - **ext/sys/redis,mgadmin,aclog,i18n,datex** — 说明：系统工具命令 — 文档：[02-cmd-complex](40.commands/02-cmd-complex.md)、[03-cmd-filter](40.commands/03-cmd-filter.md) ✅
 - **ext/data/sqlx** — 说明：SQL 操作 — 文档：[cmd_sqlx](../../src/com/site0/walnut/ext/data/sqlx/man/zh_cn/cmd_sqlx.md) ✅
 - **ext/data/entity** — 说明：通用实体(like/favor/score/history) — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
 - **ext/data/o** — 说明：o 增强命令 — 文档：[cmd_o](../../src/com/site0/walnut/ext/data/o/man/zh_cn/cmd_o.md) ✅
 - **ext/data/pvg** — 说明：业务权限 — 文档：30.auth/0-auth-pvg.md ✅
 - **ext/data/vcode,captcha** — 说明：验证码 — 文档：30.auth/60-auth-otp-captcha.md ✅
-- **ext/data/app** — 说明：域应用初始化 — 文档：80.ops/deploy.md ✅
-- **ext/data/domain** — 说明：域名映射 — 文档：80.ops/domain-mapping.md ✅
+- **ext/data/app** — 说明：域应用初始化 — 文档：100.ops/deploy.md ✅
+- **ext/data/domain** — 说明：域名映射 — 文档：100.ops/domain-mapping.md ✅
 - **ext/xo/** — 说明：对象存储集成（s3/cos） — 文档：20.io-storage/xo-storage.md、[cmd_xo](../../src/com/site0/walnut/ext/xo/man/zh_cn/cmd_xo.md) ✅
-- **ext/media/imagic,videoc,ffmpeg** — 说明：图像/视频 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
-- **ext/media/ooml,sheet,edi** — 说明：文档/表格 — 文档：[03-cmd-filter](40.commands/03-cmd-filter.md)、[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
-- **ext/media/qrcode,pdf,subtitle,avatar** — 说明：其他媒体 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md)、[02-cmd-complex](40.commands/02-cmd-complex.md) ✅
-- **ext/net/payment,alipay** — 说明：支付 — 文档：70.functionate/payment.md ✅
-- **ext/net/xapi** — 说明：XAPI 第三方 API — 文档：70.functionate/xapi.md ✅
-- **ext/net/sms,mailx** — 说明：短信/邮件 — 文档：70.functionate/sms-mail.md ✅
-- **ext/net/aliyun,ftp,http** — 说明：阿里云/FTP/HTTP 客户端 — 文档：70.functionate/alipay-aliyun.md ✅
+- **ext/media/imagic** — 说明：图像处理 — 文档：70.functionate/50-image-imagic.md ✅
+- **ext/media/ffmpeg** — 说明：视频信息/转码（videoi/videoc） — 文档：70.functionate/60-video-ffmpeg.md ✅
+- **ext/media/ooml** — 说明：Office 文档解析与模板渲染 — 文档：70.functionate/30-office-ooml.md ✅
+- **ext/media/sheet,edi** — 说明：表格/CSV 与电子数据交换 — 文档：70.functionate/40-sheet-csv.md ✅
+- **ext/media/qrcode,pdf,subtitle,avatar** — 说明：其他媒体 — 文档：70.functionate/70-qrcode.md、[01-cmd-simple](40.commands/01-cmd-simple.md)、[02-cmd-complex](40.commands/02-cmd-complex.md) ✅
+- **ext/net/payment,alipay** — 说明：支付 — 文档：待补充（计划重写）⚠️
+- **ext/net/xapi** — 说明：XAPI 第三方 API — 文档：待补充（计划重写）⚠️
+- **ext/net/sms** — 说明：短信 — 文档：70.functionate/20-sms.md（占位）✅
+- **ext/net/mailx** — 说明：Email 收发 — 文档：70.functionate/10-email-mailx.md ✅
+- **ext/net/aliyun,ftp,http** — 说明：阿里云/FTP/HTTP 客户端 — 文档：待补充 ⚠️
 - **ext/util/{base64,hexbin,jsonx,strx,seq,shorturl,btea,crc,react}** — 说明：工具命令 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md)、[02-cmd-complex](40.commands/02-cmd-complex.md)、[03-cmd-filter](40.commands/03-cmd-filter.md) ✅
 - **ext/data/thing ⚠️、ext/data/titanium ⚠️** — 说明：已弃用（仅维护） — 文档：不投入文档
 
 ## 配置
 
 - **conf/web.properties** — 说明：主配置（启动必读） — 文档：[quick-start](00.start-here/quick-start.md)
-- **conf/ioc/*.js** — 说明：IoC beans（mongo/redis/io/mq/service） — 文档：80.ops/deploy.md ✅
-- **conf/hostmap** — 说明：域名转发规则 — 文档：80.ops/domain-mapping.md ✅
-- **WebContent/WEB-INF/web.xml** — 说明：Servlet 配置（过滤器链） — 文档：80.ops/deploy.md ✅
+- **conf/ioc/*.js** — 说明：IoC beans（mongo/redis/io/mq/service） — 文档：100.ops/deploy.md ✅
+- **conf/hostmap** — 说明：域名转发规则 — 文档：100.ops/domain-mapping.md ✅
+- **WebContent/WEB-INF/web.xml** — 说明：Servlet 配置（过滤器链） — 文档：100.ops/deploy.md ✅

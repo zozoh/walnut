@@ -1,6 +1,6 @@
 ---
 title: 系统管理与运维命令
-module: 80.ops
+module: 100.ops
 keywords: [mgadmin, redis, refer, aclog, sysconf, domain list, os, 运维]
 source: [ext/sys/, ext/data/domain/, util/Wn.java]
 related: [../40.commands/03-cmd-filter.md, deploy, security-notes]

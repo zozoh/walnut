@@ -19,6 +19,7 @@
     outputDir: "../dist/walnut-www",   // → <walnut>/dist/walnut-www
     // cacheDir: null,                  // 默认 <outputDir>/.www-gen-site-cache
     urlStyle: "flat",                  // 文档页输出为 xxx.html
+    autoIndex: true,                   // 无 README 的目录自动生成索引页（列子页面）
     stripOrderPrefix: false,           // 保留 00- 01- 这类前缀在 URL 中
     excludeGlobs: [
       "_old/**",                       // 归档目录不参与站点生成

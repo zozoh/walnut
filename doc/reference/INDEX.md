@@ -81,28 +81,30 @@
 
 ## 70.functionate
 
-- **70.functionate/payment.md** — 通用支付模型 — 模块：ext.net.payment — 关键词：支付单,pay,回调,wx,zfb,paypal
-- **70.functionate/weixin.md** — 微信集成 — 模块：ext.net.webx — 关键词：小程序,公众号,wxmp,wxgh,wxjssdk
-- **70.functionate/alipay-aliyun.md** — 支付宝与阿里云 — 模块：ext.net — 关键词：支付宝,aliyunoss,aliyunvod
-- **70.functionate/sms-mail.md** — 短信与邮件 — 模块：ext.net — 关键词：sms,mailx,供应商,模板
-- **70.functionate/xapi.md** — XAPI 第三方 API 框架 — 模块：ext.net.xapi — 关键词：ThirdXApi,配置驱动,动态票据
-- **70.functionate/data-sync.md** — 数据同步与迁移 — 模块：ext.sys.dsync — 关键词：dsync,truck,tree索引,归档,还原
+- **70.functionate/README.md** — 功能扩展 — 模块：70.functionate — 关键词：开箱即用,功能命令
+- **70.functionate/10-email-mailx.md** — Email 收发 — 模块：ext.net.mailx — 关键词：mailx,smtp,imap,模板邮件,附件
+- **70.functionate/20-sms.md** — SMS 短信（占位） — 模块：ext.net.sms — 关键词：sms,占位,provider
+- **70.functionate/30-office-ooml.md** — Office 文档解析与模板渲染 — 模块：ext.media.ooml — 关键词：ooml,docx,xlsx,模板渲染
+- **70.functionate/40-sheet-csv.md** — 表格与 CSV 输出 — 模块：ext.media.sheet — 关键词：sheet,csv,xls,json,导出
+- **70.functionate/50-image-imagic.md** — 图片处理 — 模块：ext.media.imagic — 关键词：imagic,缩略图,缩放,裁剪,旋转
+- **70.functionate/60-video-ffmpeg.md** — 视频信息与封图 — 模块：ext.media.ffmpeg — 关键词：videoi,videoc,ffmpeg,封图,预览
+- **70.functionate/70-qrcode.md** — 二维码 — 模块：ext.media.qrcode — 关键词：qrcode,二维码,生成,解码
 
-## 80.ops
+## 100.ops
 
-- **80.ops/deploy.md** — 部署与运行配置 — 模块：web — 关键词：web.xml,conf/ioc,web.properties,集群
-- **80.ops/domain-mapping.md** — 域名映射 — 模块：ext.data.domain — 关键词：/domain,hostmap,WalnutFilter
-- **80.ops/sys-admin.md** — 系统管理命令 — 模块：ext.sys — 关键词：mgadmin,redis,refer,aclog,sysconf
-- **80.ops/security-notes.md** — 安全实践 — 模块：core — 关键词：secret,权限,注入,HTTPS
-- **80.ops/troubleshooting.md** — 排查手册 — 模块：web — 关键词：日志,错误码,诊断命令
+- **100.ops/deploy.md** — 部署与运行配置 — 模块：web — 关键词：web.xml,conf/ioc,web.properties,集群
+- **100.ops/domain-mapping.md** — 域名映射 — 模块：ext.data.domain — 关键词：/domain,hostmap,WalnutFilter
+- **100.ops/sys-admin.md** — 系统管理命令 — 模块：ext.sys — 关键词：mgadmin,redis,refer,aclog,sysconf
+- **100.ops/security-notes.md** — 安全实践 — 模块：core — 关键词：secret,权限,注入,HTTPS
+- **100.ops/troubleshooting.md** — 排查手册 — 模块：web — 关键词：日志,错误码,诊断命令
 
-## 90.dev
+## 101.dev
 
-- **90.dev/source-layout.md** — src 包结构导览 — 模块：root — 关键词：包结构,关键类,导航
-- **90.dev/java-lib.md** — 作为 Java 库嵌入 — 模块：api — 关键词：WnIo,IoC,WnRun,二次开发
-- **90.dev/custom-command.md** — 编写自定义命令 — 模块：impl.box — 关键词：cmd_*,JvmExecutor,man手册
-- **90.dev/jsexec-api.md** — JS 脚本 API 全集 — 模块：jsexec — 关键词：sys.io,sys.exec,Wn函数
-- **90.dev/extend-regapi.md** — regapi 扩展实践 — 模块：ext.sys.httpapi — 关键词：模板渲染,第三方,复杂后端
+- **101.dev/source-layout.md** — src 包结构导览 — 模块：root — 关键词：包结构,关键类,导航
+- **101.dev/java-lib.md** — 作为 Java 库嵌入 — 模块：api — 关键词：WnIo,IoC,WnRun,二次开发
+- **101.dev/custom-command.md** — 编写自定义命令 — 模块：impl.box — 关键词：cmd_*,JvmExecutor,man手册
+- **101.dev/jsexec-api.md** — JS 脚本 API 全集 — 模块：jsexec — 关键词：sys.io,sys.exec,Wn函数
+- **101.dev/extend-regapi.md** — regapi 扩展实践 — 模块：ext.sys.httpapi — 关键词：模板渲染,第三方,复杂后端
 
 ## 不收录（已弃用）
 

@@ -1,6 +1,6 @@
 ---
 title: 日志与故障排查
-module: 80.ops
+module: 100.ops
 keywords: [日志, 排错, e.api, e.box, 句柄, 缓存, 钩子调试]
 source: [conf/log4j2.xml, util/Wlog.java]
 related: [deploy, sys-admin, security-notes]

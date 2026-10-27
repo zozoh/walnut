@@ -22,7 +22,7 @@ Walnut 是一个**业务系统开发基座**（Java + 内嵌 Nutz 框架），�
    （标准对象、IO/Indexer/BM、Domain/Home、会话、命令模型），是理解一切的地基。
 3. **`doc/reference/SOURCEMAP.md`** — 源码包 ↔ 文档的双向映射。
    已经拿到一个类/包名？查这张表找到对应文档，反之亦然。
-4. 写代码前再看 **`doc/reference/90.dev/`**（扩展开发）和对应命令的 man 文档。
+4. 写代码前再看 **`doc/reference/101.dev/`**（扩展开发）和对应命令的 man 文档。
 
 ## 文档体系（doc/）
 

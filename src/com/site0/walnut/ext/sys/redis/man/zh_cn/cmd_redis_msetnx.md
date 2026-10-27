@@ -1,16 +1,18 @@
 # 过滤器简介
 
-`@msetnx` 一次设置多个键值，只要有一个键已存在就全部不设置（对应 Redis `MSETNX`）。
+`@msetnx` 批量版 `@setnx`（对应 Redis `MSETNX`）：**只有所有键都不存在**才全部写入。
+
+返回 `1`（全部写入成功）或 `0`（有任一键已存在，一个都不写）。
 
 # 用法
 
 ```bash
-redis @msetnx -map '{键:值,...}'
-  -map    # JSON 对象，键为键名，值为键值
+redis @msetnx -map '{键1:值1, 键2:值2, ...}'
 ```
 
 # 示例
 
 ```bash
-# 原子设置多个键
-redis @msetnx -map '{k1:100,k2:200}'
+# 首次初始化，重复执行不会覆盖
+redis @msetnx -map '{cfg:version:1, cfg:author:"zozoh"}'
+```
