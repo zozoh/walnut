@@ -9,8 +9,14 @@ import com.site0.walnut.ext.net.mailx.bean.WnSmtpMail;
 import com.site0.walnut.ext.net.mailx.impl.WnMailPosting;
 import com.site0.walnut.security.otp.WnOTPSender;
 import com.site0.walnut.security.otp.bean.WnOTPBean;
+import com.site0.walnut.security.otp.bean.WnOTPType;
 
 public abstract class WnEmailOTPSender implements WnOTPSender {
+
+    @Override
+    public WnOTPType getType() {
+        return WnOTPType.EMAIL;
+    }
 
     /**
      * @return 发送邮件的配置

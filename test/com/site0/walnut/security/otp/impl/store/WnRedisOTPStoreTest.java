@@ -10,7 +10,7 @@ public class WnRedisOTPStoreTest extends AbstractWnOTPStoreTest {
     @Before
     public void setUp() throws Exception {
         WedisConfig conf = this.setup.getWedisConfig();
-        this.store = new WnRedisOTPStore(conf, "unit-test");
+        this.store = new WnRedisOTPStore(conf, "otp:unit-test:", 3);
         this.builder = new WnCharOTPBuilder(4, 300);
         this.setup.cleanRedisData();
     }

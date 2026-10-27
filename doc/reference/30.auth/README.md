@@ -2,7 +2,7 @@
 title: 账号认证机制
 module: login
 keywords: [认证, 账户, 会话, 权限, 验证码, 登录]
-related: [10-auth-user-role, 20-auth-session, 30-auth-in-domain, 40-auth-hydrate, 0-auth-pvg]
+related: [10-auth-user-role, 20-auth-session, 30-auth-in-domain, 40-auth-hydrate, 0-auth-pvg, 60-auth-otp, 70-auth-captcha]
 ---
 
 # 账号认证机制概述
@@ -50,10 +50,10 @@ related: [10-auth-user-role, 20-auth-session, 30-auth-in-domain, 40-auth-hydrate
 
 ## 验证码与 OTP
 
-登录前后的辅助认证：**图形验证码**（防机器人）、**动态码 OTP**（短信/邮箱，
-登录或改密时确认本人）。统一存储在 `/var/vcode/{域}/{场景}/{账号}`，
-靠过期机制自动清理，**一个账号同一时刻只能进行一种验证**。
-详见 验证码与 OTP。
+登录前后的辅助认证有两道，各自独立成服务：**人机验证码 captcha** 挡机器人，
+**动态密码 OTP**（短信/邮箱）确认「本人持有这个手机号/邮箱」。
+OTP 存 Redis（前缀按场景区分），**一个账号同一时刻只能进行一种验证**。
+详见 动态密码 OTP 与 人机验证码 captcha。
 
 # 总结
 
@@ -79,4 +79,5 @@ related: [10-auth-user-role, 20-auth-session, 30-auth-in-domain, 40-auth-hydrate
 - 域内用户存储与认证
 - 混合认证机制
 - 标准对象的权限体系
-- 验证码与 OTP
+- 动态密码 OTP
+- 人机验证码 captcha

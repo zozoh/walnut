@@ -91,7 +91,10 @@
 - **ext/data/entity** — 说明：通用实体(like/favor/score/history) — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
 - **ext/data/o** — 说明：o 增强命令 — 文档：[cmd_o](../../src/com/site0/walnut/ext/data/o/man/zh_cn/cmd_o.md) ✅
 - **ext/data/pvg** — 说明：业务权限 — 文档：30.auth/0-auth-pvg.md ✅
-- **ext/data/vcode,captcha** — 说明：验证码 — 文档：30.auth/60-auth-otp-captcha.md ✅
+- **ext/data/vcode** — 说明：动态码存储校验（旧实现） — 文档：30.auth/60-auth-otp.md ✅
+- **ext/data/captcha** — 说明：图形验证码（旧实现） — 文档：30.auth/70-auth-captcha.md ✅
+- **security/otp** — 说明：动态密码 OTP — 文档：30.auth/60-auth-otp.md ✅
+- **security/captcha** — 说明：人机验证码 — 文档：30.auth/70-auth-captcha.md ✅
 - **ext/data/app** — 说明：域应用初始化 — 文档：100.ops/deploy.md ✅
 - **ext/data/domain** — 说明：域名映射 — 文档：100.ops/domain-mapping.md ✅
 - **ext/xo/** — 说明：对象存储集成（s3/cos） — 文档：20.io-storage/xo-storage.md、[cmd_xo](../../src/com/site0/walnut/ext/xo/man/zh_cn/cmd_xo.md) ✅

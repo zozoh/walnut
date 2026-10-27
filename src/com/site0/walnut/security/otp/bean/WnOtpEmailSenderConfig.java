@@ -4,11 +4,11 @@ import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 
 /**
- * `~/.otp/{name}.json5` 的配置内容：邮件 OTP 的发送设置
+ * `~/.otp/{name}.json5` 的配置内容：邮件 OTP 发送器（sender.type=EMAIL）的设置
  *
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class WnOtpEmailConfig {
+public class WnOtpEmailSenderConfig {
 
     /**
      * 邮件通道：引用 <code>~/.mailx/{channel}.json</code> 里的 smtp 段
@@ -35,7 +35,7 @@ public class WnOtpEmailConfig {
      */
     private String writeLog;
 
-    public WnOtpEmailConfig() {
+    public WnOtpEmailSenderConfig() {
         this.channel = "default";
         this.subject = "Walnut Dynamic Password";
         this.lang = "zh-cn";

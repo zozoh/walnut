@@ -1,7 +1,6 @@
 package com.site0.walnut.security.otp.impl.store;
 
 import org.nutz.json.Json;
-import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.ext.sys.redis.Wedis;
 import com.site0.walnut.ext.sys.redis.WedisConfig;
@@ -20,12 +19,10 @@ public class WnRedisOTPStore implements WnOTPStore {
 
     private int maxRetryTimes;
 
-    public WnRedisOTPStore(WedisConfig conf, String domain) {
+    public WnRedisOTPStore(WedisConfig conf, String prefix, int maxRetryTimes) {
         this.conf = conf;
-        NutMap setup = conf.setup();
-        String dft_prefix = String.format("otp:%s:", Ws.sBlank(domain, ""));
-        this.prefix = setup.getString("prefix", dft_prefix);
-        this.maxRetryTimes = setup.getInt("maxRetryTimes", 3);
+        this.prefix = prefix;
+        this.maxRetryTimes = maxRetryTimes;
     }
 
     /**
