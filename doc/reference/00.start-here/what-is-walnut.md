@@ -8,8 +8,7 @@ source:
 related: [quick-start, ../10.concepts/01-std-obj.md, ../10.concepts/04-command-model.md, ../20.io-storage/README.md]
 ---
 
-# 什么是 Walnut
-
+# 什么是 Walnut 概述
 Walnut 是一个**业务系统开发基座平台**（Java 17 / Maven / 内嵌 Jetty）。它把「存储、账户、命令执行、HTTP 接口、定时任务、第三方整合」做成一套统一的基础设施，让二次开发者用**目录布局 + 元数据 + 命令脚本（可含 JS）**来组装业务系统，而不是从零写服务器代码。
 
 ## 五大核心机制

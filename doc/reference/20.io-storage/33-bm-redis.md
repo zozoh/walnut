@@ -8,8 +8,7 @@ source:
 related: [10-io-mapping, 21-indexer-redis, 30-bm-sha1]
 ---
 
-# 桶管理器 - redis
-
+# 桶管理器 - redis 概述
 内容存进 Redis。内存级的读写速度，适合**小文件的高频读写**——会话对象、
 临时缓存、验证码正文这类「几十 KB 以内、读写极频繁、丢了也能重建」的内容。
 

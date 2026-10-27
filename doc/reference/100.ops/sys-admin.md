@@ -6,7 +6,7 @@ source: [ext/sys/, ext/data/domain/, util/Wn.java]
 related: [../40.commands/03-cmd-filter.md, deploy, security-notes]
 ---
 
-# 系统管理与运维命令
+# 系统管理与运维命令概述
 
 面向 root/运维的日常管理操作。命令索引详见 系统管理命令，本文是运维视角的用法汇编。
 
@@ -98,7 +98,7 @@ mgadmin index                        # 索引健康
 disk                                 # 存储水位
 ```
 
-## 延伸阅读
+# 延伸阅读
 
 - 系统管理命令 — lock/hookx/trash/refer 细节
 - 部署

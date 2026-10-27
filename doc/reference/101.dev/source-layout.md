@@ -6,7 +6,7 @@ source: [src/]
 related: [../SOURCEMAP.md, custom-command, jsexec-api]
 ---
 
-# 源码包结构导览
+# 源码包结构导览概述
 
 Java 源码在 `src/`，根包 `com.site0.walnut`，另内嵌了精简版 Nutz（`src/org/nutz`，dao/ioc/mvc/json/lang 等）。这是 AI 读代码的地图——各包一句话 + 规模。
 
@@ -61,7 +61,7 @@ ext/
 3. 元数据语义以使用它的类为准（grep 键名字符串）；
 4. 手册页 `src/**/man/zh_cn/*.md` 是命令行为的最可靠文字描述。
 
-## 延伸阅读
+# 延伸阅读
 
 - SOURCEMAP.md — 双向映射
 - 自定义命令

@@ -6,8 +6,7 @@ source: [jsexec/, impl/box/cmd/cmd_jsc.java, impl/box/cmd/jsc/]
 related: [custom-command, extend-regapi, ../40.commands/01-cmd-simple.md]
 ---
 
-# JS 执行环境（JsExec）
-
+# JS 执行环境（JsExec） 概述
 Walnut 的 JS 脚本由 `JsExec` 引擎执行（`src/com/site0/walnut/jsexec/`），默认引擎 nashorn（`web.properties` 的 `jsc-dft-engine`）。`jsc` 命令、`.js` 钩子、`.js` 文件命令都走同一套环境。
 
 ## 脚本里有什么
@@ -80,7 +79,7 @@ echo 'sys.exec2("ls")' | jsc        # 从管道执行
 - 长循环/大内存操作别放在 API 的 JS 里——投递给 任务栈；
 - JS 错误栈会进 `BOX` 日志，配合 `_TRACE_ID` 串联。
 
-## 延伸阅读
+# 延伸阅读
 
 - jsc 命令
 - 实战：扩展 API

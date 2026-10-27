@@ -7,8 +7,7 @@ source:
 related: [10-io-mapping, 30-bm-sha1, 31-bm-vxds]
 ---
 
-# 桶管理器 - multi
-
+# 桶管理器 - multi 概述
 > **状态：规划中，暂未实现。** 源码中没有 `multi` 桶管理器的实现类。
 
 ## 设计意图

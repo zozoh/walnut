@@ -9,7 +9,7 @@ source:
 related: [quick-start, ../20.io-storage/README.md, source-layout]
 ---
 
-# Walnut 核心概念
+# Walnut 核心概念概述
 
 本目录是 Walnut 主要抽象概念的导览。读完本篇，再按链接深入各概念文档，就能顺畅阅读全部参考手册。
 

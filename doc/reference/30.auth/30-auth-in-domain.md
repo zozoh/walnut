@@ -10,7 +10,7 @@ source:
 related: [README, 30-auth-in-domain, 40-auth-hydrate, 10-auth-user-role]
 ---
 
-# 域内用户存储与认证
+# 域内用户存储与认证概述
 
 系统用户是 Walnut 的居民；但你的站点/App 有自己的用户——注册用户、会员、客户。
 这批**域内用户**与系统用户是两套体系：他们不需要 Walnut 账户，

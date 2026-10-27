@@ -10,7 +10,7 @@ source:
 related: [README, 10-auth-user-role, ../10.concepts/01-std-obj.md, ../50.regapi/50-auth-history.md]
 ---
 
-# 标准对象的权限体系
+# 标准对象的权限体系概述
 
 权限长在对象自己身上（见 一切皆对象 的 `m` 与 `pvg`），
 分三层，从底到上：

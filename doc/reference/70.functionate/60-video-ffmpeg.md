@@ -6,8 +6,7 @@ source: [ext/media/ffmpeg/]
 related: [README, 50-image-imagic.md]
 ---
 
-# 视频信息与封图（videoi / videoc）
-
+# 视频信息与封图（videoi / videoc） 概述
 视频上传后通常要两件事：读出时长宽高等信息、生成封面图和预览片段。
 `videoi` 和 `videoc` 一对命令分别负责它们。
 

@@ -6,7 +6,7 @@ source: [ext/sys/httpapi/HttpApiModule.java]
 related: [20-request-object, 30-path-params, 40-cache, 50-auth-history, ../00.start-here/first-api.md]
 ---
 
-# API 对象：一个文件一个接口
+# API 对象概述
 
 如果想让 `Walnut` 快速的向外部提供一个 HTTP API 接口，我们能想到的最快的办法就是
 
@@ -360,7 +360,7 @@ httpout -body ${http-qs} \
 - `http-tmp-duraion` 是历史上的拼写（少一个 t），写配置时照抄现有拼写；
 - 元数据全集的权威出处是 `HttpApiModule.java`，冲突时以源码为准。
 
-## 延伸阅读
+# 延伸阅读
 
 - 20-request-object — 临时请求对象：请求侧能拿到什么
 - 30-path-params — 路径参数与 `_ANY` 通配

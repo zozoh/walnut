@@ -6,7 +6,7 @@ source: [ext/sys/httpapi/HttpApiModule.java]
 related: [10-api-object, 30-path-params, ../10.concepts/01-std-obj.md]
 ---
 
-# 请求对象：一次请求一个对象
+# 请求对象概述
 
 写 API 命令模板时，你一定会问：**`${...}` 占位符到底能写什么？**
 
@@ -117,7 +117,7 @@ curl 'http://host/api/demo/hello?name=zozoh'
 - 拿到 `http-usr` 只是知道了域账号，拿到 `http-www-me-*` 只是恢复了站点会话——
   都不等于通过了动作级权限检查，那需要配 `pvg-assert`（见 50-auth-history）。
 
-## 延伸阅读
+# 延伸阅读
 
 - 10-api-object — API 侧元数据全集
 - 30-path-params — args / params 的来历

@@ -8,8 +8,7 @@ source:
 related: [10-api-object, 20-request-object, 30-path-params, 40-cache, 50-auth-history]
 ---
 
-# HTTP 注册接口（regapi）
-
+# HTTP 注册接口（regapi） 概述
 ## 它解决什么问题
 
 让一个域的用户**不写 Java、不部署应用，就能搭出自己的动态 HTTP 服务**：
@@ -115,7 +114,7 @@ HTTP 请求  /api/{域}/{路径...}
 - 40-cache：接口结果的缓存策略
 - 50-auth-history：站点登录、权限断言与历史记录
 
-## 总结
+# 总结
 
 读到这里，regapi 的本质就一句话：**把 HTTP 请求对象化，把接口文件化，
 让命令模型直接长出 Web 能力**。它没有引入新的编程模型——

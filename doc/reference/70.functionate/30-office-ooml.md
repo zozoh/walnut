@@ -6,8 +6,7 @@ source: [ext/media/ooml/, ooml/]
 related: [README, 40-sheet-csv.md]
 ---
 
-# Office 文档解析与模板渲染（ooml）
-
+# Office 文档解析与模板渲染（ooml） 概述
 Word / Excel 本质上是「zip 包 + 一串 XML」，即 OOXML 格式。
 `ooml` 命令直接操作这个结构，提供两类能力：
 

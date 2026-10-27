@@ -1,5 +1,7 @@
 package com.site0.walnut.security.otp.bean;
 
+import org.nutz.lang.util.NutMap;
+
 import com.site0.walnut.util.Ws;
 
 public class WnOTPBean {
@@ -42,6 +44,17 @@ public class WnOTPBean {
                              value,
                              duration,
                              retryTimes);
+    }
+
+    public NutMap toBean() {
+        NutMap re = new NutMap();
+        re.put("type", type);
+        re.put("account", account);
+        re.put("value", value);
+        re.put("duration", duration);
+        re.put("retryTimes", retryTimes);
+        re.put("sendAt", sendAt);
+        return re;
     }
 
     @Override

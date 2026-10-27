@@ -8,7 +8,7 @@ source:
 related: [README, 10-auth-user-role, 40-auth-hydrate, ../10.concepts/03-session-env.md]
 ---
 
-# 会话管理
+# 会话管理概述
 
 登录成功即创建一个**会话对象**（不是内存里的 Session，就是一个普通对象）：
 `/var/session/${TICKET}`。之后的每一次操作，身份与权限都挂在会话上；

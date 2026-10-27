@@ -6,8 +6,7 @@ source: [ext/sys/httpapi/HttpApiModule.java]
 related: [10-api-object, 30-path-params, 50-auth-history]
 ---
 
-# API 缓存（cache-*）
-
+# API 缓存（cache-*） 概述
 有些接口被频繁调用，但查询的内容很久才会变——每次都执行命令，白白浪费 CPU 和 IO。
 regapi 自带**页面级缓存**：把命令的产出物缓存成一个文件对象，后续相同请求直接命中，
 跳过命令执行。适合报表、列表页、静态化内容这类「读多写少」的接口。
@@ -120,7 +119,7 @@ curl 'http://host/api/report/day?day=20261021'   # 第二次：直接命中
 - `cache-duration` 以秒为单位，按缓存文件最后修改时间计算；
 - 懒加载模式下，命令执行成功后自动写缓存——命令须把产出写到 stdout。
 
-## 延伸阅读
+# 延伸阅读
 
 - API 对象 — 全部 API 元数据
 - 鉴权与历史 — 同样的匹配语法在权限断言中的应用

@@ -6,8 +6,7 @@ source: [ext/media/qrcode/]
 related: [README]
 ---
 
-# 二维码（qrcode）
-
+# 二维码（qrcode） 概述
 生成二维码（默认）或解码（`-d`），输出是图片二进制，
 重定向到文件即可。
 

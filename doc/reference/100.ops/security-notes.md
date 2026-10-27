@@ -6,7 +6,7 @@ source: [web/, ext/sys/httpapi/, api/auth/]
 related: [deploy, sys-admin, ../30.auth/0-auth-pvg.md]
 ---
 
-# 安全注意事项
+# 安全注意事项概述
 
 Walnut 的安全模型：域隔离 + 元数据权限 + 会话票据。本节是上线前的安全清单。
 
@@ -58,7 +58,7 @@ Walnut 的安全模型：域隔离 + 元数据权限 + 会话票据。本节是�
 - [ ] main-host 白名单不含公网 IP（防止绕过域名路由）
 - [ ] cron 任务以最小权限用户执行
 
-## 延伸阅读
+# 延伸阅读
 
 - 账户与权限
 - 自动登录与票据

@@ -10,7 +10,7 @@ source:
 related: [../10.concepts/04-command-model.md, custom-command, o, sqlx, tmpl]
 ---
 
-# Walnut 命令机制
+# Walnut 命令机制概述
 
 在 Walnut 里，**一切操作都是命令**。本目录是命令机制的参考手册：
 

@@ -8,7 +8,7 @@ source:
 related: [quick-start, 10-api-object, 20-request-object]
 ---
 
-# 第一个 HTTP 接口
+# 第一个 HTTP 接口概述
 
 Walnut 的 HTTP 接口不需要写 Java：**一个文件就是一个 API**。下面用 root 账户在 3 分钟内调通第一个接口。
 

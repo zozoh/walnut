@@ -7,8 +7,7 @@ source:
 related: [10-io-mapping, 33-bm-redis, 30-bm-sha1]
 ---
 
-# 桶管理器 - mem
-
+# 桶管理器 - mem 概述
 > **状态：规划中，暂未实现。** 源码中没有 `mem` 桶管理器的实现类，
 > `conf/ioc/io.js` 的 `bms` 里也没有注册 `mem` 键。
 

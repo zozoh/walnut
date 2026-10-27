@@ -6,8 +6,7 @@ source: [ext/media/imagic/]
 related: [README, 50-hooks]
 ---
 
-# 图片处理（imagic）
-
+# 图片处理（imagic） 概述
 上传图片后生成缩略图、把大图压成封面、按坐标裁剪——
 `imagic` 命令用一个过滤器链完成单张图片处理。
 

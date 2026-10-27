@@ -9,7 +9,7 @@ source:
 related: [02-domain-home.md, ../20.io-storage/README.md, privilege]
 ---
 
-# 一切皆对象
+# 一切皆对象概述
 
 `Walnut` 中**所有数据都是对象**，就像 `Linux/Unix` 可以用`文件/目录`来描述任何数据。
 你完全可以把 `Walnut` 中的对象理解为 `Linux/Unix` 中的文件/目录。
@@ -196,7 +196,7 @@ rm ~/links/rm                           # 删除链接不影响目标
 
 任何主要是 `CRUD` 的业务系统，在 `Walnut` 的视角里，其实本质无非是对于对象的**增删改查**。
 
-## 深入阅读
+# 深入阅读
 
 - 数据存储与映射：Indexer/BM 模型与 mnt 映射
 - 域与主目录：对象树的全局布局

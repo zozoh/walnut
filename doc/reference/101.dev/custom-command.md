@@ -6,7 +6,7 @@ source: [impl/box/, ext/sys/mq/hdl/mq_secret.java]
 related: [source-layout, jsexec-api, ../00.start-here/quick-start.md]
 ---
 
-# 自定义命令开发
+# 自定义命令开发概述
 
 给 Walnut 加命令只需三步：写类 → 扫描注册 → 配手册。
 
@@ -115,7 +115,7 @@ com.mycompany.mycmds
 
 重启后 `fortune` 可用，`man fortune` 可读。
 
-## 延伸阅读
+# 延伸阅读
 
 - 源码包结构
 - jsexec-api

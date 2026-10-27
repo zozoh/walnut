@@ -10,7 +10,7 @@ source:
 related: [../10.concepts/04-command-model.md, o, sqlx, tmpl, custom-command]
 ---
 
-# 过滤命令
+# 过滤命令概述
 
 **过滤命令**继承 `JvmFilterExecutor`，子命令称为**过滤器**（以 `@` 开头），
 它们共享同一个**上下文对象**，按书写顺序依次对上下文加工，最后统一输出。

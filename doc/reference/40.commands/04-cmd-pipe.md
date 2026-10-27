@@ -10,7 +10,7 @@ source:
 related: [../10.concepts/04-command-model.md, custom-command, o, sqlx]
 ---
 
-# 命令管道
+# 命令管道概述
 
 单个命令的能力有限，管道把多个命令组合起来，是 Walnut 主要的「编程方式」。
 前一命令的标准输出，直接作为后一命令的标准输入，无需中间文件。

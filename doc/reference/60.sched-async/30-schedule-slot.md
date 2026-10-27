@@ -6,8 +6,7 @@ source: [ext/sys/schedule/]
 related: [README, 10-cron-task, 40-task-queue]
 ---
 
-# 分钟计划表 /sys/schedule
-
+# 分钟计划表 /sys/schedule 概述
 `/sys/schedule/` 是 cron 表达式和任务执行之间的「展开结果」缓存。
 预加载线程把 `/sys/cron/` 里的任务按表达式展开成一个个**分钟槽**，
 写入这里；推送线程每分钟把当前槽的任务推入 `/sys/tasks/` 并删除该槽。

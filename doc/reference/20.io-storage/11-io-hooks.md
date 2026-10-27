@@ -6,7 +6,7 @@ source: [api/hook/, impl/hook/]
 related: [README, 10-io-mapping.md]
 ---
 
-# 钩子机制（Hook）
+# IO 钩子概述
 
 钩子是对象生命周期事件的自动响应：写文件时自动生成缩略图、删对象时同步清理关联数据。接口在 `api/hook/`，实现在 `impl/hook/`。
 
@@ -67,6 +67,6 @@ hookx @get ~/photo/a.jpg @invoke write
 - 钩子执行失败会打断原操作——写钩子脚本要健壮，必要时装 try/catch；
 - `hook_by` 尽量收窄条件，全局钩子尤其要谨慎（所有域的图片写入都会过一遍）。
 
-## 延伸阅读
+# 延伸阅读
 
 - 定时任务 — 钩子里跑长任务要投递给后台任务栈（task）

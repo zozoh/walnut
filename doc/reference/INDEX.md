@@ -50,7 +50,7 @@
 - **30.auth/30-auth-in-domain.md** — 域内用户存储与认证 — 模块：login.domain — 关键词：WnLoginSite,accounts,roles,forDomain
 - **30.auth/40-auth-hydrate.md** — 混合认证机制 — 模块：login.hydrate — 关键词：域内登录,标准会话,sysSessionStore,site属性
 - **30.auth/0-auth-pvg.md** — 标准对象的权限体系 — 模块：api.io / ext.data.pvg — 关键词：mode,pvg,业务权限矩阵,组角色,admin
-- **30.auth/60-auth-otp-captcha.md** — 验证码、OTP 等认证机制 — 模块：ext.data.vcode — 关键词：vcode,图形验证码,短信,邮箱,场景,一发一验
+- **30.auth/60-auth-otp-captcha.md** — 验证码与 OTP：captcha 服务接口、动态密码 OTP 发送 — 模块：security.otp — 关键词：验证码,captcha,OTP,拖拽验证,WnCaptchaApi,一发一验
 
 ## 40.commands
 

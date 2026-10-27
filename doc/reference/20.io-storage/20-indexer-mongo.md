@@ -9,8 +9,7 @@ source:
 related: [10-io-mapping, 20-indexer-mongo, 30-bm-sha1]
 ---
 
-# 索引管理器 - MongoDB
-
+# 索引管理器 - MongoDB 概述
 `mongo` 是系统的**全局默认索引管理器**——不声明 `mnt` 的对象，元数据都进 MongoDB。
 
 ## mnt 语法

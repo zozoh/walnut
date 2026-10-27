@@ -9,7 +9,7 @@ source:
 related: [../10.concepts/04-command-model.md, custom-command, o, sqlx]
 ---
 
-# 简单命令
+# 简单命令概述
 
 **简单命令**直接继承 `JvmExecutor`，一个命令一个源文件，一次调用完成一件事情。
 它是 Walnut 命令的基础形态：参数进来、结果出去，没有子命令，也没有跨调用的上下文。

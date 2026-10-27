@@ -6,7 +6,7 @@ source: [ext/sys/httpapi/HttpApiModule.java, ext/data/pvg/]
 related: [10-api-object, 40-cache, ../30.auth/20-auth-session.md, ../30.auth/0-auth-pvg.md]
 ---
 
-# 站点鉴权、权限断言与历史记录
+# 站点鉴权、权限断言与历史记录概述
 
 一个受保护的接口，在处理链上要回答三个问题：
 
@@ -128,7 +128,7 @@ o /home/demo/api/order/del -e '
 站点会话注入、权限断言、preload 都是请求处理链上的一环，
 整条链路的先后关系见 README 的「一次请求的完整旅程」。
 
-## 延伸阅读
+# 延伸阅读
 
 - API 对象 — 元数据全集
 - 会话 / 对象的权限体系

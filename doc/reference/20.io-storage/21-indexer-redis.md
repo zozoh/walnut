@@ -7,8 +7,7 @@ source:
 related: [10-io-mapping, 20-indexer-mongo, 33-bm-redis]
 ---
 
-# 索引管理器 - Redis
-
+# 索引管理器 - Redis 概述
 > **状态：规划中，暂未实现。** `conf/ioc/io.js` 的 `indexers` 里预留了 `redis` 键，
 > 当前值为 `null`，源码中没有对应的索引器实现类。
 

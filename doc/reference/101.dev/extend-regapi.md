@@ -6,7 +6,7 @@ source: [ext/sys/httpapi/]
 related: [../50.regapi/10-api-object.md, ../50.regapi/20-request-object.md, ../50.regapi/40-cache.md, jsexec-api]
 ---
 
-# 实战：开发完整 API
+# 实战：开发完整 API 概述
 
 把前几章的机制串成三个可落地的 API。约定：API 都在 `/api/<域>/` 下，命令为文件内容。
 
@@ -95,7 +95,7 @@ o /home/demo/api/weather -e 'api-param-name:city'
 - [ ] 上传接口注意 `http-tmp-duraion`，及时 `cp` 走临时文件；
 - [ ] 返回统一 `{ok:..., data:...}` 结构，前端好处理。
 
-## 延伸阅读
+# 延伸阅读
 
 - API 对象 / 请求对象 / 缓存
 - JS 执行环境 — 复杂逻辑换 JS 写

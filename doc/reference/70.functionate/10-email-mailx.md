@@ -6,8 +6,7 @@ source: [ext/net/mailx/]
 related: [README, 30-office-ooml.md]
 ---
 
-# Email 收发（mailx）
-
+# Email 收发（mailx） 概述
 业务系统几乎都需要发邮件：注册验证、通知推送、对账单。
 `mailx` 命令把收发 Email 做成了一个过滤器命令——
 SMTP 发信、IMAP 收信，支持富文本、附件和模板渲染。

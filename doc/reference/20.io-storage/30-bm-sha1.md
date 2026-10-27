@@ -9,8 +9,7 @@ source:
 related: [10-io-mapping, 20-indexer-mongo, 33-bm-redis]
 ---
 
-# 桶管理器 - sha1
-
+# 桶管理器 - sha1 概述
 `sha1` 是系统的**全局默认桶管理器**——不声明 `mnt` 的对象，内容都按 SHA1 存到本地磁盘。
 这是内容寻址存储：**文件的内容（SHA1）就是它的物理文件名**，天然去重。
 

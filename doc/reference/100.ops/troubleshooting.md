@@ -6,7 +6,7 @@ source: [conf/log4j2.xml, util/Wlog.java]
 related: [deploy, sys-admin, security-notes]
 ---
 
-# 日志与故障排查
+# 日志与故障排查概述
 
 ## 日志体系
 
@@ -95,7 +95,7 @@ xapi req <api> <account> <req> -vars ...    # 第三方请求 dry-run
 - API 慢：先确认没每次重建缓存（cache-finger 抖动），再看命令内 `o -match` 是否带索引键；
 - 大目录操作：分页（`-limit/-skip`）+ 异步化（task/mq）。
 
-## 延伸阅读
+# 延伸阅读
 
 - 部署 — 日志配置与运行参数
 - 系统管理

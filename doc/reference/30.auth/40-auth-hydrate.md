@@ -11,7 +11,7 @@ source:
 related: [README, 20-auth-session, 30-auth-in-domain, 10-auth-user-role]
 ---
 
-# 混合认证机制
+# 混合认证机制概述
 
 前两种模式各有尴尬：
 

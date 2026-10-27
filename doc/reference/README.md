@@ -51,7 +51,7 @@ doc/reference/
 |   |-- 30-auth-in-domain.md      #   域内用户存储与认证：WnLoginSite、accounts/roles 配置
 |   |-- 40-auth-hydrate.md        #   混合认证：域内用户登录建立标准账户会话
 |   |-- 0-auth-pvg.md             #   标准对象的权限体系：mode / pvg / 业务权限矩阵
-|   |-- 60-auth-otp-captcha.md    #   验证码、OTP：图形/短信/邮箱、场景、一发一验
+|   |-- 60-auth-otp-captcha.md    #   验证码与 OTP：captcha 服务接口、动态密码 OTP 发送
 |
 |-- 40.commands/                  # 命令参考：73 内置 + 84 扩展，三种写法与组合手段
 |   |-- README.md                 #   命令机制概览：要解决的问题、三种模式、管道与 IO

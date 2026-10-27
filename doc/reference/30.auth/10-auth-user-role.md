@@ -11,7 +11,7 @@ source:
 related: [README, 20-auth-session, 0-auth-pvg, ../10.concepts/02-domain-home.md]
 ---
 
-# 系统用户、角色与密码存储
+# 系统用户、角色与密码存储概述
 
 系统用户是 Walnut 的「居民」：登录控制台、拥有自己的域（主组）。
 在 一切皆对象 的视角下，**一个用户就是一个对象**。

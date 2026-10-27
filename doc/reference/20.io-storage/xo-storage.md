@@ -10,8 +10,7 @@ source:
 related: [10-io-mapping, ../../../src/com/site0/walnut/ext/xo/man/zh_cn/cmd_xo.md]
 ---
 
-# 对象存储集成（xo）
-
+# 对象存储集成（xo） 概述
 ## 要解决的问题
 
 各云服务厂商（AWS S3、腾讯云 COS、阿里云 OSS、华为云 OBS、七牛 Kodo）都提供对象存储服务，

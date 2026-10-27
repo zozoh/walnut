@@ -10,7 +10,7 @@ source:
 related: [10-io-mapping, xo-storage, 31-bm-vxds, 40-indexer-file]
 ---
 
-# 对象存储映射
+# 对象存储映射概述
 
 把云对象存储的桶（S3/COS/OSS/OBS/Kodo），挂成 Walnut 对象树里的一棵子树。
 `vofs`（虚拟对象文件系统）也是**索引与内容合并映射**：桶本身就是目录树——

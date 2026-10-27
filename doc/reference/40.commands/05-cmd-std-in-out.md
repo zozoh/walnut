@@ -11,7 +11,7 @@ source:
 related: [../10.concepts/04-command-model.md, custom-command, o, sqlx]
 ---
 
-# 命令输入输出
+# 命令输入输出概述
 
 每个命令运行时有三个标准流，行为与 Linux Shell 一致：
 

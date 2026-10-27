@@ -9,7 +9,7 @@ source:
 related: [domain-home, command-model, accounts, session]
 ---
 
-# 会话与环境变量
+# 会话与环境变量概述
 
 **会话（Session）是命令执行的身份载体**：登录即创建会话，
 之后的每条命令，都在会话绑定的用户身份下执行。
@@ -43,7 +43,7 @@ related: [domain-home, command-model, accounts, session]
 
 完整清单不必在此背下，使用各模块时会逐一遇到。
 
-## 深入阅读
+# 深入阅读
 
 - 会话：会话对象、多级登录、票据与自动过期
 - 命令模型：命令如何在会话身份下执行

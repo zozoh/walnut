@@ -11,7 +11,7 @@ source:
 related: [10-io-mapping, 20-indexer-mongo, 30-bm-sha1]
 ---
 
-# 文件系统映射
+# 文件系统映射概述
 
 把服务器磁盘上的某个目录，挂成 Walnut 对象树里的一棵子树。
 这是 `file` / `filew` 两个索引管理器的活——它们是**索引与内容合并映射**的简写：

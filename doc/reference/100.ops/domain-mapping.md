@@ -6,7 +6,7 @@ source: [jetty/WalnutFilter.java, jetty/DmnMatcher.java, conf/hostmap]
 related: [deploy, ../50.regapi/10-api-object.md]
 ---
 
-# 域名映射与路由
+# 域名映射与路由概述
 
 `WalnutFilter`（web.xml 链首）负责按域名把请求路由到不同域的目录，是「多租户」的入口。源码：`src/com/site0/walnut/jetty/WalnutFilter.java`。
 
@@ -82,7 +82,7 @@ www.shop-b.com/api/goods   →  {domain:shop-b}  →  /api/shop-b/goods
 - `expi_at` 适合做活动域名的定时下线；
 - 调试时把自己的 IP/域名加进 `main-host` 可绕过路由直接访问本地路径。
 
-## 延伸阅读
+# 延伸阅读
 
 - 部署
 - API 对象 — 路由之后的请求处理

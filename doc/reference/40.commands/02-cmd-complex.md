@@ -10,7 +10,7 @@ source:
 related: [../10.concepts/04-command-model.md, xapi, sqlx, custom-command]
 ---
 
-# 复杂命令
+# 复杂命令概述
 
 **复杂命令**继承 `JvmHdlExecutor`，子命令是 `hdl/` 目录下一个个独立的 `JvmHdl` 类。
 它适合「一个领域、多种操作」的场景：主命令只是入口壳，按第一个参数把请求分发给子命令处理器；

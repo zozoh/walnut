@@ -6,7 +6,7 @@ source: [ext/sys/cron/]
 related: [README, 20-cron-syntax, 30-schedule-slot, 40-task-queue]
 ---
 
-# cron 命令与任务定义
+# cron 命令与任务定义概述
 
 `cron` 是定时任务的入口命令，负责管理 `/sys/cron/` 目录下的定期任务对象。
 日常使用中，你只需要掌握这一个命令，后面的调度、推送、执行都由系统自动完成。

@@ -9,8 +9,7 @@ source:
 related: [10-io-mapping, xo-storage, 41-indexer-vofs]
 ---
 
-# 桶管理器 - vxds
-
+# 桶管理器 - vxds 概述
 内容存到**对象存储**（S3/COS），但不像 `vofs` 那样保留原始目录结构——
 `vxds` 按**内容的 SHA1 签名**存桶：同一内容无论被多少对象引用，桶里只有一份。
 这是对象存储版的「sha1 桶」，天生为海量小中文件的去重存储设计。

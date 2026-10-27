@@ -6,7 +6,7 @@ source: [cron/]
 related: [README, 10-cron-task]
 ---
 
-# WnCron 定期表达式
+# WnCron 定期表达式概述
 
 WnCron 是 Walnut 的定期表达式，**完全兼容 Quartz Cron 六段语法**并做了扩展，核心库在 `src/com/site0/walnut/cron/`。它的设计目标之一：
 
@@ -105,7 +105,7 @@ cron explain '0 0 8-11,13-18 * * ?'
 - 表达式精确到秒，但系统调度粒度是分钟（见 调度流水线）；
 - `cron explain '<表达式>'` 是验证表达式是否如你预期的最佳工具。
 
-## 延伸阅读
+# 延伸阅读
 
 - 调度流水线 — 表达式如何变成真正执行的任务
 - 消息队列 — 异步任务的另一种形态

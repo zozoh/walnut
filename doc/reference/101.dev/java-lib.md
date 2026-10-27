@@ -6,7 +6,7 @@ source: [util/Wn.java, util/WnRun.java, api/]
 related: [source-layout, custom-command, jsexec-api]
 ---
 
-# Java 库模式嵌入
+# Java 库模式嵌入概述
 
 Walnut 不只能跑服务，也能作为库嵌入你的 Java 应用：拿它的 IoC 容器、直接编程 I/O、或以某用户身份执行命令。
 
@@ -79,7 +79,7 @@ WnSession se = run.creatSession("zozoh", true);
 - `WnRun.exec` 会完整走权限与钩子链路，执行身份注意最小化；
 - `Wn.WC()` 上下文（当前会话）在异步线程里要自行设置。
 
-## 延伸阅读
+# 延伸阅读
 
 - 源码包结构
 - 自定义命令

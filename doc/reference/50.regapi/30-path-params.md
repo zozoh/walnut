@@ -6,8 +6,7 @@ source: [ext/sys/httpapi/HttpApiModule.java]
 related: [10-api-object, 20-request-object, 40-cache]
 ---
 
-# 路径参数与动态路由（_ANY）
-
+# 路径参数与动态路由（_ANY） 概述
 `/api/user/123/order/456` 这样的 REST 路径，树上显然不可能为每个 ID 建一个文件。
 怎么办？
 
@@ -87,7 +86,7 @@ echo "args0=${args[0]}"               # args 是数组（JS 里也支持 args[0]
 - 目录 `_ANY` 依赖 `_action` 子文件执行，别忘了建；
 - `api-param-name` 设置在 `_ANY` 对象自身上，而不是 `_action` 上。
 
-## 延伸阅读
+# 延伸阅读
 
 - API 对象
 - 请求对象 — args / params 注入位置

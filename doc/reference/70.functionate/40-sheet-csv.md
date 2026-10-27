@@ -6,8 +6,7 @@ source: [ext/media/sheet/]
 related: [README, 30-office-ooml.md]
 ---
 
-# 表格与 CSV 输出（sheet）
-
+# 表格与 CSV 输出（sheet） 概述
 业务系统最常见的导出需求就是 CSV。
 `sheet` 命令在 **JSON 数组** 和 **csv / xls** 之间互转，
 支持字段挑选、重命名和格式化——通常一条命令就能完成导出。

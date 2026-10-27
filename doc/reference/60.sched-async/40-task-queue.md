@@ -6,8 +6,7 @@ source: [ext/sys/task/]
 related: [README, 30-schedule-slot]
 ---
 
-# 后台任务栈 /sys/tasks
-
+# 后台任务栈 /sys/tasks 概述
 `/sys/tasks/` 是系统统一的后台任务执行队列。定时任务被推送后落到这里，
 其他模块投递的后台作业、用户手动 `task add` 补跑，最终也都是进入这个目录，
 由同一个消费线程取出执行。

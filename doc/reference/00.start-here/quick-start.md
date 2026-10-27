@@ -10,7 +10,7 @@ source:
 related: [what-is-walnut, first-api, deploy, ../20.io-storage/README.md]
 ---
 
-# 快速开始：把 Walnut 跑起来
+# 快速开始概述
 
 ## 依赖环境
 

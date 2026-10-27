@@ -5,7 +5,7 @@ keywords: [认证, 账户, 会话, 权限, 验证码, 登录]
 related: [10-auth-user-role, 20-auth-session, 30-auth-in-domain, 40-auth-hydrate, 0-auth-pvg]
 ---
 
-# 账号认证机制
+# 账号认证机制概述
 
 ## 基本思路：一切都是对象
 
@@ -55,7 +55,7 @@ related: [10-auth-user-role, 20-auth-session, 30-auth-in-domain, 40-auth-hydrate
 靠过期机制自动清理，**一个账号同一时刻只能进行一种验证**。
 详见 验证码与 OTP。
 
-## 总结
+# 总结
 
 读到这里，账号认证的地图就清楚了：
 
