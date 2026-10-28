@@ -30,14 +30,14 @@ Walnut 是一个**业务系统开发基座**（Java + 内嵌 Nutz 框架），�
 doc/
 |-- reference/    # 正式参考手册（分模块：00 快速开始 / 10 概念 / 20 存储 / 30 认证 /
 |                 #   40 命令 / 50 HTTP API / 60 定时任务 / 70 功能场景 / 80 运维 / 90 开发）
-|-- skill/        # 给 AI Agent 的技能文档（write-doc.skill.md = 写文档的规范与叙事风格）
+|-- skill/        # 给 AI Agent 的技能文档（write-walnut-doc.skill.md = 写文档的规范与叙事风格）
 |-- note/         # 历史工作笔记，非正式，仅供参考，可能过时
 |-- _old/         # 旧文档存档，内容已与源码脱节，不要引用
 ```
 
 - 知识文档之间的互跳链接尚未接通（冻结期），按 INDEX.md 的目录导航即可。
 - 命令的权威文档在源码旁的 `man/zh_cn/`，格式：简单命令一篇，复杂/过滤命令主文档 + 每子命令一篇。
-- 文档与源码冲突时，**以源码为准**；可顺手修正文档（遵守 `doc/skill/write-doc.skill.md`）。
+- 文档与源码冲突时，**以源码为准**；可顺手修正文档（遵守 `doc/skill/write-walnut-doc.skill.md`）。
 
 ## 源码布局（src/com/site0/walnut/）
 

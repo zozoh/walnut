@@ -2,7 +2,7 @@
 
 > 写给 AGENT 的技能文档参考
 
-1. [编写文档](write-doc.skill.md)
+1. [编写文档](write-walnut-doc.skill.md)
 2. [编写扩展命令](write-cmd.skill.md)
 3. [编写单元测试](write-unit-test.skill.md)
 4. [编写业务脚本](write-jsbin.skill.md)

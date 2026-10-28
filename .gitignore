@@ -18,6 +18,7 @@ hs_err_pid*
 .idea
 .tmp
 /target/
+/prompt/
 /build/**
 /dist/**
 /conf/web_local.properties
