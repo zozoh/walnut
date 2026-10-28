@@ -5,8 +5,8 @@
 	<groupId>com.site0</groupId>
 	<packaging>jar</packaging>
 	<name>walnut</name>
-	<version>16.08</version>
-	<description>COLT[MALFB]</description>
+	<version>16.09</version>
+	<description>COLT[OTP]</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<elasticsearch.version>6.3.2</elasticsearch.version>
@@ -342,6 +342,12 @@
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
 			<version>4.4.3</version>
+		</dependency>
+		<!-- 行为验证码引擎（security/captcha 的默认实现） -->
+		<dependency>
+			<groupId>cloud.tianai.captcha</groupId>
+			<artifactId>tianai-captcha</artifactId>
+			<version>1.5.6</version>
 		</dependency>
 		<dependency>
 			<groupId>com.clickhouse</groupId>

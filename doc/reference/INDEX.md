@@ -51,7 +51,7 @@
 - **30.auth/40-auth-hydrate.md** — 混合认证机制 — 模块：login.hydrate — 关键词：域内登录,标准会话,sysSessionStore,site属性
 - **30.auth/0-auth-pvg.md** — 标准对象的权限体系 — 模块：api.io / ext.data.pvg — 关键词：mode,pvg,业务权限矩阵,组角色,admin
 - **30.auth/60-auth-otp.md** — 动态密码 OTP：WnOTPService 门面、生成/存储/发送 — 模块：security.otp — 关键词：动态密码,OTP,邮箱验证码,一发一验,WnOTPService
-- **30.auth/70-auth-captcha.md** — 人机验证码 captcha：接口抽象、答案与票据存储、与 OTP 协作 — 模块：security.captcha — 关键词：验证码,captcha,人机校验,行为验证码,WnCaptchaApi,WnCaptchaAnswerStore,WnCaptchaTicketStore,tianai
+- **30.auth/70-auth-captcha.md** — 人机验证码 captcha：接口抽象、tianai 实现、与 OTP 协作 — 模块：security.captcha — 关键词：验证码,captcha,人机校验,行为验证码,WnCaptchaApi,WnCaptchaAnswerStore,WnCaptchaTicketStore,tianai
 
 ## 40.commands
 

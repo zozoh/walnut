@@ -111,7 +111,18 @@ Walnut 自己定义一套抽象的接口，把具体库藏在接口后面：
   bgImgCache: 600000,
 
   // 点选验证码的字体；留空表示本验证码不支持文字点选类型
-  fontPath : "~/.captcha/font/simhei.ttf"
+  fontPath : "~/.captcha/font/simhei.ttf",
+
+  // 临时票据的过期时间（毫秒）
+  ticketExpire: 600000,
+
+  // 答案与票据的存储配置（当前仅支持 redis，连接配置引用
+  // ~/.redis/{name}.json，与 OTP 的存储选择一致）
+  store: {
+    type  : "redis",
+    name  : "default",        // Redis 连接配置名
+    prefix: "captcha:default:" // 键前缀，留空则 captcha:{服务配置名}:
+  }
 }
 ```
 
@@ -247,12 +258,14 @@ OTP 本身的发送时机由具体业务决定（登录场景里，用户名密�
 - **`expire`** → 答案缓存过期（毫秒）。我们的模型里一个配置文件就是
   一种验证码，不同类型的过期各写各的文件，无需按类型再分
 - **`tolerant`** → tianai 的容错是 0~1 的小数（默认 0.02）；
-  实现类把 1-10 的档位换算过去，档位越高容错越大
+  实现类按 `tolerant * 0.005` 线性换算（档位 1-10 对应 0.5%~5%），
+  档位越高容错越大
 - **`obfuscate`** → 滑块干扰缺口
-- **`bgImgDir`** → 经 ResourceStore 读取的背景图目录（建议 600x360）；
-  目录列表按 `bgImgCache` 缓存（WnSimpleCache，0 为不缓存）
-- **`fontPath`** → 文字点选的字体；留空则拒绝生成
-  `WORD_IMAGE_CLICK` 类型的验证码
+- **`bgImgDir`** → 经 Walnut 基于 WnIo 的 ResourceStore 读取的背景图
+  目录（建议 600x360），随机取图；目录列表按 `bgImgCache`
+  缓存（WnSimpleCache，0 为不缓存）
+- **`fontPath`** → 文字点选的字体，同样经 WnIo ResourceStore 读取；
+  留空则拒绝生成 `WORD_IMAGE_CLICK` 类型的验证码
 
 ## 服务器吐出什么（tianai 口径）
 
@@ -297,17 +310,26 @@ ImageCaptchaApplication app = TACBuilder.builder()
 
 # 主要代码类
 
-- `WnCaptchaBuilder` — captcha 工厂接口：`build(name)` 读 `~/.captcha/{name}.json`，
-  组装引擎与两个 Store，注入 WnCaptchaApi 实现类（当前为空骨架）
-- `WnCaptchaApi` — captcha 服务统一接口：生成与校验，业务直接使用（当前为空骨架）
+- `WnCaptchaBuilder` — captcha 工厂接口：`build(name)` 按 `~/.captcha/{name}.json`
+  组装引擎与两个 Store，注入 WnCaptchaApi 实现类
+- `WnCaptchaApi` — captcha 服务统一接口：生成与校验，业务直接使用
 - `WnCaptchaObj` — 验证码载体：`toString()` 序列化给客户端，`fromString()` 还原
 - `WnCaptchaAnswerStore` — 答案临时存取接口：`save` / `get` / `remove`，带过期
 - `WnCaptchaTicketStore` — 临时票据接口：`createTicket` 签发、`checkTicket` 校验并作废
-- `WnTianaiCaptchaApi` — tianai 版 WnCaptchaApi 实现：包装 ImageCaptchaApplication
-  + 两个 Store（待实现）
+- `WnSysCaptchaBuilder` — 工厂实现：读配置、组装 tianai 引擎与两个 Redis
+  Store，实例按配置名缓存（`security/captcha/impl`）
+- `WnTianaiCaptchaApi` — tianai 版 WnCaptchaApi 实现：包装
+  ImageCaptchaApplication + 两个 Store（`security/captcha/impl/tianai`）
+- `WnTianaiCaptchaObj` — tianai 版 WnCaptchaObj：包装 ImageCaptchaVO
+- `WnRedisCaptchaAnswerStore` — 答案的 Redis 实现：一身二任，同时实现
+  tianai 的 CacheStore（引擎校验数据走同一套键空间）
+- `WnRedisCaptchaTicketStore` — 票据的 Redis 实现：ticket → account 映射，
+  一次性消费
+- `WnIoCaptchaResourceStore` — tianai ResourceStore 实现：背景图/字体从
+  对象存储随机读取（WnSimpleCache 缓存目录列表），模板委托内置本地存储
+- `WnIoResourceProvider` — tianai ResourceProvider 实现（类型 `wnio`）：
+  从对象存储打开资源流
 - `ImageCaptchaApplication` — tianai 的验证码引擎：生成、轨迹匹配
-- `ResourceStore` — tianai 的资源接口：背景图/模板图，Walnut 侧用 WnIo 实现
-- `CacheStore` — tianai 的答案缓存接口，Walnut 侧用 Wedis（Redis）实现
 
 # 扩展阅读
 
