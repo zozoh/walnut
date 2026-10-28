@@ -1,7 +1,7 @@
 ---
 title: 人机验证码 captcha
 module: security.captcha
-keywords: [验证码, captcha, 人机校验, 拖拽验证, WnCaptchaApi, WnCaptchaObj]
+keywords: [验证码, captcha, 人机校验, 行为验证码, WnCaptchaApi, WnCaptchaAnswerStore, WnCaptchaTicketStore, tianai]
 source:
   - security/captcha/
 related: [README, 60-auth-otp]
@@ -14,8 +14,7 @@ related: [README, 60-auth-otp]
 「挡机器人」，两者独立成服务、由业务编排串联（协作流程见本文最后一节，
 OTP 本身见 60-auth-otp）。
 
-captcha 默认采用**拖拽式**：服务端生成一道验证题，序列化成字符串交给客户端，
-由客户端绘制出拖拽界面。它也不依赖会话——验证发生时，往往还没登录呢。
+它也不依赖会话——验证发生时，往往还没登录呢。
 
 ## 要解决的问题
 
@@ -27,26 +26,52 @@ captcha 默认采用**拖拽式**：服务端生成一道验证题，序列化�
 
 ## 解决思路
 
-captcha 单独一套服务类，放在 `security/captcha` 包里。
-现在只定**接口骨架**，拖拽题怎么生成、答案怎么判定，这些细节晚点再设计。
-接口就三个角色：
+我们不自己造验证码轮子：滑块轨迹校验、点选坐标比对、答案缓存、
+容错判定，都有成熟的行为验证码库可选。但库只是**实现的选择**——
+Walnut 自己定义一套抽象的接口，把具体库藏在接口后面：
 
 ```bash
-|-- WnCaptchaBuilder 按配置名构建
-|-- WnCaptchaApi 生成/校验验证码
-|-- WnCaptchaObj 验证码的序列化载体
+|-- WnCaptchaBuilder       # 按配置构建验证码
+|-- WnCaptchaApi           # 生成/校验验证码
+|-- WnCaptchaObj           # 验证码的序列化载体
+|-- WnCaptchaAnswerStore   # 答案的临时存取
+|-- WnCaptchaTicketStore   # 临时票据的签发与校验
 配置：~/.captcha/{name}.json
 ```
 
+当前默认的实现选型是 [tianai-captcha](https://doc.captcha.tianai.cloud/)
+（dromara 开源，Apache-2.0），它的接入方式见文末「tianai 实现」章节。
+将来换库或自研，业务代码不用动。
+
 # Captcha 服务
 
-## 接口三角色
+## 接口角色
 
 - **`WnCaptchaBuilder`**：按配置名构建验证码接口，相当于工厂——
-  `builder.build("default")` 拿到一个 `WnCaptchaApi`
-- **`WnCaptchaApi`**：验证码服务的统一入口，提供**生成**与**校验**两个能力
-- **`WnCaptchaObj`**：一份验证码的载体，`toString()` 序列化成字符串交给客户端，
-  `fromString()` 从字符串还原——客户端拿到什么、回传什么，全靠它定义
+  `builder.build("default")` 读取 `~/.captcha/default.json`，
+  组装出底层引擎（tianai 的 `ImageCaptchaApplication`）与
+  `WnCaptchaAnswerStore`、`WnCaptchaTicketStore`，
+  把它们注入一个 `WnCaptchaApi` 实现类返回。
+  业务代码不直接接触引擎
+- **`WnCaptchaApi`**：验证码服务的统一入口，是**业务逻辑面对的
+  高级接口**：
+  - `generate()` 生成一份验证码，返回 `WnCaptchaObj`，
+    同时把标准答案临时存入 `WnCaptchaAnswerStore`
+  - `check(id, data)` 校验用户提交的行为数据，通过即作废该验证码
+  - `createTicket(account)` 校验通过后，签发一张**临时票据**
+    （ticket → account 存入 `WnCaptchaTicketStore`，一次性，带过期）
+  - `checkTicket(ticket, account)` 业务提交时校验票据：取出映射、
+    比对 account、验过即作废
+- **`WnCaptchaObj`**：一份验证码的载体，`toString()` 输出给客户端的
+  JSON，`fromString()` 从字符串还原。吐出的 JSON 结构由具体实现定义
+- **`WnCaptchaAnswerStore`**：答案的**临时存取**接口——生成时 `save`，
+  校验时 `get` 比对、`remove` 作废，带过期时间。答案由生成它的节点
+  在校验时消费，实现类可以是节点本地缓存，也可以是 Redis
+- **`WnCaptchaTicketStore`**：临时票据的**签发与校验**接口——
+  `createTicket(account)` 写入 ticket → account 映射，
+  `checkTicket(ticket, account)` 比对账号并作废。票据在业务提交时
+  才被消费，那次请求可能落到集群里另一个节点，所以实现类必须是
+  多节点共享的存储（Redis）
 
 ## 配置：`~/.captcha/`
 
@@ -54,9 +79,40 @@ captcha 单独一套服务类，放在 `security/captcha` 包里。
 
 ```bash
 ~/.captcha/
-|-- default.json     # 拖拽式验证码的配置，包括图片策略等配置信息
-|-- ...              # 我们以后还可以支持更多验证码方式
-|-- ...              # 譬如选择汉字，计算数学题的，等等
+|-- default.json     # 默认验证码
+|-- click.json       # 另一种验证码方式
+|-- ...
+```
+
+配置文件的字段语义由具体实现解释。下面是当前默认实现（tianai）
+的配置示例：
+
+```json5
+{
+  // 验证码类型，取值由实现定义（tianai：SLIDER / ROTATE / CONCAT /
+  // WORD_IMAGE_CLICK / POW）
+  type     : "SLIDER",
+
+  // 答案缓存过期时间（毫秒），到点作废需重新获取
+  expire   : 10000,
+
+  // 校验容错档位：1-10 的整数，数值越大越宽松（越容易通过）。
+  // 这是抽象尺度，具体多大误差算通过，由验证码实现类自行理解
+  tolerant : 5,
+
+  // 滑块干扰：生成迷惑性缺口
+  obfuscate: false,
+
+  // 背景图目录：Walnut 对象存储里的一个图片目录，里面放一组图片，
+  // 每次生成验证码时随机取一张做背景（建议 600x360）。
+  // 实现类会把目录读成图片列表并缓存（默认 WnSimpleCache 10 分钟），
+  // bgImgCache 可调整缓存毫秒数，0 表示完全不缓存
+  bgImgDir  : "~/.captcha/bg",
+  bgImgCache: 600000,
+
+  // 点选验证码的字体；留空表示本验证码不支持文字点选类型
+  fontPath : "~/.captcha/font/simhei.ttf"
+}
 ```
 
 ## 生成与校验的分工
@@ -66,22 +122,54 @@ captcha 单独一套服务类，放在 `security/captcha` 包里。
 ```bash
 服务器：生成部分
 |-- WnCaptchaBuilder.build("default") 获取一个 WnCaptchaApi
-|-- WnCaptchaApi 生成验证码对象 WnCaptchaObj
+|-- WnCaptchaApi.generate() 生成 WnCaptchaObj，答案存入 WnCaptchaAnswerStore
 |-- WnCaptchaObj 的 toString() 将自己变成字符串
 |-- 服务器将字符串返回给客户端
 
 客户端
 |-- 根据服务器返回的字符串，绘制验证码界面
-|-- 接收用户输入，保留信息
+|-- 接收用户输入，采集行为数据（拖拽轨迹、点选坐标……）
+|-- 将 {id, data: 行为数据} 发送给服务器
 
 服务器：校验部分
 |-- WnCaptchaBuilder.build("default") 获取一个 WnCaptchaApi
-|-- WnCaptchaApi 校验用户输入，返回校验结果
+|-- WnCaptchaApi.check(id, data)：取出答案比对，通过即作废
+|-- 通过 → 继续业务；不通过 → 客户端刷新重来
 ```
 
-**注意一个留白**：验证码的状态（题目、答案、有效期）存在哪、怎么保证
-「一发一验」，属于「细节后补」的部分——但 `WnCaptchaObj` 的序列化格式
-必须能承载这些信息，因为它是客户端与服务器的唯一契约。
+**服务器吐出什么**：`WnCaptchaObj.toString()`——结构由具体实现定义，
+但都包含 `id`（本次验证码的唯一标识）与渲染所需的全部数据，
+客户端拿到即可绘制，零额外请求。
+
+**客户端提交什么**：`{id, data}`。`id` 对应生成的那份验证码，
+`data` 是用户行为的采集结果。服务器据此从 `WnCaptchaAnswerStore`
+取出标准答案比对。
+
+三个老问题，在抽象层面都有了落点：
+
+- **答案存哪**：`WnCaptchaAnswerStore`，带过期
+- **一发一验**：每次生成一个新 `id`，天然互不干扰；校验通过即作废
+- **防重放**：作废之外，业务侧还要用临时票据把校验结果和业务动作
+  绑在一起（见下）
+
+## 临时票据：把校验结果和业务动作绑在一起
+
+一次 `check` 通过只证明「刚才那次拖拽是人做的」，距离业务动作真正
+执行往往还隔着几次交互（登录场景里，校验通过后还要填 OTP）。所以
+校验通过后，服务器**不返回验证码的 `id`**，而是签发一张**临时票据**：
+
+```bash
+|-- check 通过 → createTicket(account)
+|--   在 WnCaptchaTicketStore 里生成 ticket → account 的映射（一次性，带过期）
+|--   把 ticket 回给客户端
+|-- 业务提交时带上 ticket + account（如登录请求里的 captchaTicket + 用户名）
+|-- 服务器执行业务前 checkTicket(ticket, account)：
+|--   取出映射、比对 account，验过立即作废，才放行
+```
+
+这一步是必须的：没有它，攻击者可以跳过拖拽、直接调用业务接口；
+有了票据，人机校验的结论被**绑定到具体账号**上，机器批量重放
+别人的 ticket 也过不了 account 比对。
 
 # OTP 与 captcha 的协作
 
@@ -94,29 +182,132 @@ captcha 单独一套服务类，放在 `security/captcha` 包里。
 第 1 轮：获取 OTP 之前，先过人机校验
 |-- 用户点击「获取 OTP」，向服务器请求 captcha
 服务器
-|-- 进入 captcha 生成流程，返回 captcha 字符串
+|-- WnCaptchaApi.generate()，返回 WnCaptchaObj JSON
 客户端
-|-- 根据字符串绘制拖拽验证码界面
-|-- 用户完成拖拽，点击登录
+|-- 渲染验证码界面，用户完成拖拽/点选
+|-- 客户端将 {id, 行为数据} 提交给服务器
+服务器
+|-- WnCaptchaApi.check(id, data) 校验
+|-- 通过 → createTicket(account) 签发临时票据，把 ticket 回给客户端
+|--   校验不通过 → 客户端刷新重来
 
 第 2 轮：登录提交
-|-- 客户端将用户名、密码、验证码（拖拽结果）一起发送给服务器
+|-- 客户端将用户名、密码、ticket 一起发送给服务器
 服务器
-|-- 进入 captcha 校验流程，先校验验证码
-|-- 校验失败 → 直接返回失败（不碰用户名密码）
-|-- 校验通过 → 继续验证用户名、密码
+|-- 先 checkTicket(ticket, 用户名)，失败 → 直接返回（不碰用户名密码）
+|-- captcha 通过 → 验证用户名、密码
 |-- 用户名密码不通过 → 返回登录失败
-|-- 全部通过 → 触发 OTP 发送（WnOTPSender），等待用户回填
+|-- 全部通过 → 触发 OTP 发送（WnOTPService.send），等待用户回填
 ```
 
 OTP 本身的发送时机由具体业务决定（登录场景里，用户名密码通过后再发码，
 可以避免「验证码被用来探测账号是否存在」）。
 
+# tianai 实现
+
+当前默认实现选型 [tianai-captcha](https://doc.captcha.tianai.cloud/)
+（dromara 开源，Apache-2.0）：滑块、旋转、滑动还原、文字点选、
+工作量证明（POW）五种行为验证码，答案缓存、过期、容错、轨迹校验
+都是现成的。下面是我们的抽象角色与 tianai 的对应关系。
+
+## 角色映射
+
+- **`WnCaptchaBuilder`** → 构建 tianai 引擎 `ImageCaptchaApplication`
+  （线程安全，单例；非 Spring 环境用 `TACBuilder` 链式组装），
+  并按配置创建 `WnCaptchaAnswerStore` 与 `WnCaptchaTicketStore`
+  实现，一起注入 `WnCaptchaApi` 实现类（如 `WnTianaiCaptchaApi`）
+- **`WnCaptchaApi`** → 业务面对的高级接口，由实现类包装
+  `ImageCaptchaApplication` + 两个 Store：
+  - `generate()` → `generateCaptcha(type)`，返回 `ApiResponse<ImageCaptchaVO>`
+  - `check(id, data)` → `matching(id, ImageCaptchaTrack)`
+  - `createTicket` / `checkTicket` → 不经过 tianai，直接读写
+    `WnCaptchaTicketStore`（ticket → account 映射）；tianai 的
+    `secondaryVerification(id)` 与我们自己的票据重复，
+    实现里不用它
+- **`WnCaptchaObj`** → 包装 `ImageCaptchaVO`，`toString()` 即其 JSON
+- **`WnCaptchaAnswerStore`** → 包装 tianai 的 `CacheStore`
+  （官方有 Redis 实现；Walnut 侧用已有的 `Wedis` 接 Redis，
+  与 OTP 的存储选择一致——多节点共享、重启不丢）。
+  答案由生成它的节点在校验时消费，若追求极致性能，
+  也可以换成节点本地缓存的实现
+- **`WnCaptchaTicketStore`** → 不经过 tianai，Walnut 侧直接用
+  `Wedis` 接 Redis 实现（票据在业务提交时才被消费，可能跨节点，
+  必须共享存储）
+- **背景图/模板图**：tianai 用 `ResourceStore` 管理，
+  Walnut 实现一个基于 `WnIo` 的 ResourceStore，从 `bgImgDir`
+  的图片列表中随机取图；模板图直接用库内置的
+
+## 配置字段的对应
+
+`~/.captcha/{name}.json` 的字段是抽象尺度，由实现类翻译成
+底层库的语言。tianai 实现的翻译方式：
+
+- **`type`** → 验证码类型常量：`SLIDER` / `ROTATE` / `CONCAT` /
+  `WORD_IMAGE_CLICK` / `POW`
+- **`expire`** → 答案缓存过期（毫秒）。我们的模型里一个配置文件就是
+  一种验证码，不同类型的过期各写各的文件，无需按类型再分
+- **`tolerant`** → tianai 的容错是 0~1 的小数（默认 0.02）；
+  实现类把 1-10 的档位换算过去，档位越高容错越大
+- **`obfuscate`** → 滑块干扰缺口
+- **`bgImgDir`** → 经 ResourceStore 读取的背景图目录（建议 600x360）；
+  目录列表按 `bgImgCache` 缓存（WnSimpleCache，0 为不缓存）
+- **`fontPath`** → 文字点选的字体；留空则拒绝生成
+  `WORD_IMAGE_CLICK` 类型的验证码
+
+## 服务器吐出什么（tianai 口径）
+
+`ImageCaptchaVO` 的 JSON：
+
+```json
+{
+  "id": "…",
+  "type": "SLIDER",
+  "data": { "backgroundImage": "base64…", "templateImage": "base64…" }
+}
+```
+
+`data` 随类型而异：滑块是背景图 + 滑块图的 base64，点选是带提示文字的图，
+POW 是挑战参数 `[difficulty, saltLen, count]`（默认 `[4,16,4]`）。
+图片全部 base64 内联，客户端零额外请求——官方 tac SDK 认的就是
+这个格式，可直接对接（`new TAC({requestCaptchaDataUrl, validCaptchaUrl,
+bindEl, validSuccess})`）。
+
+## 客户端提交什么（tianai 口径）
+
+`{id, data: 轨迹}`，轨迹由 SDK 采集：
+
+- 滑块/旋转：拖动过程的坐标时间序列
+- 文字点选：点击坐标序列
+- POW：求解出的 nonce
+
+服务器拿 id 从 CacheStore 取出标准答案，与轨迹比对（带容错）。
+
+## 非 Spring 环境
+
+Walnut 不是 Spring 应用，tianai 提供链式 Builder：
+
+```java
+ImageCaptchaApplication app = TACBuilder.builder()
+        .addDefaultTemplate()          // 内置模板
+        .addResource(...)              // 自定义背景图
+        .expire(...)
+        .setCacheStore(...)            // 接我们的 Wedis CacheStore
+        .build();
+```
+
 # 主要代码类
 
-- `WnCaptchaBuilder` — captcha 工厂接口，`build(name)` 按 `~/.captcha/{name}.json` 构建
-- `WnCaptchaApi` — captcha 服务统一接口：生成与校验（当前为空骨架）
+- `WnCaptchaBuilder` — captcha 工厂接口：`build(name)` 读 `~/.captcha/{name}.json`，
+  组装引擎与两个 Store，注入 WnCaptchaApi 实现类（当前为空骨架）
+- `WnCaptchaApi` — captcha 服务统一接口：生成与校验，业务直接使用（当前为空骨架）
 - `WnCaptchaObj` — 验证码载体：`toString()` 序列化给客户端，`fromString()` 还原
+- `WnCaptchaAnswerStore` — 答案临时存取接口：`save` / `get` / `remove`，带过期
+- `WnCaptchaTicketStore` — 临时票据接口：`createTicket` 签发、`checkTicket` 校验并作废
+- `WnTianaiCaptchaApi` — tianai 版 WnCaptchaApi 实现：包装 ImageCaptchaApplication
+  + 两个 Store（待实现）
+- `ImageCaptchaApplication` — tianai 的验证码引擎：生成、轨迹匹配
+- `ResourceStore` — tianai 的资源接口：背景图/模板图，Walnut 侧用 WnIo 实现
+- `CacheStore` — tianai 的答案缓存接口，Walnut 侧用 Wedis（Redis）实现
 
 # 扩展阅读
 
