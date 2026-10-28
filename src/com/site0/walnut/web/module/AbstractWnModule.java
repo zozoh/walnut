@@ -119,7 +119,7 @@ public abstract class AbstractWnModule extends WnRun {
         return context;
     }
 
-    protected void try_run_profile(WnSession se) {
+    public void try_run_profile(WnSession se) {
         if (null != se) {
             WnIo io = io();
             WnObj oProfile = Wn.getObj(io, se, "~/.profile");
