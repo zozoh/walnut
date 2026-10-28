@@ -3,7 +3,7 @@ title: 源码包结构导览
 module: 101.dev
 keywords: [源码结构, 包结构, src, com.site0.walnut, 代码地图]
 source: [src/]
-related: [../SOURCEMAP.md, custom-command, jsexec-api]
+related: [../SOURCEMAP.md, custom-command, 40.commands/20-cmd-jsc.md]
 ---
 
 # 源码包结构导览概述

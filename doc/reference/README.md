@@ -61,6 +61,14 @@ doc/reference/
 |   |-- 03-cmd-filter.md          #   过滤命令（JvmFilterExecutor）：@过滤器共享上下文
 |   |-- 04-cmd-pipe.md            #   命令管道：| 组合、变量替换、run 批量执行
 |   |-- 05-cmd-std-in-out.md      #   命令输入输出：三流、> >> 2>&1 重定向、输出惯例
+|   |-- 20-cmd-jsc.md             #   jsc 命令：JS 引擎、注入对象、-vars、hello 例子
+|   |-- 10-cmd-o-overview.md      #   cmd_o 总览：过滤器链、命令参数、七专题导航
+|   |-- 11-cmd-o-query.md         #   对象查询：@query @get @fetch @mime
+|   |-- 12-cmd-o-load.md          #   进一步读取：@read @children @tree @refer
+|   |-- 13-cmd-o-update.md        #   修改删除：@create @update @delete @inc
+|   |-- 14-cmd-o-context.md       #   操作上下文：@var @filter @push @pop @put
+|   |-- 15-cmd-o-agg.md           #   聚集统计：@agg @size @count
+|   |-- 16-cmd-o-output.md        #   输出：@json @ajax @tmpl @tab @zip
 |   |-- 60-cmd-table.md           #   命令总表：157 个命令的来源/写法/逻辑分类
 |
 |-- 50.regapi/                    # HTTP 注册接口（动态 API 的核心机制）
@@ -96,11 +104,13 @@ doc/reference/
 |   |-- troubleshooting.md        #   排查手册：日志位置、常见错误码、诊断命令
 |
 |-- 101.dev/                       # 二次开发
-|   |-- source-layout.md          #   src 包结构导览：每个包一句话 + 关键类
-|   |-- java-lib.md               #   作为 Java 库嵌入：核心 IoC beans、WnIo 直接编程
-|   |-- custom-command.md         #   编写 cmd_* 命令：JvmExecutor、参数、注册、man 手册
-|   |-- jsexec-api.md             #   JS 脚本 API 全集：sys.io/sys.exec/Wn 工具函数
-|   |-- extend-regapi.md          #   扩展实践：给 regapi 写复杂后端、调第三方、模板渲染
+|   |-- README.md                 #   本篇：三条开发路线（脚本/配置/Java）怎么选
+|   |-- 10-write-jsbin.md         #   编写 jsbin 业务脚本：骨架、参数契约、sys/$wn/$log、场景示例
+|   |-- 11-write-sqlx-tmpl.md     #   编写 SQL 模板：SqlEntry 文件格式、六种 @vars 类型、条件值语法、调试
+|   |-- 20-write-app-init.md      #   编写应用初始化模板：条目类型、内容模式（TMPL/COPY/EXPLAIN）、收尾脚本
+|   |-- 30-extend-regapi.md       #   扩展实践：给 regapi 写复杂后端、调第三方、模板渲染
+|   |-- 40-custom-command.md      #   编写 cmd_* 命令：JvmExecutor、参数、注册、man 手册
+|   |-- 50-write-java.md          #   作为 Java 库嵌入：核心 IoC beans、WnIo 直接编程
 ```
 
 ## 写作规范（每篇文档必须遵守）
