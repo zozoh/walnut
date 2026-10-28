@@ -20,6 +20,7 @@ import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.hook.WnHookContext;
 import com.site0.walnut.api.hook.WnHookService;
 import com.site0.walnut.api.io.WnIo;
+import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.sys.cron.WnSysCronApi;
 import com.site0.walnut.ext.sys.schedule.WnSysScheduleApi;
 import com.site0.walnut.ext.sys.task.WnSysTaskApi;
@@ -330,5 +331,24 @@ public class WnRun {
 
     public WnSysConf getSysConf() {
         return Wn.getSysConf(io);
+    }
+
+    /**
+     * 会话创建后，尝试执行用户家目录下的 <code>~/.profile</code> 初始化脚本
+     *
+     * @param se
+     *            会话（为 <code>null</code> 时什么都不做）
+     */
+    public void tryRunProfile(WnSession se) {
+        if (null != se) {
+            WnObj oProfile = Wn.getObj(io, se, "~/.profile");
+            if (null != oProfile && oProfile.isFILE()) {
+                String cmd = io.readText(oProfile);
+                String out = this.exec("profile", se, null, cmd);
+                if (boxLog.isInfoEnabled()) {
+                    boxLog.infof("run profile: %s :\n%s", oProfile.path(), out);
+                }
+            }
+        }
     }
 }

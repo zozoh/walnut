@@ -43,7 +43,7 @@ import com.site0.walnut.web.bean.WnLoginPage;
 import com.site0.walnut.web.filter.WnAsUsr;
 import com.site0.walnut.web.filter.WnCheckSession;
 import com.site0.walnut.web.impl.WnAppService;
-import com.site0.walnut.web.module.app.WnAppModuleAuthLoginByPassword;
+import com.site0.walnut.web.module.app.WnAppModuleDomainLoginByPassword;
 import com.site0.walnut.web.module.app.WnAppModuleLoad;
 import com.site0.walnut.web.module.app.WnAppModuleOpen;
 import com.site0.walnut.web.module.app.WnAppModuleRun;
@@ -339,16 +339,21 @@ public class AppModule extends AbstractWnModule {
     @At
     public View sys_login_by_passwd(@Param("name") String name,
                                     @Param("passwd") String passwd,
+                                    @Param("otp") String otpConfigName,
+                                    @Param("otp_val") String otpCode,
                                     @Param("ajax") boolean ajax,
                                     @ReqHeader("Referer") String referer,
                                     final HttpServletRequest req,
                                     final HttpServletResponse resp) {
         WnAppModuleSysLoginByPassword service = new WnAppModuleSysLoginByPassword();
-        service.setModule(this);
+        service.setRun(this);
+        service.setIo(io());
         service.setAuth(auth());
         service.setConf(conf);
         service.setName(name);
         service.setPasswd(passwd);
+        service.setOtpConfigName(otpConfigName);
+        service.setOtpCode(otpCode);
         service.setAjax(ajax);
         service.setReferer(referer);
         service.setReq(req);
@@ -415,17 +420,22 @@ public class AppModule extends AbstractWnModule {
     public View auth_login_by_domain_passwd(@Param("site") String siteId,
                                             @Param("name") String name,
                                             @Param("passwd") String passwd,
+                                            @Param("otp") String otpConfigName,
+                                            @Param("otp_val") String otpCode,
                                             @Param("ajax") boolean ajax,
                                             @Attr("wn_www_host") String hostName,
                                             final HttpServletRequest req,
                                             final HttpServletResponse resp) {
-        WnAppModuleAuthLoginByPassword service = new WnAppModuleAuthLoginByPassword();
-        service.setModule(this);
+        WnAppModuleDomainLoginByPassword service = new WnAppModuleDomainLoginByPassword();
+        service.setRun(this);
         service.setIo(io());
+        service.setAuth(auth());
         service.setConf(conf);
         service.setSiteId(siteId);
-        service.setName(name);
+        service.setAccount(name);
         service.setPasswd(passwd);
+        service.setOtpConfigName(otpConfigName);
+        service.setOtpCode(otpCode);
         service.setAjax(ajax);
         service.setHostName(hostName);
         service.setReq(req);

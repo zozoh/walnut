@@ -15,7 +15,9 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.core.bean.WnIoObj;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
+import com.site0.walnut.web.util.WnAppModuleLoginMode;
 
 public class WnConfig extends WebConfig {
 
@@ -130,6 +132,22 @@ public class WnConfig extends WebConfig {
 
     public String getSysEntryUrl() {
         return this.get("sys-entry-url", "/a/login/");
+    }
+
+    public WnAppModuleLoginMode getSysLoginMode() {
+        String md = this.get("app-module-sys-login");
+        if (Ws.isBlank(md)) {
+            return WnAppModuleLoginMode.PASSWD_ONLY;
+        }
+        return WnAppModuleLoginMode.valueOf(md.toUpperCase());
+    }
+
+    public WnAppModuleLoginMode getDomainLoginMode() {
+        String md = this.get("app-module-dmn-login");
+        if (Ws.isBlank(md)) {
+            return WnAppModuleLoginMode.PASSWD_ONLY;
+        }
+        return WnAppModuleLoginMode.valueOf(md.toUpperCase());
     }
 
 }

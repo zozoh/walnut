@@ -119,18 +119,4 @@ public abstract class AbstractWnModule extends WnRun {
         return context;
     }
 
-    public void try_run_profile(WnSession se) {
-        if (null != se) {
-            WnIo io = io();
-            WnObj oProfile = Wn.getObj(io, se, "~/.profile");
-            if (null != oProfile && oProfile.isFILE()) {
-                String cmd = io.readText(oProfile);
-                String out = this.exec("profile", se, null, cmd);
-                if (log.isInfoEnabled()) {
-                    log.infof("run profile: %s :\n%s", oProfile.path(), out);
-                }
-            }
-        }
-    }
-
 }
