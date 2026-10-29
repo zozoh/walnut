@@ -11,6 +11,8 @@ import org.nutz.log.Log;
 import org.nutz.mvc.View;
 import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.ViewWrapper;
+import org.nutz.web.ajax.Ajax;
+import org.nutz.web.ajax.AjaxReturn;
 
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.login.WnLoginApi;
@@ -20,26 +22,24 @@ import com.site0.walnut.security.captcha.WnCaptchaObj;
 import com.site0.walnut.security.captcha.impl.WnSysCaptchaBuilder;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Ws;
-import com.site0.walnut.web.util.WnWeb;
 
 /**
  * 对应入口函数 <code>AppModule.captcha_get</code> /
- * <code>AppModule.captcha_verify</code> 的服务类：人机验证码（captcha）
- * 的生成与校验。
+ * <code>AppModule.captcha_verify</code> 的服务类：人机验证码（captcha） 的生成与校验。
  *
  * <p>
- * 验证码按域配置：域就是系统用户名，配置位于其家目录的
- * <code>~/.captcha/{name}.json</code>（配置名缺省 <code>"default"</code>），
- * 域为空表示 root 用户。每次请求都现场构建 {@link WnCaptchaBuilder}，
+ * 验证码按域配置：域就是系统用户名，配置位于其家目录的 <code>~/.captcha/{name}.json</code>（配置名缺省
+ * <code>"default"</code>）， 域为空表示 root 用户。每次请求都现场构建 {@link WnCaptchaBuilder}，
  * 不做缓存——构建代价小，且能始终读到最新的域配置。
  *
  * <p>
- * <code>get</code> 吐出 {@link WnCaptchaObj#toString()}——客户端直接渲染的
- * 验证码 JSON（含 <code>id</code> 与渲染数据）；
- * <code>verify</code> 校验用户提交的行为数据，通过即作废（一发一验），
- * 并签发一张绑定账号的临时票据（一次性，带过期）——客户端在后续业务
- * 请求（如 OTP 发送 / 登录提交）里带上 <code>ticket + account</code>，
- * 由业务侧 <code>checkTicket</code> 消费。
+ * 返回统一用 {@link AjaxReturn} 包裹：成功 <code>{ok:true, data:...}</code>， 失败
+ * <code>{ok:false, errCode, msg}</code>——服务故障与「校验不通过」
+ * 客户端可以明确区分。<code>get</code> 的 <code>data</code> 是 {@link WnCaptchaObj} 的
+ * JSON（含 <code>id</code> 与渲染数据），客户端 拿到即可绘制；<code>verify</code> 的
+ * <code>data</code> 是 <code>{ticket:...}</code>。verify 校验用户提交的行为数据，通过即作废
+ * （一发一验），签发的临时票据（一次性，带过期）由客户端在后续业务 请求（如 OTP 发送 / 登录提交）里带上
+ * <code>ticket + account</code>， 由业务侧 <code>checkTicket</code> 消费。
  *
  * @author zozoh(zozohtnt@gmail.com)
  */
@@ -57,8 +57,7 @@ public class WnAppModuleCaptcha {
     private String domain;
 
     /**
-     * 验证码配置名（对应 <code>~/.captcha/{name}.json</code>），缺省
-     * "default"
+     * 验证码配置名（对应 <code>~/.captcha/{name}.json</code>），缺省 "default"
      */
     private String captchaName;
 
@@ -87,19 +86,13 @@ public class WnAppModuleCaptcha {
      * @return 验证码 JSON 视图
      */
     public View get() {
-        // 允许跨域
-        WnWeb.setCrossDomainHeaders("*", (headName, headValue) -> {
-            resp.setHeader(WnWeb.niceHeaderName(headName), headValue);
-        });
-        // 对于 options 放过
-        if (WnWeb.isRequestOptions(req)) {
-            return null;
-        }
         String reJson;
         try {
             WnCaptchaApi api = this.__check_api();
             WnCaptchaObj obj = api.generate();
-            reJson = obj.toString();
+            // 统一用 AjaxReturn 包裹：{ok:true, data: WnCaptchaObj 的 JSON}
+            reJson = String.format("{\"ok\":true, \"data\":%s}",
+                                   obj.toString());
         }
         catch (Exception e) {
             if (log.isWarnEnabled()) {
@@ -113,18 +106,10 @@ public class WnAppModuleCaptcha {
     /**
      * 校验人机验证码，通过则签发绑定账号的临时票据
      *
-     * @return 成功 <code>{"ok":true,"ticket":"..."}</code>；失败
+     * @return 成功 <code>{"ok":true,"data":{"ticket":"..."}}</code>；失败
      *         <code>{"ok":false,"errCode":...}</code>
      */
     public View verify() {
-        // 允许跨域
-        WnWeb.setCrossDomainHeaders("*", (headName, headValue) -> {
-            resp.setHeader(WnWeb.niceHeaderName(headName), headValue);
-        });
-        // 对于 options 放过
-        if (WnWeb.isRequestOptions(req)) {
-            return null;
-        }
         String reJson;
         try {
             // 票据必须绑定账号，否则后续业务没法比对
@@ -140,9 +125,8 @@ public class WnAppModuleCaptcha {
             }
             // 签发临时票据：ticket -> account（一次性，带过期）
             String ticket = api.createTicket(account);
-            NutMap re = new NutMap();
-            re.put("ok", true);
-            re.put("ticket", ticket);
+            NutMap data = new NutMap("ticket", ticket);
+            AjaxReturn re = Ajax.ok().setData(data);
             reJson = Json.toJson(re, JsonFormat.compact());
         }
         catch (Exception e) {
@@ -164,8 +148,7 @@ public class WnAppModuleCaptcha {
     }
 
     /**
-     * 为当前域构建一个 captcha 构建器：域的家目录决定
-     * <code>~/.captcha</code> 的位置
+     * 为当前域构建一个 captcha 构建器：域的家目录决定 <code>~/.captcha</code> 的位置
      *
      * @return 新构建器
      */
@@ -181,16 +164,13 @@ public class WnAppModuleCaptcha {
      * @param errCode
      *            错误码
      * @param e
-     *            异常（可为 <code>null</code>，其 message 会写入
-     *            <code>msg</code> 字段）
+     *            异常（可为 <code>null</code>，其 message 会写入 <code>msg</code> 字段）
      * @return 失败 JSON 字符串
      */
     private String __fail_json(String errCode, Exception e) {
-        NutMap re = new NutMap();
-        re.put("ok", false);
-        re.put("errCode", errCode);
+        AjaxReturn re = Ajax.fail().setErrCode(errCode);
         if (null != e) {
-            re.put("msg", e.getMessage());
+            re.setMsg(e.getMessage());
         }
         return Json.toJson(re, JsonFormat.compact());
     }

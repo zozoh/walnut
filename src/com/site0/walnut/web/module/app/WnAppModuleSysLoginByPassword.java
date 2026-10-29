@@ -12,6 +12,7 @@ import org.nutz.web.ajax.AjaxView;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.login.usr.WnUser;
+import com.site0.walnut.security.otp.WnOTPService;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
@@ -85,7 +86,9 @@ public class WnAppModuleSysLoginByPassword extends AbstractWnAppModuleAuth {
 
             // PASSWD_AND_OTP：密码过了还必须验 OTP
             if (null != se && mode == WnAppModuleLoginMode.PASSWD_AND_OTP) {
-                String otpErr = this._check_otp(this._get_otps(), se.getUser());
+                WnOTPService otps = this._get_otps();
+                WnUser user = se.getUser();
+                String otpErr = this._check_otp(otps, user);
                 // OTP 不过：回收会话，报错
                 if (null != otpErr) {
                     auth.removeSession(se);
@@ -160,7 +163,8 @@ public class WnAppModuleSysLoginByPassword extends AbstractWnAppModuleAuth {
         }
         // 用户必须存在，并取其邮箱作为 OTP 账号
         WnUser user = auth.checkUser(name);
-        String otpErr = this._check_otp(this._get_otps(), user);
+        WnOTPService otps = this._get_otps();
+        String otpErr = this._check_otp(otps, user);
         if (null != otpErr) {
             throw Er.create(otpErr);
         }

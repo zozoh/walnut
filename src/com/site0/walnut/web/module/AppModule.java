@@ -12,7 +12,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
+import org.nutz.json.JsonFormat;
 import org.nutz.lang.Encoding;
+import org.nutz.lang.Strings;
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -26,8 +28,11 @@ import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.Param;
 import org.nutz.mvc.annotation.ReqHeader;
 import org.nutz.mvc.view.HttpStatusView;
+import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
+import org.nutz.web.ajax.Ajax;
+import org.nutz.web.ajax.AjaxReturn;
 import org.nutz.web.ajax.AjaxView;
 
 import com.site0.walnut.api.io.WnObj;
@@ -36,7 +41,6 @@ import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.lookup.WnLookup;
 import com.site0.walnut.lookup.impl.WnLookupMaker;
-import com.site0.walnut.security.captcha.WnCaptchaObj;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 import com.site0.walnut.util.Ws;
@@ -48,6 +52,7 @@ import com.site0.walnut.web.module.app.WnAppModuleCaptcha;
 import com.site0.walnut.web.module.app.WnAppModuleDomainLoginByPassword;
 import com.site0.walnut.web.module.app.WnAppModuleLoad;
 import com.site0.walnut.web.module.app.WnAppModuleOpen;
+import com.site0.walnut.web.module.app.WnAppModuleOTPSend;
 import com.site0.walnut.web.module.app.WnAppModuleRun;
 import com.site0.walnut.web.module.app.WnAppModuleSysLoginByPassword;
 import com.site0.walnut.web.util.WnWeb;
@@ -449,11 +454,11 @@ public class AppModule extends AbstractWnModule {
      * 生成一份人机验证码（captcha）
      *
      * <p>
-     * 验证码按域配置：路径参数 <code>domain</code> 是域（系统用户名），
-     * 配置位于其家目录的 <code>~/.captcha/{captcha}.json</code>（配置名
-     * 缺省 <code>default</code>）；不带路径参数时表示 root 用户。
-     * 返回 {@link WnCaptchaObj} 的 JSON（含 <code>id</code> 与渲染数据），
-     * 客户端拿到即可绘制，零额外请求。
+     * 验证码按域配置：路径参数 <code>domain</code> 是域（系统用户名）， 配置位于其家目录的
+     * <code>~/.captcha/{captcha}.json</code>（配置名 缺省
+     * <code>default</code>）；不带路径参数时表示 root 用户。 返回统一用 <code>AjaxReturn</code>
+     * 包裹：成功 <code>{ok:true, data: WnCaptchaObj 的 JSON}</code>（含 <code>id</code>
+     * 与渲染数据），客户端拿到即可绘制，零额外请求；失败 <code>{ok:false, errCode, msg}</code>。
      *
      * @param domain
      *            域（系统用户名），空表示 root 用户
@@ -468,6 +473,14 @@ public class AppModule extends AbstractWnModule {
                             @Param("captcha") String captchaName,
                             final HttpServletRequest req,
                             final HttpServletResponse resp) {
+        // 允许跨域
+        WnWeb.setCrossDomainHeaders("*", (headName, headValue) -> {
+            resp.setHeader(WnWeb.niceHeaderName(headName), headValue);
+        });
+        // 对于 options 放过
+        if (WnWeb.isRequestOptions(req)) {
+            return null;
+        }
         WnAppModuleCaptcha service = new WnAppModuleCaptcha();
         service.setAuth(auth());
         service.setIo(io());
@@ -482,44 +495,116 @@ public class AppModule extends AbstractWnModule {
      * 校验人机验证码，通过则签发绑定账号的临时票据
      *
      * <p>
-     * 票据是一次性的，且带过期时间；客户端在后续业务请求（如 OTP 发送 /
-     * 登录提交）里带上 <code>ticket + account</code>，由业务侧
-     * <code>checkTicket</code> 消费。
+     * 票据是一次性的，且带过期时间；客户端在后续业务请求（如 OTP 发送 / 登录提交）里带上
+     * <code>ticket + account</code>，由业务侧 <code>checkTicket</code> 消费。
+     *
+     * <p>
+     * 提交的请求体是一个裸 JSON 对象： <code>{id, domain, account, captcha, data}</code>——
+     * <code>data</code> 是行为采集结果（对象或 JSON 字符串均可）； 请求体里的 <code>domain</code>
+     * 必须和路径参数一致： 要么都为空（root 用户），要么完全相等，否则报
+     * <code>e.captcha.domain.mismatch</code>
      *
      * @param domain
      *            域（系统用户名），空表示 root 用户
-     * @param captchaName
-     *            验证码配置名
-     * @param captchaId
-     *            验证码 id（get 返回的 JSON 里带回）
-     * @param captchaData
-     *            用户行为的采集结果（拖拽轨迹 / 点选坐标等）
-     * @param account
-     *            票据绑定的账号
-     * @return 成功 <code>{"ok":true,"ticket":"..."}</code>；失败
+     * @return 成功 <code>{"ok":true,"data":{"ticket":"..."}}</code>；失败
      *         <code>{"ok":false,"errCode":...}</code>
      */
     @At({"/captcha/verify", "/captcha/verify/?"})
     @Ok("ajax")
     @Fail("ajax")
     public View captcha_verify(String domain,
-                               @Param("captcha") String captchaName,
-                               @Param("id") String captchaId,
-                               @Param("data") String captchaData,
-                               @Param("account") String account,
                                final HttpServletRequest req,
-                               final HttpServletResponse resp) {
+                               final HttpServletResponse resp)
+            throws IOException {
+        // 允许跨域
+        WnWeb.setCrossDomainHeaders("*", (headName, headValue) -> {
+            resp.setHeader(WnWeb.niceHeaderName(headName), headValue);
+        });
+        // 对于 options 放过
+        if (WnWeb.isRequestOptions(req)) {
+            return null;
+        }
+        // 读取裸 JSON 请求体
+        Reader r = new InputStreamReader(req.getInputStream(),
+                                         Encoding.CHARSET_UTF8);
+        String json = Streams.readAndClose(r);
+        NutMap map = Json.fromJson(NutMap.class, json);
+        // 防守一下，有时候会传入空
+        if (null == map) {
+            map = new NutMap();
+        }
+        // 请求体里的域必须和路径参数一致：要么都为空，要么完全相等
+        String inputDomain = map.getString("domain");
+        if (!Strings.equals(inputDomain, domain)) {
+            AjaxReturn re = Ajax.fail().setErrCode("e.captcha.domain.mismatch");
+            String reJson = Json.toJson(re, JsonFormat.compact());
+            return new ViewWrapper(new RawView("json"), reJson);
+        }
+        // data 是行为采集结果，对象的话序列化回字符串
+        Object data = map.get("data");
+        String captchaData = null;
+        if (null != data) {
+            if (data instanceof CharSequence) {
+                captchaData = data.toString();
+            } else {
+                captchaData = Json.toJson(data, JsonFormat.compact());
+            }
+        }
         WnAppModuleCaptcha service = new WnAppModuleCaptcha();
         service.setAuth(auth());
         service.setIo(io());
-        service.setDomain(domain);
-        service.setCaptchaName(captchaName);
-        service.setCaptchaId(captchaId);
+        service.setDomain(inputDomain);
+        service.setCaptchaName(map.getString("captcha"));
+        service.setCaptchaId(map.getString("id"));
         service.setCaptchaData(captchaData);
-        service.setAccount(account);
+        service.setAccount(map.getString("account"));
         service.setReq(req);
         service.setResp(resp);
         return service.verify();
+    }
+
+    /**
+     * 发送一份 OTP 动态密码到指定账号
+     *
+     * <p>
+     * 发送前必须先通过人机校验：参数 <code>ticket</code> 是 captcha verify
+     * 签发的临时票据（绑定账号、一次性、带过期），这里消费—— 校验不过直接拒绝，不触发任何发送。OTP 与 captcha 的配置都取自
+     * 域（系统用户名）的家目录，不带路径参数时表示 root 用户。
+     *
+     * @param domain
+     *            域（系统用户名），空表示 root 用户
+     * @param otpConfigName
+     *            OTP 配置名（对应 <code>~/.otp/{name}.json5</code>）
+     * @param captchaName
+     *            captcha 配置名（对应 <code>~/.captcha/{name}.json</code>）
+     * @param ticket
+     *            captcha verify 签发的临时票据
+     * @param account
+     *            接收 OTP 的账号（手机号或邮箱）
+     * @return 成功 <code>{"ok":true}</code>；失败
+     *         <code>{"ok":false,"errCode":...}</code>
+     */
+    @At({"/otp/send", "/otp/send/?"})
+    @Ok("ajax")
+    @Fail("ajax")
+    public View otp_send(String domain,
+                         @Param("otp") String otpConfigName,
+                         @Param("captcha") String captchaName,
+                         @Param("ticket") String ticket,
+                         @Param("account") String account,
+                         final HttpServletRequest req,
+                         final HttpServletResponse resp) {
+        WnAppModuleOTPSend service = new WnAppModuleOTPSend();
+        service.setAuth(auth());
+        service.setIo(io());
+        service.setDomain(domain);
+        service.setOtpConfigName(otpConfigName);
+        service.setCaptchaName(captchaName);
+        service.setTicket(ticket);
+        service.setAccount(account);
+        service.setReq(req);
+        service.setResp(resp);
+        return service.send();
     }
 
     @At("/me")

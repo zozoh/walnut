@@ -83,6 +83,25 @@ WnSession se = run.creatSession("zozoh", true);
 - **复用定时任务调度**：`Wn.Service.crons/tasks`
 - **全新业务能力**：自定义命令 或 xapi
 
+## 代码风格约定
+
+写 Walnut Java 代码时遵守的两条习惯（Web 模块服务类均已按此执行）：
+
+- **中间结果具名，一行一件事**：不要把多个调用嵌在一行表达式里，
+  每个中间结果先赋给具名局部变量再用——单步调试时可以逐个观察：
+
+  ```java
+  // 而不是 String otpErr = this._check_otp(this._get_otps(), se.getUser());
+  WnOTPService otps = this._get_otps();
+  WnUser user = se.getUser();
+  String otpErr = this._check_otp(otps, user);
+  ```
+
+- **方法名前缀与可见性对应**：`protected` 方法用单下划线 + snake_case
+  （如 `_check_otp`）；`private` 方法用双下划线（如 `__fail_json`）；
+  特别常用、甚至可能升级为 `public` 的 `protected` 方法不加下划线，
+  仅保持 snake_case。
+
 ## 注意事项
 
 - 嵌入时 `conf/web.properties` 里的 mongo/redis 连接同样生效，注意与主服务共享存储时的锁实现（Redis）；

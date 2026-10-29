@@ -1,7 +1,17 @@
 ---
 title: 人机验证码 captcha
 module: security.captcha
-keywords: [验证码, captcha, 人机校验, 行为验证码, WnCaptchaApi, WnCaptchaAnswerStore, WnCaptchaTicketStore, tianai]
+keywords:
+  [
+    验证码,
+    captcha,
+    人机校验,
+    行为验证码,
+    WnCaptchaApi,
+    WnCaptchaAnswerStore,
+    WnCaptchaTicketStore,
+    tianai,
+  ]
 source:
   - security/captcha/
 related: [README, 60-auth-otp]
@@ -62,8 +72,9 @@ Walnut 自己定义一套抽象的接口，把具体库藏在接口后面：
     （ticket → account 存入 `WnCaptchaTicketStore`，一次性，带过期）
   - `checkTicket(ticket, account)` 业务提交时校验票据：取出映射、
     比对 account、验过即作废
-- **`WnCaptchaObj`**：一份验证码的载体，`toString()` 输出给客户端的
-  JSON，`fromString()` 从字符串还原。吐出的 JSON 结构由具体实现定义
+- **`WnCaptchaObj`**：一份验证码的载体，`toString()` 输出序列化
+  JSON，`fromString()` 从字符串还原；web 层会把它包进 `AjaxReturn`
+  的 `data` 再返回客户端。吐出的 JSON 结构由具体实现定义
 - **`WnCaptchaAnswerStore`**：答案的**临时存取**接口——生成时 `save`，
   校验时 `get` 比对、`remove` 作废，带过期时间。答案由生成它的节点
   在校验时消费，实现类可以是节点本地缓存，也可以是 Redis
@@ -96,14 +107,14 @@ Walnut 自己定义一套抽象的接口，把具体库藏在接口后面：
 {
   // 验证码类型，取值由实现定义（tianai：SLIDER / ROTATE / CONCAT /
   // WORD_IMAGE_CLICK / POW）
-  type     : "SLIDER",
+  type: "SLIDER",
 
   // 答案缓存过期时间（毫秒），到点作废需重新获取
-  expire   : 10000,
+  expire: 10000,
 
   // 校验容错档位：1-10 的整数，数值越大越宽松（越容易通过）。
   // 这是抽象尺度，具体多大误差算通过，由验证码实现类自行理解
-  tolerant : 5,
+  tolerant: 5,
 
   // 滑块干扰：生成迷惑性缺口
   obfuscate: false,
@@ -112,11 +123,11 @@ Walnut 自己定义一套抽象的接口，把具体库藏在接口后面：
   // 每次生成验证码时随机取一张做背景（建议 600x360）。
   // 实现类会把目录读成图片列表并缓存（默认 WnSimpleCache 10 分钟），
   // bgImgCache 可调整缓存毫秒数，0 表示完全不缓存
-  bgImgDir  : "~/.captcha/bg",
+  bgImgDir: "~/.captcha/bg",
   bgImgCache: 600000,
 
   // 点选验证码的字体；留空表示本验证码不支持文字点选类型
-  fontPath : "~/.captcha/font/simhei.ttf",
+  fontPath: "~/.captcha/font/simhei.ttf",
 
   // 临时票据的过期时间（毫秒）
   ticketExpire: 600000,
@@ -124,10 +135,10 @@ Walnut 自己定义一套抽象的接口，把具体库藏在接口后面：
   // 答案与票据的存储配置（当前仅支持 redis，连接配置引用
   // ~/.redis/{name}.json，与 OTP 的存储选择一致）
   store: {
-    type  : "redis",
-    name  : "default",        // Redis 连接配置名
-    prefix: "captcha:default:" // 键前缀，留空则 captcha:{服务配置名}:
-  }
+    type: "redis",
+    name: "default", // Redis 连接配置名
+    prefix: "captcha:default:", // 键前缀，留空则 captcha:{服务配置名}:
+  },
 }
 ```
 
@@ -140,7 +151,7 @@ Walnut 自己定义一套抽象的接口，把具体库藏在接口后面：
 |-- WnCaptchaBuilder.build("default") 获取一个 WnCaptchaApi
 |-- WnCaptchaApi.generate() 生成 WnCaptchaObj，答案存入 WnCaptchaAnswerStore
 |-- WnCaptchaObj 的 toString() 将自己变成字符串
-|-- 服务器将字符串返回给客户端
+|-- 服务器用 AjaxReturn 包裹后返回客户端：{ok:true, data: ...}
 
 客户端
 |-- 根据服务器返回的字符串，绘制验证码界面
@@ -153,9 +164,26 @@ Walnut 自己定义一套抽象的接口，把具体库藏在接口后面：
 |-- 通过 → 继续业务；不通过 → 客户端刷新重来
 ```
 
-**服务器吐出什么**：`WnCaptchaObj.toString()`——结构由具体实现定义，
-但都包含 `id`（本次验证码的唯一标识）与渲染所需的全部数据，
-客户端拿到即可绘制，零额外请求。
+**服务器吐出什么**：web 层把 `WnCaptchaObj.toString()` 的结果放进
+`AjaxReturn`（`org.nutz.web.ajax.AjaxReturn`）的 `data` 字段返回：
+
+```json
+{
+  "ok": true,
+  "data": {
+    /* WnCaptchaObj 的 JSON */
+  }
+}
+```
+
+`data` 的结构由具体实现定义，但都包含 `id`（本次验证码的唯一
+标识）与渲染所需的全部数据，客户端拿到即可绘制，零额外请求。
+
+统一用 `AjaxReturn` 包裹（成功 `{ok:true, data:...}`，失败
+`{ok:false, errCode, msg}`）有一个直接的好处：验证码服务自己出
+问题（配置缺失、Redis 不通、生成异常……）时，客户端看到的是
+`ok:false` + 错误码，可以和「校验不通过」明确区分开——
+客户端不至于把服务故障误当成「拖拽没对齐」让用户反复重试。
 
 **客户端提交什么**：`{id, data}`。`id` 对应生成的那份验证码，
 `data` 是用户行为的采集结果。服务器据此从 `WnCaptchaAnswerStore`
@@ -177,7 +205,7 @@ Walnut 自己定义一套抽象的接口，把具体库藏在接口后面：
 ```bash
 |-- check 通过 → createTicket(account)
 |--   在 WnCaptchaTicketStore 里生成 ticket → account 的映射（一次性，带过期）
-|--   把 ticket 回给客户端
+|--   同样用 AjaxReturn 包裹后回给客户端：{ok:true, data:{ticket:"..."}}
 |-- 业务提交时带上 ticket + account（如登录请求里的 captchaTicket + 用户名）
 |-- 服务器执行业务前 checkTicket(ticket, account)：
 |--   取出映射、比对 account，验过立即作废，才放行
@@ -198,14 +226,15 @@ Walnut 自己定义一套抽象的接口，把具体库藏在接口后面：
 第 1 轮：获取 OTP 之前，先过人机校验
 |-- 用户点击「获取 OTP」，向服务器请求 captcha
 服务器
-|-- WnCaptchaApi.generate()，返回 WnCaptchaObj JSON
+|-- WnCaptchaApi.generate()，以 {ok:true, data: WnCaptchaObj JSON} 返回
 客户端
 |-- 渲染验证码界面，用户完成拖拽/点选
 |-- 客户端将 {id, 行为数据} 提交给服务器
 服务器
 |-- WnCaptchaApi.check(id, data) 校验
-|-- 通过 → createTicket(account) 签发临时票据，把 ticket 回给客户端
-|--   校验不通过 → 客户端刷新重来
+|-- 通过 → createTicket(account) 签发临时票据，
+|--   以 {ok:true, data:{ticket}} 回给客户端
+|--   校验不通过 → {ok:false}，客户端刷新重来
 
 第 2 轮：登录提交
 |-- 客户端将用户名、密码、ticket 一起发送给服务器
@@ -274,13 +303,16 @@ OTP 本身的发送时机由具体业务决定（登录场景里，用户名密�
 
 ## 服务器吐出什么（tianai 口径）
 
-`ImageCaptchaVO` 的 JSON：
+`ImageCaptchaVO` 的 JSON 放在 `AjaxReturn` 的 `data` 里返回：
 
 ```json
 {
-  "id": "…",
-  "type": "SLIDER",
-  "data": { "backgroundImage": "base64…", "templateImage": "base64…" }
+  "ok": true,
+  "data": {
+    "id": "…",
+    "type": "SLIDER",
+    "data": { "backgroundImage": "base64…", "templateImage": "base64…" }
+  }
 }
 ```
 
@@ -292,11 +324,27 @@ bindEl, validSuccess})`）。
 
 ## 客户端提交什么（tianai 口径）
 
-`{id, data: 轨迹}`，轨迹由 SDK 采集：
+提交的请求体本身就是一个裸 JSON 对象：
 
-- 滑块/旋转：拖动过程的坐标时间序列
-- 文字点选：点击坐标序列
-- POW：求解出的 nonce
+```json5
+{
+  // Captcha 的标识 ID
+  id: "SLIDER_...",
+  // 提供验证码服务的域名
+  domain: "demo",
+  // 用户的登录名
+  account: "xxx",
+  // Captcha 的配置名称，如果为空，实现类类会自行理解，
+  // 通常会理解为 default
+  captcha: null,
+  // 该验证码客户端信息
+  // 譬如 SDK 采集的轨迹：
+  // - 滑块/旋转：拖动过程的坐标时间序列
+  // - 文字点选：点击坐标序列
+  // - POW：求解出的 nonce
+  data: { trackList: [] },
+}
+```
 
 服务器拿 id 从 CacheStore 取出标准答案，与轨迹比对（带容错）。
 

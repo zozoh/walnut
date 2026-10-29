@@ -56,6 +56,12 @@ public class WnAppModuleDomainLoginByPassword extends AbstractWnAppModuleAuth {
      */
     private String hostName;
 
+    /**
+     * 本次请求解析出的登录站点（<code>invoke</code> 时创建，
+     * <code>_otp_usr_home</code> 等复用，不重复解析）
+     */
+    private WnLoginSite site;
+
     public View invoke() {
         // 允许跨域
         WnWeb.setCrossDomainHeaders("*", (headName, headValue) -> {
@@ -68,6 +74,7 @@ public class WnAppModuleDomainLoginByPassword extends AbstractWnAppModuleAuth {
         // 获取登录接口
         Object reo = null;
         WnLoginSite site = WnLoginSite.create(io, siteId, hostName);
+        this.site = site;
         // -------------------------------------------------
         // 找不到站点，那么一定要抛错
         View view = null;
@@ -280,8 +287,7 @@ public class WnAppModuleDomainLoginByPassword extends AbstractWnAppModuleAuth {
 
     @Override
     protected String _otp_usr_home() {
-        WnLoginSite site = WnLoginSite.create(io, siteId, hostName);
-        return null == site ? null : site.getDomainHomePath();
+        return null == this.site ? null : this.site.getDomainHomePath();
     }
 
     public String getSiteId() {
