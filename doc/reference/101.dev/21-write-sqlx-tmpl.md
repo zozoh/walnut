@@ -445,6 +445,6 @@ sqlx 与 jsbin 共用同一套 `WnTmplX` 机制。
 - `sqlx` 命令的完整用法（子命令、事务、批量执行等）：
   `src/com/site0/walnut/ext/data/sqlx/man/zh_cn/cmd_sqlx.md`
 - 模板渲染引擎的通用机制（`${...}` 解析、文本宏）：
-  ../40.commands/20-cmd-jsc.md 与 ../10-write-jsbin.md 中关于 `WnTmplX` 的部分
+  ../40.commands/20-cmd-jsc.md 与 ../20-write-jsbin.md 中关于 `WnTmplX` 的部分
 - 条件语法实现：src/com/site0/walnut/ext/data/sqlx/ast/SqlCriteria.java
   （入口 `toCriNode`，值/键的解析规则都在里面）

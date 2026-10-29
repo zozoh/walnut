@@ -23,7 +23,7 @@ lock @free
    hold: "2025-01-03 11:36:24.746",
    expi: "2025-01-03 11:53:04.746",
    privateKey: "xzkwn9rumk",
-   owner: "bunya",
+   owner: "demo",
    hint: "USER_ASK"
 }
 # ....................... 释放失败

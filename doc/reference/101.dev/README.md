@@ -20,19 +20,22 @@ related: [../40.commands/README.md]
 ```text
 101.dev/
 |-- README.md                # 本篇
-|-- 10-write-jsbin.md        # 编写 jsbin 业务脚本（JS 脚本规范与场景示例）
-|-- 11-write-sqlx-tmpl.md    # 编写 SQL 模板（sqlx 模板语言规范）
-|-- 20-write-app-init.md     # 编写应用初始化模板（app init 声明式初始化）
-|-- 30-extend-regapi.md      # 定制 HTTP API（regapi 扩展实战）
-|-- 40-custom-command.md     # 自定义命令开发
-|-- 50-write-java.md         # 直接添加 Java 模块（库模式嵌入）
+|-- 10-init-domain-app.md    # 域应用初始化机制（模板查找、变量来源、执行流程）
+|-- 20-write-jsbin.md        # 编写 jsbin 业务脚本（JS 脚本规范与场景示例）
+|-- 21-write-sqlx-tmpl.md    # 编写 SQL 模板（sqlx 模板语言规范）
+|-- 30-write-app-init.md     # 编写应用初始化模板（app init 声明式初始化）
+|-- 40-extend-regapi.md      # 定制 HTTP API（regapi 扩展实战）
+|-- 50-custom-command.md     # 自定义命令开发
+|-- 60-write-java.md         # 直接添加 Java 模块（库模式嵌入）
+|-- 90-source-layout.md      # 源码包 ↔ 模块速查（新增模块先登记这里）
 ```
 
 ## 怎么选路
 
-- 业务规则经常变、性能要求一般 → jsbin（10-write-jsbin.md）
-- 要拼动态 SQL → SQL 模板（11-write-sqlx-tmpl.md）
-- 要给新用户初始化应用骨架 → app init 模板（20-write-app-init.md）
-- 要对外提供 HTTP 接口 → regapi（30-extend-regapi.md）
-- 要新增一个系统级能力、被其他命令调用 → 自定义命令（40-custom-command.md）
-- 要做成一个产品级 Java 应用 → 库模式嵌入（50-write-java.md）
+- 要给新用户初始化应用骨架 → 先了解机制（10-init-domain-app.md），
+  再学模板写法（30-write-app-init.md）
+- 业务规则经常变、性能要求一般 → jsbin（20-write-jsbin.md）
+- 要拼动态 SQL → SQL 模板（21-write-sqlx-tmpl.md）
+- 要对外提供 HTTP 接口 → regapi（40-extend-regapi.md）
+- 要新增一个系统级能力、被其他命令调用 → 自定义命令（50-custom-command.md）
+- 要做成一个产品级 Java 应用 → 库模式嵌入（60-write-java.md）

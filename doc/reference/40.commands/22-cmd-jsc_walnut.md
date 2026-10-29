@@ -93,5 +93,5 @@ var lock = $wn.tryLockBlock("myjob", 3600, 3, 3);
 # 延伸阅读
 
 - 21-cmd-jsc_sys.md —— `sys`：这些助手函数底下的命令执行通道
-- 101.dev/10-write-jsbin.md —— jsbin 编写规范中 `$wn` 的用法约定
+- 101.dev/20-write-jsbin.md —— jsbin 编写规范中 `$wn` 的用法约定
 - 源码：src/com/site0/walnut/impl/box/cmd/jsc/jsc_walnut.js

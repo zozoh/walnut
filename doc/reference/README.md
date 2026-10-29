@@ -11,7 +11,7 @@
    不相关就换下一篇，不要通读全文碰运气。
 3. 下钻实现：需要核对行为时查 `SOURCEMAP.md` 找到源码入口文件，直接读源码。
 4. 找不到：回到 `INDEX.md` 按「场景 → 命令 → 模块」重新检索，或读源码包结构导览
-   （`101.dev/source-layout.md`）。
+   （`101.dev/90-source-layout.md`）。
 
 ## 目录结构（两层）
 
@@ -108,12 +108,14 @@ doc/reference/
 |
 |-- 101.dev/                       # 二次开发
 |   |-- README.md                 #   本篇：三条开发路线（脚本/配置/Java）怎么选
-|   |-- 10-write-jsbin.md         #   编写 jsbin 业务脚本：骨架、参数契约、sys/$wn/$log、场景示例
-|   |-- 11-write-sqlx-tmpl.md     #   编写 SQL 模板：SqlEntry 文件格式、六种 @vars 类型、条件值语法、调试
-|   |-- 20-write-app-init.md      #   编写应用初始化模板：条目类型、内容模式（TMPL/COPY/EXPLAIN）、收尾脚本
-|   |-- 30-extend-regapi.md       #   扩展实践：给 regapi 写复杂后端、调第三方、模板渲染
-|   |-- 40-custom-command.md      #   编写 cmd_* 命令：JvmExecutor、参数、注册、man 手册
-|   |-- 50-write-java.md          #   作为 Java 库嵌入：核心 IoC beans、WnIo 直接编程
+|   |-- 10-init-domain-app.md     #   域应用初始化：设计初衷、app init 机制、布局模板标记语法
+|   |-- 20-write-jsbin.md         #   编写 jsbin 业务脚本：骨架、参数契约、sys/$wn/$log、场景示例
+|   |-- 21-write-sqlx-tmpl.md     #   编写 SQL 模板：SqlEntry 文件格式、六种 @vars 类型、条件值语法、调试
+|   |-- 30-write-app-init.md      #   初始化模板编写实践：真实模板结构、编写约定与坑
+|   |-- 40-extend-regapi.md       #   扩展实践：给 regapi 写复杂后端、调第三方、模板渲染
+|   |-- 50-custom-command.md      #   编写 cmd_* 命令：JvmExecutor、参数、注册、man 手册
+|   |-- 60-write-java.md          #   作为 Java 库嵌入：核心 IoC beans、WnIo 直接编程
+|   |-- 90-source-layout.md       #   源码包 ↔ 模块速查（新增模块先登记这里）
 ```
 
 ## 写作规范（每篇文档必须遵守）
@@ -140,7 +142,7 @@ related: [accounts, biz-privilege]          # 本文档内相关文件（不带�
    `doc/_old/markdown`、`doc/_old/draft` 不作迁移。
 
 5. **与代码同步**：改动 `src/` 中已 documented 的行为时，同步更新对应文档；
-   新增模块必须先有对应 `101.dev/source-layout.md` 条目与 INDEX.md 行。
+   新增模块必须先有对应 `101.dev/90-source-layout.md` 条目与 INDEX.md 行。
 
 ## INDEX.md / SOURCEMAP.md 维护
 

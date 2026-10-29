@@ -3,7 +3,7 @@ title: 自定义命令开发
 module: 101.dev
 keywords: [自定义命令, JvmExecutor, JvmHdl, ZParams, man 手册, jvmbox-pkgs]
 source: [impl/box/, ext/sys/mq/hdl/mq_secret.java]
-related: [source-layout, ../40.commands/20-cmd-jsc.md, ../00.start-here/quick-start.md]
+related: [90-source-layout, ../40.commands/20-cmd-jsc.md, ../00.start-here/quick-start.md]
 ---
 
 # 自定义命令开发概述

@@ -181,7 +181,7 @@ var re = $wn.execAsJson("echo '{say:\"hello\"}'");
 通常配一组模板：`pet.select` / `pet.fetch` / `pet.count` /
 `pet.insert` / `pet.update` / `pet.remove`。
 
-模板的写法见 [11-write-sqlx-tmpl.md](11-write-sqlx-tmpl.md)，
+模板的写法见 [21-write-sqlx-tmpl.md](21-write-sqlx-tmpl.md)，
 这里只演示脚本侧怎么调。
 
 #### 查询：sqlx @query
@@ -202,7 +202,7 @@ var petList = $wn.execAsJson(
 #### 查询条件 JSON 语法
 
 `filter` 的完整语法（组合规则、AND/OR、操作符键、范围对象等）见
-[11-write-sqlx-tmpl.md](11-write-sqlx-tmpl.md) 的「条件值语法」一节，
+[21-write-sqlx-tmpl.md](21-write-sqlx-tmpl.md) 的「条件值语法」一节，
 这里列最常用的速查：
 
 ```js
@@ -369,6 +369,23 @@ var filter = JSON.stringify({ct: "[" + dayBegin + ",]"});
 var list = $wn.execAsJson("sqlx @vars @query log.select @json -cqn", filter);
 ```
 
+## 域全局脚本：`~/jsbin/_g.js`
+
+每个域可以有一个 `~/jsbin/_g.js`。`jsc` 执行任何脚本前，会自动加载并求值
+这个文件（按域缓存，机制见 `com.site0.walnut.jsexec.DomainGlobalJsCache`），
+并把求值结果以 **`$g`** 名字注入脚本上下文。约定写法是 IIFE，返回共享函数表：
+
+```js
+// ~/jsbin/_g.js
+(function (sys, $log, $wn, _) {
+  function myHelper(x) { /* ... */ }
+  return { myHelper: myHelper };
+})
+```
+
+之后该域所有脚本都能直接 `$g.myHelper(...)`。适合放跨脚本共享的纯函数与
+数据获取助手；`_g.js` 按域缓存，**修改后执行 `jsc -clear` 清缓存才会生效**。
+
 ## 注意事项
 
 1. 能用高级接口就用高级接口：能用 `$wn.execAsJson` 就不要
@@ -383,6 +400,6 @@ var list = $wn.execAsJson("sqlx @vars @query log.select @json -cqn", filter);
 - [21-cmd-jsc_sys.md](../40.commands/21-cmd-jsc_sys.md) —— `sys` 对象：命令执行、对象读写、out/err/in
 - [22-cmd-jsc_walnut.md](../40.commands/22-cmd-jsc_walnut.md) —— `$wn` 助手函数：execAsJson、genId、锁
 - [23-cmd-jsc_log.md](../40.commands/23-cmd-jsc_log.md) —— `$log`：日志、trace ID、AjaxResult 契约
-- [11-write-sqlx-tmpl.md](11-write-sqlx-tmpl.md) —— SQL 模板语法（sqlx 的作者侧规范）
+- [21-write-sqlx-tmpl.md](21-write-sqlx-tmpl.md) —— SQL 模板语法（sqlx 的作者侧规范）
 - [10-cmd-o-overview.md](../40.commands/10-cmd-o-overview.md) —— cmd_o 专题：对象查询/读写/批量操作
-- [20-write-app-init.md](20-write-app-init.md) —— 应用初始化模板（给新用户初始化目录骨架）
+- [30-write-app-init.md](30-write-app-init.md) —— 应用初始化模板（给新用户初始化目录骨架）

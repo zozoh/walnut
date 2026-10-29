@@ -22,7 +22,7 @@ lock @get
    name: "lockA",
    hold: "2025-01-03 11:34:48.210",
    expi: "2025-01-03 11:34:51.210",
-   owner: "bunya",
+   owner: "demo",
    hint: "USER_ASK"
 }
 
@@ -32,19 +32,19 @@ lock @get
    name: "lockA",
    hold: "2025-01-03 11:36:24.746",
    expi: "2025-01-03 11:53:04.746",
-   owner: "bunya",
+   owner: "demo",
    hint: "USER_ASK"
 }, {
    name: "lockB",
    hold: "2025-01-03 11:36:28.040",
    expi: "2025-01-03 11:53:08.040",
-   owner: "bunya",
+   owner: "demo",
    hint: "USER_ASK"
 }, {
    name: "lockC",
    hold: "2025-01-03 11:36:31.464",
    expi: "2025-01-03 11:53:11.464",
-   owner: "bunya",
+   owner: "demo",
    hint: "USER_ASK"
 }]
 ```

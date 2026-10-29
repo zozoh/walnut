@@ -113,12 +113,14 @@
 ## 101.dev
 
 - **101.dev/README.md** — 二次开发 — 模块：101.dev — 关键词：二次开发,jsbin,sqlx,regapi,自定义命令,Java 嵌入
-- **101.dev/10-write-jsbin.md** — 编写 jsbin 业务脚本 — 模块：jsexec — 关键词：jsbin,sys.exec,$log,AjaxResult,sqlx,datex,val
-- **101.dev/11-write-sqlx-tmpl.md** — 编写 SQL 模板（sqlx） — 模块：ext.data.sqlx — 关键词：sqlx,SQL模板,@vars,动态SQL,where,SqlEntry,条件值
-- **101.dev/20-write-app-init.md** — 编写应用初始化模板（app init） — 模块：ext.data.app — 关键词：app init,应用初始化,.init,域初始化,vars.json
-- **101.dev/30-extend-regapi.md** — regapi 扩展实践 — 模块：ext.sys.httpapi — 关键词：模板渲染,第三方,复杂后端
-- **101.dev/40-custom-command.md** — 编写自定义命令 — 模块：impl.box — 关键词：cmd_*,JvmExecutor,man手册
-- **101.dev/50-write-java.md** — 作为 Java 库嵌入 — 模块：api — 关键词：WnIo,IoC,WnRun,二次开发
+- **101.dev/10-init-domain-app.md** — 域应用初始化 — 模块：ext.data.app — 关键词：app init,域初始化,vars.json,init_name,布局模板,标记语法,explain
+- **101.dev/30-write-app-init.md** — 编写应用初始化模板 — 模块：ext.data.app — 关键词：app init,初始化模板,编写实践,敏感信息,demo.init
+- **101.dev/20-write-jsbin.md** — 编写 jsbin 业务脚本 — 模块：jsexec — 关键词：jsbin,sys.exec,$log,AjaxResult,sqlx,datex,val
+- **101.dev/21-write-sqlx-tmpl.md** — 编写 SQL 模板（sqlx） — 模块：ext.data.sqlx — 关键词：sqlx,SQL模板,@vars,动态SQL,where,SqlEntry,条件值
+- **101.dev/30-write-app-init.md** — 编写应用初始化模板（app init） — 模块：ext.data.app — 关键词：app init,应用初始化,.init,域初始化,vars.json
+- **101.dev/40-extend-regapi.md** — regapi 扩展实践 — 模块：ext.sys.httpapi — 关键词：模板渲染,第三方,复杂后端
+- **101.dev/50-custom-command.md** — 编写自定义命令 — 模块：impl.box — 关键词：cmd_*,JvmExecutor,man手册
+- **101.dev/60-write-java.md** — 作为 Java 库嵌入 — 模块：api — 关键词：WnIo,IoC,WnRun,二次开发
 
 ## 不收录（已弃用）
 

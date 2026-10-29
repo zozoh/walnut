@@ -36,6 +36,7 @@ import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.lookup.WnLookup;
 import com.site0.walnut.lookup.impl.WnLookupMaker;
+import com.site0.walnut.security.captcha.WnCaptchaObj;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 import com.site0.walnut.util.Ws;
@@ -43,6 +44,7 @@ import com.site0.walnut.web.bean.WnLoginPage;
 import com.site0.walnut.web.filter.WnAsUsr;
 import com.site0.walnut.web.filter.WnCheckSession;
 import com.site0.walnut.web.impl.WnAppService;
+import com.site0.walnut.web.module.app.WnAppModuleCaptcha;
 import com.site0.walnut.web.module.app.WnAppModuleDomainLoginByPassword;
 import com.site0.walnut.web.module.app.WnAppModuleLoad;
 import com.site0.walnut.web.module.app.WnAppModuleOpen;
@@ -441,6 +443,83 @@ public class AppModule extends AbstractWnModule {
         service.setReq(req);
         service.setResp(resp);
         return service.invoke();
+    }
+
+    /**
+     * 生成一份人机验证码（captcha）
+     *
+     * <p>
+     * 验证码按域配置：路径参数 <code>domain</code> 是域（系统用户名），
+     * 配置位于其家目录的 <code>~/.captcha/{captcha}.json</code>（配置名
+     * 缺省 <code>default</code>）；不带路径参数时表示 root 用户。
+     * 返回 {@link WnCaptchaObj} 的 JSON（含 <code>id</code> 与渲染数据），
+     * 客户端拿到即可绘制，零额外请求。
+     *
+     * @param domain
+     *            域（系统用户名），空表示 root 用户
+     * @param captchaName
+     *            验证码配置名
+     * @return 验证码 JSON 视图
+     */
+    @At({"/captcha/get", "/captcha/get/?"})
+    @Ok("ajax")
+    @Fail("ajax")
+    public View captcha_get(String domain,
+                            @Param("captcha") String captchaName,
+                            final HttpServletRequest req,
+                            final HttpServletResponse resp) {
+        WnAppModuleCaptcha service = new WnAppModuleCaptcha();
+        service.setAuth(auth());
+        service.setIo(io());
+        service.setDomain(domain);
+        service.setCaptchaName(captchaName);
+        service.setReq(req);
+        service.setResp(resp);
+        return service.get();
+    }
+
+    /**
+     * 校验人机验证码，通过则签发绑定账号的临时票据
+     *
+     * <p>
+     * 票据是一次性的，且带过期时间；客户端在后续业务请求（如 OTP 发送 /
+     * 登录提交）里带上 <code>ticket + account</code>，由业务侧
+     * <code>checkTicket</code> 消费。
+     *
+     * @param domain
+     *            域（系统用户名），空表示 root 用户
+     * @param captchaName
+     *            验证码配置名
+     * @param captchaId
+     *            验证码 id（get 返回的 JSON 里带回）
+     * @param captchaData
+     *            用户行为的采集结果（拖拽轨迹 / 点选坐标等）
+     * @param account
+     *            票据绑定的账号
+     * @return 成功 <code>{"ok":true,"ticket":"..."}</code>；失败
+     *         <code>{"ok":false,"errCode":...}</code>
+     */
+    @At({"/captcha/verify", "/captcha/verify/?"})
+    @Ok("ajax")
+    @Fail("ajax")
+    public View captcha_verify(String domain,
+                               @Param("captcha") String captchaName,
+                               @Param("id") String captchaId,
+                               @Param("data") String captchaData,
+                               @Param("account") String account,
+                               final HttpServletRequest req,
+                               final HttpServletResponse resp) {
+        WnAppModuleCaptcha service = new WnAppModuleCaptcha();
+        service.setAuth(auth());
+        service.setIo(io());
+        service.setDomain(domain);
+        service.setCaptchaName(captchaName);
+        service.setCaptchaId(captchaId);
+        service.setCaptchaData(captchaData);
+        service.setAccount(account);
+        service.setReq(req);
+        service.setResp(resp);
+        return service.verify();
     }
 
     @At("/me")

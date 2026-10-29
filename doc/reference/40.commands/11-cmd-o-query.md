@@ -3,7 +3,7 @@ title: cmd_o 查询
 module: 40.commands
 keywords: [cmd_o, @query, @get, @fetch, 对象查询, 条件, 分页, 排序]
 source: [ext/data/o/]
-related: [10-cmd-o-overview.md, ../101.dev/11-write-sqlx-tmpl.md]
+related: [10-cmd-o-overview.md, ../101.dev/21-write-sqlx-tmpl.md]
 ---
 
 # cmd_o 查询概述
@@ -95,4 +95,4 @@ o @get id1 id2 id3 @json '^(id|nm|len|mime)$' -cqn
 # 延伸阅读
 
 - man cmd_o_query / man cmd_o_get / man cmd_o_fetch —— 参数权威
-- 101.dev/11-write-sqlx-tmpl.md —— 条件 JSON 语法（AutoMatch）的完整定义
+- 101.dev/21-write-sqlx-tmpl.md —— 条件 JSON 语法（AutoMatch）的完整定义

@@ -3,7 +3,7 @@ title: jsc 命令
 module: 40.commands
 keywords: [jsc, jsbin, JsExec, nashorn, 脚本引擎, sys, $wn, $log, -vars]
 source: [impl/box/cmd/cmd_jsc.java, jsexec/JsExec.java, jsexec/DomainGlobalJsCache.java, impl/box/cmd/jsc/jsc_walnut.js]
-related: [../101.dev/10-write-jsbin.md]
+related: [../101.dev/20-write-jsbin.md]
 ---
 
 # jsc 命令概述
@@ -203,6 +203,6 @@ if (_.keys(obj).length == 0) { ... }
 - 21-cmd-jsc_sys.md —— `sys` 注入对象：命令执行、对象读写、输出输入
 - 22-cmd-jsc_walnut.md —— `$wn` 助手函数库：错误处理、ID、锁、对象查询
 - 23-cmd-jsc_log.md —— `$log` 日志对象：setup、trace ID、API 响应契约
-- 101.dev/10-write-jsbin.md —— jsbin 编写规范：脚本骨架、参数约定、
+- 101.dev/20-write-jsbin.md —— jsbin 编写规范：脚本骨架、参数约定、
   输出契约、sys/$wn/$log 用法与专门场景示例
-- 101.dev/30-extend-regapi.md —— jsc 在 regapi 里的完整实战
+- 101.dev/40-extend-regapi.md —— jsc 在 regapi 里的完整实战

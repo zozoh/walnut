@@ -329,7 +329,7 @@ ct: '2025-03...'         # DATETIME(3): 创建时间（毫秒级）
 lm: '2025-03...'         # DATETIME(3): 最后修改时间（毫秒级）
 c: "xiaobai"             # VARCHAR(50): 创建者ID
 m: "xiaobai"             # VARCHAR(50): 修改者ID
-g: "bunya"               # VARCHAR(50): 所属组
+g: "demo"               # VARCHAR(50): 所属组
 
 # 对象基本信息
 nm: "document.pdf"       # VARCHAR(256): 文件名或目录名
