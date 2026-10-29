@@ -8,7 +8,7 @@ source:
   - ext/data/app/impl/AppInitItemContext.java
   - ext/data/app/bean/init/AppInitItem.java
 related:
-  - ../../src/com/site0/walnut/ext/data/app/man/zh_cn/cmd_app_init.md
+  - ../../../src/com/site0/walnut/ext/data/app/man/zh_cn/cmd_app_init.md
 ---
 
 # 编写应用初始化模板概述

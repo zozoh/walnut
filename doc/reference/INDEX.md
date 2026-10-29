@@ -62,6 +62,9 @@
 - **40.commands/04-cmd-pipe.md** — 命令管道 — 模块：impl.box — 关键词：管道,pipe,JvmAtomRunner,run,变量替换
 - **40.commands/05-cmd-std-in-out.md** — 命令输入输出 — 模块：impl.box — 关键词：stdin,stdout,stderr,重定向,JvmBoxInput,JvmBoxOutput
 - **40.commands/20-cmd-jsc.md** — jsc 命令 — 模块：impl.box.cmd — 关键词：jsc,jsbin,nashorn,脚本引擎,注入对象,-vars
+- **40.commands/21-cmd-jsc_sys.md** — sys 注入对象 — 模块：util — 关键词：sys,JvmJsExecContext,exec2,对象读写,命令执行
+- **40.commands/22-cmd-jsc_walnut.md** — $wn 助手函数库 — 模块：impl.box.cmd.jsc — 关键词：$wn,jsc_walnut,execAsJson,genId,tryLock
+- **40.commands/23-cmd-jsc_log.md** — $log 日志对象 — 模块：impl.box.cmd.jsc — 关键词：$log,jsc_log,traceID,ajax_ok,ajax_error
 - **40.commands/10-cmd-o-overview.md** — cmd_o 命令 — 模块：ext.data.o — 关键词：o 命令,过滤器链,上下文,对象操作
 - **40.commands/11-cmd-o-query.md** — cmd_o 查询 — 模块：ext.data.o — 关键词：@query,@get,@fetch,条件查询,分页,排序
 - **40.commands/12-cmd-o-load.md** — cmd_o 进一步读取 — 模块：ext.data.o — 关键词：@read,@children,@tree,@refer,树形,关联对象

@@ -1,7 +1,7 @@
 ---
 title: 编写 SQL 模板（sqlx）
 module: 101.dev
-keywords: [sqlx, SQL 模板, @vars, 动态 SQL, where, SqlEntry, 条件值]
+keywords: [sqlx, SQL 模板, @vars, 动态 SQL, where, SqlEntry, 条件值, 批量, batch]
 source:
   - ext/data/sqlx/loader/SqlEntry.java
   - ext/data/sqlx/tmpl/WnSqlTmpl.java
@@ -9,7 +9,7 @@ source:
   - ext/data/sqlx/tmpl/vars/SqlVarsElement.java
   - ext/data/sqlx/ast/SqlCriteriaNode.java
 related:
-  - ../../src/com/site0/walnut/ext/data/sqlx/man/zh_cn/cmd_sqlx.md
+  - ../../../src/com/site0/walnut/ext/data/sqlx/man/zh_cn/cmd_sqlx.md
 ---
 
 # 编写 SQL 模板概述
@@ -125,26 +125,74 @@ SELECT * FROM t_pet WHERE name LIKE ${@vars=param;name=hint;format=%$[hint]%}
 
 ### `where`：动态条件（核心）
 
-把上下文（或 `scope` 指定的子树）渲染为条件表达式，见下一节的条件值语法：
+把上下文（或 `scope` 指定的子树）渲染为条件表达式：
 
 ```sql
 SELECT * FROM t_pet WHERE 1=1 ${@vars=where;prefix=AND}
 ```
 
+**默认组合规则只有两条，记住就够了**：
+
+- 传入**对象**：每个键是一条条件，键与键之间是 **AND**
+- 传入**数组**：每个元素是一条条件，元素与元素之间是 **OR**
+
+```js
+// ① 对象：AND
+{name:"Be", age:3}
+→ name='Be' AND age=3
+
+// ② 数组：OR
+[{name:"Be"}, {name:"Ka"}]
+→ name='Be' OR name='Ka'
+
+// ③ 对象里的数组值：IN（不是 OR）
+{name:["Be","Ka"]}
+→ name IN ('Be','Ka')
+
+// ④ 数组里的对象元素：每个元素先内部 AND，再与其他元素 OR
+[{tp:"dog", age:[1,12]}, {tp:"cat", age:1}]
+→ ((tp='dog' AND (age>=1 AND age<=12)) OR (tp='cat' AND age=1))
+
+// ⑤ 数组元素也可以是单值条件（Str/范围串等写法同样适用）
+[{ct:"[2025,]"}, {"!ct":"[2026,]"}]
+→ ct>='2025' OR NOT ct>='2026'
+```
+
+再叠加 `$or` / `$and` 组合键与 `!` 取反，就能拼出任意复杂的 WHERE：
+
+```js
+{tp:"dog", $or:[{age:1}, {age:2}]}
+→ tp='dog' AND (age=1 OR age=2)
+
+{"!tp":"dog", age:[1,9]}
+→ NOT tp='dog' AND (age>=1 AND age<=9)
+```
+
+其他行为：
+
 - 上下文为空（或所有字段被 pick/omit/ignoreNil 过滤完）时输出空字符串
 - `prefix` 在条件非空时输出，前后自动带空格（`prefix=AND` → ` AND `），
   所以模板上写 `WHERE 1=1 ${@vars=where;prefix=AND}` 即可，不用操心前面留不留空格
 - 还可以用 `dft` 指定上下文为空时的兜底 SQL
+- 值的具体写法（区间、模糊、正则、null……）见下一节
 
 ### `order`：动态排序
 
-把上下文的键值对渲染为 `key ASC, key DESC` 列表：
+把上下文的键值对渲染为排序列表，**值是数字，规则与 MongoDB 的排序写法一致**：
+`1` 升序、`-1` 降序：
 
 ```sql
-SELECT * FROM t_pet ${@vars=order}
+SELECT * FROM t_pet ORDER BY ${@vars=order;dft=id ASC}
 ```
 
-- 值为 `"desc"`（不区分大小写）或负数 → `DESC`，其余 → `ASC`
+```js
+// 传入的排序参数
+{sort: {name: 1, ct: -1}}   // 渲染为: ORDER BY name ASC, ct DESC
+```
+
+- 键是字段名，值是 `1` / `-1`，**不要写成 `"asc"` / `"desc"` 字符串**
+  （当前实现虽对 `"desc"` 字符串有兼容判断，但属于未文档化的兼容行为，
+  请统一用数字写法）
 - `__`、`$` 开头的键被跳过（上下文隐藏字段）
 - `dft` 指定没有任何排序字段时的兜底 SQL
 - `fpref` 给字段名加前缀，联合查询时好用
@@ -202,48 +250,114 @@ INSERT INTO t_pet (${@vars=insert.columns}) VALUES (${@vars=insert.values})
 
 ## 条件值语法（where 的核心）
 
-`${@vars=where}` 渲染上下文时，**值的不同写法决定条件的形态**。
-以下语义均有 `SqlCriteriaNodeTest` 的断言保证，写法可以直接抄：
+`${@vars=where}` 把上下文（一个 JSON）翻译成 WHERE 条件。
+入口是 `SqlCriteria.toCriNode`：**值的类型与写法决定条件形态，
+键的写法决定组合与取反**。下面按「整体结构 → 键 → 值」三层展开，
+所有例子的渲染结果都有 `SqlCriteriaNodeTest` 的断言保证。
+
+### 整体结构
+
+- 顶层是**对象**：每个键一条条件，条件之间 **AND** 连接
+- 顶层是**数组**：每个元素一条条件（元素可以是对象或单个值），
+  元素之间 **OR** 连接
+- **`$and` / `$or` 组合键**（也认 `#and` / `#or`，键名后可带 `:任意后缀`）：
+  值再按上述规则递归解析，`$or` 与前面的条件 OR 连接
+- ⚠️ 当前实现里 `$and` 的值若是数组，数组元素之间是 **OR** 连接：
+  `{a:'A',$and:[{x:100},{y:99}]}` → `a='A' AND (x=100 OR y=99)`
+  （见 `SqlCriteriaNodeTest#test_and_or_list`）。
+  需要严格的组内 AND 时，把条件平铺到顶层即可
+- **忽略的键**：`__` 开头的键，以及 `$io` / `$sys` / `$vars`
+  （这些是上下文保留键，不会当成字段）
+
+### 键的写法
+
+- 默认键名就是字段名；可用 `fpref` 加前缀、`mapping` 改名（见上文配置项）
+- **`!` 前缀：整条条件取反**
+  - `{"!age":[18,]}` → `NOT age>=18`
+  - `{"!a":"AA"}` → `NOT a='AA'`
+  - 与值自身的取反语法（见下）可叠加，双重否定会互相抵消
+
+### 值的写法
+
+**数字与布尔** → 相等比较：
 
 ```java
-// 区间：方括号包含，圆括号不包含，空端表示无限
-{age:[1,12]}     → (age>=1 AND age<=12)
-{age:"(1,12]"}   → (age>1 AND age<=12)
-{age:"[1,)"}     → age>=1
-
-// Str 前缀写法，常用于日期等字符串比较
-{ct:"Str[2025,2026]"}  → (ct>='2025' AND ct<='2026')
-
-// Map 写法，操作符键 $gte/$lte/$gt/$lt/$eq/$ne
-{ct:{$gte:'2025', $lte:'2026'}}  → (ct>='2025' AND ct<='2026')
-
-// 模糊匹配：* 任意多字符，? 单字符
-{name:"*Be?"}    → name LIKE '%Be_'
-
-// 正则：^ 开头
-{name:"^be"}     → name REGEXP 'be'
-
-// 数组：IN
-{id:[1,2,3]}     → id IN (1,2,3)
-
-// 逻辑值与空
-{ok:true}        → ok=1
-{phone:null}     → phone IS NULL
-{phone:''}       → NOT phone IS NULL      // 空串表示「非空」
-
-// 键前缀 ! 表示 NOT
-{"!age":[18,]}   → NOT age>=18
+{age:25}    → age=25
+{ok:true}   → ok=1        // 布尔按 1/0 处理
 ```
 
-组合规则：
+**null 与「非空」**：
 
-- 顶层 Map 的多个键之间是 **AND**
-- 顶层数组的多个元素之间是 **OR**（每个元素可以是 Map 或条件串）
-- `$and:[...]` 组内的元素之间目前是 **OR** 连接
-  （`{a:'A',$and:[{x:100},{y:99}]}` → `a='A' AND (x=100 OR y=99)`，
-  这是当前实现的行为，见 `SqlCriteriaNodeTest#test_and_or_list`；
-  如果你需要严格的组内 AND，把条件平铺到顶层即可）
-- 所有语法都可以套 `NOT (...)` 整体取反（`setNot`）
+```java
+{phone:null}       → phone IS NULL
+{phone:"<NULL>"}   → phone IS NULL      // 字符串 "<NULL>" 等价
+{phone:""}        → NOT phone IS NULL  // 空串表示「字段非空」
+```
+
+**字符串**，按前缀/内容依次识别（`SqlCriteria.strToExp`）：
+
+```java
+{name:"!Be"}      → name!='Be'         // ! 前缀：不等于
+{name:"!"}         → NOT name IS NULL   // 单个 !：非空
+{name:"^be"}      → name REGEXP 'be'   // ^ 前缀：正则
+{name:"!^be"}     → NOT name REGEXP 'be'
+{name:"*Be?"}     → name LIKE '%Be_'   // 含 * / ?：模糊，*→%，?→_
+{name:"Str[2025,2026]"} → (name>='2025' AND name<='2026')  // 范围串
+{name:"Be"}       → name='Be'          // 其余：精确匹配
+```
+
+**数组 / 集合** → IN 枚举：
+
+```java
+{id:[1,2,3]}      → id IN (1,2,3)
+```
+
+**Map** 值 → 两种解释（依次尝试，`SqlCriteria.mapToExp`）：
+
+- **操作符键**：`$eq` / `$ne` / `$gt` / `$gte` / `$lt` / `$lte` / `$in` / `$nin`
+  （`%` 前缀等价，如 `%eq`）。多个操作符之间 AND 连接；
+  `$in` / `$nin` 的值是数组：
+
+```java
+{ct:{$gte:'2025',$lte:'2026'}}  → (ct>='2025' AND ct<='2026')
+{ct:{$ne:'2025'}}               → NOT ct='2025'
+{id:{$in:[1,2]}}                → id IN (1,2)
+```
+
+- **范围对象**（nutz `Ranges` 的 RangeInfo 风格，适合前端查询表单
+  直接输出的结构）：
+
+```java
+{ct:{hasMinValue:true,  minValue:"2025",  minValueIncluded:true,
+     hasMaxValue:true,  maxValue:"2026",  maxValueIncluded:true}}
+→ (ct>='2025' AND ct<='2026')
+```
+
+六个键：`hasMinValue` / `minValue` / `minValueIncluded` /
+`hasMaxValue` / `maxValue` / `maxValueIncluded`；
+`minValueIncluded:false` 时用 `>`（开区间），右端同理。
+见 `SqlCriteriaNodeTest#test_str_info_range`。
+
+### 范围串语法
+
+形如 `[1,12]`、`"(1,12]"`、`"[1,)"`、`"(,20]"` 的字符串：
+
+- `[` / `]` 含端点，`(` / `)` 不含；某一端为空表示无上界/下界
+- 单值 `"[20251223]"` 是**精确匹配**：`ct='20251223'`
+- 按内容自动识别类型：
+  - 纯数字：≤9 位按 int、≥9 位按 long、含小数点按 float
+  - `Str[...]` / `Str(...)`：字符串比较，常用于日期串
+  - `Date[...]` / `Ms[...]`：日期范围，端点支持时间宏
+    （由 `Wregion.extend_rg_macro` 展开，宏写法参见 `Wtime`）
+- 两端都有值时输出带括号：`(age>=1 AND age<=12)`；只有一端则只输出一端
+
+### 渲染与参数
+
+- **文本模式**（调试/`@view`）：字符串值加单引号并转义后直接拼入
+- **预编译模式**：值输出为 `?`，按出现顺序收集为参数列表，
+  交给 `PreparedStatement`，不存在注入风险
+- `alias_or` 声明的键，会对每个别名各生成一条同值条件再 OR 连接，
+  值的写法完全遵循本节规则
 
 ### alias_or：跨字段模糊搜索
 
@@ -281,6 +395,33 @@ ${#end}
 控制流在 SQL 模板里用得不多——绝大多数动态场景 `@vars=where` 就够了，
 它主要服务于更一般的文本模板。列在这里是让你读到别人的模板时认得出来。
 
+## 执行与批量：参数如何收集
+
+模板渲染为 `?` 占位后，参数按出现顺序从上下文收集为参数列表，
+交给 `PreparedStatement` 执行——不存在注入风险。上下文有两种形态，
+对应 `@exec` 的两种执行方式：
+
+- **MAP 模式（默认）**：上下文是单个对象，渲染一次、执行一次
+- **LIST 模式**：`sqlx @vars -as list` 把上下文切为列表（输入本身是数组时
+  自动进入），`@exec` 会对列表里**每条记录各渲染一次模板并执行一次**
+
+列表模式下加 `-batch` 开启**批量模式**（`sqlx @exec <名称> -batch`）：
+
+- 用第一条记录渲染出 SQL 与参数结构，之后每条记录按同一结构各收集
+  一组参数，一次性 `addBatch` / `executeBatch` 发给数据库
+- 代价是要求列表里每条记录的字段结构一致（同一份模板渲染出的
+  占位符个数与顺序相同），适合「批量插入/更新同构数据」
+
+执行时 SQL 与参数会写入日志（info 级），排查「执行的到底是哪条 SQL」
+非常方便——单条模式打印第一行参数，批量模式打印 `Params xN:` 及前 3 组：
+
+```text
+INSERT INTO t_sys_cron_log (st,ct,lm,c_id,m_id,type,duration,start_at,done_at,batch,params,result,id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+Params: [1, "2026-09-23 00:20:50.510", "2026-09-23 00:20:50.510", "demo", "demo", "GUI", 231, "2026-09-23 00:20:50", "2026-09-23 00:20:50", null, null, "{\"N\":2}", "mudcxbkesbt37adxp8"]
+```
+
+第一行是带 `?` 的预编译 SQL，第二行就是按顺序对应的参数值。
+
 ## 调试方法
 
 模板写错了，最快的定位方式是看渲染结果：
@@ -305,4 +446,5 @@ sqlx 与 jsbin 共用同一套 `WnTmplX` 机制。
   `src/com/site0/walnut/ext/data/sqlx/man/zh_cn/cmd_sqlx.md`
 - 模板渲染引擎的通用机制（`${...}` 解析、文本宏）：
   ../40.commands/20-cmd-jsc.md 与 ../10-write-jsbin.md 中关于 `WnTmplX` 的部分
-- 条件语法实现：src/com/site0/walnut/ext/data/sqlx/ast/SqlCriteriaNode.java
+- 条件语法实现：src/com/site0/walnut/ext/data/sqlx/ast/SqlCriteria.java
+  （入口 `toCriNode`，值/键的解析规则都在里面）

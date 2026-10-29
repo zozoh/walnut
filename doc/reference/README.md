@@ -62,6 +62,9 @@ doc/reference/
 |   |-- 04-cmd-pipe.md            #   命令管道：| 组合、变量替换、run 批量执行
 |   |-- 05-cmd-std-in-out.md      #   命令输入输出：三流、> >> 2>&1 重定向、输出惯例
 |   |-- 20-cmd-jsc.md             #   jsc 命令：JS 引擎、注入对象、-vars、hello 例子
+|   |-- 21-cmd-jsc_sys.md         #   sys 注入对象：命令执行、对象读写、out/err/in（非 WnSystem）
+|   |-- 22-cmd-jsc_walnut.md      #   $wn 助手函数库：execAsJson、genId、tryLock、对象查询
+|   |-- 23-cmd-jsc_log.md         #   $log 日志对象：setup、trace ID、ajax_ok/ajax_error 契约
 |   |-- 10-cmd-o-overview.md      #   cmd_o 总览：过滤器链、命令参数、七专题导航
 |   |-- 11-cmd-o-query.md         #   对象查询：@query @get @fetch @mime
 |   |-- 12-cmd-o-load.md          #   进一步读取：@read @children @tree @refer

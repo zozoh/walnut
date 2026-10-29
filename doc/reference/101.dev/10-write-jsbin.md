@@ -17,7 +17,7 @@ jsbin 是用 JavaScript 编写、在服务器（JVM）上运行的业务逻辑�
 jsc ~/path/to/my.js -vars '{param1:"hello", param2:"world"}'
 ```
 
-引擎、内置对象等机制层面的内容见 40.commands/20-cmd-jsc.md，
+引擎、内置对象等机制层面的内容见 [20-cmd-jsc.md](../40.commands/20-cmd-jsc.md)，
 本篇只讲「脚本怎么写」。
 
 ## 脚本标准骨架
@@ -92,11 +92,14 @@ sys.out.println(JSON.stringify({ok: true, errCode: null, data: scriptResult}));
 
 ## 服务器操作接口速览
 
-脚本运行时注入这些接口对象（机制详见 20-cmd-jsc.md）：
+脚本运行时注入这些接口对象（机制详见 [20-cmd-jsc.md](../40.commands/20-cmd-jsc.md)）：
 
-- `sys` —— 执行命令、读写 stdout/err、会话信息
-- `$log` —— 日志与 AjaxResult 输出
-- `$wn` —— 助手函数（exec / execAsJson / genId / tryLock …）
+- `sys` —— 执行命令、读写 stdout/err、会话信息（详解见
+  [21-cmd-jsc_sys.md](../40.commands/21-cmd-jsc_sys.md)）
+- `$log` —— 日志与 AjaxResult 输出（详解见
+  [23-cmd-jsc_log.md](../40.commands/23-cmd-jsc_log.md)）
+- `$wn` —— 助手函数（exec / execAsJson / genId / tryLock …，详解见
+  [22-cmd-jsc_walnut.md](../40.commands/22-cmd-jsc_walnut.md)）
 - `_` —— lodash
 
 ### sys：执行命令与 I/O
@@ -158,8 +161,16 @@ var re = $wn.execAsJson("echo '{say:\"hello\"}'");
 
 ### _：lodash
 
-内嵌 lodash 函数集。注意：**不要用 `_.assign` 合并对象**（JS 引擎问题），
-用 `_.assignIn` 代替。
+内嵌 lodash 函数集（4.17.15 完整版）。注意两个 nashorn 环境下的坑：
+
+- **不要用 `_.assign` 合并对象**，用 `_.assignIn` 代替——`_.assign` 只拷
+  贝自身可枚举属性，而 nashorn 里很多对象属性在原型链上，会静默拷贝出
+  空对象
+- **不要依赖 `_.isEmpty` 判断对象是否为空**，用 `_.keys(obj).length > 0`
+  代替——它对 nashorn 对象的判断结果与浏览器不一致
+
+原因与更多细节见
+[20-cmd-jsc.md 的「lodash 的坑」一节](../40.commands/20-cmd-jsc.md)。
 
 ## 专门场景示例
 
@@ -170,7 +181,8 @@ var re = $wn.execAsJson("echo '{say:\"hello\"}'");
 通常配一组模板：`pet.select` / `pet.fetch` / `pet.count` /
 `pet.insert` / `pet.update` / `pet.remove`。
 
-模板的写法见 101.dev/11-write-sqlx-tmpl.md，这里只演示脚本侧怎么调。
+模板的写法见 [11-write-sqlx-tmpl.md](11-write-sqlx-tmpl.md)，
+这里只演示脚本侧怎么调。
 
 #### 查询：sqlx @query
 
@@ -188,6 +200,10 @@ var petList = $wn.execAsJson(
 ```
 
 #### 查询条件 JSON 语法
+
+`filter` 的完整语法（组合规则、AND/OR、操作符键、范围对象等）见
+[11-write-sqlx-tmpl.md](11-write-sqlx-tmpl.md) 的「条件值语法」一节，
+这里列最常用的速查：
 
 ```js
 // 数字区间：[] 闭区间，() 开区间
@@ -252,7 +268,7 @@ var re = sys.exec2([
 ### 访问 Walnut 标准对象
 
 jsbin 里操作对象（WnObj）就是执行 `o` 命令（字段体系见
-10.concepts/01-std-obj.md）：
+[01-std-obj.md](../10.concepts/01-std-obj.md)）：
 
 ```js
 // 读元数据
@@ -279,14 +295,28 @@ sys.exec("o ~/tmp @query 'nm:\"^X\"' @delete @json -cqn");
 ```
 
 > `o` 命令的功能非常多，本篇只列脚本里最常用的。
-> 完整手册见 `man o` 以及 40.commands 下的 cmd_o 专题。
+> 完整手册见 `man o` 以及 40.commands 下的
+> [cmd_o 专题](../40.commands/10-cmd-o-overview.md)。
 
 ### 获取唯一 ID
 
+脚本里要新 ID（新对象主键、业务单号等）时，底层是 `val @gen` 命令
+（完整模式语法见 [cmd_val](../../../src/com/site0/walnut/ext/data/val/man/zh_cn/cmd_val.md)）：
+
 ```js
+//------------------------------------------------------------
+// JS 里直接取值：优先用 $wn 封装，拿到的是字符串本身
+//------------------------------------------------------------
+var id  = $wn.genId();              // 等价于 val @gen snowQ::10，拿到字符串
+var id2 = $wn.genId("symb::6");     // 短符号 ID，6 位随机
+var ids = $wn.genIds(5);            // 一次生成 5 个，返回数组
+
+//------------------------------------------------------------
+// 也可以用 sys.exec2 自己拼，灵活但啰嗦
+//------------------------------------------------------------
 // 快速雪花 ID（36 进制毫秒时间戳 + 随机数）
-sys.exec("val @gen snowQ::10");   // > mb1v610hb0sa9r4chp
-sys.exec("val @gen snowQ::1");    // > mb1v6xff8
+sys.exec("val @gen snowQ::10");     // > mb1v610hb0sa9r4chp
+sys.exec("val @gen snowQ::1");      // > mb1v6xff8
 sys.exec("val @gen -n 3 snowQ::1"); // 一次 3 个
 
 // UUID
@@ -297,12 +327,28 @@ sys.exec("val @gen seq:M:4:~/path/to/yyyy-MM-dd#my_seq");
 // > M0423  前缀 M + 4 位宽序列，滚动键为今日对象的 my_seq 字段
 ```
 
-### 处理日期
-
-用 `datex` 命令：
+典型用法——给新记录补主键：
 
 ```js
-var re = sys.exec2("datex");                    // 当前时间
+var pet = {nm: nm, age: age, ct: "%date:now"};
+pet.id = $wn.genId();               // 主键
+pet.no = sys.exec2("val @gen seq:P:6:~/shop/yyyy-MM-dd#order_no").trim();
+// > P000423 业务单号
+```
+
+### 处理日期
+
+用 `datex` 命令（完整功能见
+[cmd_datex](../../../src/com/site0/walnut/ext/sys/datex/man/zh_cn/cmd_datex.md)）：
+
+```js
+// 当前时间，常用：给记录打 ct/lm 时间戳
+var now  = sys.exec2("datex @fmt 'yyyy-MM-dd HH:mm:ss' -n").trim();
+// > 2026-10-29 10:25:31
+var ms   = parseInt(sys.exec2("datex @fmt AMS -n").trim());  // 毫秒时间戳
+var today = sys.exec2("datex @fmt yyyy-MM-dd -n").trim();   // 今天 0 点
+
+// 相对推算
 sys.exec2("datex @month -i 3");                 // 3 个月后
 sys.exec2("datex @month -i -3");                // 3 个月前
 sys.exec2("datex @day 10 @time 0");             // 本月 10 号 0 点
@@ -313,7 +359,15 @@ sys.exec2("datex @set 1694368557435");          // 毫秒时间戳转日期
 sys.exec2("datex @fmt d MMM yy");               // 自定义格式
 ```
 
-更多格式化、时区、节假日功能见 `man datex`。
+典型用法——拼装「最近 7 天」的查询条件：
+
+```js
+var dayBegin = sys.exec2(
+  "datex @day -i -7 @time 0 @fmt 'yyyy-MM-dd HH:mm:ss' -n"
+).trim();
+var filter = JSON.stringify({ct: "[" + dayBegin + ",]"});
+var list = $wn.execAsJson("sqlx @vars @query log.select @json -cqn", filter);
+```
 
 ## 注意事项
 
@@ -325,6 +379,10 @@ sys.exec2("datex @fmt d MMM yy");               // 自定义格式
 
 # 延伸阅读
 
-- 40.commands/20-cmd-jsc.md —— jsc 的机制：引擎、注入对象、命令参数
-- 101.dev/11-write-sqlx-tmpl.md —— SQL 模板语法（sqlx 的作者侧规范）
-- 40.commands 的 cmd_o 专题 —— 对象查询/读写/批量操作
+- [20-cmd-jsc.md](../40.commands/20-cmd-jsc.md) —— jsc 的机制：引擎、注入对象、命令参数、缓存
+- [21-cmd-jsc_sys.md](../40.commands/21-cmd-jsc_sys.md) —— `sys` 对象：命令执行、对象读写、out/err/in
+- [22-cmd-jsc_walnut.md](../40.commands/22-cmd-jsc_walnut.md) —— `$wn` 助手函数：execAsJson、genId、锁
+- [23-cmd-jsc_log.md](../40.commands/23-cmd-jsc_log.md) —— `$log`：日志、trace ID、AjaxResult 契约
+- [11-write-sqlx-tmpl.md](11-write-sqlx-tmpl.md) —— SQL 模板语法（sqlx 的作者侧规范）
+- [10-cmd-o-overview.md](../40.commands/10-cmd-o-overview.md) —— cmd_o 专题：对象查询/读写/批量操作
+- [20-write-app-init.md](20-write-app-init.md) —— 应用初始化模板（给新用户初始化目录骨架）
