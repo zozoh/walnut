@@ -84,6 +84,11 @@ Walnut 自己定义一套抽象的接口，把具体库藏在接口后面：
 |-- ...
 ```
 
+> 注意：`~` 是**会话变量 `HOME`** 的简写，不是 IO 层认的路径。工厂读配置前
+> 会先用 `Wn.normalizePath(ph, vars)` 把它常规化成标准绝对路径——
+> 譬如域 `demo` 的 `~/.captcha/default.json` 会变成
+> `/home/demo/.captcha/default.json`，再交给 WnIo 读取。
+
 配置文件的字段语义由具体实现解释。下面是当前默认实现（tianai）
 的配置示例：
 
@@ -317,7 +322,7 @@ ImageCaptchaApplication app = TACBuilder.builder()
 - `WnCaptchaAnswerStore` — 答案临时存取接口：`save` / `get` / `remove`，带过期
 - `WnCaptchaTicketStore` — 临时票据接口：`createTicket` 签发、`checkTicket` 校验并作废
 - `WnSysCaptchaBuilder` — 工厂实现：读配置、组装 tianai 引擎与两个 Redis
-  Store，实例按配置名缓存（`security/captcha/impl`）
+  Store；`build(name)` 每次现场组装，不做缓存（`security/captcha/impl`）
 - `WnTianaiCaptchaApi` — tianai 版 WnCaptchaApi 实现：包装
   ImageCaptchaApplication + 两个 Store（`security/captcha/impl/tianai`）
 - `WnTianaiCaptchaObj` — tianai 版 WnCaptchaObj：包装 ImageCaptchaVO

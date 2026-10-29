@@ -67,9 +67,9 @@ public class QuickRedisLockApi implements WnLockApi {
     private long retryInterval;
 
     /**
-     * 加锁失败，阻塞并重试的次数
+     * 加锁失败，阻塞并重试的次数，如果为 <code>0</code> 表示失败了不会重试
      * <p>
-     * 默认 5 次
+     * 默认 <code>5</code> 次 （Ioc 注入）
      */
     private int retryTimes;
 
@@ -78,7 +78,6 @@ public class QuickRedisLockApi implements WnLockApi {
         NutMap setup = conf.setup();
         this.prefix = setup.getString("prefix", "lock:");
         this.retryInterval = setup.getLong("retry-interval", 100);
-        // this.retryTimes = setup.getInt("retry-times", 5);
         this.retryTimes = setup.getInt("retry-times", 0);
     }
 

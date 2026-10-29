@@ -51,6 +51,16 @@ o.setv("author", "zozoh");
 io.appendMeta(o, "author");
 ```
 
+> 路径必须是**标准绝对路径**：`~` 是 `HOME` 会话变量的简写，IO 层不认。
+> 用 `Wn.normalizePath(ph, vars)` 常规化后再交给 WnIo：
+>
+> ```java
+> // vars 里通常有 HOME；域 demo 的 "~/.captcha/default.json" 会被
+> // 常规化成 "/home/demo/.captcha/default.json"
+> String aph = Wn.normalizePath("~/.captcha/default.json", vars);
+> WnObj oConf = Wn.checkObj(io, aph);
+> ```
+
 ## 以用户身份执行命令（WnRun）
 
 ```java

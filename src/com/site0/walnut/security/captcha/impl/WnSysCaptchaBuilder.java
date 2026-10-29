@@ -1,8 +1,5 @@
 package com.site0.walnut.security.captcha.impl;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.nutz.lang.util.NutBean;
 
 import com.site0.walnut.api.err.Er;
@@ -37,7 +34,8 @@ import cloud.tianai.captcha.resource.impl.DefaultImageCaptchaResourceManager;
  * 注入一个 {@link WnTianaiCaptchaApi} 返回。业务代码不直接接触引擎。
  *
  * <p>
- * 构建好的实例按配置名缓存（引擎是单例级别的资源，不要反复构建）：
+ * 每次调用 {@link #build(String)} 都会现场组装一个新的实例，
+ * 不做缓存——调用方（譬如 Web 模块）可以自行决定是否复用：
  *
  * <pre>
  * WnCaptchaBuilder builder = new WnSysCaptchaBuilder(sys);
@@ -50,11 +48,6 @@ public class WnSysCaptchaBuilder implements WnCaptchaBuilder {
 
     private NutBean vars;
 
-    /**
-     * 按配置名缓存的验证码服务实例
-     */
-    private Map<String, WnCaptchaApi> apis = new ConcurrentHashMap<>();
-
     public WnSysCaptchaBuilder(WnSystem sys) {
         this(sys.io, sys.session.getEnv());
     }
@@ -66,7 +59,7 @@ public class WnSysCaptchaBuilder implements WnCaptchaBuilder {
 
     @Override
     public WnCaptchaApi build(String name) {
-        return apis.computeIfAbsent(name, this::createApi);
+        return createApi(name);
     }
 
     private WnCaptchaApi createApi(String name) {
@@ -108,11 +101,13 @@ public class WnSysCaptchaBuilder implements WnCaptchaBuilder {
      * @return <code>~/.captcha/{name}.json</code> 的服务配置
      */
     private WnCaptchaConfig loadConfig(String name) {
-        String ph = Wn.appendPath("~/.captcha", name + ".json");
-        WnObj oConf = Wn.checkObj(io, vars, ph);
+        String ph = Wn.appendPath("~/.captcha", name + ".json5");
+        // 常规化路径（~ -> 域主目录的绝对路径），IO 层只认标准绝对路径
+        String aph = Wn.normalizePath(ph, vars);
+        WnObj oConf = Wn.checkObj(io, aph);
         WnCaptchaConfig conf = io.readJson(oConf, WnCaptchaConfig.class);
         if (null == conf) {
-            throw Er.create("e.captcha.BlankConfig", ph);
+            throw Er.create("e.captcha.BlankConfig", aph);
         }
         return conf;
     }

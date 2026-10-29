@@ -29,6 +29,7 @@
 |-- 50-image-imagic.md   # 图片处理（imagic）
 |-- 60-video-ffmpeg.md   # 视频信息与封图（videoi / videoc）
 |-- 70-qrcode.md         # 二维码（qrcode）
+|-- 80-lock-api.md       # 锁服务（lock）：互斥控制与防重入
 ```
 
 每篇文档都遵循同样的路子：先讲这个命令解决什么问题，

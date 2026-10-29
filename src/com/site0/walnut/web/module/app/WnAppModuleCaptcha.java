@@ -1,8 +1,5 @@
 package com.site0.walnut.web.module.app;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -33,8 +30,8 @@ import com.site0.walnut.web.util.WnWeb;
  * <p>
  * 验证码按域配置：域就是系统用户名，配置位于其家目录的
  * <code>~/.captcha/{name}.json</code>（配置名缺省 <code>"default"</code>），
- * 域为空表示 root 用户。{@link WnCaptchaBuilder} 按域懒构建并缓存——
- * 引擎是单例级别的资源，每个域一份，不反复构建。
+ * 域为空表示 root 用户。每次请求都现场构建 {@link WnCaptchaBuilder}，
+ * 不做缓存——构建代价小，且能始终读到最新的域配置。
  *
  * <p>
  * <code>get</code> 吐出 {@link WnCaptchaObj#toString()}——客户端直接渲染的
@@ -49,12 +46,6 @@ import com.site0.walnut.web.util.WnWeb;
 public class WnAppModuleCaptcha {
 
     private static final Log log = Wlog.getAPP();
-
-    /**
-     * 按域（系统用户名）缓存的 captcha 构建器：不同域的家目录不同
-     * （<code>~/.captcha</code> 的位置不同），每个域一份
-     */
-    private static final Map<String, WnCaptchaBuilder> builders = new ConcurrentHashMap<>();
 
     private WnLoginApi auth;
 
@@ -164,31 +155,22 @@ public class WnAppModuleCaptcha {
     }
 
     /**
-     * @return 按域（缓存）的构建器取的验证码服务接口
+     * @return 当前域的构建器现场取的验证码服务接口
      */
     private WnCaptchaApi __check_api() {
         String name = Strings.sBlank(captchaName, "default");
-        WnCaptchaBuilder builder = this.__check_builder();
+        WnCaptchaBuilder builder = this.__create_builder();
         return builder.build(name);
     }
 
     /**
-     * @return 当前域的 captcha 构建器（按域缓存，懒构建）
-     */
-    private WnCaptchaBuilder __check_builder() {
-        String usrName = Strings.sBlank(domain, "root");
-        return builders.computeIfAbsent(usrName, this::__create_builder);
-    }
-
-    /**
-     * 为指定域构建一个 captcha 构建器：域的家目录决定
+     * 为当前域构建一个 captcha 构建器：域的家目录决定
      * <code>~/.captcha</code> 的位置
      *
-     * @param usrName
-     *            域（系统用户名）
      * @return 新构建器
      */
-    private WnCaptchaBuilder __create_builder(String usrName) {
+    private WnCaptchaBuilder __create_builder() {
+        String usrName = Strings.sBlank(domain, "root");
         String usrHome = this.auth.checkUser(usrName).getHomePath();
         NutMap vars = new NutMap();
         vars.put("HOME", usrHome);

@@ -101,6 +101,7 @@
 - **70.functionate/50-image-imagic.md** — 图片处理 — 模块：ext.media.imagic — 关键词：imagic,缩略图,缩放,裁剪,旋转
 - **70.functionate/60-video-ffmpeg.md** — 视频信息与封图 — 模块：ext.media.ffmpeg — 关键词：videoi,videoc,ffmpeg,封图,预览
 - **70.functionate/70-qrcode.md** — 二维码 — 模块：ext.media.qrcode — 关键词：qrcode,二维码,生成,解码
+- **70.functionate/80-lock-api.md** — 锁服务 — 模块：api.lock,impl.lock,ext.sys.lock — 关键词：lock,分布式锁,redis,privateKey,防重入
 
 ## 100.ops
 
