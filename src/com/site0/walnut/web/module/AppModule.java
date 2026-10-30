@@ -35,12 +35,17 @@ import org.nutz.web.ajax.Ajax;
 import org.nutz.web.ajax.AjaxReturn;
 import org.nutz.web.ajax.AjaxView;
 
+import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnLoginApiMaker;
+import com.site0.walnut.login.WnLoginOptions;
 import com.site0.walnut.login.session.WnSession;
+import com.site0.walnut.login.site.WnLoginSite;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.lookup.WnLookup;
 import com.site0.walnut.lookup.impl.WnLookupMaker;
+import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 import com.site0.walnut.util.Ws;
@@ -482,7 +487,8 @@ public class AppModule extends AbstractWnModule {
             return null;
         }
         WnAppModuleCaptcha service = new WnAppModuleCaptcha();
-        service.setAuth(auth());
+        WnLoginApi _auth = auth();
+        service.setAuth(_auth);
         service.setIo(io());
         service.setDomain(domain);
         service.setCaptchaName(captchaName);
@@ -551,7 +557,8 @@ public class AppModule extends AbstractWnModule {
             }
         }
         WnAppModuleCaptcha service = new WnAppModuleCaptcha();
-        service.setAuth(auth());
+        WnLoginApi _auth = auth();
+        service.setAuth(_auth);
         service.setIo(io());
         service.setDomain(inputDomain);
         service.setCaptchaName(map.getString("captcha"));
@@ -595,7 +602,9 @@ public class AppModule extends AbstractWnModule {
                          final HttpServletRequest req,
                          final HttpServletResponse resp) {
         WnAppModuleOTPSend service = new WnAppModuleOTPSend();
-        service.setAuth(auth());
+        WnLoginApi _auth = get_auth(domain);
+        service.setAuth(_auth);
+        service.setSysAuth(auth());
         service.setIo(io());
         service.setDomain(domain);
         service.setOtpConfigName(otpConfigName);
@@ -605,6 +614,32 @@ public class AppModule extends AbstractWnModule {
         service.setReq(req);
         service.setResp(resp);
         return service.send();
+    }
+
+    /**
+     * 按域获取登录接口：域为空时直接返回系统默认权鉴接口；域非空时， 用 <code>WnLoginSite</code>
+     * 模式构建域站点自己的用户库登录接口 （与域站点登录 <code>auth_login_by_domain_passwd</code> 同一套路）
+     *
+     * @param domain
+     *            域（系统用户名），空表示 root 用户
+     * @return 登录接口
+     */
+    protected WnLoginApi get_auth(String domain) {
+        if (Ws.isBlank(domain)) {
+            return this.auth();
+        }
+        // 域的家目录即站点配置所在，用它定位站点
+        WnUser u = this.auth().checkUser(domain);
+        NutBean vars = Wlang.map("HOME", u.getHomePath());
+        // 默认的，先用 ~/www/login 来默认做登录站点
+        String sitePath = Wn.normalizeFullPath("~/www/login", vars);
+        WnLoginSite site = WnLoginSite.create(this.io(), sitePath, null);
+        if (null == site) {
+            throw Er.create("e.auth.login.domain_without_www", domain);
+        }
+        NutBean env = site.getSessionVarsBySiteHome();
+        WnLoginOptions options = site.getOptions();
+        return WnLoginApiMaker.forHydrate().make(this.io(), env, options);
     }
 
     @At("/me")

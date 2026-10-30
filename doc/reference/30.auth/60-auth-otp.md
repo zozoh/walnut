@@ -77,7 +77,16 @@ OTP 不依赖会话——验证发生时，往往还没登录呢。所以核心�
       tmpl     : "OTP.html",
 
       // 发送日志的方式：syslog = 直接写系统日志（目前唯一支持的方式）
-      writeLog : "syslog"
+      writeLog : "syslog",
+
+      // 模板文件额外需要补充的上下文变量（可留空）：
+      // 渲染时合并进模板上下文，与内置的 otp 变量一起可用
+      // （内置变量 ${otp.value} / ${otp.account} / ${otp.duration} ...
+      //  来自 WnOTPBean）
+      vars     : {
+        siteName : "MySite",
+        helpUrl  : "https://example.com/help"
+      }
     }
   },
 
@@ -194,12 +203,16 @@ OTP 不依赖会话——验证发生时，往往还没登录呢。所以核心�
 |   |   |-- post-invoice.html
 ```
 
-**模板变量来自 `WnOTPBean`**，常用的有：
+**模板变量来自 `WnOTPBean`**：发送器把 OTP 信息整体放进模板上下文的
+`otp` 变量里，常用的有：
 
-- `${value}`：验证码本身
-- `${account}`：收件账号（同时它就是收件人地址）
-- `${duration}`：有效期（秒）
-- `${sendAt}`：发送时间
+- `${otp.value}`：验证码本身
+- `${otp.account}`：收件账号（同时它就是收件人地址）
+- `${otp.duration}`：有效期（秒）
+- `${otp.sendAt}`：发送时间
+
+此外 sender.config 里的 `vars` 段会**合并进模板上下文**——
+站点名、帮助链接这类业务常量写在那里，模板里 `${siteName}` 直接用。
 
 渲染用的是 `WnTmplX`，和 `mailx @tmpl` 是同一套模板引擎——
 你在 mailx 里怎么写模板，在这里就怎么写。

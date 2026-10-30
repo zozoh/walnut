@@ -52,7 +52,18 @@ io.appendMeta(o, "author");
 ```
 
 > 路径必须是**标准绝对路径**：`~` 是 `HOME` 会话变量的简写，IO 层不认。
-> 用 `Wn.normalizePath(ph, vars)` 常规化后再交给 WnIo：
+> 用 `Wn.normalizePath` 常规化后再交给 WnIo：
+> 主要可选三个函数:
+> 
+> ```java
+> package com.site0.walnut.util;
+> public abstract class Wn {
+>     public static String normalizePath(String ph, WnSystem sys) 
+>     public static String normalizePath(String ph, WnSession se) 
+>     public static String normalizePath(String ph, NutBean vars)
+> }
+> ```
+> 譬如：
 >
 > ```java
 > // vars 里通常有 HOME；域 demo 的 "~/.captcha/default.json" 会被

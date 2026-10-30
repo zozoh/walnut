@@ -1,6 +1,7 @@
 package com.site0.walnut.security.otp.impl.sender;
 
 import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.web.ajax.AjaxReturn;
 
@@ -20,8 +21,8 @@ import com.site0.walnut.util.Ws;
 
 /**
  * 系统邮件 OTP 发送器：给定邮件发送配置（通常由 {@code WnOTPService} 从
- * <code>~/.otp/{name}.json5</code> 的 sender.config 解析而来），
- * SMTP 通道取自 <code>~/.mailx/{channel}.json</code>
+ * <code>~/.otp/{name}.json5</code> 的 sender.config 解析而来）， SMTP 通道取自
+ * <code>~/.mailx/{channel}.json</code>
  *
  * @author zozoh(zozohtnt@gmail.com)
  */
@@ -42,7 +43,9 @@ public class WnSysEmailOTPSender extends WnEmailOTPSender {
         this(sys.io, sys.session.getEnv(), config);
     }
 
-    public WnSysEmailOTPSender(WnIo io, NutBean sessionVars, WnOtpEmailSenderConfig config) {
+    public WnSysEmailOTPSender(WnIo io,
+                               NutBean sessionVars,
+                               WnOtpEmailSenderConfig config) {
         this.io = io;
         this.vars = sessionVars;
         if (null == config) {
@@ -55,7 +58,14 @@ public class WnSysEmailOTPSender extends WnEmailOTPSender {
     protected MailxSmtpConfig getSmtpConfig() {
         if (null == smtp) {
             String channel = config.getChannel();
-            String ph = Wn.appendPath("~/.mailx", channel + ".json");
+            String fnm = channel;
+            if (Ws.isBlank(fnm)) {
+                throw Er.create("e.otp.email.sendWithoutChannel", config);
+            }
+            if (!fnm.endsWith(".json")) {
+                fnm += ".json";
+            }
+            String ph = Wn.appendPath("~/.mailx", fnm);
             WnObj oConf = Wn.checkObj(io, vars, ph);
             MailxConfig mailx = io.readJson(oConf, MailxConfig.class);
             smtp = mailx.smtp;
@@ -76,7 +86,8 @@ public class WnSysEmailOTPSender extends WnEmailOTPSender {
         // 正文模板：~/.mailx/i18n/{lang}/{tmpl}
         if (config.hasTmpl()) {
             // 语言：OTP 配置 → SMTP 配置 → en-us
-            String lang = config.getLang(Ws.sBlank(getSmtpConfig().getLang(), "en-us"));
+            String lang = config
+                .getLang(Ws.sBlank(getSmtpConfig().getLang(), "en-us"));
             String aph = config.getTmplPath(lang);
             WnObj oTmpl = Wn.checkObj(io, vars, aph);
             String content = io.readText(oTmpl);
@@ -88,7 +99,10 @@ public class WnSysEmailOTPSender extends WnEmailOTPSender {
         }
 
         // 渲染模板变量（标题、正文里的 ${value} 等）
-        mail.render(otp.toBean());
+        NutMap vars = new NutMap();
+        vars.putAll(config.getVars());
+        vars.put("otp", otp.toBean());
+        mail.render(vars);
 
         return mail;
     }
@@ -106,7 +120,9 @@ public class WnSysEmailOTPSender extends WnEmailOTPSender {
             if (result.isOk()) {
                 log.infof("OTP mail sent: %s", otp.toKey());
             } else {
-                log.warnf("OTP mail fail: %s -> %s", otp.toKey(), result.getData());
+                log.warnf("OTP mail fail: %s -> %s",
+                          otp.toKey(),
+                          result.getData());
             }
         }
     }

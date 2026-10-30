@@ -84,11 +84,16 @@ public class WnSysCaptchaBuilder implements WnCaptchaBuilder {
                                                                                                                 providers),
                                                                          transform);
         // 引擎：线程安全，单例
+        // 引擎内部缓存键是 {前缀}:{id}（前缀缺省 "captcha"，TACBuilder.prefix
+        // 可改），与 store 的键前缀对齐——去掉尾部的 ":"，引擎自己会补
+        String enginePrefix = prefix.endsWith(":") ? prefix.substring(0, prefix.length() - 1)
+                                                   : prefix;
         ImageCaptchaApplication engine = TACBuilder.builder()
                                                    .setGenerator(generator)
                                                    .setResourceStore(resourceStore)
                                                    .setCacheStore(answerStore)
                                                    .addDefaultTemplate()
+                                                   .prefix(enginePrefix)
                                                    .expire("default", conf.getExpire())
                                                    .build();
         // 组装

@@ -1,5 +1,7 @@
 package com.site0.walnut.security.otp.bean;
 
+import org.nutz.lang.util.NutMap;
+
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 
@@ -29,6 +31,11 @@ public class WnOtpEmailSenderConfig {
      * 模板文件名：相对 <code>~/.mailx/i18n/{lang}/</code> 的文件名
      */
     private String tmpl;
+
+   /**
+     * 模板文件额外需要补充的上下文变量
+     */
+    private NutMap vars; 
 
     /**
      * 发送日志的方式：syslog = 直接写系统日志（目前唯一支持的方式）
@@ -109,6 +116,17 @@ public class WnOtpEmailSenderConfig {
             return null;
         }
         return Wn.appendPath("~/.mailx/i18n", lang, tmpl);
+    }
+
+    public NutMap getVars() {
+        if (null == vars) {
+            return new NutMap();
+        }
+        return vars;
+    }
+
+    public void setVars(NutMap vars) {
+        this.vars = vars;
     }
 
     public String getWriteLog() {
