@@ -3,7 +3,7 @@ title: 自定义命令开发
 module: 101.dev
 keywords: [自定义命令, JvmExecutor, JvmHdl, ZParams, man 手册, jvmbox-pkgs]
 source: [impl/box/, ext/sys/mq/hdl/mq_secret.java]
-related: [source-layout, jsexec-api, ../00.start-here/quick-start.md]
+related: [90-source-layout, ../40.commands/20-cmd-jsc.md, ../00.start-here/quick-start.md]
 ---
 
 # 自定义命令开发概述
@@ -84,7 +84,7 @@ throw Er.create("e.cmd.hello.badInput", args);
 
 ## JS 快速覆盖
 
-不想写 Java 时，同名 JS 文件优先于 JVM 命令执行（`~/bin` 或在 PATH 里的 `.js` 文件），适合原型验证，细节见 jsexec-api。
+不想写 Java 时，同名 JS 文件优先于 JVM 命令执行（`~/bin` 或在 PATH 里的 `.js` 文件），适合原型验证，细节见 ../40.commands/20-cmd-jsc.md。
 
 ## 完整最小例子
 
@@ -118,4 +118,4 @@ com.mycompany.mycmds
 # 延伸阅读
 
 - 源码包结构
-- jsexec-api
+- ../40.commands/20-cmd-jsc.md

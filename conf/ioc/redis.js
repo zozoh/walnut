@@ -81,13 +81,10 @@ var ioc = {
                 "prefix" : {
                     java: '$conf.get("lock-redis-prefix", "lock:")'
                 },
-                "ask-du" : {
-                    java: '$conf.getInt("lock-ask-du", 3)'
-                },
-                "ask-retry-interval" : {
+                "retry-interval" : {
                     java: '$conf.getLong("lock-ask-retry-interval", 100)'
                 },
-                "ask-retry-times" : {
+                "retry-times" : {
                     java: '$conf.getInt("lock-ask-retry-times", 5)'
                 }
             }

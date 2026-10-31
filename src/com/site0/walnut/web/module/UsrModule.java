@@ -287,7 +287,7 @@ public class UsrModule extends AbstractWnModule {
         // 执行登录后初始化脚本
         // this.exec("do_login", se, "setup -quiet -u 'id:" +
         // se.getUser().getId() + "' usr/login");
-        this.try_run_profile(se);
+        this.tryRunProfile(se);
 
         return se.toBean(auth());
     }

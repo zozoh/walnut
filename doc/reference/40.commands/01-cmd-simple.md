@@ -179,7 +179,7 @@ cat -quiet ~/maybe-not-exists.txt            # 不存在时静默
 - 扩展：`src/com/site0/walnut/ext/**/man/zh_cn/cmd_<命令名>.md`
 
 查找顺序为 `man/zh_cn/`（新）→ 包根 `.md`（旧）→ 包根 `.man`（更旧）。
-文档格式约定见 write-doc.skill（简介 / 用法 / 示例三部分）。
+文档格式约定见 write-walnut-doc.skill（简介 / 用法 / 示例三部分）。
 
 ## 现有的简单命令
 

@@ -18,8 +18,9 @@ hs_err_pid*
 .idea
 .tmp
 /target/
+/prompt/
 /build/**
-/dist/**
+/dist/
 /conf/web_local.properties
 build
 mysrc

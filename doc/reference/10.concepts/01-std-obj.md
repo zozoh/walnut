@@ -42,7 +42,7 @@ related: [02-domain-home.md, ../20.io-storage/README.md, privilege]
 譬如在 `Walnut` 的控制台里，你可以：
 
 ```bash
-bunya:$ cat ~/tmp/abc.md
+demo:$ cat ~/tmp/abc.md
 Hello World!
 This is ABC.md
 ```
@@ -59,8 +59,8 @@ This is ABC.md
   nm  : "abc.md",                        // 名称（同级唯一）
   race: "FILE",                          // DIR | FILE
   //-------------------- 权限
-  c : "bunya",                           // 创建者（creater，仅记录）
-  g : "bunya",                           // 所属组（grp）——对象属于哪个域
+  c : "demo",                           // 创建者（creater，仅记录）
+  g : "demo",                           // 所属组（grp）——对象属于哪个域
   m : 448,                               // mode 权限位（三段八进制，见下文）
   //-------------------- 内容：仅针对 FILE（目录无）
   tp  : "md",                            // 类型后缀（决定默认 MIME 和缩略图）
@@ -70,7 +70,7 @@ This is ABC.md
   //-------------------- 结构辅助
   lbls: ["bug","A"],                     // 自由标签，可查询
   d0  : "home",                          // 所属一级目录名（加速范围查询）
-  d1  : "bunya",                         // 所属二级目录名（通常=域名）
+  d1  : "demo",                         // 所属二级目录名（通常=域名）
   //-------------------- 映射与链接
   mnt : "sql(demo:t_news)",              // 存储映射（见下文「对象的存储与映射」）
   ln  : "id:xxxxx",                      // 链接目标（见下文「链接对象」）
@@ -153,11 +153,11 @@ o ~/tmp/session.json -u 'expi:0'
 它实现的方式非常简单，就是使用一个名为 `ln` 的元数据，指向对象链接到的位置：
 
 ```bash
-drwxr-x---  bunya bunya     0 10  6 19:06  ddl -> /mnt/project/bunya/init/ddl/
+drwxr-x---  demo demo     0 10  6 19:06  ddl -> /mnt/project/demo/init/ddl/
 ```
 
-在对象 `ddl` 里面声明一个 `ln` 元数据，值为 `/mnt/project/bunya/init/ddl/`。
-那么你访问 `ddl` 对象，就相当于访问 `/mnt/project/bunya/init/ddl/`。
+在对象 `ddl` 里面声明一个 `ln` 元数据，值为 `/mnt/project/demo/init/ddl/`。
+那么你访问 `ddl` 对象，就相当于访问 `/mnt/project/demo/init/ddl/`。
 
 `ln` 的值有三种形态：
 

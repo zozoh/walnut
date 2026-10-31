@@ -11,7 +11,7 @@
    不相关就换下一篇，不要通读全文碰运气。
 3. 下钻实现：需要核对行为时查 `SOURCEMAP.md` 找到源码入口文件，直接读源码。
 4. 找不到：回到 `INDEX.md` 按「场景 → 命令 → 模块」重新检索，或读源码包结构导览
-   （`101.dev/source-layout.md`）。
+   （`101.dev/90-source-layout.md`）。
 
 ## 目录结构（两层）
 
@@ -61,6 +61,17 @@ doc/reference/
 |   |-- 03-cmd-filter.md          #   过滤命令（JvmFilterExecutor）：@过滤器共享上下文
 |   |-- 04-cmd-pipe.md            #   命令管道：| 组合、变量替换、run 批量执行
 |   |-- 05-cmd-std-in-out.md      #   命令输入输出：三流、> >> 2>&1 重定向、输出惯例
+|   |-- 20-cmd-jsc.md             #   jsc 命令：JS 引擎、注入对象、-vars、hello 例子
+|   |-- 21-cmd-jsc_sys.md         #   sys 注入对象：命令执行、对象读写、out/err/in（非 WnSystem）
+|   |-- 22-cmd-jsc_walnut.md      #   $wn 助手函数库：execAsJson、genId、tryLock、对象查询
+|   |-- 23-cmd-jsc_log.md         #   $log 日志对象：setup、trace ID、ajax_ok/ajax_error 契约
+|   |-- 10-cmd-o-overview.md      #   cmd_o 总览：过滤器链、命令参数、七专题导航
+|   |-- 11-cmd-o-query.md         #   对象查询：@query @get @fetch @mime
+|   |-- 12-cmd-o-load.md          #   进一步读取：@read @children @tree @refer
+|   |-- 13-cmd-o-update.md        #   修改删除：@create @update @delete @inc
+|   |-- 14-cmd-o-context.md       #   操作上下文：@var @filter @push @pop @put
+|   |-- 15-cmd-o-agg.md           #   聚集统计：@agg @size @count
+|   |-- 16-cmd-o-output.md        #   输出：@json @ajax @tmpl @tab @zip
 |   |-- 60-cmd-table.md           #   命令总表：157 个命令的来源/写法/逻辑分类
 |
 |-- 50.regapi/                    # HTTP 注册接口（动态 API 的核心机制）
@@ -96,11 +107,15 @@ doc/reference/
 |   |-- troubleshooting.md        #   排查手册：日志位置、常见错误码、诊断命令
 |
 |-- 101.dev/                       # 二次开发
-|   |-- source-layout.md          #   src 包结构导览：每个包一句话 + 关键类
-|   |-- java-lib.md               #   作为 Java 库嵌入：核心 IoC beans、WnIo 直接编程
-|   |-- custom-command.md         #   编写 cmd_* 命令：JvmExecutor、参数、注册、man 手册
-|   |-- jsexec-api.md             #   JS 脚本 API 全集：sys.io/sys.exec/Wn 工具函数
-|   |-- extend-regapi.md          #   扩展实践：给 regapi 写复杂后端、调第三方、模板渲染
+|   |-- README.md                 #   本篇：三条开发路线（脚本/配置/Java）怎么选
+|   |-- 10-init-domain-app.md     #   域应用初始化：设计初衷、app init 机制、布局模板标记语法
+|   |-- 20-write-jsbin.md         #   编写 jsbin 业务脚本：骨架、参数契约、sys/$wn/$log、场景示例
+|   |-- 21-write-sqlx-tmpl.md     #   编写 SQL 模板：SqlEntry 文件格式、六种 @vars 类型、条件值语法、调试
+|   |-- 30-write-app-init.md      #   初始化模板编写实践：真实模板结构、编写约定与坑
+|   |-- 40-extend-regapi.md       #   扩展实践：给 regapi 写复杂后端、调第三方、模板渲染
+|   |-- 50-custom-command.md      #   编写 cmd_* 命令：JvmExecutor、参数、注册、man 手册
+|   |-- 60-write-java.md          #   作为 Java 库嵌入：核心 IoC beans、WnIo 直接编程
+|   |-- 90-source-layout.md       #   源码包 ↔ 模块速查（新增模块先登记这里）
 ```
 
 ## 写作规范（每篇文档必须遵守）
@@ -127,7 +142,7 @@ related: [accounts, biz-privilege]          # 本文档内相关文件（不带�
    `doc/_old/markdown`、`doc/_old/draft` 不作迁移。
 
 5. **与代码同步**：改动 `src/` 中已 documented 的行为时，同步更新对应文档；
-   新增模块必须先有对应 `101.dev/source-layout.md` 条目与 INDEX.md 行。
+   新增模块必须先有对应 `101.dev/90-source-layout.md` 条目与 INDEX.md 行。
 
 ## INDEX.md / SOURCEMAP.md 维护
 

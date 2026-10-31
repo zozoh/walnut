@@ -61,6 +61,17 @@
 - **40.commands/03-cmd-filter.md** — 过滤命令 — 模块：impl.box — 关键词：JvmFilterExecutor,JvmFilter,过滤器,cmd_tmpl,上下文
 - **40.commands/04-cmd-pipe.md** — 命令管道 — 模块：impl.box — 关键词：管道,pipe,JvmAtomRunner,run,变量替换
 - **40.commands/05-cmd-std-in-out.md** — 命令输入输出 — 模块：impl.box — 关键词：stdin,stdout,stderr,重定向,JvmBoxInput,JvmBoxOutput
+- **40.commands/20-cmd-jsc.md** — jsc 命令 — 模块：impl.box.cmd — 关键词：jsc,jsbin,nashorn,脚本引擎,注入对象,-vars
+- **40.commands/21-cmd-jsc_sys.md** — sys 注入对象 — 模块：util — 关键词：sys,JvmJsExecContext,exec2,对象读写,命令执行
+- **40.commands/22-cmd-jsc_walnut.md** — $wn 助手函数库 — 模块：impl.box.cmd.jsc — 关键词：$wn,jsc_walnut,execAsJson,genId,tryLock
+- **40.commands/23-cmd-jsc_log.md** — $log 日志对象 — 模块：impl.box.cmd.jsc — 关键词：$log,jsc_log,traceID,ajax_ok,ajax_error
+- **40.commands/10-cmd-o-overview.md** — cmd_o 命令 — 模块：ext.data.o — 关键词：o 命令,过滤器链,上下文,对象操作
+- **40.commands/11-cmd-o-query.md** — cmd_o 查询 — 模块：ext.data.o — 关键词：@query,@get,@fetch,条件查询,分页,排序
+- **40.commands/12-cmd-o-load.md** — cmd_o 进一步读取 — 模块：ext.data.o — 关键词：@read,@children,@tree,@refer,树形,关联对象
+- **40.commands/13-cmd-o-update.md** — cmd_o 修改删除 — 模块：ext.data.o — 关键词：@create,@update,@delete,@inc,批量更新,序号
+- **40.commands/14-cmd-o-context.md** — cmd_o 操作上下文 — 模块：ext.data.o — 关键词：@var,@filter,@push,@pop,@put,@remove
+- **40.commands/15-cmd-o-agg.md** — cmd_o 聚集统计 — 模块：ext.data.o — 关键词：@agg,@count,@size,聚合,分组,TOP
+- **40.commands/16-cmd-o-output.md** — cmd_o 输出 — 模块：ext.data.o — 关键词：@json,@ajax,@tmpl,@tab,@zip,输出格式
 - **40.commands/60-cmd-table.md** — 命令总表（157 个命令的来源/写法/分类） — 模块：impl.box / ext — 关键词：命令清单,内置,扩展,简单命令,复杂命令,过滤命令,分类
 
 ## 50.regapi
@@ -90,6 +101,7 @@
 - **70.functionate/50-image-imagic.md** — 图片处理 — 模块：ext.media.imagic — 关键词：imagic,缩略图,缩放,裁剪,旋转
 - **70.functionate/60-video-ffmpeg.md** — 视频信息与封图 — 模块：ext.media.ffmpeg — 关键词：videoi,videoc,ffmpeg,封图,预览
 - **70.functionate/70-qrcode.md** — 二维码 — 模块：ext.media.qrcode — 关键词：qrcode,二维码,生成,解码
+- **70.functionate/80-lock-api.md** — 锁服务 — 模块：api.lock,impl.lock,ext.sys.lock — 关键词：lock,分布式锁,redis,privateKey,防重入
 
 ## 100.ops
 
@@ -101,11 +113,15 @@
 
 ## 101.dev
 
-- **101.dev/source-layout.md** — src 包结构导览 — 模块：root — 关键词：包结构,关键类,导航
-- **101.dev/java-lib.md** — 作为 Java 库嵌入 — 模块：api — 关键词：WnIo,IoC,WnRun,二次开发
-- **101.dev/custom-command.md** — 编写自定义命令 — 模块：impl.box — 关键词：cmd_*,JvmExecutor,man手册
-- **101.dev/jsexec-api.md** — JS 脚本 API 全集 — 模块：jsexec — 关键词：sys.io,sys.exec,Wn函数
-- **101.dev/extend-regapi.md** — regapi 扩展实践 — 模块：ext.sys.httpapi — 关键词：模板渲染,第三方,复杂后端
+- **101.dev/README.md** — 二次开发 — 模块：101.dev — 关键词：二次开发,jsbin,sqlx,regapi,自定义命令,Java 嵌入
+- **101.dev/10-init-domain-app.md** — 域应用初始化 — 模块：ext.data.app — 关键词：app init,域初始化,vars.json,init_name,布局模板,标记语法,explain
+- **101.dev/30-write-app-init.md** — 编写应用初始化模板 — 模块：ext.data.app — 关键词：app init,初始化模板,编写实践,敏感信息,demo.init
+- **101.dev/20-write-jsbin.md** — 编写 jsbin 业务脚本 — 模块：jsexec — 关键词：jsbin,sys.exec,$log,AjaxResult,sqlx,datex,val
+- **101.dev/21-write-sqlx-tmpl.md** — 编写 SQL 模板（sqlx） — 模块：ext.data.sqlx — 关键词：sqlx,SQL模板,@vars,动态SQL,where,SqlEntry,条件值
+- **101.dev/30-write-app-init.md** — 编写应用初始化模板（app init） — 模块：ext.data.app — 关键词：app init,应用初始化,.init,域初始化,vars.json
+- **101.dev/40-extend-regapi.md** — regapi 扩展实践 — 模块：ext.sys.httpapi — 关键词：模板渲染,第三方,复杂后端
+- **101.dev/50-custom-command.md** — 编写自定义命令 — 模块：impl.box — 关键词：cmd_*,JvmExecutor,man手册
+- **101.dev/60-write-java.md** — 作为 Java 库嵌入 — 模块：api — 关键词：WnIo,IoC,WnRun,二次开发
 
 ## 不收录（已弃用）
 

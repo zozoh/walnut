@@ -51,6 +51,7 @@
 
 - **impl/box/** — 说明：WnSystem/WnBox/JvmExecutorFactory — 文档：[04-command-model](10.concepts/04-command-model.md) ✅
 - **impl/box/cmd/** — 说明：73 个内置命令 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
+- **impl/box/cmd/cmd_jsc.java、cmd/jsc/** — 说明：jsc 命令与 $wn 助手库 — 文档：40.commands/20-cmd-jsc.md、101.dev/20-write-jsbin.md ✅
 - **impl/box/cmd/man/zh_cn/** — 说明：内置命令中文手册 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
 - **impl/io/** — 说明：WnSecurityImpl — 文档：30.auth/0-auth-pvg.md ✅
 - **impl/lock/{memory,redis}** — 说明：锁实现 — 文档：[03-cmd-filter](40.commands/03-cmd-filter.md) ✅
@@ -67,14 +68,14 @@
 ## 其他顶层模块
 
 - **util/WnRun.java** — 说明：命令运行器 — 文档：[04-command-model](10.concepts/04-command-model.md) ✅
-- **util/Wn.java、WnContext.java** — 说明：全局工具与线程上下文 — 文档：101.dev/java-lib.md ✅
+- **util/Wn.java、WnContext.java** — 说明：全局工具与线程上下文 — 文档：101.dev/60-write-java.md ✅
 - **util/{Wobj,WnStr,Wtime,Wpath,Ws}.java** — 说明：高频工具 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
 - **cron/WnCron.java** — 说明：WnCron 表达式引擎 — 文档：60.sched-async/20-cron-syntax.md ✅
-- **jsexec/JsExec.java** — 说明：JS 引擎封装 — 文档：[jsexec-api](101.dev/jsexec-api.md) ✅
+- **jsexec/JsExec.java** — 说明：JS 引擎封装 — 文档：40.commands/20-cmd-jsc.md ✅
 - **val/** — 说明：值生成器（ID/序列/日期/IP） — 文档：[03-cmd-filter](40.commands/03-cmd-filter.md) ✅
 - **lookup/** — 说明：快捷查询 — 文档：[cmd_o](../../src/com/site0/walnut/ext/data/o/man/zh_cn/cmd_o.md) ✅
 - **cache/** — 说明：缓存抽象 — 文档：20.io-storage/README.md ✅
-- **cheap/** — 说明：Cheap 文档解析器（dom/css/markdown/xml） — 文档：101.dev/jsexec-api.md ✅
+- **cheap/** — 说明：Cheap 文档解析器（dom/css/markdown/xml） — 文档：待补充 ⚠️
 - **ooml/** — 说明：OOML Office 底层解析库 — 文档：70.functionate/30-office-ooml.md ✅
 - **security/** — 说明：安全权鉴（建设中） — 文档：100.ops/security-notes.md ✅
 - **alg/** — 说明：算法工具 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
@@ -87,15 +88,15 @@
 - **ext/sys/hookx,lock,refer,trash** — 说明：钩子/锁/引用/回收站 — 文档：20.io-storage/11-io-hooks.md ✅
 - **ext/sys/dsync,truck** — 说明：数据同步与搬运 — 文档：待补充 ⚠️
 - **ext/sys/redis,mgadmin,aclog,i18n,datex** — 说明：系统工具命令 — 文档：[02-cmd-complex](40.commands/02-cmd-complex.md)、[03-cmd-filter](40.commands/03-cmd-filter.md) ✅
-- **ext/data/sqlx** — 说明：SQL 操作 — 文档：[cmd_sqlx](../../src/com/site0/walnut/ext/data/sqlx/man/zh_cn/cmd_sqlx.md) ✅
+- **ext/data/sqlx** — 说明：SQL 操作 — 文档：[cmd_sqlx](../../src/com/site0/walnut/ext/data/sqlx/man/zh_cn/cmd_sqlx.md)、[21-write-sqlx-tmpl](101.dev/21-write-sqlx-tmpl.md) ✅
 - **ext/data/entity** — 说明：通用实体(like/favor/score/history) — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
-- **ext/data/o** — 说明：o 增强命令 — 文档：[cmd_o](../../src/com/site0/walnut/ext/data/o/man/zh_cn/cmd_o.md) ✅
+- **ext/data/o** — 说明：o 增强命令 — 文档：40.commands/10-cmd-o-overview.md ✅
 - **ext/data/pvg** — 说明：业务权限 — 文档：30.auth/0-auth-pvg.md ✅
 - **ext/data/vcode** — 说明：动态码存储校验（旧实现） — 文档：30.auth/60-auth-otp.md ✅
 - **ext/data/captcha** — 说明：图形验证码（旧实现） — 文档：30.auth/70-auth-captcha.md ✅
 - **security/otp** — 说明：动态密码 OTP — 文档：30.auth/60-auth-otp.md ✅
 - **security/captcha** — 说明：人机验证码 — 文档：30.auth/70-auth-captcha.md ✅
-- **ext/data/app** — 说明：域应用初始化 — 文档：100.ops/deploy.md ✅
+- **ext/data/app** — 说明：域应用初始化 — 文档：[30-write-app-init](101.dev/30-write-app-init.md)、[cmd_app_init](../../src/com/site0/walnut/ext/data/app/man/zh_cn/cmd_app_init.md) ✅
 - **ext/data/domain** — 说明：域名映射 — 文档：100.ops/domain-mapping.md ✅
 - **ext/xo/** — 说明：对象存储集成（s3/cos） — 文档：20.io-storage/xo-storage.md、[cmd_xo](../../src/com/site0/walnut/ext/xo/man/zh_cn/cmd_xo.md) ✅
 - **ext/media/imagic** — 说明：图像处理 — 文档：70.functionate/50-image-imagic.md ✅

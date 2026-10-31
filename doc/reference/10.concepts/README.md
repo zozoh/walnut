@@ -6,7 +6,7 @@ source:
   - api/io/WnIo.java
   - api/io/WnObj.java
   - impl/box/WnSystem.java
-related: [quick-start, ../20.io-storage/README.md, source-layout]
+related: [quick-start, ../20.io-storage/README.md, 90-source-layout]
 ---
 
 # Walnut 核心概念概述

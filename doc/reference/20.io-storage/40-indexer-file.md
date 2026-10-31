@@ -54,7 +54,7 @@ Windows 盘符写 `filew://D:/...`）。
 mount ~/site 'file:///var/www/static/'
 
 # 把项目的 DDL 目录挂进 Walnut 管理
-mount ~/ddl 'filew:///mnt/project/bunya/init/ddl/'
+mount ~/ddl 'filew:///mnt/project/demo/init/ddl/'
 ```
 
 ## 注意事项

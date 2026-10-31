@@ -3,7 +3,7 @@ title: Java 库模式嵌入
 module: 101.dev
 keywords: [嵌入, Java API, WnIo, WnRun, IoC, 二次开发]
 source: [util/Wn.java, util/WnRun.java, api/]
-related: [source-layout, custom-command, jsexec-api]
+related: [90-source-layout, 50-custom-command.md, ../40.commands/20-cmd-jsc.md]
 ---
 
 # Java 库模式嵌入概述
@@ -51,6 +51,27 @@ o.setv("author", "zozoh");
 io.appendMeta(o, "author");
 ```
 
+> 路径必须是**标准绝对路径**：`~` 是 `HOME` 会话变量的简写，IO 层不认。
+> 用 `Wn.normalizePath` 常规化后再交给 WnIo：
+> 主要可选三个函数:
+> 
+> ```java
+> package com.site0.walnut.util;
+> public abstract class Wn {
+>     public static String normalizePath(String ph, WnSystem sys) 
+>     public static String normalizePath(String ph, WnSession se) 
+>     public static String normalizePath(String ph, NutBean vars)
+> }
+> ```
+> 譬如：
+>
+> ```java
+> // vars 里通常有 HOME；域 demo 的 "~/.captcha/default.json" 会被
+> // 常规化成 "/home/demo/.captcha/default.json"
+> String aph = Wn.normalizePath("~/.captcha/default.json", vars);
+> WnObj oConf = Wn.checkObj(io, aph);
+> ```
+
 ## 以用户身份执行命令（WnRun）
 
 ```java
@@ -72,6 +93,25 @@ WnSession se = run.creatSession("zozoh", true);
 - **复用 Walnut 命令生态（sheet/ooml/dsync...）**：`WnRun.exec`
 - **复用定时任务调度**：`Wn.Service.crons/tasks`
 - **全新业务能力**：自定义命令 或 xapi
+
+## 代码风格约定
+
+写 Walnut Java 代码时遵守的两条习惯（Web 模块服务类均已按此执行）：
+
+- **中间结果具名，一行一件事**：不要把多个调用嵌在一行表达式里，
+  每个中间结果先赋给具名局部变量再用——单步调试时可以逐个观察：
+
+  ```java
+  // 而不是 String otpErr = this._check_otp(this._get_otps(), se.getUser());
+  WnOTPService otps = this._get_otps();
+  WnUser user = se.getUser();
+  String otpErr = this._check_otp(otps, user);
+  ```
+
+- **方法名前缀与可见性对应**：`protected` 方法用单下划线 + snake_case
+  （如 `_check_otp`）；`private` 方法用双下划线（如 `__fail_json`）；
+  特别常用、甚至可能升级为 `public` 的 `protected` 方法不加下划线，
+  仅保持 snake_case。
 
 ## 注意事项
 

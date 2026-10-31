@@ -3,7 +3,7 @@ title: 实战：开发完整 API
 module: 101.dev
 keywords: [regapi 实战, API 示例, http-output, 模板, jsonx, 上传, 缓存]
 source: [ext/sys/httpapi/]
-related: [../50.regapi/10-api-object.md, ../50.regapi/20-request-object.md, ../50.regapi/40-cache.md, jsexec-api]
+related: [../50.regapi/10-api-object.md, ../50.regapi/20-request-object.md, ../50.regapi/40-cache.md, ../40.commands/20-cmd-jsc.md]
 ---
 
 # 实战：开发完整 API 概述
