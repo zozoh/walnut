@@ -710,6 +710,20 @@ public class AppModule extends AbstractWnModule {
         return WnLoginApiMaker.forHydrate().make(this.io(), env, options);
     }
 
+    @At
+    @Ok("ajax")
+    @Fail("ajax")
+    public NutMap login_mode(final HttpServletResponse resp) {
+        WnWeb.setCrossDomainHeaders("*", (name, value) -> {
+            resp.setHeader(WnWeb.niceHeaderName(name), value);
+        });
+        NutMap re = new NutMap();
+        re.put("system", conf.getSysLoginMode());
+        re.put("domain", conf.getDomainLoginMode());
+
+        return re;
+    }
+
     @At("/me")
     @Ok("ajax")
     @Fail("ajax")
