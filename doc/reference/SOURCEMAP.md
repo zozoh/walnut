@@ -16,6 +16,8 @@
 ## Web 层（web/）
 
 - **web/module/AppModule.java** — 说明：/a 应用打开/登录/run — 文档：50.regapi/* ✅
+- **ROOT/etc/hosts.d/default/pages/** — 说明：默认系统登录页、密码 / OTP 模式及 TAC 配置 — 文档：30.auth/62-auth-with-captcha-otp.md
+- **web/module/login.html** — 说明：JAR 内置兜底登录页、内嵌 TAC 及密码 / OTP 模式 — 文档：30.auth/62-auth-with-captcha-otp.md
 - **web/module/UsrModule.java** — 说明：/u 登录/登出/会话切换 — 文档：30.auth/20-auth-session.md ✅
 - **web/module/ObjModule.java** — 说明：/o 缩略图/下载 — 文档：[cmd_o](../../src/com/site0/walnut/ext/data/o/man/zh_cn/cmd_o.md) ✅
 - **web/module/FuseModule.java** — 说明：域名转发路由 — 文档：100.ops/domain-mapping.md ✅
@@ -93,9 +95,9 @@
 - **ext/data/o** — 说明：o 增强命令 — 文档：40.commands/10-cmd-o-overview.md ✅
 - **ext/data/pvg** — 说明：业务权限 — 文档：30.auth/0-auth-pvg.md ✅
 - **ext/data/vcode** — 说明：动态码存储校验（旧实现） — 文档：30.auth/60-auth-otp.md ✅
-- **ext/data/captcha** — 说明：图形验证码（旧实现） — 文档：30.auth/70-auth-captcha.md ✅
+- **ext/data/captcha** — 说明：图形验证码（旧实现） — 文档：30.auth/61-auth-captcha.md ✅
 - **security/otp** — 说明：动态密码 OTP — 文档：30.auth/60-auth-otp.md ✅
-- **security/captcha** — 说明：人机验证码 — 文档：30.auth/70-auth-captcha.md ✅
+- **security/captcha** — 说明：人机验证码 — 文档：30.auth/61-auth-captcha.md ✅
 - **ext/data/app** — 说明：域应用初始化 — 文档：[30-write-app-init](101.dev/30-write-app-init.md)、[cmd_app_init](../../src/com/site0/walnut/ext/data/app/man/zh_cn/cmd_app_init.md) ✅
 - **ext/data/domain** — 说明：域名映射 — 文档：100.ops/domain-mapping.md ✅
 - **ext/xo/** — 说明：对象存储集成（s3/cos） — 文档：20.io-storage/xo-storage.md、[cmd_xo](../../src/com/site0/walnut/ext/xo/man/zh_cn/cmd_xo.md) ✅

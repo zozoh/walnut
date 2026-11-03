@@ -1,33 +1,91 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="renderer" content="webkit" />
-<meta name="force-rendering" content="webkit" />
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Walnut OS</title>
-<link rel="stylesheet" type="text/css" href="index.css">
-<script src="/gu/rs/ti/deps/jquery.js"></script>
-<script src="/gu/rs/ti/deps/lodash.min.js"></script>
-</head>
-<body class="main-body">
-<form method="POST" action="/a/sys_login_by_passwd">
-  <div><img class="as-logo" src="logo.png"></div>
-  <hr>
-  <section>
-    <input name="name" placeholder="User Name" spellcheck="false">
-  </section>
-  <section>
-    <input name="passwd" placeholder="Password" type="password" spellcheck="false">
-  </section>
-  <section>
-    <button>Sign in</button>
-  </section>
-  <section class="as-icp">
-    <a href="${icpUrl}" target="_blank">${icpText?}</a>
-  </section>
-</form>
-</body>
-<script src="index.js"></script>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="renderer" content="webkit" />
+    <meta name="force-rendering" content="webkit" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Walnut OS</title>
+    <link rel="stylesheet" type="text/css" href="tac/tac.css" />
+    <link rel="stylesheet" type="text/css" href="index.css" />
+    <script src="jquery.min.js"></script>
+    <script src="lodash.min.js"></script>
+    <script src="tac/tac.min.js"></script>
+    <script>
+      window.SIGN_IN_CONFIG = {
+        domain: undefined,
+        mode: "${app-module-sys-login?PASSWD_AND_OTP}",
+        otp: undefined,
+        captcha: undefined,
+        otpCooldown: 60,
+      };
+    </script>
+  </head>
+  <body class="main-body">
+    <form class="login-form" method="POST" action="/a/sys_login_by_passwd">
+      <div><img class="as-logo" src="logo.png" /></div>
+      <hr />
+      <section>
+        <input
+          name="name"
+          placeholder="User Name"
+          aria-label="User Name"
+          autocomplete="username"
+          spellcheck="false"
+          required
+        />
+      </section>
+      <section class="auth-way" aria-label="Sign-in method" hidden>
+        <button type="button" data-auth-way="password" aria-pressed="true">
+          Password
+        </button>
+        <button type="button" data-auth-way="otp" aria-pressed="false">
+          OTP
+        </button>
+      </section>
+      <section class="password-field">
+        <input
+          name="passwd"
+          placeholder="Password"
+          aria-label="Password"
+          type="password"
+          autocomplete="current-password"
+          spellcheck="false"
+          required
+        />
+      </section>
+      <section class="otp-field" hidden>
+        <input
+          name="otp_val"
+          placeholder="One-Time Password"
+          aria-label="One-Time Password"
+          inputmode="numeric"
+          autocomplete="one-time-code"
+          spellcheck="false"
+          disabled
+        />
+        <button class="get-otp" type="button" disabled>Get OTP</button>
+      </section>
+      <input name="otp" type="hidden" disabled />
+      <section class="login-error" role="alert" hidden></section>
+      <section>
+        <button type="submit">Sign in</button>
+      </section>
+      <section class="as-icp">
+        <a href="${icpUrl}" target="_blank">${icpText?}</a>
+      </section>
+    </form>
+    <dialog class="captcha-dialog" aria-label="Security verification">
+      <button
+        class="captcha-close"
+        type="button"
+        aria-label="Close security verification"
+      >
+        Close
+      </button>
+      <div class="captcha-box"></div>
+    </dialog>
+  </body>
+  <script src="index.js"></script>
 </html>

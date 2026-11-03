@@ -102,10 +102,9 @@ WnSession se = run.creatSession("zozoh", true);
   每个中间结果先赋给具名局部变量再用——单步调试时可以逐个观察：
 
   ```java
-  // 而不是 String otpErr = this._check_otp(this._get_otps(), se.getUser());
-  WnOTPService otps = this._get_otps();
+  // 而不是 String otpErr = this._check_otp(se.getUser());
   WnUser user = se.getUser();
-  String otpErr = this._check_otp(otps, user);
+  String otpErr = this._check_otp(user);
   ```
 
 - **方法名前缀与可见性对应**：`protected` 方法用单下划线 + snake_case

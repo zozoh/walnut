@@ -2,7 +2,7 @@
 title: 账号认证机制
 module: login
 keywords: [认证, 账户, 会话, 权限, 验证码, 登录]
-related: [10-auth-user-role, 20-auth-session, 30-auth-in-domain, 40-auth-hydrate, 0-auth-pvg, 60-auth-otp, 70-auth-captcha]
+related: [10-auth-user-role, 20-auth-session, 30-auth-in-domain, 40-auth-hydrate, 0-auth-pvg, 60-auth-otp, 61-auth-captcha, 62-auth-with-captcha-otp]
 ---
 
 # 账号认证机制概述

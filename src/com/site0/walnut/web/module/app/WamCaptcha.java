@@ -15,7 +15,6 @@ import org.nutz.web.ajax.Ajax;
 import org.nutz.web.ajax.AjaxReturn;
 
 import com.site0.walnut.api.io.WnIo;
-import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.security.captcha.WnCaptchaApi;
 import com.site0.walnut.security.captcha.WnCaptchaBuilder;
 import com.site0.walnut.security.captcha.WnCaptchaObj;
@@ -25,39 +24,44 @@ import com.site0.walnut.util.Ws;
 
 /**
  * 对应入口函数 <code>AppModule.captcha_get</code> /
- * <code>AppModule.captcha_verify</code> 的服务类：人机验证码（captcha） 的生成与校验。
+ * <code>AppModule.captcha_verify</code> 的服务类：人机验证码（captcha）
+ * 的生成与校验。
  *
  * <p>
- * 验证码按域配置：域就是系统用户名，配置位于其家目录的 <code>~/.captcha/{name}.json</code>（配置名缺省
- * <code>"default"</code>）， 域为空表示 root 用户。每次请求都现场构建 {@link WnCaptchaBuilder}，
- * 不做缓存——构建代价小，且能始终读到最新的域配置。
+ * 配置目录取自 {@link WamOcmInfo#getConfHomePath()}（登录模式决定，
+ * 规则见 <code>62-auth-with-captcha-otp.md</code>）：验证码配置位于
+ * <code>{confHome}/.captcha/{name}.json</code>（配置名缺省
+ * <code>"default"</code>）。每次请求都现场构建 {@link WnCaptchaBuilder}，
+ * 不做缓存——构建代价小，且能始终读到最新的配置。
  *
  * <p>
- * 返回统一用 {@link AjaxReturn} 包裹：成功 <code>{ok:true, data:...}</code>， 失败
- * <code>{ok:false, errCode, msg}</code>——服务故障与「校验不通过」
- * 客户端可以明确区分。<code>get</code> 的 <code>data</code> 是 {@link WnCaptchaObj} 的
- * JSON（含 <code>id</code> 与渲染数据），客户端 拿到即可绘制；<code>verify</code> 的
- * <code>data</code> 是 <code>{ticket:...}</code>。verify 校验用户提交的行为数据，通过即作废
- * （一发一验），签发的临时票据（一次性，带过期）由客户端在后续业务 请求（如 OTP 发送 / 登录提交）里带上
- * <code>ticket + account</code>， 由业务侧 <code>checkTicket</code> 消费。
+ * 返回统一用 {@link AjaxReturn} 包裹：成功 <code>{ok:true, data:...}</code>，
+ * 失败 <code>{ok:false, errCode, msg}</code>——服务故障与「校验不通过」
+ * 客户端可以明确区分。<code>get</code> 的 <code>data</code> 是
+ * {@link WnCaptchaObj} 的 JSON（含 <code>id</code> 与渲染数据），客户端
+ * 拿到即可绘制；<code>verify</code> 的 <code>data</code> 是
+ * <code>{ticket:...}</code>。verify 校验用户提交的行为数据，通过即作废
+ * （一发一验），签发的临时票据（一次性，带过期）由客户端在后续业务
+ * 请求（如 OTP 发送 / 登录提交）里带上 <code>ticket + account</code>，
+ * 由业务侧 <code>checkTicket</code> 消费。
  *
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class WnAppModuleCaptcha {
+public class WamCaptcha {
 
     private static final Log log = Wlog.getAPP();
-
-    private WnLoginApi auth;
 
     private WnIo io;
 
     /**
-     * 域（系统用户名），空表示 root 用户
+     * 本次操作的信息：配置主目录、用户等（由入口函数经
+     * <code>AppModule.get_ocm_info(domain, account)</code> 解析）
      */
-    private String domain;
+    private WamOcmInfo ocm;
 
     /**
-     * 验证码配置名（对应 <code>~/.captcha/{name}.json</code>），缺省 "default"
+     * 验证码配置名（对应 <code>{confHome}/.captcha/{name}.json</code>），缺省
+     * "default"
      */
     private String captchaName;
 
@@ -139,25 +143,14 @@ public class WnAppModuleCaptcha {
     }
 
     /**
-     * @return 当前域的构建器现场取的验证码服务接口
+     * @return 当前登录模式下现场构建的验证码服务接口
      */
     private WnCaptchaApi __check_api() {
-        String name = Strings.sBlank(captchaName, "default");
-        WnCaptchaBuilder builder = this.__create_builder();
-        return builder.build(name);
-    }
-
-    /**
-     * 为当前域构建一个 captcha 构建器：域的家目录决定 <code>~/.captcha</code> 的位置
-     *
-     * @return 新构建器
-     */
-    private WnCaptchaBuilder __create_builder() {
-        String usrName = Strings.sBlank(domain, "root");
-        String usrHome = this.auth.checkUser(usrName).getHomePath();
+        String ccName = Strings.sBlank(captchaName, "default");
         NutMap vars = new NutMap();
-        vars.put("HOME", usrHome);
-        return new WnSysCaptchaBuilder(this.io, vars);
+        vars.put("HOME", ocm.getConfHomePath());
+        WnCaptchaBuilder builder = new WnSysCaptchaBuilder(this.io, vars);
+        return builder.build(ccName);
     }
 
     /**
@@ -175,14 +168,6 @@ public class WnAppModuleCaptcha {
         return Json.toJson(re, JsonFormat.compact());
     }
 
-    public WnLoginApi getAuth() {
-        return auth;
-    }
-
-    public void setAuth(WnLoginApi auth) {
-        this.auth = auth;
-    }
-
     public WnIo getIo() {
         return io;
     }
@@ -191,12 +176,12 @@ public class WnAppModuleCaptcha {
         this.io = io;
     }
 
-    public String getDomain() {
-        return domain;
+    public WamOcmInfo getOcm() {
+        return ocm;
     }
 
-    public void setDomain(String domain) {
-        this.domain = domain;
+    public void setOcm(WamOcmInfo ocm) {
+        this.ocm = ocm;
     }
 
     public String getCaptchaName() {

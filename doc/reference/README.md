@@ -52,7 +52,8 @@ doc/reference/
 |   |-- 40-auth-hydrate.md        #   混合认证：域内用户登录建立标准账户会话
 |   |-- 0-auth-pvg.md             #   标准对象的权限体系：mode / pvg / 业务权限矩阵
 |   |-- 60-auth-otp.md            #   动态密码 OTP：WnOTPService、生成/存储(Redis)/邮件发送
-|   |-- 70-auth-captcha.md        #   人机验证码 captcha：接口骨架、拖拽验证、与 OTP 协作
+|   |-- 61-auth-captcha.md        #   人机验证码 captcha：接口骨架、拖拽验证、与 OTP 协作
+|   |-- 62-auth-with-captcha-otp.md #   captcha 与 OTP 的登录协同：配置目录与登录模式
 |
 |-- 40.commands/                  # 命令参考：73 内置 + 84 扩展，三种写法与组合手段
 |   |-- README.md                 #   命令机制概览：要解决的问题、三种模式、管道与 IO

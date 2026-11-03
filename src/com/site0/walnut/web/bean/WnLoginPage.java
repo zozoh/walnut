@@ -1,12 +1,12 @@
 package com.site0.walnut.web.bean;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.nutz.lang.Encoding;
 import org.nutz.lang.Files;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 import com.site0.walnut.util.tmpl.WnTmpl;
+import com.site0.walnut.util.tmpl.WnTmplX;
+
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
@@ -29,12 +29,12 @@ public class WnLoginPage {
 
     private WnIo io;
     private WnUser domainUser;
+    private NutBean config;
     private String pageName;
     private String host;
     private String sitePath;
     private String etag;
     private String range;
-    private HttpServletResponse resp;
 
     public View genView(String rph) {
         // 登陆界面的主目录在哪里呢？
@@ -91,7 +91,8 @@ public class WnLoginPage {
         // ...................................................
         // 没有就采用默认的
         if (null == oPageHome) {
-            return this.getBuiltinLoginView();
+            NutBean c = _gen_render_vars();
+            return this.getBuiltinLoginView(c);
         }
 
         // ...................................................
@@ -108,15 +109,7 @@ public class WnLoginPage {
         if (o.isType("html")) {
             String str = io.readText(o);
             WnTmpl tmpl = WnTmpl.parse(str);
-            NutBean c = Wn.getSysConfMap(io);
-            if (null != this.domainUser) {
-                c.putAll(domainUser.toBean());
-            }
-            if (null != domainUser) {
-                c.put("DOMAIN", domainUser.getMainGroup());
-            } else {
-                c.put("DOMAIN", "_default_");
-            }
+            NutBean c = _gen_render_vars();
             String html = tmpl.render(c);
             byte[] buf = html.getBytes(Encoding.CHARSET_UTF8);
             return new WnObjDownloadView(buf,
@@ -131,21 +124,42 @@ public class WnLoginPage {
         return new WnObjDownloadView(io, o, null, null, etag, range);
     }
 
+    private NutBean _gen_render_vars() {
+        NutBean c = Wn.getSysConfMap(io);
+        if (null != this.domainUser) {
+            c.putAll(domainUser.toBean());
+        }
+        if (null != domainUser) {
+            c.put("DOMAIN", domainUser.getMainGroup());
+        } else {
+            c.put("DOMAIN", "_default_");
+        }
+        if (null != this.config) {
+            c.putAll(this.config);
+        }
+        return c;
+    }
+
     private static final String LOGIN_HTML;
-    private static final String LOGIN_SHA1;
+    private static final WnTmplX LOGIN_TMPL;
+    // private static final String LOGIN_SHA1;
 
     static {
         LOGIN_HTML = Files.read("com/site0/walnut/web/module/login.html");
-        LOGIN_SHA1 = Wlang.sha1(LOGIN_HTML);
+        LOGIN_TMPL = WnTmplX.parse(LOGIN_HTML);
+        // LOGIN_SHA1 = Wlang.sha1(LOGIN_HTML);
     }
 
-    public View getBuiltinLoginView() {
-        if (etag != null && LOGIN_SHA1.equals(etag)) {
-            return new HttpStatusView(304);
-        }
+    public View getBuiltinLoginView(NutBean vars) {
+        // zozoh@20261103: 永远动态生成，因为需要动态获取登录模式
+        // 以后可能需要更多的动态信息
+        // if (etag != null && LOGIN_SHA1.equals(etag)) {
+        // return new HttpStatusView(304);
+        // }
 
-        resp.setHeader("ETag", LOGIN_SHA1);
-        return new ViewWrapper(new RawView("html"), LOGIN_HTML);
+        // resp.setHeader("ETag", LOGIN_SHA1);
+        String html = LOGIN_TMPL.render(vars);
+        return new ViewWrapper(new RawView("html"), html);
     }
 
     public WnIo getIo() {
@@ -204,8 +218,12 @@ public class WnLoginPage {
         this.range = range;
     }
 
-    public void setResp(HttpServletResponse resp) {
-        this.resp = resp;
+    public NutBean getConfig() {
+        return config;
+    }
+
+    public void setConfig(NutBean config) {
+        this.config = config;
     }
 
 }

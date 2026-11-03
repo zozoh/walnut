@@ -1,9 +1,12 @@
 * {
   box-sizing: border-box;
 }
+[hidden] {
+  display: none !important;
+}
 html,
 body {
-  height: 100%;
+  min-height: 100%;
   font-size: 18px;
   margin: 0;
   font-family: "Microsoft YaHei", Vendana, Calibri, Driod Sans, Arial;
@@ -17,12 +20,15 @@ body {
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
-  padding: 6em 0;
+  min-height: 100vh;
+  padding: 2em 1em;
 }
-form {
+.login-form {
   margin: 0 auto;
   text-align: center;
   width: 24em;
+  max-width: 100%;
+  flex-shrink: 0;
   padding: 1em;
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(8px);
@@ -34,31 +40,33 @@ form {
   box-shadow: -1px -1px 0 rgba(255, 255, 255, 0.9), 1px 1px 0 rgba(0, 0, 0, 0.3),
     0 0 7px rgba(255, 255, 255, 0.3);
 }
-img.as-logo {
+.login-form img.as-logo {
+  max-width: 100%;
+  height: auto;
   transition: 0.5s;
   opacity: 0.2;
   transform: scale(0.2);
 }
-hr {
+.login-form hr {
   height: 1px;
   border: 0;
   border-top: 1px solid rgba(255, 255, 255, 0.3);
 }
-section {
+.login-form section {
   margin: 1em;
 }
-section.as-icp {
+.login-form section.as-icp {
   font-size: 11px;
 }
-section.as-icp a {
+.login-form section.as-icp a {
   color: #666666;
   text-decoration: none;
 }
-section.as-icp a:hover {
+.login-form section.as-icp a:hover {
   color: #0088ff;
   text-decoration: underline;
 }
-input {
+.login-form input:not([type="hidden"]) {
   width: 100%;
   font-size: inherit;
   padding: 0.8em;
@@ -69,27 +77,27 @@ input {
   font-family: inherit;
   font-size: 1.2em;
 }
-input[name="name"] {
+.login-form input[name="name"] {
   transition-delay: 0s;
   transform: translateX(-5em);
 }
-::-webkit-input-placeholder {
+.login-form ::-webkit-input-placeholder {
   color: #ccc;
 }
-:-moz-placeholder {
+.login-form :-moz-placeholder {
   color: #ccc;
 }
-::-moz-placeholder {
+.login-form ::-moz-placeholder {
   color: #ccc;
 }
-:-ms-input-placeholder {
+.login-form :-ms-input-placeholder {
   color: #ccc;
 }
-input[name="passwd"] {
+.login-form input[name="passwd"] {
   transition-delay: 0.3s;
   transform: translateX(5em);
 }
-button {
+.login-form button {
   width: 100%;
   padding: 1em;
   font-size: inherit;
@@ -104,32 +112,107 @@ button {
   opacity: 0;
   transform: translateY(5em);
 }
-button:hover {
+.login-form button:hover:not(:disabled) {
   background: #f80;
   color: #fff;
 }
 /*-------------------------------------------*/
-body.load-done form {
+body.load-done .login-form {
   opacity: 1;
   transform: unset;
 }
 /*-------------------------------------------*/
-body.load-done img.as-logo {
+body.load-done .login-form img.as-logo {
   opacity: 1;
   transform: unset;
 }
 /*-------------------------------------------*/
-body.load-done input[name="name"] {
+body.load-done .login-form input:not([type="hidden"]) {
   opacity: 1;
   transform: unset;
 }
 /*-------------------------------------------*/
-body.load-done input[name="passwd"] {
+body.load-done .login-form button {
   opacity: 1;
   transform: unset;
 }
-/*-------------------------------------------*/
-body.load-done button {
-  opacity: 1;
-  transform: unset;
+.login-form .auth-way,
+.login-form .otp-field {
+  display: flex;
+}
+.login-form .auth-way button {
+  flex: 1;
+  padding: 0.6em;
+  border: 1px solid #08f;
+  background: rgba(255, 255, 255, 0.8);
+  color: #0674c8;
+}
+.login-form .auth-way button[aria-pressed="true"] {
+  background: #08f;
+  color: #fff;
+}
+.login-form .otp-field input {
+  min-width: 0;
+  flex: 1;
+  font-size: 1em;
+}
+.login-form .get-otp {
+  width: auto;
+  flex: 0 0 6em;
+  padding: 0.5em;
+}
+.login-form button:disabled {
+  cursor: not-allowed;
+  background: #667b89;
+}
+.login-form button:focus-visible,
+.captcha-close:focus-visible {
+  outline: 2px solid #f80;
+  outline-offset: 2px;
+}
+.login-form .login-error {
+  padding: 0.6em;
+  background: rgba(255, 255, 255, 0.9);
+  color: #a01818;
+  font-size: 0.85em;
+  overflow-wrap: anywhere;
+}
+.captcha-dialog {
+  border: 0;
+  border-radius: 6px;
+  padding: 0;
+  background: #fff;
+  color: #000;
+  max-width: calc(100vw - 16px);
+  max-height: calc(100vh - 16px);
+}
+.captcha-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}
+.captcha-close {
+  display: block;
+  margin: 0.4em 0.6em 0.4em auto;
+  padding: 0.25em 0.5em;
+  border: 0;
+  border-radius: 3px;
+  background: #eee;
+  color: #333;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.75em;
+}
+@media (max-width: 480px) {
+  body {
+    padding: 1em 0.5em;
+  }
+  .login-form {
+    padding: 0.75em;
+  }
+  .login-form section {
+    margin: 0.75em 0;
+  }
+  .login-form img.as-logo {
+    max-height: 28vh;
+    object-fit: contain;
+  }
 }

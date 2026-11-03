@@ -17,10 +17,10 @@
 
 | 服务类 | 入口函数 | 原行数 |
 |---|---|---|
-| `web/module/app/WnAppModuleOpen` | `open()` | ~80 |
-| `web/module/app/WnAppModuleLoad` | `load()` | ~65 |
-| `web/module/app/WnAppModuleRun` | `run()` | ~55 |
-| `web/module/app/WnAppModuleSysLoginByPassword` | `sys_login_by_passwd()` | ~50 |
+| `web/module/app/WamOpen` | `open()` | ~80 |
+| `web/module/app/WamLoad` | `load()` | ~65 |
+| `web/module/app/WamRun` | `run()` | ~55 |
+| `web/module/app/WamSysLoginByPassword` | `sys_login_by_passwd()` | ~50 |
 | `web/module/app/WnAppModuleAuthLoginByPassword` | `auth_login_by_domain_passwd()` | ~150 |
 
 ## 其他修改

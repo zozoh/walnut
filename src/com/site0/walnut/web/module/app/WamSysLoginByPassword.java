@@ -12,7 +12,6 @@ import org.nutz.web.ajax.AjaxView;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.login.usr.WnUser;
-import com.site0.walnut.security.otp.WnOTPService;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
@@ -31,20 +30,22 @@ import redis.clients.jedis.exceptions.JedisException;
  *
  * <ul>
  * <li><code>PASSWD_ONLY</code>：只验密码，与历史行为完全一致</li>
- * <li><code>PASSWD_AND_OTP</code>：密码和 OTP 双重认证。先验密码，密码过了
- * 还必须验 OTP，OTP 不过回收会话并报错</li>
- * <li><code>PASSWD_OR_OTP</code>：密码或 OTP 任一通过即可。密码没过（或未提供）
- * 再试 OTP，OTP 通过则免密建会话</li>
  * <li><code>OTP_ONLY</code>：只验 OTP，通过则免密建会话</li>
+ * <li><code>PASSWD_AND_OTP</code>：密码和 OTP 双重认证。OTP 轻量优先验，密码
+ * 其次，都过了才创建会话</li>
+ * <li><code>PASSWD_OR_OTP</code>：提供了什么就验什么——密码不为空验密码，OTP
+ * 不为空验 OTP，都过了才建会话；两个都为空报密码错</li>
  * </ul>
  *
  * <p>
- * OTP 配置在 root 用户家目录的 <code>~/.otp/{name}.json5</code>；
- * 校验账号取用户的邮箱（见 {@link AbstractWnAppModuleAuth#_check_otp}）
+ * OTP 配置在 root 用户家目录的 <code>~/.otp/{name}.json5</code>（
+ * <code>ocm.confHomePath</code>，操作上下文由入口函数经
+ * <code>AppModule.get_ocm_info</code> 构建传入）；校验账号取用户的邮箱（见
+ * {@link AbstractWamAuth#_check_otp}）
  *
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class WnAppModuleSysLoginByPassword extends AbstractWnAppModuleAuth {
+public class WamSysLoginByPassword extends AbstractWamAuth {
 
     private static final Log log = Wlog.getAPP();
 
@@ -71,50 +72,44 @@ public class WnAppModuleSysLoginByPassword extends AbstractWnAppModuleAuth {
         WnAppModuleLoginMode mode = conf.getSysLoginMode();
         // 尝试用系统账号登录
         try {
-            WnSession se = null;
-            WebException passwdErr = null;
-
-            // 第一步：先尝试密码（OTP_ONLY 模式跳过）
-            if (mode != WnAppModuleLoginMode.OTP_ONLY) {
-                try {
-                    se = auth.loginByPassword(name, passwd);
+            // 登录用户（不存在直接报错）
+            WnUser user = sysAuth.checkUser(name);
+            // 按登录模式认证：OTP 轻量优先，密码其次，都过了才建会话
+            switch (mode) {
+            case OTP_ONLY:
+                this._assert_otp(user);
+                break;
+            case PASSWD_ONLY:
+                this.__assert_passwd(user);
+                break;
+            case PASSWD_AND_OTP:
+                this._assert_otp(user);
+                this.__assert_passwd(user);
+                break;
+            case PASSWD_OR_OTP:
+                // 提供了什么就验什么：密码不为空验密码，OTP 不为空验 OTP
+                if (!Ws.isBlank(passwd)) {
+                    this.__assert_passwd(user);
                 }
-                catch (WebException e) {
-                    passwdErr = e;
+                if (!Ws.isBlank(otpCode)) {
+                    this._assert_otp(user);
                 }
-            }
-
-            // PASSWD_AND_OTP：密码过了还必须验 OTP
-            if (null != se && mode == WnAppModuleLoginMode.PASSWD_AND_OTP) {
-                WnOTPService otps = this._get_otps();
-                WnUser user = se.getUser();
-                String otpErr = this._check_otp(otps, user);
-                // OTP 不过：回收会话，报错
-                if (null != otpErr) {
-                    auth.removeSession(se);
-                    throw Er.create(otpErr);
+                // 两个都为空，报密码错（与历史行为一致）
+                if (Ws.isBlank(passwd) && Ws.isBlank(otpCode)) {
+                    throw Er.create("e.auth.login.Failed");
                 }
+                break;
             }
-
-            // PASSWD_OR_OTP / OTP_ONLY：密码没过（或不试密码），走 OTP
-            if (null == se
-                && (mode == WnAppModuleLoginMode.PASSWD_OR_OTP
-                    || mode == WnAppModuleLoginMode.OTP_ONLY)) {
-                se = this.__login_by_otp(mode, passwdErr);
-            }
-
-            // 进行到这里还没会话，原样抛出密码错误
-            // （PASSWD_ONLY / PASSWD_AND_OTP 密码错均走到这里，行为与历史一致）
-            if (null == se) {
-                throw passwdErr;
-            }
-
+            // -----------------------------------------
+            // 认证通过，创建会话（尽量晚创建）
+            int se_du = sysAuth.getSessionDuration();
+            WnSession se = sysAuth.createSession(user, Wn.SET_AUTH_PASS, se_du);
             // 尝试初始化会话
             this._try_run_profile(se);
             // 如果是 Ajax 视图
             if (ajax) {
                 // 获取 cookie 模板
-                Object reo = se.toBean(auth);
+                Object reo = se.toBean(sysAuth);
                 return new ViewWrapper(new WnAddCookieViewWrapper(conf,
                                                                   new AjaxView(),
                                                                   null),
@@ -145,44 +140,22 @@ public class WnAppModuleSysLoginByPassword extends AbstractWnAppModuleAuth {
     }
 
     /**
-     * OTP 登录路径：免密验证 OTP，通过则创建会话
+     * 断言密码校验通过，不过报 <code>e.auth.login.Failed</code>（与历史行为一致）
      *
-     * @param mode
-     *            登录模式（PASSWD_OR_OTP / OTP_ONLY）
-     * @param passwdErr
-     *            之前密码登录的错误（OR 模式 OTP 未提供时原样报出）
-     * @return 新会话
+     * @param user
+     *            登录用户
      */
-    private WnSession __login_by_otp(WnAppModuleLoginMode mode, WebException passwdErr) {
-        // 没填验证码：OTP_ONLY 明确报 required；OR 模式报原密码错误
-        if (Ws.isBlank(otpCode)) {
-            if (mode == WnAppModuleLoginMode.OTP_ONLY) {
-                throw Er.create("e.auth.login.otp.required");
-            }
-            throw passwdErr;
+    private void __assert_passwd(WnUser user) {
+        if (user.isMatchedRawPasswd(passwd)) {
+            return;
         }
-        // 用户必须存在，并取其邮箱作为 OTP 账号
-        WnUser user = auth.checkUser(name);
-        WnOTPService otps = this._get_otps();
-        String otpErr = this._check_otp(otps, user);
-        if (null != otpErr) {
-            throw Er.create(otpErr);
-        }
-        // 免密建会话
-        int se_du = auth.getSessionDuration();
-        return auth.createSession(user, Wn.SET_LOGIN_APP, se_du);
-    }
-
-    @Override
-    protected String _otp_usr_home() {
-        WnUser root = auth.checkUser("root");
-        return root.getHomePath();
+        throw Er.create("e.auth.login.Failed");
     }
 
     private View __get_session_default_view(WnSession se) {
         String appName = se.getEnv().getString("OPEN", "wn.console");
         String url = "/a/open/" + appName;
-        Object reData = se.toBean(auth);
+        Object reData = se.toBean(sysAuth);
         return new ViewWrapper(new WnAddCookieViewWrapper(conf, url), reData);
     }
 

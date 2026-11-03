@@ -15,7 +15,6 @@ import org.nutz.web.ajax.Ajax;
 import org.nutz.web.ajax.AjaxReturn;
 
 import com.site0.walnut.api.io.WnIo;
-import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.security.captcha.WnCaptchaApi;
 import com.site0.walnut.security.captcha.WnCaptchaBuilder;
@@ -34,44 +33,36 @@ import com.site0.walnut.web.util.WnWeb;
  * <code>checkTicket(ticket, account)</code> 不过直接拒绝，不触发任何发送。 这一步挡的是机器人批量触发发信。
  *
  * <p>
- * 票据通过后：<code>account</code> 是登录名，先解析用户取其邮箱作为 OTP 收件账号（用户没设邮箱报错）；然后生成、存储、发送 OTP
- * （存储同账号旧码被覆盖，「一发一验」）。OTP 与 captcha 的配置都
- * 取自域（系统用户名）的家目录——<code>~/.otp/{name}.json5</code> 与
- * <code>~/.captcha/{name}.json</code>，域为空表示 root 用户。
- * 每次请求都现场构建服务实例，不做缓存，能始终读到最新的域配置。
+ * 票据通过后：从 {@link WamOcmInfo#getUser()} 取用户（登录名解析，
+ * captcha 阶段用户不存在时这里是 <code>null</code>，发送前必须存在），取其邮箱作为
+ * OTP 收件账号（用户没设邮箱报错）；然后生成、存储、发送 OTP
+ * （存储同账号旧码被覆盖，「一发一验」）。OTP 与 captcha 的配置目录取自
+ * {@link WamOcmInfo#getConfHomePath()}（登录模式决定，规则见
+ * <code>62-auth-with-captcha-otp.md</code>）。每次请求都现场构建服务实例，
+ * 不做缓存，能始终读到最新的配置。
  *
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class WnAppModuleOTPSend {
+public class WamOTPSend {
 
     private static final Log log = Wlog.getAPP();
-
-    /**
-     * 登录接口：account（登录名）用它解析成用户。域场景是域自己的用户库，
-     * 根场景是系统用户库
-     */
-    private WnLoginApi auth;
-
-    /**
-     * 系统权鉴接口：域本身是系统用户，用它解析域的家目录
-     * （captcha / OTP 配置所在）
-     */
-    private WnLoginApi sysAuth;
 
     private WnIo io;
 
     /**
-     * 域（系统用户名），空表示 root 用户
+     * 本次操作的信息：配置主目录、用户等（由入口函数经
+     * <code>AppModule.get_ocm_info(domain, account)</code> 解析）
      */
-    private String domain;
+    private WamOcmInfo ocm;
 
     /**
-     * OTP 配置名（对应 <code>~/.otp/{name}.json5</code>），缺省 "default"
+     * OTP 配置名（对应 <code>{confHome}/.otp/{name}.json5</code>），缺省 "default"
      */
     private String otpConfigName;
 
     /**
-     * captcha 配置名（对应 <code>~/.captcha/{name}.json</code>），缺省 "default"
+     * captcha 配置名（对应 <code>{confHome}/.captcha/{name}.json</code>），缺省
+     * "default"
      */
     private String captchaName;
 
@@ -117,13 +108,17 @@ public class WnAppModuleOTPSend {
             }
             // 第一步：消费人机票据，证明不是机器人
             WnCaptchaApi api = this.__check_api();
-            // if (!api.checkTicket(ticket, account)) {
-            // reJson = this.__fail_json("e.captcha.ticket.invalid", null);
-            // return new ViewWrapper(new RawView("json"), reJson);
-            // }
+            if (!api.checkTicket(ticket, account)) {
+                reJson = this.__fail_json("e.captcha.ticket.invalid", null);
+                return new ViewWrapper(new RawView("json"), reJson);
+            }
 
-            // 第二步：账号是登录名，解析用户取其邮箱作为 OTP 收件账号
-            WnUser user = this.auth.checkUser(account);
+            // 第二步：取用户邮箱作为 OTP 收件账号
+            WnUser user = ocm.getUser();
+            if (null == user) {
+                reJson = this.__fail_json("e.otp.account.noexists", account);
+                return new ViewWrapper(new RawView("json"), reJson);
+            }
             String email = user.getEmail();
             if (Ws.isBlank(email)) {
                 reJson = this.__fail_json("e.otp.account.no_email", account);
@@ -134,7 +129,6 @@ public class WnAppModuleOTPSend {
             WnOTPBean otp = otps.create(email);
             otps.save(otp);
             // 第四步：发送
-            // 第三步：发送
             AjaxReturn sendRe = otps.send(otp);
             if (!sendRe.isOk()) {
                 String errCode = Strings.sBlank(sendRe.getErrCode(),
@@ -155,28 +149,24 @@ public class WnAppModuleOTPSend {
     }
 
     /**
-     * @return 当前域现场构建的 captcha 服务接口（用来校验票据）
+     * @return 当前登录模式下现场构建的 captcha 服务接口（用来校验票据）
      */
     private WnCaptchaApi __check_api() {
-        String name = Strings.sBlank(captchaName, "default");
-        String usrName = Strings.sBlank(domain, "root");
-        String usrHome = this.sysAuth.checkUser(usrName).getHomePath();
+        String ccName = Strings.sBlank(captchaName, "default");
         NutMap vars = new NutMap();
-        vars.put("HOME", usrHome);
+        vars.put("HOME", ocm.getConfHomePath());
         WnCaptchaBuilder builder = new WnSysCaptchaBuilder(this.io, vars);
-        return builder.build(name);
+        return builder.build(ccName);
     }
 
     /**
-     * @return 当前域现场构建的 OTP 服务实例
+     * @return 当前登录模式下现场构建的 OTP 服务实例
      */
     private WnOTPService __check_otps() {
-        String name = Strings.sBlank(otpConfigName, "default");
-        String usrName = Strings.sBlank(domain, "root");
-        String usrHome = this.sysAuth.checkUser(usrName).getHomePath();
+        String ocName = Strings.sBlank(otpConfigName, "default");
         NutMap sessionVars = new NutMap();
-        sessionVars.put("HOME", usrHome);
-        return new WnOTPService(this.io, sessionVars, name);
+        sessionVars.put("HOME", ocm.getConfHomePath());
+        return new WnOTPService(this.io, sessionVars, ocName);
     }
 
     /**
@@ -194,22 +184,6 @@ public class WnAppModuleOTPSend {
         return Json.toJson(re, JsonFormat.compact());
     }
 
-    public WnLoginApi getAuth() {
-        return auth;
-    }
-
-    public void setAuth(WnLoginApi auth) {
-        this.auth = auth;
-    }
-
-    public WnLoginApi getSysAuth() {
-        return sysAuth;
-    }
-
-    public void setSysAuth(WnLoginApi sysAuth) {
-        this.sysAuth = sysAuth;
-    }
-
     public WnIo getIo() {
         return io;
     }
@@ -218,12 +192,12 @@ public class WnAppModuleOTPSend {
         this.io = io;
     }
 
-    public String getDomain() {
-        return domain;
+    public WamOcmInfo getOcm() {
+        return ocm;
     }
 
-    public void setDomain(String domain) {
-        this.domain = domain;
+    public void setOcm(WamOcmInfo ocm) {
+        this.ocm = ocm;
     }
 
     public String getOtpConfigName() {

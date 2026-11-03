@@ -250,7 +250,7 @@ public class WnLoginSite {
      *            用户名
      * @return 是否为域用户
      */
-    public boolean isDomainUser(String userName) {
+    public boolean isDomainOwner(String userName) {
         return null != this.domain && this.domain.equals(userName);
     }
 

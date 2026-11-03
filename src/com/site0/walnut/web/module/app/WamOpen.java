@@ -27,7 +27,7 @@ import com.site0.walnut.web.impl.WnAppService;
  *
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class WnAppModuleOpen {
+public class WamOpen {
 
     private static final Log log = Wlog.getAPP();
 

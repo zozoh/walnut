@@ -252,6 +252,10 @@ Walnut 自己定义一套抽象的接口，把具体库藏在接口后面：
 OTP 本身的发送时机由具体业务决定（登录场景里，用户名密码通过后再发码，
 可以避免「验证码被用来探测账号是否存在」）。
 
+> 多租户场景下，captcha / OTP / mailx 的配置目录取谁家、登录接口用
+> 哪套权鉴（系统权鉴 / 域权鉴），由登录模式决定——规则见
+> 62-auth-with-captcha-otp。
+
 # tianai 实现
 
 当前默认实现选型 [tianai-captcha](https://doc.captcha.tianai.cloud/)

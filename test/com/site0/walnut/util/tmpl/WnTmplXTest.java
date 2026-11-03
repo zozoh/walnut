@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.nutz.json.Json;
+import org.nutz.lang.Files;
 import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
 
@@ -354,6 +355,22 @@ public class WnTmplXTest {
     public void test_escape() {
         assertEquals("A${b}C", WnTmplX.exec("A$${b}C", Wlang.map("b:'BB'}")));
         assertEquals("${A}", WnTmplX.exec("$${${x}}", Wlang.map("x:'A'")));
+    }
+
+    @Test
+    public void test_builtin_login_preserves_javascript_interpolation() {
+        String html = Files.read("com/site0/walnut/web/module/login.html");
+        WnTmplX tmpl = WnTmplX.parse(html);
+        String placeholder = "${app-module-sys-login?PASSWD_AND_OTP}";
+        String literal = html.replace("$${", "${");
+        String[] modes = {"PASSWD_AND_OTP", "PASSWD_OR_OTP", "OTP_ONLY", "PASSWD_ONLY"};
+        for (String mode : modes) {
+            NutMap vars = new NutMap();
+            vars.put("app-module-sys-login", mode);
+            assertEquals(literal.replace(placeholder, mode), tmpl.render(vars));
+        }
+        assertEquals(literal.replace(placeholder, "PASSWD_AND_OTP"),
+                     tmpl.render(new NutMap()));
     }
 
     @Test

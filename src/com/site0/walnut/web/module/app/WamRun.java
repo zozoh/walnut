@@ -22,7 +22,7 @@ import com.site0.walnut.web.util.WnWeb;
  *
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class WnAppModuleRun {
+public class WamRun {
 
     private WnAppService apps;
 

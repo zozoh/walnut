@@ -53,13 +53,14 @@ import com.site0.walnut.web.bean.WnLoginPage;
 import com.site0.walnut.web.filter.WnAsUsr;
 import com.site0.walnut.web.filter.WnCheckSession;
 import com.site0.walnut.web.impl.WnAppService;
-import com.site0.walnut.web.module.app.WnAppModuleCaptcha;
-import com.site0.walnut.web.module.app.WnAppModuleDomainLoginByPassword;
-import com.site0.walnut.web.module.app.WnAppModuleLoad;
-import com.site0.walnut.web.module.app.WnAppModuleOpen;
-import com.site0.walnut.web.module.app.WnAppModuleOTPSend;
-import com.site0.walnut.web.module.app.WnAppModuleRun;
-import com.site0.walnut.web.module.app.WnAppModuleSysLoginByPassword;
+import com.site0.walnut.web.module.app.WamCaptcha;
+import com.site0.walnut.web.module.app.WamDomainLoginByPassword;
+import com.site0.walnut.web.module.app.WamLoad;
+import com.site0.walnut.web.module.app.WamOcmInfo;
+import com.site0.walnut.web.module.app.WamOpen;
+import com.site0.walnut.web.module.app.WamOTPSend;
+import com.site0.walnut.web.module.app.WamRun;
+import com.site0.walnut.web.module.app.WamSysLoginByPassword;
 import com.site0.walnut.web.util.WnWeb;
 import com.site0.walnut.web.view.WnAddCookieViewWrapper;
 import com.site0.walnut.web.view.WnDelCookieViewWrapper;
@@ -146,13 +147,13 @@ public class AppModule extends AbstractWnModule {
         // 渲染登陆页面
         WnLoginPage login = new WnLoginPage();
         login.setIo(io());
+        login.setConfig(this.conf.toBean());
         login.setPageName(page);
         login.setDomainUser(domainUser);
         login.setHost(host);
         login.setSitePath(sitePath);
         login.setEtag(etag);
         login.setRange(range);
-        login.setResp(resp);
         return login.genView(rph);
     }
 
@@ -175,7 +176,7 @@ public class AppModule extends AbstractWnModule {
                      @Param("id") String id,
                      @ReqHeader("If-None-Match") String etag,
                      HttpServletResponse resp) {
-        WnAppModuleOpen service = new WnAppModuleOpen();
+        WamOpen service = new WamOpen();
         service.setApps(apps);
         service.setRun(this);
         service.setAppName(appName);
@@ -228,7 +229,7 @@ public class AppModule extends AbstractWnModule {
         WnObj oAppHome = this._check_app_home(appName);
 
         // 读取资源对象并输出
-        WnAppModuleLoad service = new WnAppModuleLoad();
+        WamLoad service = new WamLoad();
         service.setIo(io());
         service.setAppName(appName);
         service.setAppHome(oAppHome);
@@ -319,7 +320,7 @@ public class AppModule extends AbstractWnModule {
                     final HttpServletRequest req,
                     final HttpServletResponse resp)
             throws IOException {
-        WnAppModuleRun service = new WnAppModuleRun();
+        WamRun service = new WamRun();
         service.setApps(apps);
         service.setAuth(auth());
         service.setAppName(appName);
@@ -337,6 +338,11 @@ public class AppModule extends AbstractWnModule {
 
     /**
      * 登录系统会话
+     *
+     * <p>
+     * 操作上下文（<code>WamOcmInfo</code>）由 {@link #get_ocm_info(String, String)}
+     * 按登录模式构建（系统权鉴登录，配置主目录即 root 家目录，规则见
+     * <code>62-auth-with-captcha-otp.md</code>）
      *
      * @param name
      *            用户名
@@ -357,15 +363,17 @@ public class AppModule extends AbstractWnModule {
                                     @ReqHeader("Referer") String referer,
                                     final HttpServletRequest req,
                                     final HttpServletResponse resp) {
-        WnAppModuleSysLoginByPassword service = new WnAppModuleSysLoginByPassword();
+        WamOcmInfo ocm = this.get_ocm_info(null, name);
+        WamSysLoginByPassword service = new WamSysLoginByPassword();
         service.setRun(this);
         service.setIo(io());
-        service.setAuth(auth());
+        service.setSysAuth(auth());
         service.setConf(conf);
         service.setName(name);
         service.setPasswd(passwd);
         service.setOtpConfigName(otpConfigName);
         service.setOtpCode(otpCode);
+        service.setOcm(ocm);
         service.setAjax(ajax);
         service.setReferer(referer);
         service.setReq(req);
@@ -415,6 +423,10 @@ public class AppModule extends AbstractWnModule {
     /**
      * 采用域站点账户模型登录
      *
+     * <p>
+     * 操作上下文（<code>WamOcmInfo</code>）由 {@link #get_ocm_info(String, String)}
+     * 按登录模式构建：先解析站点拿到 domain，配置主目录规则见 <code>62-auth-with-captcha-otp.md</code>
+     *
      * @param siteId
      *            站点的 ID
      * @param name
@@ -438,16 +450,23 @@ public class AppModule extends AbstractWnModule {
                                             @Attr("wn_www_host") String hostName,
                                             final HttpServletRequest req,
                                             final HttpServletResponse resp) {
-        WnAppModuleDomainLoginByPassword service = new WnAppModuleDomainLoginByPassword();
+        // 先解析站点拿到 domain，以便按登录模式构建操作上下文
+        // 站点只解析这一次，服务类复用本实例
+        WnLoginSite site = WnLoginSite.create(io(), siteId, hostName);
+        String domain = null == site ? null : site.getDomain();
+        WamOcmInfo ocm = this.get_ocm_info(domain, name);
+        WamDomainLoginByPassword service = new WamDomainLoginByPassword();
         service.setRun(this);
         service.setIo(io());
-        service.setAuth(auth());
+        service.setSysAuth(auth());
         service.setConf(conf);
+        service.setSite(site);
         service.setSiteId(siteId);
         service.setAccount(name);
         service.setPasswd(passwd);
         service.setOtpConfigName(otpConfigName);
         service.setOtpCode(otpCode);
+        service.setOcm(ocm);
         service.setAjax(ajax);
         service.setHostName(hostName);
         service.setReq(req);
@@ -459,14 +478,17 @@ public class AppModule extends AbstractWnModule {
      * 生成一份人机验证码（captcha）
      *
      * <p>
-     * 验证码按域配置：路径参数 <code>domain</code> 是域（系统用户名）， 配置位于其家目录的
-     * <code>~/.captcha/{captcha}.json</code>（配置名 缺省
-     * <code>default</code>）；不带路径参数时表示 root 用户。 返回统一用 <code>AjaxReturn</code>
-     * 包裹：成功 <code>{ok:true, data: WnCaptchaObj 的 JSON}</code>（含 <code>id</code>
-     * 与渲染数据），客户端拿到即可绘制，零额外请求；失败 <code>{ok:false, errCode, msg}</code>。
+     * 配置目录与登录模式由 {@link #get_ocm_info(String, String)} 决定 （规则见
+     * <code>62-auth-with-captcha-otp.md</code>）：验证码配置位于
+     * <code>{confHome}/.captcha/{captcha}.json</code>（配置名缺省
+     * <code>default</code>）。返回统一用 <code>AjaxReturn</code> 包裹： 成功
+     * <code>{ok:true, data: WnCaptchaObj 的 JSON}</code>（含 <code>id</code>
+     * 与渲染数据），客户端拿到即可绘制，零额外请求； 失败 <code>{ok:false, errCode, msg}</code>。
      *
      * @param domain
-     *            域（系统用户名），空表示 root 用户
+     *            域（系统用户名），空表示系统权鉴
+     * @param account
+     *            登录名（可空：用户还没输入时，按域权鉴落域配置目录）
      * @param captchaName
      *            验证码配置名
      * @return 验证码 JSON 视图
@@ -475,6 +497,7 @@ public class AppModule extends AbstractWnModule {
     @Ok("ajax")
     @Fail("ajax")
     public View captcha_get(String domain,
+                            @Param("account") String account,
                             @Param("captcha") String captchaName,
                             final HttpServletRequest req,
                             final HttpServletResponse resp) {
@@ -486,15 +509,52 @@ public class AppModule extends AbstractWnModule {
         if (WnWeb.isRequestOptions(req)) {
             return null;
         }
-        WnAppModuleCaptcha service = new WnAppModuleCaptcha();
-        WnLoginApi _auth = auth();
-        service.setAuth(_auth);
+        WamOcmInfo ocm = this.get_ocm_info(domain, account);
+        WamCaptcha service = new WamCaptcha();
         service.setIo(io());
-        service.setDomain(domain);
+        service.setOcm(ocm);
         service.setCaptchaName(captchaName);
         service.setReq(req);
         service.setResp(resp);
         return service.get();
+    }
+
+    /**
+     * 按登录模式解析出 captcha / OTP 服务所需的全部信息（规则见
+     * <code>62-auth-with-captcha-otp.md</code>）：
+     *
+     * <ul>
+     * <li><b>配置主目录</b>：系统权鉴登录（<code>domain</code> 为空或
+     * <code>account == domain</code>）取 root 用户家目录；域权鉴登录取域 用户家目录</li>
+     * <li><b>操作用户</b>：按登录模式取登录接口（{@link #get_auth(String, String)}）解析
+     * <code>account</code>。captcha 阶段用户可能还不存在 （譬如注册场景），解析不到时置
+     * <code>null</code>，由调用方决定 要不要报错</li>
+     * </ul>
+     *
+     * @param domain
+     *            域（系统用户名），空表示系统权鉴登录
+     * @param account
+     *            登录名，可为空
+     * @return 操作上下文信息
+     */
+    protected WamOcmInfo get_ocm_info(String domain, String account) {
+        WamOcmInfo re = new WamOcmInfo();
+        re.setDomain(domain);
+        re.setAccount(account);
+        // 配置主目录：系统权鉴 → root；域权鉴 → 域
+        String confUsrName = Ws.isBlank(domain)
+                             || domain.equals(account) ? "root" : domain;
+        WnUser confUsr = this.auth().checkUser(confUsrName);
+        re.setConfHomePath(confUsr.getHomePath());
+        // 操作用户：解析不到（未注册等）置 null
+        try {
+            WnLoginApi dmnAuth = this.get_auth(domain, account);
+            re.setUser(dmnAuth.checkUser(account));
+        }
+        catch (Exception e) {
+            re.setUser(null);
+        }
+        return re;
     }
 
     /**
@@ -556,11 +616,11 @@ public class AppModule extends AbstractWnModule {
                 captchaData = Json.toJson(data, JsonFormat.compact());
             }
         }
-        WnAppModuleCaptcha service = new WnAppModuleCaptcha();
-        WnLoginApi _auth = auth();
-        service.setAuth(_auth);
+        WamOcmInfo ocm = this.get_ocm_info(inputDomain,
+                                           map.getString("account"));
+        WamCaptcha service = new WamCaptcha();
         service.setIo(io());
-        service.setDomain(inputDomain);
+        service.setOcm(ocm);
         service.setCaptchaName(map.getString("captcha"));
         service.setCaptchaId(map.getString("id"));
         service.setCaptchaData(captchaData);
@@ -575,11 +635,12 @@ public class AppModule extends AbstractWnModule {
      *
      * <p>
      * 发送前必须先通过人机校验：参数 <code>ticket</code> 是 captcha verify
-     * 签发的临时票据（绑定账号、一次性、带过期），这里消费—— 校验不过直接拒绝，不触发任何发送。OTP 与 captcha 的配置都取自
-     * 域（系统用户名）的家目录，不带路径参数时表示 root 用户。
+     * 签发的临时票据（绑定账号、一次性、带过期），这里消费—— 校验不过直接拒绝，不触发任何发送。 操作上下文（用户、配置目录等）由
+     * {@link #get_ocm_info(String, String)} 按登录模式解析（详见
+     * <code>62-auth-with-captcha-otp.md</code>）。
      *
      * @param domain
-     *            域（系统用户名），空表示 root 用户
+     *            域（系统用户名），空表示系统权鉴登录
      * @param otpConfigName
      *            OTP 配置名（对应 <code>~/.otp/{name}.json5</code>）
      * @param captchaName
@@ -587,7 +648,7 @@ public class AppModule extends AbstractWnModule {
      * @param ticket
      *            captcha verify 签发的临时票据
      * @param account
-     *            接收 OTP 的账号（手机号或邮箱）
+     *            登录名（用户名 / 手机 / 邮箱），OTP 发到其邮箱
      * @return 成功 <code>{"ok":true}</code>；失败
      *         <code>{"ok":false,"errCode":...}</code>
      */
@@ -601,12 +662,10 @@ public class AppModule extends AbstractWnModule {
                          @Param("account") String account,
                          final HttpServletRequest req,
                          final HttpServletResponse resp) {
-        WnAppModuleOTPSend service = new WnAppModuleOTPSend();
-        WnLoginApi _auth = get_auth(domain);
-        service.setAuth(_auth);
-        service.setSysAuth(auth());
+        WamOcmInfo ocm = this.get_ocm_info(domain, account);
+        WamOTPSend service = new WamOTPSend();
         service.setIo(io());
-        service.setDomain(domain);
+        service.setOcm(ocm);
         service.setOtpConfigName(otpConfigName);
         service.setCaptchaName(captchaName);
         service.setTicket(ticket);
@@ -617,15 +676,24 @@ public class AppModule extends AbstractWnModule {
     }
 
     /**
-     * 按域获取登录接口：域为空时直接返回系统默认权鉴接口；域非空时， 用 <code>WnLoginSite</code>
-     * 模式构建域站点自己的用户库登录接口 （与域站点登录 <code>auth_login_by_domain_passwd</code> 同一套路）
+     * 按登录模式获取登录接口（详见 <code>62-auth-with-captcha-otp.md</code>）：
+     * <ul>
+     * <li><b>系统权鉴登录</b>：<code>domain</code> 为空，或 <code>account</code> 与
+     * <code>domain</code> 同名（只有系统用户库才有与域同名的账号）—— 直接返回系统默认权鉴接口</li>
+     * <li><b>域权鉴登录</b>：声明了 <code>domain</code> 且 <code>account</code> 与域不同名——用
+     * <code>WnLoginSite</code> 模式构建域站点自己的用户库 登录接口（与域站点登录
+     * <code>auth_login_by_domain_passwd</code> 同一套路）</li>
+     * </ul>
      *
      * @param domain
-     *            域（系统用户名），空表示 root 用户
+     *            域（系统用户名），空表示系统权鉴登录
+     * @param account
+     *            登录账号
      * @return 登录接口
      */
-    protected WnLoginApi get_auth(String domain) {
-        if (Ws.isBlank(domain)) {
+    protected WnLoginApi get_auth(String domain, String account) {
+        // 系统权鉴登录：域为空，或账号与域同名
+        if (Ws.isBlank(domain) || domain.equals(account)) {
             return this.auth();
         }
         // 域的家目录即站点配置所在，用它定位站点

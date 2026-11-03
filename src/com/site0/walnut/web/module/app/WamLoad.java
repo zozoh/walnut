@@ -26,7 +26,7 @@ import com.site0.walnut.web.view.WnObjDownloadView;
  *
  * @author zozoh(zozohtnt@gmail.com)
  */
-public class WnAppModuleLoad {
+public class WamLoad {
 
     private static final Log log = Wlog.getAPP();
 

@@ -6,6 +6,8 @@ import org.nutz.lang.inject.Injecting;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.FileVisitor;
 import org.nutz.lang.util.MultiLineProperties;
+import org.nutz.lang.util.NutBean;
+import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mapl.Mapl;
@@ -118,7 +120,8 @@ public class PropertiesProxy extends MultiLineProperties {
                 Properties p = new Properties();
                 for (NutResource nr : list) {
                     // 用字符流来读取文件
-                    BufferedReader bf = new BufferedReader(new InputStreamReader(nr.getInputStream()));
+                    BufferedReader bf = new BufferedReader(new InputStreamReader(nr
+                        .getInputStream()));
                     try {
                         p.load(bf);
                     }
@@ -164,21 +167,30 @@ public class PropertiesProxy extends MultiLineProperties {
                 if (Strings.isNotBlank(vmJsonStr)) {
                     paths = vmJsonStr.split("\\,");
                 }
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 if (log.isDebugEnabled()) {
-                    log.debug("-D" + VM_NUTZ_CONF_PATH + keyIndex + " value is invalid:  " + e.getMessage());
+                    log.debug("-D"
+                              + VM_NUTZ_CONF_PATH
+                              + keyIndex
+                              + " value is invalid:  "
+                              + e.getMessage());
                 }
             }
         }
         for (String path : paths) {
             try {
-                List<NutResource> resources = Scans.me().loadResource("^.+[.]properties$", path);
+                List<NutResource> resources = Scans.me()
+                    .loadResource("^.+[.]properties$", path);
                 list.addAll(resources);
             }
             catch (Exception e) {
                 if (ignoreResourceNotFound) {
                     if (log.isWarnEnabled()) {
-                        log.warn("Could not load resource from " + path + ": " + e.getMessage());
+                        log.warn("Could not load resource from "
+                                 + path
+                                 + ": "
+                                 + e.getMessage());
                     }
                 } else {
                     throw Wlang.wrapThrow(e);
@@ -230,10 +242,10 @@ public class PropertiesProxy extends MultiLineProperties {
     }
 
     public List<String> getList(String key) {
-        return getList(key,"\n");
+        return getList(key, "\n");
     }
 
-    public List<String> getList(String key,String separatorChar) {
+    public List<String> getList(String key, String separatorChar) {
         List<String> re = new ArrayList<String>();
         String keyVal = get(key);
         if (Strings.isNotBlank(keyVal)) {
@@ -331,7 +343,9 @@ public class PropertiesProxy extends MultiLineProperties {
             for (String s : ss) {
                 File f = Files.findFile(s);
                 if (null == f) {
-                    throw Wlang.makeThrow("Fail to found path '%s' in CLASSPATH or File System!", s);
+                    throw Wlang
+                        .makeThrow("Fail to found path '%s' in CLASSPATH or File System!",
+                                   s);
                 }
                 // 如果是一个包，引用全部 Files
                 if (f.isDirectory()) {
@@ -342,7 +356,8 @@ public class PropertiesProxy extends MultiLineProperties {
                     }, new FileFilter() {
                         public boolean accept(File f) {
                             if (f.isDirectory())
-                                return !f.isHidden() && !f.getName().startsWith(".");
+                                return !f.isHidden()
+                                       && !f.getName().startsWith(".");
                             return f.getName().endsWith(".properties");
                         }
                     });
@@ -382,34 +397,47 @@ public class PropertiesProxy extends MultiLineProperties {
         return new LinkedHashMap<String, String>(this);
     }
 
+    public NutBean toBean() {
+        NutMap re = new NutMap();
+        for (String key : this.keys()) {
+            Object val = this.get(key);
+            re.put(key, val);
+        }
+        return re;
+    }
+
     public String get(String key) {
         return super.get(key);
     }
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T> T makeDeep(Class<T> klass, String prefix) {
-		Map map = this;
-		return (T) Mapl.maplistToObj(Wlang.filter(map, prefix, null, null, null), klass);
-	}
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public <T> T makeDeep(Class<T> klass, String prefix) {
+        Map map = this;
+        return (T) Mapl
+            .maplistToObj(Wlang.filter(map, prefix, null, null, null), klass);
+    }
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public <T> T make(Class<T> klass, String prefix) {
-		Map map = this;
-		Mirror<T> mirror = Mirror.me(klass);
-		T t = mirror.born();
-		map = Wlang.filter(map, prefix, null, null, null);
-		for (Entry<String, Object> en : ((Map<String, Object>) map).entrySet()) {
-			String name = en.getKey();
-			Injecting setter = null;
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public <T> T make(Class<T> klass, String prefix) {
+        Map map = this;
+        Mirror<T> mirror = Mirror.me(klass);
+        T t = mirror.born();
+        map = Wlang.filter(map, prefix, null, null, null);
+        for (Entry<String, Object> en : ((Map<String, Object>) map)
+            .entrySet()) {
+            String name = en.getKey();
+            Injecting setter = null;
             try {
                 setter = mirror.getInjecting(name);
             }
             catch (Exception e) {
-                log.debugf("no such field(name=%s) at object class=%s, skip", name, t.getClass().getName());
+                log.debugf("no such field(name=%s) at object class=%s, skip",
+                           name,
+                           t.getClass().getName());
                 continue;
             }
-			setter.inject(t, en.getValue());
-		}
-		return t;
-	}
+            setter.inject(t, en.getValue());
+        }
+        return t;
+    }
 }

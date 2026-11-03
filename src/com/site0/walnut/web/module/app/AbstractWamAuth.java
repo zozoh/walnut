@@ -7,6 +7,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 
+import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.login.session.WnSession;
@@ -18,28 +19,32 @@ import com.site0.walnut.util.Ws;
 import com.site0.walnut.web.WnConfig;
 
 /**
- * 登录服务类的公共基类：收编两个登录服务类（系统密码登录 / 域站点密码登录）的
- * 公共属性，并提供 OTP 动态密码的懒构建与校验、登录后 profile 初始化。
+ * 登录服务类的公共基类：收编两个登录服务类（系统密码登录 / 域站点密码登录）的 公共属性，并提供 OTP 动态密码的懒构建与校验、登录后 profile
+ * 初始化。
  *
  * <p>
- * 只持有运行所需的协作对象（{@link WnLoginApi} / {@link WnIo} /
- * {@link WnConfig} / {@link WnRun}），不依赖具体的 Module 类，耦合保持在
- * 内核工具层。OTP 服务实例按请求懒构建一次（配置在
- * <code>~/.otp/{name}.json5</code>），构建失败不抛错，返回
- * <code>null</code> 交由 {@link #_check_otp(WnOTPService, WnUser)} 报
- * <code>e.auth.login.otp.unavailable</code>——只有模式真的需要 OTP 时
- * 才会走到这里，没必要用 OTP 的请求完全不碰 OTP 服务。
+ * 只持有运行所需的协作对象（{@link WnLoginApi} / {@link WnIo} / {@link WnConfig} /
+ * {@link WnRun}），不依赖具体的 Module 类，耦合保持在 内核工具层。OTP 部分与
+ * {@link WamOTPSend} 同一套路：服务类接收一个 {@link WamOcmInfo}，OTP 配置目录取
+ * <code>ocm.confHomePath</code>（登录模式决定，规则见
+ * <code>62-auth-with-captcha-otp.md</code>）。OTP 服务实例按请求懒构建一次（配置在
+ * <code>~/.otp/{name}.json5</code>），构建失败不抛错，返回 <code>null</code> 交由
+ * {@link #_check_otp(WnUser)} 报
+ * <code>e.auth.login.otp.unavailable</code>——只有模式真的需要 OTP 时 才会走到这里，没必要用 OTP
+ * 的请求完全不碰 OTP 服务。
  *
  * @author zozoh(zozohtnt@gmail.com)
  */
-public abstract class AbstractWnAppModuleAuth {
+public abstract class AbstractWamAuth {
 
     private static final Log log = Wlog.getAPP();
 
     /**
-     * 登录接口（系统用户库，或域站点用户库）
+     * 系统标准登录接口
+     * <p>
+     * 如果是采用域内账户登录的子类，会根据站点信息自己构建对应的 <code>dmnAuth</code>
      */
-    protected WnLoginApi auth;
+    protected WnLoginApi sysAuth;
 
     /**
      * IO 运行时
@@ -81,20 +86,21 @@ public abstract class AbstractWnAppModuleAuth {
     protected String otpCode;
 
     /**
+     * 本次请求的登录操作上下文：OTP 配置主目录（<code>confHomePath</code>）等，
+     * 由子类在 <code>invoke</code> 时按登录模式解析（与
+     * <code>AppModule.get_ocm_info</code> 同一套规则）
+     */
+    protected WamOcmInfo ocm;
+
+    /**
      * 本次请求懒构建的 OTP 服务实例
      */
     private WnOTPService otps;
 
     /**
-     * @return OTP 配置所属用户的家目录（作为 sessionVars 的 HOME，
-     *         OTP 配置实际位于其下的 <code>~/.otp/</code> 里）
-     */
-    protected abstract String _otp_usr_home();
-
-    /**
-     * 懒构建 OTP 服务：构建失败（配置缺失、Redis 不通等）返回
-     * <code>null</code>，调用方通过 {@link #_check_otp(WnOTPService, WnUser)}
-     * 得到 <code>e.auth.login.otp.unavailable</code> 错误
+     * 懒构建 OTP 服务：构建失败（配置缺失、Redis 不通等）返回 <code>null</code>，调用方通过
+     * {@link #_check_otp(WnUser)} 得到
+     * <code>e.auth.login.otp.unavailable</code> 错误
      *
      * @return OTP 服务实例，构建失败返回 <code>null</code>
      */
@@ -104,9 +110,9 @@ public abstract class AbstractWnAppModuleAuth {
         }
         String otpName = Strings.sBlank(this.otpConfigName, "default");
         try {
-            String otpUsrHome = this._otp_usr_home();
             NutMap sessionVars = new NutMap();
-            sessionVars.put("HOME", otpUsrHome);
+            String confHome = this.ocm.getConfHomePath();
+            sessionVars.put("HOME", confHome);
             this.otps = new WnOTPService(this.io, sessionVars, otpName);
         }
         catch (Exception e) {
@@ -127,13 +133,11 @@ public abstract class AbstractWnAppModuleAuth {
      * <p>
      * 校验的账号取用户的邮箱（OTP 的 account 就是收件地址），不是登录名。
      *
-     * @param otps
-     *            OTP 服务实例（可为 <code>null</code>，表示服务不可用）
      * @param user
      *            登录用户
      * @return 错误码，<code>null</code> 表示验证通过
      */
-    protected String _check_otp(WnOTPService otps, WnUser user) {
+    protected String _check_otp(WnUser user) {
         // 没填验证码
         if (Ws.isBlank(this.otpCode)) {
             return "e.auth.login.otp.required";
@@ -144,6 +148,7 @@ public abstract class AbstractWnAppModuleAuth {
             return "e.auth.login.otp.no_email";
         }
         // 服务器没配 OTP 服务
+        WnOTPService otps = this._get_otps();
         if (null == otps) {
             return "e.auth.login.otp.unavailable";
         }
@@ -152,6 +157,19 @@ public abstract class AbstractWnAppModuleAuth {
             return "e.auth.login.otp.invalid";
         }
         return null;
+    }
+
+    /**
+     * 断言 OTP 校验通过，不过直接抛错（错误码见 {@link #_check_otp(WnUser)}）
+     *
+     * @param user
+     *            登录用户
+     */
+    protected void _assert_otp(WnUser user) {
+        String otpErr = this._check_otp(user);
+        if (null != otpErr) {
+            throw Er.create(otpErr);
+        }
     }
 
     /**
@@ -164,12 +182,12 @@ public abstract class AbstractWnAppModuleAuth {
         this.run.tryRunProfile(se);
     }
 
-    public WnLoginApi getAuth() {
-        return auth;
+    public WnLoginApi getSysAuth() {
+        return sysAuth;
     }
 
-    public void setAuth(WnLoginApi auth) {
-        this.auth = auth;
+    public void setSysAuth(WnLoginApi auth) {
+        this.sysAuth = auth;
     }
 
     public WnIo getIo() {
@@ -242,6 +260,14 @@ public abstract class AbstractWnAppModuleAuth {
 
     public void setOtpCode(String otpCode) {
         this.otpCode = otpCode;
+    }
+
+    public WamOcmInfo getOcm() {
+        return ocm;
+    }
+
+    public void setOcm(WamOcmInfo ocm) {
+        this.ocm = ocm;
     }
 
 }
