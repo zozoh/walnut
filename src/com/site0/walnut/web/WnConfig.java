@@ -137,7 +137,7 @@ public class WnConfig extends WebConfig {
     public WnAppModuleLoginMode getSysLoginMode() {
         String md = this.get("app-module-sys-login");
         if (Ws.isBlank(md)) {
-            return WnAppModuleLoginMode.PASSWD_ONLY;
+            return WnAppModuleLoginMode.PASSWD_AND_OTP;
         }
         return WnAppModuleLoginMode.valueOf(md.toUpperCase());
     }
@@ -145,7 +145,7 @@ public class WnConfig extends WebConfig {
     public WnAppModuleLoginMode getDomainLoginMode() {
         String md = this.get("app-module-dmn-login");
         if (Ws.isBlank(md)) {
-            return WnAppModuleLoginMode.PASSWD_ONLY;
+            return WnAppModuleLoginMode.PASSWD_AND_OTP;
         }
         return WnAppModuleLoginMode.valueOf(md.toUpperCase());
     }
