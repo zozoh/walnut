@@ -1,0 +1,10 @@
+{
+  "title": "Wn-Term",
+  "host": null,
+  "lang": "zh-cn",
+  "ui": {
+    "useStdFields": true,
+    "useStdColumns": true
+  },
+  "i18n": {}
+}

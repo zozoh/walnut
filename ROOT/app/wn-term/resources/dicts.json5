@@ -1,0 +1,46 @@
+{
+  //-----------------------------------------------------
+  // 通用数据状态
+  //-----------------------------------------------------
+  Status: {
+    data: [
+      { value: 0, text: 'Deleted' },
+      { value: 1, text: 'Actived' },
+      { value: 2, text: 'Inactived' },
+    ],
+  },
+  YesOrNo: {
+    data: [
+      { value: 0, text: 'NO' },
+      { value: 1, text: 'YES' },
+    ],
+  },
+  // 通用数据状态原因
+  StatusReasons: {
+    data: [
+      { value: 0, text: 'Deleted' },
+      { value: 1, text: 'Actived' },
+      { value: 2, text: 'Inactived' },
+    ],
+  },
+  // 固定类型: 性别
+  Genders: {
+    data: [
+      { value: 'F', text: '女', icon: 'zmdi-female' },
+      { value: 'M', text: '男', icon: 'zmdi-male' },
+      { value: 'U', text: '未知', icon: 'zmdi-help' },
+    ],
+  },
+  //-----------------------------------------------------
+  // 用户
+  //-----------------------------------------------------
+  UserRoles: {
+    data: 'o ~/role/index @query @json #NM -cqnl | jsonx @translate -mapping \'{nm:"value",title:"text"}\' -only',
+  },
+  //-----------------------------------------------------
+  // 项目
+  //-----------------------------------------------------
+  ProjectTypes: {
+    data: 'sqlx @query prj_type.select_all_for_dict @json -cqn',
+  },
+}
