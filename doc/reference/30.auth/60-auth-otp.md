@@ -11,7 +11,7 @@ related: [README, 20-auth-session, 10-email-mailx, 61-auth-captcha]
 
 **动态密码 OTP**（短信/邮箱送达）确认「本人持有这个手机号/邮箱」：
 注册、找回密码、动态码登录这类敏感操作前，往这个账号发一个随机码，
-能对上才算数。挡机器人是 captcha 服务的事，见 61-auth-captcha，
+能对上才算数。挡机器人是 captcha 服务的事，见 [人机验证码 captcha](61-auth-captcha.md)，
 本文只讲 OTP。
 
 OTP 不依赖会话——验证发生时，往往还没登录呢。所以核心约束只有一个：
@@ -276,6 +276,6 @@ SMTP 发送配置**从 `~/.mailx/` 目录里读取**，OTP 自己不存任何 SM
 
 # 扩展阅读
 
-- 61-auth-captcha — 人机验证码服务，以及 OTP 与 captcha 在登录场景里的协作流程
-- 70.functionate/10-email-mailx — mailx 的 SMTP 配置、i18n 模板目录与模板邮件机制
-- 20-auth-session — 动态码登录成功后建会话
+- [人机验证码 captcha](61-auth-captcha.md) — 人机验证码服务，以及 OTP 与 captcha 在登录场景里的协作流程
+- [Email 收发（mailx）](../70.functionate/10-email-mailx.md) — mailx 的 SMTP 配置、i18n 模板目录与模板邮件机制
+- [会话管理](20-auth-session.md) — 动态码登录成功后建会话

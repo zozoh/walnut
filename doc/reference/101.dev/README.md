@@ -32,10 +32,10 @@ related: [../40.commands/README.md]
 
 ## 怎么选路
 
-- 要给新用户初始化应用骨架 → 先了解机制（10-init-domain-app.md），
-  再学模板写法（30-write-app-init.md）
-- 业务规则经常变、性能要求一般 → jsbin（20-write-jsbin.md）
-- 要拼动态 SQL → SQL 模板（21-write-sqlx-tmpl.md）
-- 要对外提供 HTTP 接口 → regapi（40-extend-regapi.md）
-- 要新增一个系统级能力、被其他命令调用 → 自定义命令（50-custom-command.md）
-- 要做成一个产品级 Java 应用 → 库模式嵌入（60-write-java.md）
+- 要给新用户初始化应用骨架 → 先了解机制（[域应用初始化](10-init-domain-app.md)），
+  再学模板写法（[编写应用初始化模板](30-write-app-init.md)）
+- 业务规则经常变、性能要求一般 → jsbin（[编写 jsbin 业务脚本](20-write-jsbin.md)）
+- 要拼动态 SQL → SQL 模板（[编写 SQL 模板（sqlx）](21-write-sqlx-tmpl.md)）
+- 要对外提供 HTTP 接口 → regapi（[实战：开发完整 API](40-extend-regapi.md)）
+- 要新增一个系统级能力、被其他命令调用 → 自定义命令（[自定义命令开发](50-custom-command.md)）
+- 要做成一个产品级 Java 应用 → 库模式嵌入（[Java 库模式嵌入](60-write-java.md)）

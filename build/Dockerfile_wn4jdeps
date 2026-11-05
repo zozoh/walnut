@@ -1,0 +1,21 @@
+#
+#   .-. . .-..-. .-..----. .----..----.  .----.
+#   | |/ \| ||  `| || {}  \| {_  | {}  }{ {__  
+#   |  .'.  || |\  ||     /| {__ | .--' .-._} }
+#   `-'   `-'`-' `-'`----' `----'`-'    `----' 
+#
+# 本文件需要复制到 wn4j 的目标目录，譬如 ~/dist/wn4j
+# 这样，后面的 ADD 指令才能被正确执行
+#
+
+# 指定基于的基础镜像
+FROM openjdk:17
+
+# 维护者信息
+LABEL Owner="Site0 Inc."
+LABEL Author="Peter Zhang<zozoh@qq.com>"
+
+# 添加必要的目录
+ADD ./deps /opt/wn4j/deps
+ADD ./WebContent /opt/wn4j/WebContent
+

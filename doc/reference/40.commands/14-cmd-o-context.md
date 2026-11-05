@@ -75,7 +75,7 @@ o @fetch abc.txt @name @json '%NM'
 
 ## @enter / @flat：在树里进出与展平
 
-这两个与 @tree / @children 配合（见 12-cmd-o-load.md），
+这两个与 @tree / @children 配合（见 [cmd_o 进一步读取](12-cmd-o-load.md)），
 职责分别是「进入树的某一层作为新上下文」和「把树展平回列表」。
 
 ## @clear：清空上下文
@@ -88,5 +88,5 @@ o ~/accounts/index @clear
 # 延伸阅读
 
 - man cmd_o_filter / cmd_o_var / cmd_o_push / cmd_o_pop / cmd_o_put —— 参数权威
-- 03-cmd-filter.md —— 过滤命令的上下文机制
-- 12-cmd-o-load.md —— @enter / @flat 的树形场景
+- [过滤命令](03-cmd-filter.md) —— 过滤命令的上下文机制
+- [cmd_o 进一步读取](12-cmd-o-load.md) —— @enter / @flat 的树形场景

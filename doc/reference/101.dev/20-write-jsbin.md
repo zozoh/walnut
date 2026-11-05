@@ -295,7 +295,7 @@ sys.exec("o ~/tmp @query 'nm:\"^X\"' @delete @json -cqn");
 ```
 
 > `o` 命令的功能非常多，本篇只列脚本里最常用的。
-> 完整手册见 `man o` 以及 40.commands 下的
+> 完整手册见 `man o` 以及 [40.commands](../40.commands/README.md) 下的
 > [cmd_o 专题](../40.commands/10-cmd-o-overview.md)。
 
 ### 获取唯一 ID

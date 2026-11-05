@@ -84,4 +84,4 @@ o ~/photos @agg value=SUM:len
 # 延伸阅读
 
 - man cmd_o_agg / cmd_o_count / cmd_o_size —— 参数权威
-- 11-cmd-o-query.md —— 条件 JSON 语法
+- [cmd_o 查询](11-cmd-o-query.md) —— 条件 JSON 语法

@@ -5,118 +5,118 @@
 
 ## 根与启动
 
-- **WnVersion.java** — 说明：版本声明 — 文档：—
-- **web/WnLauncher.java** — 说明：main 入口，内嵌 Jetty 启动 — 文档：[quick-start](00.start-here/quick-start.md)
-- **web/WnSetup.java** — 说明：启动 Setup 链 + 后台线程 — 文档：[quick-start](00.start-here/quick-start.md)
-- **web/WnConfig.java** — 说明：web.properties 封装 — 文档：[quick-start](00.start-here/quick-start.md)、100.ops/deploy.md ✅
-- **web/WnInitMount.java** — 说明：init-mnt 初始化映射 — 文档：100.ops/deploy.md ✅
-- **web/WnMainModule.java** — 说明：Nutz MVC 主模块 — 文档：100.ops/deploy.md ✅
-- **jetty/WalnutFilter.java** — 说明：域名转发过滤器 — 文档：100.ops/domain-mapping.md ✅
+- `WnVersion.java` — 说明：版本声明 — 文档：—
+- `web/WnLauncher.java` — 说明：main 入口，内嵌 Jetty 启动 — 文档：[quick-start](00.start-here/quick-start.md)
+- `web/WnSetup.java` — 说明：启动 Setup 链 + 后台线程 — 文档：[quick-start](00.start-here/quick-start.md)
+- `web/WnConfig.java` — 说明：web.properties 封装 — 文档：[quick-start](00.start-here/quick-start.md)、[部署与运行配置](100.ops/deploy.md) ✅
+- `web/WnInitMount.java` — 说明：init-mnt 初始化映射 — 文档：[部署与运行配置](100.ops/deploy.md) ✅
+- `web/WnMainModule.java` — 说明：Nutz MVC 主模块 — 文档：[部署与运行配置](100.ops/deploy.md) ✅
+- `jetty/WalnutFilter.java` — 说明：域名转发过滤器 — 文档：[域名映射与路由](100.ops/domain-mapping.md) ✅
 
 ## Web 层（web/）
 
-- **web/module/AppModule.java** — 说明：/a 应用打开/登录/run — 文档：50.regapi/* ✅
-- **ROOT/etc/hosts.d/default/pages/** — 说明：默认系统登录页、密码 / OTP 模式及 TAC 配置 — 文档：30.auth/62-auth-with-captcha-otp.md
-- **web/module/login.html** — 说明：JAR 内置兜底登录页、内嵌 TAC 及密码 / OTP 模式 — 文档：30.auth/62-auth-with-captcha-otp.md
-- **web/module/UsrModule.java** — 说明：/u 登录/登出/会话切换 — 文档：30.auth/20-auth-session.md ✅
-- **web/module/ObjModule.java** — 说明：/o 缩略图/下载 — 文档：[cmd_o](../../src/com/site0/walnut/ext/data/o/man/zh_cn/cmd_o.md) ✅
-- **web/module/FuseModule.java** — 说明：域名转发路由 — 文档：100.ops/domain-mapping.md ✅
-- **web/module/GuestModule.java** — 说明：/g 访客接口 — 文档：✅
-- **web/filter/** — 说明：WnAsUsr/WnCheckSession 等 — 文档：30.auth/* ✅
-- **web/bgt/** — 说明：后台三消费线程 — 文档：60.sched-async/README.md ✅
-- **web/clean/** — 说明：过期清理线程 — 文档：[01-std-obj](10.concepts/01-std-obj.md)（expi 回收机制） ✅
-- **web/setup/** — 说明：启动 Setup 集合 — 文档：[quick-start](00.start-here/quick-start.md)
+- `web/module/AppModule.java` — 说明：/a 应用打开/登录/run — 文档：[50.regapi](50.regapi/README.md) ✅
+- `ROOT/etc/hosts.d/default/pages/` — 说明：默认系统登录页、密码 / OTP 模式及 TAC 配置 — 文档：[captcha 与 OTP 的登录协同](30.auth/62-auth-with-captcha-otp.md)
+- `web/module/login.html` — 说明：JAR 内置兜底登录页、内嵌 TAC 及密码 / OTP 模式 — 文档：[captcha 与 OTP 的登录协同](30.auth/62-auth-with-captcha-otp.md)
+- `web/module/UsrModule.java` — 说明：/u 登录/登出/会话切换 — 文档：[会话管理](30.auth/20-auth-session.md) ✅
+- `web/module/ObjModule.java` — 说明：/o 缩略图/下载 — 文档：[cmd_o](../../src/com/site0/walnut/ext/data/o/man/zh_cn/cmd_o.md) ✅
+- `web/module/FuseModule.java` — 说明：域名转发路由 — 文档：[域名映射与路由](100.ops/domain-mapping.md) ✅
+- `web/module/GuestModule.java` — 说明：/g 访客接口 — 文档：✅
+- `web/filter/` — 说明：WnAsUsr/WnCheckSession 等 — 文档：[30.auth](30.auth/README.md) ✅
+- `web/bgt/` — 说明：后台三消费线程 — 文档：[定时任务](60.sched-async/README.md) ✅
+- `web/clean/` — 说明：过期清理线程 — 文档：[01-std-obj](10.concepts/01-std-obj.md)（expi 回收机制） ✅
+- `web/setup/` — 说明：启动 Setup 集合 — 文档：[quick-start](00.start-here/quick-start.md)
 
 ## API 层（api/）——核心接口
 
-- **api/io/WnObj.java** — 说明：对象模型 — 文档：[01-std-obj](10.concepts/01-std-obj.md) ✅
-- **api/io/WnIo.java** — 说明：IO 主接口 — 文档：20.io-storage/README.md ✅
-- **api/io/WnQuery.java** — 说明：查询抽象 — 文档：[cmd_o](../../src/com/site0/walnut/ext/data/o/man/zh_cn/cmd_o.md) ✅
-- **api/io/agg/** — 说明：聚合查询 — 文档：[cmd_o](../../src/com/site0/walnut/ext/data/o/man/zh_cn/cmd_o.md) ✅
-- **api/io/WnExpiObjTable.java** — 说明：过期对象表 — 文档：[01-std-obj](10.concepts/01-std-obj.md)（expi 回收机制） ✅
-- **api/lock/** — 说明：锁接口 — 文档：[03-cmd-filter](40.commands/03-cmd-filter.md) ✅
-- **api/hook/** — 说明：钩子接口 — 文档：20.io-storage/11-io-hooks.md ✅
-- **api/box/** — 说明：沙箱/执行上下文 — 文档：[04-command-model](10.concepts/04-command-model.md) ✅
+- `api/io/WnObj.java` — 说明：对象模型 — 文档：[01-std-obj](10.concepts/01-std-obj.md) ✅
+- `api/io/WnIo.java` — 说明：IO 主接口 — 文档：[数据存储与映射](20.io-storage/README.md) ✅
+- `api/io/WnQuery.java` — 说明：查询抽象 — 文档：[cmd_o](../../src/com/site0/walnut/ext/data/o/man/zh_cn/cmd_o.md) ✅
+- `api/io/agg/` — 说明：聚合查询 — 文档：[cmd_o](../../src/com/site0/walnut/ext/data/o/man/zh_cn/cmd_o.md) ✅
+- `api/io/WnExpiObjTable.java` — 说明：过期对象表 — 文档：[01-std-obj](10.concepts/01-std-obj.md)（expi 回收机制） ✅
+- `api/lock/` — 说明：锁接口 — 文档：[03-cmd-filter](40.commands/03-cmd-filter.md) ✅
+- `api/hook/` — 说明：钩子接口 — 文档：[IO 钩子（Hook）](20.io-storage/11-io-hooks.md) ✅
+- `api/box/` — 说明：沙箱/执行上下文 — 文档：[04-command-model](10.concepts/04-command-model.md) ✅
 
 ## 核心实现（core/）
 
-- **core/io/** — 说明：WnIoImpl2 + 缓存/钩子包装 — 文档：20.io-storage/README.md ✅
-- **core/mapping/** — 说明：映射工厂（mnt 解析） — 文档：20.io-storage/10-io-mapping.md ✅
-- **core/indexer/{mongo,sql,localfile,vofs}** — 说明：四种索引器 — 文档：20.io-storage/10-io-mapping.md ✅
-- **core/bm/** — 说明：桶管理器（bml/bmv/localfile/redis/sql/vofs） — 文档：20.io-storage/README.md、20.io-storage/10-io-mapping.md ✅
-- **core/hdl/{memory,redis}** — 说明：句柄管理 — 文档：20.io-storage/README.md ✅
-- **core/eot/** — 说明：过期对象表实现 — 文档：[01-std-obj](10.concepts/01-std-obj.md)（expi 回收机制） ✅
-- **core/refer/{mongo,redis}** — 说明：桶引用计数 — 文档：20.io-storage/README.md ✅
-- **core/bean/** — 说明：WnIoObj — 文档：[01-std-obj](10.concepts/01-std-obj.md) ✅
+- `core/io/` — 说明：WnIoImpl2 + 缓存/钩子包装 — 文档：[数据存储与映射](20.io-storage/README.md) ✅
+- `core/mapping/` — 说明：映射工厂（mnt 解析） — 文档：[IO 映射](20.io-storage/10-io-mapping.md) ✅
+- `core/indexer/{mongo,sql,localfile,vofs}` — 说明：四种索引器 — 文档：[IO 映射](20.io-storage/10-io-mapping.md) ✅
+- `core/bm/` — 说明：桶管理器（bml/bmv/localfile/redis/sql/vofs） — 文档：[数据存储与映射](20.io-storage/README.md)、[IO 映射](20.io-storage/10-io-mapping.md) ✅
+- `core/hdl/{memory,redis}` — 说明：句柄管理 — 文档：[数据存储与映射](20.io-storage/README.md) ✅
+- `core/eot/` — 说明：过期对象表实现 — 文档：[01-std-obj](10.concepts/01-std-obj.md)（expi 回收机制） ✅
+- `core/refer/{mongo,redis}` — 说明：桶引用计数 — 文档：[数据存储与映射](20.io-storage/README.md) ✅
+- `core/bean/` — 说明：WnIoObj — 文档：[01-std-obj](10.concepts/01-std-obj.md) ✅
 
 ## 服务实现（impl/）
 
-- **impl/box/** — 说明：WnSystem/WnBox/JvmExecutorFactory — 文档：[04-command-model](10.concepts/04-command-model.md) ✅
-- **impl/box/cmd/** — 说明：73 个内置命令 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
-- **impl/box/cmd/cmd_jsc.java、cmd/jsc/** — 说明：jsc 命令与 $wn 助手库 — 文档：40.commands/20-cmd-jsc.md、101.dev/20-write-jsbin.md ✅
-- **impl/box/cmd/man/zh_cn/** — 说明：内置命令中文手册 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
-- **impl/io/** — 说明：WnSecurityImpl — 文档：30.auth/0-auth-pvg.md ✅
-- **impl/lock/{memory,redis}** — 说明：锁实现 — 文档：[03-cmd-filter](40.commands/03-cmd-filter.md) ✅
-- **impl/hook/** — 说明：钩子实现 — 文档：20.io-storage/11-io-hooks.md ✅
+- `impl/box/` — 说明：WnSystem/WnBox/JvmExecutorFactory — 文档：[04-command-model](10.concepts/04-command-model.md) ✅
+- `impl/box/cmd/` — 说明：73 个内置命令 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
+- `impl/box/cmd/cmd_jsc.java、cmd/jsc/` — 说明：jsc 命令与 $wn 助手库 — 文档：[jsc 命令](40.commands/20-cmd-jsc.md)、[编写 jsbin 业务脚本](101.dev/20-write-jsbin.md) ✅
+- `impl/box/cmd/man/zh_cn/` — 说明：内置命令中文手册 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
+- `impl/io/` — 说明：WnSecurityImpl — 文档：[标准对象的权限体系](30.auth/50-auth-pvg.md) ✅
+- `impl/lock/{memory,redis}` — 说明：锁实现 — 文档：[03-cmd-filter](40.commands/03-cmd-filter.md) ✅
+- `impl/hook/` — 说明：钩子实现 — 文档：[IO 钩子（Hook）](20.io-storage/11-io-hooks.md) ✅
 
 ## 账户（login/）
 
-- **login/usr/** — 说明：WnUserStore（Std/Sql） — 文档：30.auth/10-auth-user-role.md ✅
-- **login/role/** — 说明：WnRoleStore — 文档：30.auth/10-auth-user-role.md ✅
-- **login/session/** — 说明：WnSessionStore — 文档：30.auth/20-auth-session.md ✅
-- **login/WnLoginApi.java** — 说明：三级存储组合入口 — 文档：30.auth/README.md ✅
-- **login/WnLoginApiMaker.java** — 说明：按站点配置构建域内 API — 文档：30.auth/30-auth-in-domain.md ✅
+- `login/usr/` — 说明：WnUserStore（Std/Sql） — 文档：[系统用户、角色与密码存储](30.auth/10-auth-user-role.md) ✅
+- `login/role/` — 说明：WnRoleStore — 文档：[系统用户、角色与密码存储](30.auth/10-auth-user-role.md) ✅
+- `login/session/` — 说明：WnSessionStore — 文档：[会话管理](30.auth/20-auth-session.md) ✅
+- `login/WnLoginApi.java` — 说明：三级存储组合入口 — 文档：[账号认证机制](30.auth/README.md) ✅
+- `login/WnLoginApiMaker.java` — 说明：按站点配置构建域内 API — 文档：[域内用户存储与认证](30.auth/30-auth-in-domain.md) ✅
 
 ## 其他顶层模块
 
-- **util/WnRun.java** — 说明：命令运行器 — 文档：[04-command-model](10.concepts/04-command-model.md) ✅
-- **util/Wn.java、WnContext.java** — 说明：全局工具与线程上下文 — 文档：101.dev/60-write-java.md ✅
-- **util/{Wobj,WnStr,Wtime,Wpath,Ws}.java** — 说明：高频工具 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
-- **cron/WnCron.java** — 说明：WnCron 表达式引擎 — 文档：60.sched-async/20-cron-syntax.md ✅
-- **jsexec/JsExec.java** — 说明：JS 引擎封装 — 文档：40.commands/20-cmd-jsc.md ✅
-- **val/** — 说明：值生成器（ID/序列/日期/IP） — 文档：[03-cmd-filter](40.commands/03-cmd-filter.md) ✅
-- **lookup/** — 说明：快捷查询 — 文档：[cmd_o](../../src/com/site0/walnut/ext/data/o/man/zh_cn/cmd_o.md) ✅
-- **cache/** — 说明：缓存抽象 — 文档：20.io-storage/README.md ✅
-- **cheap/** — 说明：Cheap 文档解析器（dom/css/markdown/xml） — 文档：待补充 ⚠️
-- **ooml/** — 说明：OOML Office 底层解析库 — 文档：70.functionate/30-office-ooml.md ✅
-- **security/** — 说明：安全权鉴（建设中） — 文档：100.ops/security-notes.md ✅
-- **alg/** — 说明：算法工具 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
+- `util/WnRun.java` — 说明：命令运行器 — 文档：[04-command-model](10.concepts/04-command-model.md) ✅
+- `util/Wn.java、WnContext.java` — 说明：全局工具与线程上下文 — 文档：[Java 库模式嵌入](101.dev/60-write-java.md) ✅
+- `util/{Wobj,WnStr,Wtime,Wpath,Ws}.java` — 说明：高频工具 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
+- `cron/WnCron.java` — 说明：WnCron 表达式引擎 — 文档：[WnCron 定期表达式](60.sched-async/20-cron-syntax.md) ✅
+- `jsexec/JsExec.java` — 说明：JS 引擎封装 — 文档：[jsc 命令](40.commands/20-cmd-jsc.md) ✅
+- `val/` — 说明：值生成器（ID/序列/日期/IP） — 文档：[03-cmd-filter](40.commands/03-cmd-filter.md) ✅
+- `lookup/` — 说明：快捷查询 — 文档：[cmd_o](../../src/com/site0/walnut/ext/data/o/man/zh_cn/cmd_o.md) ✅
+- `cache/` — 说明：缓存抽象 — 文档：[数据存储与映射](20.io-storage/README.md) ✅
+- `cheap/` — 说明：Cheap 文档解析器（dom/css/markdown/xml） — 文档：待补充 ⚠️
+- `ooml/` — 说明：OOML Office 底层解析库 — 文档：[Office 文档解析与模板渲染（ooml）](70.functionate/30-office-ooml.md) ✅
+- `security/` — 说明：安全权鉴（建设中） — 文档：[安全注意事项](100.ops/security-notes.md) ✅
+- `alg/` — 说明：算法工具 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
 
 ## 扩展层（ext/）
 
-- **ext/sys/httpapi/** — 说明：HTTP 注册接口（HttpApiModule + cmd） — 文档：[first-api](00.start-here/first-api.md)、50.regapi/* ✅
-- **ext/sys/cron,schedule,task** — 说明：定时任务三件套 — 文档：60.sched-async/README.md ✅
-- **ext/sys/mq,websocket** — 说明：消息队列 / WebSocket — 文档：待补充（mq 机制将重新实现）⚠️
-- **ext/sys/hookx,lock,refer,trash** — 说明：钩子/锁/引用/回收站 — 文档：20.io-storage/11-io-hooks.md ✅
-- **ext/sys/dsync,truck** — 说明：数据同步与搬运 — 文档：待补充 ⚠️
-- **ext/sys/redis,mgadmin,aclog,i18n,datex** — 说明：系统工具命令 — 文档：[02-cmd-complex](40.commands/02-cmd-complex.md)、[03-cmd-filter](40.commands/03-cmd-filter.md) ✅
-- **ext/data/sqlx** — 说明：SQL 操作 — 文档：[cmd_sqlx](../../src/com/site0/walnut/ext/data/sqlx/man/zh_cn/cmd_sqlx.md)、[21-write-sqlx-tmpl](101.dev/21-write-sqlx-tmpl.md) ✅
-- **ext/data/entity** — 说明：通用实体(like/favor/score/history) — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
-- **ext/data/o** — 说明：o 增强命令 — 文档：40.commands/10-cmd-o-overview.md ✅
-- **ext/data/pvg** — 说明：业务权限 — 文档：30.auth/0-auth-pvg.md ✅
-- **ext/data/vcode** — 说明：动态码存储校验（旧实现） — 文档：30.auth/60-auth-otp.md ✅
-- **ext/data/captcha** — 说明：图形验证码（旧实现） — 文档：30.auth/61-auth-captcha.md ✅
-- **security/otp** — 说明：动态密码 OTP — 文档：30.auth/60-auth-otp.md ✅
-- **security/captcha** — 说明：人机验证码 — 文档：30.auth/61-auth-captcha.md ✅
-- **ext/data/app** — 说明：域应用初始化 — 文档：[30-write-app-init](101.dev/30-write-app-init.md)、[cmd_app_init](../../src/com/site0/walnut/ext/data/app/man/zh_cn/cmd_app_init.md) ✅
-- **ext/data/domain** — 说明：域名映射 — 文档：100.ops/domain-mapping.md ✅
-- **ext/xo/** — 说明：对象存储集成（s3/cos） — 文档：20.io-storage/xo-storage.md、[cmd_xo](../../src/com/site0/walnut/ext/xo/man/zh_cn/cmd_xo.md) ✅
-- **ext/media/imagic** — 说明：图像处理 — 文档：70.functionate/50-image-imagic.md ✅
-- **ext/media/ffmpeg** — 说明：视频信息/转码（videoi/videoc） — 文档：70.functionate/60-video-ffmpeg.md ✅
-- **ext/media/ooml** — 说明：Office 文档解析与模板渲染 — 文档：70.functionate/30-office-ooml.md ✅
-- **ext/media/sheet,edi** — 说明：表格/CSV 与电子数据交换 — 文档：70.functionate/40-sheet-csv.md ✅
-- **ext/media/qrcode,pdf,subtitle,avatar** — 说明：其他媒体 — 文档：70.functionate/70-qrcode.md、[01-cmd-simple](40.commands/01-cmd-simple.md)、[02-cmd-complex](40.commands/02-cmd-complex.md) ✅
-- **ext/net/payment,alipay** — 说明：支付 — 文档：待补充（计划重写）⚠️
-- **ext/net/xapi** — 说明：XAPI 第三方 API — 文档：待补充（计划重写）⚠️
-- **ext/net/sms** — 说明：短信 — 文档：70.functionate/20-sms.md（占位）✅
-- **ext/net/mailx** — 说明：Email 收发 — 文档：70.functionate/10-email-mailx.md ✅
-- **ext/net/aliyun,ftp,http** — 说明：阿里云/FTP/HTTP 客户端 — 文档：待补充 ⚠️
-- **ext/util/{base64,hexbin,jsonx,strx,seq,shorturl,btea,crc,react}** — 说明：工具命令 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md)、[02-cmd-complex](40.commands/02-cmd-complex.md)、[03-cmd-filter](40.commands/03-cmd-filter.md) ✅
-- **ext/data/thing ⚠️、ext/data/titanium ⚠️** — 说明：已弃用（仅维护） — 文档：不投入文档
+- `ext/sys/httpapi/` — 说明：HTTP 注册接口（HttpApiModule + cmd） — 文档：[first-api](00.start-here/first-api.md)、[50.regapi](50.regapi/README.md) ✅
+- `ext/sys/cron,schedule,task` — 说明：定时任务三件套 — 文档：[定时任务](60.sched-async/README.md) ✅
+- `ext/sys/mq,websocket` — 说明：消息队列 / WebSocket — 文档：待补充（mq 机制将重新实现）⚠️
+- `ext/sys/hookx,lock,refer,trash` — 说明：钩子/锁/引用/回收站 — 文档：[IO 钩子（Hook）](20.io-storage/11-io-hooks.md) ✅
+- `ext/sys/dsync,truck` — 说明：数据同步与搬运 — 文档：待补充 ⚠️
+- `ext/sys/redis,mgadmin,aclog,i18n,datex` — 说明：系统工具命令 — 文档：[02-cmd-complex](40.commands/02-cmd-complex.md)、[03-cmd-filter](40.commands/03-cmd-filter.md) ✅
+- `ext/data/sqlx` — 说明：SQL 操作 — 文档：[cmd_sqlx](../../src/com/site0/walnut/ext/data/sqlx/man/zh_cn/cmd_sqlx.md)、[21-write-sqlx-tmpl](101.dev/21-write-sqlx-tmpl.md) ✅
+- `ext/data/entity` — 说明：通用实体(like/favor/score/history) — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md) ✅
+- `ext/data/o` — 说明：o 增强命令 — 文档：[cmd_o 命令](40.commands/10-cmd-o-overview.md) ✅
+- `ext/data/pvg` — 说明：业务权限 — 文档：[标准对象的权限体系](30.auth/50-auth-pvg.md) ✅
+- `ext/data/vcode` — 说明：动态码存储校验（旧实现） — 文档：[动态密码 OTP](30.auth/60-auth-otp.md) ✅
+- `ext/data/captcha` — 说明：图形验证码（旧实现） — 文档：[人机验证码 captcha](30.auth/61-auth-captcha.md) ✅
+- `security/otp` — 说明：动态密码 OTP — 文档：[动态密码 OTP](30.auth/60-auth-otp.md) ✅
+- `security/captcha` — 说明：人机验证码 — 文档：[人机验证码 captcha](30.auth/61-auth-captcha.md) ✅
+- `ext/data/app` — 说明：域应用初始化 — 文档：[30-write-app-init](101.dev/30-write-app-init.md)、[cmd_app_init](../../src/com/site0/walnut/ext/data/app/man/zh_cn/cmd_app_init.md) ✅
+- `ext/data/domain` — 说明：域名映射 — 文档：[域名映射与路由](100.ops/domain-mapping.md) ✅
+- `ext/xo/` — 说明：对象存储集成（s3/cos） — 文档：[对象存储集成（xo）](20.io-storage/xo-storage.md)、[cmd_xo](../../src/com/site0/walnut/ext/xo/man/zh_cn/cmd_xo.md) ✅
+- `ext/media/imagic` — 说明：图像处理 — 文档：[图片处理（imagic）](70.functionate/50-image-imagic.md) ✅
+- `ext/media/ffmpeg` — 说明：视频信息/转码（videoi/videoc） — 文档：[视频信息与封图（videoi / videoc）](70.functionate/60-video-ffmpeg.md) ✅
+- `ext/media/ooml` — 说明：Office 文档解析与模板渲染 — 文档：[Office 文档解析与模板渲染（ooml）](70.functionate/30-office-ooml.md) ✅
+- `ext/media/sheet,edi` — 说明：表格/CSV 与电子数据交换 — 文档：[表格与 CSV 输出（sheet）](70.functionate/40-sheet-csv.md) ✅
+- `ext/media/qrcode,pdf,subtitle,avatar` — 说明：其他媒体 — 文档：[二维码（qrcode）](70.functionate/70-qrcode.md)、[01-cmd-simple](40.commands/01-cmd-simple.md)、[02-cmd-complex](40.commands/02-cmd-complex.md) ✅
+- `ext/net/payment,alipay` — 说明：支付 — 文档：待补充（计划重写）⚠️
+- `ext/net/xapi` — 说明：XAPI 第三方 API — 文档：待补充（计划重写）⚠️
+- `ext/net/sms` — 说明：短信 — 文档：[SMS 短信（占位）](70.functionate/20-sms.md)（占位）✅
+- `ext/net/mailx` — 说明：Email 收发 — 文档：[Email 收发（mailx）](70.functionate/10-email-mailx.md) ✅
+- `ext/net/aliyun,ftp,http` — 说明：阿里云/FTP/HTTP 客户端 — 文档：待补充 ⚠️
+- `ext/util/{base64,hexbin,jsonx,strx,seq,shorturl,btea,crc,react}` — 说明：工具命令 — 文档：[01-cmd-simple](40.commands/01-cmd-simple.md)、[02-cmd-complex](40.commands/02-cmd-complex.md)、[03-cmd-filter](40.commands/03-cmd-filter.md) ✅
+- `ext/data/thing ⚠️、ext/data/titanium ⚠️` — 说明：已弃用（仅维护） — 文档：不投入文档
 
 ## 配置
 
-- **conf/web.properties** — 说明：主配置（启动必读） — 文档：[quick-start](00.start-here/quick-start.md)
-- **conf/ioc/*.js** — 说明：IoC beans（mongo/redis/io/mq/service） — 文档：100.ops/deploy.md ✅
-- **conf/hostmap** — 说明：域名转发规则 — 文档：100.ops/domain-mapping.md ✅
-- **WebContent/WEB-INF/web.xml** — 说明：Servlet 配置（过滤器链） — 文档：100.ops/deploy.md ✅
+- `conf/web.properties` — 说明：主配置（启动必读） — 文档：[quick-start](00.start-here/quick-start.md)
+- `conf/ioc/*.js` — 说明：IoC beans（mongo/redis/io/mq/service） — 文档：[部署与运行配置](100.ops/deploy.md) ✅
+- `conf/hostmap` — 说明：域名转发规则 — 文档：[域名映射与路由](100.ops/domain-mapping.md) ✅
+- `WebContent/WEB-INF/web.xml` — 说明：Servlet 配置（过滤器链） — 文档：[部署与运行配置](100.ops/deploy.md) ✅

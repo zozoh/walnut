@@ -16,7 +16,7 @@ related: [domain-home, command-model, accounts, session]
 
 这个想法是 Walnut 安全模型的支点：命令能做什么，取决于会话身份，
 而不是谁发起了 HTTP 请求。会话的完整机制（对象结构、票据、过期、多级登录）
-在 30.auth 中专门展开。
+在 [30.auth](../30.auth/README.md) 中专门展开。
 
 **环境变量**是会话级的名值对：命令行用 `$NAME` 引用，JS 里通过 `sys.envs` 访问。
 它承担三类职责：**路径查找**（PATH/APP_PATH）、**行为开关**（THEME/OPEN）、

@@ -71,7 +71,7 @@ echo "args0=${args[0]}"               # args 是数组（JS 里也支持 args[0]
 - 路径中某一层既没有精确对象也没有 `_ANY` → `e.api.nofound`（404）；
 - 目录型 `_ANY` 下没有 `_action` 子文件 → `e.io.obj.noexists`（同样 404）；
 - `http-api` 不是 API 对象的声明属性——它是**请求对象**上的元数据（记录本次命中的
-  API 对象名，见 20-request-object）；服务端也不校验可执行位——`.regapi/api/` 树下
+  API 对象名，见 [请求对象：一次请求一个对象](20-request-object.md)）；服务端也不校验可执行位——`.regapi/api/` 树下
   凡是被路由命中的对象，都会被执行。
 
 ## 典型场景

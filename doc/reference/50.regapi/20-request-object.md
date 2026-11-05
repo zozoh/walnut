@@ -64,7 +64,7 @@ Walnut 都会临时创建一个对象来描述这次请求：URL、参数、请�
 
 > 除了请求本身的信息，preload 的执行结果、`http-output` 解析出的
 > `output` 也会写在这个对象上，供历史记录匹配等内部机制使用
-> （见 50-auth-history）。
+> （见 [站点鉴权、权限断言与历史记录](50-auth-history.md)）。
 
 ## 在命令中读取：占位符
 
@@ -94,18 +94,18 @@ curl 'http://host/api/demo/hello?name=zozoh'
 - `http-body:form` —— `body` 是表单 Map，**仅支持 `a=1&b=2` 这种
   url-encoded 表单**；multipart 上传不被特殊处理，原始报文就是对象内容
 - `http-body:json` —— `body` 是解析后的 JSON 对象，
-  可配 `http-post-json-merge` 按条件融合字段（如自动补上当前用户 ID，见 50-auth-history）
+  可配 `http-post-json-merge` 按条件融合字段（如自动补上当前用户 ID，见 [站点鉴权、权限断言与历史记录](50-auth-history.md)）
 
 要注意命令的沙箱环境：stdin 是空的，工作目录是域账号的主目录——
 并不是请求对象本身。想在命令里进一步加工请求信息，可以借助 preload 的
-`run` 把查询结果命名进上下文（见 50-auth-history）。
+`run` 把查询结果命名进上下文（见 [站点鉴权、权限断言与历史记录](50-auth-history.md)）。
 
 ## 下载与重定向
 
 - **直接输出**：命令 stdout 原样进入响应流，格式由 `http-output`、
-  `http-header-*` 控制（见 10-api-object）；
+  `http-header-*` 控制（见 [API 对象：一个文件一个接口](10-api-object.md)）；
 - **重定向**：API 声明 `http-resp-code:302`（或 301），命令 stdout 输出
-  目标 URL，服务端据此跳转（见 10-api-object）。
+  目标 URL，服务端据此跳转（见 [API 对象：一个文件一个接口](10-api-object.md)）。
 
 ## 注意事项
 
@@ -115,12 +115,12 @@ curl 'http://host/api/demo/hello?name=zozoh'
 - 命令沙箱的 stdin 为空、工作目录是域账号主目录；请求对象在
   `~/.regapi/tmp/` 下按请求生成，主要供模板渲染与模块内部机制使用；
 - 拿到 `http-usr` 只是知道了域账号，拿到 `http-www-me-*` 只是恢复了站点会话——
-  都不等于通过了动作级权限检查，那需要配 `pvg-assert`（见 50-auth-history）。
+  都不等于通过了动作级权限检查，那需要配 `pvg-assert`（见 [站点鉴权、权限断言与历史记录](50-auth-history.md)）。
 
 # 延伸阅读
 
-- 10-api-object — API 侧元数据全集
-- 30-path-params — args / params 的来历
-- 30.auth — http-se-* 的会话背景
-- 50-auth-history — preload 与历史记录如何使用请求对象
-- 一切皆对象 — 10.concepts/01-std-obj.md
+- [API 对象：一个文件一个接口](10-api-object.md) — API 侧元数据全集
+- [路径参数与动态路由（_ANY）](30-path-params.md) — args / params 的来历
+- [30.auth](../30.auth/README.md) — http-se-* 的会话背景
+- [站点鉴权、权限断言与历史记录](50-auth-history.md) — preload 与历史记录如何使用请求对象
+- 一切皆对象 — [一切皆对象](../10.concepts/01-std-obj.md)

@@ -1,0 +1,11 @@
+{
+  "OUT_DIST": "",
+  "JAVA_HOME": "",
+  "MVN_CMD": "mvn",
+  "IMG_TAG": "latest",
+  "UP_HOST": "ccr.ccs.tencentyun.com",
+  "UP_CORE": "/site0/wn4j",
+  "UP_DEPS": "/site0/wn4jdeps",
+  "UP_ACC": "",
+  "UP_PWD_AT": ""
+}

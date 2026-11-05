@@ -94,4 +94,4 @@ o @fetch -race FILE ~/tmp/seq1 @inc -json -key no -l -cqn
 # 延伸阅读
 
 - man cmd_o_create / cmd_o_update / cmd_o_delete / cmd_o_inc —— 参数权威
-- 11-cmd-o-query.md —— 「先查再操作」的查询侧
+- [cmd_o 查询](11-cmd-o-query.md) —— 「先查再操作」的查询侧

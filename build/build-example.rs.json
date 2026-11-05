@@ -1,0 +1,32 @@
+{
+    "//": "Walnut 运行时服务配置（runtime services）。",
+    "//1": "本文件是共享模板：复制为 build/build.rs.json 后再改，build.rs.json 已被 gitignore。",
+    "//2": "智能体构建服务前，必须确保 build.rs.json 存在，并向主人逐条确认下面的信息是正确的。",
+    "//3": "mongo-db / redis-database 必须与本机其他 Walnut 实例（尤其是开发者日常实例）不同，",
+    "//4": "否则两个实例共用一个数据库，互相看不到对方的桶文件，报 e.io.bm.LocalSha1BM.LostBucket。",
+    "//5": "mysql 仅作为信息记录（域内 .dao 配置参考），构建不会把它写进服务器 conf。",
+    "//6": "app-port 仅级别 3（智能体私有实例）使用；级别 2 由启动方自行指定端口覆盖。",
+    "mongo": {
+        "host": "127.0.0.1",
+        "port": 27017,
+        "db": "walnut_wn4j",
+        "usr": "",
+        "passwd": ""
+    },
+    "redis": {
+        "host": "127.0.0.1",
+        "port": 6379,
+        "db": 9,
+        "passwd": ""
+    },
+    "mysql": {
+        "host": "127.0.0.1",
+        "port": 3306,
+        "db": "walnut",
+        "usr": "root",
+        "passwd": ""
+    },
+    "buck": "auto",
+    "swap": "auto",
+    "app-port": 8090
+}

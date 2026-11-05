@@ -86,7 +86,7 @@ pvg ~/my-pvg.json can operator view export -ajax -cqn  # Ajax 包装（API 场�
 ```
 
 regapi 入口校验：`pvg_setup`（权限表位置）+ `pvg-assert`（要求的动作清单，
-数组间 AND、元素内 `|` 分隔 OR），不满足直接 403——详见 50-auth-history。
+数组间 AND、元素内 `|` 分隔 OR），不满足直接 403——详见 [站点鉴权、权限断言与历史记录](../50.regapi/50-auth-history.md)。
 
 ## 判定流程（简化）
 

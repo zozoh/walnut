@@ -21,8 +21,8 @@ related: [README, 60-auth-otp, 61-auth-captcha]
 
 # captcha 与 OTP 的登录协同概述
 
-给系统装上人机验证码（captcha，见 61-auth-captcha）和动态密码（OTP，见
-60-auth-otp）并不麻烦，麻烦的是 Walnut 是个多租户系统：系统用户（root / demo……）
+给系统装上人机验证码（captcha，见 [人机验证码 captcha](61-auth-captcha.md)）和动态密码（OTP，见
+[动态密码 OTP](60-auth-otp.md)）并不麻烦，麻烦的是 Walnut 是个多租户系统：系统用户（root / demo……）
 各有各的域，每个域有自己的用户库，也各有各的验证码、OTP、邮件配置。captcha 服务
 与 OTP 服务本身都不关心这些配置放在谁家——**放哪、用哪份，是本文要讲的协同规则**。
 
@@ -204,5 +204,5 @@ SDK 中的插值。`WnTmplX` 会将它原样输出成客户端所需的 `${expre
 
 # 扩展阅读
 
-- 60-auth-otp — 动态密码 OTP 服务：生成、存储（Redis）、邮件发送
-- 61-auth-captcha — 人机验证码服务：接口抽象与 tianai 实现
+- [动态密码 OTP](60-auth-otp.md) — 动态密码 OTP 服务：生成、存储（Redis）、邮件发送
+- [人机验证码 captcha](61-auth-captcha.md) — 人机验证码服务：接口抽象与 tianai 实现

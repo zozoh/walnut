@@ -95,4 +95,4 @@ o ~/orders @query '{ct:"[today,today+1d)"}' \
 # 延伸阅读
 
 - man cmd_o_json / cmd_o_tmpl / cmd_o_tab / cmd_o_zip —— 参数权威
-- 50.regapi —— @ajax 输出与 regapi 响应的衔接
+- [50.regapi](../50.regapi/README.md) —— @ajax 输出与 regapi 响应的衔接

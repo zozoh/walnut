@@ -110,7 +110,7 @@ related: [10-cron-task, 20-cron-syntax, 30-schedule-slot, 40-task-queue]
 
 ## 专题文档
 
-- 10-cron-task.md —— cron 命令与 /sys/cron 任务定义
-- 20-cron-syntax.md —— WnCron 表达式语法详解
-- 30-schedule-slot.md —— /sys/schedule 分钟计划表
-- 40-task-queue.md —— /sys/tasks 后台任务栈
+- [cron 命令与任务定义](10-cron-task.md) —— cron 命令与 /sys/cron 任务定义
+- [WnCron 定期表达式](20-cron-syntax.md) —— WnCron 表达式语法详解
+- [分钟计划表 /sys/schedule](30-schedule-slot.md) —— /sys/schedule 分钟计划表
+- [后台任务栈 /sys/tasks](40-task-queue.md) —— /sys/tasks 后台任务栈

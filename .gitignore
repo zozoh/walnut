@@ -19,15 +19,29 @@ hs_err_pid*
 .tmp
 /target/
 /prompt/
-/build/**
 /dist/
 /conf/web_local.properties
-build
 mysrc
 walnut.iml
 
 .classpath
 .project
+
+# 构建的个人配置（模板 make-example.json / build-example.rs.json 照常提交）
+/build/make.json
+/build/build.rs.json
+/build/__pycache__/
+
+# 仓库根 .at 样例：敏感与运行时内容不提交
+/.at/whoami.json
+/.at/credentials*.json
+/.at/client/session/*.json
+/.at/walnut/buck/
+/.at/walnut/swap/
+/.at/walnut/conf/
+/.at/walnut/build.rs.json
+/.at/_ottl/*
+!/.at/_ottl/.gitkeep
 .settings
 .claude
 .claude/**

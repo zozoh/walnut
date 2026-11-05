@@ -50,7 +50,7 @@ doc/reference/
 |   |-- 20-auth-session.md        #   会话管理：会话对象、票据轮换、su 会话树、过期
 |   |-- 30-auth-in-domain.md      #   域内用户存储与认证：WnLoginSite、accounts/roles 配置
 |   |-- 40-auth-hydrate.md        #   混合认证：域内用户登录建立标准账户会话
-|   |-- 0-auth-pvg.md             #   标准对象的权限体系：mode / pvg / 业务权限矩阵
+|   |-- 50-auth-pvg.md            #   标准对象的权限体系：mode / pvg / 业务权限矩阵
 |   |-- 60-auth-otp.md            #   动态密码 OTP：WnOTPService、生成/存储(Redis)/邮件发送
 |   |-- 61-auth-captcha.md        #   人机验证码 captcha：接口骨架、拖拽验证、与 OTP 协作
 |   |-- 62-auth-with-captcha-otp.md #   captcha 与 OTP 的登录协同：配置目录与登录模式
@@ -99,6 +99,7 @@ doc/reference/
 |   |-- 50-image-imagic.md        #   图片处理（imagic）
 |   |-- 60-video-ffmpeg.md        #   视频信息与封图（videoi / videoc）
 |   |-- 70-qrcode.md              #   二维码（qrcode）
+|   |-- 80-lock-api.md            #   锁服务（lock）：互斥控制与防重入
 |
 |-- 100.ops/                       # 部署与运维
 |   |-- deploy.md                 #   部署形态：内嵌 Jetty、web.xml/chain、ioc 配置详解
@@ -117,6 +118,14 @@ doc/reference/
 |   |-- 50-custom-command.md      #   编写 cmd_* 命令：JvmExecutor、参数、注册、man 手册
 |   |-- 60-write-java.md          #   作为 Java 库嵌入：核心 IoC beans、WnIo 直接编程
 |   |-- 90-source-layout.md       #   源码包 ↔ 模块速查（新增模块先登记这里）
+|
+|-- 102.auto-test/                 # 自动化测试：让智能体自助使用 Walnut
+|   |-- README.md                 #   本篇：三级启动、测试域、工作目录约定
+|   |-- 10-at-build.md            #   构建测试服务：wn4j-make、dist/wn4j、WebContent
+|   |-- 20-at-setup.md            #   启动服务与建立测试域：wn-up/wn-down、adduser、登录模式
+|   |-- 30-at-tools.md            #   测试工具：wn-ping/wn-cli/walnut-at-init、会话缓存、退出码
+|   |-- 40-at-project.md          #   工作目录测试准备：.at、ATEST.md、数据 mount/reset
+|   |-- 50-at-rules.md            #   Agent 测试守则：异常终止、自检、请示用户
 ```
 
 ## 写作规范（每篇文档必须遵守）

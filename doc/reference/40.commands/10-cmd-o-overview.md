@@ -17,7 +17,7 @@ related: [11-cmd-o-query.md, 12-cmd-o-load.md, 13-cmd-o-update.md, 14-cmd-o-cont
 
 ## 为什么是一个过滤器链
 
-`o` 是过滤命令（写法见 03-cmd-filter.md）：整条命令由一连串 `@过滤器`
+`o` 是过滤命令（写法见 [过滤命令](03-cmd-filter.md)）：整条命令由一连串 `@过滤器`
 组成，每个过滤器吃「上下文」、加工后再放回「上下文」，链尾隐式输出。
 
 ```bash
@@ -49,14 +49,14 @@ o [options] [[@filter filter-args...]...]
 按任务它们可以归入七类，每类有一篇专题讲「这组过滤器解决什么任务、
 怎么组合」：
 
-- 查询 —— 11-cmd-o-query.md —— @query @get @fetch @mime
-- 进一步读取 —— 12-cmd-o-load.md —— @path @tree @group @refer @read
+- 查询 —— [cmd_o 查询](11-cmd-o-query.md) —— @query @get @fetch @mime
+- 进一步读取 —— [cmd_o 进一步读取](12-cmd-o-load.md) —— @path @tree @group @refer @read
   @ancestors @children @list @join_one @join_many
-- 修改删除 —— 13-cmd-o-update.md —— @create @update @delete @inc
-- 操作上下文 —— 14-cmd-o-context.md —— @var @filter @push @pop @put
+- 修改删除 —— [cmd_o 修改删除与生成序号](13-cmd-o-update.md) —— @create @update @delete @inc
+- 操作上下文 —— [cmd_o 操作上下文](14-cmd-o-context.md) —— @var @filter @push @pop @put
   @remove @clear @enter @name @flat
-- 聚集统计 —— 15-cmd-o-agg.md —— @agg @size @count
-- 输出 —— 16-cmd-o-output.md —— @zip @json @ajax @tmpl @tab @quiet
+- 聚集统计 —— [cmd_o 聚集统计](15-cmd-o-agg.md) —— @agg @size @count
+- 输出 —— [cmd_o 输出](16-cmd-o-output.md) —— @zip @json @ajax @tmpl @tab @quiet
   @value @summary
 
 专题讲任务与组合，**每个过滤器的参数细节以 man 页为准**
@@ -81,5 +81,5 @@ o ~/inbox @query @zip ~/backup/inbox-`datex @fmt yyyyMMdd`.zip -quiet
 # 延伸阅读
 
 - man o —— 全部过滤器的权威参数手册
-- 03-cmd-filter.md —— 过滤命令的写法与工作机制
-- 10.concepts/01-std-obj.md —— 对象的字段体系
+- [过滤命令](03-cmd-filter.md) —— 过滤命令的写法与工作机制
+- [一切皆对象](../10.concepts/01-std-obj.md) —— 对象的字段体系

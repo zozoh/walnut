@@ -1,0 +1,639 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+wn-cli — Walnut 智能体客户端
+
+对接三个 HTTP 模块（doc/reference/102.auto-test/30-at-tools.md）:
+    UsrModule   /u/do/login/ajax     登录（含 UsrNoExists→root 建域的决策树）
+    AppModule   /a/run/wn-term       命令通道（mkdir/mount/ln/o/app init/sqlx ...）
+    ObjModule   /o/*                 对象与文件字节（get/children/set/save/upload/content）
+
+子命令:
+    login   登录并缓存票据（密码错 3 次终止）
+    cmd     执行命令文本（缺省参数 '-' 从 stdin 读）
+    obj     对象操作: get/children/set/save-text/content/upload/find
+    mnt     挂载本地目录（写 mnt 元数据 + 自动 ls 自检）
+
+全局选项:
+    --url           实例地址（缺省取会话缓存里的 base）
+    --se            会话名（默认 se-00，缓存文件 .at/client/session/<se>.json）
+    --session-dir   会话缓存目录（默认 ./.at/client/session）
+    --creds         凭据 JSON（默认若 ./.at/credentials.json 存在则用它）
+
+退出码: 0 成功；1 用法错误；2 目标不存在；3 认证失败；4 服务器响应异常
+
+本文件既可作为 CLI 使用，也可作为库:
+    from wn_cli import WnClient
+    c = WnClient("http://localhost:8080", session_dir=".at/client/session", se="se-00")
+    c.login("demo", "123456")
+    print(c.cmd("o ~/data -l"))
+"""
+
+import argparse
+import base64
+import getpass
+import json
+import os
+import re
+import sys
+import time
+import uuid
+import urllib.error
+import urllib.parse
+import urllib.request
+from pathlib import Path
+
+EXIT_OK = 0
+EXIT_USAGE = 1
+EXIT_NO_TARGET = 2
+EXIT_AUTH = 3
+EXIT_BAD = 4
+
+TICKET_HEADER = "x-walnut-ticket"
+
+
+class WnError(Exception):
+    """带退出码的工具错误"""
+
+    def __init__(self, code, msg):
+        super().__init__(msg)
+        self.code = code
+        self.msg = msg
+
+
+class WnNoUser(WnError):
+    def __init__(self, msg="e.auth.login.UsrNoExists"):
+        super().__init__(EXIT_AUTH, msg)
+
+
+class WnLoginFailed(WnError):
+    def __init__(self, msg="e.auth.login.Failed"):
+        super().__init__(EXIT_AUTH, msg)
+
+
+def http(base, method, path, params=None, form=None, body=None,
+         headers=None, timeout=120):
+    """返回 (status, bytes)。不抛异常（HTTPError 也返回其状态与响应体）。"""
+    url = base.rstrip("/") + path
+    if params:
+        url += ("&" if "?" in url else "?") + urllib.parse.urlencode(params)
+    data = None
+    hdrs = dict(headers or {})
+    if form is not None:
+        data = urllib.parse.urlencode(form).encode("utf-8")
+        hdrs.setdefault("Content-Type", "application/x-www-form-urlencoded")
+    elif body is not None:
+        data = body if isinstance(body, bytes) else body.encode("utf-8")
+    req = urllib.request.Request(url, data=data, method=method, headers=hdrs)
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return resp.status, resp.read()
+    except urllib.error.HTTPError as e:
+        return e.code, e.read()
+    except urllib.error.URLError as e:
+        raise WnError(EXIT_NO_TARGET, "连接失败: %s" % e)
+
+
+def api_login(base, usr, passwd):
+    """登录，返回 (ticket, data)。按错误码区分 NoUser / Failed。"""
+    st, body = http(base, "POST", "/u/do/login/ajax",
+                    form={"nm": usr, "passwd": passwd})
+    text = body.decode("utf-8", "replace")
+    try:
+        j = json.loads(text)
+    except ValueError:
+        raise WnError(EXIT_BAD, "登录响应不是 JSON: %s" % text[:300])
+    if j.get("ok"):
+        data = j.get("data") or {}
+        ticket = data.get("nm") or data.get("ticket")
+        if not ticket:
+            raise WnError(EXIT_BAD, "登录响应缺少票据: %s" % text[:300])
+        return ticket, data
+    msg = str(j.get("msg") or j.get("err") or text)
+    if "UsrNoExists" in msg or "noexists" in msg:
+        raise WnNoUser(msg)
+    raise WnLoginFailed(msg)
+
+
+class Session:
+    """会话缓存: <session_dir>/<se>.json"""
+
+    def __init__(self, session_dir, se="se-00"):
+        self.dir = Path(session_dir)
+        self.se = se
+        self.path = self.dir / ("%s.json" % se)
+        self.base = None
+        self.usr = None
+        self.ticket = None
+        self.creds = None
+        self.root_creds = None
+        self.load()
+
+    def load(self):
+        if self.path.exists():
+            try:
+                j = json.loads(self.path.read_text(encoding="utf-8"))
+                self.base = j.get("base")
+                self.usr = j.get("usr")
+                self.ticket = j.get("ticket")
+                self.creds = j.get("creds")
+                self.root_creds = j.get("root_creds")
+            except (ValueError, OSError):
+                pass
+
+    def save(self):
+        self.dir.mkdir(parents=True, exist_ok=True)
+        data = {
+            "base": self.base,
+            "usr": self.usr,
+            "ticket": self.ticket,
+            "saved_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
+            "creds": self.creds,
+            "root_creds": self.root_creds,
+        }
+        self.path.write_text(json.dumps(data, ensure_ascii=False, indent=2),
+                             encoding="utf-8")
+
+
+class WnClient:
+    def __init__(self, base=None, session_dir=".at/client/session", se="se-00"):
+        self.session = Session(session_dir, se)
+        self.base = base or self.session.base
+        if not self.base:
+            raise WnError(EXIT_USAGE, "缺少 --url，且会话缓存里没有 base")
+
+    # ---------------- 认证 ----------------
+    def login(self, usr, passwd, retries=3):
+        """域登录；UsrNoExists 时由调用方决定 root fallback。失败计 3 次。"""
+        last = None
+        for n in range(retries):
+            try:
+                ticket, data = api_login(self.base, usr, passwd)
+                self.session.base = self.base
+                self.session.usr = usr
+                self.session.ticket = ticket
+                self.session.creds = {"usr": usr, "passwd": passwd}
+                self.session.save()
+                return ticket
+            except WnLoginFailed as e:
+                last = e
+                print("登录失败(%d/%d): %s" % (n + 1, retries, e.msg),
+                      file=sys.stderr)
+        raise WnError(EXIT_AUTH,
+                      "密码登录失败 %d 次，终止。请与主人核对凭据" % retries)
+
+    def login_or_create_domain(self, usr, passwd,
+                               root_usr="root", root_passwd=""):
+        """完整决策树（doc 20-at-setup）:
+        域登录 → 失败 → root 登录 → 查 /home/<usr> 是否存在
+               → 不存在则 adduser 建域 → 域登录重试
+               → 已存在则说明域密码不对，报错
+        注意: loginByPassword 对"用户不存在"和"密码错"都抛
+        e.auth.login.Failed，无法区分，只能靠 root 查目录来判断。
+        root 本人登录（usr == root_usr）直接登录，不建域。
+        """
+        if usr == root_usr:
+            return self.login(usr, passwd), "login"
+        # 第一次探测用 api_login 而不是 self.login（login 会把
+        # WnLoginFailed 包成 WnError，这里要自己接住分支）
+        try:
+            ticket, _ = api_login(self.base, usr, passwd)
+            self.session.base = self.base
+            self.session.usr = usr
+            self.session.ticket = ticket
+            self.session.creds = {"usr": usr, "passwd": passwd}
+            self.session.save()
+            return ticket, "login"
+        except (WnNoUser, WnLoginFailed):
+            pass
+        if not root_passwd:
+            raise WnError(EXIT_USAGE,
+                          "建域需要 root 密码: 请传 --root-passwd 或在凭据文件里给出")
+        rticket, _ = api_login(self.base, root_usr, root_passwd)
+        self.session.root_creds = {"usr": root_usr, "passwd": root_passwd}
+        r = WnClient.__new__(WnClient)
+        r.session = self.session
+        r.base = self.base
+        r._ticket = rticket
+        # root 视角检查域主目录是否已存在
+        try:
+            r.obj_get("/home/" + usr)
+            exists = True
+        except WnError:
+            exists = False
+        if exists:
+            raise WnError(EXIT_AUTH,
+                          "用户 %s 已存在但域密码不对，请与主人核对凭据" % usr)
+        out = r.cmd("adduser %s -p %s" % (usr, passwd))
+        print(out.strip(), file=sys.stderr)
+        return self.login(usr, passwd), "created"
+
+    # ---------------- 请求（含 401 自动重登） ----------------
+    @property
+    def _ticket(self):
+        return self.session.ticket
+
+    @_ticket.setter
+    def _ticket(self, v):
+        self.session.ticket = v
+
+    def _ph(self, path):
+        """把 ~ 展开为会话用户主目录，并去掉尾斜杠（/o 端点对
+        /home/demo/ 这种尾斜杠路径会报 noexists）。
+
+        服务端 /o 系列的 str 参数不做会话级路径展开（Wn.getObj(io,str)
+        直通 io.fetch，~ 会被解到服务器 OS 的 HOME）。客户端必须先展开，
+        否则对象会写进以服务器 OS 用户目录开头的怪路径里。
+        """
+        usr = self.session.usr or ""
+        home = "/root" if usr == "root" else "/home/" + usr
+        if path == "~":
+            return home
+        if path.startswith("~/"):
+            path = home + path[1:]
+        if len(path) > 1 and path.endswith("/"):
+            path = path.rstrip("/")
+        return path
+
+    def _req(self, method, path, retried=False, **kw):
+        ticket = self._ticket
+        if ticket:
+            hdrs = kw.setdefault("headers", {})
+            hdrs[TICKET_HEADER] = ticket
+        st, body = http(self.base, method, path, **kw)
+        if st == 401 and not retried and self.session.creds:
+            print("会话过期，自动重新登录 ...", file=sys.stderr)
+            c = self.session.creds
+            t, _ = api_login(self.base, c["usr"], c["passwd"])
+            self._ticket = t
+            self.session.save()
+            return self._req(method, path, retried=True, **kw)
+        if st == 401:
+            raise WnError(EXIT_AUTH, "未登录或会话失效（401）")
+        return st, body
+
+    def _check(self, st, body):
+        """Walnut ajax 端点错误也返回 HTTP 200 + {"ok":false} 信封，
+        必须查 ok 字段，不能只看状态码。"""
+        text = body.decode("utf-8", "replace")
+        if st >= 400:
+            raise WnError(EXIT_BAD, text.strip()[:300] or ("HTTP %d" % st))
+        try:
+            j = json.loads(text)
+        except ValueError:
+            return
+        if isinstance(j, dict) and j.get("ok") is False:
+            raise WnError(EXIT_BAD,
+                          str(j.get("msg") or j.get("errCode") or j)[:300])
+
+    # ---------------- 命令通道 ----------------
+    def _expand_tilde(self, text):
+        """命令文本里的 ~ 同样不能交给服务端展开（会解到服务器 OS 的
+        HOME，对象写进 C:/Users/... 这类怪路径）。单词首的 ~/path 与
+        裸 ~ 在客户端展开为会话主目录。"""
+        usr = self.session.usr or ""
+        home = "/root" if usr == "root" else "/home/" + usr
+        return re.sub(r"(?<![\w/])~(?=/|\s|$)", home, text)
+
+    def cmd(self, text):
+        text = self._expand_tilde(text)
+        st, body = self._req("POST", "/a/run/wn-term",
+                             form={"cmd": text, "mime": "text/plain"})
+        if st >= 400:
+            raise WnError(EXIT_BAD, body.decode("utf-8", "replace").strip()[:500]
+                          or ("HTTP %d" % st))
+        return body.decode("utf-8", "replace")
+
+    # ---------------- 对象操作 ----------------
+    def obj_get(self, path):
+        path = self._ph(path)
+        st, body = self._req("GET", "/o/get", params={"str": path})
+        self._check(st, body)
+        return json.loads(body.decode("utf-8", "replace"))
+
+    def obj_children(self, path):
+        path = self._ph(path)
+        st, body = self._req("GET", "/o/children", params={"str": path, "pg": "0"})
+        self._check(st, body)
+        return json.loads(body.decode("utf-8", "replace"))
+
+    def obj_set(self, path, metas):
+        path = self._ph(path)
+        q = urllib.parse.quote(path, safe="")
+        st, body = self._req("POST", "/o/set/%s" % q, params={"aph": "0"},
+                             body=json.dumps(metas),
+                             headers={"Content-Type": "application/json"})
+        self._check(st, body)
+        return json.loads(body.decode("utf-8", "replace"))
+
+    def obj_save_text(self, path, content, create=True):
+        path = self._ph(path)
+        st, body = self._req("POST", "/o/save/text",
+                             form={"str": path, "content": content,
+                                   "cine": "1" if create else "0"})
+        self._check(st, body)
+        return json.loads(body.decode("utf-8", "replace"))
+
+    def obj_content(self, path, download=False):
+        path = self._ph(path)
+        q = urllib.parse.quote(os.path.basename(path) or "obj", safe="")
+        st, body = self._req("GET", "/o/content/%s" % q,
+                             params={"str": path, "d": "1" if download else "0"})
+        self._check(st, body)
+        return body
+
+    def obj_upload(self, path, file_path, mode="r"):
+        """multipart 上传。mode: r=替换/自动 s=严格 a=追加（语义见 ObjModule）"""
+        path = self._ph(path)
+        file_path = Path(file_path)
+        boundary = uuid.uuid4().hex
+        head = (
+            "--%s\r\nContent-Disposition: form-data; name=\"str\"\r\n\r\n%s\r\n"
+            "--%s\r\nContent-Disposition: form-data; name=\"mode\"\r\n\r\n%s\r\n"
+            "--%s\r\nContent-Disposition: form-data; name=\"nm\"\r\n\r\n%s\r\n"
+            "--%s\r\nContent-Disposition: form-data; name=\"file\"; "
+            "filename=\"%s\"\r\nContent-Type: application/octet-stream\r\n\r\n"
+        ) % (boundary, path, boundary, mode, boundary, file_path.name,
+             boundary, file_path.name)
+        tail = "\r\n--%s--\r\n" % boundary
+        body = head.encode("utf-8") + file_path.read_bytes() + tail.encode("utf-8")
+        st, rb = self._req("POST", "/o/upload", body=body,
+                           headers={"Content-Type":
+                                    "multipart/form-data; boundary=%s" % boundary})
+        self._check(st, rb)
+        return json.loads(rb.decode("utf-8", "replace"))
+
+    def obj_find(self, pairs, limit=100):
+        params = dict(pairs)
+        params["_l"] = str(limit)
+        st, body = self._req("GET", "/o/find", params=params)
+        if st >= 400:
+            raise WnError(EXIT_BAD, body.decode("utf-8", "replace")[:300])
+        return json.loads(body.decode("utf-8", "replace"))
+
+    # ---------------- 挂载（含自检） ----------------
+    def mnt(self, path, file_url, check=True):
+        path = self._ph(path)
+        if not file_url.startswith("file://"):
+            file_url = "file://" + file_url.replace("\\", "/")
+        # 目标目录不存在先建（已存在会报 exists，忽略即可）
+        try:
+            self.cmd('mkdir "%s"' % path)
+        except WnError:
+            pass
+        self.cmd('o "%s" @update \'mnt:"%s"\'' % (path, file_url))
+        if not check:
+            return {"mounted": path, "url": file_url, "checked": False}
+        # 自检：读不回来 / 报错即异常（守则见 50-at-rules）
+        try:
+            listing = self.cmd('o "%s" -l' % path)
+        except WnError as e:
+            raise WnError(EXIT_BAD,
+                          "挂载自检失败: %s（挂载可能未生效，请示主人）" % e.msg)
+        if not listing.strip():
+            raise WnError(EXIT_BAD,
+                          "挂载自检失败: 目标目录列出为空（mnt-file-allow 白名单挡了？）")
+        return {"mounted": path, "url": file_url, "checked": True,
+                "listing_head": listing.strip().splitlines()[:10]}
+
+    # ---------------- 节点初始化（root，见 a-walnut-init.md） ----------------
+    def check_node(self):
+        """看 /app 权限就知道节点是否初始化过（空白库启动时是 0750）。
+        返回 initialized + 细节，自身总是成功（除非连不上）。"""
+        j = self.obj_get("/app")
+        data = j.get("data") or {}
+        md = data.get("md")
+        return {"initialized": md == 493, "app_md": md, "app_ph": data.get("ph")}
+
+    def init_node(self):
+        """空白数据库节点的首次初始化（幂等，可重复跑）。
+        步骤来自 doc/reference/102.auto-test 与 a-walnut-init.md：
+        1. 顶级目录放开读+执行
+        2. 系统钩子（缩略图/视频预览）
+        3. MongoDB 索引（mgadmin）
+        必须以 root 会话调用。返回每步结果汇总。
+        """
+        if self.session.usr != "root":
+            raise WnError(EXIT_AUTH, "init-node 必须用 root 会话执行（当前: %s）"
+                          % self.session.usr)
+        steps = {}
+
+        # 1. 顶级目录权限（逐条执行：不存在的路径只跳过自己，
+        #    不能把 /app 的权限也拖下水——曾因 /mnt 缺失导致整组失败）
+        chmods = ["chmod -R +rx /etc",
+                  "chmod +rx /sys", "chmod +rx /var", "chmod +rx /home",
+                  "chmod +rx /mnt", "chmod +rx /app",
+                  "chmod -R +rx /sys/hook",
+                  "chmod -R +rx /rs",
+                  "chmod -R +rx /jsbin"]
+        ok, fail = [], []
+        for c in chmods:
+            try:
+                self.cmd(c)
+                ok.append(c)
+            except WnError as e:
+                fail.append({"cmd": c, "err": e.msg})
+        steps["chmod"] = {"ok": ok, "ignored": fail}  # 忽略的多半是路径不存在
+
+        # 2. 系统钩子（与 ROOT/jsbin/init_root_hooks.js 等价，内联避免依赖挂载）
+        hooks = [
+            ("create_thumbnail",
+             'hook_by:[{mime:"^image/",ph:"!^/home/.+/(.thumbnail/gen|.publish/gen|www)"}]',
+             "iimg id:${id} -thumb 256x256 -Q"),
+            ("create_video_preview",
+             'hook_by:[{mime:"^video/",ph:"!^/home/.+/(.thumbnail/gen|.publish/gen|www)"}]',
+             'videoc id:${id} -mode "preview_image"'),
+        ]
+        hooks_ok = []
+        for nm, hook_by, body in hooks:
+            ph = "/sys/hook/write/" + nm
+            try:
+                self.cmd('touch "%s"' % ph)
+            except WnError:
+                pass
+            self.cmd('obj "%s" -u \'%s\'' % (ph, hook_by))
+            self.cmd("echo '%s' > %s" % (body, ph))
+            hooks_ok.append(ph)
+        steps["hooks"] = {"created": hooks_ok}
+
+        # 3. MongoDB 索引（已存在的索引会报错，忽略即可 —— 幂等）
+        indexes = [
+            ('{"id":1}', '{"name":"OBJ_ID"}', None),
+            ('{"d0":1,"d1":1}', '{"name":"D0_D1"}', None),
+            ('{"d0":1,"d1":1,"tp":1}', '{"name":"D0_D1_TP"}', None),
+            ('{"d0":1,"d1":1,"sha1":1}', '{"sparse":true,"name":"D0_D1_SHA1"}', None),
+            ('{"d0":1,"d1":1,"websocket_watch":1}',
+             '{"sparse":true,"name":"D0_D1_WEBSOCKET_WATCH"}', None),
+            ('{"expi":1}', '{"sparse":true,"name":"EXPI"}', None),
+            ('{"pid":1}', '{"name":"PID"}', None),
+            ('{"pid":1,"nm":1}', '{"name":"PID_NM"}', None),
+            ('{"pid":1,"tp":1}', '{"name":"PID_TP"}', None),
+            ('{"pid":1,"ct":1}', '{"name":"PID_CT"}', None),
+            ('{"pid":1,"sort":1}', '{"sparse":true,"name":"PID_SORT"}', None),
+            ('{"id":1}', None, "expi"),  # 过期对象表
+        ]
+        idx_ok, idx_fail = [], []
+        for keys, opts, co in indexes:
+            cmd = "mgadmin index "
+            if co:
+                cmd += "-co %s " % co
+            cmd += "create '%s'" % keys
+            if opts:
+                cmd += " '%s'" % opts
+            try:
+                self.cmd(cmd)
+                idx_ok.append(cmd)
+            except WnError as e:
+                idx_fail.append({"cmd": cmd, "err": e.msg})
+        steps["indexes"] = {"created": idx_ok, "existed_or_failed": idx_fail}
+        return steps
+
+
+# ============================================================
+# CLI
+# ============================================================
+def load_creds(path):
+    p = Path(path) if path else Path(".at/credentials.json")
+    if p.exists():
+        try:
+            return json.loads(p.read_text(encoding="utf-8"))
+        except (ValueError, OSError):
+            pass
+    return {}
+
+
+def kv_pairs(pairs):
+    """k=v 列表 → dict（v 尝试解析为 JSON）"""
+    metas = {}
+    for kv in pairs:
+        k, _, v = kv.partition("=")
+        if not k:
+            raise WnError(EXIT_USAGE, "无效键值对: %s" % kv)
+        try:
+            metas[k] = json.loads(v)
+        except ValueError:
+            metas[k] = v
+    return metas
+
+
+def main():
+    ap = argparse.ArgumentParser(description="Walnut 智能体客户端")
+    ap.add_argument("--url", help="实例地址")
+    ap.add_argument("--se", default="se-00", help="会话名（默认 se-00）")
+    ap.add_argument("--session-dir", default=".at/client/session",
+                    help="会话缓存目录")
+    ap.add_argument("--creds", help="凭据 JSON 文件")
+    sub = ap.add_subparsers(dest="sub", required=True)
+
+    sp = sub.add_parser("login", help="登录（含建域决策树）")
+    sp.add_argument("--usr", help="测试域用户名")
+    sp.add_argument("--passwd", help="测试域密码（缺省从凭据文件/交互）")
+    sp.add_argument("--root-usr", help="root 用户名（默认 root）")
+    sp.add_argument("--root-passwd", help="root 密码（建域用）")
+
+    sp = sub.add_parser("cmd", help="执行命令文本")
+    sp.add_argument("text", help="命令文本，'-' 表示从 stdin 读")
+
+    sp = sub.add_parser("obj", help="对象操作")
+    osb = sp.add_subparsers(dest="obj_sub", required=True)
+    p = osb.add_parser("get"); p.add_argument("path")
+    p = osb.add_parser("children"); p.add_argument("path")
+    p = osb.add_parser("set"); p.add_argument("path"); p.add_argument("pairs", nargs="+")
+    p = osb.add_parser("save-text"); p.add_argument("path")
+    p.add_argument("--text"); p.add_argument("--file")
+    p = osb.add_parser("content"); p.add_argument("path"); p.add_argument("--out")
+    p = osb.add_parser("upload"); p.add_argument("local_file"); p.add_argument("target")
+    p.add_argument("--mode", default="r", choices=["r", "s", "a"])
+    p = osb.add_parser("find"); p.add_argument("pairs", nargs="*")
+    p.add_argument("--limit", type=int, default=100)
+
+    sp = sub.add_parser("mnt", help="挂载本地目录（自动自检）")
+    sp.add_argument("path", help="域内目标路径")
+    sp.add_argument("file_url", help="本地目录，如 D:/work/proj/www")
+    sp.add_argument("--no-check", action="store_true")
+
+    sp = sub.add_parser("check-node", help="检查节点是否已初始化（看 /app 权限）")
+    sp = sub.add_parser("init-node", help="空白节点初始化：目录权限/系统钩子/Mongo 索引（须 root）")
+
+    args = ap.parse_args()
+    creds = load_creds(args.creds)
+
+    try:
+        c = WnClient(args.url, session_dir=args.session_dir, se=args.se)
+
+        if args.sub == "login":
+            usr = args.usr or creds.get("usr")
+            passwd = args.passwd or creds.get("passwd")
+            if not usr:
+                raise WnError(EXIT_USAGE, "缺少 --usr（或凭据文件里的 usr）")
+            if passwd is None:
+                passwd = getpass.getpass("密码: ")
+            root_usr = args.root_usr or creds.get("root_usr") or "root"
+            root_passwd = (args.root_passwd if args.root_passwd is not None
+                           else creds.get("root_passwd") or "")
+            ticket, how = c.login_or_create_domain(usr, passwd, root_usr, root_passwd)
+            print(json.dumps({"ok": True, "action": how, "usr": usr,
+                              "base": c.base}, ensure_ascii=False))
+            return EXIT_OK
+
+        if args.sub == "cmd":
+            text = sys.stdin.read() if args.text == "-" else args.text
+            sys.stdout.write(c.cmd(text))
+            return EXIT_OK
+
+        if args.sub == "obj":
+            o = args.obj_sub
+            if o == "get":
+                print(json.dumps(c.obj_get(args.path), ensure_ascii=False))
+            elif o == "children":
+                print(json.dumps(c.obj_children(args.path), ensure_ascii=False))
+            elif o == "set":
+                print(json.dumps(c.obj_set(args.path, kv_pairs(args.pairs)),
+                                 ensure_ascii=False))
+            elif o == "save-text":
+                if args.file:
+                    content = Path(args.file).read_text(encoding="utf-8")
+                elif args.text is not None:
+                    content = args.text
+                else:
+                    content = sys.stdin.read()
+                print(json.dumps(c.obj_save_text(args.path, content),
+                                 ensure_ascii=False))
+            elif o == "content":
+                data = c.obj_content(args.path)
+                if args.out:
+                    Path(args.out).write_bytes(data)
+                    print(json.dumps({"ok": True, "bytes": len(data),
+                                      "out": args.out}, ensure_ascii=False))
+                else:
+                    sys.stdout.buffer.write(data)
+            elif o == "upload":
+                print(json.dumps(c.obj_upload(args.target, args.local_file,
+                                              args.mode), ensure_ascii=False))
+            elif o == "find":
+                print(json.dumps(c.obj_find(kv_pairs(args.pairs), args.limit),
+                                 ensure_ascii=False))
+            return EXIT_OK
+
+        if args.sub == "mnt":
+            print(json.dumps(c.mnt(args.path, args.file_url,
+                                   check=not args.no_check),
+                             ensure_ascii=False, indent=2))
+            return EXIT_OK
+
+        if args.sub == "check-node":
+            print(json.dumps(c.check_node(), ensure_ascii=False))
+            return EXIT_OK
+
+        if args.sub == "init-node":
+            print(json.dumps(c.init_node(), ensure_ascii=False, indent=2))
+            return EXIT_OK
+
+    except WnError as e:
+        print(json.dumps({"ok": False, "error": e.msg}, ensure_ascii=False),
+              file=sys.stderr)
+        return e.code
+
+
+if __name__ == "__main__":
+    sys.exit(main())

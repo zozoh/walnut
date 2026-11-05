@@ -14,7 +14,7 @@ related:
 # 编写应用初始化模板概述
 
 布局模板的**标记语法**（条目首行、快捷元数据、内容行、explain 引用、
-条目类型）在 10-init-domain-app.md 有完整说明，本篇不再重复。
+条目类型）在 [域应用初始化](10-init-domain-app.md) 有完整说明，本篇不再重复。
 这里讲的是**实践**：拿到一个真实业务，怎么组织一个初始化模板，
 以及编写时的约定和坑。
 
@@ -118,14 +118,14 @@ related:
   复制进域的副本要靠重跑 `app init` 且内容行是 `%` 才刷新
 - **元数据行是 JSON**：多行写法和单行 `{}` 等价，长配置用多行更可读；
   值支持 `${var}` 与 explain 引用（`=key`），语法见
-  10-init-domain-app.md 的「值的高级写法」
+  [域应用初始化](10-init-domain-app.md) 的「值的高级写法」
 - **写完自测一遍**：在测试域里改 vars.json → 跑 `app init` →
   抽查几个关键对象（`o .dao/default.dao.json @json -cqn`），
   确认渲染结果符合预期
 
 # 延伸阅读
 
-- 10-init-domain-app.md —— 机制与标记语法的完整说明：命令流程、
+- [域应用初始化](10-init-domain-app.md) —— 机制与标记语法的完整说明：命令流程、
   模板查找顺序、条目语法、explain 引用
 - ../50.regapi/README.md —— `@API` 条目声明的接口机制
 - ../20.io-storage/10-io-mapping.md —— `{mnt:...}` 元数据的映射语法

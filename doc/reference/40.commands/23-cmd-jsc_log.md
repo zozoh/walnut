@@ -85,7 +85,7 @@ try {
 
 ## 典型骨架
 
-jsbin 规范里的标准用法（详见 101.dev/20-write-jsbin.md）：
+jsbin 规范里的标准用法（详见 [编写 jsbin 业务脚本](../101.dev/20-write-jsbin.md)）：
 
 ```js
 $log.setup("my_script", debug, prefix);
@@ -102,6 +102,6 @@ try {
 
 # 延伸阅读
 
-- 21-cmd-jsc_sys.md —— `sys`：`$log` 的 debug 输出与 API 响应都写到它的 out/err
-- 101.dev/20-write-jsbin.md —— 脚本骨架与输出契约的完整约定
+- [sys 注入对象](21-cmd-jsc_sys.md) —— `sys`：`$log` 的 debug 输出与 API 响应都写到它的 out/err
+- [编写 jsbin 业务脚本](../101.dev/20-write-jsbin.md) —— 脚本骨架与输出契约的完整约定
 - 源码：src/com/site0/walnut/impl/box/cmd/jsc/jsc_log.js

@@ -109,7 +109,7 @@ jsc ~/jsbin/api/create_attachment.js -vars \
 ```
 
 标记语法的完整说明见下文「布局模板的标记语法」；
-如何动手编写这样一个模板，见 30-write-app-init.md。
+如何动手编写这样一个模板，见 [编写应用初始化模板](30-write-app-init.md)。
 
 ## 命令是如何工作的
 
@@ -286,12 +286,12 @@ demo.init 里的典型用法：
 - 初始化的对象是**标准对象**（目录、文件、元数据），字段体系见
   ../10.concepts/01-std-obj.md
 - `${var}` 占位与 `%date:now` 等文本宏，与 sqlx 模板共用同一套
-  `WnTmplX` 引擎（见 21-write-sqlx-tmpl.md 开头「占位符」一节）
+  `WnTmplX` 引擎（见 [编写 SQL 模板（sqlx）](21-write-sqlx-tmpl.md) 开头「占位符」一节）
 - `-> 链接目标` 大量用于把项目目录链进域里；链接是对象的 `ln` 元数据
 
 # 延伸阅读
 
-- 30-write-app-init.md —— 模板编写实践：以真实模板为线索讲解组织方式与常用套路
+- [编写应用初始化模板](30-write-app-init.md) —— 模板编写实践：以真实模板为线索讲解组织方式与常用套路
 - cmd_app_init man 文档（参数权威说明）：
   ../../../src/com/site0/walnut/ext/data/app/man/zh_cn/cmd_app_init.md
 - 源码：src/com/site0/walnut/ext/data/app/hdl/app_init.java、

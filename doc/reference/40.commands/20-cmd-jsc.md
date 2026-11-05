@@ -43,11 +43,11 @@ Walnut 命令，能力上不比 Java 代码差多少。
 
 - **`sys`** —— 命令沙箱入口：**注意它不是 `WnSystem`**，而是它的裁剪封装
   `JvmJsExecContext`；执行命令、读写对象，是脚本与 Walnut 交互的主通道
-  （详见 21-cmd-jsc_sys.md）
+  （详见 [sys 注入对象](21-cmd-jsc_sys.md)）
 - **`$wn`** —— 助手函数库（`jsc_walnut.js`）：`exec` / `execAsJson` /
-  `genId` / `tryLock` 等高频操作的封装（详见 22-cmd-jsc_walnut.md）
+  `genId` / `tryLock` 等高频操作的封装（详见 [$wn 注入对象](22-cmd-jsc_walnut.md)）
 - **`$log`** —— 带 trace ID 的日志接口（`info` / `warn` / `error` /
-  `ajax_ok` / `ajax_error`）（详见 23-cmd-jsc_log.md）
+  `ajax_ok` / `ajax_error`）（详见 [$log 注入对象](23-cmd-jsc_log.md)）
 - **`wc`** —— 当前线程上下文 `Wn.WC()`
 - **`_`** —— lodash（预载）
 - **`$g`** —— 域级全局对象：域的 `~/jsbin/_g.js` 会被加载到这里，
@@ -200,9 +200,9 @@ if (_.keys(obj).length == 0) { ... }
 
 # 延伸阅读
 
-- 21-cmd-jsc_sys.md —— `sys` 注入对象：命令执行、对象读写、输出输入
-- 22-cmd-jsc_walnut.md —— `$wn` 助手函数库：错误处理、ID、锁、对象查询
-- 23-cmd-jsc_log.md —— `$log` 日志对象：setup、trace ID、API 响应契约
-- 101.dev/20-write-jsbin.md —— jsbin 编写规范：脚本骨架、参数约定、
+- [sys 注入对象](21-cmd-jsc_sys.md) —— `sys` 注入对象：命令执行、对象读写、输出输入
+- [$wn 注入对象](22-cmd-jsc_walnut.md) —— `$wn` 助手函数库：错误处理、ID、锁、对象查询
+- [$log 注入对象](23-cmd-jsc_log.md) —— `$log` 日志对象：setup、trace ID、API 响应契约
+- [编写 jsbin 业务脚本](../101.dev/20-write-jsbin.md) —— jsbin 编写规范：脚本骨架、参数约定、
   输出契约、sys/$wn/$log 用法与专门场景示例
-- 101.dev/40-extend-regapi.md —— jsc 在 regapi 里的完整实战
+- [实战：开发完整 API](../101.dev/40-extend-regapi.md) —— jsc 在 regapi 里的完整实战

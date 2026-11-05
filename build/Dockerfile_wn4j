@@ -1,0 +1,41 @@
+#
+#    '||      ||` '||\   ||`    /||    |'||'| 
+#     ||      ||   ||\\  ||   // ||      ||    
+#     ||  /\  ||   || \\ ||  //..||..    ||    
+#      \\//\\//    ||  \\||      ||      ||    
+#       \/  \/    .||   \||.     ||   '..|'    
+#                                              
+#
+# 本文件需要复制到 wn4j 的目标目录，譬如 ~/dist/wn4j
+# 这样，后面的 ADD 指令才能被正确执行
+#
+
+# 指定基于的基础镜像
+FROM wn4jdeps:latest
+
+# 维护者信息
+LABEL Owner="Site0 Inc."
+LABEL Author="Peter Zhang<zozoh@qq.com>"
+
+# 添加必要的目录
+ADD ./sbin /opt/wn4j/sbin
+ADD ./core /opt/wn4j/core
+ADD ./ROOT /opt/mnt/walnut
+ADD ./titanium /opt/mnt/titanium
+
+# 准备必要的环境变量
+ENV WALNUT_HOME=/opt/wn4j
+ENV JAVA_HOME=/usr/java/latest/
+ENV WL_PID_PATH=/var/run/walnut.pid
+ENV WN_MAIN_CLASS=com.site0.walnut.web.WnLauncher
+ENV PATH="${WALNUT_HOME}/sbin:${JAVA_HOME}/bin:${PATH}"
+
+# 暴露端口
+EXPOSE 8080
+EXPOSE 80
+
+# 指定挂载点
+VOLUME ["/opt/mnt/project", "/opt/wn4j/conf", "/opt/walnut/buck", "/opt/walnut/swap", "/var/log/walnut"]
+
+# 启动命令
+CMD ["/opt/wn4j/sbin/start.sh"]

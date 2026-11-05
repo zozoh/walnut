@@ -174,6 +174,12 @@ public class WnSetup implements Setup {
                 else {
                     log.infof("== mount : %s > %s", wim.path, wim.mount);
                 }
+                // 初始挂载的目录一律开放读+执行：
+                // 它们都是系统级公共服务（默认登录页/内置应用），
+                // 否则域用户连默认终端应用都跑不起来（e.app.noexists）
+                if (o.mode() != 0755) {
+                    io.setBy(o.id(), new NutMap("md", 0755), false);
+                }
             }
             catch (Exception e) {
                 log.warnf("!! mount : %s > %s", wim.path, wim.mount);

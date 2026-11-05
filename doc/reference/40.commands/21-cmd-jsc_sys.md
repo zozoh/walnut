@@ -44,7 +44,7 @@ var re = sys.exec2f("o %s @json -cqn", "~/data/pet.json");
 ```
 
 - `exec2` 返回字符串；命令执行失败时返回 `e.xxx:原因` 形式的错误串
-  （不会抛异常），判断与解析见 22-cmd-jsc_walnut.md 的 `checkExecReturn`
+  （不会抛异常），判断与解析见 [$wn 注入对象](22-cmd-jsc_walnut.md) 的 `checkExecReturn`
 - `exec2map` / `exec2list`：`exec2` 的结果直接解析为 Map / Map 列表，
   解析失败返回 `null`
 
@@ -96,7 +96,7 @@ var input = sys.in.readAll();   // 读标准输入（管道传入的内容）
 
 # 延伸阅读
 
-- 20-cmd-jsc.md —— jsc 命令全貌：引擎、注入对象总表、缓存机制
-- 22-cmd-jsc_walnut.md —— `$wn`：基于 `sys.exec2` 封装的助手函数
-- 23-cmd-jsc_log.md —— `$log`：带 trace ID 的日志输出
+- [jsc 命令](20-cmd-jsc.md) —— jsc 命令全貌：引擎、注入对象总表、缓存机制
+- [$wn 注入对象](22-cmd-jsc_walnut.md) —— `$wn`：基于 `sys.exec2` 封装的助手函数
+- [$log 注入对象](23-cmd-jsc_log.md) —— `$log`：带 trace ID 的日志输出
 - 源码：src/com/site0/walnut/util/JvmJsExecContext.java

@@ -56,7 +56,7 @@ HTTP 的 query string 参数，会变成一个固定上下文变量 `${http-qs-n
 
 当然，`${http-qs-name}` 只是冰山一角——每次请求，Walnut 都会临时创建一个
 **请求对象**：Query String、Header、Cookie 是它的元数据，请求体是它的内容，
-命令模板里的 `${...}` 占位符就是从它取值（详见 20-request-object）。
+命令模板里的 `${...}` 占位符就是从它取值（详见 [请求对象：一次请求一个对象](20-request-object.md)）。
 
 看懂这个例子后，你马上会问：**这个 API 对象到底支持哪些属性？**
 下一节先给一张全集速览，然后逐条细讲。
@@ -148,8 +148,8 @@ API 对象的全部行为都通过元数据配置。下面这个块把几乎所�
 - `http-www-ticket`：从哪个请求键读票据，默认 `http-qs-ticket`
 - `http-www-auth`：是否必须已登录；默认跟随 `http-www-home`
   （声明了 home 即要求登录）；无有效会话 → 403
-- 票据有效时注入 `http-www-me-*` 一组元数据（见 20-request-object）
-- 细节与示例见 50-auth-history
+- 票据有效时注入 `http-www-me-*` 一组元数据（见 [请求对象：一次请求一个对象](20-request-object.md)）
+- 细节与示例见 [站点鉴权、权限断言与历史记录](50-auth-history.md)
 
 #### `pvg-setup` / `pvg-assert`：业务权限断言
 
@@ -158,7 +158,7 @@ API 对象的全部行为都通过元数据配置。下面这个块把几乎所�
 - `pvg-setup`：权限表对象路径；不设置时回落到站点 auth 选项里的 `pvg_setup`
 - ⚠️ 当前源码守卫疑似写反（`HttpApiModule.__do_www_check_pvg`）：
   正常配置站点时断言被跳过、实际不生效，修复前不要依赖它做权限控制
-- 细节见 50-auth-history
+- 细节见 [站点鉴权、权限断言与历史记录](50-auth-history.md)
 
 ### 参数处理
 
@@ -290,7 +290,7 @@ httpout -body ${http-qs} \
 - 结构是 `{test, appends, run}` 的列表，逐项匹配、先中先得：
   `appends` 先渲染并入元数据，`run` 是「结果键 → 命令模板」的映射——
   键 `...` 表示结果整体并入，键前缀 `!` 表示结果不做 JSON 解析
-- 细节与示例见 50-auth-history
+- 细节与示例见 [站点鉴权、权限断言与历史记录](50-auth-history.md)
 
 #### `history` / `histest` / `hisname` / `hismetas`：历史记录
 
@@ -300,7 +300,7 @@ httpout -body ${http-qs} \
 - `hismetas`：按条件与 `history` 模板融合，补充记录字段
 - ⚠️ 当前 `_record_history` 的写库代码整体被注释（TODO），
   实际只检查配置文件、缺失时打警告
-- 细节见 50-auth-history
+- 细节见 [站点鉴权、权限断言与历史记录](50-auth-history.md)
 
 ### 缓存
 
@@ -310,7 +310,7 @@ httpout -body ${http-qs} \
 - `match` 只对**查询参数**做匹配（键写参数原名，如 `day`），缺省总匹配
 - `path` 是缓存文件路径模板，渲染上下文为请求元数据（可用 `${http-qs-*}`、`${params.*}`）；
   `mime` 是命中时的 Content-Type
-- 细节见 40-cache
+- 细节见 [API 缓存（cache-*）](40-cache.md)
 
 #### `cache-duration`：缓存有效期
 
@@ -343,13 +343,13 @@ httpout -body ${http-qs} \
 - **CORS**：`http-cross-origin:*`；
 - **302 跳转**：`http-resp-code:302`，命令 stdout 输出目标 URL；
 - **文件下载**：`http-header-CONTENT-DISPOSITION:'attachment; filename="a.zip"'`，内容走 stdout；
-- **POST 表单**：`http-body:form`，表单字段解析进请求对象的 `body` 元数据（见 20-request-object）；
+- **POST 表单**：`http-body:form`，表单字段解析进请求对象的 `body` 元数据（见 [请求对象：一次请求一个对象](20-request-object.md)）；
 - **读请求体**：模板里 `cat id:${id}`——`${id}` 就是请求对象自身的 ID。
 
 ## 注意事项
 
 - `http-api` 不是 API 对象的配置项：它是**请求对象**上的元数据（`__fill_req_meta`
-  注入，值为本次命中的 API 对象名，见 20-request-object）；旧文档所谓
+  注入，值为本次命中的 API 对象名，见 [请求对象：一次请求一个对象](20-request-object.md)）；旧文档所谓
   「声明 `http-api:true`」并无对应实现；
 - 服务端不校验可执行位：`~/.regapi/api/` 树下被路由命中的对象都会被执行；
 - `http-method` 元数据在服务端**没有对应的校验逻辑**（源码只把请求方法记录进
@@ -362,8 +362,8 @@ httpout -body ${http-qs} \
 
 # 延伸阅读
 
-- 20-request-object — 临时请求对象：请求侧能拿到什么
-- 30-path-params — 路径参数与 `_ANY` 通配
-- 40-cache — cache-* 缓存策略
-- 50-auth-history — 站点登录、权限断言与历史记录
+- [请求对象：一次请求一个对象](20-request-object.md) — 临时请求对象：请求侧能拿到什么
+- [路径参数与动态路由（_ANY）](30-path-params.md) — 路径参数与 `_ANY` 通配
+- [API 缓存（cache-*）](40-cache.md) — cache-* 缓存策略
+- [站点鉴权、权限断言与历史记录](50-auth-history.md) — 站点登录、权限断言与历史记录
 - 第一个 API — 从零跑通一个接口

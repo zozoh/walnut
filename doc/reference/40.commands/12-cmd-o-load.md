@@ -116,4 +116,4 @@ o ~/categories @query @join_many -query -to items -limit 50
 # 延伸阅读
 
 - man cmd_o_read / cmd_o_children / cmd_o_tree / cmd_o_refer —— 参数权威
-- 14-cmd-o-context.md —— @enter / @flat 依赖的上下文机制
+- [cmd_o 操作上下文](14-cmd-o-context.md) —— @enter / @flat 依赖的上下文机制

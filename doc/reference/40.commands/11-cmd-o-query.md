@@ -95,4 +95,4 @@ o @get id1 id2 id3 @json '^(id|nm|len|mime)$' -cqn
 # 延伸阅读
 
 - man cmd_o_query / man cmd_o_get / man cmd_o_fetch —— 参数权威
-- 101.dev/21-write-sqlx-tmpl.md —— 条件 JSON 语法（AutoMatch）的完整定义
+- [编写 SQL 模板（sqlx）](../101.dev/21-write-sqlx-tmpl.md) —— 条件 JSON 语法（AutoMatch）的完整定义

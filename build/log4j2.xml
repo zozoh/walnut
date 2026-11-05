@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    
+    <Appenders>
+        <!-- 控制台输出 -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%5p[%t]%d{yyMMdd HH:mm:ss.SSS}{UTC}: %m%n"/>
+        </Console>
+    </Appenders>
+    
+    <Loggers>
+        <!-- 根日志记录器 -->
+        <Root level="warn">
+            <AppenderRef ref="Console"/>
+        </Root>
+        
+        <!-- 第三方库日志级别 -->
+        <Logger name="org.eclipse" level="info"/>
+        <Logger name="org.nutz" level="warn"/>
+        <Logger name="org.nutz.weixin" level="warn"/>
+        <Logger name="org.elasticsearch" level="debug"/>
+        
+        <!-- 自定义日志记录器 -->
+        <Logger name="MAIN" level="info"/>
+        <Logger name="IO" level="info"/>
+        <Logger name="AUTH" level="warn"/>
+        <Logger name="BOX" level="info"/>
+        <Logger name="HOOK" level="info"/>
+        <Logger name="CMD" level="debug"/>
+        <Logger name="SQL" level="info"/>
+        <Logger name="APP" level="info"/>
+        <Logger name="AC" level="info"/>
+        <Logger name="BG_CLEANER" level="info"/>
+        <Logger name="BG_TASK" level="debug"/>
+        <Logger name="BG_SCHEDULE" level="warn"/>
+        <Logger name="BG_CRON" level="warn"/>
+        <Logger name="TEST" level="debug"/>
+        
+        <!-- 如果需要为自定义日志器指定输出，取消注释并修改 -->
+        <!--
+        <Logger name="MAIN" level="info">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        -->
+    </Loggers>
+    
+</Configuration>

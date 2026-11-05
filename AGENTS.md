@@ -35,7 +35,7 @@ doc/
 |-- _old/         # 旧文档存档，内容已与源码脱节，不要引用
 ```
 
-- 知识文档之间的互跳链接尚未接通（冻结期），按 INDEX.md 的目录导航即可。
+- 知识文档之间已互通真实链接（正文里的 `[标题](相对路径.md)`），跟着链接读即可。
 - 命令的权威文档在源码旁的 `man/zh_cn/`，格式：简单命令一篇，复杂/过滤命令主文档 + 每子命令一篇。
 - 文档与源码冲突时，**以源码为准**；可顺手修正文档（遵守 `doc/skill/write-walnut-doc.skill.md`）。
 
@@ -61,7 +61,9 @@ login/   # 账户与会话；util/ alg/ val/ = 工具层
 - **`600.site-app/` 相关**（`cmd_www` 已删）
 - **`cmd_obj` 命令** → 用 **`cmd_o`** 代替（文档示例均已改用 `o`）
 - **`cmd_crontab`**（旧单文件定时器，标记 @deprecated，用 `cron` 三件套代替）
-- `bin/ client/ gradle/ build.py jdbc/` 基本弃用；`.gitignore` 忽略的文件都不用看
+- `client/ gradle/ build.py jdbc/` 基本弃用；`.gitignore` 忽略的文件都不用看
+- 例外：`bin/` 目录已复活为**智能体自动化测试的公共工具集**
+  （wn-ping/wn-up/wn-down/wn-cli/walnut-at-init），见 `doc/reference/102.auto-test/`
 
 ## 上手建议
 

@@ -82,5 +82,5 @@ curl 'http://localhost:8080/api/root/hello?name=walnut'
 
 ## 下一步
 
-- 10-api-object：API 对象全部元数据与行为定制
-- 20-request-object：请求对象元数据全集
+- [API 对象：一个文件一个接口](../50.regapi/10-api-object.md)：API 对象全部元数据与行为定制
+- [请求对象：一次请求一个对象](../50.regapi/20-request-object.md)：请求对象元数据全集

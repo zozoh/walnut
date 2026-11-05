@@ -22,7 +22,7 @@ related: [README, 60-auth-otp]
 **人机验证码 captcha** 干一件事：区分人和机器。批量注册、撞库、刷短信的
 机器人，必须在敏感操作前被拦下来。OTP 负责「确认账号归属」，captcha 负责
 「挡机器人」，两者独立成服务、由业务编排串联（协作流程见本文最后一节，
-OTP 本身见 60-auth-otp）。
+OTP 本身见 [动态密码 OTP](60-auth-otp.md)）。
 
 它也不依赖会话——验证发生时，往往还没登录呢。
 
@@ -254,7 +254,7 @@ OTP 本身的发送时机由具体业务决定（登录场景里，用户名密�
 
 > 多租户场景下，captcha / OTP / mailx 的配置目录取谁家、登录接口用
 > 哪套权鉴（系统权鉴 / 域权鉴），由登录模式决定——规则见
-> 62-auth-with-captcha-otp。
+> [captcha 与 OTP 的登录协同](62-auth-with-captcha-otp.md)。
 
 # tianai 实现
 
@@ -394,4 +394,4 @@ ImageCaptchaApplication app = TACBuilder.builder()
 
 # 扩展阅读
 
-- 60-auth-otp — 动态密码 OTP 服务：生成、存储（Redis）、邮件发送的完整机制
+- [动态密码 OTP](60-auth-otp.md) — 动态密码 OTP 服务：生成、存储（Redis）、邮件发送的完整机制
