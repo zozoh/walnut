@@ -259,6 +259,9 @@ public class WnSetup implements Setup {
         //
         Runnable bgTask = new WnBgRunTaskConsumer(conf, sf, run, rootSession);
         this.bgtTask = new Thread(bgTask, "BGT_TASK");
+        // 守护线程：destroy 里会 interrupt+join(5s) 优雅停机；
+        // 万一中断被吞，也不至于让 JVM 永远退不出（语义等同此前的 taskkill 兜底）
+        this.bgtTask.setDaemon(true);
         this.bgtTask.start();
         log.infof("--> THREAD: %s started", this.bgtTask.getName());
         rt.props().put("BGT_TASK", true);
@@ -272,6 +275,7 @@ public class WnSetup implements Setup {
             //
             Runnable bgSchedule = new WnBgRunScheduleConsumer(sf);
             this.bgtSchedule = new Thread(bgSchedule, "BGT_SCHEDULE");
+            this.bgtSchedule.setDaemon(true);
             this.bgtSchedule.start();
             log.infof("--> THREAD: %s started", this.bgtSchedule.getName());
             rt.props().put("BGT_SCHEDULE", true);
@@ -282,6 +286,7 @@ public class WnSetup implements Setup {
             int amount = conf.getInt("sys-cron-preload-amount", 5);
             Runnable bgCron = new WnBgRunCronConsumer(sf, amount);
             this.bgtCron = new Thread(bgCron, "BGT_CRON");
+            this.bgtCron.setDaemon(true);
             this.bgtCron.start();
             log.infof("--> THREAD: %s started", this.bgtCron.getName());
             rt.props().put("BGT_CRON", true);
@@ -356,6 +361,33 @@ public class WnSetup implements Setup {
             setup.destroy(nc);
         // 关闭所有运行的沙箱
         boxes.shutdown();
+        // 中断后台线程：它们的主循环都对 InterruptedException 敏感
+        // （TASK/SCHEDULE 睡在有超时的 wait 上，CRON 用可中断的 wait），
+        // 收到中断后会打印 "quit safely" 并结束。
+        // join 带超时：个别任务线程若吞掉中断，不阻塞整个停机流程。
+        __stopBgtThread(this.bgtTask, "BGT_TASK");
+        __stopBgtThread(this.bgtSchedule, "BGT_SCHEDULE");
+        __stopBgtThread(this.bgtCron, "BGT_CRON");
+    }
+
+    private static void __stopBgtThread(Thread t, String name) {
+        if (null == t || !t.isAlive()) {
+            return;
+        }
+        log.infof("interrupt %s ...", name);
+        t.interrupt();
+        try {
+            t.join(5000);
+        }
+        catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        if (t.isAlive()) {
+            log.warnf("%s still alive after 5s, give up waiting (daemon killer will handle)",
+                      name);
+        } else {
+            log.infof("%s stopped", name);
+        }
     }
 
     /**

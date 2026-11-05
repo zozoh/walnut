@@ -71,7 +71,9 @@ public class WnExpiObjTableCleaner implements Atom {
                         log.warnf("something wrong!", e);
                 }
                 // 休息一个时间间隔
-                Wlang.quiteSleep(sleepInterval);
+                // 用带锁的 wait 而不是 quiteSleep：可被中断，
+                // destroy 的 interrupt 能立刻唤醒并走外层 InterruptedException 退出
+                Wlang.wait(this, sleepInterval);
             }
         }
         catch (InterruptedException e) {

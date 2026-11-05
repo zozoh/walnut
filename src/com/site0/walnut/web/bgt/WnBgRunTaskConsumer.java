@@ -144,6 +144,9 @@ public class WnBgRunTaskConsumer implements Runnable {
                             }
                         }
                     }, threadName);
+                    // 守护线程：极端情况下（任务内部吞掉中断）也不阻塞 JVM 退出，
+                    // 语义与此前 taskkill 兜底等价
+                    _rt.setDaemon(true);
                     _rt_list.add(_rt);
                 }
 
@@ -153,10 +156,18 @@ public class WnBgRunTaskConsumer implements Runnable {
                     t.start();
                 }
 
-                // 等待线程执行完毕
+                // 等待线程执行完毕（每个最多等 3 秒；停机中断会立刻打断 join）
                 log.infof("join thread x %d", N);
                 for (Thread t : _rt_list) {
-                    t.join();
+                    t.join(3000);
+                }
+                // 还没跑完的补发中断：任务执行内部吞中断属于尽力而为，
+                // 但它们是守护线程，不会再拖住 JVM 退出
+                for (Thread t : _rt_list) {
+                    if (t.isAlive()) {
+                        log.infof("interrupt unfinished task thread: %s", t.getName());
+                        t.interrupt();
+                    }
                 }
 
                 // 处理线程的错误

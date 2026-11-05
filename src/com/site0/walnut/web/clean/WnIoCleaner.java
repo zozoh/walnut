@@ -40,7 +40,8 @@ public class WnIoCleaner implements Atom {
                         log.warnf("something wrong!", e);
                 }
                 // 休息一个时间间隔
-                Wlang.quiteSleep(60*1000);
+                // 用带锁的 wait 而不是 quiteSleep：可被中断（同 WnExpiObjTableCleaner）
+                Wlang.wait(this, 60 * 1000);
             }
         }
         catch (InterruptedException e) {

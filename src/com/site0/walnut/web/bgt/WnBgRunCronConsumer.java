@@ -101,7 +101,10 @@ public class WnBgRunCronConsumer implements Runnable {
                 if (log.isDebugEnabled()) {
                     log.debugf("sleep %dms", sleepMs);
                 }
-                Wlang.quiteSleep(sleepMs);
+                // 用带锁的 wait 而不是 quiteSleep：可被中断，
+                // 停机时 destroy 的 interrupt 能立刻唤醒它（InterruptedException
+                // 经 Wlang.wait 包成运行时异常，由外层 catch 识别后退出循环）
+                Wlang.wait(this, sleepMs);
             }
             // 看看是不是锁服务的错误
             catch (WnSysScheduleException e) {

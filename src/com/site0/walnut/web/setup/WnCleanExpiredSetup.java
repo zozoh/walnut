@@ -19,6 +19,8 @@ public class WnCleanExpiredSetup implements Setup {
         Ioc ioc = nc.getIoc();
         WnRun _run = ioc.get(WnRun.class);
         _t = new Thread(new WnIoCleaner(_run), "IO_CLEAN");
+        // 守护线程：destroy 已会 interrupt；万一中断被吞也不阻塞 JVM 退出
+        _t.setDaemon(true);
         _t.start();
 
         if (log.isInfoEnabled())

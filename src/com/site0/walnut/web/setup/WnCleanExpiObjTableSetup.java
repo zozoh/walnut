@@ -34,6 +34,8 @@ public class WnCleanExpiObjTableSetup implements Setup {
                                                              cleanLimit,
                                                              cleanHold);
         _t = new Thread(cn, "OBJ_EXPI_CLEANER");
+        // 守护线程：destroy 已会 interrupt；万一中断被吞也不阻塞 JVM 退出
+        _t.setDaemon(true);
         _t.start();
 
     }
