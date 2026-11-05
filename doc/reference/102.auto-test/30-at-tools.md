@@ -64,11 +64,15 @@ python bin/wn-up/wn-up.py --dist D:/workspace/git/github/zozoh/walnut/dist/wn4j 
 ```
 
 - 探活通 → 立即输出 `{"action":"reuse", ...}` 退出（0），不动现有实例。
-- 探活不通 → 调 dist 的 `sbin/start.cmd` 拉起（级别 3 时传入 `--conf`，
-  `--pid-dir` 原样透传），循环 wn-ping 直到就绪或 `--wait` 超时
-  （超时退出码 4）。
+- 探活不通 → 拉起实例（级别 3 传 `--conf`，`--pid-dir` 原样透传）。
+  启动脚本自动选择：产物里带 `sbin/start_with_redis.cmd`（构建时
+  `make.json` 的 `REDIS_SERVER` 非空才会生成）就调它——先按生效
+  conf 的 `redis-port` 拉私有 redis 进程再委托 `start.cmd`
+  （2/3 级完全数据隔离，机制见 [启动服务与建立测试域](20-at-setup.md)
+  的数据库隔离一节）；没有则用 `sbin/start.cmd` 直启。它打印的
+  数据源清单（redis/mongo/mysql/buck/swap）在 out.log 里可查。
 - 拉起前从 `.at/whoami.json`（或 `--who`）读取代号，经环境变量
-  `WN_AGENT_NAME` / `WN_WORK_PATH` 注入 start.cmd，写进运行锁文件
+  `WN_AGENT_NAME` / `WN_WORK_PATH` 注入启动脚本，写进运行锁文件
   （见 [启动服务与建立测试域](20-at-setup.md)）。
 - 就绪后若给了 `--creds`（含 `root_usr` / `root_passwd` 的 JSON），
   自动做空白节点初始化（机制见 [启动服务与建立测试域](20-at-setup.md) 的 init-node 一节），
@@ -83,14 +87,21 @@ python bin/wn-up/wn-up.py --dist D:/workspace/git/github/zozoh/walnut/dist/wn4j 
 
 ```bash
 python bin/wn-down/wn-down.py --dist .../dist/wn4j [--port 8090] \
-    [--timeout 15] [--pid-dir <run 目录>] [--who big-dad]
+    [--timeout 5] [--pid-dir <run 目录>] [--who big-dad]
 ```
 
 - 读 `run/pid-<port>.json`（`--pid-dir` 改目录），`agent`/`work_path`
   不是当前身份 → 拒绝停止（退出码 2，附明确理由）。
-- 发 `stop` 到 admin-port → 等进程退出 → 必要时 taskkill 兜底。
+- 发 `stop` 到 admin-port → 等进程退出（默认 5 秒）→ 必要时 taskkill 兜底。
+- 运行锁带 `redis_*` 字段（start_with_redis.cmd 拉起的私有 redis）→
+  停完 Walnut 后连带关闭：exe 模式 `redis-cli shutdown save`（先落
+  RDB 再退出）→ 等 20 秒 → taskkill 兜底；docker 模式
+  `docker stop <容器>` → 等 20 秒 → `docker kill` 兜底；并清理
+  `redis-<port>.json` 锁。
+  人类手动停止等价脚本是 `sbin/stop_with_redis.cmd`（先委托
+  `stop.cmd`，再关私有 redis；`stop.cmd` 本身不含 redis 逻辑）。
 - 输出 `{"action":"stop","gentle":true}` 或 `{"action":"stop","gentle":false}`
-  （走了强杀）。
+  （走了强杀）；停掉私有 redis 时附带 `"redis":{"pid":...,"gentle":true|false}`。
 
 ### wn-cli：Walnut 客户端
 
@@ -162,11 +173,19 @@ python bin/walnut-at-init/walnut-at-init.py [--name big-dad] \
 - 默认只初始化**客户端**：`whoami.json`、`client/session/`、`_ottl/`、
   样例手册（ATEST.md / LOCAL_REF.md 等）。
 - `--name` 建立身份牌；已有 `whoami.json` 时可省略，沿用旧代号。
-- `--with-server` 才生成 `.at/walnut/`（级别 3 私有服务器配置），
-  且**必须提供 build.rs.json**（查找顺序：`--rs` > 目标目录
-  `build.rs.json` > `{Walnut}/build/build.rs.json`），找不到就拒绝
-  （退出码 2）——智能体不能在没有用户确认过数据库配置的情况下
-  私自启用服务器。生成的 conf 把 buck/swap 指向 `.at/walnut/` 下。
+- `--with-server` 才生成 `.at/walnut/`（级别 3 私有服务器配置）与
+  `.at/redis/data/`（独立 redis 数据空间），且**必须提供
+  build.rs.json**（查找顺序：`--rs` > 目标目录 `build.rs.json` >
+  `{Walnut}/build/build.rs.json`），找不到就拒绝（退出码 2）——
+  智能体不能在没有用户确认过数据库配置的情况下私自启用服务器。
+  build.rs.json 只作**首次生成 conf 的素材**，不会被复制进
+  `.at/walnut/`：生成的 `.at/walnut/conf/web_local.properties`
+  即权威配置，之后改端口/db/桶目录直接改它。这份 conf 是**完整
+  自足**的——`app-root` / PASSWD_ONLY / `init-mnt` /
+  `mnt-file-allow`（白名单 = 本工作目录）全部自带（classpath 里私有
+  conf 排在 core/conf 之前，而内核默认那几项是开发者机器路径，缺了
+  Jetty 会拿 conf 目录当 webapp 根直接起不来）；生成的 conf 把
+  buck/swap 指向 `.at/walnut/` 下。
 - `--force` 刷新骨架样例文件，但仍不覆盖 `whoami.json` 与已有会话。
 - 重复运行全幂等：已存在的一律 `kept`，不会清空重来。
 

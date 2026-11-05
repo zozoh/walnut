@@ -62,12 +62,37 @@ dist/wn4j/
 |-- sbin/
 |   |-- start.cmd              # Windows 启动脚本（预置模板在 build/，构建时拷入）
 |   |-- stop.cmd               # Windows 停止脚本（同上）
-|-- run/               # 运行锁目录：pid-<port>.json（见 20-at-setup）
+|   |-- start_with_redis.cmd   # 测试工具（仅 make.json REDIS_SERVER 非空时生成）：
+|   |                            # 先按生效 conf 的 redis-port 拉私有 redis 进程，再委托 start.cmd
+|   |-- stop_with_redis.cmd    # 测试工具（同上条件生成）：委托 stop.cmd，再关闭私有 redis
+|-- run/               # 运行锁目录：pid-<port>.json、redis-<port>.json、redis-<port>.log
+|                     # （可丢的运行时状态；持久化数据一律在 Walnut 仓库 .at/ 下，见下）
 |-- WebContent/        # Jetty 的 web 根目录（JSP/Servlet 时代遗留，暂时照拷）
 ```
 
 **构建结束时脚本按上表逐项校验产物**，缺件或空目录即以非零退出并列出
 缺失项——智能体构建完看到 `ok` 就可以信任这个目录，不需要人工检查。
+
+### 二级启动的数据家：仓库 .at/
+
+dist 是程序目录，删掉重建不心疼；持久化数据一律落在 Walnut 仓库
+的 `.at/` 下（构建时自动创建）：
+
+```text
+<Walnut>/
+|-- .at/
+|   |-- walnut/       # 二级启动的数据（不是智能体工作目录，因此没有
+|   |   |-- buck/     #   client/、_ottl/、whoami.json）
+|   |   |-- swap/
+|   |-- redis/
+|   |   |-- data/     # 私有 redis 的 RDB 持久化（dump.rdb）
+|-- dist/
+|   |-- wn4j/         # 构建产物（程序，可随意删除重建）
+```
+
+级别 3 的对应物在智能体工作目录里（见
+[工作目录测试准备](40-at-project.md)）：`<work>/.at/walnut/{buck,swap}`
+与 `<work>/.at/redis/data/`。
 
 ## 配置双层结构
 
@@ -110,21 +135,51 @@ start.cmd [--conf <配置目录>] [--pid-dir <运行锁目录>]
   "redis": {"host": "127.0.0.1", "port": 6379, "db": 9, "passwd": ""},
   "mysql": {"host": "127.0.0.1", "port": 3306, "usr": "root", "passwd": ""},
   "app-port": 8090,
-  "buck": "auto",   // 或绝对路径；auto = 产物 run/buck 下
-  "swap": "auto"    // 同上
+  "buck": "auto",   // 或绝对路径；auto = Walnut 仓库 .at/walnut/buck
+  "swap": "auto"    // 同上（.at/walnut/swap）——dist 是程序目录，
+                    // 可随意删除重建；持久化数据一律放仓库 .at/ 下
 }
 ```
 
 - 智能体构建前必须确保该文件存在，并向用户**确认里面的连接信息是
   正确的**（这是守则里的"必须请示"项）。用法：复制
   `build/build-example.rs.json` 为 `build/build.rs.json` 后按本机修改。
-- 配置在构建时注入产物的 `conf/web_local.properties`（mongo-db /
-  redis-database / global-bm-bucket / global-bm-swap 等），因此
-  **级别 2 启动天然与开发者的实例隔离**——前提是这里填的库不是
-  开发者正在用的那个。
-- 级别 3 时智能体在自己的工作目录复刻这份文件（如
-  `.at/walnut/build.rs.json`），同样要先向用户确认，再走
-  `walnut-at-init --with-server`（见 [工作目录测试准备](40-at-project.md)）。
+- 配置在构建时落地到 `conf/web_local.properties`（mongo-host/
+  mongo-db/redis-host/redis-port/redis-database/global-bm-* 等），
+  因此**级别 2 启动天然与开发者的实例隔离**——前提是这里填的库
+  不是开发者正在用的那个。`web_local.properties` 只承载 Walnut
+  自己需要的东西。
+- **redis-server 来源**不在 `build.rs.json` 里，而在构建配置
+  `make.json` 的 **`REDIS_SERVER`**（留空 = 不生成私有 redis 脚本）。
+  它是**测试工具**需要的信息，与 Walnut 无关；构建时烘焙进
+  `sbin/start_with_redis.cmd`，REDIS_SERVER 为空则**不生成**
+  `start_with_redis.cmd` / `stop_with_redis.cmd` 这一对脚本
+  （产物里就只有 start/stop.cmd）。两种形态：
+  - **exe 路径**：`"REDIS_SERVER": "D:/opt/redis/redis-server.exe"`——
+    直接拉起本机 redis-server 进程（Windows 便携版功能老旧时的退路）。
+  - **Docker 镜像**：`"REDIS_SERVER": "Docker:redis<sha256:bdff...>=wn4j-redis-L2"`
+    ——格式为 `Docker:<镜像名><sha256:...>=<容器名>`，用本机 Docker
+    启动一个按 sha256 钉死的 redis 容器（Windows 版功能老旧不全时的
+    推荐形态）。镜像必须已在本机（不自动 pull），容器名固定，
+    启动时按生效 conf 的 `redis-port` 做端口映射；停止时
+    `docker stop`（先落 RDB 再退出）。
+  私有 redis 的端口/db/密码由测试方在生效的 `web_local.properties`
+  里指明（级别 3 在自己私有 conf 里覆盖 `redis-port` 即可）。
+  **RDB 数据目录不在 dist 里**（程序目录，删了不心疼）：
+  - **级别 2**（默认 conf）：`<Walnut>/.at/redis/data/`
+    （`WALNUT_AT` 路径构建时烘焙进脚本）
+  - **级别 3**（`--conf`）：智能体工作目录的 `.at/redis/data/`
+    （由 conf 目录位置推导：`<conf>\..\..`）
+  **start.cmd / stop.cmd 本身永远只启停 Walnut 服务本身，不含
+  redis 逻辑**。完整机制见 [启动服务与建立测试域](20-at-setup.md)
+  的数据库隔离一节。
+- `mysql` 仅作信息记录（域内 .dao 配置参考，Walnut 本身不连接），
+  `start_with_redis.cmd` 启动时把 conf 里的 redis / mongo / mysql /
+  buck / swap 全部数据源打到控制台（mysql 行仅在 conf 配了
+  `mysql-*` 键时出现），供启动方核对隔离是否生效。
+- 级别 3 时智能体在自己的私有 conf 目录里覆盖 `app-port` /
+  `redis-port` 等键即可，不用复制 `build.rs.json`（见
+  [工作目录测试准备](40-at-project.md)）。
 
 ## 构建脚本的修改清单
 
@@ -134,16 +189,21 @@ start.cmd [--conf <配置目录>] [--pid-dir <运行锁目录>]
   相关逻辑——titanium 前端库已废弃，产物里不再有它
 - conf/ 产物由 `build/` 的模板生成：`web_local.properties` 写入
   PASSWD_ONLY 与自动计算的 mnt-file-allow，`log4j2.xml` 原样拷入
-- 把 `build/` 里预置的 start.cmd / stop.cmd 模板拷进产物的 sbin/，
-  并创建空的 `run/` 目录
+- 把 `build/` 里预置的 start.cmd / stop.cmd 模板拷进产物的 sbin/，并创建空的 `run/` 目录（start.cmd / stop.cmd 只启停 Walnut 本身）；`make.json` 的 `REDIS_SERVER` 非空时再把 `start_with_redis.cmd`（把 `@REDIS_SERVER@` / `@RD_DOCKER_IMAGE@` / `@RD_DOCKER_IMAGE_ID@` / `@RD_DOCKER_CONTAINER@` 占位符替换为实际值后写入）/`stop_with_redis.cmd` 也拷进 sbin/，否则不生成这一对（带 redis 的一对是测试工具，内部原样委托前者）
 - 保留原有的 Docker 镜像构建/上传逻辑不动；文档立场是智能体默认只
   构建 dist、不打包镜像、不发布（说明约束，不是删除功能）
 - 默认 OUT_DIST 指向 `<walnut>/dist/wn4j/`
 - 构建结束自动校验产物布局
 - 配置读取改为 `make.json`（缺省回退 `make-example.json`）
 - 新增 `build.rs.json` 运行时服务配置：构建 `--dist` 时必需，先于
-  一切文件操作加载校验（缺失即退出，不留半毁产物），并把
-  mongo/redis/桶目录等注入产物的 conf
+  一切文件操作加载校验（缺失即退出，不留半毁产物），把
+  mongo/redis/桶目录等注入产物的 conf；`make.json` 新增
+  `REDIS_SERVER`（私有 redis 来源：exe 路径或
+  `Docker:<镜像><sha256>=<容器>` 规格，留空不生成 with_redis
+  脚本），构建时烘焙进 `sbin/start_with_redis.cmd`；同时把
+  `@WALNUT_AT@`（仓库 .at/ 路径）烘焙进脚本与 conf 模板——
+  二级启动的持久化数据（buck/swap/redis RDB）全部落在仓库
+  `.at/` 下，dist 目录可以随意删除重建，数据不丢
 
 ## 主要代码类
 

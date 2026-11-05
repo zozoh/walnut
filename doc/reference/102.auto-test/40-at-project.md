@@ -26,12 +26,16 @@ related: [README, 20-at-setup, 30-at-tools, 50-at-rules]
 |-- .at/                  # Agent 测试工作目录（由 walnut-at-init 懒创建）
 |   |-- whoami.json       # 本智能体的代号与身份（walnut-at-init --name 生成）
 |   |-- walnut/           # 级别 3：服务器配置与私有数据目录（--with-server 才生成）
-|   |   |-- build.rs.json #   运行时服务配置副本（mongo/redis/端口等，先经用户确认）
 |   |   |-- buck/         #   global-bm-bucket
 |   |   |-- swap/         #   global-bm-swap
 |   |   |-- conf/
-|   |       |-- web_local.properties   # 本工程私有的 Walnut 配置（由 build.rs.json 生成）
+|   |       |-- web_local.properties   # 本工程私有的 Walnut 配置（首次由
+|   |       |                          #   build.rs.json 生成；之后它就是权威配置，
+|   |       |                          #   改端口/db/桶目录直接改这里，不回源）
 |   |       |-- log4j2.xml             # 日志配置
+|   |-- redis/
+|   |   |-- data/         # 级别 3 独立 redis 的 RDB 持久化（start_with_redis
+|   |                     #   从 --conf 推导到此；.gitignore 忽略内容）
 |   |-- client/
 |   |   |-- session/      # 会话缓存：se-00.json（默认工作会话），可多会话
 |   |-- _ottl/            # 本工作目录临时的测试工具（一次性的，别沉淀）
@@ -44,6 +48,12 @@ related: [README, 20-at-setup, 30-at-tools, 50-at-rules]
 公共工具（wn-ping / wn-up / wn-down / wn-cli / walnut-at-init）不在
 `.at/` 里，统一收在 Walnut 仓库的 `bin/` 目录下（见 [自动化测试工具](30-at-tools.md)），
 每个智能体直接用同一份；`.at/` 只放身份、会话、私有配置与一次性脚本。
+
+级别 2 的对应物不在工作目录，而在 Walnut 仓库根的 `.at/`
+（见 [构建 Walnut 测试服务](10-at-build.md) 的数据家一节）：
+`{Walnut}/.at/walnut/{buck,swap}` 与 `{Walnut}/.at/redis/data/`——
+那是二级启动的共享数据家，不是任何智能体的工作目录（没有
+whoami/client/_ottl 的私有积累）。
 
 `whoami.json` 由智能体开工时用 `walnut-at-init --name <代号>` 建立，
 此后 wn-up 登记实例、wn-down 核对所有权、同域协作互相识别，都凭这块
@@ -107,10 +117,12 @@ related: [README, 20-at-setup, 30-at-tools, 50-at-rules]
 ## 重要细节
 
 - `.at/whoami.json`、`.at/client/session/*.json` 含身份与凭据，
-  **必须 gitignore**；`_ottl/`、`walnut/buck/`、`walnut/swap/` 同样
-  忽略。骨架与样例手册可以提交，方便同伴复刻营地。
-- Walnut 仓库根的 `.at/` 是这套布局的官方样例：由 walnut-at-init
-  生成后提交，保证"样例即工具输出"，不会两套漂移。
+  **必须 gitignore**；`_ottl/`、`walnut/buck/`、`walnut/swap/`、
+  `walnut/conf/`、`redis/data/`（里面的 RDB 可能很大）同样忽略。
+  骨架与样例手册可以提交，方便同伴复刻营地。
+- Walnut 仓库根的 `.at/` 是**二级启动的数据家**（构建时自动创建
+  `walnut/{buck,swap}`、`redis/data/`），同时也是 `.at/` 布局的
+  骨架样例（`.gitkeep` 文件照常提交）；它不是智能体工作目录。
 
 # 扩展阅读
 

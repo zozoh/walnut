@@ -1,7 +1,7 @@
 ---
 title: 启动服务与建立测试域
 module: 102.auto-test
-keywords: [启动, 停止, admin-port, wn-ping, login_mode, adduser, 测试域, PASSWORD_ONLY, 票据, pid, whoami, init-node, 数据库隔离, build.rs.json]
+keywords: [启动, 停止, admin-port, wn-ping, login_mode, adduser, 测试域, PASSWORD_ONLY, 票据, pid, whoami, init-node, 数据库隔离, build.rs.json, 私有 redis, 数据源清单]
 source:
   - web/WnLauncher.java
   - web/setup/WnSetup.java
@@ -72,25 +72,66 @@ JVM，并把启动信息登记到**运行锁文件** `run/pid-<port>.json`（`--
   "agent": "big-dad",     // 来自 WN_AGENT_NAME 环境变量（wn-up 注入 whoami 代号）
   "work_path": "D:/work/myproj",  // 来自 WN_WORK_PATH（wn-up 注入）
   "conf_dir": "<dist>/conf",      // 实际生效的 conf 目录
-  "started_at": "2026-11-05T01:00:00"
+  "started_at": "2026-11-05T01:00:00",
+  "redis_pid": 23456,     // 私有 redis 进程（start_with_redis.cmd 拉起的；无则 null）
+  "redis_port": 6390,     // 私有 redis 端口
+  "redis_exe": "D:/opt/redis/redis-server.exe",
+  "redis_dir": "<Walnut>/.at/redis/data",  // 私有 redis RDB 持久化目录
+  "redis_pass": "",        // 私有 redis 密码（无密码为空串）
+  "redis_mode": "docker",  // exe = 本机进程 / docker = 容器（redis_container 为容器名）
+  "redis_container": "wn4j-redis-L2"
 }
 ```
 
 `agent` 与 `work_path` 两个字段是给人看的：哪个智能体起了这个实例、
-它的营地在哪，一目了然。人类手动启动时两字段留空。
+它的营地在哪，一目了然。人类手动启动时两字段留空。`redis_*` 字段
+由 `start_with_redis.cmd` 在启动后补登（见下文"数据库隔离"）：
+只有走私有 redis 启动才非空，`start.cmd` 直启的实例没有这些字段。
+
+`start_with_redis.cmd` 启动时会把全部数据源打到控制台，启动方一眼
+核对隔离是否生效：
+
+```text
+data sources:
+  redis: 127.0.0.1:6390 db=9 [private]
+    exe: D:/opt/redis/redis-server.exe
+    dir: D:/workspace/git/github/zozoh/walnut/.at/redis/data
+  mongo: 127.0.0.1:27017 db=walnut_wn4j
+  mysql: 127.0.0.1:3306 db=walnut usr=root [info only]   # 仅 conf 配了 mysql-* 键时打印
+  buck : D:/workspace/git/github/zozoh/walnut/.at/walnut/buck
+  swap : D:/workspace/git/github/zozoh/walnut/.at/walnut/swap
+```
+
+（级别 3 时 buck/swap/redis dir 指向智能体工作目录 `.at/` 下的对应
+路径；redis 数据源行按 REDIS_SERVER 烘焙来源显示 exe 或 img/ctr。）
 
 **停止优先走温柔路线**：nutz-web 的 WebServer 启动后会在 admin-port 上
-监听一个本地 socket（仅 127.0.0.1），收到一行 `stop` 就调用
-`server.stop()`——Jetty 停止时 `WnSetup` 的 destroy 会被调用，后台线程
-（BGT_TASK / BGT_SCHEDULE / BGT_CRON）得以体面收场。`stop.cmd` /
-`wn-down` 的完整流程：
+监听一个 socket（`new ServerSocket(port)` 绑所有网卡——名叫 localListen
+但并不 local，公网部署是个隐患），收到一行 `stop` 就调用
+`server.stop()`——Jetty 停止时 `WnSetup` 的 destroy 会被调用：
+**interrupt 三个 BGT 线程并 join 等待**（WnSetup.destroy），沙箱、IO 清洁、
+过期对象清洁线程也随之退出（约 1~5 秒），JVM 自然死亡，输出
+`gentle:true`。`stop.cmd` / `wn-down` 的完整流程：
 
 ```text
 读 run/pid-<port>.json → 确认 agent/work_path 是自己 →
 连接 127.0.0.1:admin_port 发送 "stop"
-  → 等待进程退出（默认 10 秒）
-  → 还活着？taskkill /PID（先不带 /F，再超时带 /F）兜底
+  → 等待进程退出（默认 5 秒）
+  → 还活着？taskkill /PID（先不带 /F，再超时带 /F）兜底（gentle:false）
 ```
+
+`stop.cmd` 只负责 Walnut 进程本身。若实例是 `start_with_redis.cmd`
+拉起的（运行锁带 `redis_*` 字段），停止走 `stop_with_redis.cmd`（或
+`wn-down`，两者等价）：先读锁里的 redis 字段 → 委托 `stop.cmd` →
+按 `redis_mode` 温柔关闭私有 redis——exe 模式 `redis-cli -p <port>
+shutdown save`（本机 Windows 版裸 SHUTDOWN 不落盘，必须显式 SAVE；
+redis 先落 RDB 再退出），docker 模式 `docker stop <容器>`（SIGTERM
+同样先落 RDB）→ 超时强杀兜底 → 删除 `redis-<port>.json` 运行锁。
+
+> 历史注记： destroy 曾经不中断 BGT 线程、清洁线程的睡眠又吞中断，
+> 导致温柔停止必然超时、永远走 taskkill 兜底。该缺陷已修复（内核
+> `WnSetup.destroy` / 三个 BGT 消费者 / 两个 Cleaner），正常停机应得
+> `gentle:true`；若仍出现 `gentle:false`，按异常处理——汇报，不要无视。
 
 找不到运行锁文件就不动手——**分不清是谁的实例，宁可不停**。
 级别 3 的多实例共存靠各自独立的 app-port / admin-port 错开。
@@ -149,12 +190,65 @@ root 密码的缺省值是构建配置里的 `root-init-passwd`；测试信息�
 
 ## 数据库隔离：2 级与 3 级的生命线
 
-无论哪一级，智能体用的 mongo / redis 都应该与开发者日常实例**不同库**，
-否则两边互相踩数据（桶文件是本地路径，共用库直接报
-`e.io.bm.LocalSha1BM.LostBucket`）。隔离的入口就是构建时的
-`build.rs.json`（见 [构建 Walnut 测试服务](10-at-build.md)）：级别 2 靠它选不同的 mongo-db /
-redis-database；级别 3 更进一步——每个智能体一套独立的库，从根上
-避免冲突。智能体构建或自建配置前，必须向用户确认这些连接信息。
+级别 2/3 的智能体实例必须与开发者日常实例**完全数据隔离**（级别 1
+复用开发者进程，天然共享）。隔离的**唯一配置来源是生效的
+`web_local.properties`**（构建时由 `build.rs.json` 注入产物 conf，
+级别 3 由智能体在自己的私有 conf 目录里覆盖，见
+[构建 Walnut 测试服务](10-at-build.md)）。各数据源的隔离方式不同：
+
+| 数据源 | 隔离方式 |
+|--------|----------|
+| redis | `start_with_redis.cmd` 拉起一个**私有 redis**，工作在生效 conf 的 `redis-port`（必须与开发者实例的 6379 错开，如 6390+），RDB 持久化到数据家（见下表）。redis 来源两种形态，由构建配置 `make.json` 的 `REDIS_SERVER` 烘焙进脚本：**exe 路径**（本机 redis-server 进程）或 **Docker 规格** `Docker:<镜像名><sha256:...>=<容器名>`（本机 Docker 按 sha256 钉死的镜像起固定容器名，镜像须已在本机、不自动 pull） |
+| mongo | 共享 mongod 进程，只换 `mongo-db` 库名 |
+| mysql | 共享 mysqld 进程，只换 `db` 库名（Walnut 本身不连 mysql，仅信息记录与域内 .dao 参考） |
+| buck / swap | `global-bm-bucket` / `global-bm-swap` 独立目录（auto = 数据家的 `walnut/buck`、`walnut/swap`） |
+
+**数据家**（持久化数据一律放这里，dist 是程序目录、删了不心疼）：
+
+| 级别 | buck / swap | redis RDB |
+|------|-------------|-----------|
+| 2（默认 conf） | `<Walnut>/.at/walnut/{buck,swap}` | `<Walnut>/.at/redis/data/`（`@WALNUT_AT@` 烘焙） |
+| 3（`--conf`） | `<work>/.at/walnut/{buck,swap}`（walnut-at-init 生成） | `<work>/.at/redis/data/`（由 conf 目录位置推导：`<conf>\..\..`） |
+
+**职责划分**（重要）：`start.cmd` / `stop.cmd` 永远只启停 Walnut
+服务本身，不含任何 redis 逻辑。redis 来源是**构建期**的
+`make.json REDIS_SERVER`（非空才生成 with_redis 脚本对，两种形态：
+exe 路径 / Docker 规格）；运行期需要的一切（端口/db/密码/mongo/桶
+目录）都从生效 conf 读——Walnut 的 `web_local.properties` 是唯一
+统一来源，不引入任何额外配置文件。
+
+**私有 redis 的运行时契约**（`start_with_redis.cmd` / `wn-up` 启动）：
+
+- 从生效 conf 读出 `redis-host` / `redis-port` / `redis-database` /
+  `redis-password` 等全部键（私有 conf 的覆盖优先于产物 conf），
+  打印全部数据源，随后检查 walnut 运行锁防双开。`redis-host` 不是
+  本机（127.0.0.1/localhost）时拒绝启动——私有 redis 只对本机有意义。
+- 先看 redis 运行锁 `run/redis-<port>.json`：锁在且进程活着 →
+  **直接复用**（它的 RDB 里可能已有数据，这正是我们要维持的持久化）；
+  锁不在而端口已被占用 → **拒绝启动**（分不清是谁的 redis，宁可不动）；
+  否则拉起 redis-server（工作目录即持久化目录，RDB 保持默认开启；
+  docker 模式创建等效容器），写锁，并用 redis-cli ping（exe）或
+  TCP 端口（docker）探测就绪。
+- docker 模式的容器复用有**两道校验**：宿主端口绑定必须等于生效 conf
+  的 `redis-port`，数据卷挂载点必须等于本次的数据目录——旧布局创建
+  的容器两项必居其一不匹配，拒绝并提示 `docker rm -f` 手动处理
+  （它的 RDB 还挂在旧目录里，人不介入不动它）。
+- 然后**原样委托 `start.cmd`** 启动 Walnut，成功后把
+  `redis_pid` / `redis_port` / `redis_exe` / `redis_dir` /
+  `redis_pass` 补登进 walnut 运行锁 `pid-<port>.json`——
+  `wn-down` 与 `stop_with_redis.cmd` 据此温柔关闭 redis。
+- `wn-up` 自动做这个选择：产物里带 `start_with_redis.cmd`（构建时
+  `make.json` 的 `REDIS_SERVER` 非空才会生成）就用它，否则用
+  `start.cmd`。智能体不需要关心差别，手册声明级别即可。
+- 级别 3 要完全隔离时，智能体只需在**自己的私有 conf** 里指明一个
+  空闲的 `redis-port`（以及 `app-port`），`start_with_redis.cmd
+  --conf <私有conf>` 即自动按该端口起私有 redis、RDB 落自己工作
+  目录的 `.at/redis/data/`。
+
+mongo/redis 换了库，两边也不能共用同一个**桶目录**（桶文件是本地
+路径，共用直接报 `e.io.bm.LocalSha1BM.LostBucket`），所以 buck/swap
+的独立目录是隔离的必要组成。智能体构建或自建配置前，必须向用户
+确认这些连接信息。
 
 ## 空白节点的首次初始化（init-node）
 
