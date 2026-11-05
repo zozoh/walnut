@@ -32,14 +32,17 @@ walnut.iml
 /build/build.rs.json
 /build/__pycache__/
 
-# 仓库根 .at 样例：敏感与运行时内容不提交
+# 仓库根 .at：二级启动的数据家（桶/swap/redis RDB）与敏感内容不提交。
+# .at 同时也作为 .at/ 布局的样例（.gitkeep 骨架照常提交）——
+# 但它不是任何智能体的工作目录：没有 whoami/client/_ottl 的私有积累
 /.at/whoami.json
 /.at/credentials*.json
 /.at/client/session/*.json
 /.at/walnut/buck/
 /.at/walnut/swap/
 /.at/walnut/conf/
-/.at/walnut/build.rs.json
+/.at/redis/data/*
+!/.at/redis/data/.gitkeep
 /.at/_ottl/*
 !/.at/_ottl/.gitkeep
 .settings

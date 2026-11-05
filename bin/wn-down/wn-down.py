@@ -7,15 +7,19 @@ wn-down — 温柔停止一个 Walnut 实例
     1. 读运行锁 run/pid-<port>.json，核对归属（agent/work_path 必须是自己）
        - 运行锁缺失/归属不符 → 拒绝（退出 2），宁可不停
     2. 连 127.0.0.1:admin_port 发送 "stop"（温柔，触发 WnSetup destroy）
-    3. 等待进程退出（--timeout 秒）
+    3. 等待进程退出（--timeout 秒，默认 5）
     4. 兜底：先温和 taskkill，再 taskkill /F
+    5. 若运行锁带 redis_pid / redis_container
+       （start_with_redis.cmd 拉起的私有 redis）：
+       exe 模式: redis-cli shutdown save（先落 RDB）→ 等退出 → taskkill 兜底
+       docker 模式: docker stop <容器> → 等退出 → docker kill 兜底
 
 用法:
     python wn-down.py --dist <dist/wn4j 路径> [--port N] \
-        [--pid-dir <run 目录>] [--timeout 15] [--who 代号]
+        [--pid-dir <run 目录>] [--timeout 5] [--who 代号]
 
 退出码: 0 停止成功；1 用法错误；2 拒绝停止（归属不符/锁缺失）
-输出: {"action":"stop","gentle":true|false,"pid":...}
+输出: {"action":"stop","gentle":true|false,"pid":...,"redis":{...}|null}
 
 文档: doc/reference/102.auto-test/30-at-tools.md
 """
@@ -23,6 +27,7 @@ wn-down — 温柔停止一个 Walnut 实例
 import argparse
 import json
 import os
+import shutil
 import socket
 import subprocess
 import sys
@@ -90,12 +95,110 @@ def kill_pid(pid):
                 pass
 
 
+def find_docker():
+    """docker 可执行文件：PATH 优先，再回退 Docker Desktop 默认安装位。"""
+    w = shutil.which("docker")
+    if w:
+        return w
+    for c in (r"C:\Program Files\Docker\Docker\resources\bin\docker.exe",):
+        if Path(c).exists():
+            return c
+    return None
+
+
+def stop_docker_redis(info, pid_dir):
+    """停止 docker 模式的私有 redis（运行锁里的 redis_container 字段）。
+
+    温柔路线：docker stop（redis 镜像收到 SIGTERM 会先落 RDB 再退出）；
+    docker 不可用或失败 → 等 20 秒 → docker kill 兜底。
+    返回 {"pid":容器名, "gentle":true|false} 或 None（锁里没有容器名）。
+    """
+    container = info.get("redis_container") or ""
+    if not container:
+        return None
+    redis_port = int(info.get("redis_port") or 0)
+    docker = find_docker()
+
+    def running():
+        if not docker:
+            return False
+        r = subprocess.run([docker, "inspect", "-f", "{{.State.Running}}",
+                            container], capture_output=True, text=True,
+                           timeout=30)
+        return r.stdout.strip() == "true"
+
+    if docker:
+        try:
+            subprocess.run([docker, "stop", "-t", "20", container],
+                           capture_output=True, timeout=90)
+        except (OSError, subprocess.TimeoutExpired):
+            pass
+    deadline = time.time() + 20
+    while time.time() < deadline and running():
+        time.sleep(1)
+    gentle = not running()
+    if not gentle and docker:
+        subprocess.run([docker, "kill", container], capture_output=True)
+        gentle = not running()
+    if redis_port:
+        (pid_dir / ("redis-%d.json" % redis_port)).unlink(missing_ok=True)
+    return {"pid": container, "gentle": gentle}
+
+
+def stop_private_redis(info, pid_dir):
+    """停止 start_with_redis.cmd 拉起的私有 redis（运行锁里的 redis_* 字段）。
+
+    exe 模式：redis-cli -p <port> shutdown save（本机 Windows 版 redis 的
+    裸 SHUTDOWN 不落盘，必须显式 SAVE；redis 会先落 RDB 再退出，
+    持久化不丢）；cli 找不到或失败 → 等 20 秒 → taskkill 兜底。
+    docker 模式：转 stop_docker_redis。
+    返回 {"pid":..., "gentle":true|false} 或 None（锁里没有私有 redis）。
+    """
+    if (info.get("redis_mode") or "exe") == "docker":
+        return stop_docker_redis(info, pid_dir)
+    redis_pid = int(info.get("redis_pid") or 0)
+    if not redis_pid:
+        return None
+    redis_port = int(info.get("redis_port") or 0)
+    redis_exe = info.get("redis_exe") or ""
+    redis_pass = info.get("redis_pass") or ""
+
+    cli = None
+    if redis_exe:
+        c = Path(redis_exe).parent / "redis-cli.exe"
+        if c.exists():
+            cli = c
+    if cli is None:
+        w = shutil.which("redis-cli")
+        if w:
+            cli = Path(w)
+    if cli and redis_port:
+        a = [str(cli), "-p", str(redis_port)]
+        if redis_pass:
+            a += ["-a", redis_pass]
+        a += ["shutdown", "save"]
+        try:
+            subprocess.run(a, capture_output=True, timeout=20)
+        except (OSError, subprocess.TimeoutExpired):
+            pass
+    deadline = time.time() + 20
+    while time.time() < deadline and pid_alive(redis_pid):
+        time.sleep(1)
+    gentle = not pid_alive(redis_pid)
+    if not gentle:
+        kill_pid(redis_pid)
+    # 清理 redis 运行锁（stale 也一并清掉）
+    if redis_port:
+        (pid_dir / ("redis-%d.json" % redis_port)).unlink(missing_ok=True)
+    return {"pid": redis_pid, "gentle": gentle}
+
+
 def main():
     ap = argparse.ArgumentParser(description="停止 Walnut 实例")
     ap.add_argument("--dist", required=True, help="dist/wn4j 目录")
     ap.add_argument("--port", type=int, help="实例端口（缺省取 run/ 里唯一的锁文件）")
     ap.add_argument("--pid-dir", help="运行锁目录（缺省 <dist>/run）")
-    ap.add_argument("--timeout", type=int, default=15, help="温柔停止等待秒数")
+    ap.add_argument("--timeout", type=int, default=5, help="温柔停止等待秒数")
     ap.add_argument("--who", help="智能体代号（缺省读 .at/whoami.json）")
     args = ap.parse_args()
 
@@ -146,9 +249,13 @@ def main():
     # agent 为空 = 人类手动启动；who 为空的人类也允许停
 
     if not pid_alive(pid):
+        redis = stop_private_redis(info, pid_dir)
         pid_file.unlink(missing_ok=True)
-        print(json.dumps({"ok": True, "action": "stop", "gentle": True,
-                          "pid": pid, "note": "进程本已退出"}, ensure_ascii=False))
+        out = {"ok": True, "action": "stop", "gentle": True,
+               "pid": pid, "note": "进程本已退出"}
+        if redis:
+            out["redis"] = redis
+        print(json.dumps(out, ensure_ascii=False))
         return EXIT_OK
 
     gentle = True
@@ -168,9 +275,12 @@ def main():
         gentle = False
         kill_pid(pid)
 
+    redis = stop_private_redis(info, pid_dir)
     pid_file.unlink(missing_ok=True)
-    print(json.dumps({"ok": True, "action": "stop", "gentle": gentle, "pid": pid},
-                     ensure_ascii=False))
+    out = {"ok": True, "action": "stop", "gentle": gentle, "pid": pid}
+    if redis:
+        out["redis"] = redis
+    print(json.dumps(out, ensure_ascii=False))
     return EXIT_OK
 
 

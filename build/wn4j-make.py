@@ -21,6 +21,13 @@ build/wn4j-make.py — Walnut 构建脚本
     build/make-example.json 共享模板（make.json 缺失时回退）
     build/build.rs.json     运行时服务配置 mongo/redis/桶（.gitignore，打包 dist 必需，
                             缺失即报错；模板见 build/build-example.rs.json）
+    make.json 的 REDIS_SERVER: 私有 redis 来源；非空 = 产物生成
+                            start/stop_with_redis.cmd 测试脚本（2/3 级完全数据
+                            隔离用），并把来源烘焙进脚本；留空 = 不生成。
+                            两种形态:
+                              exe 路径    D:/opt/redis/redis-server.exe
+                              Docker 镜像 Docker:<镜像名><sha256:...>=<容器名>
+                              例 Docker:redis<sha256:bdff...>=wn4j-redis-L2
 
 约定:
     - 本脚本住在 Walnut 仓库的 build/ 目录里，仓库根 = 本脚本的上一级
@@ -119,6 +126,33 @@ if not os.path.isabs(OUT_DIST):
     OUT_DIST = str(D_WN / OUT_DIST)
 JAVA_HOME = Conf.get("JAVA_HOME", "")
 MVN_CMD = Conf.get("MVN_CMD", "mvn")
+# redis-server 来源：非空 = 产物生成 start/stop_with_redis.cmd 测试脚本
+# （私有 redis 进程生命周期，供 2/3 级完全数据隔离）；留空 = 不生成。
+# 两种形态：
+#   1) exe 路径      D:/opt/redis/redis-server.exe
+#   2) Docker 镜像   Docker:<image><sha256:...>=<container>
+#      例: Docker:redis<sha256:bdff...>=wn4j-redis-L2
+RD_SERVER = (Conf.get("REDIS_SERVER", "") or "").strip()
+RD_EXE = ""
+RD_DOCKER_IMAGE = ""
+RD_DOCKER_IMAGE_ID = ""
+RD_DOCKER_CONTAINER = ""
+if RD_SERVER:
+    _m = re.match(r"(?i)^Docker:(.+)<([^<>]+)>=\s*([^=<>]+?)\s*$", RD_SERVER)
+    if _m:
+        RD_DOCKER_IMAGE = _m.group(1).strip()
+        RD_DOCKER_IMAGE_ID = _m.group(2).strip()
+        RD_DOCKER_CONTAINER = _m.group(3).strip()
+        if not (RD_DOCKER_IMAGE and RD_DOCKER_IMAGE_ID and RD_DOCKER_CONTAINER):
+            print("!!! REDIS_SERVER 的 Docker 形态解析失败: %s" % RD_SERVER)
+            print("!!! 正确格式: Docker:<镜像名><sha256:...>=<容器名>")
+            sys.exit(1)
+    elif re.match(r"(?i)^docker:", RD_SERVER):
+        print("!!! REDIS_SERVER 的 Docker 形态解析失败: %s" % RD_SERVER)
+        print("!!! 正确格式: Docker:<镜像名><sha256:...>=<容器名>")
+        sys.exit(1)
+    else:
+        RD_EXE = RD_SERVER.replace("\\", "/")
 
 # ============================================================
 # 运行时服务配置 build.rs.json（打包 dist 时必需）
@@ -149,6 +183,11 @@ UP_DEPS_URI = "".join([UP_HOST, UP_DEPS])
 
 D_OUT = Path(OUT_DIST)
 D_WN_TARGET = D_WN / "target"
+
+# 二级启动（默认 conf）的数据家：Walnut 仓库 .at/ 目录——
+# dist 是程序目录（删了不心疼），持久化数据（桶/swap/redis RDB）
+# 全部落在这里；运行锁与日志仍是可丢状态，留在产物 run/ 下
+WALNUT_AT = D_WN / ".at"
 
 # ============================================================
 # 产物布局契约: (相对 dist 的路径, 校验方式)
@@ -269,31 +308,36 @@ def do_dist():
         print("!!! 请先运行: python build/wn4j-make.py --mvn")
         sys.exit(1)
 
-    # 重建输出目录
+    # 重建产物：dist 是程序目录，整目录删除重建，数据不在里面（见 WALNUT_AT）
     if D_OUT.exists():
         shutil.rmtree(str(D_OUT))
     D_OUT.mkdir(parents=True)
     for d in ["conf", "core", "sbin", "deps", "ROOT", "run"]:
         (D_OUT / d).mkdir()
 
-    # --- conf: 模板改写 ---
+    # 确保二级启动的数据目录存在（桶/swap/redis RDB）
+    for d in ["walnut/buck", "walnut/swap", "redis/data"]:
+        (WALNUT_AT / d).mkdir(parents=True, exist_ok=True)
+
+    # --- conf: 模板改写（只注入 Walnut 连接信息，私有 redis 进程配置给测试工具链，见下）---
     mnt_allow = calc_mnt_file_allow()
+    mo, rd = rs.get("mongo", {}), rs.get("redis", {})
     tpl = (D_BIN / "web_local.properties").read_text(encoding="utf-8")
     gen = (tpl.replace("@DIST_HOME@", str(D_OUT).replace(os.sep, "/"))
+              .replace("@WALNUT_AT@", str(WALNUT_AT).replace(os.sep, "/"))
               .replace("@MNT_FILE_ALLOW@", mnt_allow)
-              .replace("@MONGO_HOST@", str(rs.get("mongo", {}).get("host", "127.0.0.1")))
-              .replace("@MONGO_PORT@", str(rs.get("mongo", {}).get("port", 27017)))
-              .replace("@MONGO_DB@", str(rs.get("mongo", {}).get("db", "walnut_wn4j")))
-              .replace("@REDIS_HOST@", str(rs.get("redis", {}).get("host", "127.0.0.1")))
-              .replace("@REDIS_PORT@", str(rs.get("redis", {}).get("port", 6379)))
-              .replace("@REDIS_DB@", str(rs.get("redis", {}).get("db", 9))))
+              .replace("@MONGO_HOST@", str(mo.get("host", "127.0.0.1")))
+              .replace("@MONGO_PORT@", str(mo.get("port", 27017)))
+              .replace("@MONGO_DB@", str(mo.get("db", "walnut_wn4j")))
+              .replace("@REDIS_HOST@", str(rd.get("host", "127.0.0.1")))
+              .replace("@REDIS_PORT@", str(rd.get("port", 6379)))
+              .replace("@REDIS_DB@", str(rd.get("db", 9))))
     # 可选：mongo/redis 认证
-    mo, rd = rs.get("mongo", {}), rs.get("redis", {})
     if mo.get("usr"):
         gen += "\nmongo-usr=%s\nmongo-pwd=%s" % (mo["usr"], mo.get("passwd", ""))
     if rd.get("passwd"):
         gen += "\nredis-password=%s" % rd["passwd"]
-    # 可选：自定义桶/交换目录（默认在产物 run/ 下）
+    # 可选：自定义桶/交换目录（默认 = Walnut 仓库 .at/walnut/ 下，见模板 @WALNUT_AT@）
     if rs.get("buck") and rs["buck"] != "auto":
         gen = re.sub(r"^global-bm-bucket=.*$",
                      "global-bm-bucket=%s" % rs["buck"], gen, flags=re.M)
@@ -304,7 +348,7 @@ def do_dist():
     shutil.copyfile(str(D_BIN / "log4j2.xml"),
                     str(D_OUT / "conf" / "log4j2.xml"))
     print(" ++ conf/ (web_local.properties 已生成, mnt-file-allow=%s, mongo-db=%s, redis-db=%s)"
-          % (mnt_allow, rs.get("mongo", {}).get("db"), rs.get("redis", {}).get("db")))
+          % (mnt_allow, mo.get("db"), rd.get("db")))
 
     # --- core: 内核配置（剔除个人 web_local.properties）+ jar ---
     shutil.copytree(str(D_WN / "conf"), str(D_OUT / "core" / "conf"),
@@ -328,6 +372,22 @@ def do_dist():
     # --- sbin: 启停脚本模板 ---
     shutil.copyfile(str(D_BIN / "start.cmd"), str(D_OUT / "sbin" / "start.cmd"))
     shutil.copyfile(str(D_BIN / "stop.cmd"), str(D_OUT / "sbin" / "stop.cmd"))
+    # start/stop_with_redis.cmd 是测试工具（私有 redis 进程生命周期），
+    # 仅在 make.json 的 REDIS_SERVER 非空时生成，并把程序路径烘焙进脚本；
+    # 留空 = 产物不带私有 redis 能力，wn-up 走 start.cmd 直启
+    if RD_SERVER:
+        swr = (D_BIN / "start_with_redis.cmd").read_text(encoding="utf-8")
+        swr = (swr.replace("@REDIS_SERVER@", RD_EXE)
+                  .replace("@RD_DOCKER_IMAGE@", RD_DOCKER_IMAGE)
+                  .replace("@RD_DOCKER_IMAGE_ID@", RD_DOCKER_IMAGE_ID)
+                  .replace("@RD_DOCKER_CONTAINER@", RD_DOCKER_CONTAINER)
+                  .replace("@WALNUT_AT@", str(WALNUT_AT).replace(os.sep, "/")))
+        (D_OUT / "sbin" / "start_with_redis.cmd").write_text(swr, encoding="utf-8")
+        shutil.copyfile(str(D_BIN / "stop_with_redis.cmd"),
+                        str(D_OUT / "sbin" / "stop_with_redis.cmd"))
+        print(" ++ sbin/ (start/stop, start/stop_with_redis, redis=%s)" % RD_SERVER)
+    else:
+        print(" ++ sbin/ (start/stop; REDIS_SERVER 为空，不生成 with_redis 脚本)")
 
     # --- WebContent ---
     shutil.copytree(str(D_WN / "WebContent"), str(D_OUT / "WebContent"))

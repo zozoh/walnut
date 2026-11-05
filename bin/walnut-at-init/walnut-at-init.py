@@ -7,10 +7,13 @@ walnut-at-init — Agent 测试工作目录（.at/）脚手架
 生成 .at/whoami.json（身份牌）、.at/client/（会话缓存）、
 .at/_ottl/（一次性测试工具）、ATEST.md / LOCAL_REF.md 手册样例。
 
-只有显式加 --with-server 才生成 .at/walnut/（级别 3 私有服务器配置），
-且必须提供运行时服务配置 build.rs.json（--rs > ./build.rs.json >
-{Walnut}/build/build.rs.json）。没有它就不允许启用服务器 ——
-智能体不能私自起服务器，这是默认行为，也是我们希望的行为。
+只有显式加 --with-server 才生成 .at/walnut/（级别 3 私有服务器配置）与
+.at/redis/data/（独立 redis 数据空间），且必须提供运行时服务配置
+build.rs.json（--rs > ./build.rs.json > {Walnut}/build/build.rs.json）——
+它只作首次生成 conf 的素材，不会被复制进 .at/；生成后
+.at/walnut/conf/web_local.properties 即权威配置，直接改它。
+没有 build.rs.json 就不允许启用服务器 —— 智能体不能私自起服务器，
+这是默认行为，也是我们希望的行为。
 
 本工具是**懒惰**的：要创建的文件/目录已存在就跳过，绝不重置
 已有的测试经验与工具积累。需要重置时，人类手动删除。
@@ -48,7 +51,8 @@ GITIGNORE_BLOCK = """
 .at/walnut/conf/
 .at/walnut/buck/
 .at/walnut/swap/
-.at/walnut/build.rs.json
+.at/redis/data/*
+!.at/redis/data/.gitkeep
 .at/_ottl/*
 !.at/_ottl/.gitkeep
 """
@@ -110,12 +114,28 @@ def resolve_rs(work: Path, rs_arg):
 
 
 def gen_server_conf(rs: dict, work: Path) -> str:
-    """由 build.rs.json 生成级别 3 私有 web_local.properties。"""
+    """由 build.rs.json 生成级别 3 私有 web_local.properties。
+
+    生成后本文件即权威配置——改端口/db/桶目录直接改这里，
+    不再回源 build.rs.json（它只是首次生成的素材）。
+    注意这份 conf 必须**完整自足**：classpath 里它排在 core/conf
+    之前，缺了的键不会按预期回退（内核默认 app-root/init-mnt 是
+    开发者机器路径，缺了 Jetty 会拿 conf 目录当 webapp 根直接起不来）。"""
     app_port = int(rs.get("app-port") or 8090)
     mo, rd = rs.get("mongo", {}), rs.get("redis", {})
+    dist = (WALNUT_ROOT / "dist" / "wn4j").resolve()
     lines = [
-        "# 级别 3 私有配置 —— 由 walnut-at-init 依据 build.rs.json 生成",
-        "# 改动请回到 build.rs.json，重新运行 walnut-at-init --force --with-server",
+        "# 级别 3 私有配置 —— 由 walnut-at-init 依据 build.rs.json 首次生成",
+        "# 本文件即权威配置：之后改端口/db/桶目录直接改这里，",
+        "# 不要回源 build.rs.json；只有想整个重铺时才 --force --with-server",
+        "#",
+        "# 若构建产物不在默认位置（%s），" % dist.as_posix(),
+        "# 改下面 app-root 与 init-mnt 两节的路径",
+        "app-root=%s/WebContent" % dist.as_posix(),
+        "",
+        "# 登录模式：智能体测试的硬性前提（见 102.auto-test/20-at-setup.md）",
+        "app-module-sys-login=PASSWD_ONLY",
+        "app-module-dmn-login=PASSWD_ONLY",
         "app-port=%d" % app_port,
         "admin-port=%d" % (app_port + 1),
         "",
@@ -139,6 +159,19 @@ def gen_server_conf(rs: dict, work: Path) -> str:
                  (buck if buck and buck != "auto" else str(work / ".at/walnut/buck")).replace("\\", "/"))
     lines.append("global-bm-swap=%s" %
                  (swap if swap and swap != "auto" else str(work / ".at/walnut/swap")).replace("\\", "/"))
+    lines += [
+        "",
+        "# 初始化挂载：与二级产物一致（内置终端 + 默认登录页）",
+        "init-mnt:",
+        "/app/wn-term            : file://%s/ROOT/app/wn-term" % dist.as_posix(),
+        "/etc/hosts.d/default    : file://%s/ROOT/etc/hosts.d/default" % dist.as_posix(),
+        "# ~ End of init-mnt",
+        "",
+        "# 允许挂载的本地目录：本工作目录（智能体挂自己的工程）",
+        "mnt-file-allow:",
+        work.as_posix(),
+        "# ~ End of mnt-file-allow",
+    ]
     return "\n".join(lines) + "\n"
 
 
@@ -211,10 +244,9 @@ def main():
                                                   WALNUT_ROOT / "build" / "build.rs.json")},
                              ensure_ascii=False, indent=1))
             return EXIT_NO_RS
-        # 把依据的配置原文留档在 .at/walnut/ 下：conf 由它生成，
-        # 日后要改配置改这里，再 --force --with-server 重新生成
-        w("walnut/build.rs.json",
-          Path(rs_path).read_text(encoding="utf-8"), overwrite=args.force)
+        # 生成级别 3 私有 conf（本文件即权威配置，见 gen_server_conf 头注释）
+        # 注意：不把 build.rs.json 复制进 .at/walnut/ —— 它只是首次生成的
+        # 素材，运行期一切信息都在 conf 里，留档只会制造"改哪个"的歧义
         w("walnut/conf/web_local.properties", gen_server_conf(rs, work),
           overwrite=args.force)
         src_log4j = WALNUT_ROOT / "conf" / "log4j2.xml"
@@ -223,6 +255,9 @@ def main():
               overwrite=args.force)
         w("walnut/buck/.gitkeep", "", overwrite=args.force)
         w("walnut/swap/.gitkeep", "", overwrite=args.force)
+        # 级别 3 也可能要独立 redis 数据空间（start_with_redis.cmd
+        # 会从 --conf 推导出 <work>/.at/redis/data）
+        w("redis/data/.gitkeep", "", overwrite=args.force)
         print("服务器配置依据: %s" % rs_path, file=sys.stderr)
 
     # ---------- 手册样例（已存在不覆盖；--force 刷新） ----------

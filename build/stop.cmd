@@ -18,7 +18,7 @@ REM ============================================================
 set "DIST_HOME=%~dp0.."
 set "PORT="
 set "PID_DIR="
-set "TIMEOUT=15"
+set "TIMEOUT=5"
 
 :parse
 if "%~1"=="" goto parsed

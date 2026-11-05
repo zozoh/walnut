@@ -7,7 +7,11 @@ wn-up — 启动（或复用）一个 Walnut 实例
     1. wn-ping 探活
        - 活着 → 输出 {"action":"reuse"}，退出（绝不停止现有实例）
        - 端口被非 Walnut 程序占用 → 报错退出 2
-    2. 调 dist/sbin/start.cmd 拉起（级别 3 传 --conf，--pid-dir 原样透传）
+    2. 调 dist/sbin/start.cmd 拉起（级别 3 传 --conf，--pid-dir 原样透传）。
+       若产物带 start_with_redis.cmd（构建时 make.json 的 REDIS_SERVER
+       非空才会生成），则改调它 —— 先按生效 conf 的 redis-port 拉起
+       私有 redis 进程，再原样委托 start.cmd（2/3 级完全数据隔离，
+       机制见 doc/reference/102.auto-test/20-at-setup.md）
        - 启动前把身份（.at/whoami.json 的代号，或 --who）经
          WN_AGENT_NAME / WN_WORK_PATH 环境变量注入，写进运行锁
     3. 循环探活直到就绪（--wait 秒），超时退出 4
@@ -15,7 +19,7 @@ wn-up — 启动（或复用）一个 Walnut 实例
 用法:
     python wn-up.py --dist <dist/wn4j 路径> \
         [--url http://localhost:8080] [--conf <conf 目录>] [--port N] \
-        [--wait 90] [--who 代号] [--pid-dir <run 目录>]
+        [--wait 90] [--who 代号] [--pid-dir <run 目录>] [--creds <凭据 JSON>]
 
 退出码: 0 成功/复用；1 用法错误；2 端口被占或探活失败；4 启动失败或超时
 
@@ -174,7 +178,7 @@ def main():
     ap.add_argument("--port", type=int, help="期望端口（缺省从配置解析）")
     ap.add_argument("--wait", type=int, default=90, help="就绪等待秒数")
     ap.add_argument("--who", help="智能体代号（缺省读 .at/whoami.json）")
-    ap.add_argument("--pid-dir", help="运行锁目录（透传 start.cmd）")
+    ap.add_argument("--pid-dir", help="运行锁目录（透传启动脚本）")
     ap.add_argument("--creds", help="凭据 JSON（含 root_usr/root_passwd），"
                                    "提供后启动就绪即自动做空白节点初始化")
     args = ap.parse_args()
@@ -185,6 +189,12 @@ def main():
         print(json.dumps({"ok": False, "error": "找不到启动脚本: %s" % start_cmd},
                          ensure_ascii=False))
         return EXIT_NO_TARGET
+
+    # 产物带 start_with_redis.cmd（构建时 make.json 的 REDIS_SERVER 非空
+    # 才会生成）就用它 —— 先按生效 conf 的 redis-port 拉起私有 redis 进程，
+    # 再原样委托 start.cmd（2/3 级完全数据隔离）
+    swr = dist / "sbin" / "start_with_redis.cmd"
+    launcher = swr if swr.exists() else start_cmd
 
     cwd = os.getcwd()
     port = resolve_port(dist, args.conf, args.port)
@@ -213,7 +223,7 @@ def main():
         return EXIT_USAGE
 
     env = dict(os.environ, WN_AGENT_NAME=who, WN_WORK_PATH=cwd)
-    cmd = ['"%s"' % start_cmd]
+    cmd = ['"%s"' % launcher]
     if args.conf:
         cmd.append('--conf "%s"' % args.conf)
     if args.pid_dir:
