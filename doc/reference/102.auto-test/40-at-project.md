@@ -24,6 +24,8 @@ related: [README, 20-at-setup, 30-at-tools, 50-at-rules]
 ```text
 %WORK%/
 |-- .at/                  # Agent 测试工作目录（由 walnut-at-init 懒创建）
+|   |-- AGENTS.md         # 入口说明（引用 use-wn-cli skill；找 walnut 走
+|   |                     #   LOCAL_REF.md，找不到就停下来问主人）
 |   |-- whoami.json       # 本智能体的代号与身份（walnut-at-init --name 生成）
 |   |-- walnut/           # 级别 3：服务器配置与私有数据目录（--with-server 才生成）
 |   |   |-- buck/         #   global-bm-bucket
@@ -60,6 +62,30 @@ whoami/client/_ottl 的私有积累）。
 此后 wn-up 登记实例、wn-down 核对所有权、同域协作互相识别，都凭这块
 身份牌（格式见 [启动服务与建立测试域](20-at-setup.md)）。脚手架是懒惰的：已存在的文件一律跳过，
 重复运行不会清空已有积累（新行为详见 [自动化测试工具](30-at-tools.md) 的 walnut-at-init）。
+
+## 级别 3：挂载自己的项目
+
+级别 3 的智能体常常"我的前端工程就是 Walnut 的应用"。除了运行时
+`wn-cli mnt`，还可以把挂载**固化进私有配置**：直接编辑
+`.at/walnut/conf/web_local.properties` 的 `init-mnt` 段，照葫芦画瓢
+加一行（这份 conf 生成后就是权威配置，改它不回源）：
+
+```text
+init-mnt:
+/app/wn-term            : file://<dist>/ROOT/app/wn-term
+/etc/hosts.d/default    : file://<dist>/ROOT/etc/hosts.d/default
+/app/my-app             : file://D:/work/myproj/dist
+# ~ End of init-mnt
+```
+
+- 挂载源必须落在 `mnt-file-allow` 白名单内——walnut-at-init 生成的
+  白名单就是本工作目录，挂自己工程天然合法；要挂目录之外的路径，
+  先扩大白名单（这属于[守则](50-at-rules.md)里的"必须请示"项）。
+- 改动在**下次启动**生效（init-mnt 由启动流程读取）；重启用
+  wn-down / wn-up，别直接杀进程。
+- 二级启动（产物 conf）默认已挂 `wn-term` + 默认登录页，以及构建时
+  存在的同级前端工程（`wn-hub` / `wn-rich` / `wn-code`，见
+  [构建 Walnut 测试服务](10-at-build.md)）。
 
 ## 三份手册各管什么
 

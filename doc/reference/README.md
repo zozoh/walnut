@@ -75,6 +75,13 @@ doc/reference/
 |   |-- 16-cmd-o-output.md        #   输出：@json @ajax @tmpl @tab @zip
 |   |-- 60-cmd-table.md           #   命令总表：157 个命令的来源/写法/逻辑分类
 |
+|-- 45.website/                    # 网站机制：域名转发 + A/B/C 三类站
+|   |-- README.md                 #   总览：三类站的分工与阅读路径
+|   |-- 10-domain-mapping.md      #   域名转发：/domain 记录、hostmap、请求属性
+|   |-- 20-site-a.md              #   A 类站：动态渲染站点（设计桩子，未实现）
+|   |-- 30-site-b.md              #   B 类站：管理后台的自定义登录页
+|   |-- 40-site-c.md              #   C 类站：静态站点 + 动态 API
+
 |-- 50.regapi/                    # HTTP 注册接口（动态 API 的核心机制）
 |   |-- README.md                 #   本篇：文件即接口的思路、请求对象化、机制全景
 |   |-- 10-api-object.md             #   API 对象：文件即接口、元数据全集、命令模板
@@ -103,7 +110,6 @@ doc/reference/
 |
 |-- 100.ops/                       # 部署与运维
 |   |-- deploy.md                 #   部署形态：内嵌 Jetty、web.xml/chain、ioc 配置详解
-|   |-- domain-mapping.md         #   域名映射：/domain 记录、hostmap 转发规则
 |   |-- sys-admin.md              #   系统管理命令：mgadmin/redis/refer/aclog/sysconf
 |   |-- security-notes.md         #   安全实践：secret 存放、权限边界、常见坑
 |   |-- troubleshooting.md        #   排查手册：日志位置、常见错误码、诊断命令

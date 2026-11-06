@@ -144,7 +144,7 @@ API 对象的全部行为都通过元数据配置。下面这个块把几乎所�
 
 - `http-www-home`：站点目录或站点 JSON 配置文件的路径；
   支持 explain 模板——域名转发场景可写 `"=wn_www_site?~/www/demo"`
-  （`wn_www_site` 由全局过滤器注入请求属性，表示当前域名对应的站点路径）
+  （`wn_www_site` 由 [域名转发](../45.website/10-domain-mapping.md) 的全局过滤器注入请求属性，表示当前域名对应的站点路径）
 - `http-www-ticket`：从哪个请求键读票据，默认 `http-qs-ticket`
 - `http-www-auth`：是否必须已登录；默认跟随 `http-www-home`
   （声明了 home 即要求登录）；无有效会话 → 403

@@ -58,7 +58,7 @@ URL 规则：`/api/{用户名}/{API路径}`。本例 `usr=root`、`api=hello`。
 
 ```bash
 # 元数据声明响应头
-o ~/.regapi/api/hello -u 'http-header-Content-Type:"application/json"'
+o ~/.regapi/api/hello @update 'http-header-Content-Type:"application/json"'
 # 命令内容：echo 输出 JSON 文本，经 json -c 格式化（压缩成单行）
 echo 'echo "{msg:\'hello ${http-qs-name?world}\'}" | json -c' > ~/.regapi/api/hello
 ```
@@ -68,8 +68,9 @@ curl 'http://localhost:8080/api/root/hello?name=walnut'
 # → {"msg":"hello walnut"}   （Content-Type: application/json）
 ```
 
-> 这里用 `o -u` 修改元数据、`json` 生成 JSON，都是 Walnut 命令，语法详见
-> 简单命令。
+> 这里用 `o ... @update` 修改元数据、`json` 生成 JSON，都是 Walnut 命令，
+> 语法详见简单命令。（注意：`-u` 是已弃用 `obj` 命令的参数，`o` 命令
+> 改元数据走 `@update` 过滤器。）
 
 ## 常用套路
 

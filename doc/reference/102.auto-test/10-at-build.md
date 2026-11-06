@@ -27,14 +27,21 @@ related: [README, 20-at-setup, 30-at-tools]
 
 - **`build/make-example.json`**：共享模板，提交进 git。开发者复制一份为
   `build/make.json` 再按本机修改（`make.json` 已加入 `.gitignore`，
-  个人路径不进仓库）。
+  个人路径不进仓库）。其中的 **`APP_PORT`** 是二级启动的默认端口
+  （缺省 **7709**——不用 8080，那是开发者 IDE 实例的常用端口，
+  撞车时二级实例会 BindException），构建时注入产物 conf。
 - **`build/start.cmd` / `build/stop.cmd`**：预置的启停脚本模板，构建时
   原样拷入产物的 `sbin/`。想调整启动行为（JVM 参数、classpath 规则），
   改这里的模板。
 - **`build/web_local.properties` / `build/log4j2.xml`**：conf 层的预置
   模板。构建时 `log4j2.xml` 里的 `@LOG_DIR@` 占位符替换为数据家的
   `walnut/log/` 目录（日志写文件，见下）；`web_local.properties` 以它
-  为底改写（写入 PASSWD_ONLY 与自动计算的 mnt-file-allow，见下文）。
+  为底改写（写入 PASSWD_ONLY、`@APP_PORT@` 占位的 app-port、
+  自动计算的 mnt-file-allow，见下文）。init-mnt 里的
+  **`@APP_MOUNTS@`** 展开为 walnut 仓库**同级前端工程**的应用挂载
+  （`wn-hub` / `wn-rich` / `wn-code`）：构建时逐一检查
+  `<同级目录>/<name>/dist/index.html`，存在才生成挂载行，
+  没有这些工程的机器上构建会自动跳过，不出错。
 - **`build/build-example.rs.json` / `build/build.rs.json`**：运行时服务
   配置（见下文"运行时服务配置"一节）。模板提交进 git，个人的
   `build.rs.json` 已加入 `.gitignore`。
@@ -113,6 +120,10 @@ start.cmd [--conf <配置目录>] [--pid-dir <运行锁目录>]
   该目录置于 `core/conf/` **之前**，保证内容优先于内核默认配置——
   智能体级别 3 的私有 `.at/walnut/conf` 就是这么进来的。
 - 端口取生效配置的最终 `app-port`（`--conf` 目录里的覆盖优先）。
+- **启动成败是校验过的**：JVM 拉起后 start.cmd 会轮询端口就绪
+  （约 40 秒）。JVM 中途退出（如端口被占的 BindException）或超时
+  未就绪，立即打印日志尾部、杀掉残留 JVM、**不写运行锁**并以
+  非零码退出——绝不像早期版本那样把死实例报成"启动成功"。
 
 ## conf 模板的立场
 
@@ -129,14 +140,18 @@ start.cmd [--conf <配置目录>] [--pid-dir <运行锁目录>]
 
 构建产物连的是谁家的数据库，必须由人明确指定，不能由智能体猜。
 `build/build.rs.json` 就是这个声明，构建 `--dist` 时**必需**，缺失即
-报错退出（且在删除旧产物**之前**校验，不会留下半毁的 dist）：
+报错退出（且在删除旧产物**之前**校验，不会留下半毁的 dist）。
+同理，**有实例正从本产物运行时构建也会被拒**（`run/` 里有活着的
+运行锁即证据）——否则 rmtree 会先删掉 conf/sbin 再撞上
+`core/walnut.jar` 的文件锁，留下半毁产物（2026-11 真实事故）。
 
 ```jsonc
 {
   "mongo": {"host": "127.0.0.1", "port": 27017, "db": "walnut_wn4j"},
   "redis": {"host": "127.0.0.1", "port": 6379, "db": 9, "passwd": ""},
   "mysql": {"host": "127.0.0.1", "port": 3306, "usr": "root", "passwd": ""},
-  "app-port": 8090,
+  "app-port": 8090,   // 仅级别 3 用（walnut-at-init 生成私有 conf 时读取）；
+                      // 级别 2 的端口由 make.json 的 APP_PORT 决定（缺省 7709）
   "buck": "auto",   // 或绝对路径；auto = Walnut 仓库 .at/walnut/buck
   "swap": "auto"    // 同上（.at/walnut/swap）——dist 是程序目录，
                     // 可随意删除重建；持久化数据一律放仓库 .at/ 下
@@ -197,7 +212,20 @@ start.cmd [--conf <配置目录>] [--pid-dir <运行锁目录>]
   构建 dist、不打包镜像、不发布（说明约束，不是删除功能）
 - 默认 OUT_DIST 指向 `<walnut>/dist/wn4j/`
 - 构建结束自动校验产物布局
-- 配置读取改为 `make.json`（缺省回退 `make-example.json`）
+- 配置读取改为 `make.json`（缺省回退 `make-example.json`）；`make.json`
+  的 `APP_PORT`（缺省 7709）经模板 `@APP_PORT@` 占位注入产物 conf 的
+  `app-port`——二级启动默认不占 8080，避免与开发者 IDE 实例撞车；
+  模板同时显式声明 `admin-port=@ADMIN_PORT@`（= APP_PORT+1），因为内核
+  `web.properties` 写死了 `admin-port=8081`，不覆盖管理端口就会错落
+- init-mnt 新增 `@APP_MOUNTS@` 占位：构建时检查 walnut 仓库同级的
+  `wn-hub` / `wn-rich` / `wn-code` 工程（`dist/index.html` 存在才挂），
+  默认把三个前端应用挂到 `/app/` 下
+- 构建 `--dist` 前检查 `run/` 里是否有活着的运行锁：有实例正从本产物
+  运行即拒绝，避免删掉半个 dist 才撞上 jar 文件锁
+- start.cmd 启动后校验成败：轮询端口就绪（约 40 秒），JVM 中途退出
+  （如端口冲突的 BindException）或超时未就绪即打印日志尾部、杀掉
+  残留 JVM、不写运行锁并以非零码退出（早期版本不校验，会把死实例
+  报成"启动成功"，探活还会打到占用同端口的别人实例上）
 - 新增 `build.rs.json` 运行时服务配置：构建 `--dist` 时必需，先于
   一切文件操作加载校验（缺失即退出，不留半毁产物），把
   mongo/redis/桶目录等注入产物的 conf；`make.json` 新增

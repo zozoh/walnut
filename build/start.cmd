@@ -95,6 +95,44 @@ set /p WPID=<"%WPID_FILE%"
 del "%WPID_FILE%" >nul 2>nul
 if not defined WPID (echo *** cannot get JVM pid 1>&2 & exit /b 4)
 
+REM ---------- verify the JVM actually came up before claiming success ----------
+REM The classic failure is a port conflict: the JVM dies with a BindException
+REM but Start-Process already returned a pid - writing the run lock and
+REM exiting 0 here would report a dead instance as "started". Real case
+REM 2026-11: port 8080 was held by the developer's IDE instance, the
+REM level-2 start failed silently, and wn-ping then probed the WRONG
+REM (developer's) instance. Rules: JVM exits mid-check = failure; port
+REM not open when the JVM is already dead = failure; timeout with the
+REM JVM still alive = kill the leftover and fail anyway.
+set /a VN=0
+:verify_up
+tasklist /FI "PID eq %WPID%" 2>nul | findstr /C:"%WPID%" >nul
+if errorlevel 1 goto start_dead
+set "VPORT_FILE=%TEMP%\_wn_vport_%RANDOM%%RANDOM%.txt"
+powershell -NoProfile -Command "$r='CLOSED'; try { $c=New-Object Net.Sockets.TcpClient; $c.Connect('127.0.0.1',[int]%APP_PORT%); $r='OPEN'; $c.Close() } catch {}; Write-Output $r" >"!VPORT_FILE!" 2>nul
+set /p VPORT_ST=<"!VPORT_FILE!"
+del "!VPORT_FILE!" >nul 2>nul
+if "%VPORT_ST%"=="OPEN" goto start_ok
+ping -n 2 127.0.0.1 >nul
+set /a VN+=1
+if %VN% lss 40 goto verify_up
+echo *** walnut did not open port %APP_PORT% within 40s, killing leftover JVM pid=%WPID% 1>&2
+taskkill /F /PID %WPID% >nul 2>&1
+goto start_fail_log
+
+:start_dead
+echo *** JVM exited during startup - pid=%WPID% is gone 1>&2
+
+:start_fail_log
+echo *** startup FAILED, no run lock written. last log lines: 1>&2
+echo ----- %LOG_ERR% ----- 1>&2
+powershell -NoProfile -Command "if (Test-Path '%LOG_ERR%') { Get-Content -Tail 20 '%LOG_ERR%' }" 1>&2
+echo ----- %LOG_OUT% ----- 1>&2
+powershell -NoProfile -Command "if (Test-Path '%LOG_OUT%') { Get-Content -Tail 20 '%LOG_OUT%' }" 1>&2
+exit /b 4
+
+:start_ok
+
 REM ---------- write run lock pid-<port>.json ----------
 powershell -NoProfile -Command "$o = [ordered]@{pid=[long]%WPID%; app_port=[int]%APP_PORT%; admin_port=[int]%ADMIN_PORT%; agent=$env:WN_AGENT_NAME; work_path=$env:WN_WORK_PATH; conf_dir='%CONF_DIR%'; dist_home='%DIST_HOME%'; started_at=(Get-Date -Format 'yyyy-MM-ddTHH:mm:ss')}; $o | ConvertTo-Json -Compress | Out-File -Encoding utf8 '%PID_FILE%'" || (echo *** run lock write failed 1>&2 & exit /b 4)
 

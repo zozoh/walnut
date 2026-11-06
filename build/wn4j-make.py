@@ -28,6 +28,10 @@ build/wn4j-make.py — Walnut 构建脚本
                               exe 路径    D:/opt/redis/redis-server.exe
                               Docker 镜像 Docker:<镜像名><sha256:...>=<容器名>
                               例 Docker:redis<sha256:bdff...>=wn4j-redis-L2
+    make.json 的 APP_PORT:    二级启动的默认端口（缺省 7709），构建时经
+                            web_local.properties 模板的 @APP_PORT@ 占位注入
+                            产物 conf。不用 8080：那是开发者 IDE 实例的常用
+                            端口，撞车时二级实例会 BindException
 
 约定:
     - 本脚本住在 Walnut 仓库的 build/ 目录里，仓库根 = 本脚本的上一级
@@ -126,6 +130,29 @@ if not os.path.isabs(OUT_DIST):
     OUT_DIST = str(D_WN / OUT_DIST)
 JAVA_HOME = Conf.get("JAVA_HOME", "")
 MVN_CMD = Conf.get("MVN_CMD", "mvn")
+# 二级启动默认端口：缺省 7709（不用 8080，避开开发者 IDE 实例）。
+# 构建时经 conf 模板的 @APP_PORT@ 占位注入产物的 web_local.properties
+APP_PORT = int(Conf.get("APP_PORT") or 7709)
+# 管理端口 = app-port + 1。模板必须显式声明：内核 web.properties
+# 写死了 admin-port=8081，不覆盖时二级实例的管理端口会错落到 8081
+ADMIN_PORT = APP_PORT + 1
+
+# 同级前端工程的应用挂载（init-mnt）：逐一检查 <walnut仓库同级>/<name>/dist/
+# index.html，存在才生成挂载行（别的开发者机器没有这些工程也能正常构建）
+APP_REPOS = ["wn-hub", "wn-rich", "wn-code"]
+
+
+def gen_app_mounts():
+    """生成 init-mnt 的应用挂载行（@APP_MOUNTS@ 的展开内容）"""
+    lines = []
+    for name in APP_REPOS:
+        dist_dir = D_WN.parent / name / "dist"
+        if (dist_dir / "index.html").is_file():
+            lines.append("/app/%s            : file://%s"
+                         % (name, dist_dir.as_posix()))
+        else:
+            print(" -- skip app mount: %s (no %s)" % (name, dist_dir))
+    return "\n".join(lines) + ("\n" if lines else "")
 # redis-server 来源：非空 = 产物生成 start/stop_with_redis.cmd 测试脚本
 # （私有 redis 进程生命周期，供 2/3 级完全数据隔离）；留空 = 不生成。
 # 两种形态：
@@ -297,10 +324,44 @@ def do_mvn():
 # ============================================================
 # 打包 dist
 # ============================================================
+def pid_alive(pid):
+    if os.name == "nt":
+        r = subprocess.run(["tasklist", "/FI", "PID eq %d" % pid],
+                           capture_output=True, text=True)
+        return str(pid) in r.stdout
+    try:
+        os.kill(pid, 0)
+    except OSError:
+        return False
+    return True
+
+
+def assert_no_running_instance():
+    """dist/run/ 里存在活着的运行锁 = 有实例正从这个产物目录运行。
+
+    此时重建会先删掉 conf/sbin，然后才撞上 core/walnut.jar 的文件锁
+    留下半毁产物（2026-11 真实事故：7709 实例在跑时重建，
+    rmtree 删了一半才报 PermissionError）。必须先拒绝。"""
+    run_dir = D_OUT / "run"
+    if not run_dir.is_dir():
+        return
+    for lock in run_dir.glob("pid-*.json"):
+        try:
+            pid = int(json.loads(lock.read_text(encoding="utf-8-sig")).get("pid") or 0)
+        except (ValueError, OSError):
+            continue
+        if pid and pid_alive(pid):
+            print("!!! 有实例正在从本产物运行: %s (pid=%d)" % (lock.name, pid))
+            print("!!! 请先用 wn-down 或 sbin/stop_with_redis.cmd 停止实例，再重建")
+            sys.exit(1)
+
+
 def do_dist():
     # 先校验运行时配置（build.rs.json），失败立即退出，
     # 避免删空 dist/wn4j 后才发现配置缺失（半毁状态）
     rs = load_rs()
+    # 同理：有实例从本产物运行时拒绝重建（运行锁是活的就是证据）
+    assert_no_running_instance()
 
     jar = D_WN_TARGET / ("walnut-%s.jar" % JAR_VER)
     if not jar.exists():
@@ -326,6 +387,9 @@ def do_dist():
     gen = (tpl.replace("@DIST_HOME@", str(D_OUT).replace(os.sep, "/"))
               .replace("@WALNUT_AT@", str(WALNUT_AT).replace(os.sep, "/"))
               .replace("@MNT_FILE_ALLOW@", mnt_allow)
+              .replace("@APP_PORT@", str(APP_PORT))
+              .replace("@ADMIN_PORT@", str(ADMIN_PORT))
+              .replace("@APP_MOUNTS@", gen_app_mounts())
               .replace("@MONGO_HOST@", str(mo.get("host", "127.0.0.1")))
               .replace("@MONGO_PORT@", str(mo.get("port", 27017)))
               .replace("@MONGO_DB@", str(mo.get("db", "walnut_wn4j")))
@@ -352,8 +416,8 @@ def do_dist():
     (D_OUT / "conf" / "log4j2.xml").write_text(
         log_xml.replace("@LOG_DIR@", str(LOG_DIR).replace(os.sep, "/")),
         encoding="utf-8")
-    print(" ++ conf/ (web_local.properties 已生成, mnt-file-allow=%s, mongo-db=%s, redis-db=%s)"
-          % (mnt_allow, mo.get("db"), rd.get("db")))
+    print(" ++ conf/ (web_local.properties 已生成, app-port=%s, mnt-file-allow=%s, mongo-db=%s, redis-db=%s)"
+          % (APP_PORT, mnt_allow, mo.get("db"), rd.get("db")))
 
     # --- core: 内核配置（剔除个人 web_local.properties）+ jar ---
     shutil.copytree(str(D_WN / "conf"), str(D_OUT / "core" / "conf"),

@@ -1,7 +1,7 @@
 # INDEX — Walnut 文档全量索引
 
 > AI Agent 首选入口。每行一篇：`- \`路径\` — 标题 — 模块：源码模块 — 关键词：关键词`
-> 全部 94 篇均已登记（含根文档 3 篇）。
+> 全部 98 篇均已登记（含根文档 3 篇）。
 
 ## 根文档
 
@@ -75,6 +75,14 @@
 - `40.commands/16-cmd-o-output.md` — cmd_o 输出 — 模块：ext.data.o — 关键词：@json,@ajax,@tmpl,@tab,@zip,输出格式
 - `40.commands/60-cmd-table.md` — 命令总表（157 个命令的来源/写法/分类） — 模块：impl.box / ext — 关键词：命令清单,内置,扩展,简单命令,复杂命令,过滤命令,分类
 
+## 45.website
+
+- `45.website/README.md` — 网站机制（三类站总览） — 模块：45.website — 关键词：网站,站点,域名转发,A类站,B类站,C类站
+- `45.website/10-domain-mapping.md` — 域名转发 — 模块：web — 关键词：域名转发,/domain,hostmap,WalnutFilter,wn_www_grp,静态站点,regapi,动态渲染
+- `45.website/20-site-a.md` — A 类站：动态渲染站点（设计桩子） — 模块：web — 关键词：A类站,动态渲染,SSR,模板引擎,hostmap,待设计
+- `45.website/30-site-b.md` — B 类站：管理后台的自定义登录页 — 模块：web — 关键词：B类站,登录页,自定义登录,/a/login,WnLoginPage
+- `45.website/40-site-c.md` — C 类站：静态站点 + 动态 API — 模块：web — 关键词：C类站,静态站点,SPA,wn_www_static,regapi
+
 ## 50.regapi
 
 - `50.regapi/README.md` — HTTP 注册接口（文件即接口的机制概述） — 模块：ext.sys.httpapi — 关键词：regapi,文件即接口,请求对象,命令模板,动态API
@@ -107,7 +115,6 @@
 ## 100.ops
 
 - `100.ops/deploy.md` — 部署与运行配置 — 模块：web — 关键词：web.xml,conf/ioc,web.properties,集群
-- `100.ops/domain-mapping.md` — 域名映射 — 模块：ext.data.domain — 关键词：/domain,hostmap,WalnutFilter
 - `100.ops/sys-admin.md` — 系统管理命令 — 模块：ext.sys — 关键词：mgadmin,redis,refer,aclog,sysconf
 - `100.ops/security-notes.md` — 安全实践 — 模块：core — 关键词：secret,权限,注入,HTTPS
 - `100.ops/troubleshooting.md` — 排查手册 — 模块：web — 关键词：日志,错误码,诊断命令
@@ -127,8 +134,8 @@
 ## 102.auto-test
 
 - `102.auto-test/README.md` — 自动化测试：让智能体自助使用 Walnut — 模块：102.auto-test — 关键词：自动化测试,智能体,测试域,三级启动,工作目录约定
-- `102.auto-test/10-at-build.md` — 构建 Walnut 测试服务 — 模块：102.auto-test — 关键词：构建,wn4j-make,dist/wn4j,titanium,WebContent
-- `102.auto-test/20-at-setup.md` — 启动服务与建立测试域 — 模块：102.auto-test — 关键词：启动,停止,admin-port,wn-ping,login_mode,adduser,PASSWORD_ONLY
+- `102.auto-test/10-at-build.md` — 构建 Walnut 测试服务 — 模块：102.auto-test — 关键词：构建,wn4j-make,dist/wn4j,titanium,WebContent,APP_PORT,7709,启动校验
+- `102.auto-test/20-at-setup.md` — 启动服务与建立测试域 — 模块：102.auto-test — 关键词：启动,停止,admin-port,wn-ping,login_mode,adduser,PASSWORD_ONLY,杀软查杀,start.cmd 消失,日志位置,access.log
 - `102.auto-test/30-at-tools.md` — 自动化测试工具 — 模块：102.auto-test — 关键词：wn-ping,wn-up,wn-down,wn-cli,walnut-at-init,会话缓存,退出码
 - `102.auto-test/40-at-project.md` — 工作目录测试准备 — 模块：102.auto-test — 关键词：.at,ATEST.md,LOCAL_REF.md,测试信息文件,mount,sqlx,reset
 - `102.auto-test/50-at-rules.md` — Agent 测试守则 — 模块：102.auto-test — 关键词：守则,自检,异常终止,登录失败,协同,安全,请示用户

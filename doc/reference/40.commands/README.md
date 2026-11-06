@@ -74,7 +74,7 @@ xapi req weixin pay /order/create -force    # 生成第三方 API 请求
 cron add '0 3 * * *' 'o ~/logs @clean'      # 定期任务
 
 # 管道组合：查询 → 渲染成命令 → 批量执行
-o /domain -tmpl "o id:@{id} -u \"tp:'A'\";" | run
+o /domain @query @tmpl "o id:${id} @update \"tp:'A'\";" | run
 
 # 重定向：输出落到对象上
 cat ~/logs/app.log | grep ERROR > ~/archive/errors.txt

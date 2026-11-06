@@ -2,6 +2,7 @@
   "OUT_DIST": "",
   "JAVA_HOME": "",
   "MVN_CMD": "mvn",
+  "APP_PORT": 7709,
   "REDIS_SERVER": "",
   "REDIS_SERVER_示例1_exe": "D:/opt/redis/redis-server.exe",
   "REDIS_SERVER_示例2_docker": "Docker:redis<sha256:bdff4838c1724f55f04852d219ee7590256297e8fa3996d38785fe76fae9ee72>=wn4j-redis-L2",

@@ -10,17 +10,18 @@
 - `web/WnSetup.java` — 说明：启动 Setup 链 + 后台线程 — 文档：[quick-start](00.start-here/quick-start.md)
 - `web/WnConfig.java` — 说明：web.properties 封装 — 文档：[quick-start](00.start-here/quick-start.md)、[部署与运行配置](100.ops/deploy.md) ✅
 - `web/WnInitMount.java` — 说明：init-mnt 初始化映射 — 文档：[部署与运行配置](100.ops/deploy.md) ✅
-- `web/WnMainModule.java` — 说明：Nutz MVC 主模块 — 文档：[部署与运行配置](100.ops/deploy.md) ✅
-- `jetty/WalnutFilter.java` — 说明：域名转发过滤器 — 文档：[域名映射与路由](100.ops/domain-mapping.md) ✅
+- `web/WnMainModule.java` — 说明：Nutz MVC 主模块（C 类静态站点处理） — 文档：[部署与运行配置](100.ops/deploy.md)、[域名转发](45.website/10-domain-mapping.md) ✅
+- `jetty/WalnutFilter.java` — 说明：域名转发过滤器 — 文档：[域名转发](45.website/10-domain-mapping.md) ✅
 
 ## Web 层（web/）
 
 - `web/module/AppModule.java` — 说明：/a 应用打开/登录/run — 文档：[50.regapi](50.regapi/README.md) ✅
+- `web/bean/WnLoginPage.java` — 说明：域登录页渲染（站点目录 / hosts.d / 内置三层查找） — 文档：[B 类站](45.website/30-site-b.md) ✅
 - `ROOT/etc/hosts.d/default/pages/` — 说明：默认系统登录页、密码 / OTP 模式及 TAC 配置 — 文档：[captcha 与 OTP 的登录协同](30.auth/62-auth-with-captcha-otp.md)
 - `web/module/login.html` — 说明：JAR 内置兜底登录页、内嵌 TAC 及密码 / OTP 模式 — 文档：[captcha 与 OTP 的登录协同](30.auth/62-auth-with-captcha-otp.md)
 - `web/module/UsrModule.java` — 说明：/u 登录/登出/会话切换 — 文档：[会话管理](30.auth/20-auth-session.md) ✅
 - `web/module/ObjModule.java` — 说明：/o 缩略图/下载 — 文档：[cmd_o](../../src/com/site0/walnut/ext/data/o/man/zh_cn/cmd_o.md) ✅
-- `web/module/FuseModule.java` — 说明：域名转发路由 — 文档：[域名映射与路由](100.ops/domain-mapping.md) ✅
+- `web/module/FuseModule.java` — 说明：域名转发路由 — 文档：[域名转发](45.website/10-domain-mapping.md) ✅
 - `web/module/GuestModule.java` — 说明：/g 访客接口 — 文档：✅
 - `web/filter/` — 说明：WnAsUsr/WnCheckSession 等 — 文档：[30.auth](30.auth/README.md) ✅
 - `web/bgt/` — 说明：后台三消费线程 — 文档：[定时任务](60.sched-async/README.md) ✅
@@ -99,7 +100,7 @@
 - `security/otp` — 说明：动态密码 OTP — 文档：[动态密码 OTP](30.auth/60-auth-otp.md) ✅
 - `security/captcha` — 说明：人机验证码 — 文档：[人机验证码 captcha](30.auth/61-auth-captcha.md) ✅
 - `ext/data/app` — 说明：域应用初始化 — 文档：[30-write-app-init](101.dev/30-write-app-init.md)、[cmd_app_init](../../src/com/site0/walnut/ext/data/app/man/zh_cn/cmd_app_init.md) ✅
-- `ext/data/domain` — 说明：域名映射 — 文档：[域名映射与路由](100.ops/domain-mapping.md) ✅
+- `ext/data/domain` — 说明：域名映射 — 文档：[域名转发](45.website/10-domain-mapping.md) ✅
 - `ext/xo/` — 说明：对象存储集成（s3/cos） — 文档：[对象存储集成（xo）](20.io-storage/xo-storage.md)、[cmd_xo](../../src/com/site0/walnut/ext/xo/man/zh_cn/cmd_xo.md) ✅
 - `ext/media/imagic` — 说明：图像处理 — 文档：[图片处理（imagic）](70.functionate/50-image-imagic.md) ✅
 - `ext/media/ffmpeg` — 说明：视频信息/转码（videoi/videoc） — 文档：[视频信息与封图（videoi / videoc）](70.functionate/60-video-ffmpeg.md) ✅
@@ -118,5 +119,5 @@
 
 - `conf/web.properties` — 说明：主配置（启动必读） — 文档：[quick-start](00.start-here/quick-start.md)
 - `conf/ioc/*.js` — 说明：IoC beans（mongo/redis/io/mq/service） — 文档：[部署与运行配置](100.ops/deploy.md) ✅
-- `conf/hostmap` — 说明：域名转发规则 — 文档：[域名映射与路由](100.ops/domain-mapping.md) ✅
+- `conf/hostmap` — 说明：域名转发规则 — 文档：[域名转发](45.website/10-domain-mapping.md) ✅
 - `WebContent/WEB-INF/web.xml` — 说明：Servlet 配置（过滤器链） — 文档：[部署与运行配置](100.ops/deploy.md) ✅

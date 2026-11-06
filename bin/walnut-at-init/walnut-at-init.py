@@ -5,7 +5,9 @@ walnut-at-init — Agent 测试工作目录（.at/）脚手架
 
 默认只初始化**客户端**（连接别人启动的实例）：
 生成 .at/whoami.json（身份牌）、.at/client/（会话缓存）、
-.at/_ottl/（一次性测试工具）、ATEST.md / LOCAL_REF.md 手册样例。
+.at/_ottl/（一次性测试工具）、.at/AGENTS.md（入口说明，
+内容是指向 use-wn-cli skill 与 LOCAL_REF.md 约定的引用）、
+ATEST.md / LOCAL_REF.md 手册样例。
 
 只有显式加 --with-server 才生成 .at/walnut/（级别 3 私有服务器配置）与
 .at/redis/data/（独立 redis 数据空间），且必须提供运行时服务配置
@@ -90,6 +92,34 @@ LOCAL_REF_SAMPLE = """# LOCAL_REF — 本工作目录引用的工程仓库
 | 名称 | 路径 | 用途 |
 |------|------|------|
 | walnut | D:/workspace/git/github/zozoh/walnut | 构建(build/)、公共工具(bin/)、产物(dist/wn4j) |
+"""
+
+# .at/AGENTS.md —— 智能体最敏感的入口文件名。内容刻意保持"引用"而非
+# 复制：真正的操作套路只有一份（walnut 仓库 doc/skill/use-wn-cli.skill.md），
+# 这里只指路。找 walnut 仓库的通用约定是 LOCAL_REF.md；找不到就停下
+# 来问主人，不遍历磁盘猜。
+AT_AGENTS_MD = """# AGENTS.md — 本目录是 Walnut 测试营地（.at/）
+
+本 `.at/` 由 walnut-at-init 生成：`whoami.json`（身份牌）、
+`client/session/`（会话缓存）、`_ottl/`（一次性脚本）。
+
+## 操作 Walnut 前必读
+
+先读 Walnut 仓库的 skill 文档 **`doc/skill/use-wn-cli.skill.md`**
+（操作套路：先查命令表、纯用命令、找不到命令就停下来问主人）。
+
+## 如何找到 Walnut 仓库
+
+1. 读本工作目录的 **`LOCAL_REF.md`**，里面有 walnut 仓库的本机路径。
+2. 没有 `LOCAL_REF.md`，或里面没写 walnut 路径？
+   **停下来问主人**，不要遍历磁盘瞎找。
+
+## 纪律
+
+- 先查命令表 / `man` 再动手；想做的事没有现成命令就停下来问主人
+- Git Bash 调用工具前 `export MSYS2_ARG_CONV_EXCL='*'`，路径参数加引号
+- 异常即停：原样贴出命令与输出，不重试、不绕过
+- 公共工具在 `<walnut>/bin/`，直接用同一份，不要复制到本目录
 """
 
 
@@ -231,6 +261,9 @@ def main():
     # ---------- 客户端骨架（默认行为） ----------
     w("client/session/.gitkeep", "", overwrite=args.force)
     w("_ottl/.gitkeep", "", overwrite=args.force)
+    # 入口说明：内容是"引用"（指向 walnut 的 skill 文档与 LOCAL_REF.md
+    # 约定），套路升级时只改 walnut 仓库那一份
+    w("AGENTS.md", AT_AGENTS_MD, overwrite=args.force)
 
     # ---------- 服务器骨架（仅 --with-server） ----------
     if args.with_server:

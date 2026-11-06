@@ -131,11 +131,12 @@ EOT 表（Expired Object Table，接口 WnExpiObjTable）登记 {id, expi, hold,
 节点崩溃则窗口过期后由别的节点接手。
 
 ```bash
-# 设置 1 小时后过期（%ms:now+1h 是时间表达式，见 datex）
-o ~/tmp/session.json -u 'expi:%ms:now+1h'
+# 设置 1 小时后过期（%ms:now+1h 是时间表达式，见 datex；
+# 宏值要加引号写成字符串，@update 落盘前会做宏展开）
+o ~/tmp/session.json @update 'expi:"%ms:now+1h"'
 
 # 永不 Exp（默认 0）
-o ~/tmp/session.json -u 'expi:0'
+o ~/tmp/session.json @update 'expi:0'
 ```
 
 配置在 `web.properties`：`expi-obj-clean-interval`（清理间隔）、

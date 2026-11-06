@@ -20,7 +20,7 @@ o /domain/abc.com -e 'domain:abc; site:main; tp:B; expi_at:1790000000000'
 o /domain/abc.com -del          # 下线
 ```
 
-见 域名映射。
+详细机制见 [域名转发](../45.website/10-domain-mapping.md)。
 
 ## Mongo 体检（mgadmin，root 专用）
 

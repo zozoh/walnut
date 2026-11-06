@@ -106,7 +106,7 @@ public class cmd_videoc extends JvmExecutor {
                 if (!t.hasThumbnail()) {
                     String thumbSize = params.get("thumb");
                     if (Strings.isBlank(thumbSize) || "true".equals(thumbSize))
-                        thumbSize = "64x64";
+                        thumbSize = "256x256";
                     sys.execf("iimg id:%s -thumb %s -Q", t.id(), thumbSize);
                     t = sys.io.checkById(t.id());
                 }

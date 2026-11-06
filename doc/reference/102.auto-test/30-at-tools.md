@@ -137,7 +137,10 @@ wn-cli.py init-node
 - **obj**：对象操作薄封装——`get / children / query / set /
   save-text / upload / content`，对接 `/o/*` 端点，只管文件字节与元数据。
   wn-cli 会自动去掉路径尾斜杠（`/o` 端点对 `/home/demo/` 这种写法
-  会报 noexists）。
+  会报 noexists）。**upload 打的是 `/o/save/stream`**（参数走 query
+  string，body 就是文件字节本身，mode r/s/a 语义与端点一致）——
+  不是 `/o/upload`，那个端点已 @Deprecated 且是另一套契约
+  （2026-11 实测：对它发 multipart 会报莫名其妙的 noexists）。
 - **mnt**：挂载本地目录。就是给目标对象写入 `mnt:"file://..."` 元数据
   （走 `o @update`），**写完必须自检**：立即 `ls` 目标路径，列出内容
   与预期不符或读不出端倪 → 报错退出（守则见 [Agent 测试守则](50-at-rules.md)）。
@@ -171,7 +174,11 @@ python bin/walnut-at-init/walnut-at-init.py [--name big-dad] \
 ```
 
 - 默认只初始化**客户端**：`whoami.json`、`client/session/`、`_ottl/`、
-  样例手册（ATEST.md / LOCAL_REF.md 等）。
+  `AGENTS.md`（入口说明，内容是**引用**——指向 walnut 仓库的
+  `doc/skill/use-wn-cli.skill.md`，并声明找 walnut 仓库走
+  `LOCAL_REF.md` 约定、找不到就停下来问主人；套路升级只改 walnut
+  仓库那一份）、样例手册（ATEST.md / LOCAL_REF.md 等）。
+  工具集自身的索引见 Walnut 仓库 `bin/README.md`。
 - `--name` 建立身份牌；已有 `whoami.json` 时可省略，沿用旧代号。
 - `--with-server` 才生成 `.at/walnut/`（级别 3 私有服务器配置）与
   `.at/redis/data/`（独立 redis 数据空间），且**必须提供
@@ -187,6 +194,8 @@ python bin/walnut-at-init/walnut-at-init.py [--name big-dad] \
   Jetty 会拿 conf 目录当 webapp 根直接起不来）；生成的 conf 把
   buck/swap 指向 `.at/walnut/` 下，生成的 `log4j2.xml` 把 `@LOG_DIR@`
   注入为 `.at/walnut/log/`（日志写文件，该目录随骨架创建）。
+  想把自己项目的挂载固化进配置，就编辑这份 conf 的 `init-mnt` 段，
+  见 [工作目录测试准备](40-at-project.md) 的"级别 3：挂载自己的项目"。
 - `--force` 刷新骨架样例文件，但仍不覆盖 `whoami.json` 与已有会话。
 - 重复运行全幂等：已存在的一律 `kept`，不会清空重来。
 
@@ -199,6 +208,9 @@ python bin/walnut-at-init/walnut-at-init.py [--name big-dad] \
   会被本地 shell 抢先展开成 Windows 用户目录。从 Git Bash 调用这些
   工具时先 `export MSYS2_ARG_CONV_EXCL='*'` 关掉转换，且路径参数
   一律加引号（如 `"~/data"`），展开交给 wn-cli 做。
+  wn-cli 自带防线：路径参数出现盘符开头或 `/c/...` 挂载形式、或命令
+  文本里出现落在 MSYS 根目录下的盘符片段，直接以退出码 1 报错并提示
+  上述环境变量与引号纪律，不会把改坏的路径发给服务端。
 - 所有工具不内置任何密码；凭据一律来自参数或工作目录的测试信息文件。
 - 工具的 `--help` 必须能独立看懂：智能体经常只读 help 不读文档。
 

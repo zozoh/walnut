@@ -59,7 +59,7 @@ chown xiaobai:demo ~/a.txt  # 改创建者/属组
 ```
 
 - **向上查祖先**：对象自己没有 `pvg` 就问父目录，父有就按父的
-- 常见用法：给协作目录开放给特定伙伴 `o ~/shared -u 'pvg:{"partner_id":7}'`
+- 常见用法：给协作目录开放给特定伙伴 `o ~/shared @update 'pvg:{"partner_id":7}'`
 
 ## 第 3 层：业务权限（角色 × 动作）
 

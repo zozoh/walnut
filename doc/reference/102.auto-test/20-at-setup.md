@@ -1,7 +1,7 @@
 ---
 title: 启动服务与建立测试域
 module: 102.auto-test
-keywords: [启动, 停止, admin-port, wn-ping, login_mode, adduser, 测试域, PASSWORD_ONLY, 票据, pid, whoami, init-node, 数据库隔离, build.rs.json, 私有 redis, 数据源清单]
+keywords: [启动, 停止, admin-port, wn-ping, login_mode, adduser, 测试域, PASSWORD_ONLY, 票据, pid, whoami, init-node, 数据库隔离, build.rs.json, 私有 redis, 数据源清单, 杀软查杀, start.cmd 消失, 火绒, 日志位置, access.log]
 source:
   - web/WnLauncher.java
   - web/setup/WnSetup.java
@@ -61,7 +61,10 @@ wn-ping 不通 → 端口被占？那是别的程序，报错走人
 classpath 读 `web.properties`，按 `app-port` 起内嵌 Jetty。
 `start.cmd` 负责拼 classpath（生效 conf 目录 → `core/conf/` →
 `core/walnut.jar` → `deps/*`，见 [构建 Walnut 测试服务](10-at-build.md)）、探测 java、后台拉起
-JVM，并把启动信息登记到**运行锁文件** `run/pid-<port>.json`（`--pid-dir`
+JVM，**校验它真的起来了**（轮询端口就绪约 40 秒；JVM 中途退出——
+典型如端口被占的 BindException——或超时未就绪，立即打印日志尾部、
+杀掉残留 JVM 并以非零码退出，不留运行锁），成功后才把启动信息
+登记到**运行锁文件** `run/pid-<port>.json`（`--pid-dir`
 可改目录，默认 `<dist>/run`）：
 
 ```json
@@ -140,6 +143,51 @@ redis 先落 RDB 再退出），docker 模式 `docker stop <容器>`（SIGTERM
 
 找不到运行锁文件就不动手——**分不清是谁的实例，宁可不停**。
 级别 3 的多实例共存靠各自独立的 app-port / admin-port 错开。
+
+## 启动即失败：先怀疑杀软，再怀疑脚本
+
+有一类启动失败的现象非常迷惑（2026-11 实测，杀软为火绒）：
+
+```text
+start_with_redis.cmd 跑到委托 start.cmd 那一步，报：
+'"D:\...\dist\wn4j\sbin\..\sbin\start.cmd"' is not recognized
+  as an internal or external command
+或：找不到批处理文件。
+```
+
+报错文本把矛头指向路径拼接（`..\sbin\..`），但**路径是无辜的**——
+真正的原因是 `sbin/start.cmd` 在**被执行的瞬间**被杀毒软件查杀了：
+`start.cmd` 用 PowerShell `Start-Process -WindowStyle Hidden` 后台拉起
+JVM 并重定向输出，这正是杀软启发式规则里的经典"投放器"特征。
+文件静置时安然无恙（构建能通过产物校验、手动拷回也在），cmd 一打开
+它执行，就被实时防护删掉——于是委托调用扑空，报出上面两种错误。
+
+判据与处置：
+
+- 对照 [构建 Walnut 测试服务](10-at-build.md) 的产物布局表检查 `sbin/`：
+  `stop.cmd`、`start_with_redis.cmd` 都在，唯独 `start.cmd` 反复消失
+  （可以从 `build/start.cmd` 拷回再执行验证：一跑就没，即可确诊）。
+- 在杀软里把 `dist/` 目录加**信任区**（建议连 `build/` 一起，否则
+  下次构建的产物还会被删），再从 `build/start.cmd` 把模板拷回产物。
+- 不要去"修复"脚本的 `..` 路径拼接来绕过——`call` 带 `..` 的 quoted
+  路径在 cmd 里是正常工作的（已做对照实验），改了只是掩盖真因。
+- 历史记录：腾讯电脑管家等同类型杀软在本机也有驻留，凡装有实时
+  防护的 Windows 机器都可能踩这个坑；加信任区是人的动作，智能体
+  不要试图自己绕过杀软。
+
+## 日志在哪看
+
+排查问题的第一手证据（时间戳是 UTC，比本地慢 8 小时）：
+
+- 级别 2：业务日志在 `<walnut仓库>/.at/walnut/log/`
+  （`access.log` 每请求一行，含身份与解码后的真实参数；
+  另有 `cmd.log`/`core.log`/`sql.log`/`box.log`/`bgt*.log`）；
+  启动的 stdout/stderr 在 `dist/wn4j/run/walnut-<port>.log|.err`。
+- 级别 3：同样布局，在智能体自己工作目录的 `.at/walnut/log/`。
+- 级别 1：日志在开发者 IDE 控制台，智能体不要去翻，请主人帮忙看。
+
+行为与预期不符时，先看 `access.log` 确认客户端实际发出了什么，
+再构建理论——理论和日志冲突时，永远信日志。
 
 ## 建立测试域：登录失败的两种含义
 

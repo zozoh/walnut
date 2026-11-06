@@ -33,11 +33,11 @@ import argparse
 import base64
 import getpass
 import json
+import mimetypes
 import os
 import re
 import sys
 import time
-import uuid
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -50,6 +50,55 @@ EXIT_AUTH = 3
 EXIT_BAD = 4
 
 TICKET_HEADER = "x-walnut-ticket"
+
+# Git Bash / MSYS2 会把 /app 这类参数转换成盘符路径（C:/Program Files/Git/app），
+# 裸 ~ 也会被 bash 本地展开成 /c/Users/<name>（MSYS 盘符挂载形式）。
+# Walnut 路径永远不可能是这两种形态，所以在客户端直接拦截并报出解方。
+MSYS_HINT = ("这个参数像是被 Git Bash 的 MSYS2 路径转换/波浪号展开改写过。\n"
+             "请在执行 wn-cli 前先: export MSYS2_ARG_CONV_EXCL='*'，\n"
+             "并且路径参数一律加引号（如 \"~/tmp\"）")
+
+
+def _msys_root_fragments():
+    """已知的 MSYS 根目录特征片段（小写、正斜杠）。"""
+    frags = ["program files/git", "program files (x86)/git",
+             "msys64", "mingw64", "/usr/bin"]
+    for var in ("EXEPATH", "MSYS2_ROOT"):
+        v = os.environ.get(var)
+        if v:
+            frags.append(v.replace("\\", "/").lower().rstrip("/"))
+    return frags
+
+
+def guard_msys_path(path, what="Walnut 路径"):
+    """Walnut 路径参数出现 X:/ 盘符开头，或 /c/... 这种 MSYS 挂载形式
+    （Walnut 顶层目录没有单字母的），几乎一定是本地 shell 改写产物。"""
+    if path and (re.match(r"^[A-Za-z]:[/\\]", path)
+                 or re.match(r"^/[A-Za-z][/\\]", path)
+                 or re.match(r"^/[A-Za-z]$", path)):
+        raise WnError(EXIT_USAGE, "%s 不应该是盘符/MSYS 挂载路径: %s\n%s"
+                      % (what, path, MSYS_HINT))
+
+
+def guard_msys_text(text):
+    """命令文本里扫描被 MSYS 转换/波浪号展开过的片段:
+    - X:/<已知 MSYS 根目录>（路径可带空格；file://D:/... 冒号前是 / 不误伤）
+    - /x/users/ 与 /x/<已知 MSYS 根目录>（bash 把裸 ~ 展开成 /c/Users/<name>）
+    """
+    low = text.replace("\\", "/").lower()
+    pats = [r"(?<![\w/.:\\-])/[a-z]/users/"]
+    for f in _msys_root_fragments():
+        f = re.sub(r"^[a-z]:", "", f).lstrip("/")  # EXEPATH 可能自带盘符
+        if not f:
+            continue
+        pats.append(r"(?<![\w/.:\\-])[a-z]:/" + re.escape(f))
+        pats.append(r"(?<![\w/.:\\-])/[a-z]/" + re.escape(f))
+    for p in pats:
+        m = re.search(p, low)
+        if m:
+            raise WnError(EXIT_USAGE,
+                          "命令文本里发现疑似 MSYS 转换产物: %s...\n%s"
+                          % (m.group(0), MSYS_HINT))
 
 
 class WnError(Exception):
@@ -253,6 +302,7 @@ class WnClient:
             path = home + path[1:]
         if len(path) > 1 and path.endswith("/"):
             path = path.rstrip("/")
+        guard_msys_path(path)
         return path
 
     def _req(self, method, path, retried=False, **kw):
@@ -296,6 +346,7 @@ class WnClient:
         return re.sub(r"(?<![\w/])~(?=/|\s|$)", home, text)
 
     def cmd(self, text):
+        guard_msys_text(text)
         text = self._expand_tilde(text)
         st, body = self._req("POST", "/a/run/wn-term",
                              form={"cmd": text, "mime": "text/plain"})
@@ -343,23 +394,20 @@ class WnClient:
         return body
 
     def obj_upload(self, path, file_path, mode="r"):
-        """multipart 上传。mode: r=替换/自动 s=严格 a=追加（语义见 ObjModule）"""
+        """原始字节流上传到 /o/save/stream（QueryStringAdaptor：
+        参数走 query string，body 就是文件内容本身）。
+        mode: r=替换/自动 s=严格(目标文件必须存在) a=追加(按模板重名避让)
+        注意不是 /o/upload——那个端点已 @Deprecated 且契约不同。"""
         path = self._ph(path)
         file_path = Path(file_path)
-        boundary = uuid.uuid4().hex
-        head = (
-            "--%s\r\nContent-Disposition: form-data; name=\"str\"\r\n\r\n%s\r\n"
-            "--%s\r\nContent-Disposition: form-data; name=\"mode\"\r\n\r\n%s\r\n"
-            "--%s\r\nContent-Disposition: form-data; name=\"nm\"\r\n\r\n%s\r\n"
-            "--%s\r\nContent-Disposition: form-data; name=\"file\"; "
-            "filename=\"%s\"\r\nContent-Type: application/octet-stream\r\n\r\n"
-        ) % (boundary, path, boundary, mode, boundary, file_path.name,
-             boundary, file_path.name)
-        tail = "\r\n--%s--\r\n" % boundary
-        body = head.encode("utf-8") + file_path.read_bytes() + tail.encode("utf-8")
-        st, rb = self._req("POST", "/o/upload", body=body,
+        data = file_path.read_bytes()
+        mime = mimetypes.guess_type(file_path.name)[0] \
+            or "application/octet-stream"
+        params = {"str": path, "nm": file_path.name, "m": mode,
+                  "sz": str(len(data)), "mime": mime}
+        st, rb = self._req("POST", "/o/save/stream", params=params, body=data,
                            headers={"Content-Type":
-                                    "multipart/form-data; boundary=%s" % boundary})
+                                    "application/octet-stream"})
         self._check(st, rb)
         return json.loads(rb.decode("utf-8", "replace"))
 

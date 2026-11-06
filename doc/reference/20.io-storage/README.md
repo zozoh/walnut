@@ -146,6 +146,6 @@ mount ~/static 'file:///var/www/static/'
 # 内容进对象存储（配置 ~/.io/s3/backup.json5）
 mount ~/videos 'vofs://s3:/home/demo#backup'
 
-# 到期自动删除
-o ~/tmp/session.json -u 'expi:%ms:now+1h'
+# 到期自动删除（宏值加引号，@update 落盘前做宏展开）
+o ~/tmp/session.json @update 'expi:"%ms:now+1h"'
 ```

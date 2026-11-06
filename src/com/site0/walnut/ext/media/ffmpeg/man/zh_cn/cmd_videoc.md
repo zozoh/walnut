@@ -14,7 +14,7 @@ videoc 视频文件 [-vkFo] [-mode 正则] [-thumb 尺寸] [-bv N] [-ba N] [-vco
   -o        # 输出转换后视频对象的完整元数据；默认输出转换目录 ID
   -mode     # 转换模式（对 "preview_image|preview_video|main_video" 做正则匹配）
             # 如只生成预览：-mode "^preview"；只生成主视频：-mode "main"
-  -thumb    # 预览图的缩略图尺寸，默认 64x64
+  -thumb    # 预览图的缩略图尺寸，默认 256x256
   -bv       # 视频码率（kbps），默认 3000
   -ba       # 音频码率（kbps），默认 64
   -vcodec   # 视频编码，默认 libx264

@@ -3,7 +3,7 @@ title: 部署与运行配置
 module: 100.ops
 keywords: [部署, web.xml, WnMainModule, conf/ioc, web.properties, 集群, Redis 锁]
 source: [web/, jetty/, conf/]
-related: [domain-mapping, sys-admin, security-notes, troubleshooting, ../00.start-here/quick-start.md]
+related: [10-domain-mapping, sys-admin, security-notes, troubleshooting, ../00.start-here/quick-start.md]
 ---
 
 # 部署与运行配置概述
@@ -15,7 +15,7 @@ Walnut 是一个 Servlet 应用（war 包或内嵌 jetty），运行骨架由 `w
 `WebContent/WEB-INF/web.xml` 过滤器链：
 
 ```text
-请求 → WalnutFilter（域名路由，见 [域名映射](domain-mapping.md)）
+请求 → WalnutFilter（域名路由，见 [域名转发](../45.website/10-domain-mapping.md)）
      → NutFilter（Nutz MVC，进入 WnMainModule）
      → regapi / 静态资源 / websocket ...
 ```
@@ -37,7 +37,7 @@ Walnut 是一个 Servlet 应用（war 包或内嵌 jetty），运行骨架由 `w
 ```text
 conf/
 |-- web.properties        # 核心运行参数（见下）
-|-- hostmap               # 域名路由正则表（见域名映射）
+|-- hostmap               # 域名路由正则表（见域名转发）
 |-- mime.properties       # 扩展名 → MIME
 |-- log4j2.xml            # 日志
 |-- chain/walnut-chain.js # Nutz 动作链
@@ -89,6 +89,6 @@ conf/
 
 # 延伸阅读
 
-- 域名映射
+- [域名转发](../45.website/10-domain-mapping.md) — 按域名把请求路由到域的应用
 - 故障排查
 - 快速开始

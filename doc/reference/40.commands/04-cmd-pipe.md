@@ -74,7 +74,7 @@ export A=42 ; echo ${A}       # 42（export 设置会话环境变量）
 echo "today is `date '+%F'`"
 
 # 组合示例：根据管道内容动态生成命令
-o ~/docs -tmpl 'o id:@{id} -u \'star:1\';' | run
+o ~/docs @query @tmpl 'o id:${id} @update \'star:1\';' | run
 ```
 
 反引号替换发生在最外层，因此可以嵌套管道与重定向。
@@ -84,8 +84,8 @@ o ~/docs -tmpl 'o id:@{id} -u \'star:1\';' | run
 `run` 把标准输入读到的文本，**逐行**作为命令执行，每行一个独立沙箱：
 
 ```bash
-# o -tmpl 生成批量命令文本，run 逐行执行
-o /domain -tmpl 'o id:@{id} -u \'tp:"A"\';' | run
+# o ... @query @tmpl 生成批量命令文本，run 逐行执行
+o /domain @query @tmpl 'o id:${id} @update \'tp:"A"\';' | run
 
 # 手工构造命令列表
 echo 'touch ~/a.txt

@@ -5,6 +5,7 @@
 ## 已完成
 
 1. [编写文档](write-walnut-doc.skill.md)
+2. [用 wn-cli 操作 Walnut](use-wn-cli.skill.md)
 
 ## 规划中（尚未编写，先不要引用）
 
