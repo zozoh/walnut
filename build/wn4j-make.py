@@ -315,8 +315,8 @@ def do_dist():
     for d in ["conf", "core", "sbin", "deps", "ROOT", "run"]:
         (D_OUT / d).mkdir()
 
-    # 确保二级启动的数据目录存在（桶/swap/redis RDB）
-    for d in ["walnut/buck", "walnut/swap", "redis/data"]:
+    # 确保二级启动的数据目录存在（桶/swap/redis RDB/日志）
+    for d in ["walnut/buck", "walnut/swap", "walnut/log", "redis/data"]:
         (WALNUT_AT / d).mkdir(parents=True, exist_ok=True)
 
     # --- conf: 模板改写（只注入 Walnut 连接信息，私有 redis 进程配置给测试工具链，见下）---
@@ -345,8 +345,13 @@ def do_dist():
         gen = re.sub(r"^global-bm-swap=.*$",
                      "global-bm-swap=%s" % rs["swap"], gen, flags=re.M)
     (D_OUT / "conf" / "web_local.properties").write_text(gen, encoding="utf-8")
-    shutil.copyfile(str(D_BIN / "log4j2.xml"),
-                    str(D_OUT / "conf" / "log4j2.xml"))
+    # log4j2.xml 以模板注入日志目录：二级启动的日志也放数据家
+    # （.at/walnut/log/），不留在 dist 里
+    LOG_DIR = WALNUT_AT / "walnut" / "log"
+    log_xml = (D_BIN / "log4j2.xml").read_text(encoding="utf-8")
+    (D_OUT / "conf" / "log4j2.xml").write_text(
+        log_xml.replace("@LOG_DIR@", str(LOG_DIR).replace(os.sep, "/")),
+        encoding="utf-8")
     print(" ++ conf/ (web_local.properties 已生成, mnt-file-allow=%s, mongo-db=%s, redis-db=%s)"
           % (mnt_allow, mo.get("db"), rd.get("db")))
 

@@ -3,45 +3,141 @@
     
     <Appenders>
         <!-- 控制台输出 -->
-        <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%5p[%t]%d{yyMMdd HH:mm:ss.SSS}{UTC}: %m%n"/>
+        <Console name="A" target="SYSTEM_OUT">
+            <PatternLayout pattern="%5p[%t]%d{yyMMdd'T'HH:mm:ss.SSS}{UTC}: %m%n"/>
         </Console>
+
+        <!-- 文件输出 Appenders：目录由 @LOG_DIR@ 注入
+             （二级启动 = Walnut 仓库 .at/walnut/log，
+               三级启动 = 智能体工作目录 .at/walnut/log） -->
+        <RollingFile name="core" fileName="@LOG_DIR@/core.log"
+                    filePattern="@LOG_DIR@/core-%d{yyyy-MM-dd}.log">
+            <PatternLayout pattern="%5p[%t]%d{yyMMdd'T'HH:mm:ss.SSS}{UTC}: %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+        </RollingFile>
+
+        <!-- 文件输出 Appenders -->
+        <RollingFile name="cmd" fileName="@LOG_DIR@/cmd.log"
+                    filePattern="@LOG_DIR@/cmd-%d{yyyy-MM-dd}.log">
+            <PatternLayout pattern="%5p[%t]%d{yyMMdd'T'HH:mm:ss.SSS}{UTC}: %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+        </RollingFile>
+
+        <!-- 文件输出 Appenders -->
+        <RollingFile name="sql" fileName="@LOG_DIR@/sql.log"
+                    filePattern="@LOG_DIR@/sql-%d{yyyy-MM-dd}.log">
+            <PatternLayout pattern="%5p[%t]%d{yyMMdd'T'HH:mm:ss.SSS}{UTC}: %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+        </RollingFile>
+
+        <RollingFile name="access" fileName="@LOG_DIR@/access.log"
+                    filePattern="@LOG_DIR@/access-%d{yyyy-MM-dd}.log">
+            <PatternLayout pattern="%5p[%t]%d{yyMMdd'T'HH:mm:ss.SSS}{UTC}: %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+        </RollingFile>
+
+        <RollingFile name="box" fileName="@LOG_DIR@/box.log"
+                    filePattern="@LOG_DIR@/box-%d{yyyy-MM-dd}.log">
+            <PatternLayout pattern="%5p[%t]%d{yyMMdd'T'HH:mm:ss.SSS}{UTC}: %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+        </RollingFile>
+
+        <RollingFile name="bgt" fileName="@LOG_DIR@/bgt.log"
+                    filePattern="@LOG_DIR@/bgt-%d{yyyy-MM-dd}.log">
+            <PatternLayout pattern="%5p[%t]%d{yyMMdd'T'HH:mm:ss.SSS}{UTC}: %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+        </RollingFile>
+
+        <RollingFile name="bgt_task" fileName="@LOG_DIR@/bgt_task.log"
+                    filePattern="@LOG_DIR@/bgt_task-%d{yyyy-MM-dd}.log">
+            <PatternLayout pattern="%5p[%t]%d{yyMMdd'T'HH:mm:ss.SSS}{UTC}: %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+        </RollingFile>
+
+        <RollingFile name="bgt_schedule" fileName="@LOG_DIR@/bgt_schedule.log"
+                    filePattern="@LOG_DIR@/bgt_schedule-%d{yyyy-MM-dd}.log">
+            <PatternLayout pattern="%5p[%t]%d{yyMMdd'T'HH:mm:ss.SSS}{UTC}: %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+        </RollingFile>
+
+        <RollingFile name="bgt_cron" fileName="@LOG_DIR@/bgt_cron.log"
+                    filePattern="@LOG_DIR@/bgt_cron-%d{yyyy-MM-dd}.log">
+            <PatternLayout pattern="%5p[%t]%d{yyMMdd'T'HH:mm:ss.SSS}{UTC}: %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+        </RollingFile>
     </Appenders>
     
     <Loggers>
         <!-- 根日志记录器 -->
         <Root level="warn">
-            <AppenderRef ref="Console"/>
+            <AppenderRef ref="A"/>
         </Root>
         
         <!-- 第三方库日志级别 -->
-        <Logger name="org.eclipse" level="info"/>
-        <Logger name="org.nutz" level="warn"/>
-        <Logger name="org.nutz.weixin" level="warn"/>
-        <Logger name="org.elasticsearch" level="debug"/>
+        <Logger name="org.eclipse" level="info" additivity="true"/>
+        <Logger name="org.nutz" level="warn" additivity="true"/>
+        <Logger name="org.nutz.weixin" level="warn" additivity="true"/>
+        <Logger name="org.elasticsearch" level="debug" additivity="true"/>
+        <Logger name="org.nutz.dao" level="debug" additivity="true"/>
         
-        <!-- 自定义日志记录器 -->
-        <Logger name="MAIN" level="info"/>
-        <Logger name="IO" level="info"/>
-        <Logger name="AUTH" level="warn"/>
-        <Logger name="BOX" level="info"/>
-        <Logger name="HOOK" level="info"/>
-        <Logger name="CMD" level="debug"/>
-        <Logger name="SQL" level="info"/>
-        <Logger name="APP" level="info"/>
-        <Logger name="AC" level="info"/>
-        <Logger name="BG_CLEANER" level="info"/>
-        <Logger name="BG_TASK" level="debug"/>
-        <Logger name="BG_SCHEDULE" level="warn"/>
-        <Logger name="BG_CRON" level="warn"/>
-        <Logger name="TEST" level="debug"/>
-        
-        <!-- 如果需要为自定义日志器指定输出，取消注释并修改 -->
-        <!--
-        <Logger name="MAIN" level="info">
-            <AppenderRef ref="Console"/>
+        <!-- 自定义日志记录器 - additivity=false -->
+        <Logger name="MAIN" level="info" additivity="false">
+            <AppenderRef ref="core"/>
         </Logger>
-        -->
+        <Logger name="IO" level="info" additivity="false">
+            <AppenderRef ref="core"/>
+        </Logger>
+        <Logger name="AUTH" level="info" additivity="false">
+            <AppenderRef ref="core"/>
+        </Logger>
+        <Logger name="BOX" level="info" additivity="false">
+            <AppenderRef ref="box"/>
+        </Logger>
+        <Logger name="HOOK" level="info" additivity="false">
+            <AppenderRef ref="box"/>
+        </Logger>
+        <Logger name="CMD" level="info" additivity="false">
+            <AppenderRef ref="cmd"/>
+        </Logger>
+        <Logger name="SQL" level="info" additivity="false">
+            <AppenderRef ref="sql"/>
+        </Logger>
+        <Logger name="APP" level="info" additivity="false">
+            <AppenderRef ref="core"/>
+        </Logger>
+        <Logger name="AC" level="info" additivity="false">
+            <AppenderRef ref="access"/>
+        </Logger>
+        <Logger name="BG_CLEANER" level="info" additivity="false">
+            <AppenderRef ref="bgt"/>
+        </Logger>
+        <Logger name="BG_TASK" level="info" additivity="false">
+            <AppenderRef ref="bgt_task"/>
+        </Logger>
+        <Logger name="BG_SCHEDULE" level="info" additivity="false">
+            <AppenderRef ref="bgt_schedule"/>
+        </Logger>
+        <Logger name="BG_CRON" level="info" additivity="false">
+            <AppenderRef ref="bgt_cron"/>
+        </Logger>
     </Loggers>
     
 </Configuration>

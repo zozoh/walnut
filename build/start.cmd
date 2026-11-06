@@ -33,24 +33,21 @@ if "%PID_DIR%"=="" set "PID_DIR=%DIST_HOME%\run"
 if not exist "%PID_DIR%" mkdir "%PID_DIR%" >nul
 
 REM ---------- resolve ports: conf dir web_local.properties first ----------
+REM NOTE: one findstr per file (it returns only the matching lines). The
+REM old line-by-line echo|findstr cost one process spawn per line -
+REM on a laptop with AV that was ~15ms x 300+ lines per missing key.
 set "APP_PORT="
 set "ADMIN_PORT="
 for %%F in ("%CONF_DIR%\web_local.properties" "%DIST_HOME%\core\conf\web.properties") do (
   if exist "%%~fF" (
     if "!APP_PORT!"=="" (
-      for /f "usebackq tokens=1,2 delims==" %%A in ("%%~fF") do (
-        if "!APP_PORT!"=="" (
-          echo %%A|findstr /i /r "^app-port" >nul
-          if !errorlevel! equ 0 set "APP_PORT=%%B"
-        )
+      for /f "usebackq tokens=1,2 delims==" %%A in (`findstr /i /r /c:"^app-port=" "%%~fF"`) do (
+        if "!APP_PORT!"=="" set "APP_PORT=%%B"
       )
     )
     if "!ADMIN_PORT!"=="" (
-      for /f "usebackq tokens=1,2 delims==" %%A in ("%%~fF") do (
-        if "!ADMIN_PORT!"=="" (
-          echo %%A|findstr /i /r "^admin-port" >nul
-          if !errorlevel! equ 0 set "ADMIN_PORT=%%B"
-        )
+      for /f "usebackq tokens=1,2 delims==" %%A in (`findstr /i /r /c:"^admin-port=" "%%~fF"`) do (
+        if "!ADMIN_PORT!"=="" set "ADMIN_PORT=%%B"
       )
     )
   )

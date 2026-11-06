@@ -41,12 +41,14 @@ if not exist "%PID_DIR%" mkdir "%PID_DIR%" >nul
 goto main
 
 REM ============================================================
-REM  subroutine: locate docker (PATH first, then the well-known
-REM  Docker Desktop install dir). usage: call :find_docker
+REM  subroutine: locate docker.exe (PATH first, then the well-known
+REM  Docker Desktop install dir; ask where.exe for docker.exe so the
+REM  extensionless bash shim in Docker Desktop's bin dir never wins)
+REM  usage: call :find_docker
 REM ============================================================
 :find_docker
 set "DOCKER_EXE="
-for /f "usebackq delims=" %%J in (`where.exe docker 2^>nul`) do if not defined DOCKER_EXE set "DOCKER_EXE=%%J"
+for /f "usebackq delims=" %%J in (`where.exe docker.exe 2^>nul`) do if not defined DOCKER_EXE set "DOCKER_EXE=%%J"
 if not defined DOCKER_EXE if exist "C:\Program Files\Docker\Docker\resources\bin\docker.exe" set "DOCKER_EXE=C:\Program Files\Docker\Docker\resources\bin\docker.exe"
 exit /b 0
 

@@ -185,7 +185,8 @@ python bin/walnut-at-init/walnut-at-init.py [--name big-dad] \
   `mnt-file-allow`（白名单 = 本工作目录）全部自带（classpath 里私有
   conf 排在 core/conf 之前，而内核默认那几项是开发者机器路径，缺了
   Jetty 会拿 conf 目录当 webapp 根直接起不来）；生成的 conf 把
-  buck/swap 指向 `.at/walnut/` 下。
+  buck/swap 指向 `.at/walnut/` 下，生成的 `log4j2.xml` 把 `@LOG_DIR@`
+  注入为 `.at/walnut/log/`（日志写文件，该目录随骨架创建）。
 - `--force` 刷新骨架样例文件，但仍不覆盖 `whoami.json` 与已有会话。
 - 重复运行全幂等：已存在的一律 `kept`，不会清空重来。
 

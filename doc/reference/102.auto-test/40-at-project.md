@@ -28,6 +28,7 @@ related: [README, 20-at-setup, 30-at-tools, 50-at-rules]
 |   |-- walnut/           # 级别 3：服务器配置与私有数据目录（--with-server 才生成）
 |   |   |-- buck/         #   global-bm-bucket
 |   |   |-- swap/         #   global-bm-swap
+|   |   |-- log/          #   Walnut 日志文件（log4j2.xml 的 @LOG_DIR@）
 |   |   |-- conf/
 |   |       |-- web_local.properties   # 本工程私有的 Walnut 配置（首次由
 |   |       |                          #   build.rs.json 生成；之后它就是权威配置，
@@ -51,7 +52,7 @@ related: [README, 20-at-setup, 30-at-tools, 50-at-rules]
 
 级别 2 的对应物不在工作目录，而在 Walnut 仓库根的 `.at/`
 （见 [构建 Walnut 测试服务](10-at-build.md) 的数据家一节）：
-`{Walnut}/.at/walnut/{buck,swap}` 与 `{Walnut}/.at/redis/data/`——
+`{Walnut}/.at/walnut/{buck,swap,log}` 与 `{Walnut}/.at/redis/data/`——
 那是二级启动的共享数据家，不是任何智能体的工作目录（没有
 whoami/client/_ottl 的私有积累）。
 
@@ -118,10 +119,10 @@ whoami/client/_ottl 的私有积累）。
 
 - `.at/whoami.json`、`.at/client/session/*.json` 含身份与凭据，
   **必须 gitignore**；`_ottl/`、`walnut/buck/`、`walnut/swap/`、
-  `walnut/conf/`、`redis/data/`（里面的 RDB 可能很大）同样忽略。
-  骨架与样例手册可以提交，方便同伴复刻营地。
+  `walnut/log/`、`walnut/conf/`、`redis/data/`（里面的 RDB 可能很大）
+  同样忽略。骨架与样例手册可以提交，方便同伴复刻营地。
 - Walnut 仓库根的 `.at/` 是**二级启动的数据家**（构建时自动创建
-  `walnut/{buck,swap}`、`redis/data/`），同时也是 `.at/` 布局的
+  `walnut/{buck,swap,log}`、`redis/data/`），同时也是 `.at/` 布局的
   骨架样例（`.gitkeep` 文件照常提交）；它不是智能体工作目录。
 
 # 扩展阅读

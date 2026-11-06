@@ -40,6 +40,7 @@ walnut.iml
 /.at/client/session/*.json
 /.at/walnut/buck/
 /.at/walnut/swap/
+/.at/walnut/log/
 /.at/walnut/conf/
 /.at/redis/data/*
 !/.at/redis/data/.gitkeep

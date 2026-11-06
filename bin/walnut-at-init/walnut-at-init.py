@@ -51,6 +51,7 @@ GITIGNORE_BLOCK = """
 .at/walnut/conf/
 .at/walnut/buck/
 .at/walnut/swap/
+.at/walnut/log/
 .at/redis/data/*
 !.at/redis/data/.gitkeep
 .at/_ottl/*
@@ -249,12 +250,17 @@ def main():
         # 素材，运行期一切信息都在 conf 里，留档只会制造"改哪个"的歧义
         w("walnut/conf/web_local.properties", gen_server_conf(rs, work),
           overwrite=args.force)
-        src_log4j = WALNUT_ROOT / "conf" / "log4j2.xml"
+        # 日志配置：以 build/ 模板生成，日志目录注入本工作目录
+        # .at/walnut/log/（三级启动的日志跟数据一样留在工作目录）
+        src_log4j = WALNUT_ROOT / "build" / "log4j2.xml"
         if src_log4j.exists():
-            w("walnut/conf/log4j2.xml", src_log4j.read_text(encoding="utf-8"),
+            log_dir = (work / ".at/walnut/log").as_posix()
+            log_xml = src_log4j.read_text(encoding="utf-8")
+            w("walnut/conf/log4j2.xml", log_xml.replace("@LOG_DIR@", log_dir),
               overwrite=args.force)
         w("walnut/buck/.gitkeep", "", overwrite=args.force)
         w("walnut/swap/.gitkeep", "", overwrite=args.force)
+        w("walnut/log/.gitkeep", "", overwrite=args.force)
         # 级别 3 也可能要独立 redis 数据空间（start_with_redis.cmd
         # 会从 --conf 推导出 <work>/.at/redis/data）
         w("redis/data/.gitkeep", "", overwrite=args.force)

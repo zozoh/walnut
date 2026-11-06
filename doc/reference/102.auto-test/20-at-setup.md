@@ -100,10 +100,15 @@ data sources:
   mysql: 127.0.0.1:3306 db=walnut usr=root [info only]   # 仅 conf 配了 mysql-* 键时打印
   buck : D:/workspace/git/github/zozoh/walnut/.at/walnut/buck
   swap : D:/workspace/git/github/zozoh/walnut/.at/walnut/swap
+  app  : http://127.0.0.1:8080
+  admin: 127.0.0.1:8081
 ```
 
 （级别 3 时 buck/swap/redis dir 指向智能体工作目录 `.at/` 下的对应
-路径；redis 数据源行按 REDIS_SERVER 烘焙来源显示 exe 或 img/ctr。）
+路径；redis 数据源行按 REDIS_SERVER 烘焙来源显示 exe 或 img/ctr；
+`app` 行是服务端口（`app-port`，HTTP 访问地址），`admin` 行是管理
+端口（`admin-port`，未显式配置时自动取 `app-port + 1`），供温柔
+停机与 `wn-down` 使用。）
 
 **停止优先走温柔路线**：nutz-web 的 WebServer 启动后会在 admin-port 上
 监听一个 socket（`new ServerSocket(port)` 绑所有网卡——名叫 localListen
@@ -205,10 +210,10 @@ root 密码的缺省值是构建配置里的 `root-init-passwd`；测试信息�
 
 **数据家**（持久化数据一律放这里，dist 是程序目录、删了不心疼）：
 
-| 级别 | buck / swap | redis RDB |
-|------|-------------|-----------|
-| 2（默认 conf） | `<Walnut>/.at/walnut/{buck,swap}` | `<Walnut>/.at/redis/data/`（`@WALNUT_AT@` 烘焙） |
-| 3（`--conf`） | `<work>/.at/walnut/{buck,swap}`（walnut-at-init 生成） | `<work>/.at/redis/data/`（由 conf 目录位置推导：`<conf>\..\..`） |
+| 级别 | buck / swap | redis RDB | 日志 |
+|------|-------------|-----------|------|
+| 2（默认 conf） | `<Walnut>/.at/walnut/{buck,swap}` | `<Walnut>/.at/redis/data/`（`@WALNUT_AT@` 烘焙） | `<Walnut>/.at/walnut/log/`（`log4j2.xml` 的 `@LOG_DIR@` 烘焙） |
+| 3（`--conf`） | `<work>/.at/walnut/{buck,swap}`（walnut-at-init 生成） | `<work>/.at/redis/data/`（由 conf 目录位置推导：`<conf>\..\..`） | `<work>/.at/walnut/log/`（walnut-at-init 生成） |
 
 **职责划分**（重要）：`start.cmd` / `stop.cmd` 永远只启停 Walnut
 服务本身，不含任何 redis 逻辑。redis 来源是**构建期**的
@@ -230,9 +235,11 @@ exe 路径 / Docker 规格）；运行期需要的一切（端口/db/密码/mong
   docker 模式创建等效容器），写锁，并用 redis-cli ping（exe）或
   TCP 端口（docker）探测就绪。
 - docker 模式的容器复用有**两道校验**：宿主端口绑定必须等于生效 conf
-  的 `redis-port`，数据卷挂载点必须等于本次的数据目录——旧布局创建
-  的容器两项必居其一不匹配，拒绝并提示 `docker rm -f` 手动处理
-  （它的 RDB 还挂在旧目录里，人不介入不动它）。
+  的 `redis-port`，数据卷挂载点必须等于本次的数据目录。端口绑定在建
+  容器时定死、之后不可改；任一项不匹配，脚本**自动 `docker rm -f`
+  后按当前 conf 重建容器**——RDB 始终在被挂载的宿主机数据目录里，
+  从不在容器里，重建不丢数据（控制台会打印一条重建说明）。容器处于
+  running/exited 之外的状态才拒绝并请人工处理。
 - 然后**原样委托 `start.cmd`** 启动 Walnut，成功后把
   `redis_pid` / `redis_port` / `redis_exe` / `redis_dir` /
   `redis_pass` 补登进 walnut 运行锁 `pid-<port>.json`——

@@ -14,9 +14,10 @@ REM  start.cmd / stop.cmd only ever handle the Walnut service
 REM  itself - this wrapper adds the private redis lifecycle:
 REM    print data sources (read from the effective conf) ->
 REM    pre-check the walnut run lock -> bring redis up on the
-REM    conf's redis-port (reuse live one, refuse a stranger's
-REM    port) -> call start.cmd -> register redis info into the
-REM    walnut run lock (pid-<port>.json redis_*)
+REM    conf's redis-port (reuse a live one, refuse a stranger's
+REM    port, recreate our own container when its baked port/volume
+REM    no longer matches) -> call start.cmd -> register redis info
+REM    into the walnut run lock (pid-<port>.json redis_*)
 REM
 REM  REDIS_SERVER (make.json) two forms, baked into this script:
 REM    exe:    D:/opt/redis/redis-server.exe   (RD_SERVER below)
@@ -78,11 +79,11 @@ REM ============================================================
 set "%~2="
 for %%F in ("%CONF_DIR%\web_local.properties" "%DIST_HOME%\core\conf\web.properties") do (
   if exist "%%~fF" if not defined %~2 (
-    for /f "usebackq tokens=1,2 delims==" %%A in ("%%~fF") do (
-      if not defined %~2 (
-        echo %%A|findstr /i /r "^%~1$" >nul
-        if !errorlevel! equ 0 set "%~2=%%B"
-      )
+    REM one findstr per file (it returns only the matching lines) - the
+    REM old line-by-line echo|findstr cost one process spawn per line,
+    REM 16 keys x 324 lines ~= 57s on this machine; this is ~1s
+    for /f "usebackq tokens=1,2 delims==" %%A in (`findstr /i /r /c:"^%~1=" "%%~fF"`) do (
+      if not defined %~2 set "%~2=%%B"
     )
   )
 )
@@ -112,6 +113,7 @@ exit /b 0
 :main
 REM ---------- read everything from the effective conf ----------
 call :conf_key app-port APP_PORT
+call :conf_key admin-port ADMIN_PORT
 call :conf_key redis-host RD_HOST
 call :conf_key redis-port RD_PORT
 call :conf_key redis-database RD_DB
@@ -128,6 +130,7 @@ call :conf_key mysql-usr MY_USR
 set "APP_PORT=%APP_PORT: =%"
 set "RD_PORT=%RD_PORT: =%"
 if not defined APP_PORT set "APP_PORT=8080"
+if not defined ADMIN_PORT set /a ADMIN_PORT=%APP_PORT%+1
 if not defined RD_HOST set "RD_HOST=127.0.0.1"
 if not defined RD_PORT set "RD_PORT=6379"
 if not defined RD_DB set "RD_DB=0"
@@ -172,6 +175,8 @@ echo   mongo: %MONGO_HOST%:%MONGO_PORT% db=%MONGO_DB% 1>&2
 if defined MY_HOST echo   mysql: %MY_HOST%:%MY_PORT% db=%MY_DB% usr=%MY_USR% [info only] 1>&2
 echo   buck : %BUCK_DIR% 1>&2
 echo   swap : %SWAP_DIR% 1>&2
+echo   app  : http://127.0.0.1:%APP_PORT% 1>&2
+echo   admin: 127.0.0.1:%ADMIN_PORT% 1>&2
 
 REM ---------- refuse double-start (mirror start.cmd's rule) ----------
 set "PID_FILE=%PID_DIR%\pid-%APP_PORT%.json"
@@ -250,9 +255,12 @@ set "RD_MODE=docker"
 set "REDIS_LOCK=%PID_DIR%\redis-%RD_PORT%.json"
 set "REDIS_STARTED=false"
 
-REM locate docker (PATH first, then the well-known Desktop location)
+REM locate docker.exe (PATH first, then the well-known Desktop location).
+REM NOTE: ask where.exe for docker.exe explicitly - Docker Desktop's bin dir
+REM also ships an extensionless bash shim named "docker" which where.exe
+REM returns first; cmd tolerates it (PATHEXT retry) but powershell & does not
 set "DOCKER_EXE="
-for /f "usebackq delims=" %%J in (`where.exe docker 2^>nul`) do if not defined DOCKER_EXE set "DOCKER_EXE=%%J"
+for /f "usebackq delims=" %%J in (`where.exe docker.exe 2^>nul`) do if not defined DOCKER_EXE set "DOCKER_EXE=%%J"
 if not defined DOCKER_EXE if exist "C:\Program Files\Docker\Docker\resources\bin\docker.exe" set "DOCKER_EXE=C:\Program Files\Docker\Docker\resources\bin\docker.exe"
 if not defined DOCKER_EXE (echo *** docker.exe not found - neither in PATH nor the Docker Desktop install dir 1>&2 & exit /b 3)
 
@@ -275,8 +283,9 @@ del "%DCK_FILE%" >nul 2>nul
 if "%DCK_ST%"=="running" goto docker_reuse
 if "%DCK_ST%"=="exited" goto docker_restart
 if not "%DCK_ST%"=="" (echo *** container %RD_DOCKER_CONTAINER% is in unexpected state: %DCK_ST% - remove it manually 1>&2 & exit /b 3)
+REM no container: fall through to :docker_fresh (host port must be free)
 
-REM no container yet: the host port must be free - same refusal rule
+:docker_fresh
 set "RPORT_FILE=%TEMP%\_wn_rport_%RANDOM%%RANDOM%.txt"
 powershell -NoProfile -Command "$r='CLOSED'; try { $c=New-Object Net.Sockets.TcpClient; $c.Connect('%RD_HOST%',[int]%RD_PORT%); $r='OPEN'; $c.Close() } catch {}; Write-Output $r" >"!RPORT_FILE!" 2>nul
 set /p RPORT_ST=<"!RPORT_FILE!"
@@ -299,27 +308,29 @@ set "REDIS_STARTED=true"
 goto docker_wait
 
 :docker_reuse
-REM verify the container's host port binding matches this conf's redis-port
-REM (HostConfig.PortBindings is static config - NetworkSettings.Ports is
-REM empty while the container is stopped)
-powershell -NoProfile -Command "$p = & '%DOCKER_EXE%' inspect -f '{{json .HostConfig.PortBindings}}' '%RD_DOCKER_CONTAINER%' 2>$null | Out-String; if ($p -match 'HostPort[\D]*%RD_PORT%') { exit 0 }; exit 1"
-if errorlevel 1 (echo *** container %RD_DOCKER_CONTAINER% exists but is not bound to host port %RD_PORT% - remove it or change redis-port in the conf 1>&2 & exit /b 3)
-REM verify the data volume matches this run's data dir (a container created
-REM by an older layout mounts somewhere else - its RDB lives there, not here)
-call :docker_mount_ok
-if errorlevel 1 (echo *** container %RD_DOCKER_CONTAINER% mounts a different data dir - remove it manually: docker rm -f %RD_DOCKER_CONTAINER% 1>&2 & exit /b 3)
-echo reusing private redis container: %RD_DOCKER_CONTAINER% port=%RD_PORT% 1>&2
-goto docker_lock
-
 :docker_restart
+REM an existing container is reused only when BOTH its static config matches
+REM this run: host port binding == conf redis-port, and data volume == this
+REM run's data dir. Port bindings are immutable after creation, and a volume
+REM from an older layout holds its RDB elsewhere - in either case the fixed
+REM thing to do is recreate the container (RDB lives in the mounted host dir,
+REM never in the container itself, so rm -f loses nothing)
 powershell -NoProfile -Command "$p = & '%DOCKER_EXE%' inspect -f '{{json .HostConfig.PortBindings}}' '%RD_DOCKER_CONTAINER%' 2>$null | Out-String; if ($p -match 'HostPort[\D]*%RD_PORT%') { exit 0 }; exit 1"
-if errorlevel 1 (echo *** container %RD_DOCKER_CONTAINER% is bound to a different host port than redis-port=%RD_PORT% - remove it or change redis-port in the conf 1>&2 & exit /b 3)
+if errorlevel 1 goto docker_recreate
 call :docker_mount_ok
-if errorlevel 1 (echo *** container %RD_DOCKER_CONTAINER% mounts a different data dir - remove it manually: docker rm -f %RD_DOCKER_CONTAINER% 1>&2 & exit /b 3)
+if errorlevel 1 goto docker_recreate
+if "%DCK_ST%"=="running" (echo reusing private redis container: %RD_DOCKER_CONTAINER% port=%RD_PORT% 1>&2 & goto docker_lock)
 echo starting existing redis container: %RD_DOCKER_CONTAINER% 1>&2
 "%DOCKER_EXE%" start "%RD_DOCKER_CONTAINER%" >nul 2>&1
 if errorlevel 1 (echo *** docker start failed 1>&2 & exit /b 4)
 goto docker_wait
+
+:docker_recreate
+echo recreating container %RD_DOCKER_CONTAINER% for host port %RD_PORT% 1>&2
+echo   (RDB persists in the data dir %RD_DIR% - nothing is lost) 1>&2
+"%DOCKER_EXE%" rm -f "%RD_DOCKER_CONTAINER%" >nul 2>&1
+if errorlevel 1 (echo *** docker rm -f %RD_DOCKER_CONTAINER% failed 1>&2 & exit /b 4)
+goto docker_fresh
 
 REM wait for the redis TCP port (docker-proxy may take a few seconds)
 :docker_wait

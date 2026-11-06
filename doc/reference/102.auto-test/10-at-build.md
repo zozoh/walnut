@@ -32,8 +32,9 @@ related: [README, 20-at-setup, 30-at-tools]
   原样拷入产物的 `sbin/`。想调整启动行为（JVM 参数、classpath 规则），
   改这里的模板。
 - **`build/web_local.properties` / `build/log4j2.xml`**：conf 层的预置
-  模板。构建时 `log4j2.xml` 原样拷入；`web_local.properties` 以它为
-  底改写（写入 PASSWD_ONLY 与自动计算的 mnt-file-allow，见下文）。
+  模板。构建时 `log4j2.xml` 里的 `@LOG_DIR@` 占位符替换为数据家的
+  `walnut/log/` 目录（日志写文件，见下）；`web_local.properties` 以它
+  为底改写（写入 PASSWD_ONLY 与自动计算的 mnt-file-allow，见下文）。
 - **`build/build-example.rs.json` / `build/build.rs.json`**：运行时服务
   配置（见下文"运行时服务配置"一节）。模板提交进 git，个人的
   `build.rs.json` 已加入 `.gitignore`。
@@ -52,7 +53,7 @@ dist/wn4j/
 |-- deps/              # 依赖的 jar 包（mvn dependency:copy-dependencies 产物）
 |-- conf/              # 本地覆盖配置层（classpath 中最优先）
 |   |-- web_local.properties   # 由 build/ 模板改写：PASSWD_ONLY、自动计算的 mnt-file-allow
-|   |-- log4j2.xml             # 日志配置（原样拷贝自 build/ 模板）
+|   |-- log4j2.xml             # 日志配置（@LOG_DIR@ 已注入为数据家 walnut/log/）
 |-- ROOT/              # init-mnt 默认挂载源，只取这两个子目录
 |   |-- app/wn-term/           # 内置终端应用，挂载到 /app/wn-term
 |   |-- etc/hosts.d/default/   # 系统默认登录界面，挂载到 /etc/hosts.d/default/
@@ -84,6 +85,7 @@ dist 是程序目录，删掉重建不心疼；持久化数据一律落在 Walnu
 |   |-- walnut/       # 二级启动的数据（不是智能体工作目录，因此没有
 |   |   |-- buck/     #   client/、_ottl/、whoami.json）
 |   |   |-- swap/
+|   |   |-- log/      # Walnut 日志文件（log4j2.xml 的 @LOG_DIR@）
 |   |-- redis/
 |   |   |-- data/     # 私有 redis 的 RDB 持久化（dump.rdb）
 |-- dist/
@@ -91,7 +93,7 @@ dist 是程序目录，删掉重建不心疼；持久化数据一律落在 Walnu
 ```
 
 级别 3 的对应物在智能体工作目录里（见
-[工作目录测试准备](40-at-project.md)）：`<work>/.at/walnut/{buck,swap}`
+[工作目录测试准备](40-at-project.md)）：`<work>/.at/walnut/{buck,swap,log}`
 与 `<work>/.at/redis/data/`。
 
 ## 配置双层结构
@@ -188,7 +190,8 @@ start.cmd [--conf <配置目录>] [--pid-dir <运行锁目录>]
 - 摘除 DIR_TI / do_less / do_scss / dist titanium 目录等全部 titanium
   相关逻辑——titanium 前端库已废弃，产物里不再有它
 - conf/ 产物由 `build/` 的模板生成：`web_local.properties` 写入
-  PASSWD_ONLY 与自动计算的 mnt-file-allow，`log4j2.xml` 原样拷入
+  PASSWD_ONLY 与自动计算的 mnt-file-allow；`log4j2.xml` 把
+  `@LOG_DIR@` 注入为数据家的 `walnut/log/` 目录（日志写文件）
 - 把 `build/` 里预置的 start.cmd / stop.cmd 模板拷进产物的 sbin/，并创建空的 `run/` 目录（start.cmd / stop.cmd 只启停 Walnut 本身）；`make.json` 的 `REDIS_SERVER` 非空时再把 `start_with_redis.cmd`（把 `@REDIS_SERVER@` / `@RD_DOCKER_IMAGE@` / `@RD_DOCKER_IMAGE_ID@` / `@RD_DOCKER_CONTAINER@` 占位符替换为实际值后写入）/`stop_with_redis.cmd` 也拷进 sbin/，否则不生成这一对（带 redis 的一对是测试工具，内部原样委托前者）
 - 保留原有的 Docker 镜像构建/上传逻辑不动；文档立场是智能体默认只
   构建 dist、不打包镜像、不发布（说明约束，不是删除功能）
@@ -202,7 +205,7 @@ start.cmd [--conf <配置目录>] [--pid-dir <运行锁目录>]
   `Docker:<镜像><sha256>=<容器>` 规格，留空不生成 with_redis
   脚本），构建时烘焙进 `sbin/start_with_redis.cmd`；同时把
   `@WALNUT_AT@`（仓库 .at/ 路径）烘焙进脚本与 conf 模板——
-  二级启动的持久化数据（buck/swap/redis RDB）全部落在仓库
+  二级启动的持久化数据（buck/swap/日志/redis RDB）全部落在仓库
   `.at/` 下，dist 目录可以随意删除重建，数据不丢
 
 ## 主要代码类
