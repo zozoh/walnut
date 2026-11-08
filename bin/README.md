@@ -9,12 +9,12 @@ JSON 输出、退出码有语义。直接用仓库里的同一份，**不要复�
 | 工具 | 一句话职责 |
 |------|-----------|
 | `wn-ping` | 探活：`GET /a/login_mode`，判定实例存活与 `agent_ready` |
-| `wn-up` | 启动或复用实例：探活 → 复用/拉起 → 等就绪 → 可选 init-node |
+| `wn-up` | 启动或复用实例：探活 → 复用/拉起 → 等就绪 → 可选 init-node（级别 2 由开发者执行，智能体仅用于级别 3） |
 | `wn-down` | 温柔停止实例：核对运行锁归属，连带关闭私有 redis |
 | `wn-cli` | 主力客户端：`login / cmd / obj / mnt / check-node / init-node` |
 | `walnut-at-init` | 工作目录 `.at/` 脚手架（懒惰模式，绝不重置已有积累） |
 
 行为契约（参数/退出码/输出格式）见
-`doc/reference/102.auto-test/30-at-tools.md`；
+`{WN_DOC_HOME}/reference/102.auto-test/30-at-tools.md`（`{WN_DOC_HOME}` = 工作区同级 `../wn-doc/`）；
 操作套路（先查命令表、纯用命令、找不到就问）见
-`doc/skill/use-wn-cli.skill.md`。
+`{WN_DOC_HOME}/skill/use-wn-cli.skill.md`。

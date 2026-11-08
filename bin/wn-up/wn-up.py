@@ -12,7 +12,7 @@ wn-up — 启动（或复用）一个 Walnut 实例
        非空才会生成），则改调它 —— 先按生效 conf 的 redis-port 拉起
        私有 redis 进程，再原样委托 start.cmd（2/3 级完全数据隔离，
        机制见 doc/reference/102.auto-test/20-at-setup.md）
-       - 启动前把身份（.at/whoami.json 的代号，或 --who）经
+       - 启动前把身份（.at/whoami.toml 的代号，或 --who）经
          WN_AGENT_NAME / WN_WORK_PATH 环境变量注入，写进运行锁
     3. 循环探活直到就绪（--wait 秒），超时退出 4
 
@@ -59,11 +59,37 @@ def read_prop(path, key):
     return None
 
 
+def whoami_name(path):
+    """从 whoami.toml 里读 name（只关心这一个字段，单行 name = "..."）。"""
+    try:
+        for line in path.read_text(encoding="utf-8").splitlines():
+            s = line.strip()
+            if not s.startswith("name"):
+                continue
+            k, eq, v = s.partition("=")
+            if not eq or k.strip() != "name":
+                continue
+            v = v.strip()
+            if len(v) >= 2 and v.startswith('"') and v.endswith('"'):
+                v = v[1:-1].replace('\\"', '"').replace("\\\\", "\\")
+            elif len(v) >= 2 and v.startswith("'") and v.endswith("'"):
+                v = v[1:-1]
+            return v or None
+    except OSError:
+        pass
+    return None
+
+
 def find_whoami(cwd, who):
-    """确定身份代号: --who 优先，其次 <cwd>/.at/whoami.json"""
+    """确定身份代号: --who 优先，其次 <cwd>/.at/whoami.toml
+    （兼容旧 .at/whoami.json）"""
     if who:
         return who
-    f = Path(cwd) / ".at" / "whoami.json"
+    at = Path(cwd) / ".at"
+    f = at / "whoami.toml"
+    if f.exists():
+        return whoami_name(f)
+    f = at / "whoami.json"
     if f.exists():
         try:
             return json.loads(f.read_text(encoding="utf-8")).get("name")
@@ -177,7 +203,7 @@ def main():
     ap.add_argument("--conf", help="级别 3：私有 conf 目录")
     ap.add_argument("--port", type=int, help="期望端口（缺省从配置解析）")
     ap.add_argument("--wait", type=int, default=90, help="就绪等待秒数")
-    ap.add_argument("--who", help="智能体代号（缺省读 .at/whoami.json）")
+    ap.add_argument("--who", help="智能体代号（缺省读 .at/whoami.toml）")
     ap.add_argument("--pid-dir", help="运行锁目录（透传启动脚本）")
     ap.add_argument("--creds", help="凭据 JSON（含 root_usr/root_passwd），"
                                    "提供后启动就绪即自动做空白节点初始化")
@@ -218,7 +244,7 @@ def main():
     who = find_whoami(cwd, args.who)
     if not who:
         print(json.dumps({"ok": False, "error":
-                          "缺少身份：请先用 walnut-at-init --name <代号> 建立 .at/whoami.json，"
+                          "缺少身份：请先用 walnut-at-init --name <代号> 建立 .at/whoami.toml，"
                           "或传 --who"}, ensure_ascii=False))
         return EXIT_USAGE
 

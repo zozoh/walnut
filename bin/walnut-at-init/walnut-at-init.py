@@ -4,7 +4,7 @@
 walnut-at-init — Agent 测试工作目录（.at/）脚手架
 
 默认只初始化**客户端**（连接别人启动的实例）：
-生成 .at/whoami.json（身份牌）、.at/client/（会话缓存）、
+生成 .at/whoami.toml（身份牌）、.at/client/（会话缓存）、
 .at/_ottl/（一次性测试工具）、.at/AGENTS.md（入口说明，
 内容是指向 use-wn-cli skill 与 LOCAL_REF.md 约定的引用）、
 ATEST.md / LOCAL_REF.md 手册样例。
@@ -46,19 +46,35 @@ NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]{1,31}$")
 WALNUT_ROOT = Path(__file__).resolve().parents[2]
 
 GITIGNORE_BLOCK = """
-# .at 敏感与运行时内容（骨架与样例手册照常提交）
-.at/whoami.json
-.at/credentials*.json
-.at/client/session/*.json
-.at/walnut/conf/
-.at/walnut/buck/
-.at/walnut/swap/
-.at/walnut/log/
-.at/redis/data/*
-!.at/redis/data/.gitkeep
-.at/_ottl/*
-!.at/_ottl/.gitkeep
+# .at 目录：身份、会话、私有配置与运行时数据，整体不提交
+.at/
 """
+
+
+def _toml_quote(s):
+    """把字符串写成 TOML 基本字符串（单行）。"""
+    return '"%s"' % s.replace("\\", "\\\\").replace('"', '\\"')
+
+
+def whoami_name(path):
+    """从 whoami.toml 里读 name（只关心这一个字段）。"""
+    try:
+        for line in path.read_text(encoding="utf-8").splitlines():
+            s = line.strip()
+            if not s.startswith("name"):
+                continue
+            k, eq, v = s.partition("=")
+            if not eq or k.strip() != "name":
+                continue
+            v = v.strip()
+            if len(v) >= 2 and v.startswith('"') and v.endswith('"'):
+                v = v[1:-1].replace('\\"', '"').replace("\\\\", "\\")
+            elif len(v) >= 2 and v.startswith("'") and v.endswith("'"):
+                v = v[1:-1]
+            return v or None
+    except OSError:
+        pass
+    return None
 
 ATEST_SAMPLE = """# ATEST — 本项目 Agent 测试手册
 
@@ -67,7 +83,7 @@ ATEST_SAMPLE = """# ATEST — 本项目 Agent 测试手册
 > 凭据不要写进本文档，放 `.at/credentials.json`（已 gitignore）。
 
 - walnut_url: http://localhost:8080
-- walnut_level: 1            # 1=共享实例 / 2=独立+默认conf / 3=独立+私有conf
+- walnut_level: 1            # 1=开发者的实例 / 2=开发者启动的共享实例 / 3=自己的私有实例
 - walnut_dist: <级别2/3必填：dist/wn4j 路径>
 - test_domain: demo
 - credentials_file: .at/credentials.json
@@ -76,7 +92,7 @@ ATEST_SAMPLE = """# ATEST — 本项目 Agent 测试手册
 
 ## 协作
 
-<同域的其他 Agent（看各自的 .at/whoami.json 代号）及分工；没有则写"无">
+<同域的其他 Agent（看各自的 .at/whoami.toml 代号）及分工；没有则写"无">
 
 ## 模拟数据策略
 
@@ -100,7 +116,7 @@ LOCAL_REF_SAMPLE = """# LOCAL_REF — 本工作目录引用的工程仓库
 # 来问主人，不遍历磁盘猜。
 AT_AGENTS_MD = """# AGENTS.md — 本目录是 Walnut 测试营地（.at/）
 
-本 `.at/` 由 walnut-at-init 生成：`whoami.json`（身份牌）、
+本 `.at/` 由 walnut-at-init 生成：`whoami.toml`（身份牌）、
 `client/session/`（会话缓存）、`_ottl/`（一次性脚本）。
 
 ## 操作 Walnut 前必读
@@ -209,14 +225,14 @@ def gen_server_conf(rs: dict, work: Path) -> str:
 def main():
     ap = argparse.ArgumentParser(description="生成 .at/ 测试工作目录骨架（懒惰模式）")
     ap.add_argument("--name", help="智能体代号（小写字母/数字/连字符）；"
-                                   "已有 whoami.json 时可省略，沿用旧代号")
+                                   "已有 whoami.toml 时可省略，沿用旧代号")
     ap.add_argument("--with-server", action="store_true",
                     help="同时生成 .at/walnut/（级别 3 私有服务器配置），"
                          "需要 build.rs.json，否则拒绝")
     ap.add_argument("--rs", help="build.rs.json 路径（缺省 ./build.rs.json > "
                                  "{Walnut}/build/build.rs.json）")
     ap.add_argument("--force", action="store_true",
-                    help="刷新骨架样例文件（仍不覆盖 whoami.json 与已有会话）")
+                    help="刷新骨架样例文件（仍不覆盖 whoami.toml 与已有会话）")
     ap.add_argument("target", nargs="?", default=".", help="目标工作目录（默认当前）")
     args = ap.parse_args()
 
@@ -232,18 +248,22 @@ def main():
             kept.append(str(p.relative_to(work)))
 
     # ---------- 身份牌：最高优先，绝不覆盖 ----------
-    whoami = at / "whoami.json"
-    if whoami.exists():
-        try:
-            name = json.loads(whoami.read_text(encoding="utf-8")).get("name")
-        except (ValueError, OSError):
-            name = None
+    whoami = at / "whoami.toml"
+    legacy = at / "whoami.json"
+    if whoami.exists() or legacy.exists():
+        name = whoami_name(whoami) if whoami.exists() else None
+        if not name and legacy.exists():
+            try:
+                name = json.loads(legacy.read_text(encoding="utf-8")).get("name")
+            except (ValueError, OSError):
+                name = None
         if not name:
             print(json.dumps({"ok": False,
-                              "error": "whoami.json 已存在但内容无效，请人工修复"},
+                              "error": "whoami.toml 已存在但内容无效，请人工修复"},
                              ensure_ascii=False))
             return EXIT_USAGE
-        kept.append(str(whoami.relative_to(work)))
+        kept.append(str((whoami if whoami.exists() else legacy)
+                        .relative_to(work)))
     else:
         name = args.name
         if not name or not NAME_RE.match(name):
@@ -252,11 +272,13 @@ def main():
                                        "已有身份牌时可省略 --name" % NAME_RE.pattern},
                              ensure_ascii=False))
             return EXIT_USAGE
-        w("whoami.json", json.dumps({
-            "name": name,
-            "created_at": __import__("datetime").datetime.now().isoformat(timespec="seconds"),
-            "note": ""
-        }, ensure_ascii=False, indent=2) + "\n", overwrite=False)
+        created_at = __import__("datetime").datetime.now().isoformat(timespec="seconds")
+        w("whoami.toml",
+          "# 智能体身份牌（walnut-at-init 生成；可补充 note / duty 等字段）\n"
+          "name = %s\n"
+          "created_at = %s\n"
+          "note = \"\"\n" % (_toml_quote(name), _toml_quote(created_at)),
+          overwrite=False)
 
     # ---------- 客户端骨架（默认行为） ----------
     w("client/session/.gitkeep", "", overwrite=args.force)
@@ -311,7 +333,7 @@ def main():
     # ---------- .gitignore 追加 ----------
     gi = work / ".gitignore"
     old = gi.read_text(encoding="utf-8") if gi.exists() else ""
-    if ".at/whoami.json" not in old:
+    if ".at/" not in old:
         write(gi, old.rstrip("\n") + "\n" + GITIGNORE_BLOCK.strip("\n") + "\n")
 
     out = {"ok": True, "work": str(work), "name": name,

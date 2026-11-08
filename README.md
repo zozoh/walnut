@@ -15,9 +15,7 @@ Walnut 是一个业务系统开发基座平台。其核心的设计思想是：
 |-- client/        # 这个目录内容暂时没用了，不用看
 |-- conf/          # 工程配置文件，主要是 Nutz Ioc 部分
 |-- design/        # 设计物料,不用看
-|-- doc/           # 文档目录,未完成 
-|   |-- draft/     # 最早的草稿文档
-|   |-- markdown/  # 正式一点的文档，但是很多都是空的
+|-- (文档已迁至私有库 wn-doc：../wn-doc/，见 {WN_DOC_HOME}/reference/INDEX.md)
 |-- gradle/        # 这个目录内容暂时没用了，不用看
 |-- ide/           # IDE 的配置，不用看
 |-- mind/          # 脑图文档，不用看

@@ -1,7 +1,7 @@
 # wn-ping — Walnut 探活
 
 探测目标实例的 `GET /a/login_mode`，输出 JSON 结论。契约见
-`doc/reference/102.auto-test/30-at-tools.md`。
+`{WN_DOC_HOME}/reference/102.auto-test/30-at-tools.md`（`{WN_DOC_HOME}` = 工作区同级 `../wn-doc/`）。
 
 ```bash
 # 探活（默认 localhost:8080）

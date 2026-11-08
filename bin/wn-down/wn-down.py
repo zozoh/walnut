@@ -39,10 +39,37 @@ EXIT_USAGE = 1
 EXIT_NO_TARGET = 2
 
 
+def whoami_name(path):
+    """从 whoami.toml 里读 name（只关心这一个字段，单行 name = "..."）。"""
+    try:
+        for line in path.read_text(encoding="utf-8").splitlines():
+            s = line.strip()
+            if not s.startswith("name"):
+                continue
+            k, eq, v = s.partition("=")
+            if not eq or k.strip() != "name":
+                continue
+            v = v.strip()
+            if len(v) >= 2 and v.startswith('"') and v.endswith('"'):
+                v = v[1:-1].replace('\\"', '"').replace("\\\\", "\\")
+            elif len(v) >= 2 and v.startswith("'") and v.endswith("'"):
+                v = v[1:-1]
+            return v or None
+    except OSError:
+        pass
+    return None
+
+
 def find_whoami(cwd, who):
+    """确定身份代号: --who 优先，其次 <cwd>/.at/whoami.toml
+    （兼容旧 .at/whoami.json）"""
     if who:
         return who
-    f = Path(cwd) / ".at" / "whoami.json"
+    at = Path(cwd) / ".at"
+    f = at / "whoami.toml"
+    if f.exists():
+        return whoami_name(f)
+    f = at / "whoami.json"
     if f.exists():
         try:
             return json.loads(f.read_text(encoding="utf-8")).get("name")
@@ -199,7 +226,7 @@ def main():
     ap.add_argument("--port", type=int, help="实例端口（缺省取 run/ 里唯一的锁文件）")
     ap.add_argument("--pid-dir", help="运行锁目录（缺省 <dist>/run）")
     ap.add_argument("--timeout", type=int, default=5, help="温柔停止等待秒数")
-    ap.add_argument("--who", help="智能体代号（缺省读 .at/whoami.json）")
+    ap.add_argument("--who", help="智能体代号（缺省读 .at/whoami.toml）")
     args = ap.parse_args()
 
     dist = Path(args.dist).resolve()

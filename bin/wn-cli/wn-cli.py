@@ -16,9 +16,17 @@ wn-cli — Walnut 智能体客户端
 
 全局选项:
     --url           实例地址（缺省取会话缓存里的 base）
-    --se            会话名（默认 se-00，缓存文件 .at/client/session/<se>.json）
+    --se            会话名（约定 se-<登录名>-00，如 se-root-00/se-demo-00；
+                    缺省 login 时按登录名生成，其他子命令为 se-00）
     --session-dir   会话缓存目录（默认 ./.at/client/session）
+    --dist          dist/wn4j 目录：root 密码发现（conf/web_local.properties
+                    → core/conf/web.properties 的 root-init-passwd）
+    --who           智能体代号（写入会话缓存 agent.name；缺省读 .at/whoami.toml）
     --creds         凭据 JSON（默认若 ./.at/credentials.json 存在则用它）
+
+会话缓存是 TOML 文件（<se>.toml），只存票据与身份（base/loginName/ticket/
+agent/create_on/saved_at），不存任何密码：root 会话的密码每次从实例配置现找，
+域会话密码不落盘。
 
 退出码: 0 成功；1 用法错误；2 目标不存在；3 认证失败；4 服务器响应异常
 
@@ -42,6 +50,11 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
+
+try:
+    import tomllib  # Python 3.11+：会话缓存与身份文件用 TOML
+except ImportError:  # 3.11 以下走内置子集解析器
+    tomllib = None
 
 EXIT_OK = 0
 EXIT_USAGE = 1
@@ -164,44 +177,257 @@ def api_login(base, usr, passwd):
     raise WnLoginFailed(msg)
 
 
+def guess_root_passwd(dist, explicit=None):
+    """root 密码发现（30-at-tools.md 契约）:
+    1. 显式传入（--root-passwd / 凭据文件 root_passwd）
+    2. <dist>/conf/web_local.properties 的 root-init-passwd
+    3. <dist>/core/conf/web.properties 的 root-init-passwd
+    4. 都没有 → 返回 None（调用方回退到缺省 123456；失败则终止询问用户）
+    """
+    if explicit:
+        return explicit
+    if dist:
+        d = Path(dist)
+        for rel in ("conf/web_local.properties", "core/conf/web.properties"):
+            p = d / rel
+            if not p.exists():
+                continue
+            try:
+                for line in p.read_text(encoding="utf-8",
+                                        errors="replace").splitlines():
+                    line = line.strip()
+                    if line.startswith("root-init-passwd"):
+                        v = line.split("=", 1)[1].strip()
+                        if v:
+                            return v
+            except OSError:
+                pass
+    return None
+
+
+def resolve_agent_name(who):
+    """智能体代号: --who 优先，其次工作目录 .at/whoami.toml
+    （兼容旧 .at/whoami.json）的 name 字段。
+    都没有 → None（人类手动使用 wn-cli 的场景）。"""
+    if who:
+        return who
+    at = Path(".at")
+    for f, loader in ((at / "whoami.toml", toml_parse),
+                      (at / "whoami.json", json.loads)):
+        if not f.exists():
+            continue
+        try:
+            j = loader(f.read_text(encoding="utf-8"))
+            if isinstance(j, dict) and j.get("name"):
+                return j["name"]
+        except (ValueError, OSError):
+            pass
+    return None
+
+
+def merge_agent(old, name):
+    """把新代号并入 agent 对象，保留已有的其它字段（如 duty）。"""
+    if not name:
+        return old
+    a = dict(old or {})
+    a["name"] = name
+    return a
+
+
+# ---------------- TOML 读写（会话缓存与身份文件） ----------------
+def toml_escape(s):
+    """把一个字符串写成 TOML 基本字符串（单行，换行用 \\n 转义）。"""
+    out = []
+    for ch in s:
+        if ch == "\\":
+            out.append("\\\\")
+        elif ch == '"':
+            out.append('\\"')
+        elif ch == "\n":
+            out.append("\\n")
+        elif ch == "\r":
+            out.append("\\r")
+        elif ch == "\t":
+            out.append("\\t")
+        elif ord(ch) < 0x20:
+            out.append("\\u%04X" % ord(ch))
+        else:
+            out.append(ch)
+    return '"%s"' % "".join(out)
+
+
+def _toml_key(k):
+    """合法裸键原样写，其余（如中文键）用引号包起来。"""
+    return k if re.match(r"^[A-Za-z0-9_-]+$", k) else toml_escape(k)
+
+
+def _toml_unescape(s):
+    out, i = [], 0
+    simple = {"n": "\n", "t": "\t", "r": "\r", '"': '"', "\\": "\\"}
+    while i < len(s):
+        ch = s[i]
+        if ch == "\\" and i + 1 < len(s):
+            nxt = s[i + 1]
+            if nxt in simple:
+                out.append(simple[nxt])
+                i += 2
+                continue
+            if nxt == "u" and i + 6 <= len(s):
+                try:
+                    out.append(chr(int(s[i + 2:i + 6], 16)))
+                    i += 6
+                    continue
+                except ValueError:
+                    pass
+        out.append(ch)
+        i += 1
+    return "".join(out)
+
+
+def _toml_scalar(v):
+    v = v.strip()
+    if len(v) >= 2 and v.startswith('"') and v.endswith('"'):
+        return _toml_unescape(v[1:-1])
+    if len(v) >= 2 and v.startswith("'") and v.endswith("'"):
+        return v[1:-1]
+    if v == "true":
+        return True
+    if v == "false":
+        return False
+    for cast in (int, float):
+        try:
+            return cast(v)
+        except ValueError:
+            pass
+    return v
+
+
+def _toml_parse_mini(text):
+    """Python 3.11 以下用的 TOML 子集解析器：注释、[table]、
+    key = value、基本/字面量字符串（含多行 \"\"\"...\"\"\"）与布尔/数字。
+    只覆盖会话与身份文件用到的语法。"""
+    root, cur = {}, {}
+    lines = text.splitlines()
+    i, n = 0, len(lines)
+    while i < n:
+        line = lines[i].strip()
+        i += 1
+        if not line or line.startswith("#"):
+            continue
+        if line.startswith("[") and line.endswith("]"):
+            cur = root.setdefault(line[1:-1].strip().strip('"').strip("'"), {})
+            continue
+        if "=" not in line:
+            continue
+        key, _, rest = line.partition("=")
+        key = key.strip().strip('"').strip("'")
+        val = rest.strip()
+        if val.startswith('"""') or val.startswith("'''"):
+            delim, body, chunks = val[:3], val[3:], []
+            while True:
+                end = body.find(delim)
+                if end >= 0:
+                    chunks.append(body[:end])
+                    break
+                chunks.append(body)
+                if i >= n:
+                    break
+                body = lines[i]
+                i += 1
+            joined = "\n".join(chunks)
+            cur[key] = _toml_unescape(joined) if delim == '"""' else joined
+            continue
+        cur[key] = _toml_scalar(val)
+    return root
+
+
+def toml_parse(text):
+    """解析 TOML：优先 tomllib（3.11+），失败或缺失时用子集解析器。"""
+    if tomllib is not None:
+        try:
+            return tomllib.loads(text)
+        except Exception:
+            pass
+    return _toml_parse_mini(text)
+
+
 class Session:
-    """会话缓存: <session_dir>/<se>.json"""
+    """会话缓存: <session_dir>/<se>.toml（兼容读旧 <se>.json）
+
+    契约见 doc/reference/102.auto-test/30-at-tools.md 的 wn-cli 一节:
+
+      base       实例地址
+      loginName  登录名（root 或域用户）
+      ticket     会话票据
+      agent      智能体身份（[agent] 表：name / duty / 自定义字段）
+      dist       dist/wn4j 目录（root 会话用于重登时找回 root-init-passwd）
+      create_on  首次创建时间
+      saved_at   最后保存时间
+
+    **不存任何密码**（旧格式里的 usr/creds 只读不写）。
+    """
 
     def __init__(self, session_dir, se="se-00"):
         self.dir = Path(session_dir)
         self.se = se
-        self.path = self.dir / ("%s.json" % se)
+        self.path = self.dir / ("%s.toml" % se)
+        self.legacy_path = self.dir / ("%s.json" % se)
         self.base = None
         self.usr = None
         self.ticket = None
-        self.creds = None
-        self.root_creds = None
+        self.agent = None
+        self.dist = None
+        self.create_on = None
+        self.saved_at = None
         self.load()
 
     def load(self):
+        data = None
         if self.path.exists():
             try:
-                j = json.loads(self.path.read_text(encoding="utf-8"))
-                self.base = j.get("base")
-                self.usr = j.get("usr")
-                self.ticket = j.get("ticket")
-                self.creds = j.get("creds")
-                self.root_creds = j.get("root_creds")
+                data = toml_parse(self.path.read_text(encoding="utf-8"))
             except (ValueError, OSError):
-                pass
+                data = None
+        if not isinstance(data, dict) and self.legacy_path.exists():
+            try:
+                data = json.loads(self.legacy_path.read_text(encoding="utf-8"))
+            except (ValueError, OSError):
+                data = None
+        if not isinstance(data, dict):
+            return
+        self.base = data.get("base")
+        # 兼容旧格式: 旧文件里叫 usr，新格式叫 loginName
+        self.usr = data.get("loginName") or data.get("usr")
+        self.ticket = data.get("ticket")
+        self.agent = data.get("agent")
+        self.dist = data.get("dist")
+        self.create_on = data.get("create_on")
+        self.saved_at = data.get("saved_at")
 
     def save(self):
         self.dir.mkdir(parents=True, exist_ok=True)
-        data = {
-            "base": self.base,
-            "usr": self.usr,
-            "ticket": self.ticket,
-            "saved_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
-            "creds": self.creds,
-            "root_creds": self.root_creds,
-        }
-        self.path.write_text(json.dumps(data, ensure_ascii=False, indent=2),
-                             encoding="utf-8")
+        now = time.strftime("%Y-%m-%dT%H:%M:%S")
+        if not self.create_on:
+            self.create_on = now
+        self.saved_at = now
+        lines = ["# wn-cli 会话缓存（TOML；不存任何密码）",
+                 "base = %s" % toml_escape(self.base or ""),
+                 "loginName = %s" % toml_escape(self.usr or ""),
+                 "ticket = %s" % toml_escape(self.ticket or "")]
+        if self.dist:
+            lines.append("dist = %s" % toml_escape(self.dist))
+        lines.append("create_on = %s" % toml_escape(self.create_on))
+        lines.append("saved_at = %s" % toml_escape(self.saved_at))
+        if isinstance(self.agent, dict) and self.agent:
+            lines.extend(["", "[agent]"])
+            for k, v in self.agent.items():
+                if isinstance(v, str):
+                    lines.append("%s = %s" % (_toml_key(k), toml_escape(v)))
+                else:
+                    lines.append("%s = %s"
+                                 % (_toml_key(k),
+                                    json.dumps(v, ensure_ascii=False)))
+        self.path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 class WnClient:
@@ -213,7 +439,8 @@ class WnClient:
 
     # ---------------- 认证 ----------------
     def login(self, usr, passwd, retries=3):
-        """域登录；UsrNoExists 时由调用方决定 root fallback。失败计 3 次。"""
+        """域登录；UsrNoExists 时由调用方决定 root fallback。失败计 3 次。
+        会话缓存不存密码。"""
         last = None
         for n in range(retries):
             try:
@@ -221,7 +448,6 @@ class WnClient:
                 self.session.base = self.base
                 self.session.usr = usr
                 self.session.ticket = ticket
-                self.session.creds = {"usr": usr, "passwd": passwd}
                 self.session.save()
                 return ticket
             except WnLoginFailed as e:
@@ -240,9 +466,18 @@ class WnClient:
         注意: loginByPassword 对"用户不存在"和"密码错"都抛
         e.auth.login.Failed，无法区分，只能靠 root 查目录来判断。
         root 本人登录（usr == root_usr）直接登录，不建域。
+        root 密码由调用方经 guess_root_passwd 准备好（配置发现 →
+        缺省 123456）；失败即终止，向主人询问。
         """
         if usr == root_usr:
-            return self.login(usr, passwd), "login"
+            try:
+                return self.login(usr, passwd, retries=1), "login"
+            except WnError as e:
+                raise WnError(
+                    EXIT_AUTH,
+                    "root 登录失败: %s —— 实例配置的 root-init-passwd 与"
+                    "缺省 123456 均不可用。终止流程，请向主人询问 root 密码"
+                    % e.msg)
         # 第一次探测用 api_login 而不是 self.login（login 会把
         # WnLoginFailed 包成 WnError，这里要自己接住分支）
         try:
@@ -250,7 +485,6 @@ class WnClient:
             self.session.base = self.base
             self.session.usr = usr
             self.session.ticket = ticket
-            self.session.creds = {"usr": usr, "passwd": passwd}
             self.session.save()
             return ticket, "login"
         except (WnNoUser, WnLoginFailed):
@@ -258,8 +492,13 @@ class WnClient:
         if not root_passwd:
             raise WnError(EXIT_USAGE,
                           "建域需要 root 密码: 请传 --root-passwd 或在凭据文件里给出")
-        rticket, _ = api_login(self.base, root_usr, root_passwd)
-        self.session.root_creds = {"usr": root_usr, "passwd": root_passwd}
+        try:
+            rticket, _ = api_login(self.base, root_usr, root_passwd)
+        except WnLoginFailed:
+            raise WnError(EXIT_AUTH,
+                          "root 登录失败: 实例配置的 root-init-passwd 与"
+                          "缺省 123456 均不可用。终止流程，请向主人询问"
+                          " root 密码")
         r = WnClient.__new__(WnClient)
         r.session = self.session
         r.base = self.base
@@ -305,21 +544,35 @@ class WnClient:
         guard_msys_path(path)
         return path
 
+    def _try_relogin(self):
+        """401 自动重登一次: 只有 root 会话能自动重登——密码从实例配置
+        现找（<dist>/conf → core/conf 的 root-init-passwd，缺省 123456）。
+        域会话不再缓存密码，401 只能重新 login。"""
+        usr = self.session.usr
+        if usr != "root":
+            return False
+        passwd = guess_root_passwd(self.session.dist) or "123456"
+        try:
+            t, _ = api_login(self.base, usr, passwd)
+            self._ticket = t
+            self.session.save()
+            return True
+        except WnError:
+            return False
+
     def _req(self, method, path, retried=False, **kw):
         ticket = self._ticket
         if ticket:
             hdrs = kw.setdefault("headers", {})
             hdrs[TICKET_HEADER] = ticket
         st, body = http(self.base, method, path, **kw)
-        if st == 401 and not retried and self.session.creds:
+        if st == 401 and not retried and self._try_relogin():
             print("会话过期，自动重新登录 ...", file=sys.stderr)
-            c = self.session.creds
-            t, _ = api_login(self.base, c["usr"], c["passwd"])
-            self._ticket = t
-            self.session.save()
             return self._req(method, path, retried=True, **kw)
         if st == 401:
-            raise WnError(EXIT_AUTH, "未登录或会话失效（401）")
+            raise WnError(EXIT_AUTH,
+                          "未登录或会话失效（401）。root 会话重登失败时，"
+                          "请与主人核对 root 密码；域会话请重新 login")
         return st, body
 
     def _check(self, st, body):
@@ -429,7 +682,9 @@ class WnClient:
             self.cmd('mkdir "%s"' % path)
         except WnError:
             pass
-        self.cmd('o "%s" @update \'mnt:"%s"\'' % (path, file_url))
+        # 注意：命令通道里双引号要用 \" 转义（box 会吃掉裸双引号），
+        # 否则 @update 的值解析会失败
+        self.cmd('o "%s" @update \'mnt:\\"%s\\"\'' % (path, file_url))
         if not check:
             return {"mounted": path, "url": file_url, "checked": False}
         # 自检：读不回来 / 报错即异常（守则见 50-at-rules）
@@ -567,17 +822,20 @@ def kv_pairs(pairs):
 def main():
     ap = argparse.ArgumentParser(description="Walnut 智能体客户端")
     ap.add_argument("--url", help="实例地址")
-    ap.add_argument("--se", default="se-00", help="会话名（默认 se-00）")
+    ap.add_argument("--se", help="会话名（缺省 login 时为 se-<登录名>-00，"
+                                 "其他子命令为 se-00）")
     ap.add_argument("--session-dir", default=".at/client/session",
                     help="会话缓存目录")
+    ap.add_argument("--dist", help="dist/wn4j 目录（root 密码发现）")
+    ap.add_argument("--who", help="智能体代号（写入会话缓存 agent.name）")
     ap.add_argument("--creds", help="凭据 JSON 文件")
     sub = ap.add_subparsers(dest="sub", required=True)
 
     sp = sub.add_parser("login", help="登录（含建域决策树）")
     sp.add_argument("--usr", help="测试域用户名")
-    sp.add_argument("--passwd", help="测试域密码（缺省从凭据文件/交互）")
+    sp.add_argument("--passwd", help="测试域密码（root 会话缺省自动从实例配置发现）")
     sp.add_argument("--root-usr", help="root 用户名（默认 root）")
-    sp.add_argument("--root-passwd", help="root 密码（建域用）")
+    sp.add_argument("--root-passwd", help="root 密码（建域用；缺省按实例配置发现）")
 
     sp = sub.add_parser("cmd", help="执行命令文本")
     sp.add_argument("text", help="命令文本，'-' 表示从 stdin 读")
@@ -605,20 +863,36 @@ def main():
 
     args = ap.parse_args()
     creds = load_creds(args.creds)
+    dist = args.dist or creds.get("dist")
 
     try:
-        c = WnClient(args.url, session_dir=args.session_dir, se=args.se)
+        # 会话名约定: login 时缺省 se-<登录名>-00（如 se-root-00），
+        # 其他子命令缺省 se-00（向后兼容）
+        usr_for_se = args.usr or creds.get("usr") if args.sub == "login" else None
+        se = args.se or ("se-%s-00" % usr_for_se if usr_for_se else "se-00")
+
+        c = WnClient(args.url, session_dir=args.session_dir, se=se)
+        if dist:
+            c.session.dist = dist
 
         if args.sub == "login":
             usr = args.usr or creds.get("usr")
             passwd = args.passwd or creds.get("passwd")
             if not usr:
                 raise WnError(EXIT_USAGE, "缺少 --usr（或凭据文件里的 usr）")
-            if passwd is None:
-                passwd = getpass.getpass("密码: ")
             root_usr = args.root_usr or creds.get("root_usr") or "root"
+            # root 会话: 密码从实例配置发现（web_local.properties →
+            # web.properties → 缺省 123456），失败即终止询问用户
+            if usr == root_usr and passwd is None:
+                passwd = guess_root_passwd(dist) or "123456"
+            elif passwd is None:
+                passwd = getpass.getpass("密码: ")
             root_passwd = (args.root_passwd if args.root_passwd is not None
-                           else creds.get("root_passwd") or "")
+                           else creds.get("root_passwd") or None)
+            root_passwd = guess_root_passwd(dist, root_passwd) or "123456"
+            # 智能体身份: --who > .at/whoami.toml > null（人类使用）
+            c.session.agent = merge_agent(c.session.agent,
+                                          resolve_agent_name(args.who))
             ticket, how = c.login_or_create_domain(usr, passwd, root_usr, root_passwd)
             print(json.dumps({"ok": True, "action": how, "usr": usr,
                               "base": c.base}, ensure_ascii=False))

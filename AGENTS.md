@@ -16,28 +16,34 @@ Walnut 是一个**业务系统开发基座**（Java + 内嵌 Nutz 框架），�
 
 ## 阅读顺序（最少 token 路线）
 
-1. **`doc/reference/INDEX.md`** — 全量文档索引（每篇一行：标题/模块/关键词）。
-   需要了解什么主题，按关键词搜这里，直达对应文档。
-2. **`doc/reference/10.concepts/README.md`** — 五大核心概念
-   （标准对象、IO/Indexer/BM、Domain/Home、会话、命令模型），是理解一切的地基。
-3. **`doc/reference/SOURCEMAP.md`** — 源码包 ↔ 文档的双向映射。
-   已经拿到一个类/包名？查这张表找到对应文档，反之亦然。
-4. 写代码前再看 **`doc/reference/101.dev/`**（扩展开发）和对应命令的 man 文档。
+> 文档已迁至独立的私有文档库 **wn-doc**（工作区同级目录，下称 `{WN_DOC_HOME}` = `../wn-doc/`）。
 
-## 文档体系（doc/）
+1. **`{WN_DOC_HOME}/reference/INDEX.md`** — 全量文档索引（每篇一行：标题/模块/关键词）。
+   需要了解什么主题，按关键词搜这里，直达对应文档。
+2. **`{WN_DOC_HOME}/reference/10.concepts/README.md`** — 五大核心概念
+   （标准对象、IO/Indexer/BM、Domain/Home、会话、命令模型），是理解一切的地基。
+3. **`{WN_DOC_HOME}/reference/SOURCEMAP.md`** — 源码包 ↔ 文档的双向映射。
+   已经拿到一个类/包名？查这张表找到对应文档，反之亦然。
+4. 写代码前再看 **`{WN_DOC_HOME}/reference/101.dev/`**（扩展开发）和对应命令的 man 文档。
+
+## 文档体系（wn-doc 私有库）
+
+文档全部放在工作区同级的 **wn-doc** 私有库（`../wn-doc/`，即 `{WN_DOC_HOME}`）：
 
 ```text
-doc/
+wn-doc/
 |-- reference/    # 正式参考手册（分模块：00 快速开始 / 10 概念 / 20 存储 / 30 认证 /
-|                 #   40 命令 / 50 HTTP API / 60 定时任务 / 70 功能场景 / 80 运维 / 90 开发）
+|                 #   40 命令 / 45 网站 / 50 HTTP API / 60 定时任务 / 70 功能场景 /
+|                 #   100 运维 / 101 开发 / 102 测试）
 |-- skill/        # 给 AI Agent 的技能文档（write-walnut-doc.skill.md = 写文档的规范与叙事风格）
-|-- note/         # 历史工作笔记，非正式，仅供参考，可能过时
+|-- note/         # 历史工作笔记（安全审计与执行计划在 plan/）
+|-- plan/         # 改造计划：任务/测试/审计底稿（入口 plan/README.md）
 |-- _old/         # 旧文档存档，内容已与源码脱节，不要引用
 ```
 
 - 知识文档之间已互通真实链接（正文里的 `[标题](相对路径.md)`），跟着链接读即可。
-- 命令的权威文档在源码旁的 `man/zh_cn/`，格式：简单命令一篇，复杂/过滤命令主文档 + 每子命令一篇。
-- 文档与源码冲突时，**以源码为准**；可顺手修正文档（遵守 `doc/skill/write-walnut-doc.skill.md`）。
+- 命令的权威文档在**本仓库**源码旁的 `man/zh_cn/`，格式：简单命令一篇，复杂/过滤命令主文档 + 每子命令一篇。
+- 文档与源码冲突时，**以源码为准**；可顺手修正文档（遵守 `{WN_DOC_HOME}/skill/write-walnut-doc.skill.md`）。
 
 ## 源码布局（src/com/site0/walnut/）
 
@@ -53,7 +59,7 @@ login/   # 账户与会话；util/ alg/ val/ = 工具层
 ```
 
 构建运行：Maven 项目（`pom.xml`），配置走 Nutz Ioc（`conf/ioc/`）。
-上手步骤见 `doc/reference/00.start-here/quick-start.md`。
+上手步骤见 `{WN_DOC_HOME}/reference/00.start-here/quick-start.md`。
 
 ## 重要：这些已弃用，不要读不要改
 
@@ -63,11 +69,18 @@ login/   # 账户与会话；util/ alg/ val/ = 工具层
 - **`cmd_crontab`**（旧单文件定时器，标记 @deprecated，用 `cron` 三件套代替）
 - `client/ gradle/ build.py jdbc/` 基本弃用；`.gitignore` 忽略的文件都不用看
 - 例外：`bin/` 目录已复活为**智能体自动化测试的公共工具集**
-  （wn-ping/wn-up/wn-down/wn-cli/walnut-at-init），见 `doc/reference/102.auto-test/`
+  （wn-ping/wn-up/wn-down/wn-cli/walnut-at-init），见 `{WN_DOC_HOME}/reference/102.auto-test/`
+
+## 临时文件纪律
+
+- 不要往项目根目录堆临时目录/文件：确需临时目录一律放 `.tmp/` 下
+  （已 gitignore），用完即删。
+- 任务结束前必须清理自己创建的临时文件；确有原因不能删的（比如
+  会话缓存、身份信息），要在汇报里明确告知用户原因。
 
 ## 上手建议
 
-1. 先跑通 `quick-start.md`，在控制台玩 `o` 命令（一切皆对象的最佳入口：`man cmd_o`）
+1. 先跑通 `{WN_DOC_HOME}/reference/00.start-here/quick-start.md`，在控制台玩 `o` 命令（一切皆对象的最佳入口：`man cmd_o`）
 2. 重点命令（设计最完整、最值得当范例读）：
    `cmd_o`（过滤）、`cmd_sqlx`（复杂）、`cmd_tmpl`（过滤）、`cmd_xapi`（复杂）
 3. 每个命令源码头部注释 + 同目录 man 文档就是它的全部契约；改命令必改 man 文档
