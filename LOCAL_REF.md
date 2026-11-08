@@ -1,5 +1,4 @@
 # LOCAL_REF — 本工作目录引用的工程仓库
 
-| 名称 | 路径 | 用途 |
-|------|------|------|
-| walnut | D:/workspace/git/github/zozoh/walnut | 构建(build/)、工具(tools/)、产物(dist/wn4j) |
+- **wn-doc** — `D:/workspace/git/github/site-zero/wn-doc`
+  私有文档库：`public/`（reference/skill，发布为文档站点）、`note/`、`plan/`；入口 `wn-doc/README.md`、`wn-doc/AGENTS.md`。
