@@ -41,7 +41,7 @@ import org.nutz.trans.Proton;
 import org.nutz.web.Webs.Err;
 
 import com.site0.walnut.api.box.WnBoxService;
-import com.site0.walnut.api.box.WnServiceFactory;
+import com.site0.walnut.api.box.WnServiceHolder;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.MimeMap;
 import com.site0.walnut.api.io.WnIo;
@@ -686,8 +686,8 @@ public abstract class Wn {
             return ioc.get(WnConfig.class, "conf");
         }
 
-        public static WnServiceFactory services(Ioc ioc) {
-            return ioc.get(WnServiceFactory.class, "serviceFactory");
+        public static WnServiceHolder services(Ioc ioc) {
+            return ioc.get(WnServiceHolder.class, "serviceFactory");
         }
 
         public static WnLoginApi auth(Ioc ioc) {

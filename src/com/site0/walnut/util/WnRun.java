@@ -15,7 +15,7 @@ import org.nutz.trans.Proton;
 import com.site0.walnut.api.box.WnBox;
 import com.site0.walnut.api.box.WnBoxContext;
 import com.site0.walnut.api.box.WnBoxService;
-import com.site0.walnut.api.box.WnServiceFactory;
+import com.site0.walnut.api.box.WnServiceHolder;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.hook.WnHookContext;
 import com.site0.walnut.api.hook.WnHookService;
@@ -39,7 +39,7 @@ public class WnRun {
     private static final Log boxLog = Wlog.getBOX();
 
     @Inject("refer:serviceFactory")
-    private WnServiceFactory services;
+    private WnServiceHolder services;
 
     @Inject("refer:io")
     private WnIo io;
@@ -74,7 +74,7 @@ public class WnRun {
     @Inject("refer:conf")
     protected WnConfig conf;
 
-    public WnServiceFactory getServiceFactory() {
+    public WnServiceHolder getServiceFactory() {
         return services;
     }
 

@@ -6,7 +6,7 @@ import org.nutz.mongo.ZMoCo;
 import com.site0.walnut.api.box.WnBox;
 import com.site0.walnut.api.box.WnBoxContext;
 import com.site0.walnut.api.box.WnBoxService;
-import com.site0.walnut.api.box.WnServiceFactory;
+import com.site0.walnut.api.box.WnServiceHolder;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.login.session.WnSession;
@@ -83,7 +83,7 @@ public abstract class BaseBoxTest extends BaseUsrTest {
         err = new StringBuilder();
 
         // 准备服务类工厂
-        WnServiceFactory services = setup.getServiceFactory();
+        WnServiceHolder services = setup.getServiceFactory();
 
         // 准备上下文
         bc = new WnBoxContext(services, new NutMap());

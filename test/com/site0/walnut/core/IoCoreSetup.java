@@ -18,7 +18,7 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.mongo.ZMoCo;
 
 import com.site0.walnut.api.box.WnBoxService;
-import com.site0.walnut.api.box.WnServiceFactory;
+import com.site0.walnut.api.box.WnServiceHolder;
 import com.site0.walnut.api.io.MimeMap;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnIoIndexer;
@@ -195,8 +195,8 @@ public class IoCoreSetup {
         return _boxService;
     }
 
-    public WnServiceFactory getServiceFactory() {
-        WnServiceFactory _services = new WnServiceFactory();
+    public WnServiceHolder getServiceFactory() {
+        WnServiceHolder _services = new WnServiceHolder();
         _services.setLoginApi(getLoginApi());
         _services.setHookApi(new CachedWnHookService(getIo()));
         _services.setBoxApi(getBoxService());

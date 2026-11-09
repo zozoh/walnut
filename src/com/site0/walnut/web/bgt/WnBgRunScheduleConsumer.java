@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.nutz.lang.random.R;
 import org.nutz.log.Log;
-import com.site0.walnut.api.box.WnServiceFactory;
+import com.site0.walnut.api.box.WnServiceHolder;
 import com.site0.walnut.api.lock.WnLockBusyException;
 import com.site0.walnut.api.lock.WnLockFailException;
 import com.site0.walnut.ext.sys.schedule.WnCronSlot;
@@ -23,7 +23,7 @@ public class WnBgRunScheduleConsumer implements Runnable {
 
     WnSysScheduleApi scheduleApi;
 
-    public WnBgRunScheduleConsumer(WnServiceFactory sf) {
+    public WnBgRunScheduleConsumer(WnServiceHolder sf) {
         this.scheduleApi = sf.getScheduleApi();
     }
 

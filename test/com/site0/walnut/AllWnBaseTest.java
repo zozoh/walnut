@@ -11,6 +11,7 @@ import com.site0.walnut.core.eot.AllExpiObjTableTest;
 import com.site0.walnut.cron.WnCronTest;
 import com.site0.walnut.ext.AllExtTest;
 import com.site0.walnut.impl.AllImplTest;
+import com.site0.walnut.mvc.AllWnMvcTest;
 import com.site0.walnut.ooml.OomlsTest;
 import com.site0.walnut.security.AllSecurityTest;
 import com.site0.walnut.util.AllUtilTest;
@@ -32,6 +33,7 @@ import com.site0.walnut.web.AllWebTest;
                      OomlsTest.class,
                      AllWebTest.class,
                      AllImplTest.class,
+                     AllWnMvcTest.class,
                      AllSecurityTest.class,
                      AllExtTest.class})
 public class AllWnBaseTest {}

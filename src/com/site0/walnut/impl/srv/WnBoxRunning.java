@@ -12,7 +12,7 @@ import com.site0.walnut.api.WnAuthExecutable;
 import com.site0.walnut.api.box.WnBox;
 import com.site0.walnut.api.box.WnBoxContext;
 import com.site0.walnut.api.box.WnBoxService;
-import com.site0.walnut.api.box.WnServiceFactory;
+import com.site0.walnut.api.box.WnServiceHolder;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.hook.WnHookContext;
 import com.site0.walnut.api.io.WnIo;
@@ -32,7 +32,7 @@ public class WnBoxRunning implements WnAuthExecutable {
 
     private String logPrefix;
 
-    private WnServiceFactory services;
+    private WnServiceHolder services;
 
     private WnBoxContext bc;
 
@@ -48,7 +48,7 @@ public class WnBoxRunning implements WnAuthExecutable {
 
     public WnBoxRunning(String logPrefix,
                         WnIo io,
-                        WnServiceFactory services,
+                        WnServiceHolder services,
                         int boxAllocTimeout,
                         boolean withHook) {
         this(logPrefix,
@@ -63,7 +63,7 @@ public class WnBoxRunning implements WnAuthExecutable {
 
     public WnBoxRunning(String logPrefix,
                         WnIo io,
-                        WnServiceFactory services,
+                        WnServiceHolder services,
                         int boxAllocTimeout,
                         boolean withHook,
                         OutputStream out,

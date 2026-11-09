@@ -8,7 +8,7 @@ var ioc = {
 		}
 	},
 	serviceFactory: {
-		type: 'com.site0.walnut.api.box.WnServiceFactory',
+		type: 'com.site0.walnut.api.box.WnServiceHolder',
 		fields: {
 			hookApi: { refer: "hookService" },
 			loginApi: { refer: "sysLoginApi" },

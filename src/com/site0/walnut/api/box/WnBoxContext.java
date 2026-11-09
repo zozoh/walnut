@@ -17,13 +17,13 @@ public class WnBoxContext {
 
     public WnIo io;
 
-    public WnServiceFactory services;
+    public WnServiceHolder services;
 
     public NutMap attrs;
 
     private WnBoxContext() {}
 
-    public WnBoxContext(WnServiceFactory services, NutMap attrs) {
+    public WnBoxContext(WnServiceHolder services, NutMap attrs) {
         this.attrs = attrs;
         this.services = services;
     }

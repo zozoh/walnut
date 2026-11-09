@@ -13,7 +13,7 @@ import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 
 import com.site0.walnut.api.WnAuthExecutable;
-import com.site0.walnut.api.box.WnServiceFactory;
+import com.site0.walnut.api.box.WnServiceHolder;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
@@ -37,7 +37,7 @@ public class WnSystem implements WnAuthExecutable {
 
     private static final Log log = Wlog.getBOX();
 
-    public WnServiceFactory services;
+    public WnServiceHolder services;
 
     public String boxId;
 
@@ -65,7 +65,7 @@ public class WnSystem implements WnAuthExecutable {
 
     JvmAtomRunner _runner;
 
-    public WnSystem(WnServiceFactory services) {
+    public WnSystem(WnServiceHolder services) {
         this.services = services;
         this.auth = services.getLoginApi();
     }

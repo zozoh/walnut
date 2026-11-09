@@ -8,7 +8,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.stream.VoidInputStream;
 import com.site0.walnut.api.box.WnBoxContext;
 import com.site0.walnut.api.box.WnBoxStatus;
-import com.site0.walnut.api.box.WnServiceFactory;
+import com.site0.walnut.api.box.WnServiceHolder;
 import com.site0.walnut.util.WnRun;
 
 public class Jvms {
@@ -32,7 +32,7 @@ public class Jvms {
                                           OutputStream out,
                                           OutputStream err,
                                           InputStream in) {
-        WnServiceFactory service = runner.getServiceFactory();
+        WnServiceHolder service = runner.getServiceFactory();
         WnSystem sys = new WnSystem(service);
 
         OutputStream s_out = EscapeCloseOutputStream.WRAP(out);
