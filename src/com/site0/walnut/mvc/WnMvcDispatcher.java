@@ -179,14 +179,10 @@ public class WnMvcDispatcher {
             if (staticService.serve(context))
                 return;
         }
-        // 3) 页面路径 → 404 HTML 页（错误页美化/TmplX 由 JETTY-05 细化）
+        // 3) 页面路径 → 404 HTML 页（错误页资源 + TmplX，JETTY-05 细化）
         WnMvcResponse resp = context.response();
         resp.status(404);
-        WnMvcView.html("<!DOCTYPE html><html><head><meta charset=\"utf-8\">"
-                       + "<title>404 Not Found</title></head><body>"
-                       + "<h1>404 Not Found</h1><p>" + path + "</p>"
-                       + "</body></html>")
-                 .render(context);
+        WnMvcView.html(WnMvcChain.errorHtml(404, "no route: " + path, path)).render(context);
     }
 
     /**

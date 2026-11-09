@@ -40,6 +40,10 @@ public abstract class AbstractWnIoWrapper implements WnIo {
         this.io = io;
     }
 
+    public void setExpiTable(WnExpiObjTable expiTable) {
+        this.expiTable = expiTable;
+    }
+
     protected void tryAddExpiObj(WnObj o) {
         if (null != expiTable && null != o) {
             this.tryAddExpiObj(o.id(), o.expireTime());

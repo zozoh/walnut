@@ -45,6 +45,26 @@ public class WnSafeSysScheduleService implements WnSysScheduleApi {
 
     private long tryAddTaskLockDuration;
 
+    public void setSchedules(WnSysScheduleApi schedules) {
+        this.schedules = schedules;
+    }
+
+    public void setLocks(WnLockApi locks) {
+        this.locks = locks;
+    }
+
+    public void setTryLockDuration(long tryLockDuration) {
+        this.tryLockDuration = tryLockDuration;
+    }
+
+    public void setTryAddTaskLockDuration(long tryAddTaskLockDuration) {
+        this.tryAddTaskLockDuration = tryAddTaskLockDuration;
+    }
+
+    public void setTaskNotifyLock(Object taskNotifyLock) {
+        this.taskNotifyLock = taskNotifyLock;
+    }
+
     @Override
     public List<WnSysTask> pushSchedule(List<WnCronSlot> slots, boolean keep)
             throws WnSysTaskException, WnSysScheduleException {

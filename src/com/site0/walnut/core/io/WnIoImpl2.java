@@ -67,6 +67,10 @@ public class WnIoImpl2 implements WnIo {
         return locks;
     }
 
+    public void setLocks(WnLockApi locks) {
+        this.locks = locks;
+    }
+
     /**
      * 映射工厂类
      */

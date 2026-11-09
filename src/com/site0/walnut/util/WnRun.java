@@ -98,6 +98,50 @@ public class WnRun {
         return jef;
     }
 
+    public void setServices(WnServiceHolder services) {
+        this.services = services;
+    }
+
+    public void setIo(WnIo io) {
+        this.io = io;
+    }
+
+    public void setTaskApi(WnSysTaskApi taskApi) {
+        this.taskApi = taskApi;
+    }
+
+    public void setCronApi(WnSysCronApi cronApi) {
+        this.cronApi = cronApi;
+    }
+
+    public void setScheduleApi(WnSysScheduleApi scheduleApi) {
+        this.scheduleApi = scheduleApi;
+    }
+
+    public void setAuth(WnLoginApi auth) {
+        this.auth = auth;
+    }
+
+    public void setJef(JvmExecutorFactory jef) {
+        this.jef = jef;
+    }
+
+    public void setBoxes(WnBoxService boxes) {
+        this.boxes = boxes;
+    }
+
+    public void setHooks(WnHookService hooks) {
+        this.hooks = hooks;
+    }
+
+    public void setAllocTimeout(int allocTimeout) {
+        this.allocTimeout = allocTimeout;
+    }
+
+    public void setConf(WnConfig conf) {
+        this.conf = conf;
+    }
+
     public String exec(String logPrefix, String unm, final String cmdText) {
         return exec(logPrefix, unm, null, cmdText);
     }

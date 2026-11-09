@@ -72,6 +72,42 @@ public class WnSimpleLoginApi implements WnLoginApi {
         this.io = io;
     }
 
+    public void setUserStore(WnUserStore users) {
+        this.users = users;
+    }
+
+    public void setSessionStore(WnSessionStore sessions) {
+        this.sessions = sessions;
+    }
+
+    public void setRoleStore(WnRoleStore roles) {
+        this.roles = roles;
+    }
+
+    public void setXapi(WnXApi xapi) {
+        this.xapi = xapi;
+    }
+
+    public void setDomain(String domain) {
+        this.domain = domain;
+    }
+
+    public void setSessionDuration(int sessionDuration) {
+        this.sessionDuration = sessionDuration;
+    }
+
+    public void setSessionShortDu(int sessionShortDu) {
+        this.sessionShortDu = sessionShortDu;
+    }
+
+    public void setWechatMpOpenIdKey(String wechatMpOpenIdKey) {
+        this.wechatMpOpenIdKey = wechatMpOpenIdKey;
+    }
+
+    public void setWechatGhOpenIdKey(String wechatGhOpenIdKey) {
+        this.wechatGhOpenIdKey = wechatGhOpenIdKey;
+    }
+
     @Override
     public WnUserStore getUserStore() {
         return users;

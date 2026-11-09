@@ -55,6 +55,22 @@ public class WnSysScheduleService implements WnSysScheduleApi {
 
     public WnSysScheduleService() {}
 
+    public void setIo(WnIo io) {
+        this.io = io;
+    }
+
+    public void setAuth(WnLoginApi auth) {
+        this.auth = auth;
+    }
+
+    public void setCronApi(WnSysCronApi cronApi) {
+        this.cronApi = cronApi;
+    }
+
+    public void setTaskApi(WnSysTaskApi taskApi) {
+        this.taskApi = taskApi;
+    }
+
     @Override
     public List<WnObj> listSlotObj(WnSysScheduleQuery query, boolean loadContent) {
         // 准备操作任务的列表

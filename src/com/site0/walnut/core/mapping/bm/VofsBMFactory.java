@@ -26,6 +26,10 @@ public class VofsBMFactory implements WnBMFactory {
         this.handles = handles;
     }
 
+    public void setSwapPath(String swapPath) {
+        this.swapPath = swapPath;
+    }
+
     @Override
     public WnIoBM load(WnObj oHome, String str) {
         WnVofsOptions opt = new WnVofsOptions(str);

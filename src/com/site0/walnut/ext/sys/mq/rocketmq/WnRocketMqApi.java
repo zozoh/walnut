@@ -36,6 +36,26 @@ public class WnRocketMqApi implements WnMqApi {
 
     private DefaultMQPushConsumer consumer;
 
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+
+    public void setProducerName(String producerName) {
+        this.producerName = producerName;
+    }
+
+    public void setConsumerName(String consumerName) {
+        this.consumerName = consumerName;
+    }
+
     public WnRocketMqApi() {
         handlers = new HashMap<>();
     }

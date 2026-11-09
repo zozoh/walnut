@@ -173,7 +173,12 @@ public class WnMvcContext {
         this.response = response;
     }
 
-    void setSession(WnSession session) {
+    /**
+     * 设置当前会话（供动作链过滤器在票据恢复后写入）。
+     * <p>2026-11-10 用户批准为第 3 处 mvc 改动：由包私有改为 public，使
+     * {@code web2.filter} 能写入会话（原 Javadoc 已约定「session 由动作链后续恢复」）。</p>
+     */
+    public void setSession(WnSession session) {
         this.session = session;
     }
 

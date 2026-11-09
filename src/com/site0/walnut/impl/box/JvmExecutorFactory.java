@@ -33,6 +33,10 @@ public class JvmExecutorFactory {
      */
     private Map<String, JvmExecutor> map;
 
+    public void setScanPkgs(String[] scanPkgs) {
+        this.scanPkgs = scanPkgs;
+    }
+
     public JvmExecutor get(String name) {
         if (null == map) {
             synchronized (this) {

@@ -36,6 +36,18 @@ public class WnSafeSysTaskService implements WnSysTaskApi {
 
     private long tryLockDuration;
 
+    public void setTasks(WnSysTaskApi tasks) {
+        this.tasks = tasks;
+    }
+
+    public void setLocks(WnLockApi locks) {
+        this.locks = locks;
+    }
+
+    public void setTryLockDuration(long tryLockDuration) {
+        this.tryLockDuration = tryLockDuration;
+    }
+
     public void runTask(WnAuthExecutable runer,
                         WnObj oTask,
                         WnUser user,

@@ -1,0 +1,154 @@
+package com.site0.walnut.web2.bgt;
+
+import java.util.List;
+
+import org.nutz.lang.random.R;
+import org.nutz.log.Log;
+
+import com.site0.walnut.api.lock.WnLockBusyException;
+import com.site0.walnut.api.lock.WnLockFailException;
+import com.site0.walnut.ext.sys.schedule.WnCronSlot;
+import com.site0.walnut.ext.sys.schedule.WnSysScheduleApi;
+import com.site0.walnut.ext.sys.schedule.WnSysScheduleException;
+import com.site0.walnut.ext.sys.schedule.WnSysScheduleQuery;
+import com.site0.walnut.ext.sys.schedule.cmd_schedule;
+import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.Wlog;
+import com.site0.walnut.util.Wtime;
+import com.site0.walnut.util.time.WnDayTime;
+import com.site0.walnut.web2.service.WnServiceFactory;
+
+/**
+ * 分钟计划任务线程（对应旧 {@code WnBgRunScheduleConsumer}）。
+ * <p>
+ * 与旧实现的差别：线程自己持有 {@link WnServiceFactory} 引用取服务，不依赖 Nutz；
+ * 提供可中断的 {@link #shutdown()}。
+ */
+public class WnBgScheduleThread extends Thread {
+
+    private static final Log log = Wlog.getBG_SCHEDULE();
+
+    private final WnServiceFactory factory;
+
+    private final WnSysScheduleApi scheduleApi;
+
+    public WnBgScheduleThread(WnServiceFactory factory) {
+        super("BGT_SCHEDULE");
+        this.factory = factory;
+        this.scheduleApi = factory.getServiceHolder().getScheduleApi();
+        this.setDaemon(true);
+    }
+
+    /**
+     * 优雅停止：interrupt + join(5s)。可重复调用。
+     */
+    public void shutdown() {
+        if (!this.isAlive()) {
+            return;
+        }
+        this.interrupt();
+        try {
+            this.join(5000);
+        }
+        catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        if (this.isAlive()) {
+            log.warn("BGT_SCHEDULE still alive after 5s, give up waiting (daemon)");
+        }
+    }
+
+    @Override
+    public void run() {
+        // 启动前，需要随机等几秒，否则 Cron 那边启动时，很大概率会有锁冲突
+        long delayMs = R.random(1000, 3000);
+        Wlang.quiteSleep(delayMs);
+
+        // 进入主循环
+        while (!Thread.interrupted()) {
+            try {
+                // 准备查询对象（仅查当前时间槽）
+                WnSysScheduleQuery q = new WnSysScheduleQuery();
+                q.setToday(System.currentTimeMillis());
+                q.setSlotRange("now");
+
+                List<WnCronSlot> slots = scheduleApi.listSlot(q, true);
+
+                if (log.isDebugEnabled()) {
+                    log.debug("wakeup");
+                }
+
+                // 推入后台任务堆栈
+                if (null != slots && !slots.isEmpty()) {
+                    log.infof("push %d tasks", slots.size());
+                    scheduleApi.pushSchedule(slots, false);
+                }
+                else if (log.isDebugEnabled()) {
+                    log.debug("NoTaskFound");
+                }
+
+                // 任务执行完毕后看看距离下一个时间槽，要睡多久
+                long todayMs = Wtime.todayInMs();
+                WnDayTime time = new WnDayTime();
+                int slotN = q.getSlotN();
+                int slotI = cmd_schedule.timeSlotIndexBySec(time, slotN);
+                double unit = (double) 86400 / (double) slotN;
+                int sec = (int) (unit * (slotI + 1));
+                // 得到下一个时间槽，起始的绝对毫秒数
+                long ams = todayMs + (sec * 1000);
+
+                // 那么应该睡多久呢
+                long sleepMs = Math.max(1, ams - System.currentTimeMillis());
+                // 为了尽量防止线程争抢，我们需要给一个时间槽范围内一个随机数
+                // 为了给线程执行留足够的时间，我们需要保留半个时间槽
+                long unitInMs = (long) unit * 1000;
+                long luckyMs = R.random(0, (unitInMs / 2));
+                long realSleepMs = sleepMs + luckyMs;
+                if (log.isDebugEnabled()) {
+                    log.debugf("sleep=%dms, luck=%dms, real=%dms",
+                               sleepMs,
+                               luckyMs,
+                               realSleepMs);
+                }
+                Wlang.wait(scheduleApi, realSleepMs);
+            }
+            // 看看是不是锁服务的错误
+            catch (WnSysScheduleException e) {
+                Throwable e2 = e.getCause();
+                // 加锁失败，大多数情况是 Cron 线程正在搞事情
+                if (e2 instanceof WnLockFailException) {
+                    long ms = R.random(1000, 4000);
+                    log.infof("Fail to tryLoack, sleep %dms to retry", ms);
+                    Wlang.quiteSleep(ms);
+                }
+                // 忙锁：大家都很抢啊，多等一会儿
+                else if (e2 instanceof WnLockBusyException) {
+                    long ms = R.random(3000, 5000);
+                    log.infof("Fail to askLoack, sleep %dms to retry", ms);
+                    Wlang.quiteSleep(ms);
+                }
+                // 就是一个退出指令
+                else if (e2 != null && e2 instanceof InterruptedException) {
+                    break;
+                }
+                // 其他错误就打印一下
+                else {
+                    log.warn("Run Schedule Error", e);
+                    Wlang.quiteSleep(10);
+                }
+            }
+            catch (Throwable e) {
+                Throwable e2 = e.getCause();
+                // 就是一个退出指令
+                if (e2 != null && e2 instanceof InterruptedException) {
+                    break;
+                }
+                log.warn("Other Error", e);
+                Wlang.quiteSleep(10);
+            }
+        }
+        // 退出日志
+        log.info("quit safely");
+    }
+
+}
