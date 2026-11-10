@@ -2,30 +2,38 @@ package com.site0.walnut.web2.jetty;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletResponse;
+import org.eclipse.jetty.http.HttpFields;
+import org.eclipse.jetty.io.Content;
+import org.eclipse.jetty.server.Response;
 
 import com.site0.walnut.mvc.WnMvcCookie;
 import com.site0.walnut.mvc.WnMvcResponse;
 
 /**
- * {@link WnMvcResponse} 的 Jetty9（javax.servlet）实现。
+ * {@link WnMvcResponse} 的 Jetty12（core，无 servlet）实现（RM-NUTZ-14）。
  * <p>
- * status/headers 在未 committed 时写入原生响应；Cookie 用 <code>Set-Cookie</code>
- * 文本写出（支持 SameSite）。
+ * 直接包 {@code org.eclipse.jetty.server.Response}（core 类型）。status/headers 在未
+ * committed 时写入原生响应；Cookie 用 <code>Set-Cookie</code> 文本写出（支持 SameSite）；
+ * 输出走 {@link Content.Sink#asOutputStream(Content.Sink)}。
  */
-public class Jetty9Response implements WnMvcResponse {
+public class Jetty12Response implements WnMvcResponse {
 
-    private final HttpServletResponse resp;
+    private final Response resp;
 
     private final Map<String, String> headers = new LinkedHashMap<>();
 
     private int status = 200;
 
-    public Jetty9Response(HttpServletResponse resp) {
+    private OutputStream out;
+
+    public Jetty12Response(Response resp) {
         this.resp = resp;
         this.status = resp.getStatus();
     }
@@ -47,7 +55,7 @@ public class Jetty9Response implements WnMvcResponse {
         if (null == name)
             return null;
         String v = headers.get(name.toUpperCase());
-        return null != v ? v : resp.getHeader(name);
+        return null != v ? v : resp.getHeaders().get(name);
     }
 
     @Override
@@ -55,7 +63,7 @@ public class Jetty9Response implements WnMvcResponse {
         if (committed())
             return;
         headers.put(name.toUpperCase(), value);
-        resp.setHeader(name, value);
+        resp.getHeaders().put(name, value);
     }
 
     @Override
@@ -65,7 +73,7 @@ public class Jetty9Response implements WnMvcResponse {
         String key = name.toUpperCase();
         if (!headers.containsKey(key))
             headers.put(key, value);
-        resp.addHeader(name, value);
+        resp.getHeaders().add(name, value);
     }
 
     @Override
@@ -78,7 +86,7 @@ public class Jetty9Response implements WnMvcResponse {
         if (committed())
             return;
         headers.put("CONTENT-TYPE", contentType);
-        resp.setContentType(contentType);
+        resp.getHeaders().put("Content-Type", contentType);
     }
 
     @Override
@@ -114,22 +122,15 @@ public class Jetty9Response implements WnMvcResponse {
 
     @Override
     public OutputStream outputStream() {
-        try {
-            return resp.getOutputStream();
+        if (null == out) {
+            out = Content.Sink.asOutputStream(resp);
         }
-        catch (IOException e) {
-            throw new IllegalStateException("Jetty9Response: fail to get output stream", e);
-        }
+        return out;
     }
 
     @Override
     public Writer writer() {
-        try {
-            return resp.getWriter();
-        }
-        catch (IOException e) {
-            throw new IllegalStateException("Jetty9Response: fail to get writer", e);
-        }
+        return new OutputStreamWriter(outputStream(), StandardCharsets.UTF_8);
     }
 
     @Override
@@ -140,52 +141,57 @@ public class Jetty9Response implements WnMvcResponse {
     @Override
     public void flush() {
         try {
-            resp.flushBuffer();
+            Content.Sink.write(resp, false, ByteBuffer.allocate(0));
         }
         catch (IOException e) {
-            throw new IllegalStateException("Jetty9Response: fail to flush", e);
+            throw new IllegalStateException("Jetty12Response: fail to flush", e);
         }
     }
 
     @Override
     public void setBufferSize(int size) {
-        resp.setBufferSize(size);
+        // Jetty12 core 无响应缓冲概念，语义上为 no-op（RM-NUTZ-14 记录）
     }
 
     @Override
     public void reset() {
-        resp.reset();
-        this.status = resp.getStatus();
-        this.headers.clear();
+        if (committed())
+            return;
+        HttpFields.Mutable flds = resp.getHeaders();
+        for (String name : new LinkedHashMap<>(headers).keySet()) {
+            try {
+                flds.remove(name);
+            }
+            catch (Exception e) {
+                // 移除失败忽略
+            }
+        }
+        headers.clear();
+        this.status = 200;
+        resp.setStatus(200);
     }
 
     @Override
     public void sendRedirect(String location) {
-        try {
-            resp.sendRedirect(location);
-        }
-        catch (IOException e) {
-            throw new IllegalStateException("Jetty9Response: fail to redirect", e);
-        }
+        status(302);
+        header("Location", location);
     }
 
     @Override
     public void sendError(int code) {
-        try {
-            resp.sendError(code);
-        }
-        catch (IOException e) {
-            throw new IllegalStateException("Jetty9Response: fail to send error", e);
-        }
+        sendError(code, "HTTP " + code);
     }
 
     @Override
     public void sendError(int code, String message) {
+        status(code);
         try {
-            resp.sendError(code, message);
+            byte[] bs = (null == message ? "" : message).getBytes(StandardCharsets.UTF_8);
+            outputStream().write(bs);
+            flush();
         }
         catch (IOException e) {
-            throw new IllegalStateException("Jetty9Response: fail to send error", e);
+            throw new IllegalStateException("Jetty12Response: fail to send error", e);
         }
     }
 

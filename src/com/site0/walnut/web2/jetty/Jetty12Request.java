@@ -5,31 +5,31 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-
+import org.eclipse.jetty.http.HttpField;
+import org.eclipse.jetty.http.HttpFields;
+import org.eclipse.jetty.server.Request;
 import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.mvc.WnMvcRequest;
 import com.site0.walnut.web2.support.WnPathRewriter;
 
 /**
- * {@link WnMvcRequest} 的 Jetty9（javax.servlet）实现。
+ * {@link WnMvcRequest} 的 Jetty12（core，无 servlet）实现（RM-NUTZ-14）。
  * <p>
- * 构造器预解析 Head（headers/cookies/query string/path 分段）并创建
- * pathParams/pathArgs 活容器；请求体全部惰性、首读缓存、三种解析互斥。
- * 同时实现 {@link WnPathRewriter}，供 Host→域 A 记录在匹配前重写路径。
+ * 直接包 {@code org.eclipse.jetty.server.Request}（core 类型），不经过 javax/jakarta servlet API。构造器预解析
+ * Head（headers/cookies/query/path 分段）， 请求体惰性、首读缓存、三种解析互斥。同时实现 {@link WnPathRewriter}。
  */
-public class Jetty9Request implements WnMvcRequest, WnPathRewriter {
+public class Jetty12Request implements WnMvcRequest, WnPathRewriter {
 
-    private final HttpServletRequest req;
+    private final Request req;
 
     private final String method;
 
@@ -69,23 +69,29 @@ public class Jetty9Request implements WnMvcRequest, WnPathRewriter {
 
     private List<NutMap> uploadParts;
 
-    public Jetty9Request(HttpServletRequest req) {
+    public Jetty12Request(Request req) {
         this.req = req;
         this.method = req.getMethod();
-        this.path = __normalize_path(req.getRequestURI(), req.getContextPath());
-        this.queryString = req.getQueryString();
+        this.path = __normalize_path(req.getHttpURI().getPath(), null);
+        this.queryString = req.getHttpURI().getQuery();
         this.queryStringMap = __parse_query(queryString);
-        this.headers = __parse_headers(req);
-        this.cookies = __parse_cookies(req);
+        this.headers = __parse_headers(req.getHeaders());
+        this.cookies = __parse_cookies(req.getHeaders());
         this.attrs = new NutMap();
         this.pathParams = new NutMap();
         this.pathArgs = new ArrayList<>();
-        this.contentType = req.getContentType();
+        this.contentType = this.headers.getString("CONTENT-TYPE");
         this.remoteAddr = __remote_addr(req);
-        this.scheme = req.getScheme();
+        this.scheme = req.isSecure() ? "https" : "http";
         this.host = __host(req);
-        String enc = req.getCharacterEncoding();
-        this.charset = (null == enc || enc.isEmpty()) ? StandardCharsets.UTF_8 : Charset.forName(enc);
+        Charset cs = null;
+        try {
+            cs = Request.getCharset(req);
+        }
+        catch (Exception e) {
+            cs = null;
+        }
+        this.charset = (null == cs) ? StandardCharsets.UTF_8 : cs;
     }
 
     // ----------------------------------------------------------------------
@@ -194,7 +200,8 @@ public class Jetty9Request implements WnMvcRequest, WnPathRewriter {
     public List<NutMap> getUploadParts() {
         if (null == uploadParts) {
             uploadParts = new ArrayList<>();
-            if (null != contentType && contentType.toLowerCase().startsWith("multipart/form-data")) {
+            if (null != contentType
+                && contentType.toLowerCase().startsWith("multipart/form-data")) {
                 byte[] bs = __body();
                 String boundary = __boundary(contentType);
                 if (null != bs && null != boundary) {
@@ -217,12 +224,16 @@ public class Jetty9Request implements WnMvcRequest, WnPathRewriter {
 
     @Override
     public String getRemoteHost() {
-        return req.getRemoteHost();
+        SocketAddress addr = req.getConnectionMetaData().getRemoteSocketAddress();
+        if (addr instanceof InetSocketAddress)
+            return ((InetSocketAddress) addr).getHostString();
+        return remoteAddr;
     }
 
     @Override
     public int getRemotePort() {
-        return req.getRemotePort();
+        SocketAddress addr = req.getConnectionMetaData().getRemoteSocketAddress();
+        return addr instanceof InetSocketAddress ? ((InetSocketAddress) addr).getPort() : 0;
     }
 
     @Override
@@ -260,7 +271,7 @@ public class Jetty9Request implements WnMvcRequest, WnPathRewriter {
     private byte[] __body() {
         if (!bodyLoaded) {
             bodyLoaded = true;
-            try (InputStream in = req.getInputStream()) {
+            try (InputStream in = Request.asInputStream(req)) {
                 body = null == in ? null : in.readAllBytes();
             }
             catch (IOException e) {
@@ -272,7 +283,9 @@ public class Jetty9Request implements WnMvcRequest, WnPathRewriter {
 
     private static String __normalize_path(String path, String contextPath) {
         String p = path;
-        if (null != contextPath && !contextPath.isEmpty() && null != p
+        if (null != contextPath
+            && !contextPath.isEmpty()
+            && null != p
             && p.startsWith(contextPath)) {
             p = p.substring(contextPath.length());
         }
@@ -281,29 +294,32 @@ public class Jetty9Request implements WnMvcRequest, WnPathRewriter {
         return p.startsWith("/") ? p : "/" + p;
     }
 
-    private static NutMap __parse_headers(HttpServletRequest req) {
+    private static NutMap __parse_headers(HttpFields fields) {
         NutMap map = new NutMap();
-        Enumeration<String> names = req.getHeaderNames();
-        if (null != names) {
-            while (names.hasMoreElements()) {
-                String name = names.nextElement();
-                if (null == name)
-                    continue;
-                String value = req.getHeader(name);
-                map.put(name.toUpperCase(), value);
+        if (null != fields) {
+            for (HttpField f : fields) {
+                if (null != f && null != f.getName()) {
+                    map.put(f.getName().toUpperCase(), f.getValue());
+                }
             }
         }
         return map;
     }
 
-    private static NutMap __parse_cookies(HttpServletRequest req) {
+    private static NutMap __parse_cookies(HttpFields fields) {
         NutMap map = new NutMap();
-        Cookie[] cs = req.getCookies();
-        if (null != cs) {
-            for (Cookie c : cs) {
-                if (null != c.getName())
-                    map.put(c.getName(), c.getValue());
-            }
+        String header = null == fields ? null : fields.get("Cookie");
+        if (null == header || header.isEmpty())
+            return map;
+        for (String pair : header.split(";")) {
+            String p = pair.trim();
+            if (p.isEmpty())
+                continue;
+            int i = p.indexOf('=');
+            String name = i < 0 ? p : p.substring(0, i).trim();
+            String value = i < 0 ? "" : p.substring(i + 1).trim();
+            if (!name.isEmpty())
+                map.put(name, value);
         }
         return map;
     }
@@ -328,37 +344,35 @@ public class Jetty9Request implements WnMvcRequest, WnPathRewriter {
             Object old = map.get(name);
             if (null == old) {
                 map.put(name, value);
-            }
-            else if (old instanceof String[]) {
+            } else if (old instanceof String[]) {
                 String[] olds = (String[]) old;
                 String[] news = new String[olds.length + 1];
                 System.arraycopy(olds, 0, news, 0, olds.length);
                 news[olds.length] = value;
                 map.put(name, news);
-            }
-            else {
+            } else {
                 map.put(name, new String[]{old.toString(), value});
             }
         }
         return map;
     }
 
-    private static String __remote_addr(HttpServletRequest req) {
-        String xff = req.getHeader("X-Forwarded-For");
+    private static String __remote_addr(Request req) {
+        String xff = req.getHeaders().get("X-Forwarded-For");
         if (null != xff && !xff.isEmpty()) {
             int i = xff.indexOf(',');
             return (i < 0 ? xff : xff.substring(0, i)).trim();
         }
-        String real = req.getHeader("X-Real-IP");
+        String real = req.getHeaders().get("X-Real-IP");
         if (null != real && !real.isEmpty())
             return real.trim();
-        return req.getRemoteAddr();
+        return Request.getRemoteAddr(req);
     }
 
-    private static String __host(HttpServletRequest req) {
-        String host = req.getHeader("Host");
+    private static String __host(Request req) {
+        String host = req.getHeaders().get("Host");
         if (null == host || host.isEmpty())
-            host = req.getServerName();
+            host = Request.getServerName(req);
         if (null == host)
             return "";
         int i = host.lastIndexOf(':');
@@ -404,7 +418,9 @@ public class Jetty9Request implements WnMvcRequest, WnPathRewriter {
             if (next < 0)
                 break;
             int bodyEnd = next;
-            if (bodyEnd >= 2 && text.charAt(bodyEnd - 2) == '\r' && text.charAt(bodyEnd - 1) == '\n')
+            if (bodyEnd >= 2
+                && text.charAt(bodyEnd - 2) == '\r'
+                && text.charAt(bodyEnd - 1) == '\n')
                 bodyEnd -= 2;
 
             String head = text.substring(headStart, headerEnd);
@@ -417,8 +433,7 @@ public class Jetty9Request implements WnMvcRequest, WnPathRewriter {
                 if (lower.startsWith("content-disposition:")) {
                     name = __attr(line, "name");
                     fileName = __attr(line, "filename");
-                }
-                else if (lower.startsWith("content-type:")) {
+                } else if (lower.startsWith("content-type:")) {
                     partType = line.substring("content-type:".length()).trim();
                 }
             }

@@ -52,11 +52,11 @@ import com.site0.walnut.web2.filter.atpath.SessionCheckFilter;
 import com.site0.walnut.web2.filter.global.CleanupFilter;
 import com.site0.walnut.web2.filter.router.DmnRule;
 import com.site0.walnut.web2.filter.router.DomainRouteFilter;
-import com.site0.walnut.web2.filter.router.StaticRouter;
-import com.site0.walnut.web2.jetty.Jetty9StaticService;
+
+import com.site0.walnut.mvc.WnDefaultStaticService;
 import com.site0.walnut.web2.support.WnAuthLookup;
 import com.site0.walnut.web2.support.WnPathRewriter;
-import com.site0.walnut.web2.support.WnStaticResolver;
+import com.site0.walnut.mvc.WnStaticResolver;
 
 /**
  * RM-NUTZ-05 T14：八组组合测试（JUnit，不真起服务器）。
@@ -277,21 +277,13 @@ public class Jetty05ChainTest {
     }
 
     // ======================================================================
-    // T14-6：Jetty9StaticService 命中 / 不存在
+    // T14-6：WnDefaultStaticService（C 记录静态站点）命中 / 不存在
     // ======================================================================
 
     @Test
-    public void t14_6_static_service() throws IOException {
-        File dir = Files.createTempDirectory("wn05static").toFile();
-        File f = new File(dir, "a.txt");
-        Files.write(f.toPath(), "hello".getBytes(StandardCharsets.UTF_8));
-
-        Jetty9StaticService svc = new Jetty9StaticService(new StaticRouter(null, null), dir);
-        MockWnMvcResponse hit = new MockWnMvcResponse();
-        WnMvcContext ctx = ctx(req("GET", "/a.txt", null), hit);
-        assertTrue(svc.serve(ctx));
-        assertEquals("hello", hit.bodyString());
-
+    public void t14_6_static_service_no_c_record() {
+        // 无 wn_www_grp/wn_www_site 属性 → 未命中（webRoot 文件来源已随 WebContent 弃用移除）
+        WnDefaultStaticService svc = new WnDefaultStaticService(null, null);
         MockWnMvcResponse miss = new MockWnMvcResponse();
         assertFalse(svc.serve(ctx(req("GET", "/nope.txt", null), miss)));
     }
@@ -306,7 +298,7 @@ public class Jetty05ChainTest {
         r.files.put("index.html", obj);
         r.data.put("index.html", "C-INDEX".getBytes(StandardCharsets.UTF_8));
 
-        Jetty9StaticService svc = new Jetty9StaticService(new StaticRouter(r, null), null);
+        WnDefaultStaticService svc = new WnDefaultStaticService(r, null);
         MockWnMvcRequest req = req("GET", "/", null);
         req.getAttrs().put("wn_www_grp", "demo");
         req.getAttrs().put("wn_www_site", "/home/demo/www");
@@ -406,19 +398,9 @@ public class Jetty05ChainTest {
     }
 
     @Test
-    public void t14_8_any_static_and_404() throws IOException {
-        File dir = Files.createTempDirectory("wn05root").toFile();
-        Files.write(new File(dir, "a.txt").toPath(),
-                    "ROOT".getBytes(StandardCharsets.UTF_8));
-        WnConfig conf = conf();
-        conf.set("app-root", dir.getAbsolutePath());
-        WnServiceHolder holder = new WnServiceHolder();
-        holder.setConfig(conf);
-
-        MockWnMvcResponse hit = new MockWnMvcResponse();
-        dispatchRoot(holder, req("GET", "/a.txt", null), hit);
-        assertEquals("ROOT", hit.bodyString());
-
+    public void t14_8_any_404() {
+        // RM-NUTZ-14：webRoot 静态文件来源已弃用（Walnut 无 webRoot）；
+        // 静态命中场景由 t14_6_static_c_record 覆盖，此处只锁未命中 → 404
         WnMvcContext miss = ctx(req("GET", "/nope", null), new MockWnMvcResponse());
         try {
             new WebRootController().handle(miss);

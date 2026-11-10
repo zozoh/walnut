@@ -1,9 +1,12 @@
-package com.site0.walnut.web2.support;
+package com.site0.walnut.mvc;
 
 import com.site0.walnut.api.io.WnObj;
 
 /**
  * 静态资源读取的最小 IO 能力（包装 {@code WnIo}，便于 JUnit 注入假实现）。
+ * <p>
+ * RM-NUTZ-14 自 {@code web2.support} 移入本包：静态服务是 mvc 层概念，
+ * 默认实现 {@link WnDefaultStaticService} 依赖本接口与 {@code WnIo}。
  */
 public interface WnStaticResolver {
 

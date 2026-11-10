@@ -6,7 +6,7 @@
  * <b>本任务（RM-NUTZ-04）只建包占位，不写任何实现类</b>；真实 view 由
  * RM-NUTZ-05~09 按需填充。
  * <p>
- * 边界：本包不得直接 import {@code org.eclipse.jetty.*} / {@code javax.servlet.*}，
+ * 边界：本包不得直接 import {@code org.eclipse.jetty.*} / {@code jakarta.servlet.*}，
  * 容器相关代码集中放在 {@code com.site0.walnut.web2.jetty}。
  */
 package com.site0.walnut.web2.view;

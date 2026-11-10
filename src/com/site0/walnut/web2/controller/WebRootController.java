@@ -1,6 +1,6 @@
 package com.site0.walnut.web2.controller;
 
-import java.io.File;
+
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
@@ -8,20 +8,21 @@ import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.WnVersion;
 import com.site0.walnut.mvc.AbstractWnController;
+import com.site0.walnut.web.WnConfig;
 import com.site0.walnut.mvc.WnMvcContext;
 import com.site0.walnut.mvc.WnMvcFilterException;
 import com.site0.walnut.mvc.WnMvcView;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.web.WnConfig;
-import com.site0.walnut.web2.filter.router.StaticRouter;
-import com.site0.walnut.web2.jetty.Jetty9StaticService;
-import com.site0.walnut.web2.support.WnIoStaticResolver;
+
+
+import com.site0.walnut.mvc.WnDefaultStaticService;
+import com.site0.walnut.mvc.WnIoStaticResolver;
 
 /**
  * 统一 {@code /**} 兜底控制器：内部处理 {@code /}、{@code /favicon}、
  * {@code /u/version}、{@code /u/runtime} 与静态资源。
  * <p>
- * 静态/C 记录命中由 {@link StaticRouter}/{@link Jetty9StaticService} 直接写响应；
+ * 静态/C 记录命中由 {@link WnDefaultStaticService} 直接写响应；
  * 未命中抛 {@link WnMvcFilterException}(404)，由 {@code WnMvcChain.fail} 按页面/API
  * 渲染错误体（页面 HTML / API JSON）。
  */
@@ -83,30 +84,14 @@ public class WebRootController extends AbstractWnController {
     }
 
     private WnMvcView __any(WnMvcContext ctx, String path) {
-        // 静态服务先委托 StaticRouter 查 C 记录，再尝试真实文件。
-        Jetty9StaticService staticService = __staticService(ctx);
+        // 静态服务：C 记录静态站点（原 webRoot 真实文件来源已随 WebContent 弃用移除）
+        WnDefaultStaticService staticService = new WnDefaultStaticService(new WnIoStaticResolver(ctx.io()),
+                                                                          ctx.mimes());
         if (staticService.serve(ctx))
             return null;
 
         // 未命中：抛 404，由 Chain.fail 按页面/API 渲染
         throw new WnMvcFilterException(404, "e.mvc.nofound", "no route: " + path);
-    }
-
-    private Jetty9StaticService __staticService(WnMvcContext ctx) {
-        StaticRouter router = new StaticRouter(new WnIoStaticResolver(ctx.io()), ctx.mimes());
-        File webRoot = null;
-        WnConfig conf = null == ctx.services() ? null : ctx.services().getConfig();
-        if (null != conf) {
-            try {
-                String ar = conf.getAppRoot();
-                if (null != ar && !ar.isEmpty())
-                    webRoot = new File(ar);
-            }
-            catch (Throwable e) {
-                webRoot = null;
-            }
-        }
-        return new Jetty9StaticService(router, webRoot);
     }
 
     // ----------------------------------------------------------------------

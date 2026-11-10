@@ -1,10 +1,12 @@
-package com.site0.walnut.web2.support;
+package com.site0.walnut.mvc;
 
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 
 /**
  * {@link WnStaticResolver} 的正式实现：薄包装 {@code WnIo}。
+ * <p>
+ * RM-NUTZ-14 自 {@code web2.support} 移入本包（与 {@link WnDefaultStaticService} 同层）。
  */
 public class WnIoStaticResolver implements WnStaticResolver {
 

@@ -271,11 +271,10 @@ public class Jetty06SwitchSessionTest {
     }
 
     @Test
-    public void t14_static_suffix_hit_and_miss_without_dispatcher_fallback() throws IOException {
-        Files.writeString(files.newFile("site.css").toPath(), "body{}", StandardCharsets.UTF_8);
-        MockWnMvcResponse resp = dispatch(req("GET", "/site.css"));
-        assertEquals(200, resp.status());
-        assertEquals("body{}", resp.bodyString());
+    public void t14_static_suffix_miss_falls_to_404() {
+        // RM-NUTZ-14：webRoot 静态文件来源已弃用（Walnut 无 webRoot）；
+        // 静态后缀未命中 → 兜底 404（C 记录命中由 t15 覆盖）
+        assertNotFound(dispatch(req("GET", "/site.css")), false);
         assertNotFound(dispatch(req("GET", "/absent.css")), false);
         assertEquals(2, factory.rootCalls);
     }

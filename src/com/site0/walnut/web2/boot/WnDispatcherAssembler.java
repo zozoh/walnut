@@ -20,25 +20,26 @@ import com.site0.walnut.web2.filter.global.CreateMvcContextFilter;
 import com.site0.walnut.web2.filter.global.EncodingFilter;
 import com.site0.walnut.web2.filter.router.DmnRule;
 import com.site0.walnut.web2.filter.router.DomainRouteFilter;
-import com.site0.walnut.web2.filter.router.StaticRouter;
-import com.site0.walnut.web2.jetty.Jetty9Request;
-import com.site0.walnut.web2.jetty.Jetty9Response;
-import com.site0.walnut.web2.jetty.Jetty9StaticService;
-import com.site0.walnut.web2.jetty.WnMvcJettyHandler;
+
+import com.site0.walnut.web2.jetty.Jetty12Request;
+import com.site0.walnut.web2.jetty.Jetty12Response;
+
+import com.site0.walnut.web2.jetty.WnMvcJetty12Handler;
 import com.site0.walnut.web2.router.WnRoutes;
 import com.site0.walnut.web2.service.WnServiceFactory;
 import com.site0.walnut.web2.support.WnAuthLookup;
 import com.site0.walnut.web2.support.WnIoDomainResolver;
-import com.site0.walnut.web2.support.WnIoStaticResolver;
+import com.site0.walnut.mvc.WnDefaultStaticService;
+import com.site0.walnut.mvc.WnIoStaticResolver;
 import com.site0.walnut.web2.support.WnLoginAuthLookup;
 
 /**
  * RM-NUTZ-05 装配器：把 {@code WnServiceFactory} 的服务装配成
- * {@link WnMvcDispatcher} + {@link WnMvcJettyHandler}。
+ * {@link WnMvcDispatcher} + {@link WnMvcJetty12Handler}。
  * <p>
- * 装配内容：services/io/mimes、Jetty9 request/response 类型、WnRoutes 统一路由、
+ * 装配内容：services/io/mimes、Jetty12 request/response 类型、WnRoutes 统一路由、
  * globalHead = [CreateMvcContext, Encoding, DomainRoute]、globalTail = [Cleanup]、
- * staticService = Jetty9StaticService。
+ * staticService = WnDefaultStaticService。
  * <p>
  * 无全局静态入口：由 {@code WnLauncher2} 每进程创建一个实例。
  */
@@ -51,17 +52,17 @@ public class WnDispatcherAssembler {
     }
 
     /**
-     * 装配并返回 Jetty Handler（供 {@code WnJetty9Server} 使用）。
+     * 装配并返回 Jetty12 core Handler（供 {@code WnJetty12Server} 使用）。
      */
-    public WnMvcJettyHandler buildHandler() {
+    public WnMvcJetty12Handler buildHandler() {
         WnServiceHolder holder = factory.getServiceHolder();
         WnConfig conf = holder.getConfig();
 
         WnMvcFactory mvc = new WnMvcFactory().services(holder)
                                              .io(factory.getIo())
                                              .mimes(factory.getMimes())
-                                             .requestType(Jetty9Request.class)
-                                             .responseType(Jetty9Response.class);
+                                             .requestType(Jetty12Request.class)
+                                             .responseType(Jetty12Response.class);
 
         WnMvcMapping mapping = mvc.mapping();
         WnRoutes.register(mapping);
@@ -83,16 +84,15 @@ public class WnDispatcherAssembler {
         };
         WnMvcFilter[] tail = new WnMvcFilter[]{new CleanupFilter()};
 
-        Jetty9StaticService staticService = new Jetty9StaticService(new StaticRouter(new WnIoStaticResolver(factory.getIo()),
-                                                                                    factory.getMimes()),
-                                                                    __web_root(conf));
+        WnDefaultStaticService staticService = new WnDefaultStaticService(new WnIoStaticResolver(factory.getIo()),
+                                                                     factory.getMimes());
 
         WnMvcDispatcher dispatcher = new WnMvcDispatcher(mapping,
                                                          mvc,
                                                          head,
                                                          tail,
                                                          staticService);
-        return new WnMvcJettyHandler(mvc, dispatcher, domain);
+        return new WnMvcJetty12Handler(mvc, dispatcher, domain);
     }
 
     // ----------------------------------------------------------------------
@@ -105,16 +105,6 @@ public class WnDispatcherAssembler {
             return Pattern.compile(regex.trim());
         }
         catch (Exception e) {
-            return null;
-        }
-    }
-
-    private static File __web_root(WnConfig conf) {
-        try {
-            String ar = conf.getAppRoot();
-            return (null == ar || ar.isEmpty()) ? null : new File(ar);
-        }
-        catch (Throwable e) {
             return null;
         }
     }

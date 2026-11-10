@@ -8,16 +8,16 @@ import com.site0.walnut.web.WnConfig;
 import com.site0.walnut.web2.boot.WnDispatcherAssembler;
 import com.site0.walnut.web2.boot.WnWebBoot;
 import com.site0.walnut.web2.jetty.WnAdminStopServer;
-import com.site0.walnut.web2.jetty.WnJetty9Server;
+import com.site0.walnut.web2.jetty.WnJetty12Server;
 import com.site0.walnut.web2.jetty.WnJettyServer;
-import com.site0.walnut.web2.jetty.WnMvcJettyHandler;
+import com.site0.walnut.web2.jetty.WnMvcJetty12Handler;
 import com.site0.walnut.web2.service.WnServiceFactory;
 
 /**
  * web2 启动入口（不继承 {@code org.nutz.web.WebLauncher}）。
  * <p>
  * 串联：配置 → {@link WnServiceFactory} → {@link WnWebBoot#setup()} →
- * {@link WnJettyServer} 启动 Jetty9 → shutdown hook。
+ * {@link WnJettyServer} 启动 Jetty12 → shutdown hook。
  * <p>
  * 端口沿用 {@code app-port}；{@code admin-port} 由独立 {@link WnAdminStopServer}
  * 监听（TCP 停机控制口，非 HTTP）。本任务只要求编译通过，不要求真实起容器。
@@ -52,8 +52,8 @@ public class WnLauncher2 {
 
         // HTTP 容器与 admin 停机控制口解耦（RM-NUTZ-15 换容器时 admin 不用改）
         WnDispatcherAssembler assembler = new WnDispatcherAssembler(factory);
-        WnMvcJettyHandler handler = assembler.buildHandler();
-        WnJettyServer server = new WnJetty9Server(host, port, handler);
+        WnMvcJetty12Handler handler = assembler.buildHandler();
+        WnJettyServer server = new WnJetty12Server(host, port, handler);
         WnAdminStopServer adminServer = new WnAdminStopServer(adminPort, server);
 
         // 5. 注册停机钩子：先销毁 boot，再停 admin 控制口与容器

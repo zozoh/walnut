@@ -22,7 +22,7 @@ import com.site0.walnut.util.Wlog;
  * <p>
  * 与 {@link WnJetty9Server} 解耦：RM-NUTZ-15 换 Jetty12 时，本类不用改。
  * <p>
- * 本项目约定：{@code javax.servlet.*} / {@code org.eclipse.jetty.*} 只出现在
+ * 本项目约定：{@code org.eclipse.jetty.*} 只出现在
  * web2.jetty；本类实际只用到 JDK 的 socket API。
  */
 public class WnAdminStopServer {
