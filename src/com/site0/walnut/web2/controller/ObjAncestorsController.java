@@ -12,7 +12,7 @@ import com.site0.walnut.mvc.WnMvcView;
 import com.site0.walnut.util.Wn;
 
 /**
- * <code>/o/ancestors</code>：对照旧 <code>ObjModule.ancestors(142)</code>（JETTY-08
+ * <code>/o/ancestors</code>：对照旧 <code>ObjModule.ancestors(142)</code>（RM-NUTZ-08
  * 审核表 #3）。逐行照抄旧方法体，只换绑定/视图/响应写法。过滤器
  * <code>SessionCheckFilter()</code>。
  */

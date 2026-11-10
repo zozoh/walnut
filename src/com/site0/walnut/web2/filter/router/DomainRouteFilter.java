@@ -23,7 +23,7 @@ import com.site0.walnut.web2.support.WnPathRewriter;
  * <code>wn_www_grp/site</code>；C 记录 → 额外写 <code>wn_www_static=yes</code>；
  * A 记录 → 按 hostmap 规则重写路径（{@link WnPathRewriter}）。</li>
  * </ul>
- * <p><b>预分发</b>：JETTY-03 的 Dispatcher 在匹配路由之后才执行 globalHead，而路径重写必须
+ * <p><b>预分发</b>：RM-NUTZ-03 的 Dispatcher 在匹配路由之后才执行 globalHead，而路径重写必须
  * 发生在其前；因此 {@code WnMvcJettyHandler} 会先调用本过滤器一次，链内再次执行时用
  * {@code wn.mvc.domain.routed} 幂等跳过。
  */

@@ -19,7 +19,7 @@ import java.io.InputStream;
  * </ul>
  *
  * <p><b>线程模型</b>：视图实例无状态，可被多请求并发渲染（渲染状态全部落到
- * {@link WnMvcContext}）。<b>JETTY-09</b> 会详细化视图路由与 Cookie 视图（
+ * {@link WnMvcContext}）。<b>RM-NUTZ-09</b> 会详细化视图路由与 Cookie 视图（
  * <code>++cookie&gt;&gt;:</code> / <code>--cookie&gt;&gt;:</code> / <code>++cookie-&gt;ajax</code>）。</p>
  */
 public interface WnMvcView {

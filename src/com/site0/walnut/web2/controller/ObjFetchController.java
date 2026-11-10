@@ -15,7 +15,7 @@ import com.site0.walnut.mvc.WnMvcView;
 import com.site0.walnut.util.Wn;
 
 /**
- * <code>/o/fetch</code>：对照旧 <code>ObjModule.fetch(91)</code>（JETTY-08 审核表 #1）。
+ * <code>/o/fetch</code>：对照旧 <code>ObjModule.fetch(91)</code>（RM-NUTZ-08 审核表 #1）。
  * 逐行照抄旧方法体，只换绑定/视图/响应写法；{@link ObjFetch2Controller} 复用
  * {@link #doFetch}（旧 <code>fetch2</code> 就是委托 <code>fetch(str, true, false)</code>）。
  * 过滤器 <code>SessionCheckFilter(true)</code>（未通过 401）。

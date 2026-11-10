@@ -59,7 +59,7 @@ import com.site0.walnut.web2.support.WnPathRewriter;
 import com.site0.walnut.web2.support.WnStaticResolver;
 
 /**
- * JETTY-05 T14：八组组合测试（JUnit，不真起服务器）。
+ * RM-NUTZ-05 T14：八组组合测试（JUnit，不真起服务器）。
  * <p>用例编号：T14-1~T14-8，每组含正常路径与失败/边界路径。</p>
  */
 public class Jetty05ChainTest {

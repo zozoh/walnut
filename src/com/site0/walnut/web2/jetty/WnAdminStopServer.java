@@ -13,14 +13,14 @@ import org.nutz.log.Log;
 import com.site0.walnut.util.Wlog;
 
 /**
- * admin 停机控制口（JETTY-04）。
+ * admin 停机控制口（RM-NUTZ-04）。
  * <p>
  * <b>不是 HTTP 端口</b>，而是对齐旧 {@code org.nutz.web.WebServer} 的
  * {@code Sockets.localListenOne(adminPort, "stop", ...)}：监听一个 TCP 端口，
  * 收到一行 {@code stop}/{@code exit}/{@code bye} 就调用目标
  * {@link WnJettyServer#stop()}。
  * <p>
- * 与 {@link WnJetty9Server} 解耦：JETTY-15 换 Jetty12 时，本类不用改。
+ * 与 {@link WnJetty9Server} 解耦：RM-NUTZ-15 换 Jetty12 时，本类不用改。
  * <p>
  * 本项目约定：{@code javax.servlet.*} / {@code org.eclipse.jetty.*} 只出现在
  * web2.jetty；本类实际只用到 JDK 的 socket API。

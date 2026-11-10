@@ -15,7 +15,7 @@ import com.site0.walnut.mvc.WnMvcResponse;
 import com.site0.walnut.util.WnContext;
 
 /**
- * JETTY-09：照抄旧 {@code ext/sys/httpapi/WnHttpApiContext.java}（逐字段复制），
+ * RM-NUTZ-09：照抄旧 {@code ext/sys/httpapi/WnHttpApiContext.java}（逐字段复制），
  * 仅把 javax 的 {@code HttpServletRequest/HttpServletResponse} 换成标准中立接口
  * {@link WnMvcRequest}/{@link WnMvcResponse}。
  *

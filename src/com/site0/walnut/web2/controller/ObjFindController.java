@@ -17,7 +17,7 @@ import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnPagerObj;
 
 /**
- * <code>/o/find</code>：对照旧 <code>ObjModule.find(303)</code>（JETTY-08 审核表 #7）。
+ * <code>/o/find</code>：对照旧 <code>ObjModule.find(303)</code>（RM-NUTZ-08 审核表 #7）。
  * <code>@Param("..") NutMap match</code> = 全部请求参数（<b>含 <code>_</code> 开头的
  * 键</b>，方法体内的剔除逻辑逐行照抄）；<code>_me</code> 缺省 <code>true</code>。
  * 过滤器 <code>SessionCheckFilter()</code>。

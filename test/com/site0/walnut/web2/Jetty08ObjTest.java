@@ -57,7 +57,7 @@ import com.site0.walnut.web2.router.WnRoutes;
 import com.site0.walnut.web2.support.WnLoginAuthLookup;
 
 /**
- * JETTY-08：ObjModule 10 个非废弃入口的迁移测试。每入口 1 正常 + 1 失败； 重点覆盖：update 的 JSON body
+ * RM-NUTZ-08：ObjModule 10 个非废弃入口的迁移测试。每入口 1 正常 + 1 失败； 重点覆盖：update 的 JSON body
  * 绑定（body 无 str → 报错、query str 被忽略）、 query 的 limit 上限/分页、find 的 _me 与 _
  * 键剔除、content 的下载视图与 Range、 saveText 的 base64、saveStream 的 mode r/s/a
  * 与原始流、OPTIONS 空 200。
@@ -574,7 +574,7 @@ public class Jetty08ObjTest {
                             ObjContentController.class,
                             ObjSaveTextController.class,
                             ObjSaveStreamController.class};
-        // 19（JETTY-06/07）+ 2（chse/兜底）+ 10（JETTY-08）+ 1（JETTY-09 /api/?/**）= 32
+        // 19（RM-NUTZ-06/07）+ 2（chse/兜底）+ 10（RM-NUTZ-08）+ 1（RM-NUTZ-09 /api/?/**）= 32
         assertEquals(32, factory.mapping().patterns().size());
         assertEquals("/**", factory.mapping().patterns().get(31));
         for (int i = 0; i < paths.length; i++) {
@@ -648,7 +648,7 @@ public class Jetty08ObjTest {
     }
 
     // ------------------------------------------------------------------
-    // 测试脚手架（与 JETTY-07 同构）
+    // 测试脚手架（与 RM-NUTZ-07 同构）
     // ------------------------------------------------------------------
 
     private MockWnMvcRequest.Builder req(String path) {

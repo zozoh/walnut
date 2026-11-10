@@ -262,7 +262,7 @@ public class Jetty06SwitchSessionTest {
                                         "/missing.css"}) {
             assertNotFound(dispatch(req("GET", path)), false);
         }
-        // JETTY-09 起 /api/?/** 已是真实路由，/api/missing 不再落入 /** 兜底，
+        // RM-NUTZ-09 起 /api/?/** 已是真实路由，/api/missing 不再落入 /** 兜底，
         // 其 404 语义由 Jetty09HttpApiTest 覆盖，此处不再断言
         for (String path : new String[]{"/u/missing", "/o/missing", "/u/missing.css"}) {
             assertNotFound(dispatch(req("GET", path)), true);

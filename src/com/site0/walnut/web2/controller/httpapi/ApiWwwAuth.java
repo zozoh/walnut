@@ -14,7 +14,7 @@ import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 
 /**
- * JETTY-09：照抄旧 {@code HttpApiModule} 的站点认证/权限方法组：
+ * RM-NUTZ-09：照抄旧 {@code HttpApiModule} 的站点认证/权限方法组：
  * {@code __do_www_auth}（879-919）、{@code __do_www_check_pvg}（286-334）。
  */
 public class ApiWwwAuth {

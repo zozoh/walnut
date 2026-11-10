@@ -28,7 +28,7 @@ public final class WnBoxRegistrar {
         JvmExecutorFactory jvmExecutorFactory = new JvmExecutorFactory();
         jvmExecutorFactory.setScanPkgs(conf.getJvmboxPkgs());
         // 说明：JvmExecutorFactory.ioc 的类型是 org.nutz.ioc.Ioc，web2 禁止 import；
-        // 该字段留空，能力门/命令执行器改造在 JETTY-05/13 落地。
+        // 该字段留空，能力门/命令执行器改造在 RM-NUTZ-05/13 落地。
         factory.register("jvmExecutorFactory", jvmExecutorFactory);
 
         factory.register("boxService", new JvmBoxService(jvmExecutorFactory));

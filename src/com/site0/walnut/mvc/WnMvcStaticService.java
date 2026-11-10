@@ -4,8 +4,8 @@ package com.site0.walnut.mvc;
  * 静态文件服务：路由未命中时，对「静态资源形态」的路径（按 {@link WnMvcDispatcher}
  * 的分流规则判定）提供文件级响应。
  *
- * <p><b>JETTY-03 只定义接口与分流规则</b>；真实实现（WebContent 根 / 域静态站点 /
- * favicon 等）由 JETTY-05 提供并挂到 {@link WnMvcDispatcher}。</p>
+ * <p><b>RM-NUTZ-03 只定义接口与分流规则</b>；真实实现（WebContent 根 / 域静态站点 /
+ * favicon 等）由 RM-NUTZ-05 提供并挂到 {@link WnMvcDispatcher}。</p>
  *
  * <p>实现必须<b>无状态、线程安全</b>。</p>
  */

@@ -14,7 +14,7 @@ import com.site0.walnut.mvc.WnMvcView;
 import com.site0.walnut.util.WnPagerObj;
 
 /**
- * <code>/o/query</code>：对照旧 <code>ObjModule.query(228)</code>（JETTY-08 审核表 #5）。
+ * <code>/o/query</code>：对照旧 <code>ObjModule.query(228)</code>（RM-NUTZ-08 审核表 #5）。
  * <p>
  * 旧 <code>@Param("..") WnQuery q</code> 走 Nutz <code>ObjectPairInjector</code>
  * （POJO 按字段绑定）：只有 <code>limit</code>/<code>skip</code>/<code>sort</code>/

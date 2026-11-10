@@ -4,7 +4,7 @@ package com.site0.walnut.web2.jetty;
  * Web 容器的最小抽象。
  * <p>
  * 上层（{@code WnLauncher2}）只面对这个接口，不 import {@code org.eclipse.jetty.*}
- * 与 {@code javax.servlet.*}。JETTY-15 从 Jetty9 换到 Jetty12/jakarta 时，只需在
+ * 与 {@code javax.servlet.*}。RM-NUTZ-15 从 Jetty9 换到 Jetty12/jakarta 时，只需在
  * {@code web2.jetty}（或新增的 {@code web2.jetty12}）里换实现，上层零改动。
  */
 public interface WnJettyServer {

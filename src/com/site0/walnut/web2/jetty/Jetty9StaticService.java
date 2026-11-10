@@ -10,7 +10,7 @@ import com.site0.walnut.mvc.WnMvcView;
 import com.site0.walnut.web2.filter.router.StaticRouter;
 
 /**
- * {@link WnMvcStaticService} 的 Jetty9 实现（JETTY-05）。
+ * {@link WnMvcStaticService} 的 Jetty9 实现（RM-NUTZ-05）。
  * <p>
  * 两条来源：
  * <ol>

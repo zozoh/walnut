@@ -167,14 +167,14 @@ public interface WnMvcRequest {
 
     /**
      * 客户端主机名（不经过反代头解析；实现可能触发反向 DNS，请按需调用）。
-     * <p>JETTY-09 批准的最小新增（2026-11-10）：旧 <code>HttpServletRequest#getRemoteHost</code>
+     * <p>RM-NUTZ-09 批准的最小新增（2026-11-10）：旧 <code>HttpServletRequest#getRemoteHost</code>
      * 的等价物，供 httpapi 填充 <code>http-remote-host</code> 元数据。</p>
      */
     String getRemoteHost();
 
     /**
      * 客户端来源端口。
-     * <p>JETTY-09 批准的最小新增（2026-11-10）：旧 <code>HttpServletRequest#getRemotePort</code>
+     * <p>RM-NUTZ-09 批准的最小新增（2026-11-10）：旧 <code>HttpServletRequest#getRemotePort</code>
      * 的等价物，供 httpapi 填充 <code>http-remote-port</code> 元数据。</p>
      */
     int getRemotePort();

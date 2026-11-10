@@ -75,7 +75,7 @@ public final class WnRoutes {
         mapping.route(getOpt, "/a/sys_ajax_logout", AppSysAjaxLogoutController.class, none, none);
         mapping.route(getOpt, "/a/lookup/**", AppLookupController.class, none, none);
 
-        // JETTY-08: Obj routes (10 个非废弃入口；6 个 @Deprecated 弃用不迁).
+        // RM-NUTZ-08: Obj routes (10 个非废弃入口；6 个 @Deprecated 弃用不迁).
         // fetch/fetch2 = SessionCheck(true)(401)，其余 = SessionCheck()(302 重定向).
         // 2026-11-10 用户裁定：读操作入口（fetch/fetch2/ancestors/query/children/find/content）
         // 收紧为 GET；fetch/fetch2/content 带 CORS 故附 OPTIONS（保预检）；update/save 保持 ANY。
@@ -90,7 +90,7 @@ public final class WnRoutes {
         mapping.route(any, "/o/save/text", ObjSaveTextController.class, session, none);
         mapping.route(any, "/o/save/stream", ObjSaveStreamController.class, session, none);
 
-        // JETTY-09: HttpApi routes.
+        // RM-NUTZ-09: HttpApi routes.
         // /api/?/** = 旧 HttpApiModule 唯一入口；类级 WnAsUsr("root") → headFilter AsUsrFilter("root").
         mapping.route(any, "/api/?/**", HttpApiController.class, root, none);
 

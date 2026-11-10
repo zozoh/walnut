@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * JETTY-03 假响应：{@link WnMvcResponse} 的测试实现。
+ * RM-NUTZ-03 假响应：{@link WnMvcResponse} 的测试实现。
  *
  * <p>捕获 status / headers（含多值）/ cookies / 响应体字节，供断言；
  * 第一次写正文或 flush 即视为 <b>committed</b>（此后 status/header 修改被忽略）。</p>

@@ -15,7 +15,7 @@ import com.site0.walnut.mvc.WnMvcView;
 import com.site0.walnut.util.Wn;
 
 /**
- * <code>/o/save/text</code>：对照旧 <code>ObjModule.saveText(607)</code>（JETTY-08
+ * <code>/o/save/text</code>：对照旧 <code>ObjModule.saveText(607)</code>（RM-NUTZ-08
  * 审核表 #9）。逐行照抄旧方法体（含 <code>whenRead</code> 处理链接文件、
  * <code>Strings.sNull</code>、base64 分支），只换绑定/视图/响应写法。过滤器
  * <code>SessionCheckFilter()</code>。

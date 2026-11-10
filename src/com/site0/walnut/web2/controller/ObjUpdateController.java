@@ -13,7 +13,7 @@ import com.site0.walnut.mvc.WnMvcView;
 import com.site0.walnut.util.Wn;
 
 /**
- * <code>/o/update</code>：对照旧 <code>ObjModule.update(190)</code>（JETTY-08 审核表 #4）。
+ * <code>/o/update</code>：对照旧 <code>ObjModule.update(190)</code>（RM-NUTZ-08 审核表 #4）。
  * 旧 <code>@AdaptBy(JsonAdaptor)</code>：整个请求体就是 JSON，query string 完全忽略
  * （2026-11-10 用户定稿：命名参数 <code>str</code> 也只从 body 取，不做旧 Nutz
  * NameInjector 的缺键回退）；未注解的 <code>NutMap map</code> = 整个 body map（含

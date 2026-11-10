@@ -6,7 +6,7 @@ import com.site0.walnut.mvc.WnMvcRequest;
 import com.site0.walnut.mvc.WnMvcView;
 
 /**
- * <code>/o/fetch2</code>：对照旧 <code>ObjModule.fetch2(124)</code>（JETTY-08 审核表 #2）。
+ * <code>/o/fetch2</code>：对照旧 <code>ObjModule.fetch2(124)</code>（RM-NUTZ-08 审核表 #2）。
  * 旧方法体即 <code>return fetch(str, true, false, req, resp)</code>，这里委托
  * {@link ObjFetchController#doFetch}。过滤器 <code>SessionCheckFilter(true)</code>。
  */

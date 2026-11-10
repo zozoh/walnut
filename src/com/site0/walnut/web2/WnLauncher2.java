@@ -50,7 +50,7 @@ public class WnLauncher2 {
         int adminPort = conf.getAdminPort();
         log.infof("app-port=%d, admin-port=%d (admin 为 TCP 停机控制口)", port, adminPort);
 
-        // HTTP 容器与 admin 停机控制口解耦（JETTY-15 换容器时 admin 不用改）
+        // HTTP 容器与 admin 停机控制口解耦（RM-NUTZ-15 换容器时 admin 不用改）
         WnDispatcherAssembler assembler = new WnDispatcherAssembler(factory);
         WnMvcJettyHandler handler = assembler.buildHandler();
         WnJettyServer server = new WnJetty9Server(host, port, handler);

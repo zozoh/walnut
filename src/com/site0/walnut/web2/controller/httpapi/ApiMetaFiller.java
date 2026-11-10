@@ -15,7 +15,7 @@ import com.site0.walnut.util.WnStr;
 import com.site0.walnut.util.Ws;
 
 /**
- * JETTY-09：照抄旧 {@code HttpApiModule} 的请求元数据方法组：
+ * RM-NUTZ-09：照抄旧 {@code HttpApiModule} 的请求元数据方法组：
  * {@code __fill_req_meta}（784-877）、{@code __escape_req_meta}（632-649）、
  * {@code __copy_cookie_to_wc_context}（357-362）、
  * {@code __check_api_access_token}（255-284）。

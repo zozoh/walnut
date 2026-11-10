@@ -12,7 +12,7 @@ import java.util.List;
 import org.nutz.lang.util.NutMap;
 
 /**
- * JETTY-03 假请求：{@link WnMvcRequest} 的测试实现。
+ * RM-NUTZ-03 假请求：{@link WnMvcRequest} 的测试实现。
  *
  * <p>遵守接口约定：构造函数预解析 HTTP Head（headers/cookies/query string）与路径分段，
  * 创建 {@link #getPathParams()} / {@link #getPathArgs()} 活容器；请求体<b>惰性</b>，

@@ -7,12 +7,12 @@ import com.site0.walnut.util.Wlang;
 
 /**
  * WnMvc 装配工厂：负责服务装配 + 请求/响应实现类装配，并产出
- * {@link WnMvcDispatcher}。实例由启动装配（JETTY-05）创建并持有，<b>无全局静态入口</b>。
+ * {@link WnMvcDispatcher}。实例由启动装配（RM-NUTZ-05）创建并持有，<b>无全局静态入口</b>。
  *
  * <h2>职责</h2>
  * <ul>
  * <li>服务装配：持有服务集合（{@link WnServiceHolder}）、{@link WnIo}、{@link MimeMap}
- * （对应旧 Nutz Ioc 的 conf/io/service 装配，JETTY-04 完成替换）。</li>
+ * （对应旧 Nutz Ioc 的 conf/io/service 装配，RM-NUTZ-04 完成替换）。</li>
  * <li>路由装配：持有全局 {@link WnMvcMapping}（{@link #mapping()}），装配代码直接
  * {@link WnMvcMapping#route} 注册「控制器类 + 过滤器」；路由表<b>不存控制器实例、不存方法名</b>
  * （入口方法固定为 {@link WnMvcController#handle(WnMvcContext)}）。</li>
@@ -32,7 +32,7 @@ import com.site0.walnut.util.Wlang;
  * </ul>
  *
  * <h2>线程模型 / 生命周期</h2>
- * <p>工厂实例在装配期由启动装配（JETTY-05）创建并持有，传给 {@link WnMvcDispatcher}；
+ * <p>工厂实例在装配期由启动装配（RM-NUTZ-05）创建并持有，传给 {@link WnMvcDispatcher}；
  * <b>不提供全局静态入口</b>（服务获取一律经每请求的 {@link WnMvcContext}，见「能力门」）。
  * 装配期一次性写入服务与「类」，之后只读；运行期每请求 born
  * 新控制器/新请求/新响应实例，不持有任何请求态。</p>
@@ -203,7 +203,7 @@ public class WnMvcFactory {
      * 装配完成，产出调度器（路由匹配 + born 控制器 + 动作链执行 + 未命中回退）。
      * <p>产出的调度器<b>不带全局过滤器、不带静态文件服务</b>；需要二者时直接用
      * {@link WnMvcDispatcher#WnMvcDispatcher(WnMvcMapping, WnMvcFactory, WnMvcFilter[], WnMvcFilter[], WnMvcStaticService)}
-     * 装配（JETTY-05）。</p>
+     * 装配（RM-NUTZ-05）。</p>
      */
     public WnMvcDispatcher build() {
         return new WnMvcDispatcher(mapping(), this, new WnMvcFilter[0], new WnMvcFilter[0]);

@@ -15,7 +15,7 @@ import com.site0.walnut.mvc.fake.FakeController;
 /**
  * 调度与未命中回退分流测试（T2/T5 集成 + T6 分流规则）。
  *
- * <p>分流规则（JETTY-03 设计，用户 2026-11-09T04:40 已确认）：API 前缀（/o /u /api）未命中 →
+ * <p>分流规则（RM-NUTZ-03 设计，用户 2026-11-09T04:40 已确认）：API 前缀（/o /u /api）未命中 →
  * 404 JSON（绝不返回 HTML）；静态后缀路径 → 委托 {@link WnMvcStaticService}，
  * 文件不存在 → 404 HTML；其余页面路径 → 404 HTML。</p>
  */

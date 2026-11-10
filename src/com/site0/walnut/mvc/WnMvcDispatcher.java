@@ -13,9 +13,9 @@ package com.site0.walnut.mvc;
  * 前置失败也执行）。二者都是 {@link WnMvcFilter} 实例。</p>
  *
  * <p>由 {@link WnMvcFactory#build()} 产出，持有只读的 {@link WnMvcMapping}、工厂引用与
- * 全局过滤器数组（globalHeadFilters / globalTailFilters，JETTY-05 组装动作链时传入）。</p>
+ * 全局过滤器数组（globalHeadFilters / globalTailFilters，RM-NUTZ-05 组装动作链时传入）。</p>
  *
- * <h2>调度流程（JETTY-03 实现）</h2>
+ * <h2>调度流程（RM-NUTZ-03 实现）</h2>
  * <ol>
  * <li>从 <code>ctx.request()</code> 取 method/path，经 {@link WnMvcMapping#match(WnMvcHttpMethod, WnMvcRequest)}
  * 匹配路由（命中即完成路径绑定：<code>{name}</code> 进 request.getPathParams()，
@@ -76,7 +76,7 @@ public class WnMvcDispatcher {
      *            全局尾部过滤器数组（全局收尾，在路由尾部过滤器之后执行；无则传空数组）
      * @param staticService
      *            静态文件服务（未命中回退的「静态」分支委托给它；可为 <code>null</code>，
-     *            此时静态形态路径直接走 404 HTML 页）。JETTY-05 提供真实实现。
+     *            此时静态形态路径直接走 404 HTML 页）。RM-NUTZ-05 提供真实实现。
      */
     public WnMvcDispatcher(WnMvcMapping mapping,
                            WnMvcFactory factory,
@@ -152,7 +152,7 @@ public class WnMvcDispatcher {
     // ======================================================================
 
     /**
-     * 未命中回退的「页面 HTML / API JSON / 静态文件」分流规则（JETTY-03 设计，用户 2026-11-09T04:40 已确认）：
+     * 未命中回退的「页面 HTML / API JSON / 静态文件」分流规则（RM-NUTZ-03 设计，用户 2026-11-09T04:40 已确认）：
      * <ol>
      * <li><b>API 前缀</b>（一级段为 <code>o</code> / <code>u</code> / <code>api</code>）：
      * 一律 <code>404 + JSON 错误体</code>（<code>{"ok":false,"errCode":"e.mvc.nofound"}</code>），
@@ -179,7 +179,7 @@ public class WnMvcDispatcher {
             if (staticService.serve(context))
                 return;
         }
-        // 3) 页面路径 → 404 HTML 页（错误页资源 + TmplX，JETTY-05 细化）
+        // 3) 页面路径 → 404 HTML 页（错误页资源 + TmplX，RM-NUTZ-05 细化）
         WnMvcResponse resp = context.response();
         resp.status(404);
         WnMvcView.html(WnMvcChain.errorHtml(404, "no route: " + path, path)).render(context);

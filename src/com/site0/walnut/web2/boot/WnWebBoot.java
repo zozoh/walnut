@@ -34,7 +34,7 @@ import com.site0.walnut.web2.service.WnServiceFactory;
  * 停机：停 BGT → factory.depose()（幂等）。
  * <p>
  * 边界：不 import {@code org.nutz.mvc.Setup/NutConfig}；不实现 HTTP 动作链与能力门
- * （整体留给 JETTY-05）。
+ * （整体留给 RM-NUTZ-05）。
  */
 public class WnWebBoot {
 

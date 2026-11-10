@@ -44,7 +44,7 @@ import com.site0.walnut.util.tmpl.WnTmpl;
  * （全局过滤器与路由级过滤器的先后）由 {@link WnMvcDispatcher} 构造链时决定，
  * 链本身不关心过滤器来自哪里。</p>
  *
- * <p>具体失败视图渲染（错误页/错误码映射）由 JETTY-05 实现；cleanup 必须在 finally。</p>
+ * <p>具体失败视图渲染（错误页/错误码映射）由 RM-NUTZ-05 实现；cleanup 必须在 finally。</p>
  *
  * <p><b>生命周期</b>：每个请求由 {@link WnMvcDispatcher} 构造一条链实例，携带该请求匹配到的
  * 前置/尾部过滤器数组与终止动作（controller.handle）；链实例仅本请求使用。</p>
@@ -158,7 +158,7 @@ public class WnMvcChain {
      * 失败分支：把异常记录日志并渲染为失败视图（fail-closed）。
      * <p>{@link WnMvcFilterException} 携带的状态码/错误码决定失败视图的 HTTP 状态与错误体；
      * 其他异常一律 500。响应已提交时只记日志不再渲染。</p>
-     * <p><b>页面/API 区分（JETTY-05）</b>：一级段为 <code>o</code>/<code>u</code>/<code>api</code>
+     * <p><b>页面/API 区分（RM-NUTZ-05）</b>：一级段为 <code>o</code>/<code>u</code>/<code>api</code>
      * 的请求保持 JSON 错误体；其余页面请求输出 HTML 错误页（资源
      * <code>mvc/error/{status}.html</code>，TmplX 渲染；渲染异常回退最小 HTML）。</p>
      *
@@ -189,8 +189,8 @@ public class WnMvcChain {
             return;
 
         String path = context.request().getPath();
-        // 页面请求：HTML 错误页（JETTY-05；web2 由 CreateMvcContextFilter 打标）；
-        // 未打标的库内单测保持 JETTY-03 的 JSON 断言（兼容既有 64 用例）
+        // 页面请求：HTML 错误页（RM-NUTZ-05；web2 由 CreateMvcContextFilter 打标）；
+        // 未打标的库内单测保持 RM-NUTZ-03 的 JSON 断言（兼容既有 64 用例）
         if (!isApiPath(path) && __is_page_error(context)) {
             try {
                 context.response().status(status);
@@ -217,7 +217,7 @@ public class WnMvcChain {
     }
 
     // ======================================================================
-    // 错误页渲染（JETTY-05；WnMvcDispatcher.__fallback 也复用）
+    // 错误页渲染（RM-NUTZ-05；WnMvcDispatcher.__fallback 也复用）
     // ======================================================================
 
     /**
@@ -230,7 +230,7 @@ public class WnMvcChain {
 
     /**
      * 是否按页面错误体渲染：由 web2 的上下文过滤器打标
-     * <code>wn.mvc.error.page=true</code>；库内旧单测未打标时保持 JETTY-03 JSON 行为。
+     * <code>wn.mvc.error.page=true</code>；库内旧单测未打标时保持 RM-NUTZ-03 JSON 行为。
      */
     private static boolean __is_page_error(WnMvcContext context) {
         if (null == context.attrs())

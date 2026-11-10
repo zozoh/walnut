@@ -11,7 +11,7 @@ import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Strings;
 
 /**
- * JETTY-09：照抄旧 {@code ext/sys/httpapi/HttpApiDynamicRender.java}（逐行复制），
+ * RM-NUTZ-09：照抄旧 {@code ext/sys/httpapi/HttpApiDynamicRender.java}（逐行复制），
  * 仅把 javax 的 {@code HttpServletResponse} 换成标准中立接口 {@link WnMvcResponse}
  * （{@code isCommitted→committed、reset→reset、setStatus→status、setHeader→header、
  * getOutputStream→outputStream}）。

@@ -5,7 +5,7 @@ import org.junit.Before;
 import com.site0.walnut.mvc.fake.FakeController;
 
 /**
- * JETTY-03 测试基座：假 controller 状态复位 + 常用装配/断言助手。
+ * RM-NUTZ-03 测试基座：假 controller 状态复位 + 常用装配/断言助手。
  *
  * <p>用例 ID 约定：T-01~T-19 路由/方法（{@link WnMvcMappingTest}）、
  * T-20~T-39 参数绑定（{@link WnMvcParamBindTest}）、T-40~T-59 视图/错误

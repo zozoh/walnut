@@ -25,7 +25,7 @@ import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
 
 /**
- * <code>/o/save/stream</code>：对照旧 <code>ObjModule.saveStream(704)</code>（JETTY-08
+ * <code>/o/save/stream</code>：对照旧 <code>ObjModule.saveStream(704)</code>（RM-NUTZ-08
  * 审核表 #10）。旧 <code>@AdaptBy(QueryStringAdaptor)</code>：参数只走 query string，
  * 请求体原始流即上传数据。逐行照抄旧方法体（<code>Wobj.normalizeName</code>/
  * <code>Wn.real</code>/r-s-a 分支/<code>WnTmpl</code> 去重，一行不省），只换绑定/视图/

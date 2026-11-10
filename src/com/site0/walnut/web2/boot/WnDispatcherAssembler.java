@@ -32,7 +32,7 @@ import com.site0.walnut.web2.support.WnIoStaticResolver;
 import com.site0.walnut.web2.support.WnLoginAuthLookup;
 
 /**
- * JETTY-05 装配器：把 {@code WnServiceFactory} 的服务装配成
+ * RM-NUTZ-05 装配器：把 {@code WnServiceFactory} 的服务装配成
  * {@link WnMvcDispatcher} + {@link WnMvcJettyHandler}。
  * <p>
  * 装配内容：services/io/mimes、Jetty9 request/response 类型、WnRoutes 统一路由、

@@ -45,7 +45,7 @@ import com.site0.walnut.web2.router.WnRoutes;
 import com.site0.walnut.web2.support.WnLoginAuthLookup;
 
 /**
- * JETTY-09：HttpApiModule 迁移测试（任务文档 T6 十组用例）。
+ * RM-NUTZ-09：HttpApiModule 迁移测试（任务文档 T6 十组用例）。
  *
  * <p>引擎直接 new + WnRun setter 装配<b>真实服务</b>（IoCoreSetup：Mongo 索引 +
  * LocalSha1BM + 真实 JvmBoxService 执行真实命令）；路由组走完整 dispatch。</p>
@@ -284,7 +284,7 @@ public class Jetty09HttpApiTest {
         newApi("hello", "echo HelloAPI", null);
         WnMvcFactory factory = newFactory(services);
 
-        // 32 = 31（JETTY-06/07/08 + chse）+ 1（/api/?/**）；兜底仍在最后
+        // 32 = 31（RM-NUTZ-06/07/08 + chse）+ 1（/api/?/**）；兜底仍在最后
         assertEquals(32, factory.mapping().patterns().size());
         assertEquals("/**", factory.mapping().patterns().get(31));
 

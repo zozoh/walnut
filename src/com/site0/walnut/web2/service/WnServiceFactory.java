@@ -47,7 +47,7 @@ import com.site0.walnut.web2.service.register.WnTaskRegistrar;
  * 本类只负责<b>阶段编排</b>，具体"创建 + 配置 + 注册"按服务域拆到
  * {@code com.site0.walnut.web2.service.register} 下的静态帮助类。
  * <p>
- * 分三阶段（空库首启教训，见 JETTY-04 §4.3）：
+ * 分三阶段（空库首启教训，见 RM-NUTZ-04 §4.3）：
  * <ol>
  * <li><b>构造器</b>：配置、Mongo/Redis 客户端、锁、IO 主链等不触碰账户目录的服务；
  * 任何一步失败立即抛（fail-fast）。<b>绝不 new store</b>。</li>
@@ -58,10 +58,10 @@ import com.site0.walnut.web2.service.register.WnTaskRegistrar;
  * 装配清单 = {@code conf/ioc/*.js} 的 6 个文件共 58 条定义，剔除
  * {@code loader/webscan/ioService/sessionService} 后注册 54 个 bean；逐条对照见
  * {@code wn-doc/plan/261108-jetty12/inventory.md} §5。
- * JETTY-07 在第二阶段额外装配复制版 {@code appService}，并写入 holder。
+ * RM-NUTZ-07 在第二阶段额外装配复制版 {@code appService}，并写入 holder。
  * <p>
  * 边界：本包不 import {@code org.nutz.mvc/ioc/web}；{@code org.nutz.mongo.ZMoCo}
- * 只是 Mongo 驱动封装参数类型，随 JETTY-12 一起迁移。
+ * 只是 Mongo 驱动封装参数类型，随 RM-NUTZ-12 一起迁移。
  */
 public class WnServiceFactory {
 

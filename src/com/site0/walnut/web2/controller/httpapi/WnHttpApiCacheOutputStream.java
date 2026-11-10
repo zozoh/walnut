@@ -10,7 +10,7 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
 
 /**
- * JETTY-09：照抄旧 {@code ext/sys/httpapi/WnHttpCacheOutputStream.java}
+ * RM-NUTZ-09：照抄旧 {@code ext/sys/httpapi/WnHttpCacheOutputStream.java}
  * （逐行复制；{@code apc} 换为同包的新上下文类）。
  */
 public class WnHttpApiCacheOutputStream extends OutputStream {

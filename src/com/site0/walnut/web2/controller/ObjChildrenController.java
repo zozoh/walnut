@@ -14,7 +14,7 @@ import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnPagerObj;
 
 /**
- * <code>/o/children</code>：对照旧 <code>ObjModule.children(254)</code>（JETTY-08
+ * <code>/o/children</code>：对照旧 <code>ObjModule.children(254)</code>（RM-NUTZ-08
  * 审核表 #6）。逐行照抄旧方法体（<code>@Param("pg") Boolean paging</code> 缺省为
  * <code>null</code>，<code>!paging</code> 抛 NPE 的旧语义保留——缺 <code>pg</code>
  * 即失败）。过滤器 <code>SessionCheckFilter()</code>。

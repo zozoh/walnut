@@ -28,7 +28,7 @@ import com.site0.walnut.web2.controller.app.WnAppRespOpsWrapper;
 import com.site0.walnut.web2.controller.app.WnHttpRespStatusSetter;
 
 /**
- * JETTY-09：照抄旧 {@code HttpApiModule} 的执行方法组：
+ * RM-NUTZ-09：照抄旧 {@code HttpApiModule} 的执行方法组：
  * {@code _do_api}（463-508，含 http-dynamic-header / 301-302 / run_box 三分支）、
  * {@code _do_api_with_hook}（344-355）、{@code __setup_resp_header}（1023-1066）、
  * {@code __set_cross_origin_default_headers}（397-405）、
@@ -37,7 +37,7 @@ import com.site0.walnut.web2.controller.app.WnHttpRespStatusSetter;
  *
  * <p>沙箱/命令执行能力来自引擎继承的 {@code WnRun}（{@code exec/boxes/newBoxContext/
  * runWithHook}）；{@code WnAppRespOpsWrapper/WnHttpRespStatusSetter} 复用
- * JETTY-07 返工产出。</p>
+ * RM-NUTZ-07 返工产出。</p>
  */
 public class ApiExecutor {
 

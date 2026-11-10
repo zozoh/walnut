@@ -452,7 +452,7 @@ public class Jetty07AppTest {
                 AppCaptchaGetController.class, AppCaptchaVerifyController.class, AppCaptchaVerifyController.class,
                 AppOtpSendController.class, AppOtpSendController.class, AppLoginModeController.class,
                 AppGetMyInfoController.class, AppSysAjaxLogoutController.class, AppLookupController.class};
-        // JETTY-08 追加 10 条 /o/* 路由、JETTY-09 追加 1 条 /api/?/** 路由后：
+        // RM-NUTZ-08 追加 10 条 /o/* 路由、RM-NUTZ-09 追加 1 条 /api/?/** 路由后：
         // 19 + chse + 兜底 + 10 + 1 = 32，兜底仍在最后
         assertEquals(32, factory.mapping().patterns().size());
         assertEquals("/u/ajax/chse", factory.mapping().patterns().get(0));

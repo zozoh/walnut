@@ -5,7 +5,7 @@ import com.site0.walnut.mvc.WnMvcContext;
 import com.site0.walnut.mvc.WnMvcView;
 
 /**
- * JETTY-09：{@code /api/?/**} 动态入口薄控制器（对照旧 {@code HttpApiModule.do_api}，
+ * RM-NUTZ-09：{@code /api/?/**} 动态入口薄控制器（对照旧 {@code HttpApiModule.do_api}，
  * 类级 {@code WnAsUsr("root")} 由路由 headFilter {@code AsUsrFilter("root")} 承担）。
  *
  * <p>薄适配：{@code ?}/{@code **} 路径绑定从 {@code ctx.pathArg(0/1)} 取；
@@ -25,7 +25,7 @@ public class HttpApiController extends AbstractWnController {
     }
 
     /**
-     * 装配引擎（JETTY-04 已补的 WnRun setter；集中在这一个私有方法里）。
+     * 装配引擎（RM-NUTZ-04 已补的 WnRun setter；集中在这一个私有方法里）。
      */
     private HttpApiEngine __engine(WnMvcContext ctx) {
         HttpApiEngine engine = new HttpApiEngine();
