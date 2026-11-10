@@ -83,7 +83,7 @@ public class WnMainModule extends AbstractWnModule {
         }
 
         // 木有会话的话，看看重定向到哪里，默认的，应该是 /a/login/
-        String entryUrl = conf.getSysEntryUrl();
+        String entryUrl = getConfig().getSysEntryUrl();
         return new ServerRedirectView(entryUrl);
     }
 

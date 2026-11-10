@@ -147,7 +147,7 @@ public class AppModule extends AbstractWnModule {
         // 渲染登陆页面
         WnLoginPage login = new WnLoginPage();
         login.setIo(io());
-        login.setConfig(this.conf.toBean());
+        login.setConfig(this.getConfig().toBean());
         login.setPageName(page);
         login.setDomainUser(domainUser);
         login.setHost(host);
@@ -368,7 +368,7 @@ public class AppModule extends AbstractWnModule {
         service.setRun(this);
         service.setIo(io());
         service.setSysAuth(auth());
-        service.setConf(conf);
+        service.setConf(getConfig());
         service.setName(name);
         service.setPasswd(passwd);
         service.setOtpConfigName(otpConfigName);
@@ -385,7 +385,7 @@ public class AppModule extends AbstractWnModule {
         String appName = se.getEnv().getString("OPEN", "wn-term");
         String url = "/a/open/" + appName;
         Object reData = se.toBean(auth());
-        return new ViewWrapper(new WnAddCookieViewWrapper(conf, url), reData);
+        return new ViewWrapper(new WnAddCookieViewWrapper(getConfig(), url), reData);
     }
 
     /**
@@ -397,7 +397,7 @@ public class AppModule extends AbstractWnModule {
      */
     @At
     public View sys_logout(@Param("ajax") boolean ajax) {
-        String entry = conf.getSysEntryUrl();
+        String entry = getConfig().getSysEntryUrl();
         View view = ajax ? new AjaxView() : new ServerRedirectView(entry);
         WnContext wc = Wn.WC();
         if (wc.hasTicket()) {
@@ -409,7 +409,7 @@ public class AppModule extends AbstractWnModule {
             // 退到父会话
             if (null != pse && !pse.isExpired()) {
                 Object reo = pse.toBean(auth);
-                return new ViewWrapper(new WnAddCookieViewWrapper(conf,
+                return new ViewWrapper(new WnAddCookieViewWrapper(getConfig(),
                                                                   view,
                                                                   null),
                                        reo);
@@ -459,7 +459,7 @@ public class AppModule extends AbstractWnModule {
         service.setRun(this);
         service.setIo(io());
         service.setSysAuth(auth());
-        service.setConf(conf);
+        service.setConf(getConfig());
         service.setSite(site);
         service.setSiteId(siteId);
         service.setAccount(name);
@@ -718,8 +718,8 @@ public class AppModule extends AbstractWnModule {
             resp.setHeader(WnWeb.niceHeaderName(name), value);
         });
         NutMap re = new NutMap();
-        re.put("system", conf.getSysLoginMode());
-        re.put("domain", conf.getDomainLoginMode());
+        re.put("system", getConfig().getSysLoginMode());
+        re.put("domain", getConfig().getDomainLoginMode());
 
         return re;
     }

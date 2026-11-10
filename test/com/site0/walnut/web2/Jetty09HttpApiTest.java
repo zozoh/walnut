@@ -346,7 +346,6 @@ public class Jetty09HttpApiTest {
         engine.setServices(services);
         engine.setIo(io);
         engine.setAuth(auth);
-        engine.setConf(conf);
         engine.setBoxes(boxes);
         engine.setHooks(services.getHookApi());
         engine.setJef(jef);

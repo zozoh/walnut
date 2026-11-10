@@ -32,7 +32,6 @@ public class HttpApiController extends AbstractWnController {
         engine.setServices(ctx.services());
         engine.setIo(io(ctx));
         engine.setAuth(auth(ctx));
-        engine.setConf(conf(ctx));
         engine.setBoxes(boxes(ctx));
         engine.setHooks(hooks(ctx));
         engine.setJef(jef(ctx));

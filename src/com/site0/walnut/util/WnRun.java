@@ -43,7 +43,6 @@ public class WnRun {
     private WnBoxService boxes;
     private WnHookService hooks;
     protected int allocTimeout;
-    protected WnConfig conf;
 
     public WnServiceHolder getServiceFactory() {
         return services;
@@ -67,6 +66,13 @@ public class WnRun {
 
     public JvmExecutorFactory jef() {
         return jef;
+    }
+
+    /**
+     * 配置统一从绑定的服务集合取（RM-NUTZ-11：不再单独持有 conf 字段）。
+     */
+    public WnConfig getConfig() {
+        return services.getConfig();
     }
 
     public void setServices(WnServiceHolder services) {
@@ -95,10 +101,6 @@ public class WnRun {
 
     public void setAllocTimeout(int allocTimeout) {
         this.allocTimeout = allocTimeout;
-    }
-
-    public void setConf(WnConfig conf) {
-        this.conf = conf;
     }
 
     public String exec(String logPrefix, String unm, final String cmdText) {

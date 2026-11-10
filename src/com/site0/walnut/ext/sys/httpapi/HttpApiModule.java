@@ -222,7 +222,7 @@ public class HttpApiModule extends AbstractWnModule {
         finally {
             // 将请求的对象设置一下清除标志（默认缓存 1 分钟)
             if (null != apc.oReq) {
-                long dftDu = this.conf.getLong("http-api-tmp-duration", 60000L);
+                long dftDu = this.getConfig().getLong("http-api-tmp-duration", 60000L);
                 // 如果有站点的话，则看看站点的默认会话设定
                 if (null != apc.oWWW) {
                     int duInS = apc.oWWW.getInt("api_req_du", -1);

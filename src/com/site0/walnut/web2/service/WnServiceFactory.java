@@ -70,7 +70,6 @@ public class WnServiceFactory {
      */
     private static final String[] REQUIRED = {"conf",
                                               "mongoDB",
-                                              "messageQueueApi",
                                               "lockApi",
                                               "referApi",
                                               "mimes",

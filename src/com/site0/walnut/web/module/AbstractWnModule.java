@@ -12,6 +12,7 @@ import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.View;
 import org.nutz.mvc.view.HttpStatusView;
+import com.site0.walnut.api.box.WnServiceHolder;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.MimeMap;
 import com.site0.walnut.api.io.WnObj;
@@ -24,6 +25,15 @@ public abstract class AbstractWnModule extends WnRun {
 
     @Inject("refer:mimes")
     protected MimeMap mimes;
+
+    /**
+     * 旧 web 模块的过渡装配：从 Ioc 取 serviceFactory，供 {@link #getConfig()} 使用。
+     * 旧 web 随 RM-NUTZ-15 删除；web2 不走这里。
+     */
+    @Inject("refer:serviceFactory")
+    public void setWnServices(WnServiceHolder services) {
+        setServices(services);
+    }
 
     protected WnObj _find_app_home(String appName) {
         String appPaths = Wn.WC().checkSession().getEnv().getString("APP_PATH");
