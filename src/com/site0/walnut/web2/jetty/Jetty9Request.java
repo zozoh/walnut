@@ -216,6 +216,16 @@ public class Jetty9Request implements WnMvcRequest, WnPathRewriter {
     }
 
     @Override
+    public String getRemoteHost() {
+        return req.getRemoteHost();
+    }
+
+    @Override
+    public int getRemotePort() {
+        return req.getRemotePort();
+    }
+
+    @Override
     public String getScheme() {
         return scheme;
     }

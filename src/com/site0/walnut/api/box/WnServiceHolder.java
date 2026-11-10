@@ -7,7 +7,9 @@ import com.site0.walnut.ext.sys.cron.WnSysCronApi;
 import com.site0.walnut.ext.sys.schedule.WnSysScheduleApi;
 import com.site0.walnut.ext.sys.task.WnSysTaskApi;
 import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.lookup.impl.WnLookupMaker;
 import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.web2.controller.app.WnAppService;
 
 public class WnServiceHolder {
 
@@ -28,6 +30,26 @@ public class WnServiceHolder {
     private WnLockApi lockApi;
 
     private WnConfig config;
+
+    private WnAppService appService;
+
+    private WnLookupMaker lookupMaker;
+
+    public WnAppService getAppService() {
+        return appService;
+    }
+
+    public void setAppService(WnAppService appService) {
+        this.appService = appService;
+    }
+
+    public WnLookupMaker getLookupMaker() {
+        return lookupMaker;
+    }
+
+    public void setLookupMaker(WnLookupMaker lookupMaker) {
+        this.lookupMaker = lookupMaker;
+    }
 
     public WnLockApi getLockApi() {
         return lockApi;

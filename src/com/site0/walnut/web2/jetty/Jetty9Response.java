@@ -148,6 +148,18 @@ public class Jetty9Response implements WnMvcResponse {
     }
 
     @Override
+    public void setBufferSize(int size) {
+        resp.setBufferSize(size);
+    }
+
+    @Override
+    public void reset() {
+        resp.reset();
+        this.status = resp.getStatus();
+        this.headers.clear();
+    }
+
+    @Override
     public void sendRedirect(String location) {
         try {
             resp.sendRedirect(location);

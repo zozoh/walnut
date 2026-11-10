@@ -34,6 +34,8 @@ public class MockWnMvcResponse implements WnMvcResponse {
 
     private boolean committed;
 
+    private int bufferSize = -1;
+
     /** 首次写正文即 committed。 */
     private class CommittingOutputStream extends ByteArrayOutputStream {
 
@@ -140,6 +142,21 @@ public class MockWnMvcResponse implements WnMvcResponse {
     }
 
     @Override
+    public void setBufferSize(int size) {
+        this.bufferSize = size;
+    }
+
+    @Override
+    public void reset() {
+        if (committed)
+            throw new IllegalStateException("MockWnMvcResponse: reset after committed");
+        this.status = 200;
+        this.headers.clear();
+        this.cookies.clear();
+        this.out.reset();
+    }
+
+    @Override
     public void sendRedirect(String location) {
         if (committed)
             return;
@@ -183,6 +200,11 @@ public class MockWnMvcResponse implements WnMvcResponse {
     /** 响应体字节。 */
     public byte[] bodyBytes() {
         return out.toByteArray();
+    }
+
+    /** 最后设置的缓冲大小（未设置返回 -1）。 */
+    public int bufferSize() {
+        return bufferSize;
     }
 
     /** 响应体按 UTF-8 解码的字符串。 */

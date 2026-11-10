@@ -1,5 +1,7 @@
 package com.site0.walnut.mvc;
 
+import org.nutz.lang.util.NutMap;
+import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.box.WnBoxService;
 import com.site0.walnut.api.box.WnServiceHolder;
 import com.site0.walnut.api.hook.WnHookService;
@@ -12,11 +14,15 @@ import com.site0.walnut.ext.sys.task.WnSysTaskApi;
 import com.site0.walnut.impl.box.JvmExecutorFactory;
 import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.Wlog;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.web.util.WnWeb;
 
 /**
  * 控制器公共基类：对照旧 <code>AbstractWnModule</code>/<code>WnRun</code>，提供
- * mimes / 服务访问 / 常用 helper。新 controller 继承本类，<b>不继承旧基类</b>。
+ * mimes / 服务访问 / 请求绑定与错误视图 helper。服务通过 ctx 取用；
+ * 新 controller 继承本类，<b>不继承旧基类</b>。
  *
  * <h2>与旧基类的区别</h2>
  * <p>旧 <code>AbstractWnModule</code> 通过 Nutz <code>@Inject</code> 把服务注入为实例字段，
@@ -31,88 +37,143 @@ import com.site0.walnut.web.WnConfig;
 public abstract class AbstractWnController implements WnMvcController {
 
     // ======================================================================
-    // 服务访问 helper（本任务仅定签名，方法体 noImplement；JETTY-04/05 实现）
+    // 服务访问 helper
     // ======================================================================
 
     /**
      * 服务集合（能力门）。来自 <code>ctx.services()</code>。
      */
     protected WnServiceHolder services(WnMvcContext ctx) {
-        throw Wlang.noImplement();
+        return ctx.services();
     }
 
     /**
      * IO 能力。来自 <code>ctx.io()</code>。
      */
     protected WnIo io(WnMvcContext ctx) {
-        throw Wlang.noImplement();
+        return ctx.io();
     }
 
     /**
      * MIME 映射。来自 <code>ctx.mimes()</code>。
      */
     protected MimeMap mimes(WnMvcContext ctx) {
-        throw Wlang.noImplement();
+        return ctx.mimes();
     }
 
     /**
      * 登录/账户 API。来自 <code>ctx.services().getLoginApi()</code>。
      */
     protected WnLoginApi auth(WnMvcContext ctx) {
-        throw Wlang.noImplement();
+        return ctx.services().getLoginApi();
     }
 
     /**
      * 沙箱服务。来自 <code>ctx.services().getBoxApi()</code>。
      */
     protected WnBoxService boxes(WnMvcContext ctx) {
-        throw Wlang.noImplement();
+        return ctx.services().getBoxApi();
     }
 
     /**
      * 钩子服务。来自 <code>ctx.services().getHookApi()</code>。
      */
     protected WnHookService hooks(WnMvcContext ctx) {
-        throw Wlang.noImplement();
+        return ctx.services().getHookApi();
     }
 
     /**
-     * 命令执行器工厂。来自 <code>ctx.services()</code>（JETTY-04 补充）。
+     * 命令执行器工厂。来自已装配的 <code>ctx.services().getAppService().jef()</code>。
      */
     protected JvmExecutorFactory jef(WnMvcContext ctx) {
-        throw Wlang.noImplement();
+        return ctx.services().getAppService().jef();
     }
 
     /**
      * 配置对象。来自 <code>ctx.services().getConfig()</code>。
      */
     protected WnConfig conf(WnMvcContext ctx) {
-        throw Wlang.noImplement();
+        return ctx.services().getConfig();
     }
 
     /**
      * 定时任务 API。来自 <code>ctx.services().getTaskApi()</code>。
      */
     protected WnSysTaskApi tasks(WnMvcContext ctx) {
-        throw Wlang.noImplement();
+        return ctx.services().getTaskApi();
     }
 
     /**
      * 计划任务 API。来自 <code>ctx.services().getScheduleApi()</code>。
      */
     protected WnSysScheduleApi schedules(WnMvcContext ctx) {
-        throw Wlang.noImplement();
+        return ctx.services().getScheduleApi();
     }
 
     /**
      * Cron API。来自 <code>ctx.services().getCronApi()</code>。
      */
     protected WnSysCronApi crons(WnMvcContext ctx) {
-        throw Wlang.noImplement();
+        return ctx.services().getCronApi();
+    }
+
+    protected NutMap params(WnMvcRequest req) {
+        NutMap params = new NutMap();
+        params.putAll(req.queryStringMap());
+        String type = req.getContentType();
+        if (null != type && type.toLowerCase(java.util.Locale.ROOT)
+                                .startsWith("application/x-www-form-urlencoded")) {
+            req.getInputParams().forEach((key, value) -> {
+                if (!params.containsKey(key)) {
+                    params.put(key, value);
+                }
+                else {
+                    Object first = params.get(key);
+                    String[] a = first instanceof String[] ? (String[]) first : new String[]{first.toString()};
+                    String[] b = value instanceof String[] ? (String[]) value : new String[]{value.toString()};
+                    String[] both = java.util.Arrays.copyOf(a, a.length + b.length);
+                    System.arraycopy(b, 0, both, a.length, b.length);
+                    params.put(key, both);
+                }
+            });
+        }
+        return params;
+    }
+
+    protected boolean bool(NutMap params, String key) {
+        Object value = params.get(key);
+        String text = value instanceof String[] ? ((String[]) value)[0] : params.getString(key);
+        return !Ws.isBlank(text) && Wlang.parseBoolean(text);
+    }
+
+    protected String arg(WnMvcContext ctx, int index) {
+        return ctx.request().getPathArgs().size() > index ? ctx.request().getPathArgs().get(index) : null;
+    }
+
+    protected String attr(WnMvcContext ctx, String name) {
+        Object value = ctx.request().getAttr(name);
+        return null == value ? null : value.toString();
+    }
+
+    protected void cors(WnMvcContext ctx) {
+        WnWeb.setCrossDomainHeaders("*",
+                (name, value) -> ctx.response().header(WnWeb.niceHeaderName(name), value));
+    }
+
+    protected boolean options(WnMvcContext ctx) {
+        return "OPTIONS".equalsIgnoreCase(ctx.request().getMethod());
+    }
+
+    protected WnMvcView businessFailure(RuntimeException e) {
+        if (Er.wrap(e) != e)
+            throw e;
+        String code = Er.wrap(e).getKey();
+        Wlog.getAPP().warnf("App request rejected: %s", code);
+        return WnMvcView.ajax(code, code);
     }
 
     // ======================================================================
-    // 常用 helper（对照 AbstractWnModule；本任务仅定签名，方法体 noImplement）
+    // App 扩展点：由 App 控制器基类提供具体逻辑
     // ======================================================================
 
     /**

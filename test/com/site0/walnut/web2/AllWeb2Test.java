@@ -10,5 +10,6 @@ import org.junit.runners.Suite;
  * {@code com.site0.walnut.AllWnBaseTest} 统一纳入全量回归。
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({Jetty05ChainTest.class, Jetty06SwitchSessionTest.class})
+@Suite.SuiteClasses({Jetty05ChainTest.class, Jetty06SwitchSessionTest.class, Jetty07AppTest.class,
+                     Jetty08ObjTest.class, Jetty09HttpApiTest.class})
 public class AllWeb2Test {}

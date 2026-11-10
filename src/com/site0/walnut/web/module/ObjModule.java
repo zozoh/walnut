@@ -381,6 +381,7 @@ public class ObjModule extends AbstractWnModule {
     @At("/thumbnail/**")
     @Ok("void")
     @Fail("http:404")
+    @Deprecated
     public View readThumbnail(String str,
                               @Param("aph") boolean isAbsolutePath,
                               @Param("sh") int sizeHint,

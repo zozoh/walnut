@@ -262,7 +262,9 @@ public class Jetty06SwitchSessionTest {
                                         "/missing.css"}) {
             assertNotFound(dispatch(req("GET", path)), false);
         }
-        for (String path : new String[]{"/u/missing", "/o/missing", "/api/missing", "/u/missing.css"}) {
+        // JETTY-09 起 /api/?/** 已是真实路由，/api/missing 不再落入 /** 兜底，
+        // 其 404 语义由 Jetty09HttpApiTest 覆盖，此处不再断言
+        for (String path : new String[]{"/u/missing", "/o/missing", "/u/missing.css"}) {
             assertNotFound(dispatch(req("GET", path)), true);
         }
     }
@@ -296,9 +298,10 @@ public class Jetty06SwitchSessionTest {
     }
 
     @Test
-    public void t16_route_order_exactly_two_and_get_only() {
+    public void t16_route_order_and_get_only() {
         WnMvcMapping mapping = factory.mapping();
-        assertEquals(Arrays.asList("/u/ajax/chse", "/**"), mapping.patterns());
+        assertEquals("/u/ajax/chse", mapping.patterns().get(0));
+        assertEquals("/**", mapping.patterns().get(mapping.patterns().size() - 1));
         WnMvcMapping.Route route = mapping.match(WnMvcHttpMethod.GET, req("GET", "/u/ajax/chse"));
         assertEquals(SwitchSessionController.class, route.controllerType());
         assertArrayEquals(new WnMvcHttpMethod[]{WnMvcHttpMethod.GET}, route.methods());

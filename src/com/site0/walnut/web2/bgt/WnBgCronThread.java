@@ -24,14 +24,12 @@ import com.site0.walnut.web2.service.WnServiceFactory;
 /**
  * 定期任务加载线程（对应旧 {@code WnBgRunCronConsumer}）。
  * <p>
- * 与旧实现的差别：线程自己持有 {@link WnServiceFactory} 引用取服务，不依赖 Nutz；
- * 提供可中断的 {@link #shutdown()}。
+ * 与旧实现的差别：线程自己持有 {@link WnServiceFactory} 引用取服务，不依赖 Nutz； 提供可中断的
+ * {@link #shutdown()}。
  */
 public class WnBgCronThread extends Thread {
 
     private static final Log log = Wlog.getBG_CRON();
-
-    private final WnServiceFactory factory;
 
     private final WnSysCronApi cronApi;
 
@@ -44,7 +42,6 @@ public class WnBgCronThread extends Thread {
 
     public WnBgCronThread(WnServiceFactory factory, int amount) {
         super("BGT_CRON");
-        this.factory = factory;
         this.cronApi = factory.getServiceHolder().getCronApi();
         this.scheduleApi = factory.getServiceHolder().getScheduleApi();
         this.amount = amount;
@@ -95,19 +92,15 @@ public class WnBgCronThread extends Thread {
                 if (crons.size() > 0) {
                     WnDayTime t = new WnDayTime(sI * 60);
                     log.infof("slot[%s][%s] %d tasks", sI, t, crons.size());
-                }
-                else if (log.isDebugEnabled()) {
+                } else if (log.isDebugEnabled()) {
                     WnDayTime t = new WnDayTime(sI * 60);
                     log.debugf("slot[%s][%s] 0 tasks", sI, t);
                 }
 
                 // 加载对应的分钟槽
                 String sIs = "" + sI;
-                List<WnMinuteSlotIndex> list = scheduleApi.loadSchedule(crons,
-                                                                        null,
-                                                                        sIs,
-                                                                        amount,
-                                                                        false);
+                List<WnMinuteSlotIndex> list = scheduleApi
+                    .loadSchedule(crons, null, sIs, amount, false);
 
                 // 为了节省日志输出，将当前分钟槽前的索引都设置为空
                 if (!list.isEmpty()) {
@@ -130,7 +123,8 @@ public class WnBgCronThread extends Thread {
                 long ams = todayMs + (sec * 1000);
 
                 // 那么应该睡多久呢，至少要睡一个时间槽周期吧
-                long sleepMs = Math.max(ams - System.currentTimeMillis(), (long) unit);
+                long sleepMs = Math.max(ams - System.currentTimeMillis(),
+                                        (long) unit);
                 if (log.isDebugEnabled()) {
                     log.debugf("sleep %dms", sleepMs);
                 }

@@ -24,6 +24,7 @@ import com.site0.walnut.util.MongoDB;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.WnRun;
 import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.web2.service.register.WnAppRegistrar;
 import com.site0.walnut.web2.service.register.WnBoxRegistrar;
 import com.site0.walnut.web2.service.register.WnCronRegistrar;
 import com.site0.walnut.web2.service.register.WnExpiObjTableRegistrar;
@@ -57,6 +58,7 @@ import com.site0.walnut.web2.service.register.WnTaskRegistrar;
  * 装配清单 = {@code conf/ioc/*.js} 的 6 个文件共 58 条定义，剔除
  * {@code loader/webscan/ioService/sessionService} 后注册 54 个 bean；逐条对照见
  * {@code wn-doc/plan/261108-jetty12/inventory.md} §5。
+ * JETTY-07 在第二阶段额外装配复制版 {@code appService}，并写入 holder。
  * <p>
  * 边界：本包不 import {@code org.nutz.mvc/ioc/web}；{@code org.nutz.mongo.ZMoCo}
  * 只是 Mongo 驱动封装参数类型，随 JETTY-12 一起迁移。
@@ -66,7 +68,7 @@ public class WnServiceFactory {
     private static final Log log = Wlog.getMAIN();
 
     /**
-     * checkup() 校验的必备清单（31 个），holder 单独校验。
+     * checkup() 校验的必备清单（32 个），holder 单独校验。
      */
     private static final String[] REQUIRED = {
             "conf",
@@ -99,7 +101,8 @@ public class WnServiceFactory {
             "boxService",
             "jvmExecutorFactory",
             "hookService",
-            "lookupMaker"
+            "lookupMaker",
+            "appService"
     };
 
     private final WnConfig conf;
@@ -180,6 +183,7 @@ public class WnServiceFactory {
         WnCronRegistrar.register(this);
         WnScheduleRegistrar.register(this);
         this.run = WnHolderRegistrar.register(this);
+        WnAppRegistrar.register(this);
 
         storesReady = true;
         log.infof("WnServiceFactory: stage-2 done, %d beans", beans.size());

@@ -95,6 +95,20 @@ public interface WnMvcResponse {
     void flush();
 
     /**
+     * 设置响应体缓冲大小（等价 Servlet <code>setBufferSize</code>）；须在正文写出前调用。
+     * <p>JETTY-09 批准的最小新增（2026-11-10）：旧 httpapi <code>http-resp-buff-size</code>
+     * 元数据用。</p>
+     */
+    void setBufferSize(int size);
+
+    /**
+     * 复位响应（等价 Servlet <code>reset</code>）：清除 status / headers 与缓冲正文，
+     * 回到未提交状态；已 committed 时行为由实现决定（通常抛错）。
+     * <p>JETTY-09 批准的最小新增（2026-11-10）：动态渲染 errOut 分支用。</p>
+     */
+    void reset();
+
+    /**
      * 302 重定向。
      *
      * @param location

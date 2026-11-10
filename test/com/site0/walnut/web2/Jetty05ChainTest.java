@@ -699,6 +699,16 @@ public class Jetty05ChainTest {
         }
 
         @Override
+        public String getRemoteHost() {
+            return base.getRemoteHost();
+        }
+
+        @Override
+        public int getRemotePort() {
+            return base.getRemotePort();
+        }
+
+        @Override
         public String getScheme() {
             return base.getScheme();
         }

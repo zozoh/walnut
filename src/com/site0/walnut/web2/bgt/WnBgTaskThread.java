@@ -28,16 +28,14 @@ import com.site0.walnut.web2.service.WnServiceFactory;
 /**
  * 系统后台任务消费线程（对应旧 {@code WnBgRunTaskConsumer}）。
  * <p>
- * 与旧实现的差别：线程自己持有 {@link WnServiceFactory} 引用取服务，不依赖 Nutz；
- * 提供可中断的 {@link #shutdown()}。
+ * 与旧实现的差别：线程自己持有 {@link WnServiceFactory} 引用取服务，不依赖 Nutz； 提供可中断的
+ * {@link #shutdown()}。
  */
 public class WnBgTaskThread extends Thread {
 
     private static final Log log = Wlog.getBG_TASK();
 
     private static final StringGenerator sg = R.sg(8);
-
-    private final WnServiceFactory factory;
 
     private final WnSysTaskApi taskApi;
 
@@ -47,9 +45,10 @@ public class WnBgTaskThread extends Thread {
 
     private final WnSession rootSession;
 
-    public WnBgTaskThread(WnServiceFactory factory, WnRun run, WnSession rootSession) {
+    public WnBgTaskThread(WnServiceFactory factory,
+                          WnRun run,
+                          WnSession rootSession) {
         super("BGT_TASK");
-        this.factory = factory;
         this.taskApi = factory.getServiceHolder().getTaskApi();
         this.auth = factory.getServiceHolder().getLoginApi();
         this.run = run;
@@ -176,7 +175,8 @@ public class WnBgTaskThread extends Thread {
                 // 还没跑完的补发中断
                 for (Thread t : rtList) {
                     if (t.isAlive()) {
-                        log.infof("interrupt unfinished task thread: %s", t.getName());
+                        log.infof("interrupt unfinished task thread: %s",
+                                  t.getName());
                         t.interrupt();
                     }
                 }

@@ -21,20 +21,17 @@ import com.site0.walnut.web2.service.WnServiceFactory;
 /**
  * 分钟计划任务线程（对应旧 {@code WnBgRunScheduleConsumer}）。
  * <p>
- * 与旧实现的差别：线程自己持有 {@link WnServiceFactory} 引用取服务，不依赖 Nutz；
- * 提供可中断的 {@link #shutdown()}。
+ * 与旧实现的差别：线程自己持有 {@link WnServiceFactory} 引用取服务，不依赖 Nutz； 提供可中断的
+ * {@link #shutdown()}。
  */
 public class WnBgScheduleThread extends Thread {
 
     private static final Log log = Wlog.getBG_SCHEDULE();
 
-    private final WnServiceFactory factory;
-
     private final WnSysScheduleApi scheduleApi;
 
     public WnBgScheduleThread(WnServiceFactory factory) {
         super("BGT_SCHEDULE");
-        this.factory = factory;
         this.scheduleApi = factory.getServiceHolder().getScheduleApi();
         this.setDaemon(true);
     }
@@ -82,8 +79,7 @@ public class WnBgScheduleThread extends Thread {
                 if (null != slots && !slots.isEmpty()) {
                     log.infof("push %d tasks", slots.size());
                     scheduleApi.pushSchedule(slots, false);
-                }
-                else if (log.isDebugEnabled()) {
+                } else if (log.isDebugEnabled()) {
                     log.debug("NoTaskFound");
                 }
 

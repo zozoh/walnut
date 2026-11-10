@@ -62,6 +62,10 @@ public class MockWnMvcRequest implements WnMvcRequest {
 
         private String remoteAddr = "127.0.0.1";
 
+        private String remoteHost = "localhost";
+
+        private int remotePort = 0;
+
         private String scheme = "http";
 
         private String host = "localhost";
@@ -128,6 +132,16 @@ public class MockWnMvcRequest implements WnMvcRequest {
             return this;
         }
 
+        public Builder remoteHost(String remoteHost) {
+            this.remoteHost = remoteHost;
+            return this;
+        }
+
+        public Builder remotePort(int remotePort) {
+            this.remotePort = remotePort;
+            return this;
+        }
+
         public Builder scheme(String scheme) {
             this.scheme = scheme;
             return this;
@@ -167,6 +181,10 @@ public class MockWnMvcRequest implements WnMvcRequest {
 
     private final String remoteAddr;
 
+    private final String remoteHost;
+
+    private final int remotePort;
+
     private final String scheme;
 
     private final String host;
@@ -191,6 +209,8 @@ public class MockWnMvcRequest implements WnMvcRequest {
         this.cookies = b.cookies;
         this.attrs = b.attrs;
         this.remoteAddr = b.remoteAddr;
+        this.remoteHost = b.remoteHost;
+        this.remotePort = b.remotePort;
         this.scheme = b.scheme;
         this.host = b.host;
         this.contentType = b.contentType;
@@ -269,6 +289,16 @@ public class MockWnMvcRequest implements WnMvcRequest {
     @Override
     public String getRemoteAddr() {
         return remoteAddr;
+    }
+
+    @Override
+    public String getRemoteHost() {
+        return remoteHost;
+    }
+
+    @Override
+    public int getRemotePort() {
+        return remotePort;
     }
 
     @Override
