@@ -8,10 +8,10 @@ import java.util.regex.Pattern;
 
 import org.nutz.castor.Castors;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Regex;
+import com.site0.walnut.util.Wregex;
 import org.nutz.trans.Proton;
 import com.site0.walnut.api.WnExecutable;
 import com.site0.walnut.api.io.WnIo;
@@ -82,7 +82,7 @@ public class ThOtherUpdating {
             StringBuilder sbErr = new StringBuilder();
             for (Proton<String> pro : commands) {
                 String cmdText = pro.invoke();
-                if (!Strings.isBlank(cmdText)) {
+                if (!Ws.isBlank(cmdText)) {
                     executor.exec(cmdText, sbOut, sbErr, null);
                 }
             }
@@ -126,7 +126,7 @@ public class ThOtherUpdating {
         }
 
         // 开始填充
-        Pattern p = Regex.getPattern("^(@[^:]+)(:(int|float|boolean|string))?$");
+        Pattern p = Wregex.getPattern("^(@[^:]+)(:(int|float|boolean|string))?$");
         for (Map.Entry<String, Object> en : sets.entrySet()) {
             String key = en.getKey();
             Object val = en.getValue();
@@ -165,7 +165,7 @@ public class ThOtherUpdating {
                     v2 = context.get(k2);
                     // 转换值
                     String valType = m.group(3);
-                    if (null != v2 && !Strings.isBlank(valType)) {
+                    if (null != v2 && !Ws.isBlank(valType)) {
                         // int
                         if ("int".equals(valType)) {
                             v2 = Integer.parseInt(v2.toString());

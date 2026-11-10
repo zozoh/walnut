@@ -8,7 +8,7 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import com.site0.walnut.util.Wlang;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 
@@ -122,14 +122,14 @@ public class WnQuery {
     }
 
     public WnQuery setvIfNoBlank(String key, String value) {
-        if (!Strings.isBlank(value)) {
+        if (!Ws.isBlank(value)) {
             this.setv(key, value);
         }
         return this;
     }
 
     public WnQuery setLongRegion(String key, String tm) {
-        if (!Strings.isBlank(tm)) {
+        if (!Ws.isBlank(tm)) {
             // 不存在
             if ("0".equals(tm)) {
                 this.setv(key, Wlang.map("$exists", false));

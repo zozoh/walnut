@@ -6,7 +6,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import org.nutz.mvc.ActionContext;
 import org.nutz.mvc.impl.processor.AbstractProcessor;
 import com.site0.walnut.api.io.WnIo;
@@ -19,7 +19,7 @@ import com.site0.walnut.util.Wlang;
 
 public class CreateWnContext extends AbstractProcessor {
 
-    private static final Log log = Wlog.getAC();
+    private static final WnLog log = Wlog.getAC();
 
     @Override
     public void process(ActionContext ac) throws Throwable {

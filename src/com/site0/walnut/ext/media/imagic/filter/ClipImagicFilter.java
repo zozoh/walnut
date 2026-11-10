@@ -3,7 +3,7 @@ package com.site0.walnut.ext.media.imagic.filter;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.ext.media.imagic.ImagicFilter;
 import org.nutz.web.Webs.Err;
 
@@ -11,7 +11,7 @@ public class ClipImagicFilter implements ImagicFilter {
 
     @Override
     public BufferedImage doChain(BufferedImage image, String _args) throws IOException {
-        String[] tmp = Strings.splitIgnoreBlank(_args);
+        String[] tmp = Ws.splitIgnoreBlank(_args);
         if (tmp.length != 4) {
             throw Err.create("e.cmd.imagic.clip.need_4_args");
         }

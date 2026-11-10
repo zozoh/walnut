@@ -9,14 +9,14 @@ import java.util.Set;
 
 import org.nutz.lang.Each;
 import org.nutz.lang.Mirror;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.api.box.WnServiceGetter;
 import com.site0.walnut.util.Wlog;
 import org.nutz.resource.Scans;
 
 public class JvmExecutorFactory {
 
-    private static final Log log = Wlog.getBOX();
+    private static final WnLog log = Wlog.getBOX();
 
     /**
      * 要搜索的包路径

@@ -3,7 +3,7 @@ package com.site0.walnut.login;
 import java.util.List;
 
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
@@ -37,7 +37,7 @@ import com.site0.walnut.util.Wuu;
  */
 public class WnSimpleLoginApi implements WnLoginApi {
 
-    private static Log log = Wlog.getAUTH();
+    private static WnLog log = Wlog.getAUTH();
 
     private WnIo io;
 

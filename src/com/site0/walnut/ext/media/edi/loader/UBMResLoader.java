@@ -6,7 +6,7 @@ import com.site0.walnut.ext.media.edi.msg.reply.ubm.IcsReplyUbmRes;
 import com.site0.walnut.ext.media.edi.msg.reply.ubm.UbmLineRst;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
 import com.site0.walnut.ext.media.edi.util.IcsLoaderHelper;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 
 import java.util.ArrayList;
@@ -83,13 +83,13 @@ public class UBMResLoader implements EdiMsgLoader<IcsReplyUbmRes> {
                     String mvMode = rff.getString("mvMode");
                     String ubmSeaId = rff.getString("ubmSeaId");
                     Map<String, String> inTrans = re.getInTrans();
-                    if (Strings.isNotBlank(mvMode)) {
+                    if (Ws.isNotBlank(mvMode)) {
                         inTrans.put("mvMode", mvMode);
                     }
-                    if (Strings.isNotBlank(ubmVoyNum)) {
+                    if (Ws.isNotBlank(ubmVoyNum)) {
                         inTrans.put("ubmVoyNum", ubmVoyNum);
                     }
-                    if (Strings.isNotBlank(ubmSeaId)) {
+                    if (Ws.isNotBlank(ubmSeaId)) {
                         inTrans.put("ubmSeaId", ubmSeaId);
                     }
                 } else if (item.isRawContentStartsWith("TDT+20+")) {
@@ -150,7 +150,7 @@ public class UBMResLoader implements EdiMsgLoader<IcsReplyUbmRes> {
                 String refCode = rff.getString("refCode");
                 String refVal = rff.getString("refVal");
                 if ("ABO".equals(refCode)) {
-                    if (Strings.isNotBlank(refVal)) {
+                    if (Ws.isNotBlank(refVal)) {
                         re.setRefId(refVal);
                         re.setRefIdInLower(refVal.toLowerCase());
                         re.setRefVer(rff.getInt("refVer"));

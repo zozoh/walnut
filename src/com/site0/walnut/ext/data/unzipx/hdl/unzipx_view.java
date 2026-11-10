@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Encoding;
+
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.ext.data.unzipx.UnzipxContext;
 import com.site0.walnut.ext.data.unzipx.UnzipxFilter;
@@ -39,12 +39,12 @@ public class unzipx_view extends UnzipxFilter {
         catch (IllegalArgumentException e) {
             WnArchiveReading ing2 = null;
             if (fc.charset.displayName().equals("GBK")) {
-                Charset cs = Encoding.CHARSET_UTF8;
+                Charset cs = java.nio.charset.StandardCharsets.UTF_8;
                 ing2 = fc.openReading((en, zin) -> {
                     list.add(en);
                 }, cs);
             } else if (fc.charset.displayName().equals("UTF-8")) {
-                Charset cs = Encoding.CHARSET_GBK;
+                Charset cs = java.nio.charset.Charset.forName("GBK");
                 ing2 = fc.openReading((en, zin) -> {
                     list.add(en);
                 }, cs);

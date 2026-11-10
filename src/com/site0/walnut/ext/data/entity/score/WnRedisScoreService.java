@@ -3,7 +3,7 @@ package com.site0.walnut.ext.data.entity.score;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.ext.sys.redis.Wedis;
 import com.site0.walnut.ext.sys.redis.WedisConfig;
 import com.site0.walnut.ext.sys.redis.WedisRunGet;
@@ -37,7 +37,7 @@ public class WnRedisScoreService implements ScoreApi {
             }
             // 获取总分
             String ss = jed.get(sumKey);
-            if (Strings.isBlank(ss))
+            if (Ws.isBlank(ss))
                 return 0L;
             return Long.parseLong(ss);
         });
@@ -57,7 +57,7 @@ public class WnRedisScoreService implements ScoreApi {
             }
             // 获取总分
             String ss = jed.get(sumKey);
-            if (Strings.isBlank(ss))
+            if (Ws.isBlank(ss))
                 return 0L;
             return Long.parseLong(ss);
         });
@@ -107,7 +107,7 @@ public class WnRedisScoreService implements ScoreApi {
         String sumKey = "sum_" + key;
         return Wedis.runGet(conf, jed -> {
             String ss = jed.get(sumKey);
-            if (Strings.isBlank(ss))
+            if (Ws.isBlank(ss))
                 return 0L;
             return Long.parseLong(ss);
         });
@@ -127,7 +127,7 @@ public class WnRedisScoreService implements ScoreApi {
 
             // 获取总分
             String ss = jed.get(sumKey);
-            long sum = Strings.isBlank(ss) ? 0L : Long.parseLong(ss);
+            long sum = Ws.isBlank(ss) ? 0L : Long.parseLong(ss);
 
             // 获取平均分
             return sum / count;

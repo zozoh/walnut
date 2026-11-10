@@ -1,6 +1,6 @@
 package com.site0.walnut;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mongo.ZMoCo;
 import com.site0.walnut.api.box.WnBox;
@@ -36,9 +36,9 @@ public abstract class BaseBoxTest extends BaseUsrTest {
     }
 
     protected String touts() {
-        String re = Strings.trim(out.toString());
+        String re = Ws.trim(out.toString());
         // 这玩意有问题，看看 mongo 那边还有多少数据
-        if (Strings.isBlank(re)) {
+        if (Ws.isBlank(re)) {
             ZMoCo co = setup.getMongoCoObj();
             long n = co.countDocuments();
             System.out.printf("靠!!!数据库里还有记录 【%d】条\n", n);
@@ -51,7 +51,7 @@ public abstract class BaseBoxTest extends BaseUsrTest {
     }
 
     protected String terrs() {
-        return Strings.trim(err.toString());
+        return Ws.trim(err.toString());
     }
 
     protected WnObj check(String ph) {

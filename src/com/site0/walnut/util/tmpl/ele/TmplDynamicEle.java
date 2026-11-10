@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
@@ -44,7 +44,7 @@ public abstract class TmplDynamicEle implements TmplEle {
         this._org_fmt = fmt;
 
         // 默认值取 key @xxx
-        if (!Strings.isBlank(dft_str)
+        if (!Ws.isBlank(dft_str)
             && (dft_str.startsWith("@") || dft_str.startsWith("="))) {
             this._dft_key = dft_str.substring(1);
         }

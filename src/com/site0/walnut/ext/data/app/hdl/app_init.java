@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Stopwatch;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
@@ -43,11 +43,11 @@ public class app_init implements JvmHdl {
         // 0. -vars
         String varJson = hc.getString("vars");
         // 1. [STDIN]
-        if (Strings.isBlank(varJson)) {
+        if (Ws.isBlank(varJson)) {
             varJson = sys.in.readAll();
         }
         // 2. ~/.domain/vars.json
-        if (Strings.isBlank(varJson)) {
+        if (Ws.isBlank(varJson)) {
             WnObj oVar = Wn.getObj(sys, "~/.domain/vars.json");
             if (null != oVar) {
                 varJson = sys.io.readText(oVar);
@@ -100,7 +100,7 @@ public class app_init implements JvmHdl {
         // 找到模板的源，会依次尝试
         // 0. vals[0]
         String phHome = hc.params.val(0);
-        if (!Strings.isBlank(phHome)) {
+        if (!Ws.isBlank(phHome)) {
             String phFile = Wn.appendPath(phHome, fName);
             ac.oInitFile = Wn.checkObj(sys, phFile);
             ac.oHome = ac.oInitFile.parent();

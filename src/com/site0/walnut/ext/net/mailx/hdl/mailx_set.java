@@ -2,7 +2,7 @@ package com.site0.walnut.ext.net.mailx.hdl;
 
 import org.nutz.json.Json;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
@@ -107,16 +107,16 @@ public class mailx_set extends MailxFilter {
             return;
 
         // 分析转换脚本
-        if (!Strings.isBlank(transKey) && null == transVars) {
+        if (!Ws.isBlank(transKey) && null == transVars) {
             transVars = bean.getString(transKey);
         }
-        if (!Strings.isBlank(transVars)) {
+        if (!Ws.isBlank(transVars)) {
             fc.varTrans = transVars;
         }
 
         // 准备映射
         String mapping = params.getString("mapping");
-        if (!Strings.isBlank(mapping)) {
+        if (!Ws.isBlank(mapping)) {
             NutMap translate = Wlang.map(mapping);
             meta = (NutBean) Wn.explainObj(bean, translate);
         }

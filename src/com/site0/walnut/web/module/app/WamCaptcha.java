@@ -5,9 +5,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import org.nutz.mvc.View;
 import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.ViewWrapper;
@@ -49,7 +49,7 @@ import com.site0.walnut.util.Ws;
  */
 public class WamCaptcha {
 
-    private static final Log log = Wlog.getAPP();
+    private static final WnLog log = Wlog.getAPP();
 
     private WnIo io;
 
@@ -146,7 +146,7 @@ public class WamCaptcha {
      * @return 当前登录模式下现场构建的验证码服务接口
      */
     private WnCaptchaApi __check_api() {
-        String ccName = Strings.sBlank(captchaName, "default");
+        String ccName = Ws.sBlank(captchaName, "default");
         NutMap vars = new NutMap();
         vars.put("HOME", ocm.getConfHomePath());
         WnCaptchaBuilder builder = new WnSysCaptchaBuilder(this.io, vars);

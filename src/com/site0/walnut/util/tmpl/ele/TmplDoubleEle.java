@@ -3,7 +3,7 @@ package com.site0.walnut.util.tmpl.ele;
 import java.text.DecimalFormat;
 
 import org.nutz.castor.Castors;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 
 public class TmplDoubleEle extends TmplDynamicEle {
 
@@ -11,8 +11,8 @@ public class TmplDoubleEle extends TmplDynamicEle {
 
     public TmplDoubleEle(String key, String fmt, String dft) {
         super("double", key, fmt, dft);
-        // this.fmt = Strings.sNull(fmt, "%#.2f");
-        this.fmt = Strings.sNull(fmt, "0.######");
+        // this.fmt = Ws.sNull(fmt, "%#.2f");
+        this.fmt = Ws.sNull(fmt, "0.######");
         if (this.fmt.indexOf('%') >= 0) {
             // 采用普通的格式化，那么就不需要 decFormat
         } else {

@@ -1,6 +1,6 @@
 package com.site0.walnut.login.site;
 
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.util.NutBean;
 import org.nutz.trans.Proton;
 
@@ -100,7 +100,7 @@ public class WnLoginSite {
             // 设置其他字段
             if (null != site.oSite) {
                 site.domainHomePath = Wn.getObjHomePath(site.oSite);
-                site.domain = Files.getName(site.domainHomePath);
+                site.domain = Wfiles.getName(site.domainHomePath);
             }
             // 缓存
             CCH_PATH.put(siteIdOrPath, site);

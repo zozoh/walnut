@@ -9,8 +9,8 @@ import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Encoding;
-import org.nutz.lang.Files;
+
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
@@ -89,7 +89,7 @@ public class unzipx_export extends UnzipxFilter {
 
                 // 确保flat
                 if (flat) {
-                    nm = Files.getName(nm);
+                    nm = Wfiles.getName(nm);
                 }
                 if (verbose) {
                     sys.out.printlnf("%d). %s -> %s", II[0]++, en.name, nm);
@@ -125,10 +125,10 @@ public class unzipx_export extends UnzipxFilter {
         catch (IllegalArgumentException e) {
             WnArchiveReading ing2 = null;
             if (fc.charset.displayName().equals("GBK")) {
-                Charset cs = Encoding.CHARSET_UTF8;
+                Charset cs = java.nio.charset.StandardCharsets.UTF_8;
                 ing2 = fc.openReading(callback, cs);
             } else if (fc.charset.displayName().equals("UTF-8")) {
-                Charset cs = Encoding.CHARSET_GBK;
+                Charset cs = java.nio.charset.Charset.forName("GBK");
                 ing2 = fc.openReading(callback, cs);
             }
             if (null != ing2) {

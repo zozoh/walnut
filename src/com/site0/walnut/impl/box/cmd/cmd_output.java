@@ -1,6 +1,6 @@
 package com.site0.walnut.impl.box.cmd;
 
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Wtimes;
 import com.site0.walnut.impl.box.JvmBoxOutput;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
@@ -92,7 +92,7 @@ public class cmd_output extends JvmExecutor {
         if (!t) {
             jbo.printlnf("%s%s", prefix, msg);
         } else {
-            jbo.printlnf("%s%s %s", prefix, Times.format("HH:mm:ss.SSS", Times.now()), msg);
+            jbo.printlnf("%s%s %s", prefix, Wtimes.format("HH:mm:ss.SSS", Wtimes.now()), msg);
         }
         jbo.flush();
     }

@@ -8,8 +8,8 @@ import java.util.Map;
 import org.nutz.castor.Castors;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
-import org.nutz.lang.Strings;
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wtimes;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
@@ -34,7 +34,7 @@ public class SheetField {
     public Object arg;
 
     public String getKey() {
-        if (Strings.isBlank(title)) {
+        if (Ws.isBlank(title)) {
             for (String key : keys) {
                 return key;
             }
@@ -112,20 +112,20 @@ public class SheetField {
 
         // 数组？
         if (SheetFieldType.ARRAY == this.type) {
-            String key = Strings.sBlank(arg, null);
+            String key = Ws.sBlank(arg, null);
             // 采用整个对象
             if (null == key) {
                 // 数组
                 if (val.getClass().isArray()) {
-                    return Strings.join(", ", (Object[]) val);
+                    return Ws.join(", ", (Object[]) val);
                 }
                 // 容器
                 if (val instanceof Collection<?>) {
-                    return Strings.join(", ", (Collection<?>) val);
+                    return Ws.join(", ", (Collection<?>) val);
                 }
                 // 就是一个普通值咯, 那么变成数组
                 String str = Castors.me().castToString(val);
-                String ss[] = Strings.splitIgnoreBlank(str);
+                String ss[] = Ws.splitIgnoreBlank(str);
 
                 // 如果都是数字，自动变一下数字
                 Object[] oo = (Object[]) Array.newInstance(Object.class, ss.length);
@@ -147,15 +147,15 @@ public class SheetField {
                     Object v = Mapl.cell(map, key);
                     vals[index] = null == v ? "--" : v.toString();
                 });
-                return Strings.join(", ", vals);
+                return Ws.join(", ", vals);
             }
         }
 
         // 日期
         if (SheetFieldType.DATE == this.type) {
-            String fmt = Strings.sBlank(arg, "yyyy-MM-dd HH:mm:ss");
+            String fmt = Ws.sBlank(arg, "yyyy-MM-dd HH:mm:ss");
             Date d = Castors.me().castTo(val, Date.class);
-            return Times.format(fmt, d);
+            return Wtimes.format(fmt, d);
         }
 
         // 普通值，就直接使用

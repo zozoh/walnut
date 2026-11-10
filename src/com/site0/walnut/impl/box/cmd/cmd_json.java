@@ -12,7 +12,7 @@ import org.nutz.json.JsonFormat;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.MapKeyConvertor;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
@@ -38,10 +38,10 @@ public class cmd_json extends JvmExecutor {
         ZParams params = ZParams.parse(args, "cqnr", "^(err|mapping_only|str|keys)$");
 
         // 读取输入
-        String json = Strings.trim(Streams.read(sys.in.getReader()).toString());
+        String json = Ws.trim(Streams.read(sys.in.getReader()).toString());
 
         // 容忍错误
-        if (params.is("err") && (Strings.isBlank(json) || json.startsWith("e."))) {
+        if (params.is("err") && (Ws.isBlank(json) || json.startsWith("e."))) {
             sys.out.println(json);
             return;
         }
@@ -316,7 +316,7 @@ public class cmd_json extends JvmExecutor {
             Object val = en.getValue();
             // 需要映射
             String k2 = mapping.getString(key);
-            if (!Strings.isBlank(k2)) {
+            if (!Ws.isBlank(k2)) {
                 // 需要映射值
                 int pos = k2.indexOf(':');
                 // 仅仅是合并值
@@ -352,7 +352,7 @@ public class cmd_json extends JvmExecutor {
         if (obj instanceof Map<?, ?>) {
             NutMap c = NutMap.WRAP((Map<String, Object>) obj);
             String str = tmpl.render(c, false);
-            str = Strings.evalEscape(str);
+            str = Ws.evalEscape(str);
             sys.out.print(str);
         }
         // 不支持

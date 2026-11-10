@@ -2,7 +2,7 @@ package com.site0.walnut.ext.sys.schedule.bean;
 
 import java.util.Date;
 
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Wtimes;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wtime;
 import com.site0.walnut.util.time.WnDayTime;
@@ -86,7 +86,7 @@ public class WnMinuteSlotIndex {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         if (null != today) {
-            String ds = Times.format("yyyy-MM-dd", today);
+            String ds = Wtimes.format("yyyy-MM-dd", today);
             sb.append("# @[").append(ds).append("]\n");
         }
         for (WnMinuteSlotIndexRow row : rows) {

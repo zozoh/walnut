@@ -11,7 +11,7 @@ import java.util.Map;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
@@ -26,7 +26,6 @@ import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Cmds;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Wpath;
-import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
 
 import com.drew.imaging.ImageMetadataReader;
@@ -84,7 +83,7 @@ public class cmd_imagic extends JvmExecutor {
             // 构建过滤链
 
             // "abc(1,2) bbb() zzz(false)"
-            String[] tmp2 = Strings.splitIgnoreBlank(params.get("filter"), "\\) ");
+            String[] tmp2 = Ws.splitIgnoreBlank(params.get("filter"), "\\) ");
             for (String tmp3 : tmp2) {
                 // ["abc(1,2", "bbb(", "zzz(false)"]
                 if (tmp3.endsWith(")")) {
@@ -201,9 +200,9 @@ public class cmd_imagic extends JvmExecutor {
             }
         }
         return Thumbnails.of(new ByteArrayInputStream(buf))
-                         .useExifOrientation(false)
-                         .rotate(route)
-                         .scale(1.0)
-                         .asBufferedImage();
+            .useExifOrientation(false)
+            .rotate(route)
+            .scale(1.0)
+            .asBufferedImage();
     }
 }

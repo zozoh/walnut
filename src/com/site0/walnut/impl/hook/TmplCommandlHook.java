@@ -1,6 +1,6 @@
 package com.site0.walnut.impl.hook;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import com.site0.walnut.api.hook.WnHookContext;
 import com.site0.walnut.api.io.WnObj;
@@ -16,7 +16,7 @@ public class TmplCommandlHook extends AbstractWnHook {
 
     @Override
     protected void _init(String text) {
-        tmpl = Strings.isBlank(text) ? null : WnTmpl.parse(text);
+        tmpl = Ws.isBlank(text) ? null : WnTmpl.parse(text);
     }
 
     @Override

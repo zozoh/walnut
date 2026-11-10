@@ -8,10 +8,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Stopwatch;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.stream.StringInputStream;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import org.nutz.mvc.View;
 
 import com.site0.walnut.api.io.WnIo;
@@ -28,7 +28,7 @@ import com.site0.walnut.web.view.WnObjDownloadView;
  */
 public class WamLoad {
 
-    private static final Log log = Wlog.getAPP();
+    private static final WnLog log = Wlog.getAPP();
 
     private WnIo io;
 
@@ -86,7 +86,7 @@ public class WamLoad {
                 return new WnObjDownloadView(ins,
                                              -1,
                                              ua,
-                                             Strings.sBlank(mimeType, o.mime()),
+                                             Ws.sBlank(mimeType, o.mime()),
                                              o.name(),
                                              etag,
                                              range);

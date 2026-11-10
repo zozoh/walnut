@@ -7,11 +7,11 @@ import java.util.Map;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import com.site0.walnut.web.setup.WnSetup;
 
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.Mirror;
 
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.util.Disks;
+import com.site0.walnut.util.Wdisks;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mongo.ZMoCo;
@@ -232,8 +232,8 @@ public class IoCoreSetup {
 
     public LocalSha1BM getGlobalIoBM() {
         if (null == _globalBM) {
-            String phBucket = Disks.normalize(_pp.get("io-bm-bucket"));
-            String phSwap = Disks.normalize(_pp.get("io-bm-swap"));
+            String phBucket = Wdisks.normalize(_pp.get("io-bm-bucket"));
+            String phSwap = Wdisks.normalize(_pp.get("io-bm-swap"));
             WnIoHandleManager handles = this.getWnIoHandleManager();
             WnReferApi refers = this.getWnReferApi();
             _globalBM = new LocalSha1BM(handles,
@@ -291,23 +291,23 @@ public class IoCoreSetup {
     public LocalFileBM getLocalFileBM() {
         WnIoHandleManager handles = this.getWnIoHandleManager();
         String ph = _pp.get("local-file-home");
-        String aph = Disks.normalize(ph);
+        String aph = Wdisks.normalize(ph);
         File dHome = new File(aph);
         if (!dHome.exists()) {
-            Files.createDirIfNoExists(dHome);
+            Wfiles.createDirIfNoExists(dHome);
         }
         return new LocalFileWBM(handles, dHome);
     }
 
     public VofsBM getVofsBM(XoService api) {
         WnIoHandleManager handles = this.getWnIoHandleManager();
-        String phSwap = Disks.normalize(_pp.get("io-bm-swap"));
+        String phSwap = Wdisks.normalize(_pp.get("io-bm-swap"));
         return new VofsBM(handles, phSwap, api);
     }
 
     public VXDataSignBM getVxDataSignBM(XoService api) {
         WnIoHandleManager handles = this.getWnIoHandleManager();
-        String phSwap = Disks.normalize(_pp.get("io-bm-swap"));
+        String phSwap = Wdisks.normalize(_pp.get("io-bm-swap"));
         WnReferApi refers = this.getWnReferApi();
         return new VXDataSignBM(handles,
                                 phSwap,
@@ -336,7 +336,7 @@ public class IoCoreSetup {
     public LocalFileIndexer getLocalFileIndexer() {
         File dHome = getLocalFileHome();
         if (!dHome.exists()) {
-            Files.createDirIfNoExists(dHome);
+            Wfiles.createDirIfNoExists(dHome);
         }
         WnObj oHome = this.getRootNode();
         return new LocalFileWIndexer(oHome, _mimes, dHome);
@@ -344,7 +344,7 @@ public class IoCoreSetup {
 
     public File getLocalFileHome() {
         String ph = _pp.get("local-file-home");
-        String aph = Disks.normalize(ph);
+        String aph = Wdisks.normalize(ph);
         File dHome = new File(aph);
         return dHome;
     }
@@ -449,9 +449,9 @@ public class IoCoreSetup {
     public void cleanLocalFileHome() {
         File d = getLocalFileHome();
         if (d.exists()) {
-            String aph = Files.getAbsPath(d);
+            String aph = Wfiles.getAbsPath(d);
             if (aph.endsWith(".walnut/test/localfile")) {
-                Files.clearDir(d);
+                Wfiles.clearDir(d);
             } else {
                 throw Wlang.makeThrow("!!!删除这个路径有点危险：%s", aph);
             }
@@ -461,24 +461,24 @@ public class IoCoreSetup {
     public void cleanLocalIoBM() {
         File d;
         String phBucket = _pp.get("io-bm-bucket");
-        String aphBucket = Disks.normalize(phBucket);
+        String aphBucket = Wdisks.normalize(phBucket);
         d = new File(aphBucket);
         if (d.exists()) {
-            String aph = Files.getAbsPath(d);
+            String aph = Wfiles.getAbsPath(d);
             if (aph.endsWith(".walnut/test/localbm/bucket")) {
-                Files.clearDir(d);
+                Wfiles.clearDir(d);
             } else {
                 throw Wlang.makeThrow("!!!删除这个路径有点危险：%s", aph);
             }
         }
 
         String phSwap = _pp.get("io-bm-swap");
-        String aphSwap = Disks.normalize(phSwap);
+        String aphSwap = Wdisks.normalize(phSwap);
         d = new File(aphSwap);
         if (d.exists()) {
-            String aph = Files.getAbsPath(d);
+            String aph = Wfiles.getAbsPath(d);
             if (aph.endsWith(".walnut/test/localbm/swap")) {
-                Files.clearDir(d);
+                Wfiles.clearDir(d);
             } else {
                 throw Wlang.makeThrow("!!!删除这个路径有点危险：%s", aph);
             }

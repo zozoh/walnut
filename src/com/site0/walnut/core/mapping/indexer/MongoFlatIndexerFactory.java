@@ -1,6 +1,6 @@
 package com.site0.walnut.core.mapping.indexer;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.mongo.ZMoCo;
 import com.site0.walnut.api.io.MimeMap;
 import com.site0.walnut.api.io.WnIoIndexer;
@@ -22,7 +22,7 @@ public class MongoFlatIndexerFactory implements WnIndexerFactory {
 
     @Override
     public WnIoIndexer load(WnObj oHome, String str) {
-        String coName = Strings.sBlank(str, "obj");
+        String coName = Ws.sBlank(str, "obj");
         ZMoCo co = db.getCollection(coName);
 
         return new MongoFlatIndexer(oHome, mimes, co);

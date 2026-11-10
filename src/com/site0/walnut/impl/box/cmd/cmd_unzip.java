@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
@@ -65,7 +65,7 @@ public class cmd_unzip extends JvmExecutor {
 
         // 得到输出目录，默认为当前目录
         WnObj[] oTas = new WnObj[1];
-        String phTa = params.val(1, Files.getMajorName(oSrc.name()));
+        String phTa = params.val(1, Wfiles.getMajorName(oSrc.name()));
         String aphTa = Wn.normalizeFullPath(phTa, sys);
         if (doRealOutput) {
             oTas[0] = sys.io.createIfNoExists(null, aphTa, WnRace.DIR);

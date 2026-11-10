@@ -1,6 +1,6 @@
 package com.site0.walnut.impl.box.cmd;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
@@ -23,7 +23,7 @@ public class cmd_export extends JvmExecutor {
             for (String s : args) {
                 int pos = s.indexOf('=');
                 if (pos >= 0) {
-                    String key = Strings.trim(s.substring(0, pos));
+                    String key = Ws.trim(s.substring(0, pos));
                     String val = s.substring(pos + 1);
                     String v2 = Wn.normalizeStr(val, sys);
                     vars.put(key, v2);

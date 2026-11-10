@@ -1,11 +1,10 @@
 package com.site0.walnut.ext.sys.redis;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.ext.sys.redis.util.CheckAllowResult;
 import com.site0.walnut.util.Wlang;
-import com.site0.walnut.util.Ws;
 import com.site0.walnut.web.WnConfig;
 
 import redis.clients.jedis.Jedis;
@@ -94,7 +93,7 @@ public class WedisConfig {
     }
 
     public boolean hasPassword() {
-        return !Strings.isBlank(password);
+        return !Ws.isBlank(password);
     }
 
     public String getPassword() {
@@ -265,8 +264,7 @@ public class WedisConfig {
         return false;
     }
 
-    public CheckAllowResult checkAllowSysRedisLink(String domain,
-                                                   WnConfig config) {
+    public CheckAllowResult checkAllowSysRedisLink(String domain, WnConfig config) {
         CheckAllowResult re = new CheckAllowResult(domain);
         // root 域不检查
         if (!"root".equals(domain)) {

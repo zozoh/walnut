@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Regex;
+import com.site0.walnut.util.Wregex;
 import com.site0.walnut.ext.util.strx.StrXContext;
 import com.site0.walnut.ext.util.strx.StrXFilter;
 import com.site0.walnut.impl.box.WnSystem;
@@ -21,7 +21,7 @@ public class strx_test extends StrXFilter {
             not = true;
             regex = regex.substring(1);
         }
-        Pattern p = Regex.getPattern(regex);
+        Pattern p = Wregex.getPattern(regex);
         Matcher m = p.matcher(fc.data);
 
         if (m.find() ^ not) {

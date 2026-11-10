@@ -2,9 +2,9 @@ package com.site0.walnut.core.bm.localfile;
 
 import java.io.File;
 
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIoIndexer;
 import com.site0.walnut.api.io.WnObj;
@@ -76,10 +76,10 @@ public class LocalFileBM extends AbstractIoBM {
     }
 
     protected File checkFile(String buckId) {
-        if (Strings.isBlank(buckId)) {
+        if (Ws.isBlank(buckId)) {
             throw Er.create("e.io.bm.localfile.NilPath");
         }
-        File f = Files.getFile(dHome, buckId);
+        File f = Wfiles.getFile(dHome, buckId);
         if (!f.exists()) {
             throw Er.create("e.io.bm.localfile.NoExists", buckId);
         }

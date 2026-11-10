@@ -2,7 +2,7 @@ package com.site0.walnut.impl.box.cmd;
 
 import java.io.Writer;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
@@ -19,7 +19,7 @@ public class cmd_code extends JvmExecutor {
             to = params.vals[0];
         }
 
-        if (Strings.isBlank(to))
+        if (Ws.isBlank(to))
             throw Er.create("e.cmd.code.nodstcode", to);
 
         // 得到源
@@ -28,7 +28,7 @@ public class cmd_code extends JvmExecutor {
             str = sys.in.readAll();
         }
 
-        if (!Strings.isBlank(str)) {
+        if (!Ws.isBlank(str)) {
             Writer w = sys.out.getWriter(to);
             w.write(str);
         }

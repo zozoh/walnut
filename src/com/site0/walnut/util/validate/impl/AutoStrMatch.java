@@ -1,6 +1,6 @@
 package com.site0.walnut.util.validate.impl;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wregion;
 import com.site0.walnut.util.validate.WnMatch;
 
@@ -26,7 +26,7 @@ public class AutoStrMatch implements WnMatch {
             this.m = new NilMatch();
         }
         // empty
-        else if (Strings.isEmpty(cs) || "[EMPTY]".equals(cs)) {
+        else if (Ws.isEmpty(cs) || "[EMPTY]".equals(cs)) {
             this.m = new EmptyMatch();
         }
         // 更多判断
@@ -44,11 +44,11 @@ public class AutoStrMatch implements WnMatch {
                 str = str.substring(1).trim();
             }
             // empty
-            if (Strings.isEmpty(cs) || "[EMPTY]".equals(str)) {
+            if (Ws.isEmpty(cs) || "[EMPTY]".equals(str)) {
                 this.m = new EmptyMatch();
             }
             // BLANK
-            else if (Strings.isBlank(cs) || "[BLANK]".equals(str)) {
+            else if (Ws.isBlank(cs) || "[BLANK]".equals(str)) {
                 this.m = new BlankMatch();
             }
             // 通配符

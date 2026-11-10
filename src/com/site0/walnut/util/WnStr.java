@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.LinkedCharArray;
 import org.nutz.lang.util.NutMap;
 
@@ -162,7 +161,7 @@ public abstract class WnStr {
     public static List<String> flatList(String... strs) {
         List<String> list = new LinkedList<>();
         for (String s : strs) {
-            String[] ss = Strings.splitIgnoreBlank(s);
+            String[] ss = Ws.splitIgnoreBlank(s);
             if (ss.length == 1) {
                 list.add(ss[0]);
             } else {
@@ -194,7 +193,7 @@ public abstract class WnStr {
     public static NutMap parseFormData(String str) {
         try {
             NutMap re = new NutMap();
-            String[] ss = Strings.splitIgnoreBlank(str, "&");
+            String[] ss = Ws.splitIgnoreBlank(str, "&");
             for (String s : ss) {
                 int pos = s.indexOf('=');
                 if (pos > 0) {

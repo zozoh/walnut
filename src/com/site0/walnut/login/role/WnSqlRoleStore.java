@@ -13,7 +13,7 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
@@ -37,7 +37,7 @@ import com.site0.walnut.val.id.WnSnowQMaker;
 
 public class WnSqlRoleStore extends AbstractWnRoleStore {
 
-    private static final Log log = Wlog.getAUTH();
+    private static final WnLog log = Wlog.getAUTH();
     private static final WnSnowQMaker IdMaker = new WnSnowQMaker(null, 10);
 
     private WnDaoAuth auth;

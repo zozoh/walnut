@@ -1,6 +1,6 @@
 package com.site0.walnut.ext.data.thing.hdl;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.thing.util.Things;
 import com.site0.walnut.impl.box.JvmHdl;
@@ -49,7 +49,7 @@ public class thing_detail implements JvmHdl {
             String brief = hc.params.get("brief");
 
             // 指定了摘要
-            if (!Strings.isBlank(brief)) {
+            if (!Ws.isBlank(brief)) {
                 // 自动摘要 TODO 根据内容类型设计不同的摘要算法
                 if ("true".equals(brief)) {
                     brief = content.substring(0, Math.min(content.length(), 256));
@@ -73,9 +73,9 @@ public class thing_detail implements JvmHdl {
             if (hc.params.has("brief")) {
                 String brief = Cmds.getParamOrPipe(sys, hc.params, "brief", false);
                 // 自动摘要 TODO 根据内容类型设计不同的摘要算法
-                if (Strings.isBlank(brief)) {
-                    String content = Strings.sBlank(sys.io.readText(oT), "");
-                    content = Strings.trim(content).replaceAll("[>+-`#\t\r\n ]", "");
+                if (Ws.isBlank(brief)) {
+                    String content = Ws.sBlank(sys.io.readText(oT), "");
+                    content = Ws.trim(content).replaceAll("[>+-`#\t\r\n ]", "");
                     brief = content.substring(0, Math.min(content.length(), 50));
                 }
                 // 如果指定为空摘要

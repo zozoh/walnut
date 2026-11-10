@@ -1,6 +1,6 @@
 package com.site0.walnut.ext.data.thing.hdl;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.thing.WnThingService;
 import com.site0.walnut.ext.data.thing.util.Things;
@@ -20,7 +20,7 @@ public class thing_get implements JvmHdl {
         String sort = hc.params.get("sort");
         String sortKey = null;
         boolean isAsc = true;
-        if (!Strings.isBlank(sort) && !"true".equals(sort)) {
+        if (!Ws.isBlank(sort) && !"true".equals(sort)) {
             int pos = sort.indexOf(':');
             if (pos > 0) {
                 sortKey = sort.substring(0, pos);
@@ -36,8 +36,8 @@ public class thing_get implements JvmHdl {
         // 如果还需要查询关联对象的内容指纹
         String sha1 = hc.params.getString("sha1");
         String[] sha1Fields = null;
-        if (!Strings.isBlank(sha1)) {
-            sha1Fields = Strings.splitIgnoreBlank(sha1);
+        if (!Ws.isBlank(sha1)) {
+            sha1Fields = Ws.splitIgnoreBlank(sha1);
         }
 
         // 准备服务类
@@ -60,7 +60,7 @@ public class thing_get implements JvmHdl {
         if (null != oT && null != sha1Fields && sha1Fields.length > 0) {
             for (String key : sha1Fields) {
                 String val = oT.getString(key);
-                if (!Strings.isBlank(val)) {
+                if (!Ws.isBlank(val)) {
                     WnObj o = sys.io.fetch(oT, val);
                     if (null != o) {
                         oT.put(key + "_obj",

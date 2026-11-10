@@ -5,9 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
 import com.site0.walnut.util.Ws;
 
 public class WnCroni18n {
@@ -29,7 +28,7 @@ public class WnCroni18n {
                     String pkg = WnCroni18n.class.getPackage().getName();
                     String ph = pkg.replace('.', '/');
                     ph += "/i18n/" + lang + ".json";
-                    File f = Files.findFile(ph);
+                    File f = Wfiles.findFile(ph);
                     re = Json.fromJsonFile(WnCroni18n.class, f);
                     I18NS.put(lang, re);
                 }
@@ -97,7 +96,7 @@ public class WnCroni18n {
         public String Wonly;
 
         public boolean hasSuffix() {
-            return !Strings.isBlank(suffix);
+            return !Ws.isBlank(suffix);
         }
 
         public boolean hasDict() {
@@ -105,7 +104,7 @@ public class WnCroni18n {
         }
 
         public boolean hasANY() {
-            return !Strings.isBlank(ANY);
+            return !Ws.isBlank(ANY);
         }
     }
 

@@ -45,12 +45,11 @@ import org.nutz.castor.Castors;
 import org.nutz.castor.FailToCastObjectException;
 import org.nutz.json.Json;
 import org.nutz.lang.ContinueLoop;
-import org.nutz.lang.Encoding;
+
 import org.nutz.lang.ExitLoop;
 import org.nutz.lang.MapKeyConvertor;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
 import org.nutz.lang.reflect.ReflectTool;
 import org.nutz.lang.stream.StringInputStream;
 import org.nutz.lang.stream.StringOutputStream;
@@ -58,7 +57,6 @@ import org.nutz.lang.stream.StringWriter;
 import org.nutz.lang.util.Context;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.NutType;
-import org.nutz.lang.util.Regex;
 import org.nutz.lang.util.SimpleContext;
 
 import com.site0.walnut.api.err.Er;
@@ -125,8 +123,7 @@ public class Wlang {
                 return (T) map;
             }
             catch (Exception e) {
-                throw new FailToCastObjectException("target type fail to born!",
-                                                    unwrapThrow(e));
+                throw new FailToCastObjectException("target type fail to born!", unwrapThrow(e));
             }
 
         }
@@ -165,8 +162,7 @@ public class Wlang {
                 Object vv = null;
                 // 集合
                 if (v instanceof Collection
-                    && (ft.isArray()
-                        || Collection.class.isAssignableFrom(ft))) {
+                    && (ft.isArray() || Collection.class.isAssignableFrom(ft))) {
                     Collection c = (Collection) v;
                     // 集合到数组
                     if (ft.isArray()) {
@@ -178,10 +174,7 @@ public class Wlang {
                         Collection newCol;
                         // Class eleType = Mirror.getGenericTypes(field, 0);
                         Class<?> eleType = ReflectTool
-                            .getParameterRealGenericClass(toType,
-                                                          field
-                                                              .getGenericType(),
-                                                          0);
+                            .getParameterRealGenericClass(toType, field.getGenericType(), 0);
                         if (ft == List.class) {
                             newCol = new ArrayList(c.size());
                         } else if (ft == Set.class) {
@@ -215,8 +208,7 @@ public class Wlang {
                             map = (Map) miFld.born();
                         }
                         catch (Exception e) {
-                            throw new FailToCastObjectException("target type fail to born!",
-                                                                e);
+                            throw new FailToCastObjectException("target type fail to born!", e);
                         }
                     }
                     // 赋值
@@ -224,13 +216,9 @@ public class Wlang {
                     // 1);
                     // map的key和value字段类型
                     final Class<?> keyType = ReflectTool
-                        .getParameterRealGenericClass(toType,
-                                                      field.getGenericType(),
-                                                      0);
+                        .getParameterRealGenericClass(toType, field.getGenericType(), 0);
                     final Class<?> valType = ReflectTool
-                        .getParameterRealGenericClass(toType,
-                                                      field.getGenericType(),
-                                                      1);
+                        .getParameterRealGenericClass(toType, field.getGenericType(), 1);
 
                     Map vMap = (Map) v;
                     for (Object eno : vMap.entrySet()) {
@@ -355,8 +343,7 @@ public class Wlang {
             map = (T) new HashMap<Object, Object>();
         }
         if (!mapClass.isAssignableFrom(map.getClass())) {
-            throw Wlang.makeThrow("Fail to create map [%s]",
-                                  mapClass.getName());
+            throw Wlang.makeThrow("Fail to create map [%s]", mapClass.getName());
         }
         return map;
     }
@@ -395,8 +382,7 @@ public class Wlang {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static <T extends Map> T collection2map(Class<T> mapClass,
-                                                   Collection<?> coll) {
+    public static <T extends Map> T collection2map(Class<T> mapClass, Collection<?> coll) {
         if (null == coll)
             return null;
         T map = createMap(mapClass);
@@ -422,8 +408,7 @@ public class Wlang {
      *            采用集合中元素的哪个一个字段为键。
      * @return Map 对象
      */
-    public static NutMap collection2map(Collection<?> coll,
-                                        String keyFieldName) {
+    public static NutMap collection2map(Collection<?> coll, String keyFieldName) {
         if (null == coll)
             return null;
         NutMap map = new NutMap();
@@ -564,8 +549,7 @@ public class Wlang {
      *            集合对象
      * @return 集合对象
      */
-    public static <T extends Collection<E>, E> T enum2collection(Enumeration<E> enums,
-                                                                 T cols) {
+    public static <T extends Collection<E>, E> T enum2collection(Enumeration<E> enums, T cols) {
         while (enums.hasMoreElements())
             cols.add(enums.nextElement());
         return cols;
@@ -623,8 +607,7 @@ public class Wlang {
      * @return 数组
      */
     @SuppressWarnings("unchecked")
-    public static <E> E[] collection2array(Collection<?> col,
-                                           Class<E> eleType) {
+    public static <E> E[] collection2array(Collection<?> col, Class<E> eleType) {
         if (null == col)
             return null;
         Object re = Array.newInstance(eleType, col.size());
@@ -674,8 +657,7 @@ public class Wlang {
             }
             // 数组或者集合
             else if (mr.isColl()) {
-                final List<Object> list = new ArrayList<Object>(Wlang
-                    .eleSize(v));
+                final List<Object> list = new ArrayList<Object>(Wlang.eleSize(v));
                 Wlang.each(v, (int index, Object ele, Object src) -> {
                     __join_ele_to_list_as_map(list, ele, memo);
                 });
@@ -683,17 +665,14 @@ public class Wlang {
             }
             // Map
             else if (mr.isMap()) {
-                NutMap map2 = __change_map_to_nutmap((Map<String, Object>) v,
-                                                     memo);
+                NutMap map2 = __change_map_to_nutmap((Map<String, Object>) v, memo);
                 map.put(fld.getName(), map2);
             }
             // 看来要递归
             else {
                 T sub;
                 try {
-                    sub = (T) map.getClass()
-                        .getDeclaredConstructor()
-                        .newInstance();
+                    sub = (T) map.getClass().getDeclaredConstructor().newInstance();
                 }
                 catch (Exception e) {
                     throw Wlang.wrapThrow(e);
@@ -724,8 +703,7 @@ public class Wlang {
             }
             // 数组或者集合
             else if (mr.isColl()) {
-                final List<Object> list2 = new ArrayList<Object>(Wlang
-                    .eleSize(v));
+                final List<Object> list2 = new ArrayList<Object>(Wlang.eleSize(v));
                 Wlang.each(v, (int index, Object ele, Object src) -> {
                     __join_ele_to_list_as_map(list2, ele, memo);
                 });
@@ -733,8 +711,7 @@ public class Wlang {
             }
             // Map
             else if (mr.isMap()) {
-                NutMap map2 = __change_map_to_nutmap((Map<String, Object>) v,
-                                                     memo);
+                NutMap map2 = __change_map_to_nutmap((Map<String, Object>) v, memo);
                 re.put(en.getKey(), map2);
             }
             // 看来要递归
@@ -823,8 +800,7 @@ public class Wlang {
      *            Map 的类型
      * @return Map 对象
      */
-    public static <T extends Map<String, Object>> T obj2map(Object obj,
-                                                            Class<T> mapType) {
+    public static <T extends Map<String, Object>> T obj2map(Object obj, Class<T> mapType) {
         try {
             T map = mapType.getDeclaredConstructor().newInstance();
             Wlang.obj2map(obj, map, new HashMap<Object, Object>());
@@ -897,10 +873,7 @@ public class Wlang {
      *            数组
      * @return 拼合后的字符串
      */
-    public static <T> StringBuilder concat(int offset,
-                                           int len,
-                                           Object c,
-                                           T[] objs) {
+    public static <T> StringBuilder concat(int offset, int len, Object c, T[] objs) {
         StringBuilder sb = new StringBuilder();
         if (null == objs || len < 0 || 0 == objs.length)
             return sb;
@@ -979,8 +952,7 @@ public class Wlang {
      * @param me
      * @param field
      */
-    public static Type getFieldType(Mirror<?> me, String field)
-            throws NoSuchFieldException {
+    public static Type getFieldType(Mirror<?> me, String field) throws NoSuchFieldException {
         return getFieldType(me, me.getField(field));
     }
 
@@ -1031,9 +1003,7 @@ public class Wlang {
         if (!type.equals(t)) {
             return type;
         }
-        if (types != null
-            && types.length > 0
-            && type instanceof ParameterizedType) {
+        if (types != null && types.length > 0 && type instanceof ParameterizedType) {
             ParameterizedType pt = (ParameterizedType) type;
 
             if (pt.getActualTypeArguments().length >= 0) {
@@ -1103,9 +1073,7 @@ public class Wlang {
      * @see MapKeyConvertor
      */
     @SuppressWarnings("unchecked")
-    public static void convertMapKey(Object obj,
-                                     MapKeyConvertor mkc,
-                                     boolean recur) {
+    public static void convertMapKey(Object obj, MapKeyConvertor mkc, boolean recur) {
         // Map
         if (obj instanceof Map<?, ?>) {
             Map<String, Object> map = (Map<String, Object>) obj;
@@ -1147,10 +1115,8 @@ public class Wlang {
     public static NutMap map(String str) {
         if (null == str)
             return null;
-        str = Strings.trim(str);
-        if (!Strings.isEmpty(str)
-            && (Strings.isQuoteBy(str, '{', '}')
-                || Strings.isQuoteBy(str, '(', ')'))) {
+        str = Ws.trim(str);
+        if (!Ws.isEmpty(str) && (Ws.isQuoteBy(str, '{', '}') || Ws.isQuoteBy(str, '(', ')'))) {
             return Json.fromJson(NutMap.class, str);
         }
         return Json.fromJson(NutMap.class, "{" + str + "}");
@@ -1252,35 +1218,24 @@ public class Wlang {
      *            如果是空字符串或者不是 ipv4 或者 v6 那么就返回空串
      * @return 来源ip
      */
-    public static String getIP(HttpServletRequest req,
-                               boolean checkStrictBlank) {
+    public static String getIP(HttpServletRequest req, boolean checkStrictBlank) {
         if (req == null)
             return "";
         String ip = req.getHeader("X-Forwarded-For");
         if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            if (ip == null
-                || ip.length() == 0
-                || "unknown".equalsIgnoreCase(ip)) {
+            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
                 ip = req.getHeader("Proxy-Client-IP");
             }
-            if (ip == null
-                || ip.length() == 0
-                || "unknown".equalsIgnoreCase(ip)) {
+            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
                 ip = req.getHeader("WL-Proxy-Client-IP");
             }
-            if (ip == null
-                || ip.length() == 0
-                || "unknown".equalsIgnoreCase(ip)) {
+            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
                 ip = req.getHeader("HTTP_CLIENT_IP");
             }
-            if (ip == null
-                || ip.length() == 0
-                || "unknown".equalsIgnoreCase(ip)) {
+            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
                 ip = req.getHeader("HTTP_X_FORWARDED_FOR");
             }
-            if (ip == null
-                || ip.length() == 0
-                || "unknown".equalsIgnoreCase(ip)) {
+            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
                 ip = req.getRemoteAddr();
             }
         } else if (ip.length() > 15) {
@@ -1296,7 +1251,7 @@ public class Wlang {
         if (!checkStrictBlank) {
             return Ws.trim(ip);
         }
-        if (Strings.isBlank(ip))
+        if (Ws.isBlank(ip))
             return "";
         if (isIPv4Address(ip) || isIPv6Address(ip)) {
             return ip;
@@ -1312,9 +1267,7 @@ public class Wlang {
      * @return 返回当前程序运行的根目录
      */
     public static String runRootPath() {
-        String cp = Wlang.class.getClassLoader()
-            .getResource("")
-            .toExternalForm();
+        String cp = Wlang.class.getClassLoader().getResource("").toExternalForm();
         if (cp.startsWith("file:")) {
             cp = cp.substring("file:".length());
         }
@@ -1381,9 +1334,7 @@ public class Wlang {
             Map<?, ?> map = (Map<?, ?>) obj;
             int i = 0;
             Class<T> eType = Mirror.getTypeParam(iteratee.getClass(), 0);
-            if (null != eType
-                && eType != Object.class
-                && eType.isAssignableFrom(Entry.class)) {
+            if (null != eType && eType != Object.class && eType.isAssignableFrom(Entry.class)) {
                 for (Object v : map.entrySet())
                     try {
                         iteratee.invoke(i++, (T) v, map);
@@ -1529,8 +1480,7 @@ public class Wlang {
     @SuppressWarnings("unchecked")
     public static <T> T fromBytes(byte[] buf, Class<T> klass) {
         try {
-            return (T) new ObjectInputStream(new ByteArrayInputStream(buf))
-                .readObject();
+            return (T) new ObjectInputStream(new ByteArrayInputStream(buf)).readObject();
         }
         catch (ClassNotFoundException e) {
             return null;
@@ -1664,9 +1614,7 @@ public class Wlang {
                 arr[0] = e;
                 return arr;
             }
-            T[] arr = (T[]) Array
-                .newInstance(eles.getClass().getComponentType(),
-                             eles.length + 1);
+            T[] arr = (T[]) Array.newInstance(eles.getClass().getComponentType(), eles.length + 1);
             arr[0] = e;
             for (int i = 0; i < eles.length; i++) {
                 arr[i + 1] = eles[i];
@@ -1695,9 +1643,7 @@ public class Wlang {
                 arr[0] = e;
                 return arr;
             }
-            T[] arr = (T[]) Array
-                .newInstance(eles.getClass().getComponentType(),
-                             eles.length + 1);
+            T[] arr = (T[]) Array.newInstance(eles.getClass().getComponentType(), eles.length + 1);
             for (int i = 0; i < eles.length; i++) {
                 arr[i] = eles[i];
             }
@@ -1729,16 +1675,20 @@ public class Wlang {
         return list;
     }
 
-    
     /**
      * 在指定数组中查找指定元素第一次出现的位置索引。
      *
-     * <p>若数组为 {@code null}、空数组或待查找元素为 {@code null}，则直接返回 {@code -1}。
-     * 查找时使用 {@link Object#equals(Object)} 进行相等性判断。</p>
+     * <p>
+     * 若数组为 {@code null}、空数组或待查找元素为 {@code null}，则直接返回 {@code -1}。 查找时使用
+     * {@link Object#equals(Object)} 进行相等性判断。
+     * </p>
      *
-     * @param <T>  数组元素类型
-     * @param arr  待搜索的数组，不能为 {@code null}
-     * @param ele  要查找的元素
+     * @param <T>
+     *            数组元素类型
+     * @param arr
+     *            待搜索的数组，不能为 {@code null}
+     * @param ele
+     *            要查找的元素
      * @return 元素在数组中第一次出现的索引；若未找到或输入非法，则返回 {@code -1}
      */
     public static <T> int indexOf(T[] arr, T ele) {
@@ -1822,10 +1772,8 @@ public class Wlang {
         if (source == null || source.isEmpty())
             return dst;
 
-        Pattern includePattern = include == null ? null
-                                                 : Regex.getPattern(include);
-        Pattern excludePattern = exclude == null ? null
-                                                 : Regex.getPattern(exclude);
+        Pattern includePattern = include == null ? null : Wregex.getPattern(include);
+        Pattern excludePattern = exclude == null ? null : Wregex.getPattern(exclude);
 
         for (Entry<String, Object> en : source.entrySet()) {
             String key = en.getKey();
@@ -1918,56 +1866,42 @@ public class Wlang {
     }
 
     public static StringBuilder execOutput(String cmd) throws IOException {
-        return execOutput(Strings.splitIgnoreBlank(cmd, " "),
-                          Encoding.CHARSET_UTF8);
+        return execOutput(Ws.splitIgnoreBlank(cmd, " "), java.nio.charset.StandardCharsets.UTF_8);
     }
 
-    public static StringBuilder execOutput(String cmd, Charset charset)
-            throws IOException {
-        return execOutput(Strings.splitIgnoreBlank(cmd, " "), charset);
+    public static StringBuilder execOutput(String cmd, Charset charset) throws IOException {
+        return execOutput(Ws.splitIgnoreBlank(cmd, " "), charset);
     }
 
     public static StringBuilder execOutput(String cmd[]) throws IOException {
-        return execOutput(cmd, Encoding.CHARSET_UTF8);
+        return execOutput(cmd, java.nio.charset.StandardCharsets.UTF_8);
     }
 
-    public static StringBuilder execOutput(String[] cmd, Charset charset)
-            throws IOException {
+    public static StringBuilder execOutput(String[] cmd, Charset charset) throws IOException {
         Process p = Runtime.getRuntime().exec(cmd);
         p.getOutputStream().close();
-        InputStreamReader r = new InputStreamReader(p.getInputStream(),
-                                                    charset);
+        InputStreamReader r = new InputStreamReader(p.getInputStream(), charset);
         StringBuilder sb = new StringBuilder();
         Streams.readAndClose(r, sb);
         return sb;
     }
 
-    public static void exec(String cmd, StringBuilder out, StringBuilder err)
-            throws IOException {
-        exec(Strings.splitIgnoreBlank(cmd, " "),
-             Encoding.CHARSET_UTF8,
-             out,
-             err);
+    public static void exec(String cmd, StringBuilder out, StringBuilder err) throws IOException {
+        exec(Ws.splitIgnoreBlank(cmd, " "), java.nio.charset.StandardCharsets.UTF_8, out, err);
     }
 
-    public static void exec(String[] cmd, StringBuilder out, StringBuilder err)
-            throws IOException {
-        exec(cmd, Encoding.CHARSET_UTF8, out, err);
+    public static void exec(String[] cmd, StringBuilder out, StringBuilder err) throws IOException {
+        exec(cmd, java.nio.charset.StandardCharsets.UTF_8, out, err);
     }
 
-    public static void exec(String[] cmd,
-                            Charset charset,
-                            StringBuilder out,
-                            StringBuilder err)
+    public static void exec(String[] cmd, Charset charset, StringBuilder out, StringBuilder err)
             throws IOException {
         Process p = Runtime.getRuntime().exec(cmd);
         p.getOutputStream().close();
-        InputStreamReader sOut = new InputStreamReader(p.getInputStream(),
-                                                       charset);
+        InputStreamReader sOut = new InputStreamReader(p.getInputStream(), charset);
         Streams.readAndClose(sOut, out);
 
-        InputStreamReader sErr = new InputStreamReader(p.getErrorStream(),
-                                                       charset);
+        InputStreamReader sErr = new InputStreamReader(p.getErrorStream(), charset);
         Streams.readAndClose(sErr, err);
     }
 
@@ -1982,9 +1916,7 @@ public class Wlang {
      *            参数
      * @return 运行时异常
      */
-    public static RuntimeException wrapThrow(Throwable e,
-                                             String fmt,
-                                             Object... args) {
+    public static RuntimeException wrapThrow(Throwable e, String fmt, Object... args) {
         return new RuntimeException(String.format(fmt, args), e);
     }
 
@@ -2001,8 +1933,7 @@ public class Wlang {
         if (e instanceof RuntimeException)
             return (RuntimeException) e;
         if (e instanceof InvocationTargetException)
-            return wrapThrow(((InvocationTargetException) e)
-                .getTargetException());
+            return wrapThrow(((InvocationTargetException) e).getTargetException());
         return new RuntimeException(e);
     }
 
@@ -2094,8 +2025,7 @@ public class Wlang {
     public static String fixedHexString(byte[] hashBytes) {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < hashBytes.length; i++) {
-            sb.append(Integer.toString((hashBytes[i] & 0xff) + 0x100, 16)
-                .substring(1));
+            sb.append(Integer.toString((hashBytes[i] & 0xff) + 0x100, 16).substring(1));
         }
 
         return sb.toString();
@@ -2151,9 +2081,8 @@ public class Wlang {
     }
 
     public static String simpleMethodDesc(Method method) {
-        return String.format("%s.%s(...)",
-                             method.getDeclaringClass().getSimpleName(),
-                             method.getName());
+        return String
+            .format("%s.%s(...)", method.getDeclaringClass().getSimpleName(), method.getName());
     }
 
     /**
@@ -2278,8 +2207,7 @@ public class Wlang {
         return e;
     }
 
-    public static boolean isCauseBy(Throwable e,
-                                    Class<? extends Throwable> causeType) {
+    public static boolean isCauseBy(Throwable e, Class<? extends Throwable> causeType) {
         if (e.getClass() == causeType)
             return true;
         Throwable cause = e.getCause();
@@ -2402,8 +2330,7 @@ public class Wlang {
                 return false;
             for (Entry<?, ?> e : m1.entrySet()) {
                 Object key = e.getKey();
-                if (!m2.containsKey(key)
-                    || !isEqualDeeply(m1.get(key), m2.get(key)))
+                if (!m2.containsKey(key) || !isEqualDeeply(m1.get(key), m2.get(key)))
                     return false;
             }
             return true;
@@ -2446,12 +2373,9 @@ public class Wlang {
     /**
      * 原方法使用线程ClassLoader,各种问题,改回原版.
      */
-    public static Class<?> loadClass(String className)
-            throws ClassNotFoundException {
+    public static Class<?> loadClass(String className) throws ClassNotFoundException {
         try {
-            return Thread.currentThread()
-                .getContextClassLoader()
-                .loadClass(className);
+            return Thread.currentThread().getContextClassLoader().loadClass(className);
         }
         catch (Throwable e) {
             return Class.forName(className);
@@ -2539,7 +2463,7 @@ public class Wlang {
 
         public static int getMajorVersion() {
             String ver = getVersionLong();
-            if (Strings.isBlank(ver))
+            if (Ws.isBlank(ver))
                 return 6;
             String[] tmp = ver.split("\\.");
             if (tmp.length < 2)
@@ -2552,7 +2476,7 @@ public class Wlang {
 
         public static boolean isEarlyAccess() {
             String ver = getVersionLong();
-            if (Strings.isBlank(ver))
+            if (Ws.isBlank(ver))
                 return false;
             return ver.contains("-ea");
         }
@@ -2565,15 +2489,13 @@ public class Wlang {
          * @return 进程id
          */
         public static String getProcessId(final String fallback) {
-            final String jvmName = ManagementFactory.getRuntimeMXBean()
-                .getName();
+            final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
             final int index = jvmName.indexOf('@');
             if (index < 1) {
                 return fallback;
             }
             try {
-                return Long
-                    .toString(Long.parseLong(jvmName.substring(0, index)));
+                return Long.toString(Long.parseLong(jvmName.substring(0, index)));
             }
             catch (NumberFormatException e) {}
             return fallback;

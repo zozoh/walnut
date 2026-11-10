@@ -3,7 +3,7 @@ package com.site0.walnut.ext.data.pvg.hdl;
 import java.util.List;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.ext.data.pvg.BizPvgService;
 import com.site0.walnut.ext.data.pvg.cmd_pvg;
 import com.site0.walnut.impl.box.JvmHdl;
@@ -25,7 +25,7 @@ public class pvg_actions implements JvmHdl {
         }
         // 默认输出
         else if (!list.isEmpty()) {
-            sys.out.println(Strings.join(", ", list));
+            sys.out.println(Ws.join(", ", list));
         }
         // 默认输出空
         else {

@@ -1,6 +1,6 @@
 package com.site0.walnut.web2.controller;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.login.WnLoginApi;
@@ -9,7 +9,6 @@ import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.mvc.WnMvcContext;
 import com.site0.walnut.mvc.WnMvcView;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.util.Ws;
 import com.site0.walnut.web.WnConfig;
 import com.site0.walnut.web.util.WnAppModuleLoginMode;
 import com.site0.walnut.web2.controller.app.WnOcmInfo;
@@ -74,7 +73,7 @@ public class AppSysLoginByPasswdController extends AbstractAppAuthController {
                 .setv("data", Er.wrap(e).getReason());
             if (ajax)
                 return WnMvcView.json(reo);
-            String redirectTo = Strings.sBlank(referer, "/");
+            String redirectTo = Ws.sBlank(referer, "/");
             return WnMvcView.redirect(redirectTo);
         }
     }

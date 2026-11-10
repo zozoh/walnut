@@ -8,10 +8,9 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import org.nutz.lang.Stopwatch;
-import org.nutz.lang.Strings;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 
@@ -115,7 +114,7 @@ public class WnContext extends NutMap {
         return Collections.emptyList();
     }
 
-    private static final Log hookLog = Wlog.getHOOK();
+    private static final WnLog hookLog = Wlog.getHOOK();
 
     public WnObj doHook(String action, WnObj o) {
         if (null == o)
@@ -125,18 +124,12 @@ public class WnContext extends NutMap {
 
             WnHookService srv = hookContext.service;
             if (hookLog.isDebugEnabled()) {
-                hookLog.debugf("doHook<%s> for'%s' by: %s",
-                               action,
-                               o.name(),
-                               srv.toString());
+                hookLog.debugf("doHook<%s> for'%s' by: %s", action, o.name(), srv.toString());
             }
             List<WnHook> hooks = srv.get(action, o);
             if (null != hooks && hooks.size() > 0) {
                 if (hookLog.isInfoEnabled())
-                    hookLog.infof(" - HOOK(%d)%s:BEGIN:%s",
-                                  hooks.size(),
-                                  action,
-                                  o.path());
+                    hookLog.infof(" - HOOK(%d)%s:BEGIN:%s", hooks.size(), action, o.path());
 
                 // 为了防止无穷递归，钩子里不再触发钩子
                 WnHookContext hc = hookContext;
@@ -150,7 +143,7 @@ public class WnContext extends NutMap {
                         try {
                             String runby = hook.getRunby();
                             // 保持当前线程的用户
-                            if (Strings.isBlank(runby)) {
+                            if (Ws.isBlank(runby)) {
                                 hook.invoke(hc, o);
                             }
                             // 切换用户
@@ -183,10 +176,8 @@ public class WnContext extends NutMap {
 
                 sw.stop();
                 if (hookLog.isInfoEnabled())
-                    hookLog.infof(" - HOOK(%d)%s: DONE:%dms",
-                                  hooks.size(),
-                                  action,
-                                  sw.getDuration());
+                    hookLog
+                        .infof(" - HOOK(%d)%s: DONE:%dms", hooks.size(), action, sw.getDuration());
 
                 // 调用了钩子，则重新获取
                 return hookContext.io().get(o.id());
@@ -196,8 +187,7 @@ public class WnContext extends NutMap {
         // 木有钩子，是不符合预期的
         // （为单元测试开的一个支线逻辑）
         else if (o.getBoolean("__debug_hook")) {
-            hookLog
-                .warnf("%s : %s ! without find hooks !", action, o.toString());
+            hookLog.warnf("%s : %s ! without find hooks !", action, o.toString());
         }
         // 没有调用钩子，返回自身
         return o;
@@ -325,10 +315,7 @@ public class WnContext extends NutMap {
         return proton.get();
     }
 
-    public void core(WnSecurity secu,
-                     boolean synctimeOff,
-                     WnHookContext hc,
-                     Atom atom) {
+    public void core(WnSecurity secu, boolean synctimeOff, WnHookContext hc, Atom atom) {
         final WnContext wc = this;
 
         wc.security(secu, () -> {
@@ -342,18 +329,12 @@ public class WnContext extends NutMap {
         });
     }
 
-    public <T> T core(WnSecurity secu,
-                      boolean synctimeOff,
-                      WnHookContext hc,
-                      Proton<T> proton) {
+    public <T> T core(WnSecurity secu, boolean synctimeOff, WnHookContext hc, Proton<T> proton) {
         core(secu, synctimeOff, hc, (Atom) proton);
         return proton.get();
     }
 
-    public void suCore(WnUser user,
-                       WnSecurity secu,
-                       WnHookContext hc,
-                       Atom atom) {
+    public void suCore(WnUser user, WnSecurity secu, WnHookContext hc, Atom atom) {
         // 记录旧的值
         WnUser old_me = this._me;
         WnSecurity old_secu = this.security;
@@ -373,10 +354,7 @@ public class WnContext extends NutMap {
         }
     }
 
-    public <T> T suCore(WnUser user,
-                        WnSecurity secu,
-                        WnHookContext hc,
-                        Proton<T> proton) {
+    public <T> T suCore(WnUser user, WnSecurity secu, WnHookContext hc, Proton<T> proton) {
         suCore(user, secu, hc, (Atom) proton);
         return proton.get();
     }
@@ -492,7 +470,7 @@ public class WnContext extends NutMap {
     }
 
     public boolean hasTicket() {
-        return !Strings.isBlank(this.ticket);
+        return !Ws.isBlank(this.ticket);
     }
 
     public String checkTicket() {

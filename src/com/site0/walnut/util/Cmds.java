@@ -8,7 +8,6 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Each;
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
@@ -242,12 +241,12 @@ public abstract class Cmds {
                                         boolean readPipeWhenBlank) {
         // 得到内容
         String str = params.get(key);
-        if (((Strings.isBlank(str) && readPipeWhenBlank) || "true".equals(str)) && null != sys.in) {
+        if (((Ws.isBlank(str) && readPipeWhenBlank) || "true".equals(str)) && null != sys.in) {
             str = sys.in.readAll();
         }
 
         // 返回
-        return Strings.trim(str);
+        return Ws.trim(str);
     }
 
     public static String checkParamOrPipe(WnSystem sys,
@@ -257,7 +256,7 @@ public abstract class Cmds {
         // 得到内容
         String str = getParamOrPipe(sys, params, key, readPipeWhenBlank);
 
-        if (Strings.isBlank(str)) {
+        if (Ws.isBlank(str)) {
             throw Er.create("e.cmd.lack.param", key);
         }
 
@@ -268,19 +267,19 @@ public abstract class Cmds {
     public static String getParamOrPipe(WnSystem sys, ZParams params, int index) {
         // 得到内容
         String str = params.val(index);
-        if (Strings.isBlank(str) && null != sys.in) {
+        if (Ws.isBlank(str) && null != sys.in) {
             str = sys.in.readAll();
         }
 
         // 返回
-        return Strings.trim(str);
+        return Ws.trim(str);
     }
 
     public static String checkParamOrPipe(WnSystem sys, ZParams params, int index) {
         // 得到内容
         String str = getParamOrPipe(sys, params, index);
 
-        if (Strings.isBlank(str)) {
+        if (Ws.isBlank(str)) {
             throw Er.create("e.cmd.lack.param", "[" + index + "]");
         }
 
@@ -435,7 +434,7 @@ public abstract class Cmds {
                                             WnPager wp,
                                             List<? extends NutBean> outs) {
         String sCols = params.get("t");
-        String[] cols = Strings.splitIgnoreBlank(sCols);
+        String[] cols = Ws.splitIgnoreBlank(sCols);
 
         boolean showBorder = params.is("b");
         boolean showHeader = params.is("h");
@@ -573,14 +572,14 @@ public abstract class Cmds {
         re.setv("list", list);
         re.setv("pager",
                 Wlang.mapf("pn:%d,pgsz:%d,pgnb:%d,sum:%d,skip:%d,nb:%d,pgc:%d,count:%d",
-                          wp.pn,
-                          wp.pgsz,
-                          wp.sum_page,
-                          wp.sum_count,
-                          wp.skip,
-                          list.size(),
-                          wp.sum_page,
-                          list.size()));
+                           wp.pn,
+                           wp.pgsz,
+                           wp.sum_page,
+                           wp.sum_count,
+                           wp.skip,
+                           list.size(),
+                           wp.sum_page,
+                           list.size()));
         return re;
     }
 
@@ -673,7 +672,7 @@ public abstract class Cmds {
 
                 // 如果有通配符，那么逐层进入
                 if (aph.contains("*")) {
-                    String[] phList = Strings.splitIgnoreBlank(aph, "/");
+                    String[] phList = Ws.splitIgnoreBlank(aph, "/");
                     joinObjs(sys, p, phList, 0, list, mode);
                 }
                 // 就是一个路径，直接获取

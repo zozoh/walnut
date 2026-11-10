@@ -2,7 +2,7 @@ package com.site0.walnut.ext.data.thing.impl;
 
 import java.io.InputStream;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
@@ -45,7 +45,7 @@ public class FileAddAction extends ThingDataAction<WnObj> {
             }
 
             // 是否生成一个新的
-            if (!Strings.isBlank(dupp)) {
+            if (!Ws.isBlank(dupp)) {
                 oM = Things.createFileNoDup(io, oDir, fnm, dupp);
             }
             // 不能生成一个新的，并且还不能覆盖就抛错

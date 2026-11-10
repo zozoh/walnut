@@ -2,7 +2,7 @@ package com.site0.walnut.web.module.app;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import org.nutz.mvc.View;
 import org.nutz.mvc.view.HttpStatusView;
 import org.nutz.mvc.view.RawView;
@@ -29,7 +29,7 @@ import com.site0.walnut.web.impl.WnAppService;
  */
 public class WamOpen {
 
-    private static final Log log = Wlog.getAPP();
+    private static final WnLog log = Wlog.getAPP();
 
     private WnAppService apps;
 

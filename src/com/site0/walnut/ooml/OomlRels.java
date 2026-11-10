@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.nutz.lang.Encoding;
+
 import com.site0.walnut.cheap.dom.CheapDocument;
 import com.site0.walnut.cheap.dom.CheapElement;
 import com.site0.walnut.cheap.xml.CheapXmlParsing;
@@ -69,7 +69,7 @@ public class OomlRels {
     }
 
     public byte[] toByte() {
-        return this.toByte(Encoding.CHARSET_UTF8);
+        return this.toByte(java.nio.charset.StandardCharsets.UTF_8);
     }
 
     public byte[] toByte(Charset charset) {

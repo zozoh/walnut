@@ -6,8 +6,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.lang.Files;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Wfiles;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.View;
 import org.nutz.mvc.annotation.At;
@@ -80,7 +80,7 @@ public class UsrModule extends AbstractWnModule {
         // 看看有没有配置目录
         WnObj oHosts = io().fetch(null, "/etc/hosts.d");
         if (null != oHosts) {
-            if (!Strings.isBlank(host)) {
+            if (!Ws.isBlank(host)) {
                 oHostHome = io().fetch(oHosts, host);
             }
             // 默认的域名为 default
@@ -127,7 +127,7 @@ public class UsrModule extends AbstractWnModule {
                 if (null != oFragmentHome) {
                     List<WnObj> oFrags = io().getChildren(oFragmentHome, null);
                     for (WnObj oFrag : oFrags) {
-                        String key = Files.getMajorName(oFrag.name());
+                        String key = Wfiles.getMajorName(oFrag.name());
                         String str = io().readText(oFrag);
                         context.put(key, str);
                     }
@@ -178,7 +178,7 @@ public class UsrModule extends AbstractWnModule {
         }
 
         // 实在木有，用系统默认的吧
-        String jsp_nm = Files.getMajorName(rph);
+        String jsp_nm = Wfiles.getMajorName(rph);
         if (jsp_nm.equals("login")) {
             jsp_nm = page_login;
         }

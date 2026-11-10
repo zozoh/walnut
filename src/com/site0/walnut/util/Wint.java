@@ -1,7 +1,5 @@
 package com.site0.walnut.util;
 
-import org.nutz.lang.Strings;
-
 /**
  * 整数相关的帮助函数
  * 
@@ -112,7 +110,7 @@ public abstract class Wint {
      *            数字的字符串
      * @return 字符串的进制
      * 
-     * @see org.nutz.lang.Nums.Radix
+     * @see 旧 Nums.Radix
      */
     public static Radix evalRadix(String str) {
         if (str.startsWith("0x"))
@@ -138,7 +136,7 @@ public abstract class Wint {
      * @return 数组
      */
     public static int[] splitInt(String str) {
-        String[] ss = Strings.splitIgnoreBlank(str);
+        String[] ss = Ws.splitIgnoreBlank(str);
         if (null == ss)
             return null;
         int[] ns = new int[ss.length];
@@ -157,7 +155,7 @@ public abstract class Wint {
      * @see #splitInt(String)
      */
     public static long[] splitLong(String str) {
-        String[] ss = Strings.splitIgnoreBlank(str);
+        String[] ss = Ws.splitIgnoreBlank(str);
         if (null == ss)
             return null;
         long[] ns = new long[ss.length];

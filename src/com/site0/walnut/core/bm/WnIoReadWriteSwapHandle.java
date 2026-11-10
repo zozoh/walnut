@@ -5,16 +5,16 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.Streams;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 
 public abstract class WnIoReadWriteSwapHandle extends WnIoReadWriteHandle {
 
-    private static final Log log = Wlog.getIO();
+    private static final WnLog log = Wlog.getIO();
 
     /**
      * 交换文件
@@ -56,7 +56,7 @@ public abstract class WnIoReadWriteSwapHandle extends WnIoReadWriteHandle {
         finally {
             try {
                 if (null != swap && swap.exists()) {
-                    Files.deleteFile(swap);
+                    Wfiles.deleteFile(swap);
                 }
             }
             catch (Throwable e) {

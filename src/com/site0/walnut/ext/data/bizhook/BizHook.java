@@ -3,7 +3,7 @@ package com.site0.walnut.ext.data.bizhook;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -80,7 +80,7 @@ public class BizHook {
         if (null != this.match) {
             mcount = this.match.size();
         }
-        String cmds = Strings.join(";", this.commands);
+        String cmds = Ws.join(";", this.commands);
         return String.format("M(%d): %s", mcount, cmds);
     }
 }

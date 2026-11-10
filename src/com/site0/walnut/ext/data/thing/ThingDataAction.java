@@ -1,7 +1,7 @@
 package com.site0.walnut.ext.data.thing;
 
-import org.nutz.lang.Files;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Wfiles;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.api.io.WnRace;
@@ -45,18 +45,18 @@ public abstract class ThingDataAction<T> extends ThingAction<T> {
     }
 
     public String myFileDirName(String fnm) {
-        if (!Strings.isBlank(this.dirName))
+        if (!Ws.isBlank(this.dirName))
             return this.dirName;
-        String pph = Files.getParent(fnm);
+        String pph = Wfiles.getParent(fnm);
         if ("/".equals(pph))
             return null;
-        return Files.getName(pph);
+        return Wfiles.getName(pph);
     }
 
     public WnObj myDir() {
         if (null == oDir) {
             WnObj oData = Things.dirTsData(io, oTs);
-            if (!Strings.isBlank(dirName)) {
+            if (!Ws.isBlank(dirName)) {
                 String rph = Wn.appendPath(oT.myId(), dirName);
                 oDir = io.createIfNoExists(oData, rph, WnRace.DIR);
             } else {

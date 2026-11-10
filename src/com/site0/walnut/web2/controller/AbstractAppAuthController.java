@@ -2,10 +2,10 @@ package com.site0.walnut.web2.controller;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.login.WnSimpleLoginApi;
@@ -21,23 +21,21 @@ import com.site0.walnut.security.otp.WnOTPService;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.util.Ws;
 import com.site0.walnut.web2.controller.app.WnOcmInfo;
 
 /**
- * App 认证入口公共逻辑：OCM/权鉴解析、captcha 构建、OTP 懒加载校验及登录后 profile。
- * 服务从请求上下文取用；OTP 实例仅在当前控制器请求内缓存。
+ * App 认证入口公共逻辑：OCM/权鉴解析、captcha 构建、OTP 懒加载校验及登录后 profile。 服务从请求上下文取用；OTP 实例仅在当前控制器请求内缓存。
  */
 public abstract class AbstractAppAuthController extends AbstractAppController {
 
-    protected static final Log log = Wlog.getAPP();
+    protected static final WnLog log = Wlog.getAPP();
 
     private WnOTPService otps;
 
     protected WnOTPService _get_otps(WnMvcContext ctx, WnOcmInfo ocm, String otpConfigName) {
         if (null != this.otps)
             return this.otps;
-        String otpName = Strings.sBlank(otpConfigName, "default");
+        String otpName = Ws.sBlank(otpConfigName, "default");
         try {
             NutMap sessionVars = new NutMap();
             String confHome = ocm.getConfHomePath();
@@ -53,8 +51,11 @@ public abstract class AbstractAppAuthController extends AbstractAppController {
         return this.otps;
     }
 
-    protected String _check_otp(WnMvcContext ctx, WnUser user, WnOcmInfo ocm,
-                               String otpConfigName, String otpCode) {
+    protected String _check_otp(WnMvcContext ctx,
+                                WnUser user,
+                                WnOcmInfo ocm,
+                                String otpConfigName,
+                                String otpCode) {
         if (Ws.isBlank(otpCode))
             return "e.auth.login.otp.required";
         String email = user.getEmail();
@@ -68,8 +69,11 @@ public abstract class AbstractAppAuthController extends AbstractAppController {
         return null;
     }
 
-    protected void _assert_otp(WnMvcContext ctx, WnUser user, WnOcmInfo ocm,
-                               String otpConfigName, String otpCode) {
+    protected void _assert_otp(WnMvcContext ctx,
+                               WnUser user,
+                               WnOcmInfo ocm,
+                               String otpConfigName,
+                               String otpCode) {
         String otpErr = _check_otp(ctx, user, ocm, otpConfigName, otpCode);
         if (null != otpErr)
             throw Er.create(otpErr);
@@ -80,7 +84,7 @@ public abstract class AbstractAppAuthController extends AbstractAppController {
     }
 
     protected WnCaptchaApi createCaptcha(WnMvcContext ctx, WnOcmInfo ocm, String captchaName) {
-        String ccName = Strings.sBlank(captchaName, "default");
+        String ccName = Ws.sBlank(captchaName, "default");
         NutMap vars = new NutMap();
         vars.put("HOME", ocm.getConfHomePath());
         WnCaptchaBuilder builder = new WnSysCaptchaBuilder(io(ctx), vars);
@@ -123,11 +127,11 @@ public abstract class AbstractAppAuthController extends AbstractAppController {
         // 2026-11-10 去 Nutz（web2）：hydrated 模式的系统会话存储不再取自 Nutz Ioc，
         // 显式沿用当前登录 API 的会话存储（语义等价旧 sysSessionStore）
         WnLoginApi sysAuth = auth(ctx);
-        return WnLoginApiMaker.forHydrate().make(io(ctx),
-                                                 site.getSessionVarsBySiteHome(),
-                                                 site.getOptions(),
-                                                 sysAuth instanceof WnSimpleLoginApi
-                                                         ? ((WnSimpleLoginApi) sysAuth).getSessionStore()
-                                                         : null);
+        return WnLoginApiMaker.forHydrate()
+            .make(io(ctx),
+                  site.getSessionVarsBySiteHome(),
+                  site.getOptions(),
+                  sysAuth instanceof WnSimpleLoginApi ? ((WnSimpleLoginApi) sysAuth)
+                      .getSessionStore() : null);
     }
 }

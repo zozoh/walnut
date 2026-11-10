@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Regex;
+import com.site0.walnut.util.Wregex;
 import com.site0.walnut.cheap.dom.CheapComment;
 import com.site0.walnut.cheap.dom.CheapDocument;
 import com.site0.walnut.cheap.dom.CheapElement;
@@ -150,7 +150,7 @@ public class CheapMarkdownParsing {
                                        + "|(_([^_]+)_)" // I:8,9
                                        + "|(~~([^~]+)~~)" // Del:10,11
                                        + ")";
-    private static Pattern Pfont = Regex.getPattern(REGEX_Font);
+    private static Pattern Pfont = Wregex.getPattern(REGEX_Font);
 
     private int __process_font_matcher(Matcher m) {
         // BOLD:2,3
@@ -210,7 +210,7 @@ public class CheapMarkdownParsing {
                                   // HTML Comment begin: 33
                                   + "|(<!--)"
                                   + ")";
-    private static Pattern P = Regex.getPattern(REGEX);
+    private static Pattern P = Wregex.getPattern(REGEX);
 
     void parseLine(String input) {
         // 防守
@@ -378,7 +378,7 @@ public class CheapMarkdownParsing {
                                       + "([:\\s]"
                                       // Alt: 10
                                       + "(.*))?$";
-    private static Pattern PimgAlt = Regex.getPattern(R_img_alt);
+    private static Pattern PimgAlt = Wregex.getPattern(R_img_alt);
 
     private void processImgElement(Matcher m) {
         CheapElement $el = doc.createElement("img", "as-md");

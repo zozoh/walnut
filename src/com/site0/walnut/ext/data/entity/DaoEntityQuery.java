@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.nutz.dao.util.cri.SimpleCriteria;
 import org.nutz.dao.util.cri.SqlExpressionGroup;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.LongRange;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Ranges;
@@ -56,13 +56,13 @@ public class DaoEntityQuery {
     // ------------------------------------------
 
     protected void joinLike(SqlExpressionGroup we, String name, String val) {
-        if (!Strings.isBlank(val)) {
+        if (!Ws.isBlank(val)) {
             we.andLike(name, val);
         }
     }
 
     protected void joinRegion(SqlExpressionGroup we, String name, String str) {
-        if (!Strings.isBlank(str)) {
+        if (!Ws.isBlank(str)) {
             String s = Wregion.extend_rg_macro(str);
             LongRange rg = Ranges.Long(s);
             // Region
@@ -92,7 +92,7 @@ public class DaoEntityQuery {
     }
 
     protected void joinStr(SqlExpressionGroup we, String name, String val) {
-        if (!Strings.isBlank(val)) {
+        if (!Ws.isBlank(val)) {
             we.andEquals(name, val);
         }
     }

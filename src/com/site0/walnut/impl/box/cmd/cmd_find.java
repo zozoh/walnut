@@ -1,7 +1,7 @@
 package com.site0.walnut.impl.box.cmd;
 
 import org.nutz.lang.util.Callback;
-import org.nutz.lang.util.Disks;
+import com.site0.walnut.util.Wdisks;
 import com.site0.walnut.api.io.WalkMode;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmExecutor;
@@ -36,7 +36,7 @@ public class cmd_find extends JvmExecutor {
         sys.io.walk(o, new Callback<WnObj>() {
             public void invoke(WnObj obj) {
                 String ph = obj.getRegularPath();
-                String rph = Disks.getRelativePath(base, ph);
+                String rph = Wdisks.getRelativePath(base, ph);
                 sys.out.println(rph);
             }
         }, WalkMode.DEPTH_NODE_FIRST);

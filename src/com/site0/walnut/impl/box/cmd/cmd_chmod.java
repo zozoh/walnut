@@ -2,7 +2,7 @@ package com.site0.walnut.impl.box.cmd;
 
 import org.nutz.lang.Each;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.util.Disks;
+import com.site0.walnut.util.Wdisks;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.WnSystem;
@@ -90,7 +90,7 @@ public class cmd_chmod extends cmd_chxxx {
         if (newMd != oldMd) {
             sys.io.appendMeta(o, "md:" + newMd);
             if (cc.v) {
-                String rpath = Disks.getRelativePath(cc.current.path(), o.path());
+                String rpath = Wdisks.getRelativePath(cc.current.path(), o.path());
                 sys.out.println(rpath);
             }
         }

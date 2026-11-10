@@ -3,12 +3,12 @@ package com.site0.walnut.impl.box;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
-import org.nutz.log.impl.AbstractLog;
+import com.site0.walnut.log.WnLog;
+import com.site0.walnut.log.WnLogs;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 
@@ -29,13 +29,12 @@ import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 import com.site0.walnut.util.WnSysConf;
-import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
 import com.site0.walnut.web.util.WalnutLog;
 
 public class WnSystem implements WnAuthExecutable {
 
-    private static final Log log = Wlog.getBOX();
+    private static final WnLog log = Wlog.getBOX();
 
     public WnServiceHolder services;
 
@@ -240,7 +239,7 @@ public class WnSystem implements WnAuthExecutable {
         return sb.toString();
     }
 
-    public Log getLog(ZParams params) {
+    public WnLog getLog(ZParams params) {
         String level = null;
 
         // 设置级别（默认info)
@@ -267,11 +266,11 @@ public class WnSystem implements WnAuthExecutable {
      *            <code>@{P} @{d<date:dd'T'HH:mm:ss.SSS>}: @{m}</code>
      * @return 日志对象
      */
-    public Log getLog(String level, String tmpl) {
-        int l = AbstractLog.level(level);
+    public WnLog getLog(String level, String tmpl) {
+        int l = WnLogs.level(level);
 
         WalnutLog log = new WalnutLog(this, l);
-        if (!Strings.isBlank(tmpl))
+        if (!Ws.isBlank(tmpl))
             log.setTmpl(tmpl);
 
         return log;

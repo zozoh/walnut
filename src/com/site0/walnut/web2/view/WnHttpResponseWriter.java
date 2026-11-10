@@ -4,7 +4,7 @@ import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import java.util.Collections;
 
 import java.io.File;
@@ -23,10 +23,9 @@ import com.site0.walnut.mvc.WnMvcResponse;
 
 import org.apache.sshd.common.util.io.LimitInputStream;
 import org.nutz.http.Http;
-import org.nutz.lang.Encoding;
-import org.nutz.lang.Files;
+
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.api.err.Er;
@@ -138,22 +137,21 @@ public class WnHttpResponseWriter {
      */
     public void prepare(WnIo io, WnObj wobj, String range) {
         // 默认采用 obj 的 mime
-        if (Strings.isBlank(this.contentType))
+        if (Ws.isBlank(this.contentType))
             this.contentType = wobj.mime();
 
         // 默认用 obj 的名称作为下载名
-        if (Strings.isBlank(this.downloadName)) {
+        if (Ws.isBlank(this.downloadName)) {
             this.downloadName = wobj.getString("title");
             this.downloadName = Ws.sBlank(this.downloadName, wobj.name());
             // 确保有正确的扩展名作为结尾
-            String suffixName = Files.getSuffixName(this.downloadName);
+            String suffixName = Wfiles.getSuffixName(this.downloadName);
             if (wobj.hasType() && !wobj.isType(suffixName)) {
                 this.downloadName += "." + wobj.type();
             }
         }
         // 确保下载名称以正确的后缀来结尾
-        else if (wobj.hasType()
-                 && !this.downloadName.endsWith("." + wobj.type())) {
+        else if (wobj.hasType() && !this.downloadName.endsWith("." + wobj.type())) {
             this.downloadName += "." + wobj.type();
         }
 
@@ -170,14 +168,14 @@ public class WnHttpResponseWriter {
 
     // public void __prepare(WnIo io, WnObj wobj, String range) {
     // // 默认采用 obj 的 mime
-    // if (Strings.isBlank(this.contentType))
+    // if (Ws.isBlank(this.contentType))
     // this.contentType = wobj.mime();
     //
     // // 默认用 obj 的名称作为下载名
-    // if (Strings.isBlank(this.downloadName)) {
+    // if (Ws.isBlank(this.downloadName)) {
     // this.downloadName = wobj.name();
     // // 确保有正确的扩展名作为结尾
-    // String suffixName = Files.getSuffixName(this.downloadName);
+    // String suffixName = Wfiles.getSuffixName(this.downloadName);
     // if (wobj.hasType() && !wobj.isType(suffixName)) {
     // this.downloadName += "." + wobj.type();
     // }
@@ -194,7 +192,7 @@ public class WnHttpResponseWriter {
     // }
     // headers.put("ETag", objETag);
     //
-    // if (Strings.isBlank(range)) {
+    // if (Ws.isBlank(range)) {
     // ins = io.getInputStream(wobj, 0);
     // headers.put("Content-Length", wobj.len());
     // } else {
@@ -241,7 +239,7 @@ public class WnHttpResponseWriter {
         headers.put("ETag", objETag);
 
         try {
-            if (Strings.isBlank(range)) {
+            if (Ws.isBlank(range)) {
                 ins = getInput.getStream(0);
                 headers.put("Content-Length", objLen);
             } else {
@@ -249,8 +247,7 @@ public class WnHttpResponseWriter {
                 List<RangeRange> rs = new ArrayList<RangeRange>();
                 if (!parseRange(range, rs, objLen) || rs.size() != 1) {
                     this.status = 400;
-                    this.headers.put("Walnut-Http-Range-WARN",
-                                     "Range Not Satisfiable");
+                    this.headers.put("Walnut-Http-Range-WARN", "Range Not Satisfiable");
                 }
                 // 解析成功
                 else {
@@ -258,10 +255,7 @@ public class WnHttpResponseWriter {
                     headers.put("Content-Length", rr.end - rr.start);
                     headers.put("Accept-Ranges", "bytes");
                     headers.put("Content-Range",
-                                String.format("bytes %d-%d/%d",
-                                              rr.start,
-                                              rr.end - 1,
-                                              objLen));
+                                String.format("bytes %d-%d/%d", rr.start, rr.end - 1, objLen));
                     status = 206;
                     ins = getInput.getStream(rr.start);
                     ins = new LimitInputStream(ins, rr.end - rr.start);
@@ -299,7 +293,7 @@ public class WnHttpResponseWriter {
 
     public void prepare(byte[] buf, String bufEtag) {
         // 记录 ETag
-        if (!Strings.isBlank(bufEtag)) {
+        if (!Ws.isBlank(bufEtag)) {
             headers.put("ETag", bufEtag);
         }
 
@@ -316,7 +310,7 @@ public class WnHttpResponseWriter {
     }
 
     public void prepare(String content, String contentETag) {
-        this.prepare(content.getBytes(Encoding.CHARSET_UTF8), contentETag);
+        this.prepare(content.getBytes(java.nio.charset.StandardCharsets.UTF_8), contentETag);
     }
 
     public void prepare(String content) {
@@ -339,18 +333,14 @@ public class WnHttpResponseWriter {
         // 然后是确保有 Content-Type
         if (this.asBase64) {
             headers.putDefault("Content-Type", "text/plain");
-        } else if (!Strings.isBlank(this.contentType)) {
+        } else if (!Ws.isBlank(this.contentType)) {
             headers.putDefault("Content-Type", this.contentType);
         }
 
         // 是否声明有下载目标信息呀？
-        if (!Strings.isBlank(this.userAgent)
-            && !Strings.isBlank(this.downloadName)) {
-            headers
-                .putDefault("Content-Disposition",
-                            WnWeb
-                                .autoContentDisposition(this.downloadName,
-                                                                     this.userAgent));
+        if (!Ws.isBlank(this.userAgent) && !Ws.isBlank(this.downloadName)) {
+            headers.putDefault("Content-Disposition",
+                               WnWeb.autoContentDisposition(this.downloadName, this.userAgent));
         }
 
         // 输出Header
@@ -359,7 +349,7 @@ public class WnHttpResponseWriter {
             Object val = en.getValue();
             if (null != val) {
                 String str = val.toString();
-                if (!Strings.isBlank(str)) {
+                if (!Ws.isBlank(str)) {
                     callback.invoke(key, str);
                 }
             }
@@ -445,8 +435,7 @@ public class WnHttpResponseWriter {
         }
     }
 
-    private void __write_to_output(OutputStream ops, InputStream ins)
-            throws IOException {
+    private void __write_to_output(OutputStream ops, InputStream ins) throws IOException {
         // Covert base 64
         if (this.asBase64) {
             // Load bytes
@@ -483,11 +472,10 @@ public class WnHttpResponseWriter {
     }
 
     public WnHttpResponseWriter(String headers_str) {
-        this.headers = Strings.isBlank(headers_str) ? new NutMap()
-                                                    : Wlang.map(headers_str);
+        this.headers = Ws.isBlank(headers_str) ? new NutMap() : Wlang.map(headers_str);
     }
 
-    private static final Log log = Wlog.getAPP();
+    private static final WnLog log = Wlog.getAPP();
 
     public static class RangeRange implements Comparable<RangeRange> {
         public RangeRange(long start, long end) {
@@ -505,7 +493,7 @@ public class WnHttpResponseWriter {
         public boolean equals(Object obj) {
             if (obj == null || !(obj instanceof RangeRange))
                 return false;
-            return this.start == ((RangeRange)obj).start && this.end == ((RangeRange)obj).end;
+            return this.start == ((RangeRange) obj).start && this.end == ((RangeRange) obj).end;
         }
 
         public int compareTo(RangeRange other) {
@@ -521,7 +509,7 @@ public class WnHttpResponseWriter {
         rangeStr = rangeStr.substring("bytes=".length());
         String[] ranges = rangeStr.split(",");
         for (String range : ranges) {
-            if (range == null || Strings.isBlank(range)) {
+            if (range == null || Ws.isBlank(range)) {
                 log.debug("Bad Range -->    " + rangeStr);
                 return false;
             }

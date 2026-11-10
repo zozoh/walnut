@@ -5,9 +5,9 @@ import java.io.OutputStream;
 
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.stream.VoidInputStream;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.util.Wlog;
 import org.nutz.trans.Atom;
 import com.site0.walnut.api.box.WnBoxContext;
@@ -26,14 +26,13 @@ import com.site0.walnut.util.JvmTunnel;
 import com.site0.walnut.util.SyncWnTunnel;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
-import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmplX;
 
 import org.nutz.web.WebException;
 
 public class JvmAtomRunner {
 
-    private static final Log log = Wlog.getBOX();
+    private static final WnLog log = Wlog.getBOX();
 
     WnBoxService boxes;
 
@@ -97,7 +96,7 @@ public class JvmAtomRunner {
 
     public void run(String cmdLine) {
         // 忽略空行和注释行
-        if (Strings.isBlank(cmdLine) || cmdLine.matches("^[ \t]*(#|//).*$")) {
+        if (Ws.isBlank(cmdLine) || cmdLine.matches("^[ \t]*(#|//).*$")) {
             return;
         }
 
@@ -113,7 +112,7 @@ public class JvmAtomRunner {
         }
 
         // 预处理失败，就不向下执行了
-        if (Strings.isBlank(cmdLine))
+        if (Ws.isBlank(cmdLine))
             return;
 
         // 执行预处理环境变量
@@ -345,7 +344,7 @@ public class JvmAtomRunner {
                 t.start();
             }
         }
-        
+
         if (log.isDebugEnabled()) {
             log.debugf("JvmAtomRunner.__run: quiet");
         }

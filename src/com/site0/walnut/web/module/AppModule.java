@@ -13,8 +13,8 @@ import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Encoding;
-import org.nutz.lang.Strings;
+
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -272,7 +272,7 @@ public class AppModule extends AbstractWnModule {
             throws IOException {
         try {
             Reader r = new InputStreamReader(req.getInputStream(),
-                                             Encoding.CHARSET_UTF8);
+                                             java.nio.charset.StandardCharsets.UTF_8);
             String json = Streams.readAndClose(r);
             NutMap map = Json.fromJson(NutMap.class, json);
             // 防守一下，有时候会传入空
@@ -592,7 +592,7 @@ public class AppModule extends AbstractWnModule {
         }
         // 读取裸 JSON 请求体
         Reader r = new InputStreamReader(req.getInputStream(),
-                                         Encoding.CHARSET_UTF8);
+                                         java.nio.charset.StandardCharsets.UTF_8);
         String json = Streams.readAndClose(r);
         NutMap map = Json.fromJson(NutMap.class, json);
         // 防守一下，有时候会传入空
@@ -601,7 +601,7 @@ public class AppModule extends AbstractWnModule {
         }
         // 请求体里的域必须和路径参数一致：要么都为空，要么完全相等
         String inputDomain = map.getString("domain");
-        if (!Strings.equals(inputDomain, domain)) {
+        if (!Ws.equals(inputDomain, domain)) {
             AjaxReturn re = Ajax.fail().setErrCode("e.captcha.domain.mismatch");
             String reJson = Json.toJson(re, JsonFormat.compact());
             return new ViewWrapper(new RawView("json"), reJson);

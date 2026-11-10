@@ -1,8 +1,8 @@
 package com.site0.walnut;
 
-import org.nutz.lang.Files;
-import org.nutz.lang.Strings;
-import org.nutz.log.Log;
+import com.site0.walnut.util.Wfiles;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
@@ -14,7 +14,7 @@ import com.site0.walnut.util.Wn;
 
 public abstract class BaseSessionTest extends BaseUsrTest {
 
-    static Log log = Wlog.getTEST();
+    static WnLog log = Wlog.getTEST();
 
     protected WnUser me;
 
@@ -81,7 +81,7 @@ public abstract class BaseSessionTest extends BaseUsrTest {
 
     protected WnObj _write_by(String oph, String fph) {
         WnObj o = _createf(oph);
-        String text = Files.read(fph);
+        String text = Wfiles.read(fph);
         text = setup.explainConfig(text);
         io.writeText(o, text);
         return o;
@@ -89,8 +89,8 @@ public abstract class BaseSessionTest extends BaseUsrTest {
 
     protected void _init_files(String confPath) {
         String path = "com/site0/walnut/" + confPath;
-        String content = Files.read(path);
-        String[] lines = Strings.splitIgnoreBlank(content, "\n");
+        String content = Wfiles.read(path);
+        String[] lines = Ws.splitIgnoreBlank(content, "\n");
         this._init_files_by(lines);
     }
 

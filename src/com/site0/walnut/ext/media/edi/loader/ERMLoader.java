@@ -6,7 +6,7 @@ import com.site0.walnut.ext.media.edi.bean.EdiSegment;
 import com.site0.walnut.ext.media.edi.msg.reply.erm.IcsReplyERM;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
 import com.site0.walnut.ext.media.edi.util.IcsLoaderHelper;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 
 import java.util.List;
@@ -49,7 +49,7 @@ public class ERMLoader implements EdiMsgLoader<IcsReplyERM> {
 					continue;
 				}
 
-				String ermType = Strings.sNull(bean.getString("textValue")).trim();
+				String ermType = Ws.sNull(bean.getString("textValue")).trim();
 				if (IcsReplyERM.ERM_TYPE_ACR.equals(ermType)) {
 					ermError = true;
 					re.setErmType(ermType);
@@ -87,8 +87,8 @@ public class ERMLoader implements EdiMsgLoader<IcsReplyERM> {
 				bean.clear();
 				seg.fillBean(bean, null, "refType,refId,,refVer");
 				if (ermError && bean.is("refType", "AAY")) {
-					String refId = Strings.sNull(bean.getString("refId")).trim();
-					if (Strings.isNotBlank(refId)) {
+					String refId = Ws.sNull(bean.getString("refId")).trim();
+					if (Ws.isNotBlank(refId)) {
 						re.setRefId(refId);
 						re.setRefVer(bean.getInt("refVer"));
 					}

@@ -1,6 +1,6 @@
 package com.site0.walnut.ext.sys.httpapi.hdl;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.Callback;
 import com.site0.walnut.api.err.Er;
@@ -36,7 +36,7 @@ public class httpapi_recall implements JvmHdl {
                 String cmdTmpl = sys.io.readText(oApi);
 
                 // 必须得有内容
-                if (Strings.isBlank(cmdTmpl)) {
+                if (Ws.isBlank(cmdTmpl)) {
                     throw Er.create("e.cmd.httapi.emptyApi", oApi);
                 }
 

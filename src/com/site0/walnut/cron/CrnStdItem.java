@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 
 /**
  * 标准 Cron 表达式的项目
@@ -238,7 +238,7 @@ class CrnStdItem implements CrnItem {
         case LIST:
             List<String> list = new ArrayList<>();
             while (-1 != (off = this.joinText(list, i18n, key, off, true))) {}
-            ary.add(Strings.join(",", list));
+            ary.add(Ws.join(",", list));
             if (!ignoreSuffix && lc.hasSuffix())
                 ary.add(lc.suffix);
             break;

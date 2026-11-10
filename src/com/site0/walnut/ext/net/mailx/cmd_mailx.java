@@ -3,7 +3,7 @@ package com.site0.walnut.ext.net.mailx;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
@@ -23,7 +23,7 @@ import org.nutz.web.ajax.AjaxReturn;
 
 public class cmd_mailx extends JvmFilterExecutor<MailxContext, MailxFilter> {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     public cmd_mailx() {
         super(MailxContext.class, MailxFilter.class);

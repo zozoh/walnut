@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
 
 import org.nutz.lang.util.NutBean;
@@ -72,8 +72,8 @@ public class thing_query implements JvmHdl {
 
         // 如果还需要查询关联对象的内容指纹
         String sha1 = hc.params.getString("sha1");
-        if (!Strings.isBlank(sha1)) {
-            tq.sha1Fields = Strings.splitIgnoreBlank(sha1);
+        if (!Ws.isBlank(sha1)) {
+            tq.sha1Fields = Ws.splitIgnoreBlank(sha1);
         }
 
         // 设置排序

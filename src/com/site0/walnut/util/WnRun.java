@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 
@@ -30,7 +30,7 @@ import com.site0.walnut.web.WnConfig;
 
 public class WnRun {
 
-    private static final Log boxLog = Wlog.getBOX();
+    private static final WnLog boxLog = Wlog.getBOX();
 
     private WnServiceHolder services;
 

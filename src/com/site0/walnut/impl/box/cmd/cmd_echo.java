@@ -1,6 +1,6 @@
 package com.site0.walnut.impl.box.cmd;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.ZParams;
@@ -19,7 +19,7 @@ public class cmd_echo extends JvmExecutor {
             StringBuilder sb = new StringBuilder();
             for (String s : params.vals) {
                 if (escape)
-                    s = Strings.evalEscape(s);
+                    s = Ws.evalEscape(s);
                 // sb.append(Wn.normalizeStr(s, sys.se.vars())).append(' ');
                 sb.append(s).append(' ');
             }

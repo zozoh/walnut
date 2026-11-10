@@ -11,7 +11,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
-import org.nutz.lang.Encoding;
+
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.LinkedByteBuffer;
 import org.nutz.lang.util.NutMap;
@@ -46,7 +46,7 @@ public class WnHttpResponse extends InputStream {
     }
 
     public String getBodyText() {
-        return getBodyText(Encoding.CHARSET_UTF8);
+        return getBodyText(java.nio.charset.StandardCharsets.UTF_8);
     }
 
     public String getBodyText(Charset charset) {

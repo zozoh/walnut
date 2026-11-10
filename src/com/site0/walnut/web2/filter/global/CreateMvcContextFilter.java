@@ -1,6 +1,6 @@
 package com.site0.walnut.web2.filter.global;
 
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.impl.io.WnEvalLink;
@@ -26,7 +26,7 @@ import com.site0.walnut.web2.support.WnAuthLookup;
  */
 public class CreateMvcContextFilter implements WnMvcFilter {
 
-    private static final Log log = Wlog.getAC();
+    private static final WnLog log = Wlog.getAC();
 
     private final WnAuthLookup auth;
 

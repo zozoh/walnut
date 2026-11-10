@@ -2,7 +2,7 @@ package com.site0.walnut.cron;
 
 import java.util.Calendar;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 
 /**
  * 判断日（按月）
@@ -127,7 +127,7 @@ public class CrnItem_dd extends CrnDateItem {
             str = str.substring(0, str.length() - 1);
         }
 
-        if (Strings.isBlank(str))
+        if (Ws.isBlank(str))
             return workingDay;
 
         return super.eval4override(str) + workingDay;

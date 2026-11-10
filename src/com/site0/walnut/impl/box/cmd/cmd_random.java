@@ -1,6 +1,6 @@
 package com.site0.walnut.impl.box.cmd;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.random.R;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
@@ -24,7 +24,7 @@ public class cmd_random extends JvmExecutor {
         }
         // 整数范围
         else if (params.vals.length > 0) {
-            String[] ss = Strings.splitIgnoreBlank(params.val(0));
+            String[] ss = Ws.splitIgnoreBlank(params.val(0));
             int min, max;
             if (ss.length == 1) {
                 min = 0;

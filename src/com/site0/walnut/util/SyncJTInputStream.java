@@ -2,13 +2,13 @@ package com.site0.walnut.util;
 
 import java.io.InputStream;
 
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.box.WnTunnel;
 
 public class SyncJTInputStream extends InputStream {
 
-    private static final Log log = Wlog.getIO();
+    private static final WnLog log = Wlog.getIO();
 
     private WnTunnel tnl;
 

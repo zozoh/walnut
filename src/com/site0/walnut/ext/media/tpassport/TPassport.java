@@ -15,11 +15,11 @@ import javax.imageio.ImageIO;
 
 import org.nutz.img.Colors;
 import org.nutz.img.Images;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.util.Wlog;
 import org.nutz.repo.cache.simple.LRUCache;
 import com.site0.walnut.api.io.WnObj;
@@ -30,7 +30,7 @@ public class TPassport {
 
     private static LRUCache<String, Font> fontCache = new LRUCache<>(128);
     private static LRUCache<String, BufferedImage> bgCache = new LRUCache<>(128);
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     private WnSystem sys;
     private BufferedImage im;
@@ -70,12 +70,12 @@ public class TPassport {
         gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         gc.setBackground(bgColor);
         gc.clearRect(0, 0, width, height);
-        if (!Strings.isBlank(backgroundImage)) {
+        if (!Ws.isBlank(backgroundImage)) {
             try {
                 BufferedImage bgImg = loadImage(backgroundImage);
                 bgImg = zoomScaleImage(bgImg, width, height, bgColor);
                 // Images.write(bgImg,
-                // Files.createDirIfNoExists("~/tmp/testBig.png"));
+                // Wfiles.createDirIfNoExists("~/tmp/testBig.png"));
                 gc.drawImage(bgImg, 0, 0, null);
             }
             catch (IOException e) {
@@ -118,7 +118,7 @@ public class TPassport {
         // 绘制文字
         else {
             // 背景
-            if (!Strings.isBlank(tpItem.bgColor)) {
+            if (!Ws.isBlank(tpItem.bgColor)) {
                 gc.setColor(getBgColor(tpItem));
                 gc.fillRect(tpItem.left, tpItem.top, tpItem.width, tpItem.height);
             }
@@ -155,21 +155,21 @@ public class TPassport {
         if (tpItem.fontStyle == 0) {
             tpItem.fontStyle = dftFontStyle;
         }
-        if (Strings.isBlank(tpItem.font)) {
+        if (Ws.isBlank(tpItem.font)) {
             tpItem.font = dftFont;
         }
         return getFont(tpItem.font, tpItem.fontStyle, tpItem.fontSize);
     }
 
     private Color getTextColor(TPassportDrawItem tpItem) {
-        if (Strings.isBlank(tpItem.fontColor)) {
+        if (Ws.isBlank(tpItem.fontColor)) {
             return dftFontColor;
         }
         return Colors.as(tpItem.fontColor);
     }
 
     private Color getBgColor(TPassportDrawItem tpItem) {
-        if (Strings.isBlank(tpItem.bgColor)) {
+        if (Ws.isBlank(tpItem.bgColor)) {
             return dftBgColor;
         }
         return Colors.as(tpItem.bgColor);
@@ -202,7 +202,7 @@ public class TPassport {
 
     private BufferedImage loadImage(String img) throws IOException {
         if (img.startsWith("file://")) {
-            return ImageIO.read(Streams.fileIn(Files.findFile(img.substring(7))));
+            return ImageIO.read(Streams.fileIn(Wfiles.findFile(img.substring(7))));
         } else {
             if (sys != null) {
                 WnObj wobj = sys.io.get(img);

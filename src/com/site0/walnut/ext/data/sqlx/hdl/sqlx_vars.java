@@ -6,7 +6,7 @@ import java.util.List;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.ext.data.sqlx.SqlxContext;
 import com.site0.walnut.ext.data.sqlx.SqlxFilter;
@@ -21,7 +21,7 @@ import com.site0.walnut.util.ZParams;
 
 public class sqlx_vars extends SqlxFilter {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     @Override
     protected ZParams parseParams(String[] args) {

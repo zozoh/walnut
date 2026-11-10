@@ -3,7 +3,7 @@ package com.site0.walnut.web.bgt;
 import java.util.List;
 
 import org.nutz.lang.random.R;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.api.box.WnServiceHolder;
 import com.site0.walnut.api.lock.WnLockBusyException;
 import com.site0.walnut.api.lock.WnLockFailException;
@@ -19,7 +19,7 @@ import com.site0.walnut.util.time.WnDayTime;
 
 public class WnBgRunScheduleConsumer implements Runnable {
 
-    private static final Log log = Wlog.getBG_SCHEDULE();
+    private static final WnLog log = Wlog.getBG_SCHEDULE();
 
     WnSysScheduleApi scheduleApi;
 
@@ -30,7 +30,7 @@ public class WnBgRunScheduleConsumer implements Runnable {
     @Override
     public void run() {
         // 启动前，需要随机等几秒，否则 Cron 那边启动时，很大概率会有锁冲突，
-        // Log 上不好看
+        // WnLog 上不好看
         long delayMs = R.random(1000, 3000);
         Wlang.quiteSleep(delayMs);
 

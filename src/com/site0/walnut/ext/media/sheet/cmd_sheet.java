@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.WnOutputable;
@@ -44,7 +44,7 @@ public class cmd_sheet extends JvmExecutor {
         // 读取输入
         List<? extends NutBean> inputList;
         String fin = params.val(0);
-        if (!Strings.isBlank(fin)) {
+        if (!Ws.isBlank(fin)) {
             WnObj oSheet = Wn.checkObj(sys, fin);
             String typeInput = params.get("tpi", oSheet.type());
             InputStream ins = sys.io.getInputStream(oSheet, 0);
@@ -126,7 +126,7 @@ public class cmd_sheet extends JvmExecutor {
         // .................................................
         // 处理输出
         String fout = params.get("out");
-        if (!Strings.isBlank(fout)) {
+        if (!Ws.isBlank(fout)) {
             // 因为输出到文件，所以可以指定想标准输出输出日志
             String process = params.get("process");
             // 处理自动process
@@ -147,7 +147,7 @@ public class cmd_sheet extends JvmExecutor {
 
             }
             WnOutputable out = null;
-            if (!Strings.isBlank(process)) {
+            if (!Ws.isBlank(process)) {
                 out = sys.out;
             } else {
                 process = null;

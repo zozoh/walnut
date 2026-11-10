@@ -13,7 +13,7 @@ import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.mvc.View;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.By;
@@ -93,12 +93,12 @@ public class GuestModule extends AbstractWnModule {
                        HttpServletResponse resp)
             throws IOException {
         // 得到二维码内容
-        data = Strings.sBlank(data, "NoData");
+        data = Ws.sBlank(data, "NoData");
         data = URLDecoder.decode(data, "UTF-8");
 
         // 默认
         size = size < 50 ? 256 : size;
-        fmt = Strings.sBlank(fmt, "png");
+        fmt = Ws.sBlank(fmt, "png");
         if ("jpg".equals(fmt)) {
             fmt = "jpeg";
         }
@@ -150,12 +150,12 @@ public class GuestModule extends AbstractWnModule {
                             @ReqHeader("User-Agent") String ua,
                             HttpServletResponse resp)
             throws IOException {
-        resp.setContentType(Strings.sBlank(mimeType, "text/plain"));
-        if (!Strings.isBlank(name))
+        resp.setContentType(Ws.sBlank(mimeType, "text/plain"));
+        if (!Ws.isBlank(name))
             WnWeb.setHttpRespHeaderContentDisposition(resp, name, ua);
         OutputStreamWriter w = null;
         try {
-            if (Strings.isBlank(charset))
+            if (Ws.isBlank(charset))
                 charset = "UTF-8";
             w = new OutputStreamWriter(resp.getOutputStream(), charset);
             w.write(data);

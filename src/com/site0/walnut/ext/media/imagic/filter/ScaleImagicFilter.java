@@ -3,7 +3,7 @@ package com.site0.walnut.ext.media.imagic.filter;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.ext.media.imagic.ImagicFilter;
 
 import net.coobird.thumbnailator.Thumbnails;
@@ -13,7 +13,7 @@ public class ScaleImagicFilter implements ImagicFilter {
     @Override
     public BufferedImage doChain(BufferedImage image, String _args) throws IOException {
         Thumbnails.Builder<BufferedImage> holder = Thumbnails.of(image);
-        String[] tmp = Strings.splitIgnoreBlank(_args);
+        String[] tmp = Ws.splitIgnoreBlank(_args);
         if (tmp[0].contains(".")) {
             if (tmp.length == 1) {
                 holder.scale(Double.parseDouble(tmp[0]));

@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 import org.nutz.img.Colors;
 import org.nutz.img.Images;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
@@ -80,7 +80,7 @@ public class cmd_chimg extends cmd_image {
         if (scaleZoom) {
             // -bg 背景颜色
             String pa_bg = params.get("bg");
-            if (!Strings.isBlank(pa_bg)) {
+            if (!Ws.isBlank(pa_bg)) {
                 bgcolor = Colors.as(pa_bg);
             }
         }
@@ -94,7 +94,7 @@ public class cmd_chimg extends cmd_image {
         String pa_o = params.get("o", params.vals.length > 1 ? params.vals[1] : null);
 
         // 没指定新路径则替换原来的
-        if (Strings.isBlank(pa_o)) {
+        if (Ws.isBlank(pa_o)) {
             outObj = inObj;
         }
         // 否则就试图创建这个对象

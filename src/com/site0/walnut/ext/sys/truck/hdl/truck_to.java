@@ -1,6 +1,6 @@
 package com.site0.walnut.ext.sys.truck.hdl;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.sys.truck.TruckContext;
@@ -23,7 +23,7 @@ public class truck_to extends TruckFilter {
         String dirPath = params.val(0);
         WnObj oDir;
 
-        if (!Strings.isBlank(dirPath)) {
+        if (!Ws.isBlank(dirPath)) {
             oDir = Wn.checkObj(sys, dirPath);
         } else {
             oDir = tc.fromDir;

@@ -2,7 +2,7 @@ package com.site0.walnut.ext.net.http.hdl;
 
 import java.io.IOException;
 
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
@@ -67,7 +67,7 @@ public class httpc_output extends HttpClientFilter {
             if (is_output_dir) {
                 if (null == fileName) {
                     String urlPath = fc.context.getUrl().getPath();
-                    fileName = Files.getName(urlPath);
+                    fileName = Wfiles.getName(urlPath);
                 }
                 fc.oOut = sys.io
                     .createIfNoExists(target, fileName, WnRace.FILE);

@@ -11,14 +11,14 @@ import javax.script.ScriptException;
 
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.stream.VoidInputStream;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.api.hook.WnHookContext;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.util.Wlog;
 
 public class JsCommandHook extends AbstractWnHook {
 
-    private static final Log log = Wlog.getHOOK();
+    private static final WnLog log = Wlog.getHOOK();
 
     private static ScriptEngineManager engineManager = new ScriptEngineManager();
 

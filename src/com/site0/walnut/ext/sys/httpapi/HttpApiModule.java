@@ -26,8 +26,8 @@ import org.nutz.lang.stream.ComboOutputStream;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Callback2;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Regex;
-import org.nutz.log.Log;
+import com.site0.walnut.util.Wregex;
+import com.site0.walnut.log.WnLog;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.By;
 import org.nutz.mvc.annotation.Fail;
@@ -67,7 +67,7 @@ import com.site0.walnut.web.util.WnWeb;
 @Filters(@By(type = WnAsUsr.class, args = {"root"}))
 public class HttpApiModule extends AbstractWnModule {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     @At("/?/**")
     @Ok("void")
@@ -1018,7 +1018,7 @@ public class HttpApiModule extends AbstractWnModule {
         apc.reqMeta.put("api-preloaded", isPreloaded);
     }
 
-    private static final Pattern P = Regex.getPattern("^(attachment; *filename=\")(.+)(\")$");
+    private static final Pattern P = Wregex.getPattern("^(attachment; *filename=\")(.+)(\")$");
 
     private void __setup_resp_header(WnHttpApiContext apc) {
         // 设置响应头，并看看是否指定了 content-type

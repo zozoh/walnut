@@ -1,6 +1,6 @@
 package com.site0.walnut.web2.view;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.mvc.WnMvcContext;
 import com.site0.walnut.mvc.WnMvcView;
 import com.site0.walnut.util.Wn;
@@ -16,7 +16,7 @@ public class WnDelCookieView implements WnMvcView {
     }
 
     public WnDelCookieView(String value) {
-        String[] parts = Strings.splitIgnoreBlank(value);
+        String[] parts = Ws.splitIgnoreBlank(value);
         this.cookieName = parts.length == 1 ? Wn.AT_SEID : parts[0];
         this.view = WnMvcView.redirect(parts.length == 1 ? parts[0] : parts[1]);
     }

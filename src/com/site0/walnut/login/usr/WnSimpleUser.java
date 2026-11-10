@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonIgnore;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
@@ -20,7 +20,6 @@ import com.site0.walnut.login.role.WnRoleList;
 import com.site0.walnut.login.role.WnRoleLoader;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Wobj;
-import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wtime;
 import com.site0.walnut.util.Wuu;
 
@@ -164,7 +163,7 @@ public class WnSimpleUser implements WnUser {
             id = Ws.trim(str.substring(3));
         }
         // 手机
-        else if (Strings.isMobile(str)) {
+        else if (Ws.isMobile(str)) {
             if (autoSetName) {
                 this.setPhoneAndName(str);
             } else {
@@ -172,7 +171,7 @@ public class WnSimpleUser implements WnUser {
             }
         }
         // 邮箱
-        else if (Strings.isEmail(str)) {
+        else if (Ws.isEmail(str)) {
             if (autoSetName) {
                 this.setEmailAndName(str);
             } else {

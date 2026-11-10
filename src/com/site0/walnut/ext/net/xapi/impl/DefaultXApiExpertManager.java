@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.ext.net.xapi.bean.XApiExpert;
 
 public class DefaultXApiExpertManager extends AbstractXApiExpertManager {
@@ -18,13 +18,13 @@ public class DefaultXApiExpertManager extends AbstractXApiExpertManager {
                 if (ONE == null) {
                     String base = "com/site0/walnut/ext/net/xapi/data/";
                     List<File> files = new LinkedList<>();
-                    files.add(Files.findFile(base + "tianyancha.json"));
-                    files.add(Files.findFile(base + "wxgh.json"));
-                    files.add(Files.findFile(base + "wxmp.json"));
-                    files.add(Files.findFile(base + "youtube.json"));
-                    files.add(Files.findFile(base + "fb-graph.json"));
-                    files.add(Files.findFile(base + "chatgpt.json"));
-                    files.add(Files.findFile(base + "gpt4.json"));
+                    files.add(Wfiles.findFile(base + "tianyancha.json"));
+                    files.add(Wfiles.findFile(base + "wxgh.json"));
+                    files.add(Wfiles.findFile(base + "wxmp.json"));
+                    files.add(Wfiles.findFile(base + "youtube.json"));
+                    files.add(Wfiles.findFile(base + "fb-graph.json"));
+                    files.add(Wfiles.findFile(base + "chatgpt.json"));
+                    files.add(Wfiles.findFile(base + "gpt4.json"));
                     ONE = new DefaultXApiExpertManager(files);
                 }
             }
@@ -65,12 +65,12 @@ public class DefaultXApiExpertManager extends AbstractXApiExpertManager {
     }
 
     public void addExpert(File f) {
-        String apiName = Files.getMajorName(f);
+        String apiName = Wfiles.getMajorName(f);
         addExpert(f, apiName);
     }
 
     private void addExpert(File f, String apiName) {
-        String json = Files.read(f);
+        String json = Wfiles.read(f);
         XApiExpert expert = Json.fromJson(XApiExpert.class, json);
         expert.setName(apiName);
         this.addExpert(apiName, expert);

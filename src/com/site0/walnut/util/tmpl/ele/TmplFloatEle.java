@@ -5,9 +5,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.castor.Castors;
-import org.nutz.lang.Strings;
-
 import com.site0.walnut.util.Ws;
+
 import com.site0.walnut.util.bank.HDirecton;
 import com.site0.walnut.util.bank.PartitionOptions;
 import com.site0.walnut.util.bank.Wbank;
@@ -18,8 +17,7 @@ public class TmplFloatEle extends TmplDynamicEle {
 
     private PartitionOptions _bank_options;
 
-    private static Pattern _C = Pattern
-        .compile("^#(-)?([^#]+)(#*)[.](#*)(%\\.\\d+f)$");
+    private static Pattern _C = Pattern.compile("^#(-)?([^#]+)(#*)[.](#*)(%\\.\\d+f)$");
 
     public TmplFloatEle(String key, String fmt, String dft) {
         super("float", key, fmt, dft);
@@ -49,14 +47,13 @@ public class TmplFloatEle extends TmplDynamicEle {
                 this._bank_options.sep = m.group(2);
                 this._bank_options.decimalPlaces = m.group(4).length();
                 this._bank_options.decimalFixed = true;
-                this._bank_options.to = "-".equals(m.group(1)) ? HDirecton.right
-                                                               : HDirecton.left;
+                this._bank_options.to = "-".equals(m.group(1)) ? HDirecton.right : HDirecton.left;
                 fmt = Ws.sBlank(m.group(5), "%.2f");
             }
         }
 
         // 格式化工具
-        this.fmt = Strings.sNull(fmt, "0.##");
+        this.fmt = Ws.sNull(fmt, "0.##");
 
         // 采用普通的格式化，那么就不需要 decFormat
         if (this.fmt.indexOf('%') >= 0) {}

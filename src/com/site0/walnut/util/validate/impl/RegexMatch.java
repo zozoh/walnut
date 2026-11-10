@@ -3,7 +3,7 @@ package com.site0.walnut.util.validate.impl;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.util.Regex;
+import com.site0.walnut.util.Wregex;
 
 import com.site0.walnut.util.validate.WnMatch;
 
@@ -20,7 +20,7 @@ public class RegexMatch extends ListValueMatcher implements WnMatch {
             if (ignoreCase) {
                 ptn = Pattern.compile(str, Pattern.CASE_INSENSITIVE);
             } else {
-                ptn = Regex.getPattern(str);
+                ptn = Wregex.getPattern(str);
             }
             boolean isNot = "!".equals(m.group(1));
             RegexMatch r = new RegexMatch(ptn, isNot);
@@ -44,7 +44,7 @@ public class RegexMatch extends ListValueMatcher implements WnMatch {
     }
 
     public RegexMatch(String regex, boolean not) {
-        this.ptn = Regex.getPattern(regex);
+        this.ptn = Wregex.getPattern(regex);
         this.not = not;
         this.matchAll = false;
         this.ignoreCase = false;

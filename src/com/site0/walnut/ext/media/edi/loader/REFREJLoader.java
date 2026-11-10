@@ -5,7 +5,7 @@ import com.site0.walnut.ext.media.edi.bean.EdiSegment;
 import com.site0.walnut.ext.media.edi.msg.reply.pay.RefundRej;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
 import com.site0.walnut.ext.media.edi.util.IcsLoaderHelper;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 
 import java.util.List;
@@ -74,13 +74,13 @@ public class REFREJLoader implements EdiMsgLoader<RefundRej> {
                         nameAddr2 = "";
                     }
                     String fullNameAddr = (nameAddr1 + nameAddr2).trim();
-                    if (Strings.isNotBlank(fullNameAddr)) {
+                    if (Ws.isNotBlank(fullNameAddr)) {
                         re.setBrokerName(fullNameAddr);
                     }
 
                     String nameAddr3 = nutMap.getString("nameAddr3");
                     if (nameAddr3 != null && nameAddr3.length() > 0) {
-                        if (Strings.isNotBlank(nameAddr3)) {
+                        if (Ws.isNotBlank(nameAddr3)) {
                             re.setBrokerBoxNum(nameAddr3);
                         }
                     }
@@ -94,20 +94,20 @@ public class REFREJLoader implements EdiMsgLoader<RefundRej> {
                         nameAddr2 = "";
                     }
                     String fullNameAddr = (nameAddr1 + nameAddr2).trim();
-                    if (Strings.isNotBlank(fullNameAddr)) {
+                    if (Ws.isNotBlank(fullNameAddr)) {
                         re.setClientName(fullNameAddr);
                     }
                 } else if ("CM".equals(funcCode)) {
                     String nameAddr1 = nutMap.getString("nameAddr1");
                     String nameAddr2 = nutMap.getString("nameAddr2");
                     String nameAddr3 = nutMap.getString("nameAddr3");
-                    if (nameAddr1 != null && nameAddr1.length() > 0 && Strings.isNotBlank(nameAddr1)) {
+                    if (nameAddr1 != null && nameAddr1.length() > 0 && Ws.isNotBlank(nameAddr1)) {
                         re.setCusState(nameAddr1);
                     }
-                    if (nameAddr2 != null && nameAddr2.length() > 0 && Strings.isNotBlank(nameAddr2)) {
+                    if (nameAddr2 != null && nameAddr2.length() > 0 && Ws.isNotBlank(nameAddr2)) {
                         re.setCusGroup(nameAddr2);
                     }
-                    if (nameAddr3 != null && nameAddr3.length() > 0 && Strings.isNotBlank(nameAddr3)) {
+                    if (nameAddr3 != null && nameAddr3.length() > 0 && Ws.isNotBlank(nameAddr3)) {
                         re.setCusName(nameAddr3);
                     }
                 } else if ("MR".equals(funcCode)) {
@@ -152,7 +152,7 @@ public class REFREJLoader implements EdiMsgLoader<RefundRej> {
                 String refVer = nutMap.getString("refVer");
 
                 if ("ABO".equals(refCode)) {
-                    if (Strings.isNotBlank(refVal)) {
+                    if (Ws.isNotBlank(refVal)) {
                         re.setRefId(refVal.trim());
                         re.setRefIdInLower(refVal.trim().toLowerCase());
                         re.setRefVer(nutMap.getInt("refVer"));

@@ -14,9 +14,9 @@ import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.wml.Body;
 import org.docx4j.wml.SectPr.PgMar;
 import org.docx4j.wml.SectPr.PgSz;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.Streams;
-import org.nutz.lang.util.Disks;
+import com.site0.walnut.util.Wdisks;
 import org.nutz.lang.util.FileVisitor;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.cheap.dom.CheapDocument;
@@ -174,13 +174,13 @@ public class Oomls {
         try {
             WnArchiveWriting ag = new WnZipArchiveWriting(ops);
 
-            Disks.visitFileWithDir(dir, new FileVisitor() {
+            Wdisks.visitFileWithDir(dir, new FileVisitor() {
                 public void visit(File f) {
                     if (!f.isFile()) {
                         return;
                     }
-                    String rph = Disks.getRelativePath(dir, f);
-                    byte[] bs = Files.readBytes(f);
+                    String rph = Wdisks.getRelativePath(dir, f);
+                    byte[] bs = Wfiles.readBytes(f);
                     try {
                         ag.addFileEntry(rph, bs);
                     }

@@ -6,7 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Atom;
 import com.site0.walnut.api.io.WnObj;
@@ -19,7 +19,6 @@ import com.site0.walnut.login.role.WnRoleList;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
-import com.site0.walnut.util.Ws;
 
 @JvmHdlParamArgs("cqn")
 public class app_setup implements JvmHdl {
@@ -89,7 +88,7 @@ public class app_setup implements JvmHdl {
                 WnContext wc = Wn.WC();
                 boolean lastIsGroup = false;
                 for (String astr : actions) {
-                    String str = Strings.trim(astr);
+                    String str = Ws.trim(astr);
                     // 如果当前是个组，连续多个组会保持一份
                     if ("~".equals(str)) {
                         if (lastIsGroup)
@@ -132,7 +131,7 @@ public class app_setup implements JvmHdl {
     // ADMIN(root,op);MEMBER(root) 模式
     // 条件用 ; 分隔，是 “或” 的关系
     private boolean __is_matched_role_of_group(WnSystem sys, String pvg) {
-        String[] ss = Strings.splitIgnoreBlank(pvg, ";");
+        String[] ss = Ws.splitIgnoreBlank(pvg, ";");
         WnUser me = sys.getMe();
         WnRoleList roles = sys.roles().getRoles(me);
         for (String s : ss) {
@@ -142,7 +141,7 @@ public class app_setup implements JvmHdl {
                 continue;
             // 来吧，得到组名列表和权限名
             String roleName = m.group(1);
-            String[] grps = Strings.splitIgnoreBlank(m.group(2));
+            String[] grps = Ws.splitIgnoreBlank(m.group(2));
             // 判断
             if ("ADMIN".equals(roleName)) {
                 if (roles.isAdminOfRole(grps))
@@ -177,7 +176,7 @@ public class app_setup implements JvmHdl {
         WnObj oFType = null;
         // 文件夹
         if (o.isDIR()) {
-            oFType = sys.io.fetch(oUiHome, "ftypes/" + Strings.sBlank(o.type(), "folder") + ".js");
+            oFType = sys.io.fetch(oUiHome, "ftypes/" + Ws.sBlank(o.type(), "folder") + ".js");
         }
         // 文件
         else {
@@ -189,7 +188,7 @@ public class app_setup implements JvmHdl {
             if (null == oFType) {
                 WnObj oMimeHome = sys.io.fetch(oUiHome, "mimes");
                 if (null != oMimeHome) {
-                    String[] ss = Strings.splitIgnoreBlank(o.mime(), "/");
+                    String[] ss = Ws.splitIgnoreBlank(o.mime(), "/");
                     oFType = sys.io.fetch(oMimeHome, Ws.join(ss, "_") + ".js");
                     // 还找不到，就用 mime 的分类名
                     if (null == oFType) {

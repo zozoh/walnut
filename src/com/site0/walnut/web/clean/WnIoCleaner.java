@@ -4,9 +4,9 @@ import java.util.Date;
 
 import org.nutz.lang.Each;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Wtimes;
 import org.nutz.lang.util.Ranges;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import org.nutz.trans.Atom;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
@@ -16,7 +16,7 @@ import com.site0.walnut.util.WnRun;
 
 public class WnIoCleaner implements Atom {
 
-    private static final Log log = Wlog.getBG_CLEARNER();
+    private static final WnLog log = Wlog.getBG_CLEARNER();
 
     WnRun _run;
 
@@ -62,7 +62,7 @@ public class WnIoCleaner implements Atom {
                     if (o.isExpired()) {
                         if (log.isInfoEnabled()) {
                             Date d = new Date(o.expireTime());
-                            log.infof("rm expired : %s : %s", Times.sDTms2(d), o.path());
+                            log.infof("rm expired : %s : %s", Wtimes.sDTms2(d), o.path());
                         }
                         _run.io().delete(o, true);
                         count[0]++;

@@ -16,14 +16,14 @@ import org.nutz.img.Images;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Each;
-import org.nutz.lang.Encoding;
+
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.GetWnIo;
 import com.site0.walnut.api.err.Er;
@@ -51,11 +51,10 @@ import com.site0.walnut.core.stream.WnIoOutputStream;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
-import com.site0.walnut.util.Ws;
 
 public class WnIoImpl2 implements WnIo {
 
-    private static final Log log = Wlog.getIO();
+    private static final WnLog log = Wlog.getIO();
 
     /**
      * 锁服务
@@ -217,8 +216,7 @@ public class WnIoImpl2 implements WnIo {
     }
 
     @Override
-    public WnIoHandle openHandle(WnObj o, int mode)
-            throws WnIoHandleMutexException, IOException {
+    public WnIoHandle openHandle(WnObj o, int mode) throws WnIoHandleMutexException, IOException {
         WnIoMapping im = mappings.checkMapping(o);
         WnIoHandle h = im.open(o, mode);
         h.setIo(this);
@@ -377,18 +375,14 @@ public class WnIoImpl2 implements WnIo {
             WnIoMapping mapping = mappings.checkMapping(p);
             re = mapping.getIndexer().fetch(p, path);
         } else {
-            String[] ss = Strings.splitIgnoreBlank(path, "[/]");
+            String[] ss = Ws.splitIgnoreBlank(path, "[/]");
             re = fetch(p, ss, path.endsWith("/"), 0, ss.length);
         }
         return re;
     }
 
     @Override
-    public WnObj fetch(WnObj p,
-                       String[] paths,
-                       boolean isForDir,
-                       int fromIndex,
-                       int toIndex) {
+    public WnObj fetch(WnObj p, String[] paths, boolean isForDir, int fromIndex, int toIndex) {
         WnIoIndexer globalIndexer = mappings.getGlobalIndexer();
         // null 表示从根路径开始
         if (null == p) {
@@ -431,8 +425,7 @@ public class WnIoImpl2 implements WnIo {
         // 处理挂载节点
         if (p.isMount()) {
             WnIoMapping mapping = mappings.checkMapping(p);
-            return mapping.getIndexer()
-                .fetch(p, paths, isForDir, fromIndex, toIndex);
+            return mapping.getIndexer().fetch(p, paths, isForDir, fromIndex, toIndex);
         }
         // ................................................
         // 逐个进入目标节点的父
@@ -491,8 +484,7 @@ public class WnIoImpl2 implements WnIo {
             // 处理挂载节点
             if (nd.isMount()) {
                 WnIoMapping mapping = mappings.checkMapping(nd);
-                return mapping.getIndexer()
-                    .fetch(nd, paths, isForDir, i + 1, toIndex);
+                return mapping.getIndexer().fetch(nd, paths, isForDir, i + 1, toIndex);
             }
 
             // 指向下一个节点
@@ -554,10 +546,7 @@ public class WnIoImpl2 implements WnIo {
     }
 
     @Override
-    public void walk(WnObj p,
-                     Callback<WnObj> callback,
-                     WalkMode mode,
-                     WnObjFilter filter) {
+    public void walk(WnObj p, Callback<WnObj> callback, WalkMode mode, WnObjFilter filter) {
         WnObj p2;
         // 确保非空
         if (null == p) {
@@ -675,13 +664,13 @@ public class WnIoImpl2 implements WnIo {
         __save_map_for_update_meta(map);
         // 声明了 ID 转到 setBy(id)
         String id = q.first().getString("id");
-        if (!Strings.isBlank(id)) {
+        if (!Ws.isBlank(id)) {
             return this.setBy(id, map, returnNew);
         }
 
         // 如果声明了 pid ，则看看有木有映射
         String pid = q.first().getString("pid");
-        if (!Strings.isBlank(pid)) {
+        if (!Ws.isBlank(pid)) {
             WnObj oP = this.get(pid);
             if (null == oP)
                 return null;
@@ -725,7 +714,7 @@ public class WnIoImpl2 implements WnIo {
     public int inc(WnQuery q, String key, int val, boolean returnNew) {
         // 声明了 ID 转到 setBy(id)
         String id = q.first().getString("id");
-        if (!Strings.isBlank(id)) {
+        if (!Ws.isBlank(id)) {
             WnObjMapping om = mappings.checkById(id);
             WnIoIndexer indexer = om.getSelfIndexer();
             return indexer.inc(om.getMyId(), key, val, returnNew);
@@ -733,7 +722,7 @@ public class WnIoImpl2 implements WnIo {
 
         // 如果声明了 pid ，则看看有木有映射
         String pid = q.first().getString("pid");
-        if (!Strings.isBlank(pid)) {
+        if (!Ws.isBlank(pid)) {
             WnObj oP = this.get(pid);
             if (null == oP)
                 return -1;
@@ -784,7 +773,7 @@ public class WnIoImpl2 implements WnIo {
         }
 
         // 分析路径
-        String[] ss = Strings.splitIgnoreBlank(path, "[/]");
+        String[] ss = Ws.splitIgnoreBlank(path, "[/]");
         String[] paths = new String[ss.length];
         int len = 0;
         for (String s : ss) {
@@ -807,11 +796,7 @@ public class WnIoImpl2 implements WnIo {
     }
 
     @Override
-    public WnObj create(WnObj p,
-                        String[] paths,
-                        int fromIndex,
-                        int toIndex,
-                        WnRace race) {
+    public WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race) {
         final WnContext wc = Wn.WC();
         // 默认从自己的根开始
         if (null == p) {
@@ -1005,8 +990,7 @@ public class WnIoImpl2 implements WnIo {
         if (null != o) {
             // 种类冲突，不能忍啊
             if (!o.isRace(race))
-                throw Er.create("e.io.create.invalid.race",
-                                path + " ! " + race);
+                throw Er.create("e.io.create.invalid.race", path + " ! " + race);
             return o;
         }
         // 不存在，就创建
@@ -1128,7 +1112,7 @@ public class WnIoImpl2 implements WnIo {
         Each<WnObj> looper = Wn.eachLooping(callback);
 
         // 如果声明了 pid ，则看看有木有映射
-        if (!Strings.isBlank(pid) && !this.isRoot(pid)) {
+        if (!Ws.isBlank(pid) && !this.isRoot(pid)) {
             WnObj oP = this.get(pid);
             if (null == oP)
                 return 0;
@@ -1214,7 +1198,7 @@ public class WnIoImpl2 implements WnIo {
     public int count(WnQuery q) {
         // 声明了 ID 转到 get(id)
         String id = q.first().getString("id");
-        if (!Strings.isBlank(id)) {
+        if (!Ws.isBlank(id)) {
             WnObjMapping om = mappings.checkById(id);
             WnIoIndexer indexer = om.getSelfIndexer();
             WnObj o = indexer.get(id);
@@ -1226,7 +1210,7 @@ public class WnIoImpl2 implements WnIo {
 
         // 如果声明了 pid ，则看看有木有映射
         String pid = q.first().getString("pid");
-        if (!Strings.isBlank(pid) && !this.isRoot(pid)) {
+        if (!Ws.isBlank(pid) && !this.isRoot(pid)) {
             WnObj oP = this.get(pid);
             if (null == oP)
                 return 0;
@@ -1245,7 +1229,7 @@ public class WnIoImpl2 implements WnIo {
     public WnAggResult aggregate(WnQuery q, WnAggOptions agg) {
         // 如果声明了 pid ，则看看有木有映射
         String pid = q.first().getString("pid");
-        if (!Strings.isBlank(pid)) {
+        if (!Ws.isBlank(pid)) {
             WnObj oP = this.get(pid);
             if (null == oP)
                 return new WnAggResult();
@@ -1278,7 +1262,7 @@ public class WnIoImpl2 implements WnIo {
     public void push(WnQuery q, String key, Object val) {
         // 声明了 ID 转到 get(id)
         String id = q.first().getString("id");
-        if (!Strings.isBlank(id)) {
+        if (!Ws.isBlank(id)) {
             WnObjMapping om = mappings.checkById(id);
             WnIoIndexer indexer = om.getSelfIndexer();
             indexer.push(om.getMyId(), key, val, false);
@@ -1287,7 +1271,7 @@ public class WnIoImpl2 implements WnIo {
 
         // 如果声明了 pid ，则看看有木有映射
         String pid = q.first().getString("pid");
-        if (!Strings.isBlank(pid)) {
+        if (!Ws.isBlank(pid)) {
             WnObj oP = this.get(pid);
             if (null == oP)
                 return;
@@ -1315,7 +1299,7 @@ public class WnIoImpl2 implements WnIo {
     public void pull(WnQuery q, String key, Object val) {
         // 声明了 ID 转到 get(id)
         String id = q.first().getString("id");
-        if (!Strings.isBlank(id)) {
+        if (!Ws.isBlank(id)) {
             WnObjMapping om = mappings.checkById(id);
             WnIoIndexer indexer = om.getSelfIndexer();
             indexer.pull(om.getMyId(), key, val, false);
@@ -1324,7 +1308,7 @@ public class WnIoImpl2 implements WnIo {
 
         // 如果声明了 pid ，则看看有木有映射
         String pid = q.first().getString("pid");
-        if (!Strings.isBlank(pid)) {
+        if (!Ws.isBlank(pid)) {
             WnObj oP = this.get(pid);
             if (null == oP)
                 return;
@@ -1343,7 +1327,7 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public void setMount(WnObj o, String mnt) {
-        mnt = Strings.sBlank(mnt, null);
+        mnt = Ws.sBlank(mnt, null);
         // 必须操作映射根节点
         // 即，这个节点是 mount 但是 mountRootId 又为空，那么它就是映射的根节点
         // 如果没有映射的节点，当然也能修改映射
@@ -1391,8 +1375,7 @@ public class WnIoImpl2 implements WnIo {
             // 如果不存在，就去掉，因为这是 write
             if (!map.containsKey(key)) {
                 // 内置属性，不要去掉
-                if (key
-                    .matches("^(nm|pid|c|m|g|md|tp|mime|ln|mnt|expi|width|height)$"))
+                if (key.matches("^(nm|pid|c|m|g|md|tp|mime|ln|mnt|expi|width|height)$"))
                     continue;
                 // 非内置属性，去掉
                 map.put("!" + key, true);
@@ -1604,7 +1587,7 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public long writeText(WnObj o, CharSequence cs) {
-        byte[] b = cs.toString().getBytes(Encoding.CHARSET_UTF8);
+        byte[] b = cs.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
         OutputStream ops = null;
         try {
             ops = this.getOutputStream(o, 0);
@@ -1621,7 +1604,7 @@ public class WnIoImpl2 implements WnIo {
 
     @Override
     public long appendText(WnObj o, CharSequence cs) {
-        byte[] b = cs.toString().getBytes(Encoding.CHARSET_UTF8);
+        byte[] b = cs.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
         OutputStream ops = null;
         try {
             ops = this.getOutputStream(o, -1);

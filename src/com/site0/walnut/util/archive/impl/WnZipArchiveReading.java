@@ -6,7 +6,7 @@ import java.nio.charset.Charset;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.nutz.lang.Encoding;
+
 import org.nutz.lang.Streams;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.archive.WnArchiveEntry;
@@ -21,7 +21,7 @@ public class WnZipArchiveReading extends AsbatractWnAchiveRading {
     }
 
     public WnZipArchiveReading(InputStream ins, Charset charset) {
-        charset = Wlang.fallback(charset, Encoding.CHARSET_UTF8);
+        charset = Wlang.fallback(charset, java.nio.charset.StandardCharsets.UTF_8);
         this.zip = new ZipInputStream(ins, charset);
     }
 

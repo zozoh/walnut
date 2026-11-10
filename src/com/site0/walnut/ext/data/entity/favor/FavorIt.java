@@ -2,7 +2,7 @@ package com.site0.walnut.ext.data.entity.favor;
 
 import java.util.Date;
 
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Wtimes;
 
 public class FavorIt {
 
@@ -34,8 +34,8 @@ public class FavorIt {
     }
 
     public String getTimeText() {
-        Date d = Times.D(time);
-        return Times.format("yyyy-MM-dd HH:mm:ss", d);
+        Date d = Wtimes.D(time);
+        return Wtimes.format("yyyy-MM-dd HH:mm:ss", d);
     }
 
     public String toString() {

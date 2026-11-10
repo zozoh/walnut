@@ -3,7 +3,7 @@ package com.site0.walnut.web2.controller.httpapi;
 import java.io.PrintWriter;
 
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.box.WnBoxContext;
 import com.site0.walnut.api.err.Er;
@@ -29,7 +29,7 @@ import com.site0.walnut.util.Ws;
  */
 public class HttpApiEngine extends WnRun {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     /**
      * 18 步流水线（§3.3 锚点逐条对应）。

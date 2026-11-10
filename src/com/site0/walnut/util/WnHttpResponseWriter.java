@@ -16,10 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.sshd.common.util.io.LimitInputStream;
 import org.nutz.http.Http;
-import org.nutz.lang.Encoding;
-import org.nutz.lang.Files;
+
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.RawView.RangeRange;
@@ -134,15 +132,15 @@ public class WnHttpResponseWriter {
      */
     public void prepare(WnIo io, WnObj wobj, String range) {
         // 默认采用 obj 的 mime
-        if (Strings.isBlank(this.contentType))
+        if (Ws.isBlank(this.contentType))
             this.contentType = wobj.mime();
 
         // 默认用 obj 的名称作为下载名
-        if (Strings.isBlank(this.downloadName)) {
+        if (Ws.isBlank(this.downloadName)) {
             this.downloadName = wobj.getString("title");
             this.downloadName = Ws.sBlank(this.downloadName, wobj.name());
             // 确保有正确的扩展名作为结尾
-            String suffixName = Files.getSuffixName(this.downloadName);
+            String suffixName = Wfiles.getSuffixName(this.downloadName);
             if (wobj.hasType() && !wobj.isType(suffixName)) {
                 this.downloadName += "." + wobj.type();
             }
@@ -166,14 +164,14 @@ public class WnHttpResponseWriter {
 
     // public void __prepare(WnIo io, WnObj wobj, String range) {
     // // 默认采用 obj 的 mime
-    // if (Strings.isBlank(this.contentType))
+    // if (Ws.isBlank(this.contentType))
     // this.contentType = wobj.mime();
     //
     // // 默认用 obj 的名称作为下载名
-    // if (Strings.isBlank(this.downloadName)) {
+    // if (Ws.isBlank(this.downloadName)) {
     // this.downloadName = wobj.name();
     // // 确保有正确的扩展名作为结尾
-    // String suffixName = Files.getSuffixName(this.downloadName);
+    // String suffixName = Wfiles.getSuffixName(this.downloadName);
     // if (wobj.hasType() && !wobj.isType(suffixName)) {
     // this.downloadName += "." + wobj.type();
     // }
@@ -190,7 +188,7 @@ public class WnHttpResponseWriter {
     // }
     // headers.put("ETag", objETag);
     //
-    // if (Strings.isBlank(range)) {
+    // if (Ws.isBlank(range)) {
     // ins = io.getInputStream(wobj, 0);
     // headers.put("Content-Length", wobj.len());
     // } else {
@@ -237,7 +235,7 @@ public class WnHttpResponseWriter {
         headers.put("ETag", objETag);
 
         try {
-            if (Strings.isBlank(range)) {
+            if (Ws.isBlank(range)) {
                 ins = getInput.getStream(0);
                 headers.put("Content-Length", objLen);
             } else {
@@ -295,7 +293,7 @@ public class WnHttpResponseWriter {
 
     public void prepare(byte[] buf, String bufEtag) {
         // 记录 ETag
-        if (!Strings.isBlank(bufEtag)) {
+        if (!Ws.isBlank(bufEtag)) {
             headers.put("ETag", bufEtag);
         }
 
@@ -312,7 +310,7 @@ public class WnHttpResponseWriter {
     }
 
     public void prepare(String content, String contentETag) {
-        this.prepare(content.getBytes(Encoding.CHARSET_UTF8), contentETag);
+        this.prepare(content.getBytes(java.nio.charset.StandardCharsets.UTF_8), contentETag);
     }
 
     public void prepare(String content) {
@@ -335,13 +333,13 @@ public class WnHttpResponseWriter {
         // 然后是确保有 Content-Type
         if (this.asBase64) {
             headers.putDefault("Content-Type", "text/plain");
-        } else if (!Strings.isBlank(this.contentType)) {
+        } else if (!Ws.isBlank(this.contentType)) {
             headers.putDefault("Content-Type", this.contentType);
         }
 
         // 是否声明有下载目标信息呀？
-        if (!Strings.isBlank(this.userAgent)
-            && !Strings.isBlank(this.downloadName)) {
+        if (!Ws.isBlank(this.userAgent)
+            && !Ws.isBlank(this.downloadName)) {
             headers
                 .putDefault("Content-Disposition",
                             WnWeb
@@ -355,7 +353,7 @@ public class WnHttpResponseWriter {
             Object val = en.getValue();
             if (null != val) {
                 String str = val.toString();
-                if (!Strings.isBlank(str)) {
+                if (!Ws.isBlank(str)) {
                     callback.invoke(key, str);
                 }
             }
@@ -487,7 +485,7 @@ public class WnHttpResponseWriter {
     }
 
     public WnHttpResponseWriter(String headers_str) {
-        this.headers = Strings.isBlank(headers_str) ? new NutMap()
+        this.headers = Ws.isBlank(headers_str) ? new NutMap()
                                                     : Wlang.map(headers_str);
     }
 }

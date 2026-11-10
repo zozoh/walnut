@@ -5,11 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 
 import org.nutz.castor.Castors;
 import org.nutz.json.Json;
-import org.nutz.lang.Encoding;
+
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.LinkedByteBuffer;
@@ -126,16 +125,11 @@ public class NilXapiCacheObj implements XApiCacheObj {
     }
 
     protected <T> Reader asReader(InputStream resp, Class<T> classOfT) {
-        try {
-            Reader r = new InputStreamReader(resp, Encoding.UTF8);
-            if (classOfT == BufferedReader.class) {
-                return Streams.buffr(r);
-            }
-            return r;
+        Reader r = new InputStreamReader(resp, java.nio.charset.StandardCharsets.UTF_8);
+        if (classOfT == BufferedReader.class) {
+            return Streams.buffr(r);
         }
-        catch (UnsupportedEncodingException e) {
-            throw Wlang.wrapThrow(e);
-        }
+        return r;
     }
 
     protected byte[] asBytes(InputStream resp) {

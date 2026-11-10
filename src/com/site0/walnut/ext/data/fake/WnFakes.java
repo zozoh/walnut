@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 
 import com.site0.walnut.ext.data.fake.impl.WnAmsFaker;
 import com.site0.walnut.ext.data.fake.impl.WnCaseFaker;
@@ -250,12 +250,12 @@ public class WnFakes {
         String[] names = Wlang.array(TP_NAME_FAM, TP_NAME_FIRST, TP_NAME_MID, TP_WORDS);
         for (String name : names) {
             String fph = base + name + ".txt";
-            String str = Files.read(fph);
+            String str = Wfiles.read(fph);
             WnFakeWord fw = new WnFakeWord(str);
             re.put(name, fw);
         }
         String fph = base + "name.txt";
-        String str = Files.read(fph);
+        String str = Wfiles.read(fph);
         WnTmpl tmpl = WnTmpl.parse(str);
         namePatterns.put(lang, tmpl);
         return re;

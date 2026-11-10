@@ -3,7 +3,7 @@ package com.site0.walnut.ext.media.mediax.util;
 import java.net.URI;
 
 import org.nutz.http.Header;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 
 import com.site0.walnut.web.WnConfig;
 
@@ -26,7 +26,7 @@ public abstract class Mxs {
      * @return 根据模板生成的头
      */
     public static Header genHeader(String name) {
-        name = Strings.sBlank(name, "mac_chrome");
+        name = Ws.sBlank(name, "mac_chrome");
         String path = "com/site0/walnut/ext/mediax/util/httpheader/" + name + ".properties";
         WnConfig pp = new WnConfig(path);
         return Header.create(pp.toMap());

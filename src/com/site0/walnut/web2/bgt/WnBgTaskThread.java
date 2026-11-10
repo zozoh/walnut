@@ -7,7 +7,7 @@ import java.util.List;
 import org.nutz.lang.random.R;
 import org.nutz.lang.random.StringGenerator;
 import org.nutz.lang.util.ByteInputStream;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.box.WnServiceHolder;
 import com.site0.walnut.api.lock.WnLockBusyException;
@@ -34,7 +34,7 @@ import com.site0.walnut.web2.service.WnServiceFactory;
  */
 public class WnBgTaskThread extends Thread {
 
-    private static final Log log = Wlog.getBG_TASK();
+    private static final WnLog log = Wlog.getBG_TASK();
 
     private static final StringGenerator sg = R.sg(8);
 

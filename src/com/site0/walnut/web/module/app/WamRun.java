@@ -6,7 +6,7 @@ import java.io.InputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 
 import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.util.Wlang;
@@ -67,7 +67,7 @@ public class WamRun {
         WnApp app = apps.checkApp(appName, auth);
 
         // 默认返回的 mime-type 是文本
-        if (Strings.isBlank(mimeType))
+        if (Ws.isBlank(mimeType))
             mimeType = "text/plain";
         resp.setContentType(mimeType);
 
@@ -75,7 +75,7 @@ public class WamRun {
         HttpRespStatusSetter _resp = new HttpRespStatusSetter(resp);
         AppRespOpsWrapper out = new AppRespOpsWrapper(_resp, 200);
         AppRespOpsWrapper err = new AppRespOpsWrapper(_resp, 500);
-        InputStream ins = Strings.isEmpty(in) ? null : Wlang.ins(in);
+        InputStream ins = Ws.isEmpty(in) ? null : Wlang.ins(in);
 
         // 强制触发响应刷新缓冲
         if (forceFlushBuffer) {

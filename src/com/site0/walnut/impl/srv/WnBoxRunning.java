@@ -7,7 +7,7 @@ import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.api.WnAuthExecutable;
 import com.site0.walnut.api.box.WnBox;
 import com.site0.walnut.api.box.WnBoxContext;
@@ -28,7 +28,7 @@ import com.site0.walnut.util.Ws;
 
 public class WnBoxRunning implements WnAuthExecutable {
 
-    private static final Log log = Wlog.getBOX();
+    private static final WnLog log = Wlog.getBOX();
 
     private String logPrefix;
 

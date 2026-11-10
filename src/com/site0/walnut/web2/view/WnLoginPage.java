@@ -1,26 +1,25 @@
 package com.site0.walnut.web2.view;
 
-import org.nutz.lang.Encoding;
-import org.nutz.lang.Files;
+
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import com.site0.walnut.util.tmpl.WnTmplX;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.mvc.WnMvcView;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.util.Ws;
 
 public class WnLoginPage {
 
-    private static final Log log = Wlog.getAC();
+    private static final WnLog log = Wlog.getAC();
 
     private WnIo io;
     private WnUser domainUser;
@@ -42,7 +41,7 @@ public class WnLoginPage {
             if (Ws.isBlank(loginPath)) {
                 loginPath = domainUser.getMetaString("LOGIN_PAGE");
             }
-            if (!Strings.isBlank(loginPath)) {
+            if (!Ws.isBlank(loginPath)) {
                 // 直接就是重定向
                 if (loginPath.matches("^(https?:)?//.+$")) {
                     return WnMvcView.redirect(loginPath);
@@ -73,7 +72,7 @@ public class WnLoginPage {
         if (!"sys".equals(pageName) && null == oPageHome) {
             WnObj oHosts = io.fetch(null, "/etc/hosts.d");
             if (null != oHosts) {
-                if (!Strings.isBlank(host)) {
+                if (!Ws.isBlank(host)) {
                     oPageHome = io.fetch(oHosts, host + "/pages");
                 }
                 // 默认的域名为 default
@@ -92,7 +91,7 @@ public class WnLoginPage {
 
         // ...................................................
         // 得到文件内容
-        rph = Strings.sBlank(rph, "index.html");
+        rph = Ws.sBlank(rph, "index.html");
         WnObj o = io.fetch(oPageHome, rph);
 
         // 木有就 404
@@ -106,7 +105,7 @@ public class WnLoginPage {
             WnTmpl tmpl = WnTmpl.parse(str);
             NutBean c = _gen_render_vars();
             String html = tmpl.render(c);
-            byte[] buf = html.getBytes(Encoding.CHARSET_UTF8);
+            byte[] buf = html.getBytes(java.nio.charset.StandardCharsets.UTF_8);
             return new WnDownloadView(buf,
                                       null,
                                       "text/html",
@@ -140,7 +139,7 @@ public class WnLoginPage {
     // private static final String LOGIN_SHA1;
 
     static {
-        LOGIN_HTML = Files.read("com/site0/walnut/web/module/login.html");
+        LOGIN_HTML = Wfiles.read("com/site0/walnut/web/module/login.html");
         LOGIN_TMPL = WnTmplX.parse(LOGIN_HTML);
         // LOGIN_SHA1 = Wlang.sha1(LOGIN_HTML);
     }

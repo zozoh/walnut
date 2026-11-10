@@ -8,19 +8,19 @@ import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutBean;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
 
 public class SqlBatchAtom implements SqlExecutor {
-    private Log log;
+    private WnLog log;
 
     private WnSqlTmpl sqlt;
 
     private List<NutBean> varsList;
 
-    public SqlBatchAtom(Log log, WnSqlTmpl sqlt, List<NutBean> varsList) {
+    public SqlBatchAtom(WnLog log, WnSqlTmpl sqlt, List<NutBean> varsList) {
         this.log = log;
         this.sqlt = sqlt;
         this.varsList = varsList;

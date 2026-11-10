@@ -1,7 +1,7 @@
 package com.site0.walnut.ext.sys.task.hdl;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Encoding;
+
 
 import com.adobe.internal.xmp.impl.Base64;
 import com.site0.walnut.api.io.WnObj;
@@ -66,7 +66,7 @@ public class task_add implements JvmHdl {
                 is = sys.in.readAll();
             }
             if (!Ws.isBlank(is)) {
-                input = is.getBytes(Encoding.CHARSET_UTF8);
+                input = is.getBytes(java.nio.charset.StandardCharsets.UTF_8);
             }
         }
 

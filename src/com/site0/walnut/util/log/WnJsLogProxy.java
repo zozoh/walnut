@@ -1,19 +1,19 @@
 package com.site0.walnut.util.log;
 
-import org.nutz.log.Log;
-import org.nutz.log.impl.AbstractLog;
+import com.site0.walnut.log.WnLog;
+import com.site0.walnut.log.WnLogs;
 import org.openjdk.nashorn.api.scripting.ScriptObjectMirror;
 
 public class WnJsLogProxy {
 
-    private Log log;
+    private WnLog log;
 
-    public WnJsLogProxy(Log log) {
+    public WnJsLogProxy(WnLog log) {
         this.log = log;
     }
 
     public void print(String level, String msg, Object[] args) {
-        int lvl = AbstractLog.level(level, true);
+        int lvl = WnLogs.level(level, true);
         log.log(lvl, msg, args);
     }
 

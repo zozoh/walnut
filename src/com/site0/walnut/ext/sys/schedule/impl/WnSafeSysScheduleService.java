@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.lock.WnLock;
@@ -25,7 +25,7 @@ import com.site0.walnut.util.Wn;
 
 public class WnSafeSysScheduleService implements WnSysScheduleApi {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     private static final String LOCK_NAME = "WN_SYS_SCHEDULE";
 

@@ -4,7 +4,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wn;
@@ -45,7 +45,7 @@ public class cmd_date extends JvmExecutor {
         }
         // 从管线里
         else if (sys.pipeId > 0) {
-            String s = Strings.trim(sys.in.readAll());
+            String s = Ws.trim(sys.in.readAll());
             now = Wtime.parseAMS(s);
         }
         // 当前时间

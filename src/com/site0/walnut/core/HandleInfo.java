@@ -3,7 +3,7 @@ package com.site0.walnut.core;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 
 /**
  * 一个句柄的纯信息类，比较方便持久化...呃，再想想
@@ -60,7 +60,7 @@ public class HandleInfo {
     private long expiTime;
 
     public boolean hasId() {
-        return !Strings.isBlank(id);
+        return !Ws.isBlank(id);
     }
 
     public String getId() {

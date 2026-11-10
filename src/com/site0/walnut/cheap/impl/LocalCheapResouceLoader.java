@@ -2,7 +2,7 @@ package com.site0.walnut.cheap.impl;
 
 import java.io.File;
 
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.MimeMap;
 import com.site0.walnut.cheap.api.CheapResourceLoader;
@@ -40,16 +40,16 @@ public class LocalCheapResouceLoader implements CheapResourceLoader {
 
     @Override
     public CheapResource loadByPath(String path) {
-        File f = Files.getFile(home, path);
+        File f = Wfiles.getFile(home, path);
         return _by(f);
     }
 
     private CheapResource _by(File f) {
         if (null != f) {
             CheapResource cr = new CheapResource();
-            cr.setAlt(Files.getMajorName(f.getName()));
+            cr.setAlt(Wfiles.getMajorName(f.getName()));
             cr.setName(f.getName());
-            byte[] bs = Files.readBytes(f);
+            byte[] bs = Wfiles.readBytes(f);
             cr.setContent(bs);
             return cr;
         }

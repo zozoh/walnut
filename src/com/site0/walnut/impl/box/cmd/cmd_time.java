@@ -3,7 +3,7 @@ package com.site0.walnut.impl.box.cmd;
 import java.util.Arrays;
 
 import org.nutz.lang.Stopwatch;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 
@@ -22,7 +22,7 @@ public class cmd_time extends JvmExecutor {
         }
         for (int i = 0; i < count; i++) {
             Stopwatch sw = Stopwatch.begin();
-            sys.exec(Strings.join(" ", args));
+            sys.exec(Ws.join(" ", args));
             sw.stop();
             sys.out.println("\r\n"+sw);
         }

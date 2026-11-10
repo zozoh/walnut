@@ -6,7 +6,7 @@ import java.util.List;
 import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
 
-import org.nutz.lang.util.Disks;
+import com.site0.walnut.util.Wdisks;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnObjTable;
@@ -75,7 +75,7 @@ public class cmd_ls extends JvmExecutor {
             // 再输出所有的目录
             for (WnObj o : list) {
                 if (!o.isFILE()) {
-                    String rph = Disks.getRelativePath(p.path(), o.path());
+                    String rph = Wdisks.getRelativePath(p.path(), o.path());
                     final WnObjTable tabDir = new WnObjTable(keys);
                     sys.out.println(rph + " :");
                     boolean tooMany = __join_children(sys,

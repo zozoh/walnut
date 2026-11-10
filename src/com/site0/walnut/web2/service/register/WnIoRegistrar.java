@@ -10,7 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import org.nutz.mongo.ZMoCo;
 
 import com.site0.walnut.api.lock.WnLockApi;
@@ -59,7 +59,7 @@ import com.site0.walnut.web2.service.WnServiceFactory;
  */
 public final class WnIoRegistrar {
 
-    private static final Log log = Wlog.getMAIN();
+    private static final WnLog log = Wlog.getMAIN();
 
     private WnIoRegistrar() {}
 

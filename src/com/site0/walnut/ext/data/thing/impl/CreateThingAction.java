@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.WnExecutable;
@@ -53,7 +53,7 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
     }
 
     public CreateThingAction setUniqueKey(String uniqueKey) {
-        this.uniqueKeys = Strings.splitIgnoreBlank(uniqueKey);
+        this.uniqueKeys = Ws.splitIgnoreBlank(uniqueKey);
         return this;
     }
 
@@ -128,7 +128,7 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
             for (NutMap meta : metas) {
                 __create_one(oIndex, meta, i++, len);
             }
-            out.println(Strings.dup('-', 20));
+            out.println(Ws.dup('-', 20));
             out.printlnf("All done for %d records, %d is duplicated", i - 1, this.dupCount);
             return null;
         }
@@ -296,7 +296,7 @@ public class CreateThingAction extends ThingAction<List<WnObj>> {
 
         // 执行完毕的回调也必须是不能重复执行的
         if (!isDuplicated && null != this.executor && null != this.cmdTmpl) {
-            String cmdText = Strings.trim(cmdTmpl.render(oT));
+            String cmdText = Ws.trim(cmdTmpl.render(oT));
             String input = null;
             if (cmdText.startsWith("|")) {
                 cmdText = cmdText.substring(1);

@@ -1,7 +1,7 @@
 package com.site0.walnut.web.module.app;
 
 import org.nutz.lang.util.NutBean;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import org.nutz.mvc.View;
 import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
@@ -40,7 +40,7 @@ import com.site0.walnut.web.view.WnAddCookieViewWrapper;
  */
 public class WamDomainLoginByPassword extends AbstractWamAuth {
 
-    private static final Log log = Wlog.getAPP();
+    private static final WnLog log = Wlog.getAPP();
 
     /**
      * 站点的 ID

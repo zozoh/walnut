@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.util.Wlog;
 
@@ -16,7 +16,7 @@ import com.site0.walnut.util.Wlog;
  */
 public class WnRdsTrans {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     /**
      * 根据 TransID 索引的事务对象

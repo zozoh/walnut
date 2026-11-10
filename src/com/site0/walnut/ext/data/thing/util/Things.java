@@ -8,9 +8,9 @@ import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -25,7 +25,6 @@ import com.site0.walnut.impl.box.JvmHdlContext;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Cmds;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.util.Ws;
 
 public abstract class Things {
 
@@ -239,8 +238,8 @@ public abstract class Things {
         }
         // 准备文件名模板
         NutMap c = new NutMap();
-        c.put("major", Files.getMajorName(fnm));
-        c.put("suffix", Files.getSuffix(fnm));
+        c.put("major", Wfiles.getMajorName(fnm));
+        c.put("suffix", Wfiles.getSuffix(fnm));
         WnTmpl seg = Cmds.parse_tmpl(dupp);
         // 挨个尝试新的文件名
         int i = 1;
@@ -277,7 +276,7 @@ public abstract class Things {
 
             // 分析一下是上传还是添加
             String upload = hc.params.getString("upload");
-            if (Strings.isBlank(upload) || upload.indexOf("boundary=") < 0) {
+            if (Ws.isBlank(upload) || upload.indexOf("boundary=") < 0) {
                 upload = null;
             }
 
@@ -292,19 +291,13 @@ public abstract class Things {
                     ins = sys.in.getInputStream();
                 }
                 // 从文件读取
-                else if (!Strings.isBlank(read)) {
+                else if (!Ws.isBlank(read)) {
                     WnObj o = Wn.getObj(sys, read);
                     ins = sys.io.getInputStream(o, 0);
                 }
                 String fieldName = hc.params.getString("upfield", null);
-                List<WnObj> oList = ths.fileUpload(dirName,
-                                                   oT,
-                                                   fnm,
-                                                   ins,
-                                                   upload,
-                                                   fieldName,
-                                                   dupp,
-                                                   overwrite);
+                List<WnObj> oList = ths
+                    .fileUpload(dirName, oT, fnm, ins, upload, fieldName, dupp, overwrite);
                 if (!oList.isEmpty()) {
                     oMedia = oList.get(0);
                 }
@@ -329,7 +322,7 @@ public abstract class Things {
             }
 
             // 如果指定了更新键
-            if (!Strings.isBlank(ukey) && null != oMedia) {
+            if (!Ws.isBlank(ukey) && null != oMedia) {
                 sys.io.appendMeta(oT, Wlang.map(ukey, "id:" + oMedia.id()));
             }
         }
@@ -429,13 +422,12 @@ public abstract class Things {
                                   StringBuilder stdOut,
                                   StringBuilder stdErr) {
         // Guard
-        if (null == context || null == executor || Strings.isBlank(cmd)) {
+        if (null == context || null == executor || Ws.isBlank(cmd)) {
             return;
         }
-        
 
         // 分析命令模板
-        String cmdText = Strings.trim(WnTmpl.exec(cmd, context));
+        String cmdText = Ws.trim(WnTmpl.exec(cmd, context));
         String input = null;
 
         // 要读取输入的
@@ -450,7 +442,7 @@ public abstract class Things {
     }
 
     public static String runCommand(NutBean context, String cmd, WnExecutable executor) {
-        if (!Strings.isBlank(cmd)) {
+        if (!Ws.isBlank(cmd)) {
             return runCommands(context, Wlang.array(cmd), executor);
         }
         return null;

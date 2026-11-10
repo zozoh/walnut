@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
@@ -22,7 +22,7 @@ import com.site0.walnut.util.validate.impl.AutoMatch;
  */
 public class ApiHistory {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     private final WnIo io;
 

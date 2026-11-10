@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.ext.data.pvg.BizPvgService;
 import com.site0.walnut.ext.data.pvg.cmd_pvg;
 import com.site0.walnut.impl.box.JvmHdl;
@@ -32,7 +32,7 @@ public class pvg_can implements JvmHdl {
 
         // 准备返回值
         Map<String, Boolean> data = new HashMap<>();
-        String[] roles = Strings.splitIgnoreBlank(role);
+        String[] roles = Ws.splitIgnoreBlank(role);
         boolean ok = false;
         for (String _role : roles) {
             ok |= pvgs.can(data, isOr, _role, actions);

@@ -2,7 +2,7 @@ package com.site0.walnut.security.otp.impl.sender;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import org.nutz.web.ajax.AjaxReturn;
 
 import com.site0.walnut.api.err.Er;
@@ -28,7 +28,7 @@ import com.site0.walnut.util.Ws;
  */
 public class WnSysEmailOTPSender extends WnEmailOTPSender {
 
-    private static final Log log = Wlog.getAUTH();
+    private static final WnLog log = Wlog.getAUTH();
 
     private WnIo io;
 

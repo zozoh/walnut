@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 import org.nutz.castor.Castors;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
@@ -74,14 +73,14 @@ public class ZParams implements Cloneable {
 
             // 预编译 boolRegex
             Pattern bool_key = null;
-            if (!Strings.isBlank(boolRegex)) {
+            if (!Ws.isBlank(boolRegex)) {
                 bool_key = Pattern.compile(boolRegex);
             }
 
             // 预编译 boolChars，如果匹配这个正则表达式的参数，将被认为是一个布尔参数
             // 支持 -bish 这样的组合形式
             Pattern bool_char = null;
-            if (!Strings.isBlank(boolChars)) {
+            if (!Ws.isBlank(boolChars)) {
                 bool_char = Pattern.compile("^-([" + boolChars + "]+)$");
             }
 
@@ -171,7 +170,7 @@ public class ZParams implements Cloneable {
     }
 
     public String val(int index, String dft) {
-        return Strings.sBlank(val(index), dft);
+        return Ws.sBlank(val(index), dft);
     }
 
     public int val_int(int index, int dft) {
@@ -343,7 +342,7 @@ public class ZParams implements Cloneable {
 
     public boolean hasString(String key) {
         String val = this.get(key);
-        return !Strings.isBlank(val) && !"true".equals(val);
+        return !Ws.isBlank(val) && !"true".equals(val);
     }
 
     public float getFloat(String key) {
@@ -403,7 +402,7 @@ public class ZParams implements Cloneable {
 
     public String wrap(String key, String fmt, String dft) {
         String val = this.get(key);
-        if (Strings.isBlank(val)) {
+        if (Ws.isBlank(val)) {
             return dft;
         }
         return String.format(fmt, val);
@@ -443,7 +442,7 @@ public class ZParams implements Cloneable {
 
     public String check(String key) {
         String v = get(key);
-        if (Strings.isBlank(v)) {
+        if (Ws.isBlank(v)) {
             throw Er.create("e.cmd.lack.param", key);
         }
         return v;
@@ -451,7 +450,7 @@ public class ZParams implements Cloneable {
 
     public int checkInt(String key) {
         String v = get(key);
-        if (Strings.isBlank(v)) {
+        if (Ws.isBlank(v)) {
             throw Er.create("e.cmd.lack.param.int", key);
         }
         return Integer.valueOf(v);
@@ -459,7 +458,7 @@ public class ZParams implements Cloneable {
 
     public long checkLong(String key) {
         String v = get(key);
-        if (Strings.isBlank(v)) {
+        if (Ws.isBlank(v)) {
             throw Er.create("e.cmd.lack.param.long", key);
         }
         return Long.valueOf(v);
@@ -467,7 +466,7 @@ public class ZParams implements Cloneable {
 
     public float checkFloat(String key) {
         String v = get(key);
-        if (Strings.isBlank(v)) {
+        if (Ws.isBlank(v)) {
             throw Er.create("e.cmd.lack.param.float", key);
         }
         return Float.valueOf(v);
@@ -475,7 +474,7 @@ public class ZParams implements Cloneable {
 
     public double checkDouble(String key) {
         String v = get(key);
-        if (Strings.isBlank(v)) {
+        if (Ws.isBlank(v)) {
             throw Er.create("e.cmd.lack.param.double", key);
         }
         return Double.valueOf(v);

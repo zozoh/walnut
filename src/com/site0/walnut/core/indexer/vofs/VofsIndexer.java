@@ -1,7 +1,7 @@
 package com.site0.walnut.core.indexer.vofs;
 
 import org.nutz.lang.Each;
-import org.nutz.lang.util.Disks;
+import com.site0.walnut.util.Wdisks;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.MimeMap;
@@ -73,7 +73,7 @@ public class VofsIndexer extends AbstractIoVfsIndexer {
         // 获取起始点
         String rph = null;
         if (!p_is_root) {
-            rph = Disks.getRelativePath(root.path(), p.path(), "");
+            rph = Wdisks.getRelativePath(root.path(), p.path(), "");
         }
 
         // 归一化相对路径 (""|null) => null
@@ -123,7 +123,7 @@ public class VofsIndexer extends AbstractIoVfsIndexer {
     @Override
     public WnObj move(WnObj src, String destPath) {
         // 得到新路径相对于根的路径
-        String newPath = Disks.getRelativePath(src.path(), destPath, "");
+        String newPath = Wdisks.getRelativePath(src.path(), destPath, "");
 
         // 无需移动
         if (Ws.isBlank(newPath)) {
@@ -150,7 +150,7 @@ public class VofsIndexer extends AbstractIoVfsIndexer {
     @Override
     public WnObj move(WnObj src, String destPath, int mode) {
         // 得到新路径相对于根的路径
-        String newPath = Disks.getRelativePath(root.path(), destPath, "");
+        String newPath = Wdisks.getRelativePath(root.path(), destPath, "");
 
         // 无需移动
         if (Ws.isBlank(newPath)) {

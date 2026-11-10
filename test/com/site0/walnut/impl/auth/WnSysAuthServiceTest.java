@@ -7,7 +7,7 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 import org.nutz.json.Json;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
@@ -29,7 +29,7 @@ import com.site0.walnut.util.WnContext;
 
 public class WnSysAuthServiceTest extends BaseUsrTest {
 
-    static Log log = Wlog.getTEST();
+    static WnLog log = Wlog.getTEST();
 
     @Test
     public void usr_create_by_email() {

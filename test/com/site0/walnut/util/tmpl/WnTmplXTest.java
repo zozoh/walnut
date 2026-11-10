@@ -7,8 +7,8 @@ import java.util.List;
 
 import org.junit.Test;
 import org.nutz.json.Json;
-import org.nutz.lang.Files;
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Wfiles;
+import com.site0.walnut.util.Wtimes;
 import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.util.Wlang;
@@ -359,7 +359,7 @@ public class WnTmplXTest {
 
     @Test
     public void test_builtin_login_preserves_javascript_interpolation() {
-        String html = Files.read("com/site0/walnut/web/module/login.html");
+        String html = Wfiles.read("com/site0/walnut/web/module/login.html");
         WnTmplX tmpl = WnTmplX.parse(html);
         String placeholder = "${app-module-sys-login?PASSWD_AND_OTP}";
         String literal = html.replace("$${", "${");
@@ -421,10 +421,10 @@ public class WnTmplXTest {
     @Test
     public void test_date() {
         long ms = System.currentTimeMillis();
-        Date d = Times.D(ms);
-        String sd = Times.format("yyyy-MM-dd'T'HH:mm:ss", d);
+        Date d = Wtimes.D(ms);
+        String sd = Wtimes.format("yyyy-MM-dd'T'HH:mm:ss", d);
         assertEquals(sd, WnTmplX.exec("${d<date>}", Wlang.mapf("d:%s", ms)));
-        assertEquals(Times.sD(d),
+        assertEquals(Wtimes.sD(d),
                      WnTmplX.exec("${d<date:yyyy-MM-dd>}",
                                   Wlang.mapf("d:'%s'", sd)));
         assertEquals("",

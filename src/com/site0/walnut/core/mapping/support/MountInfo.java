@@ -3,8 +3,8 @@ package com.site0.walnut.core.mapping.support;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Strings;
-import org.nutz.lang.util.Regex;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wregex;
 import com.site0.walnut.api.err.Er;
 
 public class MountInfo {
@@ -33,7 +33,7 @@ public class MountInfo {
                 }
             }
             // 只有类型
-            if (Strings.isBlank(arg)) {
+            if (Ws.isBlank(arg)) {
                 return type;
             }
             // 混合输出
@@ -52,7 +52,7 @@ public class MountInfo {
     public Item bm;
 
     private static final String regex = "^([^(]+)(\\(([^)]+)\\))?$";
-    private static final Pattern _P = Regex.getPattern(regex);
+    private static final Pattern _P = Wregex.getPattern(regex);
 
     public MountInfo() {}
 
@@ -62,7 +62,7 @@ public class MountInfo {
 
     public void set(String str) {
         // 为空！那就是木有任何映射咯
-        if (Strings.isBlank(str)) {
+        if (Ws.isBlank(str)) {
             return;
         }
         // 保险一点，抹去前后空白吧
@@ -117,8 +117,8 @@ public class MountInfo {
             throw Er.create("e.io.mount.invalid", str);
         }
         Item it = new Item();
-        it.type = Strings.trim(m.group(1));
-        it.arg = Strings.trim(m.group(3));
+        it.type = Ws.trim(m.group(1));
+        it.arg = Ws.trim(m.group(3));
         return it;
     }
 
@@ -157,7 +157,7 @@ public class MountInfo {
     }
 
     public void setIndexer(String str) {
-        if (Strings.isBlank(str)) {
+        if (Ws.isBlank(str)) {
             this.ix = null;
         } else {
             this.ix = parseItem(str);
@@ -187,7 +187,7 @@ public class MountInfo {
     }
 
     public void setBM(String str) {
-        if (Strings.isBlank(str)) {
+        if (Ws.isBlank(str)) {
             this.bm = null;
         } else {
             this.bm = parseItem(str);

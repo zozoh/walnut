@@ -2,8 +2,6 @@ package com.site0.walnut.util.bank;
 
 import java.util.ArrayList;
 
-import org.nutz.lang.Strings;
-
 import com.site0.walnut.util.Ws;
 
 public abstract class Wbank {
@@ -29,7 +27,7 @@ public abstract class Wbank {
             if (options.width > 0) {
                 width = options.width;
             }
-            if (!Strings.isBlank(options.sep)) {
+            if (!Ws.isBlank(options.sep)) {
                 sep = options.sep;
             }
             if (null != options.to) {
@@ -90,16 +88,16 @@ public abstract class Wbank {
                 parts.add(Long.toString(fr));
             }
             // 强制对其精度
-            else if(decimalFixed){
+            else if (decimalFixed) {
                 parts.add(Ws.padEnd(partFra, decimalPlaces, '0'));
             }
             // 直接填入
-            else if (!Strings.isBlank(partFra)) {
+            else if (!Ws.isBlank(partFra)) {
                 parts.add(partFra);
             }
         }
         // 默认填入小数部分
-        else if (!Strings.isBlank(partFra)) {
+        else if (!Ws.isBlank(partFra)) {
             parts.add(partFra);
         }
 
@@ -107,11 +105,8 @@ public abstract class Wbank {
         return Ws.join(parts, ".");
     }
 
-    private static String partitionInt(String input,
-                                       int width,
-                                       String sep,
-                                       HDirecton to) {
-        if (Strings.isBlank(input)) {
+    private static String partitionInt(String input, int width, String sep, HDirecton to) {
+        if (Ws.isBlank(input)) {
             return "";
         }
         if (width <= 0) {

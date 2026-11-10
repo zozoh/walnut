@@ -2,7 +2,7 @@ package com.site0.walnut.ext.data.bizhook;
 
 import java.util.Map;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import org.nutz.validate.NutValidate;
@@ -22,12 +22,12 @@ public class BizHookMatch {
     public BizHookMatch(String key, Object val) {
         // 挑选模式
         if(key.indexOf(',')>=0) {
-            this.keys = Strings.splitIgnoreBlank(key);
+            this.keys = Ws.splitIgnoreBlank(key);
             this.isPick = true;
         }
         // fallback 模式
         else {
-            this.keys = Strings.splitIgnoreBlank(key, "|");
+            this.keys = Ws.splitIgnoreBlank(key, "|");
             this.isPick = false;
         }
         // 建立检查器

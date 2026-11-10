@@ -1,6 +1,6 @@
 package com.site0.walnut.ext.media.sheet.impl;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -36,7 +36,7 @@ public abstract class AbstractSheetHandler implements SheetHandler {
 
     protected void _on_end(int len) {
         if (null != out && null != process) {
-            out.println(Strings.dup('-', 20));
+            out.println(Ws.dup('-', 20));
             out.printlnf("All done for %d records", len);
         }
     }

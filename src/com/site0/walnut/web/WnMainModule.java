@@ -5,7 +5,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.View;
 import org.nutz.mvc.annotation.At;
@@ -54,7 +54,7 @@ public class WnMainModule extends AbstractWnModule {
     // private static Map<String, WnSummaryData> FAVICONS = new Hashtable<>();
 
     static {
-        byte[] faviconData = Files.readBytes("com/site0/walnut/web/favicon.ico");
+        byte[] faviconData = Wfiles.readBytes("com/site0/walnut/web/favicon.ico");
         DFT_FAVICON.setData(faviconData);
         DFT_FAVICON.setSha1(Wsum.sha1AsString(faviconData));
     }

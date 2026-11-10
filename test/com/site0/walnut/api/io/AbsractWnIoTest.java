@@ -14,12 +14,12 @@ import java.util.Set;
 
 import org.junit.Test;
 import org.nutz.json.Json;
-import org.nutz.lang.Encoding;
-import org.nutz.lang.Files;
+
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.Callback;
-import org.nutz.lang.util.Disks;
+import com.site0.walnut.util.Wdisks;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.cheap.dom.CheapDocument;
 import com.site0.walnut.cheap.xml.CheapXmlParsing;
@@ -77,11 +77,11 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
     public void test_get_pid_of_file_mount_file() {
         // 准备一个本地目录
         File dHome = setup.getLocalFileHome();
-        File f0 = Files.getFile(dHome, "a/b/c/d/x.txt");
-        Files.createFileIfNoExists(f0);
+        File f0 = Wfiles.getFile(dHome, "a/b/c/d/x.txt");
+        Wfiles.createFileIfNoExists(f0);
 
-        File dMntHome = Files.getFile(dHome, "a");
-        String phMntHome = Disks.getCanonicalPath(dMntHome.getAbsolutePath());
+        File dMntHome = Wfiles.getFile(dHome, "a");
+        String phMntHome = Wdisks.getCanonicalPath(dMntHome.getAbsolutePath());
 
         // 建立映射目录
         WnObj oMntDir = io.create(null, "/mnt/dir", WnRace.DIR);
@@ -121,15 +121,15 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
     public void test_query_by_pid_in_file_mount_file() {
         // 准备一个本地目录
         File dHome = setup.getLocalFileHome();
-        File f0 = Files.getFile(dHome, "a/b/c/d/x.txt");
-        Files.createFileIfNoExists(f0);
-        File f1 = Files.getFile(dHome, "a/b/c/d/y.txt");
-        Files.createFileIfNoExists(f1);
-        File f2 = Files.getFile(dHome, "a/b/c/d/z.txt");
-        Files.createFileIfNoExists(f2);
+        File f0 = Wfiles.getFile(dHome, "a/b/c/d/x.txt");
+        Wfiles.createFileIfNoExists(f0);
+        File f1 = Wfiles.getFile(dHome, "a/b/c/d/y.txt");
+        Wfiles.createFileIfNoExists(f1);
+        File f2 = Wfiles.getFile(dHome, "a/b/c/d/z.txt");
+        Wfiles.createFileIfNoExists(f2);
 
-        File dMntHome = Files.getFile(dHome, "a");
-        String phMntHome = Disks.getCanonicalPath(dMntHome.getAbsolutePath());
+        File dMntHome = Wfiles.getFile(dHome, "a");
+        String phMntHome = Wdisks.getCanonicalPath(dMntHome.getAbsolutePath());
 
         // 建立映射目录
         WnObj oMntDir = io.create(null, "/mnt/dir", WnRace.DIR);
@@ -194,13 +194,13 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
     public void test_get_parent_path_in_file_mount_file() {
         // 准备一个本地目录
         File dHome = setup.getLocalFileHome();
-        File f0 = Files.getFile(dHome, "a/b/c/d/xyz.txt");
-        Files.createFileIfNoExists(f0);
-        File f1 = Files.getFile(dHome, "a/b/x/y/abc.txt");
-        Files.createFileIfNoExists(f1);
+        File f0 = Wfiles.getFile(dHome, "a/b/c/d/xyz.txt");
+        Wfiles.createFileIfNoExists(f0);
+        File f1 = Wfiles.getFile(dHome, "a/b/x/y/abc.txt");
+        Wfiles.createFileIfNoExists(f1);
 
-        File dMntHome = Files.getFile(dHome, "a");
-        String phMntHome = Disks.getCanonicalPath(dMntHome.getAbsolutePath());
+        File dMntHome = Wfiles.getFile(dHome, "a");
+        String phMntHome = Wdisks.getCanonicalPath(dMntHome.getAbsolutePath());
 
         // 建立映射目录
         WnObj oMntDir = io.create(null, "/mnt/dir", WnRace.DIR);
@@ -239,10 +239,10 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
     public void test_create_and_remove_filew_mount_file() {
         // 准备一个本地目录
         File dHome = setup.getLocalFileHome();
-        File f = Files.getFile(dHome, "a/b/c/xyz.txt");
-        Files.createFileIfNoExists(f);
-        File dMntHome = Files.getFile(dHome, "a");
-        String phMntHome = Disks.getCanonicalPath(dMntHome.getAbsolutePath());
+        File f = Wfiles.getFile(dHome, "a/b/c/xyz.txt");
+        Wfiles.createFileIfNoExists(f);
+        File dMntHome = Wfiles.getFile(dHome, "a");
+        String phMntHome = Wdisks.getCanonicalPath(dMntHome.getAbsolutePath());
 
         // 建立映射目录
         WnObj oMntDir = io.create(null, "/mnt/dir", WnRace.DIR);
@@ -258,10 +258,10 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
 
         // 写
         io.writeText(o, "hello");
-        String text = Files.read(f);
+        String text = Wfiles.read(f);
         assertEquals("hello", text);
 
-        Files.write(f, "world");
+        Wfiles.write(f, "world");
         text = io.readText(o);
         assertEquals("world", text);
 
@@ -288,7 +288,7 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         assertTrue(o2.hasMountRootId());
         assertFalse(o2.isLink());
 
-        File dir = Files.getFile(dHome, "a/b/c/test");
+        File dir = Wfiles.getFile(dHome, "a/b/c/test");
         assertTrue(dir.exists());
         assertTrue(dir.isDirectory());
 
@@ -328,15 +328,15 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         io.appendMeta(dTi, Wlang.map("ln:'/mnt/ti'"));
 
         File dHome = setup.getLocalFileHome();
-        File f = Files.getFile(dHome, "titanium/src/view/creation.json");
-        Files.createFileIfNoExists(f);
-        File f2 = Files.getFile(dHome,
+        File f = Wfiles.getFile(dHome, "titanium/src/view/creation.json");
+        Wfiles.createFileIfNoExists(f);
+        File f2 = Wfiles.getFile(dHome,
                                 "titanium/src/view/types/zh-cn/_types.json");
-        Files.write(f2, "hello");
-        Files.createFileIfNoExists(f2);
+        Wfiles.write(f2, "hello");
+        Wfiles.createFileIfNoExists(f2);
 
         WnObj dMnTi = io.create(null, "/mnt/ti", WnRace.DIR);
-        String aph = Files.getAbsPath(dHome);
+        String aph = Wfiles.getAbsPath(dHome);
         String mnt = "file://" + aph + "/titanium/src";
         io.setMount(dMnTi, mnt);
 
@@ -400,10 +400,10 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         io.appendMeta(dTi, Wlang.map("ln:'/mnt/ti/src'"));
 
         File dHome = setup.getLocalFileHome();
-        File f = Files.getFile(dHome, "titanium/src/view/creation.json");
-        Files.createFileIfNoExists(f);
+        File f = Wfiles.getFile(dHome, "titanium/src/view/creation.json");
+        Wfiles.createFileIfNoExists(f);
         WnObj dMnTi = io.create(null, "/mnt/ti", WnRace.DIR);
-        String aph = Files.getAbsPath(dHome);
+        String aph = Wfiles.getAbsPath(dHome);
         String mnt = "file://" + aph + "/titanium/";
         io.setMount(dMnTi, mnt);
 
@@ -426,10 +426,10 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
         io.appendMeta(dTi, Wlang.map("ln:'/mnt/ti/src'"));
 
         File dHome = setup.getLocalFileHome();
-        File f = Files.getFile(dHome, "titanium/src/view/creation.json");
-        Files.createFileIfNoExists(f);
+        File f = Wfiles.getFile(dHome, "titanium/src/view/creation.json");
+        Wfiles.createFileIfNoExists(f);
         WnObj dMnTi = io.create(null, "/mnt/ti", WnRace.DIR);
-        String aph = Files.getAbsPath(dHome);
+        String aph = Wfiles.getAbsPath(dHome);
         String mnt = "file://" + aph + "/titanium/";
         io.setMount(dMnTi, mnt);
 
@@ -462,7 +462,7 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
     @Test
     public void test_append_complex_meta() {
         WnObj o = io.create(null, "/a/b/c", WnRace.FILE);
-        File f = Files.findFile("com/site0/walnut/core/req_meta.json");
+        File f = Wfiles.findFile("com/site0/walnut/core/req_meta.json");
         NutMap meta = Json.fromJsonFile(NutMap.class, f);
 
         io.appendMeta(o, meta);
@@ -650,9 +650,9 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
     public void test_fetch_link_mnt_obj() {
         // 创建临时文件夹，并写入两个文件
         File d = setup.getLocalFileHome();
-        String aph = Files.getAbsPath(d);
-        Files.write(d.getAbsolutePath() + "/aa", "AAA");
-        Files.write(d.getAbsolutePath() + "/bb", "BBB");
+        String aph = Wfiles.getAbsPath(d);
+        Wfiles.write(d.getAbsolutePath() + "/aa", "AAA");
+        Wfiles.write(d.getAbsolutePath() + "/bb", "BBB");
 
         // 创建一个映射文件一个链接文件
         WnObj oM = io.create(null, "/test/m", WnRace.DIR);
@@ -813,15 +813,15 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
     public void test_read_bytes() throws UnsupportedEncodingException {
         WnObj o = io.create(null, "/a.xml", WnRace.FILE);
         String path = "com/site0/walnut/core/test.xml";
-        String xml = Files.read(path);
+        String xml = Wfiles.read(path);
         io.writeText(o, xml);
 
-        byte[] b1 = Files.readBytes(path);
+        byte[] b1 = Wfiles.readBytes(path);
         byte[] b2 = io.readBytes(o);
 
         assertEquals(b1.length, b2.length);
-        String s1 = new String(b1, Encoding.UTF8);
-        String s2 = new String(b2, Encoding.UTF8);
+        String s1 = new String(b1, java.nio.charset.StandardCharsets.UTF_8);
+        String s2 = new String(b2, java.nio.charset.StandardCharsets.UTF_8);
 
         assertEquals(s1, s2);
     }
@@ -830,10 +830,10 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
     public void test_read_text() {
         WnObj o = io.create(null, "/a.xml", WnRace.FILE);
         String path = "com/site0/walnut/core/test.xml";
-        String xml = Files.read(path);
+        String xml = Wfiles.read(path);
         io.writeText(o, xml);
 
-        String exp = Files.read(path);
+        String exp = Wfiles.read(path);
 
         InputStream ins = io.getInputStream(o, 0);
         String str = Streams.readAndClose(Streams.utf8r(ins));
@@ -845,7 +845,7 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
     public void test_read_xml() {
         WnObj o = io.create(null, "/a.xml", WnRace.FILE);
         String path = "com/site0/walnut/core/test.xml";
-        String xml = Files.read(path);
+        String xml = Wfiles.read(path);
         io.writeText(o, xml);
 
         String input = io.readText(o);
@@ -1141,8 +1141,8 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
 
     @Test
     public void test_mount_and_ln() {
-        File f = Files.findFile("com/site0/walnut");
-        String aph = Files.getAbsPath(f);
+        File f = Wfiles.findFile("com/site0/walnut");
+        String aph = Wfiles.getAbsPath(f);
         String mnt = "file://" + aph;
 
         /*
@@ -1667,7 +1667,7 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
     public void test_mount_local_mime() {
         WnObj x = io.create(null, "/x", WnRace.DIR);
         try {
-            File f = Files.createFileIfNoExists2("~/.walnut/tmp/css/my.css");
+            File f = Wfiles.createFileIfNoExists2("~/.walnut/tmp/css/my.css");
             io.setMount(x, "file://~/.walnut/tmp/css");
             WnObj o = io.check(null, "/x/my.css");
             assertEquals("my.css", o.name());
@@ -1676,7 +1676,7 @@ public abstract class AbsractWnIoTest extends IoCoreTest {
             assertEquals(f.length(), o.len());
         }
         finally {
-            Files.deleteDir(Files.findFile("~/.walnut/tmp"));
+            Wfiles.deleteDir(Wfiles.findFile("~/.walnut/tmp"));
         }
     }
 

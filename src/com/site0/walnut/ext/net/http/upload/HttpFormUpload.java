@@ -3,10 +3,10 @@ package com.site0.walnut.ext.net.http.upload;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.nutz.lang.Encoding;
+
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 
 /**
@@ -112,7 +112,7 @@ public class HttpFormUpload {
     }
 
     public void setBoundary(String bound) {
-        String[] ss = Strings.splitIgnoreBlank(bound, ";");
+        String[] ss = Ws.splitIgnoreBlank(bound, ";");
         // 看看是否是 "boundary=----xxx" 的形式
         if (1 == ss.length) {
             if (ss[0].startsWith("boundary=")) {
@@ -283,7 +283,7 @@ public class HttpFormUpload {
             // 分析头
             byte[] bfHead = new byte[hlen];
             System.arraycopy(buffer, rIndex, bfHead, 0, bfHead.length);
-            String sfHead = new String(bfHead, Encoding.CHARSET_UTF8);
+            String sfHead = new String(bfHead, java.nio.charset.StandardCharsets.UTF_8);
             HttpFormUploadField field = new HttpFormUploadField(this, sfHead);
 
             // 移动下标

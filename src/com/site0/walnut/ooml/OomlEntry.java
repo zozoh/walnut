@@ -6,7 +6,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.nutz.json.JsonField;
-import org.nutz.lang.Encoding;
+
 import org.nutz.lang.util.LinkedByteBuffer;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -134,7 +134,7 @@ public class OomlEntry {
     }
 
     public String getContentStr() {
-        return new String(this.content, Encoding.CHARSET_UTF8);
+        return new String(this.content, java.nio.charset.StandardCharsets.UTF_8);
     }
 
     public byte[] getContent() {

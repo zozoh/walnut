@@ -3,7 +3,7 @@ package com.site0.walnut.web.bgt;
 import java.util.List;
 
 import org.nutz.lang.random.R;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.api.box.WnServiceHolder;
 import com.site0.walnut.api.lock.WnLockBusyException;
 import com.site0.walnut.api.lock.WnLockFailException;
@@ -22,7 +22,7 @@ import com.site0.walnut.util.time.WnDayTime;
 
 public class WnBgRunCronConsumer implements Runnable {
 
-    private static final Log log = Wlog.getBG_CRON();
+    private static final WnLog log = Wlog.getBG_CRON();
 
     WnSysCronApi cronApi;
     WnSysScheduleApi scheduleApi;

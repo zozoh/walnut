@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
@@ -21,7 +21,7 @@ import com.site0.walnut.util.validate.impl.AutoMatch;
  */
 public class ApiPreload {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     private final HttpApiEngine engine;
 

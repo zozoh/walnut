@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.nutz.json.Json;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
@@ -43,9 +43,9 @@ public class QueryThingAction extends ThingAction<ThQr> {
         // ..............................................
         // 准备查询条件
         // 指定了条件
-        if (!Strings.isBlank(tq.qStr)) {
+        if (!Ws.isBlank(tq.qStr)) {
             // 条件是"或"
-            if (Strings.isQuoteBy(tq.qStr, '[', ']')) {
+            if (Ws.isQuoteBy(tq.qStr, '[', ']')) {
                 List<NutMap> ors = Json.fromJsonAsList(NutMap.class, tq.qStr);
                 q.addAll(ors);
             }
@@ -117,7 +117,7 @@ public class QueryThingAction extends ThingAction<ThQr> {
             for (WnObj oT : list) {
                 for (String key : tq.sha1Fields) {
                     String val = oT.getString(key);
-                    if (!Strings.isBlank(val)) {
+                    if (!Ws.isBlank(val)) {
                         WnObj o = io.fetch(oT, val);
                         if (null != o) {
                             oT.put(key + "_obj",

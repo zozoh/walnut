@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.lock.WnLock;
 import com.site0.walnut.api.lock.WnLockApi;
@@ -24,7 +24,7 @@ import redis.clients.jedis.params.SetParams;
 
 public class QuickRedisLockApi implements WnLockApi {
 
-    private static final Log log = Wlog.getIO();
+    private static final WnLog log = Wlog.getIO();
 
     private String prefix;
 

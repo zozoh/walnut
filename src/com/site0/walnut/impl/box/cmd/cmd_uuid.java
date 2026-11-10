@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.random.R;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
@@ -47,11 +47,11 @@ public class cmd_uuid extends JvmExecutor {
 			list.add(result);
 		}
 		if (f == null)
-			sys.out.print(Strings.join("\r\n", list.toArray()));
+			sys.out.print(Ws.join("\r\n", list.toArray()));
 		else {
 			f = Wn.normalizeFullPath(f, sys);
 			WnObj obj = sys.io.createIfNoExists(null, f, WnRace.FILE);
-			sys.io.writeText(obj, Strings.join("\r\n", list.toArray()));
+			sys.io.writeText(obj, Ws.join("\r\n", list.toArray()));
 		}
 	}
 }

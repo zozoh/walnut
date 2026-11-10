@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.stream.VoidInputStream;
 import com.site0.walnut.api.box.WnBoxContext;
 import com.site0.walnut.api.box.WnBoxStatus;
@@ -21,7 +21,7 @@ public class Jvms {
                                           CharSequence strIn) {
         OutputStream out = Wlang.ops(sbOut);
         OutputStream err = Wlang.ops(sbErr);
-        InputStream in = Strings.isBlank(strIn) ? null : Wlang.ins(strIn);
+        InputStream in = Ws.isBlank(strIn) ? null : Wlang.ins(strIn);
 
         return createWnSystem(runner, jef, bc, out, err, in);
     }

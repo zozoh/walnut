@@ -6,7 +6,7 @@ import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Each;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
@@ -54,7 +54,7 @@ public class cmd_disk extends JvmExecutor {
             return;
         }
         // 过滤文件类型
-        if (!Strings.isBlank(tp) && !tp.equalsIgnoreCase(obj.type())) {
+        if (!Ws.isBlank(tp) && !tp.equalsIgnoreCase(obj.type())) {
             return;
         }
         obj.path();

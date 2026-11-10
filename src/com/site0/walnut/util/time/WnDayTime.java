@@ -4,7 +4,7 @@ import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.util.Wtime;
 
@@ -191,7 +191,7 @@ public class WnDayTime {
      */
     public String toString(String fmt) {
         StringBuilder sb = new StringBuilder();
-        fmt = Strings.sBlank(fmt, "HH:mm:ss");
+        fmt = Ws.sBlank(fmt, "HH:mm:ss");
         Matcher m = _p_tmfmt.matcher(fmt);
         int pos = 0;
         while (m.find()) {

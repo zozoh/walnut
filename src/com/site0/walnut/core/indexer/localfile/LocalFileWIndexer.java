@@ -3,7 +3,7 @@ package com.site0.walnut.core.indexer.localfile;
 import java.io.File;
 import java.io.IOException;
 
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.MimeMap;
 import com.site0.walnut.api.io.WnObj;
@@ -18,15 +18,15 @@ public class LocalFileWIndexer extends LocalFileIndexer {
     @Override
     public WnObj create(WnObj p, String path, WnRace race) {
         File d = this._check_file_by(p);
-        File f = Files.getFile(d, path);
+        File f = Wfiles.getFile(d, path);
         if (f.exists()) {
             throw Er.create("e.io.exists", path);
         }
         try {
             if (WnRace.DIR == race) {
-                Files.makeDir(f);
+                Wfiles.makeDir(f);
             } else {
-                Files.createNewFile(f);
+                Wfiles.createNewFile(f);
             }
             return this._gen_file_obj(p, f);
         }
@@ -46,9 +46,9 @@ public class LocalFileWIndexer extends LocalFileIndexer {
         File f = this._check_file_by(o);
         if (f.exists()) {
             if (f.isDirectory()) {
-                Files.deleteDir(f);
+                Wfiles.deleteDir(f);
             } else {
-                Files.deleteFile(f);
+                Wfiles.deleteFile(f);
             }
         }
     }
@@ -63,12 +63,12 @@ public class LocalFileWIndexer extends LocalFileIndexer {
         File f = this._check_file_by(o);
         // 如果要保持类型的话，就仅仅改主名
         if (keepType && o.hasType()) {
-            String nwName = Files.getMajorName(nm);
+            String nwName = Wfiles.getMajorName(nm);
             String fType = o.type();
             nm = nwName + "." + fType;
         }
         // 执行改名
-        Files.rename(f, nm);
+        Wfiles.rename(f, nm);
         return new WnLocalFileObj(root, dHome, f, mimes);
     }
 

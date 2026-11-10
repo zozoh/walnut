@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.nutz.lang.Mirror;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.util.react.bean.ReactAction;
@@ -17,7 +17,7 @@ import com.site0.walnut.util.Ws;
 
 public class ReactJsAction implements ReactActionHandler {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     @Override
     public void run(ReactActionContext r, ReactAction a) {

@@ -7,7 +7,7 @@ import java.util.List;
 import org.nutz.lang.random.R;
 import org.nutz.lang.random.StringGenerator;
 import org.nutz.lang.util.ByteInputStream;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import org.nutz.trans.Atom;
 
 import com.site0.walnut.api.box.WnServiceHolder;
@@ -29,7 +29,7 @@ import com.site0.walnut.web.WnConfig;
 
 public class WnBgRunTaskConsumer implements Runnable {
 
-    private static final Log log = Wlog.getBG_TASK();
+    private static final WnLog log = Wlog.getBG_TASK();
     private static StringGenerator sg = R.sg(8);
 
     private WnSysTaskApi taskApi;

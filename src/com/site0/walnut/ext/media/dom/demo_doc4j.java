@@ -13,7 +13,7 @@ import org.docx4j.wml.Drawing;
 import org.docx4j.wml.ObjectFactory;
 import org.docx4j.wml.P;
 import org.docx4j.wml.R;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.Streams;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.impl.box.WnSystem;
@@ -23,7 +23,7 @@ public class demo_doc4j extends DomFilter {
 
     @Override
     protected void process(WnSystem sys, DomContext fc, ZParams params) {
-        File f = Files.createFileIfNoExists2("D:/tmp/docx/test.docx");
+        File f = Wfiles.createFileIfNoExists2("D:/tmp/docx/test.docx");
         OutputStream out = Streams.fileOut(f);
         try {
             WordprocessingMLPackage wordPackage = WordprocessingMLPackage.createPackage();

@@ -3,7 +3,7 @@ package com.site0.walnut.util;
 import java.io.File;
 import java.io.InputStream;
 
-import org.nutz.lang.Encoding;
+
 import org.nutz.lang.Streams;
 
 import com.site0.walnut.alg.sum.WnDigesting;
@@ -34,7 +34,7 @@ public abstract class Wsum {
     }
 
     public static byte[] md5(String str) {
-        byte[] bs = str.getBytes(Encoding.CHARSET_UTF8);
+        byte[] bs = str.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         return md5(bs);
     }
 
@@ -62,7 +62,7 @@ public abstract class Wsum {
     }
 
     public static String md5AsString(String str) {
-        byte[] bs = str.getBytes(Encoding.CHARSET_UTF8);
+        byte[] bs = str.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         return md5AsString(bs);
     }
 
@@ -90,7 +90,7 @@ public abstract class Wsum {
     }
 
     public static byte[] sha1(String str) {
-        byte[] bs = str.getBytes(Encoding.CHARSET_UTF8);
+        byte[] bs = str.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         return sha1(bs);
     }
 
@@ -118,7 +118,7 @@ public abstract class Wsum {
     }
 
     public static String sha1AsString(String str) {
-        byte[] bs = str.getBytes(Encoding.CHARSET_UTF8);
+        byte[] bs = str.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         return sha1AsString(bs);
     }
 
@@ -146,7 +146,7 @@ public abstract class Wsum {
     }
 
     public static byte[] sha256(String str) {
-        byte[] bs = str.getBytes(Encoding.CHARSET_UTF8);
+        byte[] bs = str.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         return sha256(bs);
     }
 
@@ -174,7 +174,7 @@ public abstract class Wsum {
     }
 
     public static String sha256AsString(String str) {
-        byte[] bs = str.getBytes(Encoding.CHARSET_UTF8);
+        byte[] bs = str.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         return sha256AsString(bs);
     }
 
@@ -202,7 +202,7 @@ public abstract class Wsum {
     }
 
     public static String digestAsString(String algorithm, String str) {
-        byte[] bs = str.getBytes(Encoding.CHARSET_UTF8);
+        byte[] bs = str.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         return digestAsString(algorithm, bs);
     }
 
@@ -230,7 +230,7 @@ public abstract class Wsum {
     }
 
     public static byte[] digest(String algorithm, String str) {
-        byte[] bs = str.getBytes(Encoding.CHARSET_UTF8);
+        byte[] bs = str.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         return digest(algorithm, bs);
     }
 

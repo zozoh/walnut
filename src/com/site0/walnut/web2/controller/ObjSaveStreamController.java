@@ -4,9 +4,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.api.err.Er;
@@ -21,15 +21,13 @@ import com.site0.walnut.mvc.WnMvcView;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Wobj;
-import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
 
 /**
- * <code>/o/save/stream</code>：对照旧 <code>ObjModule.saveStream(704)</code>（RM-NUTZ-08
- * 审核表 #10）。旧 <code>@AdaptBy(QueryStringAdaptor)</code>：参数只走 query string，
- * 请求体原始流即上传数据。逐行照抄旧方法体（<code>Wobj.normalizeName</code>/
- * <code>Wn.real</code>/r-s-a 分支/<code>WnTmpl</code> 去重，一行不省），只换绑定/视图/
- * 响应写法。过滤器 <code>SessionCheckFilter()</code>。
+ * <code>/o/save/stream</code>：对照旧 <code>ObjModule.saveStream(704)</code>（RM-NUTZ-08 审核表 #10）。旧
+ * <code>@AdaptBy(QueryStringAdaptor)</code>：参数只走 query string，
+ * 请求体原始流即上传数据。逐行照抄旧方法体（<code>Wobj.normalizeName</code>/ <code>Wn.real</code>/r-s-a
+ * 分支/<code>WnTmpl</code> 去重，一行不省），只换绑定/视图/ 响应写法。过滤器 <code>SessionCheckFilter()</code>。
  */
 public class ObjSaveStreamController extends AbstractWnController {
 
@@ -71,7 +69,7 @@ public class ObjSaveStreamController extends AbstractWnController {
                 o = Wn.real(o, io, new HashMap<>());
 
             // 默认模式
-            mode = Strings.sBlank(mode, "r");
+            mode = Ws.sBlank(mode, "r");
 
             // r- 替换模式：str可以存在，如果不存在或是目录根据 nm创建
             if ("r".equals(mode)) {
@@ -126,8 +124,8 @@ public class ObjSaveStreamController extends AbstractWnController {
                 while (null != o) {
                     // 准备查找一个不存在的文件名
                     NutMap c = new NutMap();
-                    c.put("major", Files.getMajorName(nm));
-                    c.put("suffix", Files.getSuffix(nm));
+                    c.put("major", Wfiles.getMajorName(nm));
+                    c.put("suffix", Wfiles.getSuffix(nm));
                     c.put("nb", i++);
                     fname = seg.render(c);
                     // 一直找到一个不存在的名称
@@ -154,7 +152,7 @@ public class ObjSaveStreamController extends AbstractWnController {
             NutMap meta = Wlang.map("local", localMeta);
 
             // 设置标题
-            String title = Files.getMajorName(localName);
+            String title = Wfiles.getMajorName(localName);
             meta.put("title", title);
 
             // 写入数据

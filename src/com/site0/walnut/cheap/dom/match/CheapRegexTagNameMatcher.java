@@ -2,7 +2,7 @@ package com.site0.walnut.cheap.dom.match;
 
 import java.util.regex.Pattern;
 
-import org.nutz.lang.util.Regex;
+import com.site0.walnut.util.Wregex;
 import com.site0.walnut.cheap.dom.CheapElement;
 import com.site0.walnut.cheap.dom.CheapMatcher;
 
@@ -11,7 +11,7 @@ public class CheapRegexTagNameMatcher implements CheapMatcher {
     private Pattern tagName;
 
     public CheapRegexTagNameMatcher(String str) {
-        this.tagName = Regex.getPattern(str.toUpperCase());
+        this.tagName = Wregex.getPattern(str.toUpperCase());
     }
 
     public String toString() {

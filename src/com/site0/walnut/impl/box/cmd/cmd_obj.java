@@ -18,7 +18,7 @@ import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
 
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
@@ -78,9 +78,9 @@ public class cmd_obj extends JvmExecutor {
             if ("true".equals(json)) {
                 // 从管道读取
                 if (!pipeHasBeenUsed) {
-                    json = Strings.trim(sys.in.readAll());
+                    json = Ws.trim(sys.in.readAll());
                     // 是数组
-                    if (Strings.isQuoteBy(json, '[', ']')) {
+                    if (Ws.isQuoteBy(json, '[', ']')) {
                         metaNewList = Json.fromJsonAsList(NutMap.class, json);
                     }
                     // 就是一个单个对象咯
@@ -164,7 +164,7 @@ public class cmd_obj extends JvmExecutor {
 
         // 如果是按组查询
         String groupCount = params.get("GroupCount");
-        if (!Strings.isBlank(groupCount)) {
+        if (!Ws.isBlank(groupCount)) {
             __do_groupCount(sys, params, list, groupCount);
             return;
         }
@@ -590,7 +590,7 @@ public class cmd_obj extends JvmExecutor {
 
         PopEachBySet(String vs, boolean match_for_remove) {
             this.set = new HashSet<String>();
-            String[] ss = Strings.splitIgnoreBlank(vs);
+            String[] ss = Ws.splitIgnoreBlank(vs);
             for (String s : ss)
                 this.set.add(s);
             this.match_for_remove = match_for_remove;
@@ -639,14 +639,14 @@ public class cmd_obj extends JvmExecutor {
     static class PopEachByEmpty extends PopEach {
 
         static PopEach TRY(String str) {
-            if (Strings.isEmpty(str))
+            if (Ws.isEmpty(str))
                 return new PopEachByEmpty();
             return null;
         }
 
         @Override
         public void invoke(int i, Object ele, int length) {
-            if (null != ele && !Strings.isBlank(ele.toString())) {
+            if (null != ele && !Ws.isBlank(ele.toString())) {
                 vList.add(ele);
             }
         }
@@ -838,9 +838,9 @@ public class cmd_obj extends JvmExecutor {
                                          NutMap sort) {
         String json = Cmds.getParamOrPipe(sys, params, "match", true);
         WnQuery q = new WnQuery();
-        if (!Strings.isBlank(json)) {
+        if (!Ws.isBlank(json)) {
             // 条件是"或"
-            if (Strings.isQuoteBy(json, '[', ']')) {
+            if (Ws.isQuoteBy(json, '[', ']')) {
                 List<NutMap> ors = Json.fromJsonAsList(NutMap.class, json);
                 q.addAll(ors);
             }

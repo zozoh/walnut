@@ -10,10 +10,10 @@ import java.util.Set;
 
 import org.bson.Document;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import org.nutz.mongo.ZMoDoc;
 import com.site0.walnut.impl.box.JvmHdl;
 import com.site0.walnut.impl.box.JvmHdlContext;
@@ -96,7 +96,7 @@ public class mgadmin_index implements JvmHdl {
                 Set<String> keys = new HashSet<>();
                 FindIterable<Document> ite = co.find(toDBO("{}"));
                 ite.batchSize(128);
-                Log log = sys.getLog("debug", null);
+                WnLog log = sys.getLog("debug", null);
                 Map<String, String> renameMap = new LinkedHashMap<>();
                 boolean doFix = hc.params.vals.length > 1 && hc.params.vals[1].equals("fix");
                 int count = 0;
@@ -107,7 +107,7 @@ public class mgadmin_index implements JvmHdl {
                         String pid = (String) dbo.get("pid");
                         String nm = (String) dbo.get("nm");
                         String id = (String) dbo.get("id");
-                        if (Strings.isBlank(pid) || Strings.isBlank(nm) || Strings.isBlank(id)) {
+                        if (Ws.isBlank(pid) || Ws.isBlank(nm) || Ws.isBlank(id)) {
                             log.debug("FUCK(pid or nm or id is blank) id=" + dbo.get("id"));
                             continue;
                         }

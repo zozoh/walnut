@@ -3,7 +3,7 @@ package com.site0.walnut.core;
 import java.util.Map;
 import java.util.Set;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.io.MimeMap;
 
 public class MimeMapImpl implements MimeMap {
@@ -16,7 +16,7 @@ public class MimeMapImpl implements MimeMap {
 
     @Override
     public String getMime(String type, String dftMime) {
-        return Strings.sNull(map.get(type), dftMime);
+        return Ws.sNull(map.get(type), dftMime);
     }
 
     @Override

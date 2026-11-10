@@ -10,7 +10,7 @@ import javax.imageio.ImageIO;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Encoding;
+
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.ByteInputStream;
 import org.nutz.lang.util.NutBean;
@@ -144,7 +144,7 @@ public class WnIoCacheWrapper extends AbstractWnIoWrapper {
     @Override
     public String readText(WnObj o) {
         byte[] bs = readBytes(o);
-        return new String(bs, Encoding.CHARSET_UTF8);
+        return new String(bs, java.nio.charset.StandardCharsets.UTF_8);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.site0.walnut.web.setup;
 
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wlog;
@@ -13,7 +13,7 @@ import com.site0.walnut.util.WnRun;
 
 public class WnRunTestSetup implements Setup {
 
-    private static final Log log = Wlog.getMAIN();
+    private static final WnLog log = Wlog.getMAIN();
 
     @Override
     public void init(NutConfig nc) {

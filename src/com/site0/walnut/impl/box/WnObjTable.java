@@ -9,7 +9,7 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Wtime;
@@ -22,7 +22,7 @@ public class WnObjTable {
 
     public WnObjTable(String keys) {
         this.keys = null == keys ? new String[0]
-                                 : Strings.splitIgnoreBlank(keys);
+                                 : Ws.splitIgnoreBlank(keys);
         this.tt = new TextTable(this.keys.length + 1);
         // 搞搞居左居右
         for (int i = 0; i < this.keys.length; i++) {
@@ -171,9 +171,9 @@ public class WnObjTable {
     private String __tm(long ms) {
         StringBuilder sb = new StringBuilder();
         Date lm = new Date(ms);
-        sb.append(Strings.alignRight(Wtime.format(lm, "M"), 2, ' '));
+        sb.append(Ws.alignRight(Wtime.format(lm, "M"), 2, ' '));
         sb.append(' ');
-        sb.append(Strings.alignRight(Wtime.format(lm, "d"), 2, ' '));
+        sb.append(Ws.alignRight(Wtime.format(lm, "d"), 2, ' '));
         sb.append(' ');
         sb.append(Wtime.format(lm, "HH:mm")).append(' ');
         return sb.toString();

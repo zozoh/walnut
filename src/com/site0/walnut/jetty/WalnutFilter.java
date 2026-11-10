@@ -17,23 +17,22 @@ import javax.servlet.http.HttpServletRequest;
 import org.nutz.ioc.Ioc;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import org.nutz.mvc.Mvcs;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.util.Ws;
 import com.site0.walnut.web.WnConfig;
 import com.site0.walnut.web.setup.WnSetup;
 
 public class WalnutFilter implements Filter {
 
-    private static final Log log = Wlog.getAC();
+    private static final WnLog log = Wlog.getAC();
 
     /**
      * 被这个正则表达式匹配的 host 不进行转义
@@ -59,9 +58,7 @@ public class WalnutFilter implements Filter {
     private ArrayList<DmnMatcher> _dms;
 
     @Override
-    public void doFilter(ServletRequest request,
-                         ServletResponse resp,
-                         FilterChain chain)
+    public void doFilter(ServletRequest request, ServletResponse resp, FilterChain chain)
             throws IOException, ServletException {
         // 用 Jettry 的 Request 对象接口
         // Request req = (Request) arg0;
@@ -126,13 +123,7 @@ public class WalnutFilter implements Filter {
                     } else {
                         qs = "";
                     }
-                    log.infof("🌍[%s]<%s>:%s:%s:%s%s",
-                              method,
-                              usrip,
-                              host,
-                              port,
-                              path,
-                              qs);
+                    log.infof("🌍[%s]<%s>:%s:%s:%s%s", method, usrip, host, port, path, qs);
                 }
             }
 
@@ -155,8 +146,7 @@ public class WalnutFilter implements Filter {
             long expiAt = oDmn.getLong("expi_at", 0);
             if (expiAt > 0 && expiAt < Wn.now()) {
                 Mvcs.updateRequestAttributes(req);
-                req.setAttribute("obj",
-                                 Wlang.map("host", host).setv("path", path));
+                req.setAttribute("obj", Wlang.map("host", host).setv("path", path));
                 req.setAttribute("err_message", "域名转发过期");
                 req.getRequestDispatcher(errorPage).forward(req, resp);
                 if (log.isDebugEnabled()) {
@@ -168,7 +158,7 @@ public class WalnutFilter implements Filter {
             // TODO 这里稍微兼容一下，过俩月找时间去掉这个 fallback
             Object domain = oDmn.getFallback("domain", "dmn_grp");
             Object siteName = oDmn.getFallback("site", "dmn_site");
-            String grp = Strings.sBlank(domain);
+            String grp = Ws.sBlank(domain);
 
             // 找到了记录，但是记录明确说，本次跳转，并不是 www 的跳转
             // 因此仅仅需要将记录里的 grp 和 site 等信息记录一下，就继续其他的处理器好了
@@ -268,8 +258,8 @@ public class WalnutFilter implements Filter {
             // 这个配置项，存放在 web.properties 里，如果没有，则为 null
             // 表示统统不路由
             WnConfig conf = ioc.get(WnConfig.class, "conf");
-            String regex = Strings.trim(conf.get("main-host"));
-            if (!Strings.isBlank(regex)) {
+            String regex = Ws.trim(conf.get("main-host"));
+            if (!Ws.isBlank(regex)) {
                 rMainHost = Pattern.compile(regex);
             }
         }
@@ -285,18 +275,17 @@ public class WalnutFilter implements Filter {
         this.nutzFilterName = fc.getInitParameter("nutzFilterName");
         this.errorPage = fc.getInitParameter("errorPage");
         // 读取 hostmap 文件
-        String hmPath = Strings.sBlank(fc.getInitParameter("hostMap"),
-                                       "hostmap");
+        String hmPath = Ws.sBlank(fc.getInitParameter("hostMap"), "hostmap");
         BufferedReader br = Streams.buffr(Streams.fileInr(hmPath));
         try {
             _dms = new ArrayList<DmnMatcher>();
             String line;
             while (null != (line = br.readLine())) {
                 // 忽略空行和注释
-                if (Strings.isBlank(line) || line.startsWith("#")) {
+                if (Ws.isBlank(line) || line.startsWith("#")) {
                     continue;
                 }
-                String[] ss = Strings.splitIgnoreBlank(line, "=>");
+                String[] ss = Ws.splitIgnoreBlank(line, "=>");
                 DmnMatcher dm = new DmnMatcher();
                 dm.regex = Pattern.compile(ss[0]);
                 dm.tmpl = WnTmpl.parse(ss[1]);

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 
 /**
  * 格式如下（有点复杂 ^_^!）
@@ -27,7 +27,7 @@ public class TmplStringEle extends TmplDynamicEle {
 
     public TmplStringEle(String key, String fmt, String dft) {
         super(null, key, null, dft);
-        this.fmt = Strings.sNull(fmt, null);
+        this.fmt = Ws.sNull(fmt, null);
         parseFormat(this.fmt);
     }
 
@@ -38,7 +38,7 @@ public class TmplStringEle extends TmplDynamicEle {
         }
 
         // 先拆分处理器
-        String[] ss = Strings.split(this.fmt, true, ';');
+        String[] ss = Ws.split(this.fmt, true, ';');
 
         // 预处理字段
         this.convertors = new ArrayList<StrEleConvertor>(ss.length);
@@ -94,7 +94,7 @@ public class TmplStringEle extends TmplDynamicEle {
                 return Wlang.concat(", ", (Object[]) val).toString();
             }
             if (val instanceof Collection<?>) {
-                return Strings.join(", ", (Collection<?>) val);
+                return Ws.join(", ", (Collection<?>) val);
             }
         }
         String re = val.toString();

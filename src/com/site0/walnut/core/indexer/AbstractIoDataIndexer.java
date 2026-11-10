@@ -4,13 +4,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.Each;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.api.GetWnIo;
 import com.site0.walnut.api.err.Er;
@@ -29,7 +29,7 @@ import com.site0.walnut.util.Wobj;
 
 public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
 
-    private static final Log log = Wlog.getIO();
+    private static final WnLog log = Wlog.getIO();
 
     protected AbstractIoDataIndexer(WnObj root, MimeMap mimes) {
         super(root, mimes);
@@ -78,7 +78,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         if (path.startsWith("/")) {
             p = null;
         }
-        String[] ss = Strings.splitIgnoreBlank(path, "[/]");
+        String[] ss = Ws.splitIgnoreBlank(path, "[/]");
         return fetch(p, ss, path.endsWith("/"), 0, ss.length);
     }
 
@@ -247,7 +247,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
             }
             // 确保补全两段式 ID
             if (p.isMount() && !o.hasMountRootId()) {
-                String rootId = Strings.sBlank(p.mountRootId(), p.id());
+                String rootId = Ws.sBlank(p.mountRootId(), p.id());
                 o.mountRootId(rootId);
             }
             // 补全:对象树
@@ -279,7 +279,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         }
 
         // 分析路径
-        String[] ss = Strings.splitIgnoreBlank(path, "[/]");
+        String[] ss = Ws.splitIgnoreBlank(path, "[/]");
         String[] paths = new String[ss.length];
         int len = 0;
         for (String s : ss) {
@@ -361,7 +361,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         }
 
         // 确保有 ID
-        if (Strings.isBlank(id)) {
+        if (Ws.isBlank(id)) {
             id = Wn.genId();
         }
 
@@ -384,7 +384,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         // 如果对象是映射，则采用两段式ID
         if (p.isMount()) {
             String rootId = p.mountRootId();
-            if (Strings.isBlank(rootId)) {
+            if (Ws.isBlank(rootId)) {
                 rootId = p.id();
             }
             id = rootId + ":" + id;
@@ -408,7 +408,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         o.setParent(p);
 
         // 顶级节点，均属于 root
-        if (Strings.isBlank(o.d1())) {
+        if (Ws.isBlank(o.d1())) {
             o.creator("root").mender("root").group("root");
         }
         // 设置创建者，以及权限相关
@@ -478,7 +478,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
             // 如果对象是映射，则采用两段式ID
             if (p.isMount()) {
                 String rootId = p.mountRootId();
-                if (Strings.isBlank(rootId)) {
+                if (Ws.isBlank(rootId)) {
                     rootId = p.id();
                 }
                 id = rootId + ":" + id;
@@ -519,7 +519,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         o.setParent(p);
 
         // 顶级节点，均属于 root
-        if (Strings.isBlank(o.d1())) {
+        if (Ws.isBlank(o.d1())) {
             o.creator("root").mender("root").group("root");
         }
         // 设置创建者，以及权限相关
@@ -625,7 +625,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
     public WnObj rename(WnObj o, String nm, int mode) {
         Wobj.assertValidName(nm);
         String ph = o.path();
-        String ph2 = Files.renamePath(ph, nm);
+        String ph2 = Wfiles.renamePath(ph, nm);
         // 防守
         if (ph.equals(ph2)) {
             return o;
@@ -646,7 +646,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
     @Override
     public WnObj move(WnObj src, String destPath, int mode) {
         // 目标是空的，啥也不做
-        if (Strings.isBlank(destPath))
+        if (Ws.isBlank(destPath))
             return src;
 
         // 不用移动
@@ -674,14 +674,14 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         // 看看目标是否存在
         String newName = null;
         String taPath = destPath;
-        String taPaPath = Files.getParent(taPath);
+        String taPaPath = Wfiles.getParent(taPath);
         WnObj ta = null;
         // 看看是不是移动到根呢？
         if (null != taPaPath
             && !"/".equals(taPaPath)
             && taPaPath.equals(root.path())) {
             ta = root;
-            newName = Files.getName(taPath);
+            newName = Wfiles.getName(taPath);
         }
 
         // 不是移动到根，那么是哪里呢？ 尝试查询一下
@@ -695,7 +695,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         // 如果不存在，看看目标的父是否存在，并且可能也同时要改名
         if (null == ta) {
             ta = fetch(null, taPaPath);
-            newName = Files.getName(destPath);
+            newName = Wfiles.getName(destPath);
         }
         // 如果存在的是一个文件
         else if (ta.isFILE()) {
@@ -764,9 +764,9 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
         map.remove("pid");
 
         // 移动到另外的目录
-        if (!Strings.isBlank(pid)) {
+        if (!Ws.isBlank(pid)) {
             String newPath = this.checkById(pid).path();
-            if (!Strings.isBlank(nm)) {
+            if (!Ws.isBlank(nm)) {
                 newPath = Wn.appendPath(newPath, nm);
             } else {
                 newPath = Wn.appendPath(newPath, o.name());
@@ -774,7 +774,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
             this.move(o, newPath);
         }
         // 仅仅是改名
-        else if (!Strings.isBlank(nm)) {
+        else if (!Ws.isBlank(nm)) {
             this.rename(o, nm);
         }
 
@@ -914,7 +914,7 @@ public abstract class AbstractIoDataIndexer extends AbstractIoIndexer {
     @Override
     public WnObj get(String id) {
         // 防守空 ID
-        if (Strings.isBlank(id)) {
+        if (Ws.isBlank(id)) {
             return null;
         }
         // 两段式 ID

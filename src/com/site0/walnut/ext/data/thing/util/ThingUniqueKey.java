@@ -1,6 +1,6 @@
 package com.site0.walnut.ext.data.thing.util;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 
 public class ThingUniqueKey {
@@ -11,13 +11,13 @@ public class ThingUniqueKey {
 
     public String getValueAsString(NutBean obj) {
         if (null == obj)
-            return Strings.dup('?', name.length);
+            return Ws.dup('?', name.length);
         String[] vals = new String[name.length];
         for (int i = 0; i < name.length; i++) {
             String v = obj.getString(name[i]);
             vals[i] = v;
         }
-        return Strings.join(", ", vals);
+        return Ws.join(", ", vals);
     }
 
     public String[] getName() {
@@ -37,14 +37,14 @@ public class ThingUniqueKey {
     }
 
     public String toString() {
-        return String.format("%s%s", required ? "*" : "", Strings.join(",", name));
+        return String.format("%s%s", required ? "*" : "", Ws.join(",", name));
     }
 
     public String toString(NutBean obj) {
         return String.format("'%s' (%s%s)",
                              this.getValueAsString(obj),
                              required ? "*" : "",
-                             Strings.join(",", name));
+                             Ws.join(",", name));
     }
 
 }

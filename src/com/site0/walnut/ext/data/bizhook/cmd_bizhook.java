@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
@@ -58,7 +58,7 @@ public class cmd_bizhook extends JvmHdlExecutor {
 
         // 管道输入
         String inputS = sys.in.readAll();
-        if (!Strings.isBlank(inputS)) {
+        if (!Ws.isBlank(inputS)) {
             Object input = Json.fromJson(inputS);
             // 多个对象集合
             if (input instanceof Collection<?>) {
@@ -78,7 +78,7 @@ public class cmd_bizhook extends JvmHdlExecutor {
         // 参数输入
         for (String ph : hc.params.vals) {
             // 直接就是对象
-            if (Strings.isQuoteBy(ph, '{', '}')) {
+            if (Ws.isQuoteBy(ph, '{', '}')) {
                 NutMap o = Json.fromJson(NutMap.class, ph);
                 beans.add(o);
             }

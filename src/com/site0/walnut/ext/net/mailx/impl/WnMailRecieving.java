@@ -10,9 +10,9 @@ import java.util.Vector;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.nutz.json.Json;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import org.simplejavamail.api.mailer.config.Pkcs12Config;
 import org.simplejavamail.utils.mail.smime.SmimeKey;
 import org.simplejavamail.utils.mail.smime.SmimeKeyStore;
@@ -37,7 +37,7 @@ import jakarta.mail.Session;
 
 public abstract class WnMailRecieving implements Runnable {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     private static final String HR = Ws.repeat('#', 80);
 
@@ -213,8 +213,8 @@ public abstract class WnMailRecieving implements Runnable {
         // 准备目标路径，并创建对象
         String mailPath = taTmpl.render(meta);
         String mailAbsPath = Wn.normalizeFullPath(mailPath, sys, false);
-        String mailParentPath = Files.getParent(mailAbsPath);
-        String mailFileName = Files.getName(mailAbsPath);
+        String mailParentPath = Wfiles.getParent(mailAbsPath);
+        String mailFileName = Wfiles.getName(mailAbsPath);
         WnObj oMailDir = sys.io
             .createIfNoExists(null, mailParentPath, WnRace.DIR);
         WnObj oMail = sys.io.create(oMailDir, mailFileName, WnRace.FILE);
@@ -259,8 +259,8 @@ public abstract class WnMailRecieving implements Runnable {
                         x,
                         fnm,
                         atAbsPath);
-                    String pPath = Files.getParent(atAbsPath);
-                    String atName = Files.getName(atAbsPath);
+                    String pPath = Wfiles.getParent(atAbsPath);
+                    String atName = Wfiles.getName(atAbsPath);
                     WnObj oAtP = sys.io
                         .createIfNoExists(null, pPath, WnRace.DIR);
                     WnObj oAtt = sys.io.create(oAtP, atName, WnRace.FILE);

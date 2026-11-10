@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.mvc.WnMvcContext;
 import com.site0.walnut.mvc.WnMvcDispatcher;
@@ -30,7 +30,7 @@ import com.site0.walnut.util.Wlog;
  */
 public class WnMvcJettyHandler extends AbstractHandler {
 
-    private static final Log log = Wlog.getMAIN();
+    private static final WnLog log = Wlog.getMAIN();
 
     private final WnMvcFactory factory;
 

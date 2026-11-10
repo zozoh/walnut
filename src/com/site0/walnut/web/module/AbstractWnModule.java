@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.lang.Mirror;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mvc.View;
 import org.nutz.mvc.view.HttpStatusView;
@@ -37,7 +37,7 @@ public abstract class AbstractWnModule extends WnRun {
 
     protected WnObj _find_app_home(String appName) {
         String appPaths = Wn.WC().checkSession().getEnv().getString("APP_PATH");
-        String[] bases = Strings.splitIgnoreBlank(appPaths, ":");
+        String[] bases = Ws.splitIgnoreBlank(appPaths, ":");
         for (String base : bases) {
             String ph = Wn.appendPath(base, appName);
             WnObj o = io().fetch(null, ph);

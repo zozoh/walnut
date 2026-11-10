@@ -2,7 +2,7 @@ package com.site0.walnut.login.role;
 
 import java.util.List;
 import org.nutz.lang.util.NutBean;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.cache.WnCache;
@@ -11,7 +11,7 @@ import com.site0.walnut.util.Wlog;
 
 public abstract class AbstractWnRoleStore implements WnRoleStore {
 
-    private static final Log log = Wlog.getAUTH();
+    private static final WnLog log = Wlog.getAUTH();
     protected WnIo io;
     protected NutBean sessionVars;
     // TODO 这是个简单缓存，以后在扩展更优化的缓存策略

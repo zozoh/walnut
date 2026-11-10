@@ -4,7 +4,7 @@ import java.io.File;
 import java.net.URL;
 
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.impl.box.JvmExecutor;
@@ -31,7 +31,7 @@ public class cmd_defthumbnail extends JvmExecutor {
             // copy对应的图片过去
             URL tpurl = this.getClass().getResource("/thumbnail/" + tp + ".png");
             String tppath = tpurl.getPath();
-            if (!Strings.isBlank(tppath)) {
+            if (!Ws.isBlank(tppath)) {
                 File tpf = new File(tppath);
                 WnObj s256 = sys.io.createIfNoExists(tpDir,
                                                      Wn.thumbnail.size_256 + ".png",

@@ -2,7 +2,7 @@ package com.site0.walnut.ext.net.mailx.bean;
 
 import java.util.List;
 
-import org.nutz.lang.Encoding;
+
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
@@ -204,7 +204,7 @@ public abstract class WnMail {
     }
 
     public String getCharset() {
-        return Ws.sBlank(charset, Encoding.UTF8);
+        return Ws.sBlank(charset, "UTF-8");
     }
 
     public void setCharset(String charset) {

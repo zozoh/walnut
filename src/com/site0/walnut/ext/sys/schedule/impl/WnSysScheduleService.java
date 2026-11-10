@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Wtimes;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
@@ -325,7 +325,7 @@ public class WnSysScheduleService implements WnSysScheduleApi {
      * @return 分钟计划表索引文件的路径（相对于HOME）
      */
     private String getScheduleIndexFilePath(Date today) {
-        String fnm = Times.format("yyyyMMdd", today);
+        String fnm = Wtimes.format("yyyyMMdd", today);
         fnm += ".schedule.index.txt";
         String fph = "index/" + fnm;
         return fph;

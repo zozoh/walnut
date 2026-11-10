@@ -6,7 +6,7 @@ import java.io.Writer;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.Callback;
 import org.nutz.trans.Atom;
 import com.site0.walnut.api.box.WnBoxContext;
@@ -56,7 +56,7 @@ public class AppCommandCallback implements Callback<WnBoxContext> {
     @Override
     public void invoke(WnBoxContext bc) {
         // 有宏的分隔符，表示客户端可以接受更多的宏命令
-        if (!Strings.isBlank(metaOutputSeparator)) {
+        if (!Ws.isBlank(metaOutputSeparator)) {
             try {
                 // ----------------------------------
                 // 无论怎样，都设置环境变量

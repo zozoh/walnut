@@ -3,9 +3,8 @@ package com.site0.walnut.ext.net.http.upload;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Strings;
-import org.nutz.lang.util.Regex;
 import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wregex;
 
 public class HttpFormField {
 
@@ -26,7 +25,7 @@ public class HttpFormField {
     private static final String REG = "(form-data)"
                                       + "|(name=\"(((?<=\\\\)\"|[^\"])*)\")"
                                       + "|(filename=\"(((?<=\\\\)\"|[^\"])*)\")";
-    private static final Pattern P = Regex.getPattern(REG);
+    private static final Pattern P = Wregex.getPattern(REG);
 
     /**
      * 解析 HTML Form Upload 的字段头，其格式可能是
@@ -50,7 +49,7 @@ public class HttpFormField {
      */
     public HttpFormField parse(String str) {
         // 逐行解析
-        String[] lines = Strings.splitIgnoreBlank(str, "\r?\n");
+        String[] lines = Ws.splitIgnoreBlank(str, "\r?\n");
         for (String line : lines) {
             // 首先取到本行键与值
             int pos = line.indexOf(':');
@@ -72,7 +71,7 @@ public class HttpFormField {
                     if (null != fnm)
                         this.fileName = fnm.replace("\\\"", "\"");
                 }
-                if (!Strings.isBlank(this.fileName)) {
+                if (!Ws.isBlank(this.fileName)) {
                     this.asFile();
                 } else {
                     this.asText();
@@ -113,8 +112,8 @@ public class HttpFormField {
     }
 
     public boolean isName(String name) {
-        if (Strings.isBlank(this.name))
-            return Strings.isBlank(name);
+        if (Ws.isBlank(this.name))
+            return Ws.isBlank(name);
         return this.name.equals(name);
     }
 
@@ -131,7 +130,7 @@ public class HttpFormField {
     }
 
     public boolean hasFileName() {
-        return !Strings.isBlank(this.fileName);
+        return !Ws.isBlank(this.fileName);
     }
 
     public String getFileName() {
@@ -147,7 +146,7 @@ public class HttpFormField {
     }
 
     public boolean hasContentType() {
-        return !Strings.isBlank(this.contentType);
+        return !Ws.isBlank(this.contentType);
     }
 
     public String getContentType() {

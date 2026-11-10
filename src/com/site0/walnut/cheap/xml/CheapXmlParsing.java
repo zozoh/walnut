@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Regex;
+import com.site0.walnut.util.Wregex;
 import com.site0.walnut.cheap.dom.CheapComment;
 import com.site0.walnut.cheap.dom.CheapDocType;
 import com.site0.walnut.cheap.dom.CheapDocument;
@@ -62,7 +62,7 @@ public class CheapXmlParsing {
                                   // CData begin: 10
                                   + "|(<!\\[CDATA\\[)"
                                   + ")";
-    private static Pattern P = Regex.getPattern(REGEX);
+    private static Pattern P = Wregex.getPattern(REGEX);
 
     public CheapDocument parseDoc(String input) {
         // 首先 解析文档

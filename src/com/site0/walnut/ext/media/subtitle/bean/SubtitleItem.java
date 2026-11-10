@@ -5,16 +5,16 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.nutz.lang.Strings;
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wtimes;
 
 public abstract class SubtitleItem implements Comparable<SubtitleItem> {
 
     public int index;
 
-    public Times.TmInfo beginTime;
+    public Wtimes.TmInfo beginTime;
 
-    public Times.TmInfo endTime;
+    public Wtimes.TmInfo endTime;
 
     public List<String> lines;
 
@@ -25,7 +25,7 @@ public abstract class SubtitleItem implements Comparable<SubtitleItem> {
     public String getText() {
         if (null == lines || lines.isEmpty())
             return "";
-        return Strings.join("\n", lines);
+        return Ws.join("\n", lines);
     }
 
     public List<String> cloneStdLines() {

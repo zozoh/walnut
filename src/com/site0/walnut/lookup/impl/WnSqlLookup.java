@@ -9,7 +9,7 @@ import javax.sql.DataSource;
 
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutBean;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
@@ -25,7 +25,7 @@ import com.site0.walnut.util.Wlog;
 
 public class WnSqlLookup extends AbstractLookup {
 
-    private static Log log = Wlog.getMAIN();
+    private static WnLog log = Wlog.getMAIN();
 
     /**
      * 如果类型为 SQL，则需要一个数据库连接方式

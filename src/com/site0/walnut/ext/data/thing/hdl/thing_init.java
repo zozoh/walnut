@@ -1,7 +1,7 @@
 package com.site0.walnut.ext.data.thing.hdl;
 
-import org.nutz.lang.Files;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Wfiles;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.ext.data.thing.util.Things;
@@ -61,12 +61,12 @@ public class thing_init implements JvmHdl {
         String json = sys.io.readText(oDef);
 
         // 写入 thing.json 默认内容
-        if (!oDef.isLink() && (Strings.isBlank(json) || hc.params.is("f"))) {
+        if (!oDef.isLink() && (Ws.isBlank(json) || hc.params.is("f"))) {
             if (!isQ)
                 sys.out.println(" >> default write thing.json");
 
             // 得到默认内容
-            String str = Files.read(DFT_THING_JSON_PATH);
+            String str = Wfiles.read(DFT_THING_JSON_PATH);
 
             // 写入
             sys.io.writeText(oDef, str);

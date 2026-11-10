@@ -4,7 +4,7 @@ import java.net.URI;
 import java.util.List;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.ext.media.mediax.MediaXAPI;
 import com.site0.walnut.ext.media.mediax.MediaXService;
 import com.site0.walnut.ext.media.mediax.bean.MxCrawl;
@@ -32,7 +32,7 @@ public class mediax_crawl implements JvmHdl {
 
         // 创建接口
         MediaXAPI api;
-        if (Strings.isBlank(apiKey)) {
+        if (Ws.isBlank(apiKey)) {
             api = mxs.create(uri, account);
         }
         // 直接指定 Key
@@ -42,7 +42,7 @@ public class mediax_crawl implements JvmHdl {
 
         // 是否指定了快捷路径
         String path = hc.params.val(1);
-        if (!Strings.isBlank(path)) {
+        if (!Ws.isBlank(path)) {
             String ph = api.explain("crawl", path.split("/"));
             url = Mxs.normalizePath(uri, ph);
             uri = new URI(url);

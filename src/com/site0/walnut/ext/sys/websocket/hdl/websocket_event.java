@@ -5,7 +5,7 @@ import java.util.Map;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Atom;
@@ -32,7 +32,7 @@ public class websocket_event implements JvmHdl {
         if (map != null)
             re.putAll(map);
         String callback = params.get("callback");
-        if (!Strings.isBlank(callback)) {
+        if (!Ws.isBlank(callback)) {
             String id = R.UU32();
             re.put("id", id);
             re.put("user", sys.getMyName());

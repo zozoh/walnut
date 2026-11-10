@@ -2,7 +2,7 @@ package com.site0.walnut.util.tmpl.ele;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 
 public class TmplJsonEle extends TmplDynamicEle {
 
@@ -30,9 +30,9 @@ public class TmplJsonEle extends TmplDynamicEle {
                 return "{}";
             if ("-array-".equals(val))
                 return "[]";
-            String s = Strings.trim(val.toString());
+            String s = Ws.trim(val.toString());
             // 直接就是数组或者对象
-            if (Strings.isQuoteBy(s, '[', ']') || Strings.isQuoteBy(s, '{', '}'))
+            if (Ws.isQuoteBy(s, '[', ']') || Ws.isQuoteBy(s, '{', '}'))
                 return s;
             // zozoh 字符串还是应该转 JSON 吧
             // return val.toString();

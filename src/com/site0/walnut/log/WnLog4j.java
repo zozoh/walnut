@@ -11,7 +11,7 @@ import com.site0.walnut.util.Ws;
  * <p>
  * 行为对齐现有 {@code util.log.WnLogWrapper}：消息前缀 {@code (当前用户名)}，
  * 并遵守 {@code Wn.WC().isLogOff()} 的静默开关。日志后端直接用 log4j2，
- * 不再经过 {@code org.nutz.log}，为 RM-NUTZ-14 删除 Nutz 做准备。
+ * 不再经过 Nutz 日志，为 RM-NUTZ-14 删除 Nutz 做准备。
  */
 class WnLog4j implements WnLog {
 

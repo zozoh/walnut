@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WalkMode;
@@ -43,12 +43,12 @@ public class wup_pkg_add implements JvmHdl {
             String pkgDir = "/opt/oss/stones/wup/pkgs/" + name + "/";
             String path = pkgDir + version + ".tgz";
             File dst = new File(path);
-            Files.createDirIfNoExists(pkgDir);
-            Files.copy(f, dst);
-            Files.write(path + ".sha1", Wlang.sha1(f));
+            Wfiles.createDirIfNoExists(pkgDir);
+            Wfiles.copy(f, dst);
+            Wfiles.write(path + ".sha1", Wlang.sha1(f));
             list.add(new NutMap("name", name).setv("version", version));
             if (new File(f.getPath() + ".zsync").exists()) {
-                Files.copy(new File(f.getPath() + ".zsync"), new File(pkgDir + version + ".tgz.zsync"));
+                Wfiles.copy(new File(f.getPath() + ".zsync"), new File(pkgDir + version + ".tgz.zsync"));
             }
         }
         if (hc.params.get("old") != null) {

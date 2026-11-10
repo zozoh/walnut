@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
 
@@ -146,7 +146,7 @@ public class JvmHdlContext extends NutMap implements Cloneable {
             this.params = ZParams.parse(args, null);
         }
         // 自动模式
-        else if (Strings.isBlank(jhpa.regex())) {
+        else if (Ws.isBlank(jhpa.regex())) {
             this.params = ZParams.parse(args, jhpa.value());
         }
         // 单独指定了正则表达式

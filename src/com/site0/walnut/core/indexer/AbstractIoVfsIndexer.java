@@ -1,7 +1,7 @@
 package com.site0.walnut.core.indexer;
 
 import org.nutz.lang.Each;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 
 import com.site0.walnut.api.io.MimeMap;
@@ -30,7 +30,7 @@ public abstract class AbstractIoVfsIndexer extends AbstractIoIndexer {
     @Override
     public WnObj create(WnObj p, String[] paths, int fromIndex, int toIndex, WnRace race) {
         int len = toIndex - fromIndex;
-        String path = Strings.join(fromIndex, len, "/", paths);
+        String path = Ws.join(fromIndex, len, "/", paths);
         return create(p, path, race);
     }
 

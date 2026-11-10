@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.Each;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.Callback;
@@ -93,7 +93,7 @@ public abstract class AbstractIoIndexer implements WnIoIndexer {
                        int fromIndex,
                        int toIndex) {
         int len = toIndex - fromIndex;
-        String path = Strings.join(fromIndex, len, "/", paths);
+        String path = Ws.join(fromIndex, len, "/", paths);
         if (isForDir) {
             path += "/";
         }

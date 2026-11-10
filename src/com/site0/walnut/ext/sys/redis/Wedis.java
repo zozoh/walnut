@@ -6,9 +6,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
@@ -16,14 +16,13 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.util.Ws;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 public abstract class Wedis {
 
-    private static final Log log = Wlog.getMAIN();
+    private static final WnLog log = Wlog.getMAIN();
 
     private static Map<String, JedisPool> jedis = new HashMap<>();
 
@@ -42,7 +41,7 @@ public abstract class Wedis {
                                          conf.getPort(),
                                          conf.getConnectionTimeout(),
                                          conf.getSoTimeout(),
-                                         Strings.sBlank(conf.getPassword(), null),
+                                         Ws.sBlank(conf.getPassword(), null),
                                          conf.getDatabase(),
                                          "wedis",
                                          conf.isSsl());

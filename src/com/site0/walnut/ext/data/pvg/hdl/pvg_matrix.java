@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.nutz.castor.Castors;
 import org.nutz.json.Json;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 import org.nutz.mapl.Mapl;
 import com.site0.walnut.ext.data.pvg.BizPvgService;
@@ -96,7 +96,7 @@ public class pvg_matrix implements JvmHdl {
 
         PvgMatrixCell(String tmpl, boolean JSON) {
             String[] ss = null;
-            if (!Strings.isBlank(tmpl)) {
+            if (!Ws.isBlank(tmpl)) {
                 ss = tmpl.trim().split(":");
             }
             // 默认设置
@@ -160,7 +160,7 @@ public class pvg_matrix implements JvmHdl {
         }
 
         Object eval(String s) {
-            String trim = Strings.trim(s);
+            String trim = Ws.trim(s);
             if (null == trim || trim.length() == 0) {
                 return null;
             }

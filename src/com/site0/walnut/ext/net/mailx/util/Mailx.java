@@ -5,7 +5,7 @@ import java.util.Map;
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
@@ -23,7 +23,7 @@ import org.simplejavamail.api.mailer.config.Pkcs12Config.Pkcs12ConfigBuilder;
 
 public abstract class Mailx {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     public static void LOG(WnSystem sys,
                            boolean showDebug,

@@ -1,6 +1,5 @@
 package com.site0.walnut.util;
 
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 
 public class WnSysConf {
@@ -71,7 +70,7 @@ public class WnSysConf {
     }
 
     public String getMainHost(String dftHost) {
-        return Strings.sBlank(mainHost, dftHost);
+        return Ws.sBlank(mainHost, dftHost);
     }
 
     public void setMainHost(String mainHost) {

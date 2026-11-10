@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutBean;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.ext.data.sqlx.util.Sqlx;
@@ -19,9 +19,9 @@ import com.site0.walnut.util.Wlog;
 
 public class QueryProcessor implements SqlProcessor<List<NutBean>> {
 
-    private Log log;
+    private WnLog log;
 
-    public QueryProcessor(Log log) {
+    public QueryProcessor(WnLog log) {
         this.log = log;
     }
 

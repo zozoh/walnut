@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.nutz.lang.Strings;
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wtimes;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
@@ -31,7 +31,7 @@ public class cmd_favor extends JvmRedisEntityExecutor<FavorIt> {
         boolean asMs = params.is("ms");
         String df = params.getString("df", "yyyy-MM-dd HH:mm:ss");
         String loadObjBy = params.getString("obj");
-        boolean loadObj = !Strings.isBlank(loadObjBy);
+        boolean loadObj = !Ws.isBlank(loadObjBy);
 
         // 计算默认值
         Object dv = params.get("dv", null);
@@ -173,8 +173,8 @@ public class cmd_favor extends JvmRedisEntityExecutor<FavorIt> {
         }
         // 阅读文字: 日子
         else {
-            Date d = Times.D(ams);
-            val = Times.format(df, d);
+            Date d = Wtimes.D(ams);
+            val = Wtimes.format(df, d);
         }
         return val;
     }

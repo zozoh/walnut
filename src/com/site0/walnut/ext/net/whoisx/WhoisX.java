@@ -15,19 +15,19 @@ import org.nutz.http.Request;
 import org.nutz.http.Response;
 import org.nutz.http.Sender;
 import org.nutz.json.Json;
-import org.nutz.lang.Encoding;
+
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wtimes;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.ext.media.mediax.util.Mxs;
 
 public abstract class WhoisX {
     
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     public static WhoInfo query(String host) {
         for (int i = 0; i < 3; i++) {
@@ -84,14 +84,14 @@ public abstract class WhoisX {
             if (map.has("联系邮箱"))
                 info.setEmail(map.getString("联系邮箱"));
             if (map.has("DNS"))
-                info.setDnsServers(Strings.splitIgnoreBlank(map.getString("DNS"), " "));
+                info.setDnsServers(Ws.splitIgnoreBlank(map.getString("DNS"), " "));
             if (map.has("状态"))
                 info.setDomainStatus(map.getString("状态"));
             if (map.has("创建时间")) {
-                info.setCreationDate(Times.parseq("yyyy年MM月dd日", map.getString("创建时间")));
+                info.setCreationDate(Wtimes.parseq("yyyy年MM月dd日", map.getString("创建时间")));
             }
             if (map.has("过期时间")) {
-                info.setExpirationDate(Times.parseq("yyyy年MM月dd日", map.getString("过期时间")));
+                info.setExpirationDate(Wtimes.parseq("yyyy年MM月dd日", map.getString("过期时间")));
             }
             return info;
         }
@@ -111,12 +111,12 @@ public abstract class WhoisX {
             // System.out.println(re);
             re = re.getAs("d", NutMap.class);
             String FirstLevel = re.getString("FirstLevel");
-            for (String line : Strings.splitIgnoreBlank(FirstLevel, "\\n")) {
-                System.out.println("1> " + new String(line.getBytes(Encoding.ISO_8859_1), "UTF-8"));
+            for (String line : Ws.splitIgnoreBlank(FirstLevel, "\\n")) {
+                System.out.println("1> " + new String(line.getBytes(java.nio.charset.StandardCharsets.ISO_8859_1), "UTF-8"));
                 System.out.println("1> " + line);
             }
             String SecondLevel = re.getString("SecondLevel");
-            for (String line : Strings.splitIgnoreBlank(SecondLevel, "\\n")) {
+            for (String line : Ws.splitIgnoreBlank(SecondLevel, "\\n")) {
                 System.out.println("2> " + line);
             }
             System.out.println(re);
@@ -187,7 +187,7 @@ public abstract class WhoisX {
                         break;
                     case "creation date":
                     case "registration time":
-                        //info.setCreationDate(Times.parse(Times., s));
+                        //info.setCreationDate(Wtimes.parse(Wtimes., s));
                         break;
                     case "domain status":
                         info.setDomainStatus(value);

@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Wtimes;
 import org.nutz.lang.util.NutBean;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.core.bean.WnIoObj;
@@ -76,7 +76,7 @@ public class WnCronSlot {
         oTask.name(name);
         oTask.type("cron");
         oTask.put("cron", cron);
-        String ds = Times.format("yyyyMMdd", this.date);
+        String ds = Wtimes.format("yyyyMMdd", this.date);
         oTask.put("date", ds);
         oTask.put("slot", slot);
         oTask.put("user", this.user);
@@ -104,7 +104,7 @@ public class WnCronSlot {
          * </pre>
          */
         if (m.find()) {
-            this.date = Times.D(m.group(1));
+            this.date = Wtimes.D(m.group(1));
             this.slot = Integer.parseInt(m.group(2));
             this.task = m.group(3);
             this.user = m.group(4);
@@ -150,7 +150,7 @@ public class WnCronSlot {
 
     public String getDateStr() {
         if (null != date) {
-            return Times.format("yyyyMMdd", date);
+            return Wtimes.format("yyyyMMdd", date);
         }
         return "";
     }
@@ -164,7 +164,7 @@ public class WnCronSlot {
     }
 
     public void setDate(String s) {
-        this.date = Times.D(s);
+        this.date = Wtimes.D(s);
     }
 
     public String getTask() {

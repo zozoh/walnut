@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.api.WnExecutable;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
@@ -24,7 +24,7 @@ import com.site0.walnut.util.validate.impl.AutoMatch;
 
 public class UpdateThingAction extends ThingAction<List<WnObj>> {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     protected WnExecutable executor;
 

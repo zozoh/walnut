@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
@@ -73,7 +73,7 @@ public class GetThingAction extends ThingAction<WnObj> {
         }
 
         // 看看是否需要读取 th_next/th_prev
-        Object sortVal = Strings.isBlank(this.sortKey) ? null : oT.get(this.sortKey);
+        Object sortVal = Ws.isBlank(this.sortKey) ? null : oT.get(this.sortKey);
         if (null != sortVal) {
             WnObj oTPrev = null;
             WnObj oTNext = null;

@@ -1,8 +1,6 @@
 package com.site0.walnut.ext.sys.sql;
 
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
-
 import com.site0.walnut.util.Ws;
 
 public class WnDaoAuth {
@@ -44,7 +42,7 @@ public class WnDaoAuth {
     }
 
     public boolean hasPassword() {
-        return !Strings.isBlank(password);
+        return !Ws.isBlank(password);
     }
 
     public String getPassword() {

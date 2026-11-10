@@ -2,8 +2,8 @@ package com.site0.walnut.ext.media.subtitle.impl;
 
 import java.util.Iterator;
 
-import org.nutz.lang.Strings;
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wtimes;
 import com.site0.walnut.ext.media.subtitle.bean.SubtitleItem;
 
 public class SrtSubtitleItem extends SubtitleItem {
@@ -21,8 +21,8 @@ public class SrtSubtitleItem extends SubtitleItem {
             return false;
         // 找到第一个非空行部分
         do {
-            line = Strings.trim(it.next());
-            if (!Strings.isEmpty(line))
+            line = Ws.trim(it.next());
+            if (!Ws.isEmpty(line))
                 break;
         } while (it.hasNext());
 
@@ -35,10 +35,10 @@ public class SrtSubtitleItem extends SubtitleItem {
                 // 读取时间
                 String times = it.next();
                 int pos = times.indexOf("-->");
-                String beginTm = Strings.trim(times.substring(0, pos));
-                String endTm = Strings.trim(times.substring(pos + 3));
-                this.beginTime = Times.Ti(beginTm);
-                this.endTime = Times.Ti(endTm);
+                String beginTm = Ws.trim(times.substring(0, pos));
+                String endTm = Ws.trim(times.substring(pos + 3));
+                this.beginTime = Wtimes.Ti(beginTm);
+                this.endTime = Wtimes.Ti(endTm);
 
                 // 嗯
                 break;
@@ -51,8 +51,8 @@ public class SrtSubtitleItem extends SubtitleItem {
 
         // 一直读取内，直到空行
         while (it.hasNext()) {
-            line = Strings.trim(it.next());
-            if (Strings.isEmpty(line))
+            line = Ws.trim(it.next());
+            if (Ws.isEmpty(line))
                 break;
             // TODO 暂时过滤一下样式
             this.lines.add(line.replaceAll("[{][^}]+[}]", ""));

@@ -4,7 +4,7 @@ import java.sql.SQLException;
 import java.util.List;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.impl.box.JvmFilterExecutor;
@@ -16,7 +16,7 @@ import com.site0.walnut.ext.data.sqlx.util.Sqlx;
 
 public class cmd_sqlx extends JvmFilterExecutor<SqlxContext, SqlxFilter> {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     public cmd_sqlx() {
         super(SqlxContext.class, SqlxFilter.class);

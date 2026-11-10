@@ -3,7 +3,7 @@ package com.site0.walnut.ext.sys.hookx.hdl;
 import java.util.List;
 
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.hook.WnHook;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.sys.hookx.HookXContext;
@@ -43,7 +43,7 @@ public class hookx_view extends HookXFilter {
         }
 
         // 汇总
-        sys.out.println(Strings.dup('-', 60));
+        sys.out.println(Ws.dup('-', 60));
         sys.out.printlnf("%d objs", fc.objs.size());
     }
 

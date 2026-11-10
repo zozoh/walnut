@@ -22,7 +22,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.nutz.castor.Castors;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
@@ -198,7 +198,7 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
 
         String sheetName = conf.getString("sheetName");
         // 优先用工作簿的名称
-        if (!Strings.isBlank(sheetName)) {
+        if (!Ws.isBlank(sheetName)) {
             sheet = wb.getSheet(sheetName);
         }
         // 没名字用下标
@@ -270,15 +270,15 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
                 if (i >= keys.length)
                     break;
                 // 得到键
-                String key = Strings.trim(keys[i]);
+                String key = Ws.trim(keys[i]);
 
-                if (Strings.isBlank(key))
+                if (Ws.isBlank(key))
                     continue;
 
                 // 得到值
                 Object val = __get_cell_value(cell);
                 if (null != val && val instanceof CharSequence) {
-                    val = Strings.trim(val.toString());
+                    val = Ws.trim(val.toString());
                 }
 
                 // 计入
@@ -398,7 +398,7 @@ public abstract class AbstractPoiSheetHandler extends AbstractSheetHandler {
                 return ni;
             return n;
         case STRING:
-            return Strings.trim(cell.getStringCellValue());
+            return Ws.trim(cell.getStringCellValue());
         case FORMULA:
             return cell.getCellFormula();
         case BLANK:

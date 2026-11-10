@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
@@ -94,7 +94,7 @@ public class o_list extends OFilter {
 
     private String getNameOfPath(String path, int i, String[] names) {
         if (null == names || names.length == 0) {
-            return Files.getMajorName(path);
+            return Wfiles.getMajorName(path);
         }
         if (i >= names.length) {
             return names[names.length - 1];

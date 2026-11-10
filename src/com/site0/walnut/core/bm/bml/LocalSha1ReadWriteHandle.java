@@ -2,7 +2,7 @@ package com.site0.walnut.core.bm.bml;
 
 import java.io.File;
 import java.io.IOException;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.core.bm.WnIoReadWriteSwapHandle;
 
 public class LocalSha1ReadWriteHandle extends WnIoReadWriteSwapHandle {
@@ -26,7 +26,7 @@ public class LocalSha1ReadWriteHandle extends WnIoReadWriteSwapHandle {
     @Override
     protected void load_to_swap(File swap) {
         File buck = bm.checkBucketFile(obj.sha1());
-        Files.copy(buck, swap);
+        Wfiles.copy(buck, swap);
     }
 
 }

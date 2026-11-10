@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.tmpl.WnTmpl;
@@ -178,7 +178,7 @@ public class WnMvcChain {
             status = fe.getStatus();
             errCode = fe.getErrCode();
         }
-        Log log = Wlog.getMAIN();
+        WnLog log = Wlog.getMAIN();
         if (status >= 500)
             log.warn(String.format("WnMvcChain: request failed @%s", context.request().getPath()),
                      err);

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Encoding;
+
 import com.site0.walnut.cheap.dom.CheapElement;
 import com.site0.walnut.cheap.dom.CheapNode;
 import com.site0.walnut.ext.media.ooml.explain.bean.OECopyNode;
@@ -135,7 +135,7 @@ public class WrStack {
             if (null != instrText) {
                 String text = instrText.getText();
                 text = Ws.decodeHtmlEntities(text);
-                text = URLDecoder.decode(text, Encoding.CHARSET_UTF8);
+                text = URLDecoder.decode(text, java.nio.charset.StandardCharsets.UTF_8);
 
                 // 尝试赋值
                 if (hyper.setMatchAndAltText(text)) {

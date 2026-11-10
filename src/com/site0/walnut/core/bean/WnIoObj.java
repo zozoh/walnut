@@ -3,12 +3,12 @@ package com.site0.walnut.core.bean;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
@@ -21,7 +21,7 @@ import com.site0.walnut.util.validate.WnMatch;
 
 public class WnIoObj extends NutMap implements WnObj {
 
-    private static final Log log = Wlog.getIO();
+    private static final WnLog log = Wlog.getIO();
 
     /**
      * 这个索引管理器是当前对象对应的索引管理器
@@ -125,7 +125,7 @@ public class WnIoObj extends NutMap implements WnObj {
     public WnObjId OID() {
         if (null == _oid) {
             String id = this.id();
-            if (!Strings.isBlank(id)) {
+            if (!Ws.isBlank(id)) {
                 _oid = new WnObjId(id);
             } else {
                 return new WnObjId(null);
@@ -155,7 +155,7 @@ public class WnIoObj extends NutMap implements WnObj {
     }
 
     public boolean hasID() {
-        return !Strings.isBlank(id());
+        return !Ws.isBlank(id());
     }
 
     public boolean isSameId(String id) {
@@ -191,7 +191,7 @@ public class WnIoObj extends NutMap implements WnObj {
     }
 
     public boolean isLink() {
-        return !Strings.isBlank(link());
+        return !Ws.isBlank(link());
     }
 
     public String link() {
@@ -219,7 +219,7 @@ public class WnIoObj extends NutMap implements WnObj {
 
     @Override
     public boolean hasType() {
-        return !Strings.isBlank(type());
+        return !Ws.isBlank(type());
     }
 
     public String type() {
@@ -241,7 +241,7 @@ public class WnIoObj extends NutMap implements WnObj {
     }
 
     public boolean hasMime() {
-        return !Strings.isBlank(mime());
+        return !Ws.isBlank(mime());
     }
 
     public boolean isMime(String mime) {
@@ -260,7 +260,7 @@ public class WnIoObj extends NutMap implements WnObj {
 
     public boolean hasSha1() {
         String sha1 = sha1();
-        return !Strings.isBlank(sha1);
+        return !Ws.isBlank(sha1);
     }
 
     public String sha1() {
@@ -292,7 +292,7 @@ public class WnIoObj extends NutMap implements WnObj {
 
     @Override
     public boolean hasThumbnail() {
-        return !Strings.isBlank(thumbnail());
+        return !Ws.isBlank(thumbnail());
     }
 
     @Override
@@ -398,9 +398,9 @@ public class WnIoObj extends NutMap implements WnObj {
         String d0 = d0();
         String d1 = d1();
 
-        if (Strings.isBlank(d0))
+        if (Ws.isBlank(d0))
             return new String[0];
-        if (Strings.isBlank(d1))
+        if (Ws.isBlank(d1))
             return Wlang.array(d0);
         return Wlang.array(d0, d1);
     }
@@ -574,7 +574,7 @@ public class WnIoObj extends NutMap implements WnObj {
 
     public String path() {
         String ph = getPath();
-        if (Strings.isBlank(ph)) {
+        if (Ws.isBlank(ph)) {
             this.loadParents(null, false);
             ph = getString("ph");
         }
@@ -619,8 +619,8 @@ public class WnIoObj extends NutMap implements WnObj {
     public WnObj name(String nm) {
         setv("nm", nm);
         String ph = getString("ph");
-        if (!Strings.isBlank(ph)) {
-            path(Files.renamePath(ph, nm));
+        if (!Ws.isBlank(ph)) {
+            path(Wfiles.renamePath(ph, nm));
         }
         return this;
     }
@@ -652,7 +652,7 @@ public class WnIoObj extends NutMap implements WnObj {
 
     @Override
     public boolean hasParent() {
-        return !Strings.isBlank(parentId());
+        return !Ws.isBlank(parentId());
     }
 
     @Override
@@ -689,7 +689,7 @@ public class WnIoObj extends NutMap implements WnObj {
 
     public String mount() {
         String mnt = getString("mnt");
-        if (!Strings.isBlank(mnt)) {
+        if (!Ws.isBlank(mnt)) {
             return mnt;
         }
         if (null == __mnt) {
@@ -711,7 +711,7 @@ public class WnIoObj extends NutMap implements WnObj {
     }
 
     public WnObj mount(String mnt) {
-        mnt = Strings.sBlank(mnt, null);
+        mnt = Ws.sBlank(mnt, null);
         setv("mnt", mnt);
         return this;
     }
@@ -871,7 +871,7 @@ public class WnIoObj extends NutMap implements WnObj {
     public WnObj loadParents(List<WnObj> list, boolean force) {
         // 已经加载过了，且不是强制加载，就啥也不干
         if (null != _parent && !force) {
-            if (Strings.isBlank(path())) {
+            if (Ws.isBlank(path())) {
                 path(_parent.path()).appendPath(name());
             }
             if (null != list && !_parent.path().equals("/")) {

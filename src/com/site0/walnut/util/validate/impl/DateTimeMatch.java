@@ -3,7 +3,7 @@ package com.site0.walnut.util.validate.impl;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Wtimes;
 import org.nutz.lang.util.Ranges;
 import org.nutz.lang.util.ValueRange;
 import com.site0.walnut.util.validate.WnMatch;
@@ -30,7 +30,7 @@ public class DateTimeMatch implements WnMatch {
         }
         // 字符串
         else if (val instanceof CharSequence) {
-            d = Times.D(val.toString());
+            d = Wtimes.D(val.toString());
         }
         // 日期对象
         else if (val instanceof Date) {

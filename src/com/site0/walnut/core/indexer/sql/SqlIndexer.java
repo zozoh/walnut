@@ -14,7 +14,7 @@ import org.nutz.lang.Each;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.MimeMap;
@@ -43,7 +43,7 @@ import com.site0.walnut.util.Wlog;
 
 public class SqlIndexer extends AbstractIoDataIndexer {
 
-    private static Log log = Wlog.getSQL();
+    private static WnLog log = Wlog.getSQL();
 
     private WnDaoAuth auth;
 

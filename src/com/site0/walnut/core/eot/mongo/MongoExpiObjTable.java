@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.bson.Document;
 import org.nutz.lang.Streams;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.util.Wlog;
 import org.nutz.mongo.ZMo;
 import org.nutz.mongo.ZMoCo;
@@ -21,7 +21,7 @@ import com.mongodb.client.result.DeleteResult;
 
 public class MongoExpiObjTable implements WnExpiObjTable {
 
-    private static final Log log = Wlog.getIO();
+    private static final WnLog log = Wlog.getIO();
 
     private ZMoCo co;
 

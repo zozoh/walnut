@@ -3,7 +3,7 @@ package com.site0.walnut.ext.sys.task.impl;
 import java.io.InputStream;
 import java.util.List;
 
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.api.WnAuthExecutable;
 import com.site0.walnut.api.io.WnObj;
@@ -20,7 +20,7 @@ import com.site0.walnut.util.Wn;
 
 public class WnSafeSysTaskService implements WnSysTaskApi {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     public static final String LOCK_NAME = "WN_SYS_TASKS";
 

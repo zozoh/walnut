@@ -10,7 +10,7 @@ import java.util.Date;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.nutz.lang.Encoding;
+
 import org.nutz.lang.Streams;
 
 import com.site0.walnut.ext.data.archive.api.ArchiveEntry;
@@ -29,7 +29,7 @@ public class TarArchiveExtracting implements ArchiveExtracting {
 
     public TarArchiveExtracting(InputStream ins, Charset charset) {
         if (null == charset) {
-            charset = Encoding.CHARSET_UTF8;
+            charset = java.nio.charset.StandardCharsets.UTF_8;
         }
         this.ins = ins;
         this.tar = new TarArchiveInputStream(ins, charset.name());

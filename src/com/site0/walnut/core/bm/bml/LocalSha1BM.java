@@ -5,11 +5,11 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
-import org.nutz.log.Log;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIoIndexer;
@@ -49,7 +49,7 @@ import com.site0.walnut.util.Wn;
  */
 public class LocalSha1BM extends AbstractIoBM {
 
-    private static final Log log = Wlog.getIO();
+    private static final WnLog log = Wlog.getIO();
 
     private File dBucket;
 
@@ -75,7 +75,7 @@ public class LocalSha1BM extends AbstractIoBM {
             if (!autoCreate) {
                 throw Er.create("e.io.bm.LocalSha1BM.BucketHomeNotFound", phBucket);
             }
-            dBucket = Files.createDirIfNoExists(phBucket);
+            dBucket = Wfiles.createDirIfNoExists(phBucket);
         }
         // 不是目录，自裁
         if (!dBucket.isDirectory()) {
@@ -188,7 +188,7 @@ public class LocalSha1BM extends AbstractIoBM {
         File swap = this.swaps.createSwapFile();
 
         try {
-            Files.copy(buck, swap);
+            Wfiles.copy(buck, swap);
 
             // 剪裁交换文件
             RandomAccessFile raf = null;
@@ -217,7 +217,7 @@ public class LocalSha1BM extends AbstractIoBM {
         // 无论怎样，确保删除交换文件
         finally {
             if (null != swap && swap.exists()) {
-                Files.deleteFile(swap);
+                Wfiles.deleteFile(swap);
             }
         }
     }
@@ -299,7 +299,7 @@ public class LocalSha1BM extends AbstractIoBM {
                     try {
                         // OSS 映射的文件不支持 move，需要把这个开关关闭
                         if (canMoveSwap) {
-                            Files.move(swap, buck);
+                            Wfiles.move(swap, buck);
                         }
                         // Copy 的方式移动过去
                         else {
@@ -325,7 +325,7 @@ public class LocalSha1BM extends AbstractIoBM {
                 // 木有用了，删掉这个文件
                 if (count <= 0) {
                     File oldBuck = this.getBucketFile(oldSha1);
-                    Files.deleteFile(oldBuck);
+                    Wfiles.deleteFile(oldBuck);
                 }
             }
 
@@ -336,7 +336,7 @@ public class LocalSha1BM extends AbstractIoBM {
 
     private void moveSwapToBuck(File swap, File buck) throws IOException {
         boolean needCopy = true;
-        String buph = Files.getAbsPath(buck);
+        String buph = Wfiles.getAbsPath(buck);
         if (!buck.exists()) {
             // 这个判断还是要在本节点同步一下
             synchronized (this) {
@@ -344,7 +344,7 @@ public class LocalSha1BM extends AbstractIoBM {
                     // 创建，如果失败，那么就是已经存在了
                     // 这种情况，通常是其他节点写了这个 buck
                     // 那么就警告一下就算了
-                    if (!Files.createNewFile(buck)) {
+                    if (!Wfiles.createNewFile(buck)) {
                         log.warnf("LocalIoBM: buck(%s) exists!", buph);
                         needCopy = false;
                     }
@@ -353,8 +353,8 @@ public class LocalSha1BM extends AbstractIoBM {
         }
         // 执行 copy
         if (needCopy) {
-            if (!Files.copy(swap, buck)) {
-                String swph = Files.getAbsPath(swap);
+            if (!Wfiles.copy(swap, buck)) {
+                String swph = Wfiles.getAbsPath(swap);
                 log.warnf("LocalIoBM: buck(%s) Fail to copy from %s!",
                           buph,
                           swph);
@@ -362,18 +362,18 @@ public class LocalSha1BM extends AbstractIoBM {
             // Copy 成功，删除缓冲
             // Copy 失败，则保留缓冲，以备后面调试
             else {
-                Files.deleteFile(swap);
+                Wfiles.deleteFile(swap);
             }
         }
         // 不需要 Copy 的话，直接删缓冲
         else {
-            Files.deleteFile(swap);
+            Wfiles.deleteFile(swap);
         }
     }
 
     public File getBucketFile(String buckId) {
         // 桶ID是空的，什么情况！
-        if (Strings.isBlank(buckId)) {
+        if (Ws.isBlank(buckId)) {
             throw Er.create("e.io.bm.LocalSha1BM.BlankBucketId");
         }
         // 桶ID有点短啊
@@ -383,14 +383,14 @@ public class LocalSha1BM extends AbstractIoBM {
         }
         // 得到桶的路径
         String ph = buckId.substring(0, 4) + "/" + buckId.substring(4);
-        return Files.getFile(dBucket, ph);
+        return Wfiles.getFile(dBucket, ph);
     }
 
     public File checkBucketFile(String buckId) {
         File buck = this.getBucketFile(buckId);
         if (!buck.exists()) {
             throw Er.create("e.io.bm.LocalSha1BM.LostBucket",
-                            buckId + "::" + Files.getAbsPath(buck));
+                            buckId + "::" + Wfiles.getAbsPath(buck));
         }
         return buck;
     }

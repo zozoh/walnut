@@ -3,9 +3,9 @@ package com.site0.walnut.ext.sys.websocket.hdl;
 import org.nutz.lang.Each;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Stopwatch;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.ext.sys.websocket.WnWebSocket;
@@ -42,7 +42,7 @@ public class websocket_list implements JvmHdl {
         int[] _cc = new int[5];
         // ......................................................
         // 输出日志
-        Log log = isClean && hc.params.is("quiet") ? null : sys.getLog("I", "@{m}");
+        WnLog log = isClean && hc.params.is("quiet") ? null : sys.getLog("I", "@{m}");
         // ......................................................
         // 得到查询条件
         WnQuery q = new WnQuery();
@@ -67,7 +67,7 @@ public class websocket_list implements JvmHdl {
         // ......................................................
         // 打印日志
         if (null != log) {
-            log.info(Strings.dup('-', 80));
+            log.info(Ws.dup('-', 80));
             log.info("List WebSockets:\n");
         }
         // ......................................................
@@ -143,7 +143,7 @@ public class websocket_list implements JvmHdl {
             sw.stop();
             // 打印计时
             log.infof("\nAll done in %dms (%s)", sw.du(), sw.toString());
-            log.info(Strings.dup('-', 80));
+            log.info(Ws.dup('-', 80));
             // 统计信息
             log.infof("%10s: %d\n%10s: %d\n%10s: %d\n%10s: %d\n%10s: %d\n",
                       "Total",

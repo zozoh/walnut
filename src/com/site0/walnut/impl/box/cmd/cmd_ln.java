@@ -1,6 +1,6 @@
 package com.site0.walnut.impl.box.cmd;
 
-import org.nutz.lang.util.Disks;
+import com.site0.walnut.util.Wdisks;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmExecutor;
@@ -53,7 +53,7 @@ public class cmd_ln extends JvmExecutor {
             }
             // 相对
             else {
-                ln = Disks.getRelativePath(oDst.path(), oSrc.path());
+                ln = Wdisks.getRelativePath(oDst.path(), oSrc.path());
             }
         } else {
             ln = "id:" + oSrc.id();

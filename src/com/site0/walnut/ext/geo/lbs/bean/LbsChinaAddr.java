@@ -6,7 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 
 /**
  * 封装了一个地址的细节
@@ -200,8 +200,8 @@ public class LbsChinaAddr {
         if (!m.find())
             throw Wlang.makeThrow("Invalid input", str);
 
-        this.code = Strings.trim(m.group(1));
-        this.name = Strings.trim(m.group(2));
+        this.code = Ws.trim(m.group(1));
+        this.name = Ws.trim(m.group(2));
         this.noTown = "!".equals(m.group(3));
 
         __eval_info();
@@ -224,25 +224,25 @@ public class LbsChinaAddr {
             this.town = m.group(4);
 
         // 判断级别
-        if (!Strings.isBlank(this.town)) {
+        if (!Ws.isBlank(this.town)) {
             this.noTown = true;
             this.level = 4;
-            this.provinceCode = Strings.alignLeft(this.province, 6, '0');
-            this.cityCode = Strings.alignLeft(this.province + this.city, 6, '0');
+            this.provinceCode = Ws.alignLeft(this.province, 6, '0');
+            this.cityCode = Ws.alignLeft(this.province + this.city, 6, '0');
             this.areaCode = this.province + this.city + this.area;
         }
         // 区县级
         else if (!"00".equals(this.area)) {
             this.level = 3;
-            this.provinceCode = Strings.alignLeft(this.province, 6, '0');
-            this.cityCode = Strings.alignLeft(this.province + this.city, 6, '0');
+            this.provinceCode = Ws.alignLeft(this.province, 6, '0');
+            this.cityCode = Ws.alignLeft(this.province + this.city, 6, '0');
             this.areaCode = this.province + this.city + this.area;
         }
         // 地市级
         else if (!"00".equals(this.city)) {
             this.level = 2;
-            this.provinceCode = Strings.alignLeft(this.province, 6, '0');
-            this.cityCode = Strings.alignLeft(this.province + this.city, 6, '0');
+            this.provinceCode = Ws.alignLeft(this.province, 6, '0');
+            this.cityCode = Ws.alignLeft(this.province + this.city, 6, '0');
             this.area = null;
         }
         // 省级
@@ -487,9 +487,9 @@ public class LbsChinaAddr {
 
     public String[] toAreaCodeArray() {
         String[] ar = new String[3];
-        ar[0] = Strings.sBlank(this.province, "00");
-        ar[1] = Strings.sBlank(this.city, "00");
-        ar[2] = Strings.sBlank(this.area, "00");
+        ar[0] = Ws.sBlank(this.province, "00");
+        ar[1] = Ws.sBlank(this.city, "00");
+        ar[2] = Ws.sBlank(this.area, "00");
         return ar;
     }
 

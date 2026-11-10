@@ -6,7 +6,7 @@ import java.util.Date;
 
 import org.junit.Test;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Wtimes;
 import org.nutz.lang.util.NutMap;
 
 public class WnTmplTest {
@@ -158,10 +158,10 @@ public class WnTmplTest {
     @Test
     public void test_date() {
         long ms = System.currentTimeMillis();
-        Date d = Times.D(ms);
-        String sd = Times.format("yyyy-MM-dd'T'HH:mm:ss", d);
+        Date d = Wtimes.D(ms);
+        String sd = Wtimes.format("yyyy-MM-dd'T'HH:mm:ss", d);
         assertEquals(sd, WnTmpl.exec("${d<date>}", Wlang.mapf("d:%s", ms)));
-        assertEquals(Times.sD(d), WnTmpl.exec("${d<date:yyyy-MM-dd>}", Wlang.mapf("d:'%s'", sd)));
+        assertEquals(Wtimes.sD(d), WnTmpl.exec("${d<date:yyyy-MM-dd>}", Wlang.mapf("d:'%s'", sd)));
         assertEquals("", WnTmpl.exec("${xyz<date:yyyy-MM-dd>?}", new NutMap()));
     }
 

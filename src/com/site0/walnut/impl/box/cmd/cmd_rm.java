@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.nutz.lang.Each;
 import org.nutz.lang.Stopwatch;
-import org.nutz.lang.Times;
-import org.nutz.lang.util.Disks;
+import com.site0.walnut.util.Wtimes;
+import com.site0.walnut.util.Wdisks;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmExecutor;
@@ -75,7 +75,7 @@ public class cmd_rm extends JvmExecutor {
         sw.stop();
         if (isV) {
             long du = sw.getDuration();
-            String ts = Times.sT((int) du / 1000);
+            String ts = Wtimes.sT((int) du / 1000);
             sys.out.printlnf("%d obj deleted in %s (%sms)", count[0], ts, du);
         }
 
@@ -95,9 +95,9 @@ public class cmd_rm extends JvmExecutor {
             if (isI) {
                 sys.out.printlnf("%d. %s",
                                  index,
-                                 Disks.getRelativePath(base, o.path()));
+                                 Wdisks.getRelativePath(base, o.path()));
             } else {
-                sys.out.println(Disks.getRelativePath(base, o.path()));
+                sys.out.println(Wdisks.getRelativePath(base, o.path()));
             }
         }
 

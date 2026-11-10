@@ -4,13 +4,12 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.nutz.lang.Files;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Wfiles;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.box.WnServiceGetter;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.util.Cmds;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
 
 public abstract class JvmExecutor {
@@ -46,23 +45,23 @@ public abstract class JvmExecutor {
 
         // 帮助文件 majorName
         String majorName = klass.getSimpleName();
-        if (!Strings.isBlank(hdlName)) {
+        if (!Ws.isBlank(hdlName)) {
             majorName += "_" + hdlName;
         }
         // 新版本: 寻找 man/zh_ch/${xxx}.md
         String aph = Wn.appendPath(ph, "man", lang, majorName + ".md");
-        File f = Files.findFile(aph);
+        File f = Wfiles.findFile(aph);
 
         // 老版本：优先找 .md
         if (null == f) {
             aph = Wn.appendPath(ph, majorName + ".md");
-            f = Files.findFile(aph);
+            f = Wfiles.findFile(aph);
         }
 
         // 最初版本：没有的话，找 .man
         if (null == f) {
             aph = Wn.appendPath(ph, majorName + ".man");
-            f = Files.findFile(aph);
+            f = Wfiles.findFile(aph);
         }
 
         // 没 manual，抛错
@@ -70,14 +69,14 @@ public abstract class JvmExecutor {
             return klass.getSimpleName() + " ??? no manual";
         }
 
-        return Files.read(f);
+        return Wfiles.read(f);
     }
 
     public String getMyName() {
         String nm = this.getClass().getSimpleName();
         if (nm.startsWith("cmd_"))
             nm = nm.substring("cmd_".length());
-        return Strings.lowerWord(nm, '-');
+        return Ws.lowerWord(nm, '-');
     }
 
     protected WnObj getObj(WnSystem sys, String[] args) {

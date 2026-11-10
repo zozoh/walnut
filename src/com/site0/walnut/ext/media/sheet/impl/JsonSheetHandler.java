@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Encoding;
+
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.util.Ws;
@@ -19,7 +19,7 @@ public class JsonSheetHandler extends AbstractSheetHandler {
 
     @Override
     public SheetResult read(InputStream ins, NutMap conf) {
-        Reader reader = new InputStreamReader(ins, Encoding.CHARSET_UTF8);
+        Reader reader = new InputStreamReader(ins, java.nio.charset.StandardCharsets.UTF_8);
         return new SheetResult(Json.fromJsonAsList(NutMap.class, reader));
     }
 
@@ -30,7 +30,7 @@ public class JsonSheetHandler extends AbstractSheetHandler {
         if (headKeys != null && !headKeys.isEmpty()) {
             jfmt.setActived("^(" + Ws.join(headKeys, "|") + ")$");
         }
-        Writer writer = new OutputStreamWriter(ops, Encoding.CHARSET_UTF8);
+        Writer writer = new OutputStreamWriter(ops, java.nio.charset.StandardCharsets.UTF_8);
         Json.toJson(writer, list, jfmt);
     }
 

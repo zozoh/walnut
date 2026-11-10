@@ -3,8 +3,6 @@ package com.site0.walnut.util;
 import java.util.regex.Matcher;
 
 import org.nutz.castor.Castors;
-import org.nutz.lang.Strings;
-import org.nutz.lang.util.Regex;
 
 public abstract class Wregion {
 
@@ -51,20 +49,20 @@ public abstract class Wregion {
      * @see org.nutz.walnut.util.Wn#fmt_str_macro(String)
      */
     public static String extend_rg_macro(String s) {
-        Matcher m = Regex.getPattern(any()).matcher(s);
+        Matcher m = Wregex.getPattern(any()).matcher(s);
         if (m.find()) {
             String s_match = m.group(2);
             int pos = s_match.indexOf(',');
             String[] ss;
             // 可拆分
             if (pos >= 0) {
-                ss = Wlang.array(Strings.trim(s_match.substring(0, pos)),
-                                 Strings.trim(s_match.substring(pos + 1)));
+                ss = Wlang.array(Ws.trim(s_match.substring(0, pos)),
+                                 Ws.trim(s_match.substring(pos + 1)));
 
             }
             // 就一个
             else {
-                ss = Wlang.array(Strings.trim(s_match));
+                ss = Wlang.array(Ws.trim(s_match));
             }
             // 对每个范围项目，深入展开内容
             for (int i = 0; i < ss.length; i++) {

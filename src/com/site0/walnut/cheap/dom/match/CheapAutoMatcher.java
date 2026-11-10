@@ -3,7 +3,7 @@ package com.site0.walnut.cheap.dom.match;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.util.Regex;
+import com.site0.walnut.util.Wregex;
 import com.site0.walnut.cheap.dom.CheapElement;
 import com.site0.walnut.cheap.dom.CheapMatcher;
 import com.site0.walnut.util.Ws;
@@ -18,7 +18,7 @@ public class CheapAutoMatcher implements CheapMatcher {
                                   // Attribute: 4
                                   + "|(\\[[^.\\[]+\\])"
                                   + ")";
-    private static Pattern P = Regex.getPattern(REGEX);
+    private static Pattern P = Wregex.getPattern(REGEX);
 
     private CheapMatcher ma;
 

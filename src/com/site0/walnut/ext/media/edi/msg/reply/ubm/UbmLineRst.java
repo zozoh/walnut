@@ -1,7 +1,7 @@
 package com.site0.walnut.ext.media.edi.msg.reply.ubm;
 
 import com.site0.walnut.ext.media.edi.bean.EdiSegment;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 
 import java.util.List;
@@ -48,7 +48,7 @@ public class UbmLineRst {
                 } else if (rff.is("codeType", "185")) {
                     this.pkgTp = rff.getString("code");
                 }
-                if (Strings.isNotBlank(rff.getString("pkgNum"))) {
+                if (Ws.isNotBlank(rff.getString("pkgNum"))) {
                     this.pkgNum = rff.getString("pkgNum");
                 }
             } else if (seg.isTag("RFF")) {

@@ -6,11 +6,11 @@ import java.io.OutputStream;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Encoding;
+
 import org.nutz.lang.Streams;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.WnAuthExecutable;
 import com.site0.walnut.api.WnOutputable;
@@ -42,7 +42,7 @@ public class JvmJsExecContext implements JsExecContext {
 
     public JvmBoxInput in;
 
-    private static final Log _log = Wlog.getCMD();
+    private static final WnLog _log = Wlog.getCMD();
 
     public JvmJsExecContext(WnSystem sys) {
         this(sys, sys.out, sys.err);
@@ -244,7 +244,7 @@ public class JvmJsExecContext implements JsExecContext {
     /**
      * 获取底层log对象,通过这个Log对象写入的日志,会写到文件系统
      */
-    public Log nlog() {
+    public WnLog nlog() {
         return _log;
     }
 
@@ -266,7 +266,7 @@ public class JvmJsExecContext implements JsExecContext {
         if (bs.length == 0)
             return "";
 
-        return new String(bs, Encoding.CHARSET_UTF8);
+        return new String(bs, java.nio.charset.StandardCharsets.UTF_8);
     }
 
     public byte[] readBytes(String path, int off, int len) {

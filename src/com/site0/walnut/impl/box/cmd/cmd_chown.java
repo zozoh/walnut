@@ -2,8 +2,8 @@ package com.site0.walnut.impl.box.cmd;
 
 import org.nutz.lang.Each;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
-import org.nutz.lang.util.Disks;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wdisks;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.WnSystem;
@@ -19,7 +19,7 @@ public class cmd_chown extends cmd_chxxx {
 
         // 得到用户和组
         String unm, grp;
-        String[] ss = Strings.splitIgnoreBlank(cc.str, ":");
+        String[] ss = Ws.splitIgnoreBlank(cc.str, ":");
         if (ss.length == 2) {
             unm = ss[0];
             grp = ss[1];
@@ -55,7 +55,7 @@ public class cmd_chown extends cmd_chxxx {
         if (map.size() > 0) {
             sys.io.appendMeta(o, map);
             if (cc.v) {
-                String rpath = Disks.getRelativePath(cc.current.path(), o.path());
+                String rpath = Wdisks.getRelativePath(cc.current.path(), o.path());
                 sys.out.println(rpath);
             }
         }

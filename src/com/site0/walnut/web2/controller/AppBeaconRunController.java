@@ -2,7 +2,7 @@ package com.site0.walnut.web2.controller;
 
 import java.io.InputStreamReader;
 import org.nutz.json.Json;
-import org.nutz.lang.Encoding;
+
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.mvc.WnMvcContext;
@@ -14,7 +14,7 @@ public class AppBeaconRunController extends AbstractAppController {
     public WnMvcView handle(WnMvcContext ctx) {
         try {
             String json = Streams.readAndClose(new InputStreamReader(ctx.request().getInputStream(),
-                                                                     Encoding.CHARSET_UTF8));
+                                                                     java.nio.charset.StandardCharsets.UTF_8));
             NutMap params = Json.fromJson(NutMap.class, json);
             if (null != params) {
                 params.put("ffb", params.getBoolean("ffb"));

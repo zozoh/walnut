@@ -12,9 +12,9 @@ import java.util.regex.Pattern;
 import org.nutz.castor.Castors;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Encoding;
+
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.stream.VoidInputStream;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.ByteInputStream;
@@ -27,7 +27,6 @@ import com.site0.walnut.ext.net.http.HttpMethod;
 import com.site0.walnut.ext.net.http.bean.HttpFormPart;
 import com.site0.walnut.ext.net.util.WnNet;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.validate.WnMatch;
 import com.site0.walnut.util.validate.impl.AlwaysMatch;
 import com.site0.walnut.util.validate.impl.AutoMatch;
@@ -155,7 +154,7 @@ public class XApiRequest {
     }
 
     public boolean hasBase() {
-        return !Strings.isBlank(base);
+        return !Ws.isBlank(base);
     }
 
     public String getBase() {
@@ -209,7 +208,7 @@ public class XApiRequest {
     }
 
     public boolean hasPath() {
-        return !Strings.isBlank(path);
+        return !Ws.isBlank(path);
     }
 
     public String getPath() {
@@ -451,7 +450,7 @@ public class XApiRequest {
             return new ByteInputStream(bs);
         }
         String str = body.toString();
-        byte[] bs = str.getBytes(Encoding.CHARSET_UTF8);
+        byte[] bs = str.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         return new ByteInputStream(bs);
     }
 

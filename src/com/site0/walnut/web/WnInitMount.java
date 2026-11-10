@@ -3,8 +3,8 @@ package com.site0.walnut.web;
 import java.io.File;
 import java.io.IOException;
 
-import org.nutz.lang.Strings;
-import org.nutz.log.Logs;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.log.WnLogs;
 
 import com.site0.walnut.util.Wlang;
 
@@ -19,14 +19,14 @@ public class WnInitMount {
         if (pos <= 0) {
             throw Wlang.makeThrow("init mount invalid line input: %s", line);
         }
-        path = Strings.trim(line.substring(0, pos));
-        mount = Strings.trim(line.substring(pos + 1));
+        path = Ws.trim(line.substring(0, pos));
+        mount = Ws.trim(line.substring(pos + 1));
         if (mount.startsWith("file://.")) {
             try {
                 mount = "file://" + new File(mount.substring("file://".length())).getCanonicalPath();
             }
             catch (IOException e) {
-                Logs.get().info("bad mount path    " + line, e);
+                WnLogs.get().info("bad mount path    " + line, e);
             }
         }
     }

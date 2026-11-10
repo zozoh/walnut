@@ -3,9 +3,9 @@ package com.site0.walnut.web.module.app;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
@@ -37,7 +37,7 @@ import com.site0.walnut.web.WnConfig;
  */
 public abstract class AbstractWamAuth {
 
-    private static final Log log = Wlog.getAPP();
+    private static final WnLog log = Wlog.getAPP();
 
     /**
      * 系统标准登录接口
@@ -108,7 +108,7 @@ public abstract class AbstractWamAuth {
         if (null != this.otps) {
             return this.otps;
         }
-        String otpName = Strings.sBlank(this.otpConfigName, "default");
+        String otpName = Ws.sBlank(this.otpConfigName, "default");
         try {
             NutMap sessionVars = new NutMap();
             String confHome = this.ocm.getConfHomePath();

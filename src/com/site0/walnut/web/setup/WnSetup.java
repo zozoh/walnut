@@ -10,12 +10,12 @@ import javax.websocket.server.ServerContainer;
 import org.nutz.ioc.Ioc;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.util.Wlog;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
@@ -42,7 +42,7 @@ import com.site0.walnut.web.bgt.WnBgRunTaskConsumer;
 
 public class WnSetup implements Setup {
 
-    private static final Log log = Wlog.getMAIN();
+    private static final WnLog log = Wlog.getMAIN();
 
     private WnBoxService boxes;
 
@@ -76,13 +76,13 @@ public class WnSetup implements Setup {
         // 写入自身进程id
         try {
             String WL_PID_PATH = System.getenv("WL_PID_PATH");
-            if (Strings.isBlank(WL_PID_PATH)
+            if (Ws.isBlank(WL_PID_PATH)
                 && new File("/etc/ssh/sshd_config").exists())
                 WL_PID_PATH = "/var/log/walnut.pid";
             String pid = Wlang.JdkTool.getProcessId(null);
             log.infof("path=%s pid=%s", WL_PID_PATH, pid);
-            if (!Strings.isBlank(WL_PID_PATH) && !Strings.isBlank(pid)) {
-                Files.write(new File(WL_PID_PATH), pid);
+            if (!Ws.isBlank(WL_PID_PATH) && !Ws.isBlank(pid)) {
+                Wfiles.write(new File(WL_PID_PATH), pid);
             }
         }
         catch (Throwable e1) {
@@ -97,13 +97,13 @@ public class WnSetup implements Setup {
 
         if (log.isInfoEnabled()) {
             List<String> keys = conf.getKeys();
-            String str = "CONIFG:\n" + Strings.dup("-", 40) + "\n";
+            String str = "CONIFG:\n" + Ws.dup("-", 40) + "\n";
             Collections.sort(keys);
             for (String key : keys) {
                 String val = conf.get(key);
                 str += String.format("  @%s = %s\n", key, val);
             }
-            str += Strings.dup("-", 40) + "\n";
+            str += Ws.dup("-", 40) + "\n";
             log.info(str);
         }
 
@@ -161,7 +161,7 @@ public class WnSetup implements Setup {
             try {
                 WnObj o = io.createIfNoExists(null, wim.path, WnRace.DIR);
                 // 添加
-                if (Strings.isBlank(o.mount())) {
+                if (Ws.isBlank(o.mount())) {
                     io.setMount(o, wim.mount);
                     log.infof("++ mount : %s > %s", wim.path, wim.mount);
                 }

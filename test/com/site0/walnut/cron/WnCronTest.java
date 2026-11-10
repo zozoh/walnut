@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import java.util.List;
 
 import org.junit.Test;
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Wtimes;
 import com.site0.walnut.util.Wlang;
 
 public class WnCronTest {
@@ -475,7 +475,7 @@ public class WnCronTest {
         WnCron cr = new WnCron(rus);
 
         // 执行
-        cr.fill(array, "E", Times.C(ds), off, len, unit);
+        cr.fill(array, "E", Wtimes.C(ds), off, len, unit);
 
         // 压缩结果
         List<CronObj<String>> qzos = WnCron.compactAll(array);

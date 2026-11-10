@@ -9,14 +9,14 @@ import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutBean;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
 
 public class SqlGet<T> implements SqlGetter<T> {
 
-    private Log log;
+    private WnLog log;
 
     private String sql;
 
@@ -26,7 +26,7 @@ public class SqlGet<T> implements SqlGetter<T> {
 
     private boolean autoFind;
 
-    public SqlGet(Log log,
+    public SqlGet(WnLog log,
                   WnSqlTmpl sqlt,
                   NutBean vars,
                   SqlResetSetGetter<T> getter,

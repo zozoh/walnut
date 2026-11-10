@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.util.Disks;
+import com.site0.walnut.util.Wdisks;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
@@ -24,7 +24,7 @@ public class cmd_cpobj extends JvmExecutor {
         ZParams params = ZParams.parse(args, "lcqnpmvrdQ", "^(mime|quiet)$");
         String ph_src = Wn.normalizeFullPath(params.val_check(0), sys);
         String ph_dst = Wn.normalizeFullPath(params.val_check(1), sys);
-        ph_dst = Disks.getCanonicalPath(ph_dst);
+        ph_dst = Wdisks.getCanonicalPath(ph_dst);
         boolean quiet = params.is("quiet");
         boolean asList = params.is("l");
         JsonFormat jfmt = Cmds.gen_json_format(params);

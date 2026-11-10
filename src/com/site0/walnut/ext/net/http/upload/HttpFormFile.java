@@ -1,6 +1,6 @@
 package com.site0.walnut.ext.net.http.upload;
 
-import org.nutz.lang.Encoding;
+
 
 public class HttpFormFile {
 
@@ -43,7 +43,7 @@ public class HttpFormFile {
     }
 
     public String getContent() {
-        return new String(bytes, Encoding.CHARSET_UTF8);
+        return new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
     }
 
     public void setBytes(byte[] content) {

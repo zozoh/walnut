@@ -2,7 +2,7 @@ package com.site0.walnut.ext.data.app;
 
 import java.util.List;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 import org.nutz.trans.Proton;
 import com.site0.walnut.api.err.Er;
@@ -60,9 +60,9 @@ public abstract class WnApps {
                     WnUser me = sys.getMe();
                     WnRoleList roles = sys.roles().getRoles(me);
                     for (String role : roleNames) {
-                        String[] ss = Strings.splitIgnoreBlank(role, ":");
+                        String[] ss = Ws.splitIgnoreBlank(role, ":");
                         String roleName = ss[0];
-                        String[] grps = Strings.splitIgnoreBlank(ss[1]);
+                        String[] grps = Ws.splitIgnoreBlank(ss[1]);
                         for (String grp : grps) {
                             // 管理员
                             if ("ADMIN".equals(roleName)) {
@@ -151,7 +151,7 @@ public abstract class WnApps {
         WnObj o = Wn.checkObj(sys, str);
 
         String type = o.type();
-        if (Strings.isBlank(type)) {
+        if (Ws.isBlank(type)) {
             type = o.isDIR() ? "folder" : "_unknown";
         }
 

@@ -5,7 +5,7 @@ import java.net.URLEncoder;
 import org.nutz.http.Http;
 import org.nutz.http.Response;
 import org.nutz.json.Json;
-import org.nutz.lang.Encoding;
+
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
@@ -22,7 +22,7 @@ public class cmd_shorturl extends JvmExecutor {
         }
         boolean hiddenHttp = params.is("h", false);
         String apiurl = "http://api.t.sina.com.cn/short_url/shorten.json?source=1681459862&url_long="
-                        + URLEncoder.encode(params.val_check(0), Encoding.UTF8);
+                        + URLEncoder.encode(params.val_check(0), java.nio.charset.StandardCharsets.UTF_8);
         Response resp = Http.get(apiurl);
         if (resp.isOK()) {
             NutMap re = Json.fromJsonAsList(NutMap.class, resp.getContent()).get(0);

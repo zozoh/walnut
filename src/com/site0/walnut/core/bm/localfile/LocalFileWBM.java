@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import com.site0.walnut.api.err.Er;
@@ -65,7 +65,7 @@ public class LocalFileWBM extends LocalFileBM {
         if ((oSr instanceof WnLocalFileObj) && (oTa instanceof WnLocalFileObj)) {
             WnLocalFileObj ofSr = (WnLocalFileObj) oSr;
             WnLocalFileObj ofTa = (WnLocalFileObj) oTa;
-            Files.copy(ofSr.getFile(), ofTa.getFile());
+            Wfiles.copy(ofSr.getFile(), ofTa.getFile());
             return oTa.len();
         }
         throw Wlang.noImplement();
@@ -75,7 +75,7 @@ public class LocalFileWBM extends LocalFileBM {
     public long remove(WnObj o) {
         if ((o instanceof WnLocalFileObj)) {
             WnLocalFileObj of = (WnLocalFileObj) o;
-            Files.deleteFile(of.getFile());
+            Wfiles.deleteFile(of.getFile());
             return 0;
         }
         throw Wlang.noImplement();

@@ -1,7 +1,7 @@
 package com.site0.walnut.alg.nfa.chars;
 
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.alg.ds.buf.WnCharArray;
 import com.site0.walnut.alg.ds.buf.WnLinkedArrayList;
 
@@ -134,7 +134,7 @@ class CharNfaTreeParsing {
             throw Wlang.makeThrow("unexpact char '{' at %d", input.getPosition());
         }
         String s = input.nextString('}');
-        String[] ss = Strings.splitIgnoreBlank(s);
+        String[] ss = Ws.splitIgnoreBlank(s);
         // 一个
         if (ss.length == 1) {
             int n = Integer.parseInt(ss[0]);

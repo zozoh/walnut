@@ -1,13 +1,13 @@
 package com.site0.walnut.ext.data.app.impl;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
 
 public class AppInitIncludeProcessor implements AppInitProcessor {
 
-    private static final String HR0 = Strings.dup('>', 50);
-    private static final String HR1 = Strings.dup('<', 50);
+    private static final String HR0 = Ws.dup('>', 50);
+    private static final String HR1 = Ws.dup('<', 50);
 
     @Override
     public void process(AppInitItemContext ing) {

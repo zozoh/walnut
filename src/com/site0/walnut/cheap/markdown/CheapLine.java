@@ -3,9 +3,8 @@ package com.site0.walnut.cheap.markdown;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Strings;
-import org.nutz.lang.util.Regex;
 import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wregex;
 
 class CheapLine {
 
@@ -67,7 +66,7 @@ class CheapLine {
      * 行的实际有效内容
      */
     String content;
-    
+
     CheapLine(CheapLine line) {
         this.lineNumber = line.lineNumber;
         this.rawData = line.content;
@@ -105,7 +104,7 @@ class CheapLine {
     }
 
     private static String REG_LNK_REF = "^\\s{0,3}\\[([^\\]]+)\\]:\\s*(.+)$";
-    private static Pattern P_LNK_REF = Regex.getPattern(REG_LNK_REF);
+    private static Pattern P_LNK_REF = Wregex.getPattern(REG_LNK_REF);
 
     private static String REGEX = "^(\\s*)(" // Start: 1,2
                                   + "(-{3,})" // HR:3
@@ -118,7 +117,7 @@ class CheapLine {
                                   + "|(.+)" // P: 22
                                   + ")(\\s*)$"; // End: 23
 
-    private static Pattern P = Regex.getPattern(REGEX);
+    private static Pattern P = Wregex.getPattern(REGEX);
 
     /**
      * 根据内容自动判断类型
@@ -214,7 +213,7 @@ class CheapLine {
 
         // 默认就算是段落
         this.content = m.group(22) + tailSpace;
-        if (Strings.isBlank(this.content)) {
+        if (Ws.isBlank(this.content)) {
             this.type = LineType.BLANK;
         } else {
             this.type = LineType.PARAGRAPH;

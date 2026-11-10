@@ -9,7 +9,7 @@ import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.LoopException;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
@@ -72,10 +72,10 @@ public class cmd_dircount extends JvmExecutor {
         if (!showHidden) {
             q.setv("nm", "^[^.].+$");
         }
-        if (!Strings.isBlank(tp)) {
+        if (!Ws.isBlank(tp)) {
             q.setv("tp", tp);
         }
-        if (!Strings.isBlank(match)) {
+        if (!Ws.isBlank(match)) {
             q.setAll(Wlang.map(match));
         }
         long childrenNum = sys.io.count(q);

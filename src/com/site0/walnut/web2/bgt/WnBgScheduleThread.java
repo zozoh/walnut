@@ -3,7 +3,7 @@ package com.site0.walnut.web2.bgt;
 import java.util.List;
 
 import org.nutz.lang.random.R;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.box.WnServiceHolder;
 import com.site0.walnut.api.lock.WnLockBusyException;
@@ -27,7 +27,7 @@ import com.site0.walnut.web2.service.WnServiceFactory;
  */
 public class WnBgScheduleThread extends Thread {
 
-    private static final Log log = Wlog.getBG_SCHEDULE();
+    private static final WnLog log = Wlog.getBG_SCHEDULE();
 
     private final WnSysScheduleApi scheduleApi;
 

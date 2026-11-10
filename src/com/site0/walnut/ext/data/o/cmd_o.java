@@ -1,7 +1,7 @@
 package com.site0.walnut.ext.data.o;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.impl.box.JvmFilterExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Cmds;
@@ -31,7 +31,7 @@ public class cmd_o extends JvmFilterExecutor<OContext, OFilter> {
 
         int mode = 0;
         String noexists = fc.params.get("noexists");
-        if (!Strings.isBlank(noexists)) {
+        if (!Ws.isBlank(noexists)) {
             if ("null".equals(noexists)) {
                 mode |= Wn.Cmd.NOEXISTS_NULL;
             } else {

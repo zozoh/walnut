@@ -8,11 +8,11 @@ import java.util.regex.Pattern;
 
 import org.nutz.castor.Castors;
 import org.nutz.lang.Mirror;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.meta.Pair;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Regex;
+import com.site0.walnut.util.Wregex;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.util.bean.WnBeanField;
 import com.site0.walnut.util.bean.WnBeanMapping;
@@ -255,25 +255,25 @@ public class SheetMapping {
         return index;
     }
 
-    private static final Pattern P_KEY = Regex.getPattern("^([^\\]]+)(\\[(.+)\\])?$");
-    private static final Pattern P_KEY_ARRAY = Regex.getPattern("^[$@]n([.](.+))?$");
-    private static final Pattern P_KEY_DATE = Regex.getPattern("^[$@]date(%(.+))?$");
-    private static final Pattern P_KEY_BOOLEAN = Regex.getPattern("^[$@]boolean(((->)|(<-))(.+)/(.+))?$");
-    private static final Pattern P_KEY_MAPPING = Regex.getPattern("^[$@][{]([^}]+)[}]$");
-    private static final Pattern P_KEY_INT = Regex.getPattern("^[$@]int(=(.+))?$");
-    private static final Pattern P_KEY_LONG = Regex.getPattern("^[$@]long(=(.+))?$");
-    private static final Pattern P_KEY_FLOAT = Regex.getPattern("^[$@]float(=(.+))?$");
-    private static final Pattern P_KEY_DOUBLE = Regex.getPattern("^[$@]double(=(.+))?$");
-    private static final Pattern P_KEY_STR = Regex.getPattern("^[$@]str(=(.+))?$");
+    private static final Pattern P_KEY = Wregex.getPattern("^([^\\]]+)(\\[(.+)\\])?$");
+    private static final Pattern P_KEY_ARRAY = Wregex.getPattern("^[$@]n([.](.+))?$");
+    private static final Pattern P_KEY_DATE = Wregex.getPattern("^[$@]date(%(.+))?$");
+    private static final Pattern P_KEY_BOOLEAN = Wregex.getPattern("^[$@]boolean(((->)|(<-))(.+)/(.+))?$");
+    private static final Pattern P_KEY_MAPPING = Wregex.getPattern("^[$@][{]([^}]+)[}]$");
+    private static final Pattern P_KEY_INT = Wregex.getPattern("^[$@]int(=(.+))?$");
+    private static final Pattern P_KEY_LONG = Wregex.getPattern("^[$@]long(=(.+))?$");
+    private static final Pattern P_KEY_FLOAT = Wregex.getPattern("^[$@]float(=(.+))?$");
+    private static final Pattern P_KEY_DOUBLE = Wregex.getPattern("^[$@]double(=(.+))?$");
+    private static final Pattern P_KEY_STR = Wregex.getPattern("^[$@]str(=(.+))?$");
 
     public void parse(String flds) {
         // 空字段
-        if (Strings.isBlank(flds)) {
+        if (Ws.isBlank(flds)) {
             fields = null;
             return;
         }
         // 按行解析
-        String[] lines = Strings.splitIgnoreBlank(flds, "[,\n]");
+        String[] lines = Ws.splitIgnoreBlank(flds, "[,\n]");
         fields = new ArrayList<>(lines.length);
 
         // 循环
@@ -284,12 +284,12 @@ public class SheetMapping {
             int pos = line.lastIndexOf(':');
             int pos2 = line.lastIndexOf(']');
             if (pos > 0 && pos > pos2) {
-                key = Strings.trim(line.substring(0, pos));
-                title = Strings.trim(line.substring(pos + 1));
+                key = Ws.trim(line.substring(0, pos));
+                title = Ws.trim(line.substring(pos + 1));
             }
             // 否则就是没有标题，只有 key
             else {
-                key = Strings.trim(line);
+                key = Ws.trim(line);
                 title = null;
             }
 
@@ -303,18 +303,18 @@ public class SheetMapping {
 
             // 对于 knm 按照 `||` 分隔，以便表示备选顺序
             SheetField sf = new SheetField();
-            sf.keys = Strings.splitIgnoreBlank(knm, "[|][|]");
+            sf.keys = Ws.splitIgnoreBlank(knm, "[|][|]");
             sf.title = title;
             fields.add(sf);
 
             // 看看有木有特殊配置
-            if (!Strings.isBlank(kconf)) {
+            if (!Ws.isBlank(kconf)) {
                 // 是整数吗？
                 m = P_KEY_INT.matcher(kconf);
                 if (m.find()) {
                     sf.type = SheetFieldType.INT;
                     String arg = m.group(2);
-                    if (!Strings.isBlank(arg)) {
+                    if (!Ws.isBlank(arg)) {
                         sf.arg = Integer.parseInt(arg);
                     }
                     continue;
@@ -324,7 +324,7 @@ public class SheetMapping {
                 if (m.find()) {
                     sf.type = SheetFieldType.LONG;
                     String arg = m.group(2);
-                    if (!Strings.isBlank(arg)) {
+                    if (!Ws.isBlank(arg)) {
                         sf.arg = Long.parseLong(arg);
                     }
                     continue;
@@ -334,7 +334,7 @@ public class SheetMapping {
                 if (m.find()) {
                     sf.type = SheetFieldType.FLOAT;
                     String arg = m.group(2);
-                    if (!Strings.isBlank(arg)) {
+                    if (!Ws.isBlank(arg)) {
                         sf.arg = Float.parseFloat(arg);
                     }
                     continue;
@@ -344,7 +344,7 @@ public class SheetMapping {
                 if (m.find()) {
                     sf.type = SheetFieldType.DOUBLE;
                     String arg = m.group(2);
-                    if (!Strings.isBlank(arg)) {
+                    if (!Ws.isBlank(arg)) {
                         sf.arg = Double.parseDouble(arg);
                     }
                     continue;
@@ -360,11 +360,11 @@ public class SheetMapping {
                 m = P_KEY_BOOLEAN.matcher(kconf);
                 if (m.find()) {
                     sf.type = SheetFieldType.BOOLEAN;
-                    if (!Strings.isBlank(m.group(1))) {
+                    if (!Ws.isBlank(m.group(1))) {
                         String[] ss = new String[3];
-                        ss[0] = Strings.sBlank(m.group(3), m.group(4));
-                        ss[1] = Strings.sBlank(m.group(5), "Yes");
-                        ss[2] = Strings.sBlank(m.group(6), "No");
+                        ss[0] = Ws.sBlank(m.group(3), m.group(4));
+                        ss[1] = Ws.sBlank(m.group(5), "Yes");
+                        ss[2] = Ws.sBlank(m.group(6), "No");
                         sf.arg = ss;
                     }
                     continue;
@@ -375,7 +375,7 @@ public class SheetMapping {
                     sf.type = SheetFieldType.MAPPING;
                     NutMap map = new NutMap();
                     String str = m.group(1);
-                    String[] ss = Strings.splitIgnoreBlank(str, ";");
+                    String[] ss = Ws.splitIgnoreBlank(str, ";");
                     for (String s : ss) {
                         Pair<String> p = Pair.create(s);
                         String pv = p.getValue();

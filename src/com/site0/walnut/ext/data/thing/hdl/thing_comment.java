@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.nutz.json.Json;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wtimes;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
@@ -100,7 +100,7 @@ public class thing_comment implements JvmHdl {
         __verify_comment_content(hc, oT, content);
 
         // 创建评论对象
-        String cnm = Times.format("yyyyMMddHHmmddSSS", Times.now());
+        String cnm = Wtimes.format("yyyyMMddHHmmddSSS", Wtimes.now());
         WnObj oC = sys.io.createIfNoExists(oTCHome, cnm, WnRace.FILE);
 
         // 修改一下注释的必要元数据
@@ -167,9 +167,9 @@ public class thing_comment implements JvmHdl {
         String qStr = hc.params.val(0);
         WnQuery q = new WnQuery();
         // 指定了条件
-        if (!Strings.isBlank(qStr)) {
+        if (!Ws.isBlank(qStr)) {
             // 条件是"或"
-            if (Strings.isQuoteBy(qStr, '[', ']')) {
+            if (Ws.isQuoteBy(qStr, '[', ']')) {
                 List<NutMap> ors = Json.fromJsonAsList(NutMap.class, qStr);
                 q.addAll(ors);
             }
@@ -218,7 +218,7 @@ public class thing_comment implements JvmHdl {
     }
 
     private void __verify_comment_content(JvmHdlContext hc, WnObj oT, String content) {
-        if (Strings.isBlank(content) || content.length() < hc.params.getInt("minsz", 5)) {
+        if (Ws.isBlank(content) || content.length() < hc.params.getInt("minsz", 5)) {
             throw Er.create("e.cmd.thing.comment.content.toShort", oT.id());
         }
     }

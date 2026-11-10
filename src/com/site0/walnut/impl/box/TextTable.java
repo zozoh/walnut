@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 
 public class TextTable {
 
@@ -67,7 +67,7 @@ public class TextTable {
         for (String str : col) {
             if (i >= sz)
                 break;
-            row[i] = Strings.sNull(str, "");
+            row[i] = Ws.sNull(str, "");
             int width = LinuxTerminal.unwrapFont(str).length();
             cell_width[i] = Math.max(cell_width[i], width);
             i++;
@@ -88,7 +88,7 @@ public class TextTable {
         for (String str : col) {
             if (i >= sz)
                 break;
-            str = Strings.sNull(str, "");
+            str = Ws.sNull(str, "");
             row[i] = str;
             int width = LinuxTerminal.unwrapFont(str).length();
             cell_width[i] = Math.max(cell_width[i], width);
@@ -112,13 +112,13 @@ public class TextTable {
             if (null == row) {
                 int last = colnb - 1;
                 for (int i = 0; i < last; i++) {
-                    sb.append(Strings.dup('-', spacing + cell_width[i]));
+                    sb.append(Ws.dup('-', spacing + cell_width[i]));
                     if (showBorder) {
-                        sb.append('+').append(Strings.dup('-', spacing));
+                        sb.append('+').append(Ws.dup('-', spacing));
                     }
                 }
                 // 加上最后一列
-                sb.append(Strings.dup('-', cell_width[last])).append('\n');
+                sb.append(Ws.dup('-', cell_width[last])).append('\n');
             }
             // 输出普通行
             else {
@@ -142,9 +142,9 @@ public class TextTable {
                         }
                         sb.append(cell);
                     }
-                    sb.append(Strings.dup(' ', spacing));
+                    sb.append(Ws.dup(' ', spacing));
                     if (showBorder) {
-                        sb.append('|').append(Strings.dup(' ', spacing));
+                        sb.append('|').append(Ws.dup(' ', spacing));
                     }
                 }
                 // 加上最后一列

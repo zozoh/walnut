@@ -1,8 +1,6 @@
 package com.site0.walnut.util;
 
 import org.nutz.lang.Each;
-import org.nutz.lang.Files;
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback2;
 import org.nutz.lang.util.NutBean;
 import org.nutz.web.Webs.Err;
@@ -85,8 +83,8 @@ public class WnObjCopying {
         if (null == oDstObj) {
             // 必须存在父
             if (!this.recur) {
-                WnObj oP = io.check(null, Files.getParent(targetPath));
-                oDstObj = io.createIfNoExists(oP, Files.getName(targetPath), oSrcObj.race());
+                WnObj oP = io.check(null, Wfiles.getParent(targetPath));
+                oDstObj = io.createIfNoExists(oP, Wfiles.getName(targetPath), oSrcObj.race());
             }
             // 否则自由创建
             else {
@@ -133,14 +131,14 @@ public class WnObjCopying {
     }
 
     private void __copy_meta(WnObj oSrc, WnObj oDst) {
-        if (!Strings.isBlank(propFilter)) {
+        if (!Ws.isBlank(propFilter)) {
             NutBean meta = oSrc.pickBy(propFilter);
             // 重设所有者
-            if (!Strings.isBlank(this.own))
+            if (!Ws.isBlank(this.own))
                 meta.setv("c", this.own);
 
             // 重设组
-            if (!Strings.isBlank(this.grp))
+            if (!Ws.isBlank(this.grp))
                 meta.setv("g", this.grp);
 
             // 确保不 copy 缩略图

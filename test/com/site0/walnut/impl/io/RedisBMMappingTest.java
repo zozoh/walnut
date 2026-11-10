@@ -3,7 +3,7 @@ package com.site0.walnut.impl.io;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
@@ -13,7 +13,7 @@ import com.site0.walnut.api.io.WnRace;
 
 public class RedisBMMappingTest extends BaseSessionTest {
     
-    static Log log = Wlog.getTEST();
+    static WnLog log = Wlog.getTEST();
 
     @Test
     public void test_simple_read_write() {

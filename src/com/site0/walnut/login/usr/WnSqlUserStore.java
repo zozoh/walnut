@@ -15,7 +15,7 @@ import org.nutz.json.Json;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
@@ -41,7 +41,7 @@ public class WnSqlUserStore extends AbstractWnUserStore {
 
     private static final WnSnowQMaker UidMaker = new WnSnowQMaker(null, 10);
 
-    private static final Log log = Wlog.getAUTH();
+    private static final WnLog log = Wlog.getAUTH();
 
     private WnDaoAuth auth;
 

@@ -5,9 +5,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import org.nutz.mvc.View;
 import org.nutz.mvc.view.RawView;
 import org.nutz.mvc.view.ViewWrapper;
@@ -45,7 +45,7 @@ import com.site0.walnut.web.util.WnWeb;
  */
 public class WamOTPSend {
 
-    private static final Log log = Wlog.getAPP();
+    private static final WnLog log = Wlog.getAPP();
 
     private WnIo io;
 
@@ -131,7 +131,7 @@ public class WamOTPSend {
             // 第四步：发送
             AjaxReturn sendRe = otps.send(otp);
             if (!sendRe.isOk()) {
-                String errCode = Strings.sBlank(sendRe.getErrCode(),
+                String errCode = Ws.sBlank(sendRe.getErrCode(),
                                                 "e.otp.send");
                 reJson = this.__fail_json(errCode, sendRe.getMsg());
                 return new ViewWrapper(new RawView("json"), reJson);
@@ -152,7 +152,7 @@ public class WamOTPSend {
      * @return 当前登录模式下现场构建的 captcha 服务接口（用来校验票据）
      */
     private WnCaptchaApi __check_api() {
-        String ccName = Strings.sBlank(captchaName, "default");
+        String ccName = Ws.sBlank(captchaName, "default");
         NutMap vars = new NutMap();
         vars.put("HOME", ocm.getConfHomePath());
         WnCaptchaBuilder builder = new WnSysCaptchaBuilder(this.io, vars);
@@ -163,7 +163,7 @@ public class WamOTPSend {
      * @return 当前登录模式下现场构建的 OTP 服务实例
      */
     private WnOTPService __check_otps() {
-        String ocName = Strings.sBlank(otpConfigName, "default");
+        String ocName = Ws.sBlank(otpConfigName, "default");
         NutMap sessionVars = new NutMap();
         sessionVars.put("HOME", ocm.getConfHomePath());
         return new WnOTPService(this.io, sessionVars, ocName);

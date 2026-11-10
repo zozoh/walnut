@@ -8,12 +8,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Encoding;
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Regex;
-
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.core.bean.WnObjId;
@@ -156,8 +152,7 @@ public class Wobj {
                 // 阻止子节点无穷递归
                 memo.put(id, o);
                 // 处理子节点
-                List<? extends NutBean> children = o.getAsList(subKey,
-                                                               NutBean.class);
+                List<? extends NutBean> children = o.getAsList(subKey, NutBean.class);
                 children = __flt_obj_key(children, kms, idKey, subKey, memo);
                 out.put(subKey, children);
                 // 嗯，搞定
@@ -211,8 +206,7 @@ public class Wobj {
         return map;
     }
 
-    private static final Pattern P_QUICK_KEYS = Regex
-        .getPattern("^[%#]([A-Z0-9]+)?$");
+    private static final Pattern P_QUICK_KEYS = Wregex.getPattern("^[%#]([A-Z0-9]+)?$");
 
     public static String explainQuickObjKeyMatchStr(String str) {
         if (null == str)
@@ -296,7 +290,7 @@ public class Wobj {
     }
 
     public static WnMatch explainObjKeyMatcher(String str, WnMatch dft) {
-        if (Strings.isBlank(str))
+        if (Ws.isBlank(str))
             return dft;
 
         // 分析 not
@@ -322,7 +316,7 @@ public class Wobj {
     }
 
     public static String evalName(String name, String id) {
-        name = Strings.sBlank(name, "${id}");
+        name = Ws.sBlank(name, "${id}");
         return WnTmpl.exec(name, Wlang.map("id", id));
     }
 
@@ -336,7 +330,7 @@ public class Wobj {
 
     public static void assertValidName(String name) {
         // 名称不能为空
-        if (Strings.isBlank(name)) {
+        if (Ws.isBlank(name)) {
             throw Er.create("e.io.obj.BlankName");
         }
         // 名称不能包括特殊符号
@@ -347,7 +341,7 @@ public class Wobj {
 
     public static String normalizeName(String name) {
         // 名称不能为空
-        if (Strings.isBlank(name)) {
+        if (Ws.isBlank(name)) {
             return "BLANK_OBJ_NAME";
         }
         // 名称不能包括特殊符号
@@ -390,13 +384,13 @@ public class Wobj {
 
     public static String decodePathFromBase64(String id) {
         byte[] bs = Base64.getDecoder().decode(id);
-        String str = new String(bs, Encoding.CHARSET_UTF8);
+        String str = new String(bs, java.nio.charset.StandardCharsets.UTF_8);
         return str.trim();
     }
 
     public static String encodePathToBase64(String path) {
         // 展开 base64
-        byte[] bs = path.getBytes(Encoding.CHARSET_UTF8);
+        byte[] bs = path.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         return Base64.getEncoder().encodeToString(bs);
     }
 }

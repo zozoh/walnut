@@ -11,8 +11,8 @@ import org.jsoup.select.Elements;
 import org.nutz.http.Header;
 import org.nutz.http.Http;
 import org.nutz.http.Response;
-import org.nutz.lang.Strings;
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wtimes;
 import com.site0.walnut.ext.media.mediax.MxAPIKey;
 import com.site0.walnut.ext.media.mediax.apis.NoTicketMediaXAPI;
 import com.site0.walnut.ext.media.mediax.bean.MxAccount;
@@ -92,7 +92,7 @@ public class ChinaZMeidaXAPI extends NoTicketMediaXAPI {
         String[] keys = new String[eleThs.size()];
         int i = 0;
         for (Element eleTh : eleThs) {
-            keys[i++] = Strings.trim(eleTh.text());
+            keys[i++] = Ws.trim(eleTh.text());
         }
 
         // 得到表体，循环
@@ -127,7 +127,7 @@ public class ChinaZMeidaXAPI extends NoTicketMediaXAPI {
                 }
                 // 其他的就取一下值咯
                 else {
-                    val = Strings.trim(eleTd.text());
+                    val = Ws.trim(eleTd.text());
                 }
                 rec.put(key, val);
             }
@@ -138,7 +138,7 @@ public class ChinaZMeidaXAPI extends NoTicketMediaXAPI {
                 if (null == my_ds)
                     continue;
                 // 比较一下，如果发现已经到了指定日期之前的日期，直接终止
-                myLastDate = Times.D(my_ds);
+                myLastDate = Wtimes.D(my_ds);
                 if (myLastDate.getTime() < cr.lastDate.getTime()) {
                     break;
                 }

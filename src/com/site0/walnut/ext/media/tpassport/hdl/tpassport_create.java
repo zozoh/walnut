@@ -6,9 +6,9 @@ import java.io.ByteArrayOutputStream;
 
 import org.nutz.img.Images;
 import org.nutz.json.Json;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
@@ -21,7 +21,7 @@ import com.site0.walnut.util.Wn;
 
 public class tpassport_create implements JvmHdl {
     
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
@@ -51,7 +51,7 @@ public class tpassport_create implements JvmHdl {
             }
             for (TPassportDrawItem tpd : tp.getItems()) {
                 String value = data.getString(tpd.name);
-                if (!Strings.isBlank(value)) {
+                if (!Ws.isBlank(value)) {
                     tpd.content = value;
                 }
             }

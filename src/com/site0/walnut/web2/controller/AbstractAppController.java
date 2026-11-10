@@ -1,7 +1,7 @@
 package com.site0.walnut.web2.controller;
 
 import java.io.InputStream;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
@@ -20,7 +20,7 @@ public abstract class AbstractAppController extends AbstractWnController {
     @Override
     protected WnObj _find_app_home(WnMvcContext ctx, String appName) {
         String appPaths = Wn.WC().checkSession().getEnv().getString("APP_PATH");
-        for (String base : Strings.splitIgnoreBlank(appPaths, ":")) {
+        for (String base : Ws.splitIgnoreBlank(appPaths, ":")) {
             WnObj obj = io(ctx).fetch(null, Wn.appendPath(base, appName));
             if (null != obj)
                 return obj;
@@ -50,14 +50,14 @@ public abstract class AbstractAppController extends AbstractWnController {
         if (logOff)
             Wn.WC().setLogOff();
         WnApp app = services(ctx).getAppService().checkApp(appName, auth(ctx));
-        if (Strings.isBlank(mimeType))
+        if (Ws.isBlank(mimeType))
             mimeType = "text/plain";
         resp.contentType(mimeType);
 
         WnHttpRespStatusSetter statusSetter = new WnHttpRespStatusSetter(resp);
         WnAppRespOpsWrapper out = new WnAppRespOpsWrapper(statusSetter, 200);
         WnAppRespOpsWrapper err = new WnAppRespOpsWrapper(statusSetter, 500);
-        InputStream ins = Strings.isEmpty(in) ? null : Wlang.ins(in);
+        InputStream ins = Ws.isEmpty(in) ? null : Wlang.ins(in);
         if (forceFlushBuffer) {
             resp.header("X-ACCEL-BUFFERING", "yes");
             out.setForceFlush(true);

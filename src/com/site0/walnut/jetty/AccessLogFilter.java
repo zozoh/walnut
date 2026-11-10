@@ -23,9 +23,9 @@ import org.nutz.dao.util.Daos;
 import org.nutz.ioc.impl.PropertiesProxy;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Stopwatch;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.random.R;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import org.nutz.mvc.Mvcs;
 import com.site0.walnut.jetty.log.AccessLog;
 import com.site0.walnut.util.Wlog;
@@ -34,7 +34,7 @@ import com.site0.walnut.util.Wn;
 import com.alibaba.druid.pool.DruidDataSource;
 
 public class AccessLogFilter implements Filter, Runnable {
-    private static final Log log = Wlog.getAC();
+    private static final WnLog log = Wlog.getAC();
     /**
      * 是否启用本filter
      */
@@ -143,7 +143,7 @@ public class AccessLogFilter implements Filter, Runnable {
                 alog.setMethod(req.getMethod().toUpperCase());
                 // 最多存放512个字符的查询字符串,应该完全够了吧
                 String queryString = req.getQueryString();
-                if (!Strings.isBlank(queryString)) {
+                if (!Ws.isBlank(queryString)) {
                     if (queryString.length() > 512) {
                         queryString = queryString.substring(0, 512);
                     }

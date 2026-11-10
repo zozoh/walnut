@@ -4,7 +4,7 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.validate.WnMatch;
 
 public class EmptyMatch implements WnMatch {
@@ -23,7 +23,7 @@ public class EmptyMatch implements WnMatch {
         if (val.getClass().isArray()) {
             return 0 == Array.getLength(val);
         }
-        return Strings.isEmpty(val.toString());
+        return Ws.isEmpty(val.toString());
     }
 
 }

@@ -1,7 +1,7 @@
 package com.site0.walnut.ext.sys.lock.hdl;
 
 import org.nutz.json.Json;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.lock.WnLock;
 import com.site0.walnut.api.lock.WnLockFailException;
@@ -15,7 +15,7 @@ import com.site0.walnut.util.ZParams;
 
 public class lock_try extends LockFilter {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     @Override
     protected ZParams parseParams(String[] args) {

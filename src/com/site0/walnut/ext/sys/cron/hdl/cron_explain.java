@@ -3,7 +3,7 @@ package com.site0.walnut.ext.sys.cron.hdl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Wtimes;
 import com.site0.walnut.cron.CronOverlapor;
 import com.site0.walnut.cron.WnCron;
 import com.site0.walnut.cron.WnCroni18n;
@@ -84,7 +84,7 @@ public class cron_explain implements JvmHdl {
             Object[] row = matrix[i];
             cells = new ArrayList<>(col);
             int sec = slotSec * i;
-            Times.TmInfo ti = Times.Ti(sec);
+            Wtimes.TmInfo ti = Wtimes.Ti(sec);
             cells.add(i + ") " + ti.toString());
             for (int x = 0; x < col; x++) {
                 Object it;

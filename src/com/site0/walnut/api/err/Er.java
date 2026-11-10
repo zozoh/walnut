@@ -2,7 +2,7 @@ package com.site0.walnut.api.err;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.web.WebException;
 import org.nutz.web.Webs;
 
@@ -27,8 +27,8 @@ public abstract class Er {
     public static WebException wrap(String err) {
         int pos = err.indexOf(':');
         if (pos > 0) {
-            String key = Strings.trim(err.substring(0, pos));
-            String reason = Strings.trim(err.substring(pos + 1));
+            String key = Ws.trim(err.substring(0, pos));
+            String reason = Ws.trim(err.substring(pos + 1));
             return Webs.Err.create(key, reason);
         }
         return Webs.Err.create(err);

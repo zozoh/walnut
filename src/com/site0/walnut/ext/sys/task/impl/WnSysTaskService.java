@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.lang.util.Callback;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import com.site0.walnut.api.WnAuthExecutable;
@@ -34,7 +34,7 @@ import com.site0.walnut.util.Ws;
  */
 public class WnSysTaskService implements WnSysTaskApi {
 
-    private static final Log log = Wlog.getBG_TASK();
+    private static final WnLog log = Wlog.getBG_TASK();
 
     private WnIo io;
 

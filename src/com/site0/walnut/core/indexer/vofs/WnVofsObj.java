@@ -8,8 +8,8 @@ import java.util.Map;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.json.ToJson;
-import org.nutz.lang.Files;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Wfiles;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
@@ -22,7 +22,6 @@ import com.site0.walnut.ext.xo.impl.XoService;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Wobj;
-import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wtime;
 
 @ToJson
@@ -355,7 +354,7 @@ public class WnVofsObj extends NutMap implements WnObj {
 
     @Override
     public boolean hasType() {
-        return !Strings.isBlank(type());
+        return !Ws.isBlank(type());
     }
 
     @Override
@@ -376,7 +375,7 @@ public class WnVofsObj extends NutMap implements WnObj {
     @Override
     public String type() {
         if (this.isFILE())
-            return Files.getSuffixName(xo.getKey());
+            return Wfiles.getSuffixName(xo.getKey());
         return null;
     }
 

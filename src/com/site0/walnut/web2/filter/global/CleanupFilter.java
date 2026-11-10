@@ -1,6 +1,6 @@
 package com.site0.walnut.web2.filter.global;
 
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.mvc.WnMvcContext;
 import com.site0.walnut.mvc.WnMvcFilter;
@@ -21,7 +21,7 @@ import com.site0.walnut.util.Ws;
  */
 public class CleanupFilter implements WnMvcFilter {
 
-    private static final Log log = Wlog.getAC();
+    private static final WnLog log = Wlog.getAC();
 
     @Override
     public void doFilter(WnMvcContext ctx) {

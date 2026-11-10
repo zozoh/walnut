@@ -2,10 +2,10 @@ package com.site0.walnut.web2.boot;
 
 import java.io.File;
 
-import org.nutz.lang.Files;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Wfiles;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.WnVersion;
 import com.site0.walnut.api.io.WnIo;
@@ -38,7 +38,7 @@ import com.site0.walnut.web2.service.WnServiceFactory;
  */
 public class WnWebBoot {
 
-    private static final Log log = Wlog.getMAIN();
+    private static final WnLog log = Wlog.getMAIN();
 
     private final WnServiceFactory factory;
 
@@ -158,13 +158,13 @@ public class WnWebBoot {
     private void __writePid() {
         try {
             String pidPath = System.getenv("WL_PID_PATH");
-            if (Strings.isBlank(pidPath) && new File("/etc/ssh/sshd_config").exists()) {
+            if (Ws.isBlank(pidPath) && new File("/etc/ssh/sshd_config").exists()) {
                 pidPath = "/var/log/walnut.pid";
             }
             String pid = Wlang.JdkTool.getProcessId(null);
             log.infof("path=%s pid=%s", pidPath, pid);
-            if (!Strings.isBlank(pidPath) && !Strings.isBlank(pid)) {
-                Files.write(new File(pidPath), pid);
+            if (!Ws.isBlank(pidPath) && !Ws.isBlank(pid)) {
+                Wfiles.write(new File(pidPath), pid);
             }
         }
         catch (Throwable e) {

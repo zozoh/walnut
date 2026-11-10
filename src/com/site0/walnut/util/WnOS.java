@@ -7,15 +7,14 @@ import java.net.UnknownHostException;
 import java.util.Enumeration;
 
 import org.nutz.lang.Stopwatch;
-import org.nutz.lang.Strings;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.WnVersion;
 import com.site0.walnut.api.err.Er;
 
 public abstract class WnOS {
 
-    private static final Log log = Wlog.getMAIN();
+    private static final WnLog log = Wlog.getMAIN();
 
     public static void fillRuntimeInfo(WnSysRuntime rt) {
         try {
@@ -84,7 +83,7 @@ public abstract class WnOS {
 
         // 必须有名称
         name = nif.getName();
-        if (Strings.isBlank(name)) {
+        if (Ws.isBlank(name)) {
             throw Wlang.makeThrow("Face without name", nif);
         }
 
@@ -96,7 +95,7 @@ public abstract class WnOS {
 
         // 必须有显示名称
         disName = nif.getDisplayName();
-        if (Strings.isBlank(disName)) {
+        if (Ws.isBlank(disName)) {
             return false;
         }
 
@@ -143,7 +142,7 @@ public abstract class WnOS {
     public static String getMacAddress(byte[] data) {
         StringBuilder sb = new StringBuilder();
         for (byte b : data)
-            sb.append(Strings.toHex(b, 2));
+            sb.append(Ws.toHex(b, 2));
         return sb.toString().toUpperCase();
     }
 

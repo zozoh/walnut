@@ -1,7 +1,7 @@
 package com.site0.walnut.ext.sys.wup.hdl;
 
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
@@ -21,7 +21,7 @@ public class wup_node_init implements JvmHdl {
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         String macid = hc.params.check("macid").toUpperCase();
         String type = hc.params.get("type");
-        String default_config = Strings.isBlank(type) ? "default.json" : "default_" + type + ".json";
+        String default_config = Ws.isBlank(type) ? "default.json" : "default_" + type + ".json";
         //String godkey = hc.params.check("godkey");
         WnObj confDir = sys.io.check(null, Wn.normalizeFullPath("~/wup/confs/", sys));
         WnObj confObj = sys.io.createIfNoExists(confDir, macid + ".json", WnRace.FILE);

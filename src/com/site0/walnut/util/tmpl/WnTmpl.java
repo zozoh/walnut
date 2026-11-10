@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 import com.site0.walnut.util.tmpl.ele.TmplBooleanEle;
 import com.site0.walnut.util.tmpl.ele.TmplDateEle;
@@ -270,7 +270,7 @@ public class WnTmpl {
             String s_match = m.group(this.groupIndex);
 
             // 如果是逃逸
-            if (!Strings.isBlank(s_escape)) {
+            if (!Ws.isBlank(s_escape)) {
                 String esc_str = this.getEscapeStr.get(m);
                 list.add(new TmplStaticEle(esc_str));
             }
@@ -312,7 +312,7 @@ public class WnTmpl {
             throw Wlang.makeThrow("Fail to parse tmpl key '%s'", s_match);
 
         String key = m2.group(1);
-        String type = Strings.sNull(m2.group(3), "string");
+        String type = Ws.sNull(m2.group(3), "string");
         String fmt = m2.group(5);
         String dft = m2.group(7);
 

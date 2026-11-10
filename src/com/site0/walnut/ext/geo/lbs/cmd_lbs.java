@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.ext.geo.lbs.bean.LbsCountry;
 import com.site0.walnut.impl.box.JvmHdlExecutor;
 
@@ -17,7 +17,7 @@ public class cmd_lbs extends JvmHdlExecutor {
     private static Map<String, LbsCountry> countriesMap;
 
     static {
-        String str = Files.read("com/site0/walnut/ext/geo/lbs/data/countries.json");
+        String str = Wfiles.read("com/site0/walnut/ext/geo/lbs/data/countries.json");
         countriesList = Json.fromJsonAsList(LbsCountry.class, str);
 
         countriesMap = new HashMap<>();

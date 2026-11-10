@@ -2,7 +2,7 @@ package com.site0.walnut.ext.sys.schedule;
 
 import java.util.List;
 
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Wtimes;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.sys.task.cmd_task;
@@ -121,7 +121,7 @@ public class cmd_schedule extends JvmHdlExecutor {
             // 为每个时间槽对象声明上可阅读的时间值
             for (WnObj o : list) {
                 int slot = o.getInt("slot");
-                Times.TmInfo ti = Times.Ti(slot * 60);
+                Wtimes.TmInfo ti = Wtimes.Ti(slot * 60);
                 String ts = ti.toString();
                 o.put("time", ts);
             }

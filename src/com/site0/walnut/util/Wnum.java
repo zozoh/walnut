@@ -54,6 +54,22 @@ public abstract class Wnum {
         return precise(n, 2);
     }
 
+    public static int[] array(int... inputs) {
+        return inputs;
+    }
+
+    public static double precision(double n, int p) {
+        return precise(n, p);
+    }
+
+    public static float precision(float n, int p) {
+        return (float) precise(n, p);
+    }
+
+    public static double precision(double n) {
+        return precise(n);
+    }
+
     public static int sum(int... inputs) {
         int re = 0;
         for (int n : inputs) {

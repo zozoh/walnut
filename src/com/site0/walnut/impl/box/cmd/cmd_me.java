@@ -2,7 +2,7 @@ package com.site0.walnut.impl.box.cmd;
 
 import org.nutz.castor.Castors;
 import org.nutz.json.Json;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.meta.Pair;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.impl.box.JvmExecutor;
@@ -39,7 +39,7 @@ public class cmd_me extends JvmExecutor {
         // 删除变量
         else if (params.has("unset")) {
             String keys = params.get("unset");
-            String[] keyList = Strings.splitIgnoreBlank(keys, "[, \t\n]");
+            String[] keyList = Ws.splitIgnoreBlank(keys, "[, \t\n]");
 
             // 删除元数据
             me.removeMeta(keyList);

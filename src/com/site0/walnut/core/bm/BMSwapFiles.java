@@ -2,7 +2,7 @@ package com.site0.walnut.core.bm;
 
 import java.io.File;
 
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.random.R;
 
 import com.site0.walnut.api.err.Er;
@@ -16,7 +16,7 @@ public class BMSwapFiles {
             if (!autoCreate) {
                 throw Er.create("e.io.bm.local.SwapHomeNotFound", phSwap);
             }
-            dSwap = Files.createDirIfNoExists(phSwap);
+            dSwap = Wfiles.createDirIfNoExists(phSwap);
         }
         // 不是目录，自裁
         if (!dSwap.isDirectory()) {
@@ -33,8 +33,8 @@ public class BMSwapFiles {
 
     public File createSwapFile() {
         String nm = R.UU32();
-        File f = Files.getFile(dSwap, nm);
-        return Files.createFileIfNoExists(f);
+        File f = Wfiles.getFile(dSwap, nm);
+        return Wfiles.createFileIfNoExists(f);
     }
 
     @Override

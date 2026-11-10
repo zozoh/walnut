@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import com.site0.walnut.api.WnExecutable;
 import com.site0.walnut.api.err.Er;
@@ -103,7 +103,7 @@ public class DeleteThingAction extends ThingAction<List<WnObj>> {
 
             for (String id : ids) {
                 // 支持一下半角逗号分隔的 ID列表
-                String[] thIds = Strings.splitIgnoreBlank(id);
+                String[] thIds = Ws.splitIgnoreBlank(id);
                 if (null == thIds || thIds.length == 0) {
                     continue;
                 }

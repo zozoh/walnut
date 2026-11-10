@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 
 import com.site0.walnut.api.box.WnServiceHolder;
 import com.site0.walnut.mvc.WnMvcDispatcher;
@@ -121,7 +121,7 @@ public class WnDispatcherAssembler {
 
     private static List<DmnRule> __load_hostmap() {
         List<DmnRule> list = new ArrayList<>();
-        File f = Files.findFile("hostmap");
+        File f = Wfiles.findFile("hostmap");
         if (null == f || !f.isFile())
             return list;
         try {

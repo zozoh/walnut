@@ -1,71 +1,70 @@
 package com.site0.walnut.util;
 
-import org.nutz.log.Log;
-import org.nutz.log.Logs;
+import com.site0.walnut.log.WnLog;
+import com.site0.walnut.log.WnLogs;
 
 import com.site0.walnut.login.session.WnSession;
-import com.site0.walnut.util.log.WnLogWrapper;
 
 public class Wlog {
 
-    public static Log getIO() {
-        return new WnLogWrapper(Logs.getLog("IO"));
+    public static WnLog getIO() {
+        return WnLogs.getIO();
     }
 
-    public static Log getAUTH() {
-        return new WnLogWrapper(Logs.getLog("AUTH"));
+    public static WnLog getAUTH() {
+        return WnLogs.getAUTH();
     }
 
-    public static Log getBOX() {
-        return new WnLogWrapper(Logs.getLog("BOX"));
+    public static WnLog getBOX() {
+        return WnLogs.getBOX();
     }
 
-    public static Log getHOOK() {
-        return new WnLogWrapper(Logs.getLog("HOOK"));
+    public static WnLog getHOOK() {
+        return WnLogs.getHOOK();
     }
 
-    public static Log getCMD() {
-        return new WnLogWrapper(Logs.getLog("CMD"));
+    public static WnLog getCMD() {
+        return WnLogs.getCMD();
     }
     
-    public static Log getSQL() {
-        return new WnLogWrapper(Logs.getLog("SQL"));
+    public static WnLog getSQL() {
+        return WnLogs.getSQL();
     }
 
-    public static Log getAPP() {
-        return new WnLogWrapper(Logs.getLog("APP"));
+    public static WnLog getAPP() {
+        return WnLogs.getAPP();
     }
 
-    public static Log getAC() {
-        return new WnLogWrapper(Logs.getLog("AC"));
+    public static WnLog getAC() {
+        return WnLogs.getAC();
     }
 
-    public static Log getBG_CLEARNER() {
-        return new WnLogWrapper(Logs.getLog("BG_CLEANER"));
+    public static WnLog getBG_CLEARNER() {
+        return WnLogs.getBG_CLEARNER();
     }
 
-    public static Log getBG_TASK() {
-        return new WnLogWrapper(Logs.getLog("BG_TASK"));
+    public static WnLog getBG_TASK() {
+        return WnLogs.getBG_TASK();
     }
 
-    public static Log getBG_SCHEDULE() {
-        return new WnLogWrapper(Logs.getLog("BG_SCHEDULE"));
+    public static WnLog getBG_SCHEDULE() {
+        return WnLogs.getBG_SCHEDULE();
     }
 
-    public static Log getBG_CRON() {
-        return new WnLogWrapper(Logs.getLog("BG_CRON"));
+    public static WnLog getBG_CRON() {
+        return WnLogs.getBG_CRON();
     }
 
-    // public static Log getEXT() {
-    // return new WnLogWrapper(Logs.getLog("EXT"));
+    // public static WnLog getEXT() {
+    // return WnLogs.getExt();
     // }
 
-    public static Log getMAIN() {
-        return new WnLogWrapper(Logs.getLog("MAIN"));
+    public static WnLog getMAIN() {
+        return WnLogs.getMAIN();
     }
     
-    public static Log getTEST() {
-        return new WnLogWrapper(Logs.getLog("TEST"));
+    public static WnLog getTEST() {
+        return WnLogs.getTEST();
     }
 
     public static String msgf(String fmt, Object... args) {

@@ -1,6 +1,6 @@
 package com.site0.walnut.ext.geo.lbs.bean;
 
-import org.nutz.lang.Nums;
+import com.site0.walnut.util.Wnum;
 
 public class LbsFreight {
 
@@ -61,7 +61,7 @@ public class LbsFreight {
     }
 
     public void setFirst(float first) {
-        this.first = Nums.precision(first, 2);
+        this.first = Wnum.precision(first, 2);
     }
 
     public float getAdditional() {
@@ -69,7 +69,7 @@ public class LbsFreight {
     }
 
     public void setAdditional(float additional) {
-        this.additional = Nums.precision(additional, 2);
+        this.additional = Wnum.precision(additional, 2);
     }
 
     public float getTotal() {
@@ -77,7 +77,7 @@ public class LbsFreight {
     }
 
     public void setTotal(float total) {
-        this.total = Nums.precision(total, 2);
+        this.total = Wnum.precision(total, 2);
     }
 
 }

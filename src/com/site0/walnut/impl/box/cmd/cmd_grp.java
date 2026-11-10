@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.impl.box.JvmExecutor;
@@ -72,7 +72,7 @@ public class cmd_grp extends JvmExecutor {
             sys.auth.removeRole(u.getName(), grp);
         }
         // 显示指定组内部所有的用户
-        else if (!Strings.isBlank(grp)) {
+        else if (!Ws.isBlank(grp)) {
 
             // 检查权限
             __check_right(sys, me, grp, null);
@@ -89,7 +89,7 @@ public class cmd_grp extends JvmExecutor {
             // 输出成表格
             else {
                 String[] keys = Wlang.array("grp", "unm", "type", "role");
-                params.setv("t", Strings.join(",", keys));
+                params.setv("t", Ws.join(",", keys));
                 Cmds.output_objs_as_table(sys, params, null, outs);
             }
         }
@@ -117,7 +117,7 @@ public class cmd_grp extends JvmExecutor {
             // 输出成表格
             else {
                 String[] keys = Wlang.array("grp", "type", "role");
-                params.setv("t", Strings.join(",", keys));
+                params.setv("t", Ws.join(",", keys));
 
                 List<NutBean> outs = new ArrayList<>(roles.size());
                 for (WnRole role : roles) {
@@ -145,7 +145,7 @@ public class cmd_grp extends JvmExecutor {
     private String __get_unm(ZParams params, String key, String myName) {
         String unm = params.getString(key);
 
-        if (Strings.isBlank(unm))
+        if (Ws.isBlank(unm))
             unm = myName;
         return unm;
     }

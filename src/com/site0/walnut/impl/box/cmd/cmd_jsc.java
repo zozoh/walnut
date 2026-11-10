@@ -7,9 +7,9 @@ import javax.script.ScriptEngineFactory;
 import org.nutz.json.Json;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Stopwatch;
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Wtimes;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmExecutor;
@@ -29,7 +29,7 @@ import com.site0.walnut.util.ZParams;
  */
 public class cmd_jsc extends JvmExecutor {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
@@ -198,7 +198,7 @@ public class cmd_jsc extends JvmExecutor {
             stopwatch.stop();
             sys.out.printlnf("runTime=%dms(%s)",
                              stopwatch.getDuration(),
-                             Times.fromMillis(stopwatch.getDuration()));
+                             Wtimes.fromMillis(stopwatch.getDuration()));
             sys.out.println("re=" + obj);
         }
     }

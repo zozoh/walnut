@@ -7,11 +7,11 @@ import com.site0.walnut.api.err.Er;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 public class AppInitItem {
 
@@ -39,7 +39,7 @@ public class AppInitItem {
      */
     private NutMap contentFileVars;
 
-    final static Log log = Wlog.getCMD();
+    final static WnLog log = Wlog.getCMD();
 
     @Override
     public boolean equals(Object obj) {
@@ -260,7 +260,7 @@ public class AppInitItem {
     }
 
     public void setProperties(String json, NutBean vars) {
-        if (Strings.isBlank(json)) {
+        if (Ws.isBlank(json)) {
             this.properties = null;
         } else {
             if (null != vars) {
@@ -271,7 +271,7 @@ public class AppInitItem {
     }
 
     public void addProperties(String json, NutBean vars) {
-        if (!Strings.isBlank(json)) {
+        if (!Ws.isBlank(json)) {
             if (null == this.properties) {
                 this.properties = new NutMap();
             }
@@ -310,7 +310,7 @@ public class AppInitItem {
      * 
      */
     public void addQuickMeta(String str, NutBean vars) {
-        if (Strings.isBlank(str)) {
+        if (Ws.isBlank(str)) {
             return;
         }
         if (this.meta == null) {
@@ -319,7 +319,7 @@ public class AppInitItem {
         if (null != vars) {
             str = WnTmpl.exec(str, vars);
         }
-        String[] ss = Strings.splitIgnoreBlank(str, "/");
+        String[] ss = Ws.splitIgnoreBlank(str, "/");
         for (String s : ss) {
             // TP
             if (s.startsWith("=")) {
@@ -327,7 +327,7 @@ public class AppInitItem {
                 this.meta.put("tp", tp);
             }
             // ICON
-            else if (Strings.isQuoteBy(s, '<', '>')) {
+            else if (Ws.isQuoteBy(s, '<', '>')) {
                 String icon = s.substring(1, s.length() - 1).trim();
                 this.meta.put("icon", icon);
             }
@@ -371,7 +371,7 @@ public class AppInitItem {
     }
 
     public boolean hasPath() {
-        return !Strings.isBlank(path);
+        return !Ws.isBlank(path);
     }
 
     public String getPath() {
@@ -379,7 +379,7 @@ public class AppInitItem {
     }
 
     public void setPath(String path, NutBean vars) {
-        if (Strings.isBlank(path)) {
+        if (Ws.isBlank(path)) {
             this.path = null;
         } else {
             if (null != vars) {
@@ -395,7 +395,7 @@ public class AppInitItem {
     }
 
     public boolean hasLinkPath() {
-        return !Strings.isBlank(linkPath);
+        return !Ws.isBlank(linkPath);
     }
 
     public String getLinkPath() {
@@ -403,7 +403,7 @@ public class AppInitItem {
     }
 
     public void setLinkPath(String linkPath, NutBean vars) {
-        if (Strings.isBlank(linkPath)) {
+        if (Ws.isBlank(linkPath)) {
             this.linkPath = null;
         } else {
             if (null != vars) {
@@ -427,7 +427,7 @@ public class AppInitItem {
     }
 
     public void addMeta(String json, NutBean vars) {
-        if (!Strings.isBlank(json)) {
+        if (!Ws.isBlank(json)) {
             if (null == this.meta) {
                 this.meta = new NutMap();
             }
@@ -446,7 +446,7 @@ public class AppInitItem {
     }
 
     public void setMeta(String json, NutBean vars) {
-        if (Strings.isBlank(json)) {
+        if (Ws.isBlank(json)) {
             this.meta = null;
         } else {
             if (null != vars) {
@@ -510,7 +510,7 @@ public class AppInitItem {
     }
 
     public boolean hasContentFilePath() {
-        return !Strings.isBlank(contentFilePath);
+        return !Ws.isBlank(contentFilePath);
     }
 
     public String getContentFilePath() {
@@ -530,7 +530,7 @@ public class AppInitItem {
     }
 
     public void setContentFileVars(String json, NutBean vars) {
-        if (Strings.isBlank(json)) {
+        if (Ws.isBlank(json)) {
             this.contentFileVars = null;
         } else {
             if (null != vars) {

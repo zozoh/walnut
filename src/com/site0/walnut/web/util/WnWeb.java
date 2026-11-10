@@ -6,9 +6,9 @@ import java.net.URLEncoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.nutz.lang.Encoding;
+
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.Callback2;
 import com.site0.walnut.api.io.WnObj;
 
@@ -37,7 +37,7 @@ public abstract class WnWeb {
     public static String autoUserAgent(WnObj o, String ua, boolean downMedia) {
         String mime = o.mime();
 
-        if (!Strings.isBlank(mime)) {
+        if (!Ws.isBlank(mime)) {
             // 媒体看开关
             if (mime.startsWith("image/")
                 || mime.startsWith("video/")
@@ -81,7 +81,7 @@ public abstract class WnWeb {
     public static String autoUserAgent(WnObj o, String ua, String mode) {
         WnDownloadMode md = WnDownloadMode.auto;
         // 解析模式
-        if (!Strings.isBlank(mode)) {
+        if (!Ws.isBlank(mode)) {
             try {
                 md = WnDownloadMode.valueOf(mode);
             }
@@ -110,7 +110,7 @@ public abstract class WnWeb {
         if (WnDownloadMode.auto == mode) {
             String mime = o.mime();
 
-            if (!Strings.isBlank(mime)) {
+            if (!Ws.isBlank(mime)) {
                 // 文本/JS/JSON/Image/Video 不下载
                 if (mime.startsWith("text/")
                     || mime.startsWith("image/")
@@ -162,7 +162,7 @@ public abstract class WnWeb {
             }
             // 其他用标准
             else {
-                String e_fnm = URLEncoder.encode(fnm, Encoding.UTF8);
+                String e_fnm = URLEncoder.encode(fnm, java.nio.charset.StandardCharsets.UTF_8);
                 return "attachment; filename*=utf-8'zh_cn'" + e_fnm;
             }
         }
@@ -172,7 +172,7 @@ public abstract class WnWeb {
     }
 
     public static String encodeContentDisposition(String fname) {
-        String s0 = URLEncoder.encode(fname, Encoding.CHARSET_UTF8);
+        String s0 = URLEncoder.encode(fname, java.nio.charset.StandardCharsets.UTF_8);
         String s1 = s0.replace("+", "%20");
         return "filename*=UTF-8''" + s1;
     }

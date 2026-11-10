@@ -11,7 +11,7 @@ import org.nutz.json.Json;
 import org.nutz.json.ToJson;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Regex;
+import com.site0.walnut.util.Wregex;
 import com.site0.walnut.cheap.css.CheapCss;
 import com.site0.walnut.cheap.css.CheapSize;
 import com.site0.walnut.cheap.css.CheapStyle;
@@ -164,8 +164,8 @@ public class CheapElement extends CheapNode {
         }
     }
 
-    private static final Pattern P_BEG_NL = Regex.getPattern("^\\s*\r?\n");
-    private static final Pattern P_END_NL = Regex.getPattern("\r?\n\\s*$");
+    private static final Pattern P_BEG_NL = Wregex.getPattern("^\\s*\r?\n");
+    private static final Pattern P_END_NL = Wregex.getPattern("\r?\n\\s*$");
 
     @Override
     public void format(CheapFormatter cdf, int depth) {

@@ -22,19 +22,14 @@ import org.nutz.json.Json;
 import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
-import org.nutz.lang.Files;
 import org.nutz.lang.LoopException;
 import org.nutz.lang.Maths;
 import org.nutz.lang.Mirror;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
-import org.nutz.lang.Times;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.Callback;
-import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Regex;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import org.nutz.web.Webs.Err;
@@ -103,7 +98,7 @@ public abstract class Wn {
     }
 
     public static boolean matchs(String str, String regex) {
-        Pattern p = Regex.getPattern(regex);
+        Pattern p = Wregex.getPattern(regex);
         return p.matcher(str).matches();
     }
 
@@ -163,7 +158,7 @@ public abstract class Wn {
     }
 
     public static WnObj getObj(WnIo io, String str) {
-        if (Strings.isBlank(str))
+        if (Ws.isBlank(str))
             return null;
 
         // 用 ID! 不可以，否则的话，名字为 ID 的对象就取不到了
@@ -215,7 +210,7 @@ public abstract class Wn {
     public static List<WnObj> getPathObjList(WnSystem sys, String varName, String dftPh) {
         NutBean vars = sys.session.getEnv();
         String paths = vars.getString(varName, dftPh);
-        String[] phs = Strings.splitIgnoreBlank(paths, ":");
+        String[] phs = Ws.splitIgnoreBlank(paths, ":");
 
         if (null == phs)
             return new LinkedList<WnObj>();
@@ -240,7 +235,7 @@ public abstract class Wn {
     }
 
     public static String appendPath(String... phs) {
-        return Disks.appendPath(phs);
+        return Wdisks.appendPath(phs);
     }
 
     /**
@@ -285,9 +280,9 @@ public abstract class Wn {
             int n = phs.length - pos;
             String[] ss = new String[n];
             System.arraycopy(phs, pos, ss, 0, n);
-            re = Disks.appendPath(ss);
+            re = Wdisks.appendPath(ss);
         } else {
-            re = Disks.appendPath(phs);
+            re = Wdisks.appendPath(phs);
         }
         if (null != lastIsSlash && lastIsSlash[0] && !re.endsWith("/")) {
             re += "/";
@@ -300,7 +295,7 @@ public abstract class Wn {
             return null;
         // TODO zozoh: 应该考虑一些特殊字符 ...
         String s = wildcard.replace("*", ".*");
-        return Regex.getPattern("^" + s + "$");
+        return Wregex.getPattern("^" + s + "$");
     }
 
     public static boolean matchWildcard(String s, String wildcard) {
@@ -332,7 +327,7 @@ public abstract class Wn {
     }
 
     public static String tidyPath(WnIo io, String ph) {
-        String[] paths = Strings.splitIgnoreBlank(ph, "/");
+        String[] paths = Ws.splitIgnoreBlank(ph, "/");
 
         // 从后面查找 id:xxx
         String id = null;
@@ -350,7 +345,7 @@ public abstract class Wn {
             WnObj o = io.checkById(id);
             i++;
             int len = paths.length - i;
-            String rph = Strings.join(i, len, "/", paths);
+            String rph = Ws.join(i, len, "/", paths);
             String aph = o.path();
             return Wn.appendPath(aph, rph);
         }
@@ -380,7 +375,7 @@ public abstract class Wn {
     }
 
     public static String normalizePath(String ph, NutBean vars, boolean applyEnv) {
-        if (Strings.isBlank(ph))
+        if (Ws.isBlank(ph))
             return ph;
         // 主目录开头
         if (ph.startsWith("~/") || ph.equals("~")) {
@@ -449,7 +444,7 @@ public abstract class Wn {
 
     public static String normalizeFullPath(String ph, NutBean vars, boolean applyEnv) {
         // 防空
-        if (Strings.isBlank(ph))
+        if (Ws.isBlank(ph))
             return ph;
 
         boolean isForDir = ph.endsWith("/");
@@ -759,7 +754,7 @@ public abstract class Wn {
 
     public static class Mime {
         public static String getGroupName(String mime, String dft) {
-            if (!Strings.isBlank(mime)) {
+            if (!Ws.isBlank(mime)) {
                 int pos = mime.indexOf("/");
                 if (pos > 0) {
                     return mime.substring(0, pos);
@@ -827,7 +822,7 @@ public abstract class Wn {
         public static final int NO_PVG = -999;
 
         public static boolean isEmptySha1(String sha1) {
-            return Strings.isBlank(sha1) || EMPTY_SHA1.equals(sha1);
+            return Ws.isBlank(sha1) || EMPTY_SHA1.equals(sha1);
         }
 
         public static String octalModeToStr(String octalMode) {
@@ -926,7 +921,7 @@ public abstract class Wn {
          */
         public static String[] eval_dn(WnObj o) {
             String ph = o.path();
-            String[] ss = Strings.splitIgnoreBlank(ph, "/");
+            String[] ss = Ws.splitIgnoreBlank(ph, "/");
             for (int i = 0; i < 2; i++) {
                 if (i < ss.length)
                     o.put("d" + i, ss[i]);
@@ -1055,8 +1050,8 @@ public abstract class Wn {
             if (null == oDst) {
                 // 必须存在父
                 if (!isR) {
-                    WnObj oP = Wn.checkObj(sys, Files.getParent(ph_dst));
-                    oDst = sys.io.createIfNoExists(oP, Files.getName(ph_dst), oSrc.race());
+                    WnObj oP = Wn.checkObj(sys, Wfiles.getParent(ph_dst));
+                    oDst = sys.io.createIfNoExists(oP, Wfiles.getName(ph_dst), oSrc.race());
                 }
                 // 否则自由创建
                 else {
@@ -1133,7 +1128,7 @@ public abstract class Wn {
             else if (oSrc.isFILE() && oDst.isFILE()) {
                 // 输出日志
                 if (isV) {
-                    String rph = Disks.getRelativePath(ph_base, oSrc.path());
+                    String rph = Wdisks.getRelativePath(ph_base, oSrc.path());
                     sys.out.println(rph);
                 }
 
@@ -1212,7 +1207,7 @@ public abstract class Wn {
                 return null;
             String ph_base = base.getRegularPath();
             String ph_o = o.getRegularPath();
-            return Disks.getRelativePath(ph_base, ph_o);
+            return Wdisks.getRelativePath(ph_base, ph_o);
         }
 
         /**
@@ -1466,15 +1461,15 @@ public abstract class Wn {
     public static final String OBJ_META_PREFIX = ".wn_obj_meta_";
 
     public static String metaPath(String ph) {
-        String nm = Files.getName(ph);
-        return Files.getParent(ph) + "/" + OBJ_META_PREFIX + nm;
+        String nm = Wfiles.getName(ph);
+        return Wfiles.getParent(ph) + "/" + OBJ_META_PREFIX + nm;
     }
 
     public static void set_type(MimeMap mimes, WnObj o, String tp) {
         if (o.isFILE()) {
             // 根据名称自动获取类型
-            if (Strings.isBlank(tp)) {
-                tp = Files.getSuffixName(o.name());
+            if (Ws.isBlank(tp)) {
+                tp = Wfiles.getSuffixName(o.name());
                 // 类型会被强制设置成小写
                 if (null != tp) {
                     // 如果仅仅是数字，全当没有
@@ -1489,7 +1484,7 @@ public abstract class Wn {
             }
             // 校验一下类型
             if (!o.hasType() || !o.isType(tp)) {
-                if (Strings.isBlank(tp)) {
+                if (Ws.isBlank(tp)) {
                     tp = "txt";
                 }
                 o.type(tp);
@@ -1511,7 +1506,7 @@ public abstract class Wn {
 
     public static boolean hasVCLibrary() {
         String vcPath = System.getenv("VIDEO_CONVERT_PATH");
-        return !Strings.isBlank(vcPath);
+        return !Ws.isBlank(vcPath);
     }
 
     public static class thumbnail {
@@ -1542,8 +1537,8 @@ public abstract class Wn {
         OutputStream out = null;
         File cf = null;
         try {
-            cf = File.createTempFile(Strings.alignLeft(obj.name(), 3, 'a'),
-                                     !Strings.isBlank(obj.type()) ? "." + obj.type() : null);
+            cf = File.createTempFile(Ws.alignLeft(obj.name(), 3, 'a'),
+                                     !Ws.isBlank(obj.type()) ? "." + obj.type() : null);
             out = new FileOutputStream(cf);
             io.readAndClose(obj, out);
             out.flush();
@@ -1684,20 +1679,20 @@ public abstract class Wn {
      * @return 展开后的字符串
      */
     public static Object fmt_str_macro(String s) {
-        if (Strings.isBlank(s)) {
+        if (Ws.isBlank(s)) {
             return s;
         }
         Object v2;
         // 日期对象
         if (s.startsWith("%date:")) {
-            String str = Strings.trim(s.substring("%date:".length()));
+            String str = Ws.trim(s.substring("%date:".length()));
             long ms = Wtime.valueOf(str);
             Date d = new Date(ms);
             v2 = Wtime.formatUTC(d, "yyyy-MM-dd HH:mm:ss.SSS");
         }
         // 毫秒数
         else if (s.startsWith("%ms:")) {
-            String str = Strings.trim(s.substring("%ms:".length()));
+            String str = Ws.trim(s.substring("%ms:".length()));
             v2 = Wtime.valueOf(str);
         }
         // 默认采用原值
@@ -1712,7 +1707,7 @@ public abstract class Wn {
         if (ms > 0) {
             return new Date(ms);
         }
-        return Times.D(str);
+        return Wtimes.D(str);
     }
 
     public static long evalDateMs(String str) {
@@ -1720,7 +1715,7 @@ public abstract class Wn {
         if (ms > 0) {
             return ms;
         }
-        return Times.D(str).getTime();
+        return Wtimes.D(str).getTime();
     }
 
     /**
@@ -1736,7 +1731,7 @@ public abstract class Wn {
      * @return 正则表达式字符串
      */
     public static String toQueryRegex(String str) {
-        if (Strings.isBlank(str)) {
+        if (Ws.isBlank(str)) {
             return null;
         }
         if (str.startsWith("^"))
@@ -1864,7 +1859,7 @@ public abstract class Wn {
     }
 
     public static String getEtag(String sha1, long len, long lastModified) {
-        if (Strings.isBlank(sha1)) {
+        if (Ws.isBlank(sha1)) {
             sha1 = "F";
         } else if (sha1.length() > 6) {
             sha1 = sha1.substring(0, 6);
@@ -1908,11 +1903,11 @@ public abstract class Wn {
     public static String escapeHtml(String str, boolean trim) {
         // var re = _.isString(str) ? str.replace("<", "&lt;") : str;
         // re = this.__escape_ele.text(str).text();
-        if (Strings.isBlank(str))
+        if (Ws.isBlank(str))
             return str;
 
         StringBuilder re = new StringBuilder();
-        Pattern REG = Regex.getPattern("[<&>]");
+        Pattern REG = Wregex.getPattern("[<&>]");
         int pos = 0;
         Matcher m = REG.matcher(str);
         while (m.find()) {
@@ -1945,18 +1940,18 @@ public abstract class Wn {
         }
 
         // 返回吧
-        return trim ? Strings.trim(re) : re.toString();
+        return trim ? Ws.trim(re) : re.toString();
     }
 
     // 对 HTML 代码逃逸的结果，反逃逸
     public static String unescapeHtml(String str, boolean trim) {
         // var re = _.isString(str) ? str.replace("<", "&lt;") : str;
         // re = this.__escape_ele.text(str).text();
-        if (Strings.isBlank(str))
+        if (Ws.isBlank(str))
             return str;
 
         StringBuilder re = new StringBuilder();
-        Pattern REG = Regex.getPattern("&lt;|&amp;|&gt;");
+        Pattern REG = Wregex.getPattern("&lt;|&amp;|&gt;");
         int pos = 0;
         Matcher m = REG.matcher(str);
         while (m.find()) {
@@ -1989,7 +1984,7 @@ public abstract class Wn {
         }
 
         // 返回吧
-        return trim ? Strings.trim(re) : re.toString();
+        return trim ? Ws.trim(re) : re.toString();
     }
 
     @SuppressWarnings("unchecked")

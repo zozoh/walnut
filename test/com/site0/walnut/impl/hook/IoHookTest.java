@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import com.site0.walnut.BaseHookTest;
@@ -33,7 +33,7 @@ public class IoHookTest extends BaseHookTest {
         // 查看 log
         WnObj oLog = io.check(oHome, "testlog");
         String log = io.readText(oLog);
-        String[] lines = Strings.splitIgnoreBlank(log, "\n");
+        String[] lines = Ws.splitIgnoreBlank(log, "\n");
         assertEquals(2, lines.length);
         assertEquals("mydir mnt:[file://~/tmp/walnut] old:[]", lines[0]);
         assertEquals("mydir mnt:[] old:[file://~/tmp/walnut]", lines[1]);
@@ -59,7 +59,7 @@ public class IoHookTest extends BaseHookTest {
         // 查看 log
         WnObj oLog = io.check(oHome, "testlog");
         String log = io.readText(oLog);
-        String[] lines = Strings.splitIgnoreBlank(log, "\n");
+        String[] lines = Ws.splitIgnoreBlank(log, "\n");
         assertEquals(3, lines.length);
         assertEquals("19", lines[0]);
         assertEquals("1989", lines[1]);
@@ -89,7 +89,7 @@ public class IoHookTest extends BaseHookTest {
         // 查看 log
         WnObj oLog = io.check(oHome, "testlog");
         String log = io.readText(oLog);
-        String[] lines = Strings.splitIgnoreBlank(log, "\n");
+        String[] lines = Ws.splitIgnoreBlank(log, "\n");
         assertEquals(3, lines.length);
         assertEquals("mv:abc.js to /home/xiaobai/abc.js.new.js", lines[0]);
         assertEquals("mv:bbc.js to /home/xiaobai/bbc.js.new.js", lines[1]);
@@ -120,7 +120,7 @@ public class IoHookTest extends BaseHookTest {
         // 查看 log
         WnObj oLog = io.check(oHome, "testlog");
         String log = io.readText(oLog);
-        String[] lines = Strings.splitIgnoreBlank(log, "\n");
+        String[] lines = Ws.splitIgnoreBlank(log, "\n");
         assertEquals(3, lines.length);
         assertEquals("js:abc.js", lines[0]);
         assertEquals("css:abc.css", lines[1]);

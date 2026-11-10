@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutBean;
 import org.nutz.web.WebException;
@@ -113,7 +113,7 @@ public class WnMailPosting {
                     String aph = Wn.normalizeFullPath(atPath, vars);
                     WnObj ato = io.check(null, aph);
                     String name = ato.name();
-                    String suffix = Files.getSuffix(name);
+                    String suffix = Wfiles.getSuffix(name);
                     // 如果设置了 title 采用 title 作为名称
                     String title = ato.getString("title");
                     if (!Ws.isBlank(title)) {

@@ -2,7 +2,7 @@ package com.site0.walnut;
 
 import org.junit.After;
 import org.junit.Before;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.core.IoCoreTest;
@@ -15,7 +15,7 @@ import com.site0.walnut.web.setup.WnSetup;
 
 public abstract class BaseIoTest extends IoCoreTest {
 
-    static Log log = Wlog.getTEST();
+    static WnLog log = Wlog.getTEST();
 
     protected WnIo io;
 

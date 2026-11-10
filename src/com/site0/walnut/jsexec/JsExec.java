@@ -18,10 +18,10 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.nashorn.NashornObjectWrapper;
@@ -29,12 +29,11 @@ import com.site0.walnut.util.JsExecContext;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.log.WnJsLogProxy;
 
 public class JsExec {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     public static String dft_engine_nm = "nashorn";
 
@@ -105,7 +104,7 @@ public class JsExec {
     public Object exec(JsExecContext jsc, String engineName, NutMap vars, String jsStr)
             throws Exception {
         // 首先，确保有引擎名称
-        if (Strings.isBlank(engineName)) {
+        if (Ws.isBlank(engineName)) {
             throw Er.create("e.jsc.engin.blank");
         }
 
@@ -225,9 +224,10 @@ public class JsExec {
     public ScriptEngine getNashornEngineSafe(Function<String, Boolean> func) throws Exception {
         for (ScriptEngineFactory factory : getEngineFactories()) {
             if (factory.getClass()
-                       .getName()
-                       .equals("jdk.nashorn.api.scripting.NashornScriptEngineFactory")) {
-                Class<Object> klass = (Class<Object>) Class.forName("jdk.nashorn.api.scripting.ClassFilter");
+                .getName()
+                .equals("jdk.nashorn.api.scripting.NashornScriptEngineFactory")) {
+                Class<Object> klass = (Class<Object>) Class
+                    .forName("jdk.nashorn.api.scripting.ClassFilter");
                 Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(),
                                                       new Class<?>[]{klass},
                                                       new InvocationHandler() {
@@ -237,12 +237,13 @@ public class JsExec {
                                                                                Object[] args)
                                                                   throws Throwable {
                                                               return func == null
-                                                                     || func.apply((String) args[0]);
+                                                                     || func
+                                                                         .apply((String) args[0]);
                                                           }
                                                       });
                 return (ScriptEngine) factory.getClass()
-                                             .getMethod("getScriptEngine", klass)
-                                             .invoke(factory, proxy);
+                    .getMethod("getScriptEngine", klass)
+                    .invoke(factory, proxy);
             }
         }
         return null;

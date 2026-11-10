@@ -1,7 +1,7 @@
 package com.site0.walnut.util.tmpl.ele;
 
 import org.nutz.castor.Castors;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wlang;
 
 public class TmplBooleanEle extends TmplDynamicEle {
@@ -11,12 +11,12 @@ public class TmplBooleanEle extends TmplDynamicEle {
 
     public TmplBooleanEle(String key, String fmt, String dft) {
         super("boolean", key, fmt, dft);
-        if (Strings.isBlank(fmt)) {
+        if (Ws.isBlank(fmt)) {
             this.texts = Wlang.array("false", "true");
         }
         // 定制了
         else {
-            String s = Strings.sNull(fmt, "false/true");
+            String s = Ws.sNull(fmt, "false/true");
             int pos = s.indexOf('/');
             // "xxx"
             if (pos < 0) {

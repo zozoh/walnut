@@ -1,7 +1,6 @@
 package com.site0.walnut.util;
 
-import org.nutz.lang.Strings;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.mongo.ZMoDB;
 import org.nutz.mongo.ZMongo;
@@ -12,7 +11,7 @@ import com.mongodb.client.MongoDatabase;
 
 public class MongoDB {
 
-    private static final Log log = Wlog.getMAIN();
+    private static final WnLog log = Wlog.getMAIN();
 
     public String host;
     public int port;
@@ -25,10 +24,10 @@ public class MongoDB {
     private ZMoDB _zdb;
 
     public void on_create() {
-        if (Strings.isBlank(uri)) {
+        if (Ws.isBlank(uri)) {
             ServerAddress sa = ZMongo.NEW_SA(host, port);
             MongoCredential cred = null;
-            if (!Strings.isBlank(usr))
+            if (!Ws.isBlank(usr))
                 cred = MongoCredential.createScramSha1Credential(usr, db, pwd.toCharArray());
             if (log.isInfoEnabled())
                 log.infof("MongoCredential : '%s'", cred);

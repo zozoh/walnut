@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.nutz.json.Json;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.cheap.dom.CheapDocument;
 import com.site0.walnut.cheap.dom.CheapElement;
@@ -17,13 +17,13 @@ public class OomlWRunListTest {
     @Test
     public void test_checkbox() {
         // 读取 XML
-        String xIn = Files.read(basePh + "t_checkbox.xml");
+        String xIn = Wfiles.read(basePh + "t_checkbox.xml");
         CheapDocument xInDoc = new CheapDocument(null);
         CheapXmlParsing ing = new CheapXmlParsing(xInDoc);
         xInDoc = ing.parseDoc(xIn);
 
         // 读取 JSON
-        String xVars = Files.read(basePh + "t_checkbox.json");
+        String xVars = Wfiles.read(basePh + "t_checkbox.json");
         NutMap vars = Json.fromJson(NutMap.class, xVars);
 
         // 执行
@@ -41,7 +41,7 @@ public class OomlWRunListTest {
         String xmlOut = xInDoc.toMarkup();
 
         // 读取预期 XML
-        String xEx = Files.read(basePh + "t_checkbox_ex.xml");
+        String xEx = Wfiles.read(basePh + "t_checkbox_ex.xml");
         CheapDocument xExDoc = new CheapDocument(null);
         ing = new CheapXmlParsing(xExDoc);
         xExDoc = ing.parseDoc(xEx);
@@ -55,13 +55,13 @@ public class OomlWRunListTest {
     @Test
     public void test_none() {
         // 读取 XML
-        String xIn = Files.read(basePh + "t_none.xml");
+        String xIn = Wfiles.read(basePh + "t_none.xml");
         CheapDocument xInDoc = new CheapDocument(null);
         CheapXmlParsing ing = new CheapXmlParsing(xInDoc);
         xInDoc = ing.parseDoc(xIn);
 
         // 读取 JSON
-        String xVars = Files.read(basePh + "t_normal.json");
+        String xVars = Wfiles.read(basePh + "t_normal.json");
         NutMap vars = Json.fromJson(NutMap.class, xVars);
 
         // 执行
@@ -76,7 +76,7 @@ public class OomlWRunListTest {
         String xmlOut = xInDoc.toMarkup();
 
         // 读取预期 XML
-        String xEx = Files.read(basePh + "t_none.xml");
+        String xEx = Wfiles.read(basePh + "t_none.xml");
         CheapDocument xExDoc = new CheapDocument(null);
         ing = new CheapXmlParsing(xExDoc);
         xExDoc = ing.parseDoc(xEx);
@@ -90,13 +90,13 @@ public class OomlWRunListTest {
     @Test
     public void test_normal() {
         // 读取 XML
-        String xIn = Files.read(basePh + "t_normal.xml");
+        String xIn = Wfiles.read(basePh + "t_normal.xml");
         CheapDocument xInDoc = new CheapDocument(null);
         CheapXmlParsing ing = new CheapXmlParsing(xInDoc);
         xInDoc = ing.parseDoc(xIn);
 
         // 读取 JSON
-        String xVars = Files.read(basePh + "t_normal.json");
+        String xVars = Wfiles.read(basePh + "t_normal.json");
         NutMap vars = Json.fromJson(NutMap.class, xVars);
 
         // 执行
@@ -113,7 +113,7 @@ public class OomlWRunListTest {
         String xmlOut = xInDoc.toMarkup();
 
         // 读取预期 XML
-        String xEx = Files.read(basePh + "t_normal_ex.xml");
+        String xEx = Wfiles.read(basePh + "t_normal_ex.xml");
         CheapDocument xExDoc = new CheapDocument(null);
         ing = new CheapXmlParsing(xExDoc);
         xExDoc = ing.parseDoc(xEx);

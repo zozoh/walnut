@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import org.junit.Test;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 
 import com.site0.walnut.util.Wlang;
 
@@ -24,31 +24,31 @@ public class WnLinkedArrayListTest {
         assertEquals("A", list.first());
         assertEquals("D", list.last());
         assertEquals(4, list.size());
-        assertEquals("ABCD", Strings.join("", list));
+        assertEquals("ABCD", Ws.join("", list));
 
         list.popFirst();
         assertEquals("B", list.first());
         assertEquals("D", list.last());
         assertEquals(3, list.size());
-        assertEquals("BCD", Strings.join("", list));
+        assertEquals("BCD", Ws.join("", list));
 
         list.popFirst();
         assertEquals("C", list.first());
         assertEquals("D", list.last());
         assertEquals(2, list.size());
-        assertEquals("CD", Strings.join("", list));
+        assertEquals("CD", Ws.join("", list));
 
         list.popFirst();
         assertEquals("D", list.first());
         assertEquals("D", list.last());
         assertEquals(1, list.size());
-        assertEquals("D", Strings.join("", list));
+        assertEquals("D", Ws.join("", list));
 
         list.popFirst();
         assertNull(list.first());
         assertNull(list.last());
         assertEquals(0, list.size());
-        assertEquals("", Strings.join("", list));
+        assertEquals("", Ws.join("", list));
 
         assertNull(list.popFirst());
         assertNull(list.popFirst());
@@ -62,31 +62,31 @@ public class WnLinkedArrayListTest {
         assertEquals("A", list.first());
         assertEquals("D", list.last());
         assertEquals(4, list.size());
-        assertEquals("ABCD", Strings.join("", list));
+        assertEquals("ABCD", Ws.join("", list));
 
         list.popLast();
         assertEquals("A", list.first());
         assertEquals("C", list.last());
         assertEquals(3, list.size());
-        assertEquals("ABC", Strings.join("", list));
+        assertEquals("ABC", Ws.join("", list));
 
         list.popLast();
         assertEquals("A", list.first());
         assertEquals("B", list.last());
         assertEquals(2, list.size());
-        assertEquals("AB", Strings.join("", list));
+        assertEquals("AB", Ws.join("", list));
 
         list.popLast();
         assertEquals("A", list.first());
         assertEquals("A", list.last());
         assertEquals(1, list.size());
-        assertEquals("A", Strings.join("", list));
+        assertEquals("A", Ws.join("", list));
 
         list.popLast();
         assertNull(list.first());
         assertNull(list.last());
         assertEquals(0, list.size());
-        assertEquals("", Strings.join("", list));
+        assertEquals("", Ws.join("", list));
 
         assertNull(list.popLast());
         assertNull(list.popLast());

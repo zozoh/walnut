@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.mvc.WnMvcContext;
@@ -33,7 +33,7 @@ import com.site0.walnut.web2.support.WnPathRewriter;
  */
 public class DomainRouteFilter implements WnMvcFilter {
 
-    private static final Log log = Wlog.getAC();
+    private static final WnLog log = Wlog.getAC();
 
     private static final String ROUTED = "wn.mvc.domain.routed";
 

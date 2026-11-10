@@ -3,7 +3,7 @@ package com.site0.walnut.web2.controller;
 import java.net.URLDecoder;
 import java.util.LinkedList;
 
-import org.nutz.lang.Encoding;
+
 import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.api.io.WnObj;
@@ -40,7 +40,7 @@ public class ObjFetchController extends AbstractWnController {
 
     static WnMvcView doFetch(WnMvcContext ctx, String str, boolean loadPath, boolean loadAxis) {
         WnSession se = Wn.WC().checkSession();
-        String ph = URLDecoder.decode(str, Encoding.CHARSET_UTF8);
+        String ph = URLDecoder.decode(str, java.nio.charset.StandardCharsets.UTF_8);
         WnObj o = Wn.checkObj(ctx.io(), se, ph);
 
         if (loadAxis) {

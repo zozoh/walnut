@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Regex;
+import com.site0.walnut.util.Wregex;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
@@ -229,7 +229,7 @@ public class WnIoHookedWrapper extends AbstractWnIoWrapper {
     public void set(WnObj o, String regex) {
         WnContext wc = Wn.WC();
 
-        Pattern p = Regex.getPattern(regex);
+        Pattern p = Wregex.getPattern(regex);
         NutMap meta = new NutMap();
         List<String> keys = new ArrayList<>(o.size());
         for (String key : o.keySet()) {

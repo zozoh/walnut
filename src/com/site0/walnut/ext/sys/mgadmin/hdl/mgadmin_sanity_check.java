@@ -5,7 +5,7 @@ import java.util.TreeMap;
 
 import org.bson.Document;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.mongo.ZMoCo;
 import org.nutz.mongo.ZMoDoc;
 import com.site0.walnut.impl.box.JvmHdl;
@@ -78,7 +78,7 @@ public class mgadmin_sanity_check implements JvmHdl {
             String parent_d1 = (String) parent.get("d1");
 
             // CHECK: d0和d1要匹配
-            if (Strings.equals(current_d0, parent_d0) && Strings.equals(current_d1, parent_d1)) {
+            if (Ws.equals(current_d0, parent_d0) && Ws.equals(current_d1, parent_d1)) {
                 // 相等,那就是对的啦,不需要做任何事了
             } else {
                 sys.out.printlnf("id=%s pid=%s d0[%s -- %s] d1[%s -- %s]",

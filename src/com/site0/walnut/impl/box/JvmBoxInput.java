@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import org.nutz.lang.Encoding;
+
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.stream.VoidInputStream;
@@ -20,7 +20,7 @@ public class JvmBoxInput implements Closeable {
     public JvmBoxInput(InputStream ins) {
         ins = null == ins ? new VoidInputStream() : ins;
         this.ins = ins;
-        this.__r = Streams.buffr(new InputStreamReader(ins, Encoding.CHARSET_UTF8));
+        this.__r = Streams.buffr(new InputStreamReader(ins, java.nio.charset.StandardCharsets.UTF_8));
     }
 
     public BufferedReader getReader() {

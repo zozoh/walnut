@@ -2,7 +2,7 @@ package com.site0.walnut.web.setup;
 
 import org.nutz.ioc.Ioc;
 import com.site0.walnut.util.Wlang;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.util.Wlog;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
@@ -18,7 +18,7 @@ import com.site0.walnut.web.WnConfig;
  */
 public class WnMakeSysFolderSetup implements Setup {
 
-    private static final Log log = Wlog.getMAIN();
+    private static final WnLog log = Wlog.getMAIN();
 
     @Override
     public void init(NutConfig nc) {

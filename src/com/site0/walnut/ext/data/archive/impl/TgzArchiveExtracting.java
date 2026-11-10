@@ -11,7 +11,7 @@ import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.nutz.lang.Encoding;
+
 import org.nutz.lang.Streams;
 
 import com.site0.walnut.ext.data.archive.api.ArchiveEntry;
@@ -31,7 +31,7 @@ public class TgzArchiveExtracting implements ArchiveExtracting {
 
     public TgzArchiveExtracting(InputStream ins, Charset charset) {
         if (null == charset) {
-            charset = Encoding.CHARSET_UTF8;
+            charset = java.nio.charset.StandardCharsets.UTF_8;
         }
         this.ins = ins;
         try {

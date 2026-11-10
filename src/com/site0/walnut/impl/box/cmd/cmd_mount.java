@@ -2,7 +2,7 @@ package com.site0.walnut.impl.box.cmd;
 
 import java.util.List;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
@@ -124,7 +124,7 @@ public class cmd_mount extends JvmExecutor {
         for (WnInitMount wim : conf.getInitMount()) {
             WnObj o = sys.io.createIfNoExists(null, wim.path, WnRace.DIR);
             // 添加
-            if (Strings.isBlank(o.mount())) {
+            if (Ws.isBlank(o.mount())) {
                 sys.io.setMount(o, wim.mount);
                 sys.out.printlnf("++ mount : %s > %s", wim.path, wim.mount);
             }

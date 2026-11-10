@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Wtimes;
 import com.site0.walnut.ext.sys.cron.WnSysCron;
 import com.site0.walnut.ext.sys.cron.WnSysCronApi;
 import com.site0.walnut.ext.sys.cron.WnSysCronQuery;
@@ -73,7 +73,7 @@ public class cron_preview implements JvmHdl {
             WnSysCron[] row = matrix[i];
             cells = new ArrayList<>(col);
             int sec = slotSec * i;
-            Times.TmInfo ti = Times.Ti(sec);
+            Wtimes.TmInfo ti = Wtimes.Ti(sec);
             String I = Ws.padStart(i + "", 4, ' ');
             cells.add(I + ") " + ti.toString());
             for (int x = 0; x < col; x++) {

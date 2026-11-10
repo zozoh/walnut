@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.nutz.lang.Encoding;
+
 import org.nutz.lang.Streams;
 import org.nutz.lang.random.R;
 import com.site0.walnut.ext.net.http.HttpContext;
@@ -99,7 +99,7 @@ public class HttpMultipartPostConnector extends AbstractHttpConnector {
     }
 
     private void writeText(OutputStream ops, String str) throws IOException {
-        ops.write(str.getBytes(Encoding.CHARSET_UTF8));
+        ops.write(str.getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
 
 }

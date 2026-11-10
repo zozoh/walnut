@@ -1,7 +1,7 @@
 package com.site0.walnut.ext.net.xapi.bean;
 
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 import com.site0.walnut.util.Wtime;
 
@@ -32,7 +32,7 @@ public class XApiAccessKey {
     }
 
     public boolean hasTicket() {
-        return !Strings.isBlank(ticket);
+        return !Ws.isBlank(ticket);
     }
 
     public String getTicket() {

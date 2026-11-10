@@ -1,6 +1,6 @@
 package com.site0.walnut.impl.box.cmd;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.random.R;
 import org.nutz.lang.random.StringGenerator;
 import com.site0.walnut.api.err.Er;
@@ -8,7 +8,6 @@ import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.login.role.WnRoleList;
 import com.site0.walnut.login.usr.WnUser;
-import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
 
 /**
@@ -27,7 +26,7 @@ public class cmd_passwd extends JvmExecutor {
         // .....................................................
         // 没有密码，则从标准输入读取
         if (params.vals.length == 0) {
-            passwd = Strings.trim(sys.in.readAll());
+            passwd = Ws.trim(sys.in.readAll());
         }
         // 否则第一个参数是密码
         else {
@@ -59,7 +58,7 @@ public class cmd_passwd extends JvmExecutor {
             else {
                 throw Er.create("e.cmd.passwd.dmn_user_no_pvg", me.getName());
             }
-        } else if (!Strings.isBlank(unm)) {
+        } else if (!Ws.isBlank(unm)) {
             u = sys.auth.checkUser(unm);
         }
         // 否则就用当前会话

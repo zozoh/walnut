@@ -1,13 +1,13 @@
 package com.site0.walnut.util.tmpl.ele;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 
 class StrReplaceConvertor implements StrEleConvertor {
 
     private String[] args;
 
     StrReplaceConvertor(String input) {
-        args = Strings.split(input, false, ',');
+        args = Ws.split(input, false, ',');
     }
 
     @Override

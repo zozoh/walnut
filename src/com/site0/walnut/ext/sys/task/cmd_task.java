@@ -2,7 +2,7 @@ package com.site0.walnut.ext.sys.task;
 
 import java.util.List;
 
-import org.nutz.lang.Encoding;
+
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmHdlContext;
 import com.site0.walnut.impl.box.JvmHdlExecutor;
@@ -84,7 +84,7 @@ public class cmd_task extends JvmHdlExecutor {
                 String cmdText;
                 if (cmd.getClass().isArray()) {
                     byte[] bs = (byte[]) cmd;
-                    cmdText = new String(bs, Encoding.CHARSET_UTF8);
+                    cmdText = new String(bs, java.nio.charset.StandardCharsets.UTF_8);
                 } else {
                     cmdText = cmd.toString();
                 }

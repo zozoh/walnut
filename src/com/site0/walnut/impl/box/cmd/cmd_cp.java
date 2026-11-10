@@ -2,7 +2,7 @@ package com.site0.walnut.impl.box.cmd;
 
 import java.util.List;
 
-import org.nutz.lang.util.Disks;
+import com.site0.walnut.util.Wdisks;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmExecutor;
@@ -23,7 +23,7 @@ public class cmd_cp extends JvmExecutor {
         }
         String ph_src = Wn.normalizeFullPath(params.vals[0], sys);
         String ph_dst = Wn.normalizeFullPath(params.vals[1], sys);
-        ph_dst = Disks.getCanonicalPath(ph_dst);
+        ph_dst = Wdisks.getCanonicalPath(ph_dst);
 
         // 固定参数
         NutMap meta = null;

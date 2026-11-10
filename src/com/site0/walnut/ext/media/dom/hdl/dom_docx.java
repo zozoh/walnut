@@ -5,7 +5,7 @@ import java.io.OutputStream;
 
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
@@ -19,7 +19,6 @@ import com.site0.walnut.ext.media.dom.DomFilter;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.ZParams;
 
 public class dom_docx extends DomFilter {
@@ -56,7 +55,7 @@ public class dom_docx extends DomFilter {
 
         // 输出到标准输出
         OutputStream out = null;
-        if (Strings.isBlank(outPath)) {
+        if (Ws.isBlank(outPath)) {
             out = sys.out.getOutputStream();
         }
         // 输出到指定文件

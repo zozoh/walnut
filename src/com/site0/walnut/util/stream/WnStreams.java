@@ -25,9 +25,9 @@ import java.nio.charset.Charset;
 
 import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
-import org.nutz.lang.Encoding;
+
 import org.nutz.lang.ExitLoop;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.stream.FileChannelInputStream;
 import org.nutz.lang.stream.FileChannelOutputStream;
 import org.nutz.lang.stream.VoidInputStream;
@@ -433,7 +433,7 @@ public class WnStreams {
     }
 
     public static String readTextAndClose(InputStream ins) {
-        return readTextAndClose(ins, Encoding.CHARSET_UTF8);
+        return readTextAndClose(ins, java.nio.charset.StandardCharsets.UTF_8);
     }
 
     public static String readTextAndClose(InputStream ins, Charset charset) {
@@ -593,9 +593,9 @@ public class WnStreams {
      * @return 输入流
      */
     public static InputStream fileIn(String path) {
-        InputStream ins = Files.findFileAsStream(path);
+        InputStream ins = Wfiles.findFileAsStream(path);
         if (null == ins) {
-            File f = Files.findFile(path);
+            File f = Wfiles.findFile(path);
             if (null != f)
                 try {
                     ins = WnStreams._input(f);
@@ -695,7 +695,7 @@ public class WnStreams {
      * @return 输出流
      */
     public static OutputStream fileOut(String path) {
-        return fileOut(Files.findFile(path));
+        return fileOut(Wfiles.findFile(path));
     }
 
     /**
@@ -722,7 +722,7 @@ public class WnStreams {
      * @return 文本输出流
      */
     public static Writer fileOutw(String path) {
-        return fileOutw(Files.findFile(path));
+        return fileOutw(Wfiles.findFile(path));
     }
 
     /**
@@ -737,11 +737,11 @@ public class WnStreams {
     }
 
     public static Reader utf8r(InputStream is) {
-        return new InputStreamReader(utf8filte(is), Encoding.CHARSET_UTF8);
+        return new InputStreamReader(utf8filte(is), java.nio.charset.StandardCharsets.UTF_8);
     }
 
     public static Writer utf8w(OutputStream os) {
-        return new OutputStreamWriter(os, Encoding.CHARSET_UTF8);
+        return new OutputStreamWriter(os, java.nio.charset.StandardCharsets.UTF_8);
     }
 
     public static InputStream nullInputStream() {

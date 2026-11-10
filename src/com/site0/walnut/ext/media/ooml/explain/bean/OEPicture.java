@@ -1,6 +1,6 @@
 package com.site0.walnut.ext.media.ooml.explain.bean;
 
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.util.NutBean;
 import com.site0.walnut.cheap.dom.CheapElement;
 import com.site0.walnut.cheap.dom.bean.CheapResource;
@@ -49,7 +49,7 @@ public class OEPicture extends OEVarItem {
         OomlRels rels = ooml.loadRelationships(entry);
         OomlRel rel = rels.get(rId);
         String imgPh = rel.getTarget();
-        String enPath = Files.getParent(entry.getPath());
+        String enPath = Wfiles.getParent(entry.getPath());
         String imgRph = Wn.appendPath(enPath, imgPh);
 
         // 4. 找到这个图片所在的条目

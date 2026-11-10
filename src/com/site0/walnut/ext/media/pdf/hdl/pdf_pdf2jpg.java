@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.random.R;
 import com.site0.walnut.api.io.WnObj;
@@ -30,10 +30,10 @@ public class pdf_pdf2jpg implements JvmHdl {
         WnObj wobj = sys.io.check(null, Wn.normalizeFullPath(source, sys));
         String dir = "/tmp/pdf2xxx/" + R.UU32();
         File tmpDir = new File(dir);
-        Files.createDirIfNoExists(tmpDir);
+        Wfiles.createDirIfNoExists(tmpDir);
         // 将pdf输出到临时目录取
         File pdfTmp = new File(tmpDir + ".source.pdf");
-        Files.write(pdfTmp, sys.io.getInputStream(wobj, 0));
+        Wfiles.write(pdfTmp, sys.io.getInputStream(wobj, 0));
         // 获取总页数
         PDDocument doc = PDDocument.load(sys.io.getInputStream(wobj, 0));
         int pageCount = doc.getNumberOfPages();

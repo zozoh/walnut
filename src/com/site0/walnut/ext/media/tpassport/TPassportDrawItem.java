@@ -1,6 +1,6 @@
 package com.site0.walnut.ext.media.tpassport;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 
 public class TPassportDrawItem {
     // key
@@ -27,6 +27,6 @@ public class TPassportDrawItem {
     public String fid;
 
     public String getContent() {
-        return Strings.isBlank(content) ? name : content;
+        return Ws.isBlank(content) ? name : content;
     }
 }

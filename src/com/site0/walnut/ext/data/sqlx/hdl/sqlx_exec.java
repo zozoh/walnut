@@ -7,7 +7,7 @@ import java.util.Date;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.ext.data.sqlx.SqlxContext;
 import com.site0.walnut.ext.data.sqlx.SqlxFilter;
@@ -25,7 +25,7 @@ import com.site0.walnut.util.validate.impl.AutoMatch;
 
 public class sqlx_exec extends SqlxFilter {
 
-    private static Log log = Wlog.getCMD();
+    private static WnLog log = Wlog.getCMD();
 
     @Override
     protected ZParams parseParams(String[] args) {

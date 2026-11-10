@@ -1,6 +1,6 @@
 package com.site0.walnut.web2.controller;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 import org.nutz.repo.Base64;
 
@@ -17,7 +17,7 @@ import com.site0.walnut.util.Wn;
 /**
  * <code>/o/save/text</code>：对照旧 <code>ObjModule.saveText(607)</code>（RM-NUTZ-08
  * 审核表 #9）。逐行照抄旧方法体（含 <code>whenRead</code> 处理链接文件、
- * <code>Strings.sNull</code>、base64 分支），只换绑定/视图/响应写法。过滤器
+ * <code>Ws.sNull</code>、base64 分支），只换绑定/视图/响应写法。过滤器
  * <code>SessionCheckFilter()</code>。
  */
 public class ObjSaveTextController extends AbstractWnController {
@@ -51,7 +51,7 @@ public class ObjSaveTextController extends AbstractWnController {
             o = Wn.WC().whenRead(o, false);
 
             // 处理空
-            content = Strings.sNull(content, "");
+            content = Ws.sNull(content, "");
 
             // 写入: base64
             if (asBase64) {

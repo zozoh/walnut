@@ -7,7 +7,7 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutBean;
 import com.site0.walnut.api.err.Er;
@@ -180,7 +180,7 @@ public class VXDataSignBM extends AbstractIoBM {
         // 无论怎样，确保删除交换文件
         finally {
             if (null != swap && swap.exists()) {
-                Files.deleteFile(swap);
+                Wfiles.deleteFile(swap);
             }
         }
     }

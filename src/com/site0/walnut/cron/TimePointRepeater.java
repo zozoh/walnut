@@ -7,8 +7,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wtimes;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.Ranges;
@@ -93,18 +93,18 @@ class TimePointRepeater {
 
         // 有时间范围：
         String tmrg = m.group(1);
-        if (!Strings.isBlank(tmrg))
+        if (!Ws.isBlank(tmrg))
             this.region = Ranges.Time(tmrg);
 
         // 处理时间点
         String tps = m.group(3);
-        if (!Strings.isBlank(tps)) {
+        if (!Ws.isBlank(tps)) {
             // 如果不是步长，则根据间隔时间点生成固定时间点
             if (!this.__parse_step(tps)) {
-                String[] timeList = Strings.splitIgnoreBlank(tps);
+                String[] timeList = Ws.splitIgnoreBlank(tps);
                 this.timePoints = new int[timeList.length];
                 for (int x = 0; x < timeList.length; x++) {
-                    this.timePoints[x] = Times.T(timeList[x]);
+                    this.timePoints[x] = Wtimes.T(timeList[x]);
                 }
                 // 确保顺序
                 Arrays.sort(this.timePoints);
@@ -230,9 +230,9 @@ class TimePointRepeater {
         ArrayList<String> list = new ArrayList<>(this.timePoints.length);
         for (int i = 0; i < this.timePoints.length; i++) {
             int sec = this.timePoints[i];
-            list.add(Times.Ti(sec).toString());
+            list.add(Wtimes.Ti(sec).toString());
         }
-        ary.add(Strings.join(", ", list));
+        ary.add(Ws.join(", ", list));
     }
 
     private void __join_step_info(WnCroni18n i18n, List<String> ary) {
@@ -247,7 +247,7 @@ class TimePointRepeater {
         }
         // 对齐
         if (autoPadding) {
-            re += _T(i18n, "pad", Strings.sNull(voff, vstp));
+            re += _T(i18n, "pad", Ws.sNull(voff, vstp));
         }
         // 偏移
         else if (offValue != 0) {
@@ -266,8 +266,8 @@ class TimePointRepeater {
         Integer sFrom = this.region.left();
         Integer sTo = this.region.right();
 
-        Times.TmInfo tFrom = Times.Ti(null == sFrom ? 0 : sFrom);
-        Times.TmInfo tTo = Times.Ti(null == sTo ? 86399 : sTo);
+        Wtimes.TmInfo tFrom = Wtimes.Ti(null == sFrom ? 0 : sFrom);
+        Wtimes.TmInfo tTo = Wtimes.Ti(null == sTo ? 86399 : sTo);
         // 解析模板
         WnTmpl tmpl = WnTmpl.parse(i18n.times.region);
 

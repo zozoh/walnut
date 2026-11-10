@@ -1,6 +1,5 @@
 package com.site0.walnut.util;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -16,11 +15,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Encoding;
-import org.nutz.lang.Times;
-import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Regex;
 
+import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.util.callback.WnStrToken;
 import com.site0.walnut.util.callback.WnStrTokenCallback;
@@ -157,7 +153,7 @@ public class Ws {
     private static final Map<String, Integer> CN_UNIT = new HashMap<>();
 
     private static final String CN_REGEX = "(([零一二三四五六七八九])|([个十百千万亿]))";
-    private static final Pattern CN_N_P = Regex.getPattern(CN_REGEX);
+    private static final Pattern CN_N_P = Wregex.getPattern(CN_REGEX);
 
     static {
         CN_NUMS.put("零", 0);
@@ -395,12 +391,11 @@ public class Ws {
     }
 
     public static String decodeUnicode(String input) {
-        byte[] utf8Bytes = input.getBytes(Encoding.CHARSET_UTF8);
-        return new String(utf8Bytes, Encoding.CHARSET_UTF8);
+        byte[] utf8Bytes = input.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        return new String(utf8Bytes, java.nio.charset.StandardCharsets.UTF_8);
     }
 
-    private static Pattern P_HTML_EN = Pattern
-        .compile("&(#([0-9]+)|([a-z]+));");
+    private static Pattern P_HTML_EN = Pattern.compile("&(#([0-9]+)|([a-z]+));");
 
     public static String escapeHTML(String s) {
         if (null == s) {
@@ -614,9 +609,7 @@ public class Ws {
      *            右字符
      * @return 字符串是被左字符和右字符包裹
      */
-    public static boolean isQuoteByIgnoreBlank(CharSequence cs,
-                                               char lc,
-                                               char rc) {
+    public static boolean isQuoteByIgnoreBlank(CharSequence cs, char lc, char rc) {
         if (null == cs)
             return false;
         int len = cs.length();
@@ -737,10 +730,7 @@ public class Ws {
      *            迭代元素数量
      * @return 合并后的字符串
      */
-    public static <T extends Object> String join(T[] arr,
-                                                 String sep,
-                                                 int off,
-                                                 int len) {
+    public static <T extends Object> String join(T[] arr, String sep, int off, int len) {
         StringBuilder sb = new StringBuilder();
         if (len > 0) {
             int lastI = Math.min(arr.length, off + len);
@@ -829,8 +819,7 @@ public class Ws {
     }
 
     /**
-     * 按照指定的正则表达式和限制条件对输入字符串进行分割操作，在分割后会忽略空白（仅包含空白字符）的子字符串，
-     * 对非空白的子字符串去除首尾空白字符后，将其整合到一个新的字符串数组中返回。
+     * 按照指定的正则表达式和限制条件对输入字符串进行分割操作，在分割后会忽略空白（仅包含空白字符）的子字符串， 对非空白的子字符串去除首尾空白字符后，将其整合到一个新的字符串数组中返回。
      * <p>
      * 此方法首先会检查输入的字符串是否为null，如果是null则直接返回null。接着，
      * 调用{@link String#split(String, int)}方法依据给定的正则表达式和限制条件来分割输入字符串，
@@ -845,8 +834,7 @@ public class Ws {
      * @param limit
      *            分割的限制条件，其含义与{@link String#split(String, int)}方法中的限制参数一致，具体解释如下：
      *            <ul>
-     *            <li>如果为正数，模式最多应用limit -
-     *            1次，数组长度不大于limit，数组最后一项包含最后一个匹配分隔符之后的所有输入内容。</li>
+     *            <li>如果为正数，模式最多应用limit - 1次，数组长度不大于limit，数组最后一项包含最后一个匹配分隔符之后的所有输入内容。</li>
      *            <li>如果为零，模式将尽可能多地应用，数组可以有任意长度，尾部空字符串将被丢弃。</li>
      *            <li>如果为负数，模式将尽可能多地应用，数组可以有任意长度。</li>
      *            </ul>
@@ -887,8 +875,7 @@ public class Ws {
      * 对给定的字符串按照指定的正则表达式和限制条件进行分割，并对分割后的每个子字符串去除首尾空白字符。
      * <p>
      * 该方法首先调用{@link String#split(String, int)}方法按照传入的正则表达式和限制条件来分割输入字符串，
-     * 然后遍历分割后得到的子字符串数组，使用{@link String#trim()}方法去除每个子字符串的首尾空白字符，
-     * 最后返回处理后的子字符串数组。
+     * 然后遍历分割后得到的子字符串数组，使用{@link String#trim()}方法去除每个子字符串的首尾空白字符， 最后返回处理后的子字符串数组。
      *
      * @param s
      *            要进行分割操作的原始字符串
@@ -898,8 +885,7 @@ public class Ws {
      *            分割的限制条件，用于控制分割的次数以及结果数组的长度等情况，其含义与{@link String#split(String, int)}方法中的限制参数一致。
      *            具体来说：
      *            <ul>
-     *            <li>如果为正数，模式最多应用limit -
-     *            1次，数组长度不大于limit，数组最后一项包含最后一个匹配分隔符之后的所有输入内容。</li>
+     *            <li>如果为正数，模式最多应用limit - 1次，数组长度不大于limit，数组最后一项包含最后一个匹配分隔符之后的所有输入内容。</li>
      *            <li>如果为零，模式将尽可能多地应用，数组可以有任意长度，尾部空字符串将被丢弃。</li>
      *            <li>如果为负数，模式将尽可能多地应用，数组可以有任意长度。</li>
      *            </ul>
@@ -937,16 +923,13 @@ public class Ws {
      * @param limit
      *            分割的限制条件，其含义与{@link String#split(String, int)}方法中的限制参数一致，具体含义如下：
      *            <ul>
-     *            <li>如果为正数，模式最多应用limit -
-     *            1次，数组长度不大于limit，数组最后一项包含最后一个匹配分隔符之后的所有输入内容。</li>
+     *            <li>如果为正数，模式最多应用limit - 1次，数组长度不大于limit，数组最后一项包含最后一个匹配分隔符之后的所有输入内容。</li>
      *            <li>如果为零，模式将尽可能多地应用，数组可以有任意长度，尾部空字符串将被丢弃。</li>
      *            <li>如果为负数，模式将尽可能多地应用，数组可以有任意长度。</li>
      *            </ul>
      * @return 经过分割、去除首尾空白字符以及将空字符串处理为null后的字符串数组。
      */
-    public static String[] splitTrimedEmptyAsNull(String s,
-                                                  String regex,
-                                                  int limit) {
+    public static String[] splitTrimedEmptyAsNull(String s, String regex, int limit) {
         String[] ss = s.split(regex, limit);
         for (int i = 0; i < ss.length; i++) {
             ss[i] = ss[i].trim();
@@ -985,8 +968,7 @@ public class Ws {
     }
 
     /**
-     * 按照指定的正则表达式和限制条件对输入字符串进行分割，忽略分割后为空（空白字符组成）的子字符串，
-     * 并对非空的子字符串去除首尾空白字符后添加到列表中返回。
+     * 按照指定的正则表达式和限制条件对输入字符串进行分割，忽略分割后为空（空白字符组成）的子字符串， 并对非空的子字符串去除首尾空白字符后添加到列表中返回。
      * <p>
      * 首先会判断输入的字符串是否为null，如果是则直接返回null。然后调用{@link String#split(String, int)}
      * 方法按照给定的正则表达式和限制条件对字符串进行分割，得到一个子字符串数组。接着遍历该数组，
@@ -1000,16 +982,13 @@ public class Ws {
      * @param limit
      *            分割的限制条件，其含义与{@link String#split(String, int)}方法中的限制参数一致，具体如下：
      *            <ul>
-     *            <li>如果为正数，模式最多应用limit -
-     *            1次，数组长度不大于limit，数组最后一项包含最后一个匹配分隔符之后的所有输入内容。</li>
+     *            <li>如果为正数，模式最多应用limit - 1次，数组长度不大于limit，数组最后一项包含最后一个匹配分隔符之后的所有输入内容。</li>
      *            <li>如果为零，模式将尽可能多地应用，数组可以有任意长度，尾部空字符串将被丢弃。</li>
      *            <li>如果为负数，模式将尽可能多地应用，数组可以有任意长度。</li>
      *            </ul>
      * @return 一个包含经过处理后的非空白子字符串的列表，若输入字符串为null则返回null，列表中的每个元素都是去除首尾空白字符后的非空白子字符串。
      */
-    public static List<String> splitIgnoreBlanks(String s,
-                                                 String regex,
-                                                 int limit) {
+    public static List<String> splitIgnoreBlanks(String s, String regex, int limit) {
         if (null == s)
             return null;
         String[] ss = s.split(regex, limit);
@@ -1022,28 +1001,14 @@ public class Ws {
         return list;
     }
 
-    private static char[] STR_ESC_TS = Wchar.array('n',
-                                                   '\n',
-                                                   'r',
-                                                   '\r',
-                                                   't',
-                                                   '\t',
-                                                   'b',
-                                                   '\b',
-                                                   '\'',
-                                                   '\'',
-                                                   '"',
-                                                   '"',
-                                                   '\\',
-                                                   '\\');
+    private static char[] STR_ESC_TS = Wchar
+        .array('n', '\n', 'r', '\r', 't', '\t', 'b', '\b', '\'', '\'', '"', '"', '\\', '\\');
 
     // 解码过程表: 转义字符串 -> 真正字符
-    public static final Wchar.EscapeTable STR_UNESC_TAB = Wchar
-        .buildEscapeTable(STR_ESC_TS);
+    public static final Wchar.EscapeTable STR_UNESC_TAB = Wchar.buildEscapeTable(STR_ESC_TS);
 
     // 编码过程表: 真正字符 -> 转义字符串
-    public static final Wchar.EscapeTable STR_ESC_TAB = Wchar
-        .buildEscapeReverTable(STR_ESC_TS);
+    public static final Wchar.EscapeTable STR_ESC_TAB = Wchar.buildEscapeReverTable(STR_ESC_TS);
 
     /**
      * 将字符串根据转移字符转义
@@ -1075,9 +1040,7 @@ public class Ws {
      *            字符转义表
      * @return 转义后的字符串
      */
-    public static String escape(String str,
-                                char escape,
-                                Wchar.EscapeTable table) {
+    public static String escape(String str, char escape, Wchar.EscapeTable table) {
         StringBuilder sb = new StringBuilder();
         char[] cs = str.toCharArray();
         for (int i = 0; i < cs.length; i++) {
@@ -1096,18 +1059,13 @@ public class Ws {
     }
 
     public static String encodeUrlPair(String key, Object val) {
-        try {
-            if (null != val) {
-                return String
-                    .format("%s=%s",
-                            URLEncoder.encode(key, Encoding.UTF8),
-                            URLEncoder.encode(val.toString(), Encoding.UTF8));
-            } else {
-                return URLEncoder.encode(key, Encoding.UTF8);
-            }
-        }
-        catch (UnsupportedEncodingException e) {
-            throw Er.wrap(e);
+        if (null != val) {
+            return String
+                .format("%s=%s",
+                        URLEncoder.encode(key, java.nio.charset.StandardCharsets.UTF_8),
+                        URLEncoder.encode(val.toString(), java.nio.charset.StandardCharsets.UTF_8));
+        } else {
+            return URLEncoder.encode(key, java.nio.charset.StandardCharsets.UTF_8);
         }
     }
 
@@ -1133,9 +1091,7 @@ public class Ws {
      *            字符转义表
      * @return 转义后的字符串
      */
-    public static String unescape(String str,
-                                  char escape,
-                                  Wchar.EscapeTable table) {
+    public static String unescape(String str, char escape, Wchar.EscapeTable table) {
         StringBuilder sb = new StringBuilder();
         char[] cs = str.toCharArray();
         for (int i = 0; i < cs.length; i++) {
@@ -1145,11 +1101,7 @@ public class Ws {
                 c = cs[++i];
                 char c2 = table.get(c);
                 if (0 == c2) {
-                    throw Wlang
-                        .makeThrow("evalEscape invalid char[%d] '%c'  : %s",
-                                   i,
-                                   c,
-                                   str);
+                    throw Wlang.makeThrow("evalEscape invalid char[%d] '%c'  : %s", i, c, str);
                 }
                 sb.append(c2);
             }
@@ -1174,9 +1126,7 @@ public class Ws {
      * 
      * @see #splitQuote(String, String, boolean, boolean, String)
      */
-    public static List<String> splitQuote(String str,
-                                          String quote,
-                                          String seps) {
+    public static List<String> splitQuote(String str, String quote, String seps) {
         return splitQuote(str, quote, '\\', false, true, seps);
     }
 
@@ -1188,15 +1138,8 @@ public class Ws {
         return splitQuote(str, false, keepQuote);
     }
 
-    public static List<String> splitQuote(String str,
-                                          boolean ignoreBlank,
-                                          boolean keepQuote) {
-        return splitQuote(str,
-                          "\"'",
-                          '\\',
-                          ignoreBlank,
-                          keepQuote,
-                          ",;、，； \t\r\n");
+    public static List<String> splitQuote(String str, boolean ignoreBlank, boolean keepQuote) {
+        return splitQuote(str, "\"'", '\\', ignoreBlank, keepQuote, ",;、，； \t\r\n");
     }
 
     /**
@@ -1406,10 +1349,7 @@ public class Ws {
                                        char[] quotes,
                                        char[] seperators,
                                        WnStrTokenCallback callback) {
-        if (null == input
-            || null == quotes
-            || quotes.length == 0
-            || null == callback) {
+        if (null == input || null == quotes || quotes.length == 0 || null == callback) {
             return;
         }
 
@@ -1659,8 +1599,7 @@ public class Ws {
         return sb.toString();
     }
 
-    private static Pattern JV_NB = Pattern
-        .compile("^(-?([0-9]+)([.][0-9]+)?)([Lf])?$");
+    private static Pattern JV_NB = Pattern.compile("^(-?([0-9]+)([.][0-9]+)?)([Lf])?$");
 
     /**
      * 根据字符串，将其自动转成一个有意义的值
@@ -1731,7 +1670,7 @@ public class Ws {
                 return Json.fromJson(v);
             }
             // Date
-            return Times.D(v);
+            return Wtimes.D(v);
         }
         catch (Exception e) {}
 
@@ -1857,9 +1796,7 @@ public class Ws {
      *            后续单词需要首字母大写
      * @return 拆分的单词
      */
-    public static List<String> splitWords(String input,
-                                          boolean cfl_0,
-                                          boolean cfl_n) {
+    public static List<String> splitWords(String input, boolean cfl_0, boolean cfl_n) {
         char[] chars = input.trim().toCharArray();
         List<String> words = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
@@ -2028,7 +1965,7 @@ public class Ws {
 
     public static String formatAms(long ams, String format) {
         Date d = new Date(ams);
-        return Times.format("yyyy-MM-dd HH:mm:ss", d);
+        return Wtimes.format("yyyy-MM-dd HH:mm:ss", d);
     }
 
     public static String formatAms(long ams) {
@@ -2077,6 +2014,224 @@ public class Ws {
             return re + "(" + len + "bytes)";
         }
         return re;
+    }
+
+    public static boolean isNotBlank(CharSequence cs) {
+        return !isBlank(cs);
+    }
+
+    public static String sNull(Object obj) {
+        return sNull(obj, "");
+    }
+
+    public static String sNull(Object obj, String def) {
+        return null == obj ? def : obj.toString();
+    }
+
+    public static String dup(CharSequence cs, int num) {
+        if (isEmpty(cs) || num <= 0) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder(cs.length() * num);
+        for (int i = 0; i < num; i++) {
+            sb.append(cs);
+        }
+        return sb.toString();
+    }
+
+    public static String dup(char c, int num) {
+        return dup(String.valueOf(c), num);
+    }
+
+    public static String alignLeft(Object o, int width, char c) {
+        if (null == o) {
+            return null;
+        }
+        String s = o.toString();
+        return s.length() >= width ? s : s + dup(c, width - s.length());
+    }
+
+    public static String alignRight(Object o, int width, char c) {
+        if (null == o) {
+            return null;
+        }
+        String s = o.toString();
+        return s.length() >= width ? s : dup(c, width - s.length()) + s;
+    }
+
+    public static String escapeHtml(CharSequence cs) {
+        return null == cs ? null : escapeHTML(cs.toString());
+    }
+
+    public static String formatSizeForReadBy1024(long size) {
+        return sizeText(size);
+    }
+
+    public static String evalEscape(String str) {
+        if (null == str) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (c == '\\' && i + 1 < str.length()) {
+                char n = str.charAt(++i);
+                switch (n) {
+                case 'n':
+                    sb.append('\n');
+                    break;
+                case 'r':
+                    sb.append('\r');
+                    break;
+                case 't':
+                    sb.append('\t');
+                    break;
+                default:
+                    sb.append(n);
+                }
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
+    public static boolean equals(String s1, String s2) {
+        return null == s1 ? null == s2 : s1.equals(s2);
+    }
+
+    public static boolean isMobile(String s) {
+        return null != s && s.matches("^1[3-9]\\d{9}$");
+    }
+
+    public static boolean isEmail(CharSequence input) {
+        return null != input
+               && input.toString().matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+    }
+
+    public static String toHex(int d, int width) {
+        String s = Integer.toHexString(d);
+        return s.length() >= width ? s : dup('0', width - s.length()) + s;
+    }
+
+    public static String lowerWord(CharSequence cs, char c) {
+        if (null == cs) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < cs.length(); i++) {
+            char ch = cs.charAt(i);
+            if (Character.isUpperCase(ch)) {
+                if (i > 0) {
+                    sb.append(c);
+                }
+                sb.append(Character.toLowerCase(ch));
+            } else {
+                sb.append(ch);
+            }
+        }
+        return sb.toString();
+    }
+
+    public static String trimLeft(CharSequence cs) {
+        if (null == cs) {
+            return null;
+        }
+        int i = 0;
+        while (i < cs.length() && Character.isWhitespace(cs.charAt(i))) {
+            i++;
+        }
+        return cs.toString().substring(i);
+    }
+
+    public static String trimRight(CharSequence cs) {
+        if (null == cs) {
+            return null;
+        }
+        int i = cs.length();
+        while (i > 0 && Character.isWhitespace(cs.charAt(i - 1))) {
+            i--;
+        }
+        return cs.toString().substring(0, i);
+    }
+
+    // 兼容 Nutz Strings 的“分隔符在前”重载（RM-NUTZ-13）
+    public static String join(String sep, Object[] vals) {
+        return join(vals, sep);
+    }
+
+    public static <T> String join(int off, int len, String sep, T[] vals) {
+        int end = Math.min(off + len, null == vals ? 0 : vals.length);
+        StringBuilder sb = new StringBuilder();
+        for (int i = off; i < end; i++) {
+            if (sb.length() > 0) {
+                sb.append(sep);
+            }
+            sb.append(vals[i]);
+        }
+        return sb.toString();
+    }
+
+    public static String join(String sep, Collection<?> vals) {
+        return join(vals, sep);
+    }
+
+    public static String join(String sep, int[] vals) {
+        return join(vals, sep);
+    }
+
+    public static String join(String sep, long[] vals) {
+        return join(vals, sep);
+    }
+
+    public static String[] split(String str, boolean keepQuote, char... seps) {
+        if (null == str) {
+            return null;
+        }
+        if (null == seps || seps.length == 0) {
+            return new String[]{str};
+        }
+        StringBuilder sb = new StringBuilder();
+        java.util.List<String> list = new java.util.ArrayList<>();
+        boolean quote = false;
+        char qc = 0;
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (quote) {
+                if (c == qc) {
+                    quote = false;
+                    if (keepQuote) {
+                        sb.append(c);
+                    }
+                } else {
+                    sb.append(c);
+                }
+                continue;
+            }
+            if (c == '"' || c == '\'') {
+                quote = true;
+                qc = c;
+                if (keepQuote) {
+                    sb.append(c);
+                }
+                continue;
+            }
+            boolean isSep = false;
+            for (char sep : seps) {
+                if (c == sep) {
+                    isSep = true;
+                    break;
+                }
+            }
+            if (isSep) {
+                list.add(sb.toString());
+                sb.setLength(0);
+            } else {
+                sb.append(c);
+            }
+        }
+        list.add(sb.toString());
+        return list.toArray(new String[0]);
     }
 
 }

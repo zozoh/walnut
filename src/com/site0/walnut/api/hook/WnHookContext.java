@@ -5,7 +5,7 @@ import java.io.OutputStream;
 
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.stream.VoidInputStream;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.api.box.WnBox;
 import com.site0.walnut.api.box.WnBoxContext;
 import com.site0.walnut.api.box.WnBoxService;
@@ -16,7 +16,7 @@ import com.site0.walnut.util.Wlog;
 
 public class WnHookContext {
 
-    private static final Log log = Wlog.getHOOK();
+    private static final WnLog log = Wlog.getHOOK();
 
     public WnHookContext(WnBoxService boxes, WnBoxContext bc) {
         this._boxes = boxes;

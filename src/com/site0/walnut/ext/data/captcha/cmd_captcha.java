@@ -2,7 +2,7 @@ package com.site0.walnut.ext.data.captcha;
 
 import org.apache.commons.codec.binary.Base64;
 import org.nutz.json.Json;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.impl.box.JvmExecutor;
@@ -20,7 +20,7 @@ public class cmd_captcha extends JvmExecutor {
 
         // 验证码文字
         String text = params.get("text");
-        if (Strings.isBlank(text)) {
+        if (Ws.isBlank(text)) {
             text = R.captchaNumber(params.getInt("textlen", 4));
             ;
         }

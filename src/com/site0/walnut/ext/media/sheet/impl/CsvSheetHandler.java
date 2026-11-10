@@ -12,13 +12,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.nutz.castor.Castors;
-import org.nutz.lang.Encoding;
+
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
-import com.site0.walnut.util.Ws;
 import com.site0.walnut.ext.media.sheet.util.CsvUtil;
 
 public class CsvSheetHandler extends AbstractSheetHandler {
@@ -33,7 +32,7 @@ public class CsvSheetHandler extends AbstractSheetHandler {
 
         // 首先按行读取
         BufferedReader br = Streams
-            .buffr(new InputStreamReader(ins, Encoding.CHARSET_UTF8));
+            .buffr(new InputStreamReader(ins, java.nio.charset.StandardCharsets.UTF_8));
         String line;
         try {
             // 读取首行，作为键
@@ -41,18 +40,18 @@ public class CsvSheetHandler extends AbstractSheetHandler {
             if (null == line) {
                 return new SheetResult(list);
             }
-            // String[] keys = Strings.split(line, false, true, sep_cs);
+            // String[] keys = Ws.split(line, false, true, sep_cs);
             String[] keys = CsvUtil.splitLineAsArray(line, sep_cs);
 
             // 读取后续的行
             while (null != (line = br.readLine())) {
-                // String[] ss = Strings.split(line, false, true, sep_cs);
+                // String[] ss = Ws.split(line, false, true, sep_cs);
                 String[] ss = CsvUtil.splitLineAsArray(line, sep_cs);
                 int len = Math.min(keys.length, ss.length);
                 NutMap map = new NutMap();
                 for (int i = 0; i < len; i++) {
-                    String key = Strings.trim(keys[i]);
-                    String val = Strings.trim(ss[i]);
+                    String key = Ws.trim(keys[i]);
+                    String val = Ws.trim(ss[i]);
                     map.put(key, val);
                 }
                 list.add(map);
@@ -65,10 +64,7 @@ public class CsvSheetHandler extends AbstractSheetHandler {
     }
 
     @Override
-    public void write(OutputStream ops,
-                      List<NutBean> list,
-                      List<String> headKeys,
-                      NutMap conf) {
+    public void write(OutputStream ops, List<NutBean> list, List<String> headKeys, NutMap conf) {
         String sep = conf.getString("sep", ",");
         boolean noheader = conf.getBoolean("noheader", false);
         String emptyCell = conf.getString("emptyCell", "--");
@@ -91,7 +87,7 @@ public class CsvSheetHandler extends AbstractSheetHandler {
             }
         }
 
-        Writer writer = new OutputStreamWriter(ops, Encoding.CHARSET_UTF8);
+        Writer writer = new OutputStreamWriter(ops, java.nio.charset.StandardCharsets.UTF_8);
 
         try {
             String line;
@@ -130,7 +126,7 @@ public class CsvSheetHandler extends AbstractSheetHandler {
                     }
                     cells.add(val);
                 }
-                line = Strings.join(sep, cells) + "\n";
+                line = Ws.join(sep, cells) + "\n";
                 // 写入
                 writer.write(line);
             }

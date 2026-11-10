@@ -4,8 +4,8 @@ import java.util.Date;
 import java.util.List;
 
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Times;
-import org.nutz.log.Log;
+import com.site0.walnut.util.Wtimes;
+import com.site0.walnut.log.WnLog;
 import org.nutz.trans.Atom;
 import com.site0.walnut.api.io.WnExpiObj;
 import com.site0.walnut.api.io.WnExpiObjTable;
@@ -16,7 +16,7 @@ import com.site0.walnut.util.Wn;
 
 public class WnExpiObjTableCleaner implements Atom {
 
-    private static final Log log = Wlog.getBG_CLEARNER();
+    private static final WnLog log = Wlog.getBG_CLEARNER();
 
     private String myName;
 
@@ -124,7 +124,7 @@ public class WnExpiObjTableCleaner implements Atom {
                 // 计数
                 i++;
             }
-            String holdS = Times.format("yyyy-MM-dd HH:mm:ss.SSS",
+            String holdS = Wtimes.format("yyyy-MM-dd HH:mm:ss.SSS",
                                         new Date(hold));
             log.infof("ExpiObjTable(%s) : remove %d of %d objs(%s) at %s",
                       myName,

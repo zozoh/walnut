@@ -3,9 +3,9 @@ package com.site0.walnut;
 import java.io.File;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.util.Wlog;
 
@@ -20,10 +20,10 @@ public final class WnVersion {
     private static String _version = "0.0";
     private static String _alias = "DEV";
 
-    private static final Log log = Wlog.getMAIN();
+    private static final WnLog log = Wlog.getMAIN();
 
     static {
-        File f = Files.findFile("version.json");
+        File f = Wfiles.findFile("version.json");
         if (null == f) {
             String aph = "/opt/wn4j/core/conf/version.json";
             log.infof("Fail to findVersion from classPath, try '%s'", aph);

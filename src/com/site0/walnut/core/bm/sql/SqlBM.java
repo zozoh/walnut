@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.util.NutBean;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIoIndexer;
 import com.site0.walnut.api.io.WnObj;
@@ -46,7 +46,7 @@ public class SqlBM extends AbstractIoBM {
 
     private static final String DELETE_CONTENT = "delete_content";
 
-    private static final Log log = Wlog.getSQL();
+    private static final WnLog log = Wlog.getSQL();
 
     BMSwapFiles swaps;
 
@@ -209,7 +209,7 @@ public class SqlBM extends AbstractIoBM {
     }
 
     public void writeBlob(WnObj obj, File swapFile) {
-        byte[] content = Files.readBytes(swapFile);
+        byte[] content = Wfiles.readBytes(swapFile);
         String sha1 = Wsum.sha1AsString(content);
         long olen = content.length;
         writeBlob(obj, content, sha1, olen);

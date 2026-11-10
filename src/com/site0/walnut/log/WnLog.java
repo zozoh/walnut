@@ -3,9 +3,9 @@ package com.site0.walnut.log;
 /**
  * Walnut 自有日志接口（RM-NUTZ-11）。
  * <p>
- * 方法签名与 {@code org.nutz.log.Log} 对齐（debug/info/warn/error/fatal + 各 {@code *f}
+ * 方法签名与 {@code com.site0.walnut.log.WnLog} 对齐（debug/info/warn/error/fatal + 各 {@code *f}
  * 格式化变体 + {@code isXxxEnabled} + {@code setTag}），供 RM-NUTZ-12 把全库
- * {@code org.nutz.log.Log} 机械替换为 {@link WnLog}。
+ * {@code com.site0.walnut.log.WnLog} 机械替换为 {@link WnLog}。
  * <p>
  * 实现见 {@link WnLog4j}，工厂见 {@link WnLogs}；本任务不改造日志采集/输出格式。
  */

@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import org.nutz.mvc.Mvcs;
 import org.nutz.mvc.annotation.At;
 import org.nutz.mvc.annotation.By;
@@ -31,7 +31,7 @@ import com.site0.walnut.web.filter.FuseActionFilter;
 @Filters({@By(type = FuseActionFilter.class, args = "ioc:fuseActionFilter")})
 public class FuseModule extends AbstractWnModule {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     @At
     @Ok("raw")

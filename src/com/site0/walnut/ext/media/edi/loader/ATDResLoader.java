@@ -5,7 +5,7 @@ import com.site0.walnut.ext.media.edi.bean.EdiSegment;
 import com.site0.walnut.ext.media.edi.msg.reply.atd.IcsReplyAtdRes;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
 import com.site0.walnut.ext.media.edi.util.IcsLoaderHelper;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 
 import java.util.HashMap;
@@ -62,7 +62,7 @@ public class ATDResLoader implements EdiMsgLoader<IcsReplyAtdRes> {
                 if ("AHN".equals(subjectCode)) {
                     String stType = bean.getString("text1");
                     String stDesc = bean.getString("text2");
-                    if (Strings.isNotBlank(stType)) {
+                    if (Ws.isNotBlank(stType)) {
                         if (re.getAtdStatus() == null) {
                             re.setAtdStatus(new HashMap<>());
                         }
@@ -165,22 +165,22 @@ public class ATDResLoader implements EdiMsgLoader<IcsReplyAtdRes> {
                     String name1 = bean.getString("name1");
                     String name2 = bean.getString("name2");
                     String boxNum = bean.getString("boxNum");
-                    if (Strings.isNotBlank(name1)) {
+                    if (Ws.isNotBlank(name1)) {
                         re.setCustomsState(name1.trim());
                     }
-                    if (Strings.isNotBlank(name2)) {
+                    if (Ws.isNotBlank(name2)) {
                         re.setWorkgroupName(name2.trim());
                     }
-                    if (Strings.isNotBlank(boxNum)) {
+                    if (Ws.isNotBlank(boxNum)) {
                         re.setCustomsOfficer(boxNum.trim());
                     }
                 } else if ("IM".equals(funcCode)) {
                     String name = (bean.getString("name1", "") + bean.getString("name2", "")).trim();
-                    if (Strings.isNotBlank(name)) {
+                    if (Ws.isNotBlank(name)) {
                         re.setImporterName(name);
                     }
-                    String boxNum = Strings.sNull(bean.getString("boxNum")).trim();
-                    if (Strings.isNotBlank(boxNum)) {
+                    String boxNum = Ws.sNull(bean.getString("boxNum")).trim();
+                    if (Ws.isNotBlank(boxNum)) {
                         re.setImporterBoxNum(boxNum);
                     }
                 }
@@ -195,9 +195,9 @@ public class ATDResLoader implements EdiMsgLoader<IcsReplyAtdRes> {
             for (EdiSegment seg : segs) {
                 NutMap comBean = new NutMap();
                 seg.fillBean(comBean, null, "communicationNumber,communicationCode");
-                String communicationNumber = Strings.sNull(comBean.getString("communicationNumber"));
-                String communicationCode = Strings.sNull(comBean.getString("communicationCode"));
-                if (Strings.isBlank(communicationNumber) || Strings.isBlank(communicationCode)) {
+                String communicationNumber = Ws.sNull(comBean.getString("communicationNumber"));
+                String communicationCode = Ws.sNull(comBean.getString("communicationCode"));
+                if (Ws.isBlank(communicationNumber) || Ws.isBlank(communicationCode)) {
                     continue;
                 }
                 if ("EM".equals(communicationCode)) {
@@ -222,7 +222,7 @@ public class ATDResLoader implements EdiMsgLoader<IcsReplyAtdRes> {
                 if ("AAE".equals(refCode)) {
                     re.setNatureType(refVal);
                 } else if ("ABO".equals(refCode)) {
-                    if (Strings.isNotBlank(refVal)) {
+                    if (Ws.isNotBlank(refVal)) {
                         re.setRefId(refVal);
                         re.setRefIdInLower(refVal.toLowerCase());
                         re.setRefVer(bean.getInt("refVer"));

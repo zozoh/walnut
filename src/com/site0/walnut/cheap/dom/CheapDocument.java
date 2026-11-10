@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Regex;
+import com.site0.walnut.util.Wregex;
 import com.site0.walnut.cheap.dom.impl.CamelAttrNameConvertor;
 import com.site0.walnut.cheap.dom.impl.KebabAttrNameConvertor;
 import com.site0.walnut.cheap.dom.impl.SnakeAttrNameConvertor;
@@ -184,7 +184,7 @@ public class CheapDocument {
         if (null == autoClosedTags) {
             P_AUTO_CLOSED_TAGS = null;
         } else {
-            P_AUTO_CLOSED_TAGS = Regex.getPattern(autoClosedTags);
+            P_AUTO_CLOSED_TAGS = Wregex.getPattern(autoClosedTags);
         }
     }
 

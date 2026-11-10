@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 
 public class AppInitGroup {
 
@@ -73,7 +73,7 @@ public class AppInitGroup {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        String HR = Strings.dup('-', 40);
+        String HR = Ws.dup('-', 40);
         if (this.hasTitle()) {
             sb.append("# ").append(HR).append('\n');
             sb.append("# ").append('\n');
@@ -93,7 +93,7 @@ public class AppInitGroup {
     }
 
     public boolean hasTitle() {
-        return !Strings.isBlank(title);
+        return !Ws.isBlank(title);
     }
 
     public String getTitle() {

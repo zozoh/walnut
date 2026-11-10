@@ -14,7 +14,7 @@ import javax.sql.DataSource;
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import org.nutz.mapl.Mapl;
 
 import com.site0.walnut.api.err.Er;
@@ -36,7 +36,7 @@ import com.site0.walnut.util.Ws;
 
 public class SqlxContext extends JvmFilterContext {
 
-    private static Log log = Wlog.getSQL();
+    private static WnLog log = Wlog.getSQL();
 
     public boolean quiet;
 

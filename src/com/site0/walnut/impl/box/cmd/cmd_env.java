@@ -1,6 +1,6 @@
 package com.site0.walnut.impl.box.cmd;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
@@ -19,7 +19,7 @@ public class cmd_env extends JvmExecutor {
 
         // 如果是移除
         if (params.has("u")) {
-            String[] ss = Strings.splitIgnoreBlank(params.get("u"), "[, \t\n]");
+            String[] ss = Ws.splitIgnoreBlank(params.get("u"), "[, \t\n]");
             for (String varName : ss) {
                 vars.remove(varName);
             }

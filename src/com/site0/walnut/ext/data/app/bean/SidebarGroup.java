@@ -2,7 +2,7 @@ package com.site0.walnut.ext.data.app.bean;
 
 import java.util.List;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 
 public class SidebarGroup {
 
@@ -29,8 +29,8 @@ public class SidebarGroup {
     public String toHtml() {
         StringBuilder sb = new StringBuilder();
         sb.append("<section>");
-        if (!Strings.isBlank(title)) {
-            sb.append("\n    <h1>").append(Strings.escapeHtml(title)).append("</h1>");
+        if (!Ws.isBlank(title)) {
+            sb.append("\n    <h1>").append(Ws.escapeHtml(title)).append("</h1>");
         }
         // 添加项目
         if (items.size() > 0) {

@@ -1,6 +1,6 @@
 package com.site0.walnut.impl.hook;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.hook.WnHook;
 import com.site0.walnut.api.io.WnIo;
@@ -46,7 +46,7 @@ public abstract class AbstractWnHook implements WnHook {
 
         // 保存名称
         name = oHook.name();
-        brief = Strings.trim(text.length() > 80 ? text.substring(0, 80) + " ..." : text);
+        brief = Ws.trim(text.length() > 80 ? text.substring(0, 80) + " ..." : text);
         runby = oHook.getString("hook_user");
         // 返回自身以便链式赋值
         return this;

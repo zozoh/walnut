@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Encoding;
+
 import org.nutz.lang.util.NutBean;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.cheap.api.CheapResourceLoader;
@@ -357,7 +357,7 @@ public class WnOomlDocxExplaining2 implements OomlExplaining {
 
         // 保存实体内容
         String xml = out.toMarkup();
-        byte[] buf = xml.getBytes(Encoding.CHARSET_UTF8);
+        byte[] buf = xml.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         en.setContent(buf);
     }
 

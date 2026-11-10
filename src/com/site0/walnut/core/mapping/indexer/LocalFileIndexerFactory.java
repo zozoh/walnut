@@ -2,7 +2,7 @@ package com.site0.walnut.core.mapping.indexer;
 
 import java.io.File;
 
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.MimeMap;
 import com.site0.walnut.api.io.WnIoIndexer;
@@ -22,7 +22,7 @@ public class LocalFileIndexerFactory implements WnIndexerFactory {
 
     @Override
     public WnIoIndexer load(WnObj oHome, String str) {
-        File dHome = Files.findFile(str);
+        File dHome = Wfiles.findFile(str);
         if (null == dHome) {
             throw Er.create("e.io.mapping.file.noexists", str);
         }

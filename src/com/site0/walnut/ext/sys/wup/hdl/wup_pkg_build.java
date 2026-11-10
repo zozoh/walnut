@@ -3,7 +3,7 @@ package com.site0.walnut.ext.sys.wup.hdl;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.impl.box.JvmHdl;
 import com.site0.walnut.impl.box.JvmHdlContext;
@@ -17,7 +17,7 @@ import com.site0.walnut.impl.box.WnSystem;
  */
 public class wup_pkg_build implements JvmHdl {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
     
     public void invoke(WnSystem sys, JvmHdlContext hc) {
         String app = hc.params.val_check(0);

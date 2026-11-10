@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.nutz.json.Json;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
@@ -18,7 +18,7 @@ import com.site0.walnut.util.Ws;
 
 public class WnLookupMaker {
 
-    private static Log log = Wlog.getMAIN();
+    private static WnLog log = Wlog.getMAIN();
 
     private WnIo io;
 

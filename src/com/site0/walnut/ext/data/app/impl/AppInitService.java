@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
-import org.nutz.lang.util.Regex;
+import com.site0.walnut.util.Wregex;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.ext.data.app.bean.init.AppInitGroup;
 import com.site0.walnut.ext.data.app.bean.init.AppInitItem;
@@ -26,7 +26,7 @@ public class AppInitService {
         if (null != ac.outPrefix) {
             hrSize -= ac.outPrefix.length();
         }
-        String HR = Strings.dup('-', hrSize);
+        String HR = Ws.dup('-', hrSize);
         if (ac.group.hasTitle()) {
             ac.println(HR);
             ac.println("APP INIT");
@@ -54,7 +54,7 @@ public class AppInitService {
             String line = lines[i];
 
             // 注释行与空行
-            if (line.startsWith("#") || Strings.isBlank(line))
+            if (line.startsWith("#") || Ws.isBlank(line))
                 continue;
 
             // 开启一个段
@@ -74,9 +74,9 @@ public class AppInitService {
                                         + "(\\{[^}]*\\})?\\s*"
                                         + "(->\\s*(.+)\\s*)?$";
 
-    private static final Pattern _P0 = Regex.getPattern(REGEX);
+    private static final Pattern _P0 = Wregex.getPattern(REGEX);
 
-    private static final Pattern _P1 = Regex.getPattern("^([%?])(COPY|TMPL|EXPLAIN)(\\{.+\\})?([:>])\\s*(.+)?$");
+    private static final Pattern _P1 = Wregex.getPattern("^([%?])(COPY|TMPL|EXPLAIN)(\\{.+\\})?([:>])\\s*(.+)?$");
 
     private int loadItem(String[] lines, int index, AppInitItem item, NutBean vars) {
         // 解析首行
@@ -138,7 +138,7 @@ public class AppInitService {
         }
 
         // 分析元数据
-        String json = Strings.trim(Strings.join("\n", metaLine));
+        String json = Ws.trim(Ws.join("\n", metaLine));
         item.addMeta(json, vars);
 
         // 解析内容行
@@ -159,7 +159,7 @@ public class AppInitService {
             item.setContentFileVars(mc.group(3), vars);
             // 读取磁盘上的文件
             if (">".equals(mc.group(4))) {
-                String rph = Strings.trim(mc.group(5));
+                String rph = Ws.trim(mc.group(5));
                 item.setContentFilePath(rph);
             }
             // 继续读取内容，直到 %END%
@@ -167,7 +167,7 @@ public class AppInitService {
                 StringBuilder sb = new StringBuilder();
                 for (index++; index < lines.length; index++) {
                     line = lines[index];
-                    String trim = Strings.trim(line);
+                    String trim = Ws.trim(line);
                     // 结束了
                     if ("%END%".equals(trim)) {
                         break;

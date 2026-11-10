@@ -1,7 +1,6 @@
 package com.site0.walnut.util;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.util.tmpl.WnTmpl;
@@ -74,7 +73,7 @@ public class WnSysRuntime {
         WnOS.fillRuntimeInfo(this);
 
         // 默认拼合一个自己的节点的名称
-        if (Strings.isBlank(nodeName)) {
+        if (Ws.isBlank(nodeName)) {
             this.nodeName = this.machineName + "-" + this.netMac;
         }
         // 指定了节点

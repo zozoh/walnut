@@ -1,7 +1,7 @@
 package com.site0.walnut.impl.box.cmd;
 
 import org.nutz.lang.Each;
-import org.nutz.lang.util.Disks;
+import com.site0.walnut.util.Wdisks;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Wn;
@@ -24,7 +24,7 @@ public class cmd_chgrp extends cmd_chxxx {
             o.group(cc.str);
             sys.io.set(o, "^g$");
             if (cc.v) {
-                String rpath = Disks.getRelativePath(cc.current.path(), o.path());
+                String rpath = Wdisks.getRelativePath(cc.current.path(), o.path());
                 sys.out.println(rpath);
             }
         }

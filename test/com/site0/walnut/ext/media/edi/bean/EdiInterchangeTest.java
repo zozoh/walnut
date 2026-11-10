@@ -14,7 +14,7 @@ import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.tmpl.WnTmplX;
 import org.junit.Test;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.util.NutMap;
 
 import java.util.Iterator;
@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
 public class EdiInterchangeTest {
 
     private String _read_input(String name) {
-        String txt = Files.read("com/site0/walnut/ext/media/edi/bean/pack/" + name + ".edi.txt");
+        String txt = Wfiles.read("com/site0/walnut/ext/media/edi/bean/pack/" + name + ".edi.txt");
         return txt.replaceAll("\r\n", "\n").trim();
     }
 

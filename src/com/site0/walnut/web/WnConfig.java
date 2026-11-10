@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.nutz.json.Json;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 import org.nutz.web.WebConfig;
 
@@ -63,37 +63,37 @@ public class WnConfig extends WebConfig {
 
     public String[] getWebIocPkgs() {
         String str = this.get("web-ioc-pkgs");
-        if (Strings.isBlank(str))
+        if (Ws.isBlank(str))
             return new String[0];
-        return Strings.splitIgnoreBlank(str, "\n");
+        return Ws.splitIgnoreBlank(str, "\n");
     }
 
     public String[] getWebModulePkgs() {
         String str = this.get("web-module-pkgs");
-        if (Strings.isBlank(str))
+        if (Ws.isBlank(str))
             return new String[0];
-        return Strings.splitIgnoreBlank(str, "\n");
+        return Ws.splitIgnoreBlank(str, "\n");
     }
 
     public String[] getInitSetup() {
         String str = this.get("init-setup");
-        if (Strings.isBlank(str))
+        if (Ws.isBlank(str))
             return new String[0];
-        return Strings.splitIgnoreBlank(str, "\n");
+        return Ws.splitIgnoreBlank(str, "\n");
     }
 
     public String[] getJvmboxPkgs() {
         String str = this.get("jvmbox-pkgs");
-        if (Strings.isBlank(str))
+        if (Ws.isBlank(str))
             return new String[0];
-        return Strings.splitIgnoreBlank(str, "\n");
+        return Ws.splitIgnoreBlank(str, "\n");
     }
 
     public List<WnInitMount> getInitMount() {
         List<WnInitMount> list = new LinkedList<WnInitMount>();
         String str = this.get("init-mnt");
-        if (!Strings.isBlank(str)) {
-            String[] lines = Strings.splitIgnoreBlank(str, "\n");
+        if (!Ws.isBlank(str)) {
+            String[] lines = Ws.splitIgnoreBlank(str, "\n");
             for (String line : lines) {
                 list.add(new WnInitMount(line));
             }
@@ -104,7 +104,7 @@ public class WnConfig extends WebConfig {
     @Deprecated
     public NutMap getInitUsrEnvs() {
         String str = this.get("init-usr-envs");
-        if (Strings.isBlank(str))
+        if (Ws.isBlank(str))
             return new NutMap();
         return Json.fromJson(NutMap.class, str);
     }

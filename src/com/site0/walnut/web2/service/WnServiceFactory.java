@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.box.WnServiceHolder;
 import com.site0.walnut.api.hook.WnHookService;
@@ -63,7 +63,7 @@ import com.site0.walnut.web2.service.register.WnTaskRegistrar;
  */
 public class WnServiceFactory {
 
-    private static final Log log = Wlog.getMAIN();
+    private static final WnLog log = Wlog.getMAIN();
 
     /**
      * checkup() 校验的必备清单（32 个），holder 单独校验。

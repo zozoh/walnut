@@ -1,7 +1,7 @@
 package com.site0.walnut.web2.controller;
 
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.srv.WnBoxRunning;
@@ -19,7 +19,7 @@ import com.site0.walnut.web2.controller.app.WnAppService;
 
 public class AppOpenController extends AbstractAppController {
 
-    private static final Log log = Wlog.getAPP();
+    private static final WnLog log = Wlog.getAPP();
 
     @Override
     public WnMvcView handle(WnMvcContext ctx) {

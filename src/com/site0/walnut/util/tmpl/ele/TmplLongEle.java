@@ -1,13 +1,13 @@
 package com.site0.walnut.util.tmpl.ele;
 
 import org.nutz.castor.Castors;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 
 public class TmplLongEle extends TmplDynamicEle {
 
     public TmplLongEle(String key, String fmt, String dft) {
         super("long", key, fmt, dft);
-        this.fmt = Strings.sNull(fmt, "%d");
+        this.fmt = Ws.sNull(fmt, "%d");
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.site0.walnut.web.module.app;
 
-import org.nutz.lang.Strings;
-import org.nutz.log.Log;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.log.WnLog;
 import org.nutz.mvc.View;
 import org.nutz.mvc.view.ServerRedirectView;
 import org.nutz.mvc.view.ViewWrapper;
@@ -47,7 +47,7 @@ import redis.clients.jedis.exceptions.JedisException;
  */
 public class WamSysLoginByPassword extends AbstractWamAuth {
 
-    private static final Log log = Wlog.getAPP();
+    private static final WnLog log = Wlog.getAPP();
 
     /**
      * 登录名（用户名 / 手机 / 邮箱）
@@ -134,7 +134,7 @@ public class WamSysLoginByPassword extends AbstractWamAuth {
                 return new ViewWrapper(new AjaxView(), reo);
             }
             // 返回到原先地址
-            String redirectTo = Strings.sBlank(referer, "/");
+            String redirectTo = Ws.sBlank(referer, "/");
             return new ServerRedirectView(redirectTo);
         }
     }

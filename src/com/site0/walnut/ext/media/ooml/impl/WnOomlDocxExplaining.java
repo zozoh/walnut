@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.Encoding;
+
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.cheap.api.CheapResourceLoader;
@@ -289,7 +289,7 @@ public class WnOomlDocxExplaining implements OomlExplaining {
 
         // 保存实体内容
         String xml = doc.toMarkup();
-        byte[] buf = xml.getBytes(Encoding.CHARSET_UTF8);
+        byte[] buf = xml.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         en.setContent(buf);
     }
 

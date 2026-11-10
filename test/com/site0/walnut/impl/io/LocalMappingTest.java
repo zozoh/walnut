@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import java.io.File;
 
 import org.junit.Test;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.BaseIoTest;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
@@ -26,7 +26,7 @@ public class LocalMappingTest extends BaseIoTest {
     public void test_write_to_local() {
         WnObj x = io.create(null, "/x", WnRace.DIR);
         File dHome = setup.getLocalFileHome();
-        String aph = Files.getAbsPath(dHome);
+        String aph = Wfiles.getAbsPath(dHome);
 
         // 映射到本地
         io.setMount(x, "filew://" + aph);
@@ -42,9 +42,9 @@ public class LocalMappingTest extends BaseIoTest {
         assertEquals("hello", text);
 
         // 确保本地文件也是这个
-        File f = Files.getFile(dHome, "abc.txt");
+        File f = Wfiles.getFile(dHome, "abc.txt");
         assertTrue(f.exists());
-        text = Files.read(f);
+        text = Wfiles.read(f);
         assertEquals("hello", text);
     }
 
@@ -53,9 +53,9 @@ public class LocalMappingTest extends BaseIoTest {
         WnObj x = io.create(null, "/x", WnRace.DIR);
 
         File dHome = setup.getLocalFileHome();
-        String aph = Files.getAbsPath(dHome);
-        File f = Files.getFile(dHome, "tmp/css/my.css");
-        Files.createFileIfNoExists(f);
+        String aph = Wfiles.getAbsPath(dHome);
+        File f = Wfiles.getFile(dHome, "tmp/css/my.css");
+        Wfiles.createFileIfNoExists(f);
         io.setMount(x, "file://" + aph + "/tmp/css");
         WnObj o = io.check(null, "/x/my.css");
         assertEquals("my.css", o.name());
@@ -70,9 +70,9 @@ public class LocalMappingTest extends BaseIoTest {
         WnObj x = io.create(null, "/x", WnRace.DIR);
 
         File dHome = setup.getLocalFileHome();
-        String aph = Files.getAbsPath(dHome);
-        File f = Files.getFile(dHome, "tmp/css/my.css");
-        Files.createFileIfNoExists(f);
+        String aph = Wfiles.getAbsPath(dHome);
+        File f = Wfiles.getFile(dHome, "tmp/css/my.css");
+        Wfiles.createFileIfNoExists(f);
         io.setMount(x, "file://" + aph + "/tmp/css");
 
         WnObj o = io.check(null, "/x/my.css");
@@ -90,9 +90,9 @@ public class LocalMappingTest extends BaseIoTest {
 
         // 创建临时文件并写点内容
         File dHome = setup.getLocalFileHome();
-        String aph = Files.getAbsPath(dHome);
-        File f = Files.getFile(dHome, "tmp/dir/x/y.txt");
-        Files.write(f, "hello");
+        String aph = Wfiles.getAbsPath(dHome);
+        File f = Wfiles.getFile(dHome, "tmp/dir/x/y.txt");
+        Wfiles.write(f, "hello");
 
         // 挂载目录
         WnContext wc = Wn.WC();

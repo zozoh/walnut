@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.nutz.json.Json;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.LinkedByteBuffer;
@@ -19,7 +19,7 @@ public class HttpFormUploadTest {
 
     private String getMyDataPath() {
         String myPh = this.getClass().getName().replace('.', '/');
-        return Files.getParent(myPh);
+        return Wfiles.getParent(myPh);
     }
 
     private String getMyDataFile(String name) {
@@ -31,8 +31,8 @@ public class HttpFormUploadTest {
         String phHead = getMyDataFile(nm + "_head.json");
         String phBody = getMyDataFile(nm + "_body.txt");
 
-        File fHead = Files.findFile(phHead);
-        File fBody = Files.findFile(phBody);
+        File fHead = Wfiles.findFile(phHead);
+        File fBody = Wfiles.findFile(phBody);
 
         NutMap head = Json.fromJsonFile(NutMap.class, fHead);
         InputStream ins = Streams.fileIn(fBody);
@@ -48,8 +48,8 @@ public class HttpFormUploadTest {
         String phHead = getMyDataFile("c3_head.json");
         String phBody = getMyDataFile("c3_body.txt");
 
-        File fHead = Files.findFile(phHead);
-        File fBody = Files.findFile(phBody);
+        File fHead = Wfiles.findFile(phHead);
+        File fBody = Wfiles.findFile(phBody);
         System.out.println(Wlang.sha1(fBody));
 
         NutMap head = Json.fromJsonFile(NutMap.class, fHead);
@@ -81,8 +81,8 @@ public class HttpFormUploadTest {
         assertEquals("Fb0oSlQIkDLwa99933f6e5b2af5b105ee6c696627fc4.jpg", fld0.getName());
         assertEquals("image/jpeg", fld0.getContentType());
 
-        File f0 = Files.findFile(getMyDataFile("c3.jpg"));
-        byte[] be = Files.readBytes(f0);
+        File f0 = Wfiles.findFile(getMyDataFile("c3.jpg"));
+        byte[] be = Wfiles.readBytes(f0);
         assertTrue(bs.length > 0);
         assertEquals(be.length, bs.length);
         for (int i = 0; i < bs.length; i++) {
@@ -106,8 +106,8 @@ public class HttpFormUploadTest {
         assertEquals("Fb0oSlQIkDLwa99933f6e5b2af5b105ee6c696627fc4.jpg", fld0.getName());
         assertEquals("image/jpeg", fld0.getContentType());
         bs = fld0.getBytes();
-        File f0 = Files.findFile(getMyDataFile("c3.jpg"));
-        be = Files.readBytes(f0);
+        File f0 = Wfiles.findFile(getMyDataFile("c3.jpg"));
+        be = Wfiles.readBytes(f0);
         assertTrue(bs.length > 0);
         assertEquals(be.length, bs.length);
         for (int i = 0; i < bs.length; i++) {
@@ -131,8 +131,8 @@ public class HttpFormUploadTest {
         assertEquals("nutz-logo_28.jpg", p0.getName());
         assertEquals("image/jpeg", p0.getContentType());
         bs = p0.getBytes();
-        File f0 = Files.findFile(getMyDataFile("nutz-logo_28.jpg"));
-        be = Files.readBytes(f0);
+        File f0 = Wfiles.findFile(getMyDataFile("nutz-logo_28.jpg"));
+        be = Wfiles.readBytes(f0);
         assertTrue(bs.length > 0);
         assertEquals(be.length, bs.length);
         for (int i = 0; i < bs.length; i++) {
@@ -143,8 +143,8 @@ public class HttpFormUploadTest {
         assertEquals("nutz-logo_28.png", p1.getName());
         assertEquals("image/png", p1.getContentType());
         bs = p1.getBytes();
-        File f1 = Files.findFile(getMyDataFile("nutz-logo_28.png"));
-        be = Files.readBytes(f1);
+        File f1 = Wfiles.findFile(getMyDataFile("nutz-logo_28.png"));
+        be = Wfiles.readBytes(f1);
         assertTrue(bs.length > 0);
         assertEquals(be.length, bs.length);
         for (int i = 0; i < bs.length; i++) {
@@ -166,8 +166,8 @@ public class HttpFormUploadTest {
         assertEquals("c1_p0.png", p0.getName());
         assertEquals("image/png", p0.getContentType());
         bs = p0.getBytes();
-        File f0 = Files.findFile(getMyDataFile("c1_p0.png"));
-        be = Files.readBytes(f0);
+        File f0 = Wfiles.findFile(getMyDataFile("c1_p0.png"));
+        be = Wfiles.readBytes(f0);
         assertTrue(bs.length > 0);
         assertEquals(be.length, bs.length);
         for (int i = 0; i < bs.length; i++) {
@@ -178,8 +178,8 @@ public class HttpFormUploadTest {
         assertEquals("c1_p1.jpg", p1.getName());
         assertEquals("image/jpeg", p1.getContentType());
         bs = p1.getBytes();
-        File f1 = Files.findFile(getMyDataFile("c1_p1.jpg"));
-        be = Files.readBytes(f1);
+        File f1 = Wfiles.findFile(getMyDataFile("c1_p1.jpg"));
+        be = Wfiles.readBytes(f1);
         assertTrue(bs.length > 0);
         assertEquals(be.length, bs.length);
         for (int i = 0; i < bs.length; i++) {

@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.Map;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.api.io.WnRace;
@@ -99,9 +99,9 @@ public class XoBean {
         if (key.endsWith("/")) {
             int len = key.length();
             String path = key.substring(0, len - 1);
-            return Files.getName(path);
+            return Wfiles.getName(path);
         }
-        return Files.getName(key);
+        return Wfiles.getName(key);
     }
 
     public String getKey() {

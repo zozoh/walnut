@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Cmds;
@@ -25,18 +25,18 @@ public class cmd_ajaxre extends JvmExecutor {
 
         // 得到输入
         String str = params.val(0);
-        if (Strings.isBlank(str)) {
+        if (Ws.isBlank(str)) {
             str = sys.in.readAll();
         }
-        str = Strings.trim(str);
+        str = Ws.trim(str);
 
         // 强制当做错误
         if (params.is("e")) {
             int pos = str.indexOf(':');
             // 拆分一下
             if (pos > 0) {
-                re.setErrCode(Strings.trim(str.substring(0, pos)));
-                re.setData(Strings.trim(str.substring(pos + 1)));
+                re.setErrCode(Ws.trim(str.substring(0, pos)));
+                re.setData(Ws.trim(str.substring(pos + 1)));
             }
             // 全当做错误的键
             else {
@@ -54,7 +54,7 @@ public class cmd_ajaxre extends JvmExecutor {
             Matcher m = _E.matcher(str);
             if (m.find()) {
                 String errCode = m.group(1);
-                String reason = Strings.sBlank(m.group(3), null);
+                String reason = Ws.sBlank(m.group(3), null);
 
                 re.setOk(false);
                 re.setErrCode(errCode);

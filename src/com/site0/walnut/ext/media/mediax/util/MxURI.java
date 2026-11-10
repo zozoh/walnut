@@ -5,7 +5,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.err.Er;
 
 /**
@@ -46,7 +46,7 @@ public class MxURI {
         for (int i = 0; i < len; i++) {
             String key = params[i];
             String val = args[i];
-            if (!Strings.isBlank(val)) {
+            if (!Ws.isBlank(val)) {
                 if (encode)
                     try {
                         val = URLEncoder.encode(val, "UTF-8");
@@ -66,7 +66,7 @@ public class MxURI {
                 re += "&";
             }
             // 拼装参数
-            re += Strings.join("&", qs);
+            re += Ws.join("&", qs);
         }
         return re;
     }
@@ -77,7 +77,7 @@ public class MxURI {
             qs.add("${" + key + "}");
         }
         if (qs.size() > 0) {
-            return name + "/" + Strings.join("/", qs);
+            return name + "/" + Ws.join("/", qs);
         }
         return name;
     }
@@ -85,7 +85,7 @@ public class MxURI {
     public String toExample() {
         String re = name;
         if (null != examples && examples.length > 0) {
-            re += "/" + Strings.join("/", examples);
+            re += "/" + Ws.join("/", examples);
         }
         re += " : ";
         re += this.toFullPath(false, examples);

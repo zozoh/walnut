@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.nutz.lang.Each;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 
@@ -34,7 +34,7 @@ public class cmd_alias extends JvmExecutor {
             if (!alias.contains("="))
                 continue; // 连等号都没有,跳过
             String[] tmp = alias.split("=", 2);
-            if (tmp.length != 2 || Strings.isBlank(tmp[0]) || Strings.isBlank(tmp[1]))
+            if (tmp.length != 2 || Ws.isBlank(tmp[0]) || Ws.isBlank(tmp[1]))
                 continue; // 不合法的声明直接跳过
             String key = tmp[0].trim();
             String prefix = tmp[1].trim();

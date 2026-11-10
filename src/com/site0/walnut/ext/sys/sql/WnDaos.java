@@ -10,7 +10,7 @@ import javax.sql.DataSource;
 import org.nutz.dao.Dao;
 import org.nutz.dao.impl.NutDao;
 import org.nutz.lang.util.NutBean;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
@@ -21,7 +21,7 @@ import com.alibaba.druid.pool.DruidDataSource;
 
 public abstract class WnDaos {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     private static Map<String, DataSource> dataSources = new HashMap<>();
 

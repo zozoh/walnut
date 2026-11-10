@@ -6,7 +6,7 @@ import com.site0.walnut.ext.media.edi.msg.reply.sam.IcsReplySamRes;
 import com.site0.walnut.ext.media.edi.msg.reply.sam.SamAdv;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
 import com.site0.walnut.ext.media.edi.util.IcsLoaderHelper;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 
 import java.util.ArrayList;
@@ -91,11 +91,11 @@ public class SAMResLoader implements EdiMsgLoader<IcsReplySamRes> {
                     }
                 } else if ("IM".equals(funcCode)) {
                     String name = (bean.getString("name1", "") + bean.getString("name2", "")).trim();
-                    if (Strings.isNotBlank(name)) {
+                    if (Ws.isNotBlank(name)) {
                         re.setImporterName(name);
                     }
-                    String boxNum = Strings.sNull(bean.getString("boxNum")).trim();
-                    if (Strings.isNotBlank(boxNum)) {
+                    String boxNum = Ws.sNull(bean.getString("boxNum")).trim();
+                    if (Ws.isNotBlank(boxNum)) {
                         re.setImporterBoxNum(boxNum);
                     }
                 }
@@ -113,7 +113,7 @@ public class SAMResLoader implements EdiMsgLoader<IcsReplySamRes> {
                 String refCode = bean.getString("refCode");
                 String refVal = bean.getString("refVal");
                 if ("ABO".equals(refCode)) {
-                    if (Strings.isNotBlank(refVal)) {
+                    if (Ws.isNotBlank(refVal)) {
                         re.setRefId(refVal);
                         re.setRefIdInLower(refVal.toLowerCase());
                         re.setRefVer(bean.getInt("refVer"));

@@ -2,7 +2,7 @@ package com.site0.walnut.cheap;
 
 import java.io.File;
 
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 
 public class AbstractCheapParsingTest {
 
@@ -25,8 +25,8 @@ public class AbstractCheapParsingTest {
     protected String _F(String name, String type) {
         String pph = "com/site0/walnut/cheap/mock";
         String aph = String.format("%s/%s/%s.%2$s", pph, type, name);
-        File f = Files.findFile(aph);
-        String str = Files.read(f);
+        File f = Wfiles.findFile(aph);
+        String str = Wfiles.read(f);
         return str.replace("\r\n", "\n");
     }
 

@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
@@ -55,9 +55,9 @@ public class SidebarItem {
             this.icon = o.getString("icon");
         }
         if (!this.hasIcon()) {
-            this.icon = Strings.sBlank(this.defaultIcon,
+            this.icon = Ws.sBlank(this.defaultIcon,
                                        String.format("<i class=\"oicon\" otp=\"%s\"></i>",
-                                                     Strings.sBlank(o.type(), "folder")));
+                                                     Ws.sBlank(o.type(), "folder")));
         }
         // 文本
         if (!this.hasText()) {
@@ -122,7 +122,7 @@ public class SidebarItem {
     }
 
     public boolean hasIcon() {
-        return !Strings.isBlank(this.icon);
+        return !Ws.isBlank(this.icon);
     }
 
     public String getDefaultIcon() {
@@ -142,7 +142,7 @@ public class SidebarItem {
     }
 
     public boolean hasText() {
-        return !Strings.isBlank(this.text);
+        return !Ws.isBlank(this.text);
     }
 
     public String getEditor() {
@@ -154,7 +154,7 @@ public class SidebarItem {
     }
 
     public boolean hasEditor() {
-        return !Strings.isBlank(this.editor);
+        return !Ws.isBlank(this.editor);
     }
 
     public String getDefaultEditor() {
@@ -186,7 +186,7 @@ public class SidebarItem {
     }
 
     NutMap parseFontIcon(String val, NutMap dft) {
-        if (Strings.isBlank(val))
+        if (Ws.isBlank(val))
             return dft;
 
         NutMap icon = Wlang.map("className", "material-icons").setv("text", val);
@@ -208,15 +208,15 @@ public class SidebarItem {
 
     void joinHtml(StringBuilder sb) {
         sb.append("\n    ");
-        sb.append("<item ph=\"").append(Strings.escapeHtml(ph)).append('"');
-        if (!Strings.isBlank(editor))
-            sb.append(" editor=\"").append(Strings.escapeHtml(editor)).append('"');
-        if (!Strings.isBlank(oid))
+        sb.append("<item ph=\"").append(Ws.escapeHtml(ph)).append('"');
+        if (!Ws.isBlank(editor))
+            sb.append(" editor=\"").append(Ws.escapeHtml(editor)).append('"');
+        if (!Ws.isBlank(oid))
             sb.append(" oid=\"").append(oid).append('"');
         sb.append('>');
-        if (!Strings.isBlank(icon)) {
+        if (!Ws.isBlank(icon)) {
             // Icon 就是一个 HTML 片段
-            if (Strings.isQuoteBy(icon, '<', '>')) {
+            if (Ws.isQuoteBy(icon, '<', '>')) {
                 sb.append(icon);
             }
             // 兼容直接书写 icon class 的情况
@@ -226,8 +226,8 @@ public class SidebarItem {
                 sb.append(iconHtml);
             }
         }
-        if (!Strings.isBlank(text))
-            sb.append("<a>").append(Strings.escapeHtml(text)).append("</a>");
+        if (!Ws.isBlank(text))
+            sb.append("<a>").append(Ws.escapeHtml(text)).append("</a>");
         sb.append("</item>");
     }
 

@@ -7,8 +7,8 @@ import java.util.Date;
 import java.util.List;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
-import org.nutz.lang.Strings;
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wtimes;
 import org.nutz.lang.born.Borning;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.DateRange;
@@ -227,8 +227,8 @@ public class WnCron {
         iyy.parse(stds[6]);
 
         // 记录成标准
-        parts[1] = Strings.join(0, 3, " ", stds);
-        parts[2] = Strings.join(3, 4, " ", stds);
+        parts[1] = Ws.join(0, 3, " ", stds);
+        parts[2] = Ws.join(3, 4, " ", stds);
 
         // 返回
         return this;
@@ -285,7 +285,7 @@ public class WnCron {
             this.has_time_steps |= tr.isStep();
             trStrs.add(tr.getPrimaryString());
         }
-        this.parts[0] = trStrs.isEmpty() ? null : Strings.join(" ", trStrs);
+        this.parts[0] = trStrs.isEmpty() ? null : Ws.join(" ", trStrs);
     }
 
     /**
@@ -322,7 +322,7 @@ public class WnCron {
      * @return 是否匹配
      */
     public boolean matchDate(String ds) {
-        return matchDate(Times.C(ds));
+        return matchDate(Wtimes.C(ds));
     }
 
     /**
@@ -333,7 +333,7 @@ public class WnCron {
      * @return 是否匹配
      */
     public boolean matchDate(Date d) {
-        return matchDate(Times.C(d.getTime()));
+        return matchDate(Wtimes.C(d.getTime()));
     }
 
     /**
@@ -388,7 +388,7 @@ public class WnCron {
      * @return 是否匹配
      */
     public boolean matchTime(int sec) {
-        Times.TmInfo ti = Times.Ti(sec);
+        Wtimes.TmInfo ti = Wtimes.Ti(sec);
         return matchTime(ti);
     }
 
@@ -400,7 +400,7 @@ public class WnCron {
      * @return 是否匹配
      */
     public boolean matchTime(String ts) {
-        Times.TmInfo ti = Times.Ti(ts);
+        Wtimes.TmInfo ti = Wtimes.Ti(ts);
         return matchTime(ti);
     }
 
@@ -411,7 +411,7 @@ public class WnCron {
      *            时间对象
      * @return 是否匹配
      */
-    public boolean matchTime(Times.TmInfo ti) {
+    public boolean matchTime(Wtimes.TmInfo ti) {
         // 指明了时间点的情况
         if (this.has_time_points) {
             for (TimePointRepeater tr : this.timeRepeaters) {
@@ -446,14 +446,14 @@ public class WnCron {
      * @see #each(Object[], CronEach, Calendar)
      */
     public <T> void each(T[] array, CronEach<T> callback, String ds) {
-        this.each(array, callback, Times.C(ds));
+        this.each(array, callback, Wtimes.C(ds));
     }
 
     /**
      * @see #each(Object[], CronEach, Calendar)
      */
     public <T> void each(T[] array, CronEach<T> callback, Date d) {
-        this.each(array, callback, Times.C(d));
+        this.each(array, callback, Wtimes.C(d));
     }
 
     /**
@@ -612,7 +612,7 @@ public class WnCron {
      * @see #overlap(CronOverlapor[], Object, Calendar)
      */
     public <T extends CronOverlapor> T[] overlapBy(T[] array, Object obj, long ms) {
-        return overlap(array, obj, Times.C(ms));
+        return overlap(array, obj, Wtimes.C(ms));
     }
 
     /**
@@ -629,7 +629,7 @@ public class WnCron {
      * @see #overlap(CronOverlapor[], Object, Calendar)
      */
     public <T extends CronOverlapor> T[] overlapBy(T[] array, Object obj, String ds) {
-        return overlap(array, obj, Times.C(ds));
+        return overlap(array, obj, Wtimes.C(ds));
     }
 
     /**
@@ -646,7 +646,7 @@ public class WnCron {
      * @see #overlap(CronOverlapor[], Object, Calendar)
      */
     public <T extends CronOverlapor> T[] overlapBy(T[] array, Object obj, Date d) {
-        return overlap(array, obj, Times.C(d.getTime()));
+        return overlap(array, obj, Wtimes.C(d.getTime()));
     }
 
     /**
@@ -660,21 +660,21 @@ public class WnCron {
      * @see #fill(Object[], Object, Calendar)
      */
     public <T> T[] fillBy(T[] array, T obj, long ms) {
-        return this.fill(array, obj, Times.C(ms));
+        return this.fill(array, obj, Wtimes.C(ms));
     }
 
     /**
      * @see #fill(Object[], Object, Calendar)
      */
     public <T> T[] fillBy(T[] array, final T obj, String ds) {
-        return this.fill(array, obj, Times.C(ds));
+        return this.fill(array, obj, Wtimes.C(ds));
     }
 
     /**
      * @see #fill(Object[], Object, Calendar)
      */
     public <T> T[] fillBy(T[] array, T obj, Date d) {
-        return this.fill(array, obj, Times.C(d));
+        return this.fill(array, obj, Wtimes.C(d));
     }
 
     /**
@@ -745,7 +745,7 @@ public class WnCron {
     }
 
     WnCron __set_part(int index, String str) {
-        String val = Strings.sBlank(Strings.trim(str), null);
+        String val = Ws.sBlank(Ws.trim(str), null);
         this.parts[index] = val;
         // 清除时间点
         if (0 == index && null == val) {
@@ -764,7 +764,7 @@ public class WnCron {
     public String toString() {
         ArrayList<String> list = new ArrayList<>();
         // 扩展: 时间部分
-        if (!Strings.isBlank(parts[0])) {
+        if (!Ws.isBlank(parts[0])) {
             list.add(parts[0]);
         }
         // 标准: 时间部分
@@ -777,11 +777,11 @@ public class WnCron {
                                              : parts[2]);
         }
         // 扩展: 日期部分
-        if (!Strings.isBlank(parts[3])) {
+        if (!Ws.isBlank(parts[3])) {
             list.add(parts[3]);
         }
         // 返回结果
-        return Strings.join(" ", list);
+        return Ws.join(" ", list);
     }
 
     public String getPrimaryString() {
@@ -836,14 +836,14 @@ public class WnCron {
         }
 
         // 返回字符串
-        return Strings.join("", ary);
+        return Ws.join("", ary);
     }
 
     private void __join_date_region(WnCroni18n i18n, List<String> ary) {
         Date dFrom = rgDate.left();
         Date dTo = rgDate.right();
-        int yearFrom = null == dFrom ? -1 : Times.C(dFrom).get(Calendar.YEAR);
-        int yearTo = null == dTo ? -2 : Times.C(dTo).get(Calendar.YEAR);
+        int yearFrom = null == dFrom ? -1 : Wtimes.C(dFrom).get(Calendar.YEAR);
+        int yearTo = null == dTo ? -2 : Wtimes.C(dTo).get(Calendar.YEAR);
 
         // 准备模板
         WnTmpl tmpl;
@@ -864,18 +864,18 @@ public class WnCron {
         NutMap c = new NutMap();
         // 开始
         if (yearFrom > 0) {
-            c.put("from", Times.format(i18n.dates.full, dFrom));
+            c.put("from", Wtimes.format(i18n.dates.full, dFrom));
             c.put("ieF", rgDate.isLeftOpen() ? i18n.EXC : i18n.INV);
         }
         // 结束
         if (yearTo > 0) {
             // 同年
             if (yearFrom == yearTo) {
-                c.put("to", Times.format(i18n.dates.same, dTo));
+                c.put("to", Wtimes.format(i18n.dates.same, dTo));
             }
             // 跨年
             else {
-                c.put("to", Times.format(i18n.dates.full, dTo));
+                c.put("to", Wtimes.format(i18n.dates.full, dTo));
             }
             c.put("ieT", rgDate.isRightOpen() ? i18n.EXC : i18n.INV);
         }

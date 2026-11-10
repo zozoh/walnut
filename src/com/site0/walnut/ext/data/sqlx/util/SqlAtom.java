@@ -9,20 +9,20 @@ import java.util.List;
 
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutBean;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.ext.data.sqlx.tmpl.SqlParam;
 import com.site0.walnut.ext.data.sqlx.tmpl.WnSqlTmpl;
 
 public class SqlAtom implements SqlExecutor{
 
-    private Log log;
+    private WnLog log;
 
     private String sql;
 
     private Object[] params;
 
-    public SqlAtom(Log log, WnSqlTmpl sqlt, NutBean vars) {
+    public SqlAtom(WnLog log, WnSqlTmpl sqlt, NutBean vars) {
         this.log = log;
         List<SqlParam> cps = new ArrayList<>();
         this.sql = sqlt.render(vars, cps);

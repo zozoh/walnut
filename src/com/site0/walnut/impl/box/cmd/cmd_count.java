@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
@@ -47,7 +47,7 @@ public class cmd_count extends JvmExecutor {
         if (!showHidden) {
             q.setv("nm", "^[^.].+$");
         }
-        if (!Strings.isBlank(tp)) {
+        if (!Ws.isBlank(tp)) {
             q.setv("tp", tp);
         }
         if (params.has("match")) {

@@ -22,12 +22,12 @@ import org.nutz.el.opt.RunMethod;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.random.R;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.SimpleContext;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
@@ -38,7 +38,7 @@ import com.site0.walnut.util.WnRun;
 @ServerEndpoint(value = "/websocket", configurator = WnWebSocketConfigurator.class)
 public class WnWebSocket extends Endpoint {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     protected static Map<String, Session> peers = Collections.synchronizedMap(new HashMap<>());
 
@@ -78,10 +78,10 @@ public class WnWebSocket extends Endpoint {
             if (map == null)
                 return;
             String methodName = map.getString("method");
-            if (Strings.isBlank(methodName))
+            if (Ws.isBlank(methodName))
                 return;
             String user = map.getString("user");
-            if (Strings.isBlank(user))
+            if (Ws.isBlank(user))
                 user = "root";
 
             // 默认需要返回内容
@@ -119,7 +119,7 @@ public class WnWebSocket extends Endpoint {
                 break;
             case "resp": {
                 String id = map.getString("id");
-                if (Strings.isBlank(id) || id.contains(".."))
+                if (Ws.isBlank(id) || id.contains(".."))
                     break;
                 WnObj cfile = wnRun.io().fetch(root, id);
                 if (cfile == null) {
@@ -127,12 +127,12 @@ public class WnWebSocket extends Endpoint {
                     break;
                 }
                 String callback = wnRun.io().readText(cfile);
-                if (Strings.isBlank(callback)) {
+                if (Ws.isBlank(callback)) {
                     log.debug("websocket callback file is emtry id=" + id);
                     break;
                 }
                 String ws_usr = map.getString("ws_usr");
-                if (Strings.isBlank(ws_usr)) {
+                if (Ws.isBlank(ws_usr)) {
                     log.debug("websocket callback file without ws_usr id=" + id);
                     break;
                 }
@@ -152,7 +152,7 @@ public class WnWebSocket extends Endpoint {
                     break;
                 }
                 String cmdpath = map.getString("cmd");
-                if (Strings.isBlank(cmdpath) || cmdpath.contains("..") || cmdpath.contains("/")) {
+                if (Ws.isBlank(cmdpath) || cmdpath.contains("..") || cmdpath.contains("/")) {
                     log.debugf("invaild websocket cmd path user=%s cmd=%s", user, cmdpath);
                     break;
                 }
@@ -168,7 +168,7 @@ public class WnWebSocket extends Endpoint {
                     break;
                 }
                 String callback = wnRun.io().readText(cfile);
-                if (Strings.isBlank(callback)) {
+                if (Ws.isBlank(callback)) {
                     log.debugf("websocket callback file is emtry user=%s cmd=%s", user, cmdpath);
                     break;
                 }

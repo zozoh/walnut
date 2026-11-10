@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.Writer;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.Callback;
 import org.nutz.trans.Atom;
 import com.site0.walnut.api.box.WnBoxContext;
@@ -28,7 +28,7 @@ public class WnAppCommandCallback implements Callback<WnBoxContext> {
 
     @Override
     public void invoke(WnBoxContext bc) {
-        if (!Strings.isBlank(metaOutputSeparator)) {
+        if (!Ws.isBlank(metaOutputSeparator)) {
             try {
                 w.write("\n" + metaOutputSeparator + ":MACRO:" + Wn.MACRO.UPDATE_ENVS + "\n");
                 w.write(Json.toJson(session.getEnv()));

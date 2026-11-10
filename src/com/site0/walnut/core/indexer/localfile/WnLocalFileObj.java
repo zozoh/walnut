@@ -7,9 +7,9 @@ import java.util.Map;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.json.ToJson;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.util.Disks;
+import com.site0.walnut.util.Wdisks;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
@@ -45,12 +45,12 @@ public class WnLocalFileObj extends NutMap implements WnObj {
         this.dHome = dHome;
         this.file = f;
         this.mimes = mimes;
-        this.phHome = Files.getAbsPath(dHome);
-        this.phFile = Files.getAbsPath(file);
+        this.phHome = Wfiles.getAbsPath(dHome);
+        this.phFile = Wfiles.getAbsPath(file);
         // 整理路径中的 ..
-        this.phHome = Disks.getCanonicalPath(this.phHome);
-        this.phFile = Disks.getCanonicalPath(this.phFile);
-        this.rph = Disks.getRelativePath(phHome, phFile);
+        this.phHome = Wdisks.getCanonicalPath(this.phHome);
+        this.phFile = Wdisks.getCanonicalPath(this.phFile);
+        this.rph = Wdisks.getRelativePath(phHome, phFile);
         if (file.isDirectory() && !this.rph.endsWith("/")) {
             this.rph += "/";
         }
@@ -303,7 +303,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
                 }
             }
             // 计算自己相对于父的相对路径
-            String _p_rph = Disks.getRelativePath(this._parent.path(),
+            String _p_rph = Wdisks.getRelativePath(this._parent.path(),
                                                   this.path());
             // 看看自己的 rph 是否用尽
             int pos = _p_rph.lastIndexOf('/', _p_rph.length() - 1);
@@ -465,7 +465,7 @@ public class WnLocalFileObj extends NutMap implements WnObj {
     @Override
     public String type() {
         if (this.isFILE())
-            return Files.getSuffixName(file);
+            return Wfiles.getSuffixName(file);
         return null;
     }
 

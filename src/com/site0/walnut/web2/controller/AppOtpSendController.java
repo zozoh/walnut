@@ -3,7 +3,7 @@ package com.site0.walnut.web2.controller;
 import java.nio.charset.StandardCharsets;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.mvc.WnMvcContext;
@@ -11,7 +11,6 @@ import com.site0.walnut.mvc.WnMvcView;
 import com.site0.walnut.security.captcha.WnCaptchaApi;
 import com.site0.walnut.security.otp.WnOTPService;
 import com.site0.walnut.security.otp.bean.WnOTPBean;
-import com.site0.walnut.util.Ws;
 import com.site0.walnut.web2.controller.app.WnOcmInfo;
 
 public class AppOtpSendController extends AbstractAppAuthController {
@@ -63,7 +62,7 @@ public class AppOtpSendController extends AbstractAppAuthController {
             otps.save(otp);
             var sendRe = otps.send(otp);
             if (!sendRe.isOk()) {
-                String errCode = Strings.sBlank(sendRe.getErrCode(), "e.otp.send");
+                String errCode = Ws.sBlank(sendRe.getErrCode(), "e.otp.send");
                 reJson = __fail_json(errCode, sendRe.getMsg());
                 return WnMvcView.raw(reJson.getBytes(StandardCharsets.UTF_8), "text/json");
             }
@@ -79,7 +78,7 @@ public class AppOtpSendController extends AbstractAppAuthController {
     }
 
     private WnOTPService __check_otps(WnMvcContext ctx, WnOcmInfo ocm, String otpConfigName) {
-        String ocName = Strings.sBlank(otpConfigName, "default");
+        String ocName = Ws.sBlank(otpConfigName, "default");
         NutMap sessionVars = new NutMap();
         sessionVars.put("HOME", ocm.getConfHomePath());
         return new WnOTPService(io(ctx), sessionVars, ocName);

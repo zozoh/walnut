@@ -2,7 +2,7 @@ package com.site0.walnut.core.mapping;
 
 import java.util.HashMap;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 
 import com.site0.walnut.api.GetWnIo;
 import com.site0.walnut.api.err.Er;
@@ -125,7 +125,7 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
     public WnIoMapping checkMapping(String mountRootId, String mount) {
         // 获取顶端映射对象
         WnObj oMntRoot = null;
-        if (!Strings.isBlank(mountRootId)) {
+        if (!Ws.isBlank(mountRootId)) {
             oMntRoot = globalIndexer.checkById(mountRootId);
         }
 
@@ -144,7 +144,7 @@ public class WnIoMappingFactoryImpl implements WnIoMappingFactory {
         String mount = obj.mount();
 
         // 自己就是顶端映射对象
-        if (Strings.isBlank(mntRootId) || obj.isSameId(mntRootId)) {
+        if (Ws.isBlank(mntRootId) || obj.isSameId(mntRootId)) {
             return __check_mapping(obj, mount);
         }
 

@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import java.net.URLEncoder;
 
 import org.junit.Test;
-import org.nutz.lang.Encoding;
+
 
 public class HttpUrlTest {
 
@@ -13,7 +13,7 @@ public class HttpUrlTest {
     public void test_full() {
         String str = "http://zozoh.com:8080/a/b/?x=100&y=99&nm=";
         String nm = "三个字儿";
-        String encodedNm = URLEncoder.encode(nm, Encoding.CHARSET_UTF8);
+        String encodedNm = URLEncoder.encode(nm, java.nio.charset.StandardCharsets.UTF_8);
         String input = str + nm + "#main";
         String encodedInput = str + encodedNm + "#main";
 

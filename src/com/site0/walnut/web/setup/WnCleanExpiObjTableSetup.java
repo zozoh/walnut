@@ -1,7 +1,7 @@
 package com.site0.walnut.web.setup;
 
 import org.nutz.ioc.Ioc;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import org.nutz.mvc.NutConfig;
 import org.nutz.mvc.Setup;
 import com.site0.walnut.api.io.WnExpiObjTable;
@@ -12,7 +12,7 @@ import com.site0.walnut.web.clean.WnExpiObjTableCleaner;
 
 public class WnCleanExpiObjTableSetup implements Setup {
 
-    private static final Log log = Wlog.getBG_CLEARNER();
+    private static final WnLog log = Wlog.getBG_CLEARNER();
 
     private Thread _t;
 

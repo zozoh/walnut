@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.nutz.lang.util.Regex;
+import com.site0.walnut.util.Wregex;
 import com.site0.walnut.ext.data.o.impl.pop.*;
 import com.site0.walnut.util.Ws;
 
@@ -26,7 +26,7 @@ public class WnPops {
         }
         // # - 3 : 从后面弹出最多三个
         // # - -1 : 从开始处弹出最多一个
-        Pattern p = Regex.getPattern("^(-?\\d+)$");
+        Pattern p = Wregex.getPattern("^(-?\\d+)$");
         Matcher m = p.matcher(input);
         if (m.find()) {
             int n = Integer.parseInt(input);
@@ -35,7 +35,7 @@ public class WnPops {
         // # - i3 : 0 base下标，即第四个
         // # - i-1 : 最后一个
         // # - i-2 : 倒数第二个
-        p = Regex.getPattern("^i(-?\\d+)$");
+        p = Wregex.getPattern("^i(-?\\d+)$");
         m = p.matcher(input);
         if (m.find()) {
             int index = Integer.parseInt(m.group(1));
@@ -43,7 +43,7 @@ public class WnPops {
         }
         // # - =xyz : 弹出内容为 'xyz' 的项目
         // # - !=xyz : 弹出内容不为 'xyz' 的项目
-        p = Regex.getPattern("^(!)?=(.+)$");
+        p = Wregex.getPattern("^(!)?=(.+)$");
         m = p.matcher(input);
         if (m.find()) {
             String str = m.group(2);
@@ -53,7 +53,7 @@ public class WnPops {
         }
         // # - [a,b] : 弹出半角逗号分隔的列表里的值
         // # - ![a,b] : 弹出不在半角逗号分隔的列表里的值
-        p = Regex.getPattern("^(!)?\\[([^\\]]*)\\]$");
+        p = Wregex.getPattern("^(!)?\\[([^\\]]*)\\]$");
         m = p.matcher(input);
         if (m.find()) {
             String str = Ws.trim(m.group(2));
@@ -63,7 +63,7 @@ public class WnPops {
         }
         // # - ^a.* : 弹出被正则表达式匹配的项目
         // # - !^a.* : 弹出没有被正则表达式匹配的项目
-        p = Regex.getPattern("^(!)?(\\^.+)$");
+        p = Wregex.getPattern("^(!)?(\\^.+)$");
         m = p.matcher(input);
         if (m.find()) {
             String str = Ws.trim(m.group(2));

@@ -2,8 +2,6 @@ package com.site0.walnut.util;
 
 import java.util.LinkedList;
 
-import org.nutz.lang.Strings;
-
 public abstract class Wpath {
 
     /**
@@ -12,7 +10,7 @@ public abstract class Wpath {
      * @return 文件或者目录名
      */
     public static String getName(String path) {
-        if (!Strings.isBlank(path)) {
+        if (!Ws.isBlank(path)) {
             int pos = path.replace('\\', '/').lastIndexOf('/');
             if (pos != -1)
                 return path.substring(pos + 1);
@@ -118,7 +116,7 @@ public abstract class Wpath {
      * @return 新路径
      */
     public static String renamePath(String path, String newName) {
-        if (!Strings.isBlank(path)) {
+        if (!Ws.isBlank(path)) {
             int pos = path.replace('\\', '/').lastIndexOf('/');
             if (pos > 0)
                 return path.substring(0, pos) + "/" + newName;
@@ -136,7 +134,7 @@ public abstract class Wpath {
      * @return 新路径
      */
     public static String renameSuffix(String path, String suffixName) {
-        if (!Strings.isBlank(path)) {
+        if (!Ws.isBlank(path)) {
             String suffix = "";
             if (!Ws.isBlank(suffixName)) {
                 suffix = "." + suffixName;
@@ -157,7 +155,7 @@ public abstract class Wpath {
      * @return 父路径
      */
     public static String getParent(String path) {
-        if (Strings.isBlank(path))
+        if (Ws.isBlank(path))
             return path;
         int pos = path.replace('\\', '/').lastIndexOf('/');
         if (pos > 0)

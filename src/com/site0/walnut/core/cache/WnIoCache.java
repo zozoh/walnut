@@ -2,7 +2,7 @@ package com.site0.walnut.core.cache;
 
 import java.util.List;
 
-import org.nutz.lang.Encoding;
+
 
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.cache.WnCache;
@@ -179,7 +179,7 @@ public class WnIoCache extends WnIoCacheOptions {
 
     public String getContent(String sha1) {
         byte[] bs = sha1Cache.get(sha1);
-        return new String(bs, Encoding.CHARSET_UTF8);
+        return new String(bs, java.nio.charset.StandardCharsets.UTF_8);
     }
 
     public void cacheContent(String sha1, String content) {

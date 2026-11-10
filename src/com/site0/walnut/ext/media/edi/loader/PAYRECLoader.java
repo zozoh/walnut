@@ -5,7 +5,7 @@ import com.site0.walnut.ext.media.edi.bean.EdiSegment;
 import com.site0.walnut.ext.media.edi.msg.reply.pay.PayRecRes;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
 import com.site0.walnut.ext.media.edi.util.IcsLoaderHelper;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 
 import java.math.BigDecimal;
@@ -87,7 +87,7 @@ public class PAYRECLoader implements EdiMsgLoader<PayRecRes> {
                 String refCode = nutMap.getString("refCode");
                 String refVal = nutMap.getString("refVal");
                 if ("ABO".equals(refCode)) {
-                    if (Strings.isNotBlank(refVal)) {
+                    if (Ws.isNotBlank(refVal)) {
                         re.setRefId(refVal);
                         re.setRefIdInLower(refVal.toLowerCase());
                         re.setRefVer(nutMap.getInt("refVer"));

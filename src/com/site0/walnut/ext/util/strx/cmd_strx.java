@@ -1,6 +1,6 @@
 package com.site0.walnut.ext.util.strx;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.impl.box.JvmFilterExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.ZParams;
@@ -25,7 +25,7 @@ public class cmd_strx extends JvmFilterExecutor<StrXContext, StrXFilter> {
     protected void prepare(WnSystem sys, StrXContext fc) {
         fc.data = sys.in.readAll();
         if (fc.params.is("trim")) {
-            fc.data = Strings.trim(fc.data);
+            fc.data = Ws.trim(fc.data);
         }
     }
 

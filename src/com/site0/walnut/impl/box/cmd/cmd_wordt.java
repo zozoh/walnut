@@ -6,7 +6,7 @@ import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.usermodel.Paragraph;
 import org.apache.poi.hwpf.usermodel.Range;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
@@ -34,10 +34,10 @@ public class cmd_wordt extends JvmExecutor {
                                        : sys.io.check(null, destPath);
         // 替换参数
         String vars = params.get("vars");
-        if (Strings.isBlank(vars) || "true".equals(vars)) {
+        if (Ws.isBlank(vars) || "true".equals(vars)) {
             vars = sys.in.readAll();
         }
-        if (Strings.isBlank(vars)) {
+        if (Ws.isBlank(vars)) {
             throw Err.create("e.cmd.wordt.miss_vars");
         }
         NutMap varMap = Wlang.map(vars);
@@ -84,7 +84,7 @@ public class cmd_wordt extends JvmExecutor {
                 // valStr = valStr.replaceAll(CHARACTER_NL, CHARACTER_NL_WORD);
                 // varMap.setv(k, valStr);
                 // }
-                if (!Strings.isBlank(valStr)) {
+                if (!Ws.isBlank(valStr)) {
                     valStr = valStr.replaceAll("(\r?\n)", "\013");
                     varMap.setv(k, valStr);
                 }

@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Regex;
+import com.site0.walnut.util.Wregex;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.each.WnEachIteratee;
 import com.site0.walnut.util.validate.WnMatch;
@@ -106,7 +106,7 @@ public class ThingLinkKey {
         if (match instanceof CharSequence) {
             String str = match.toString();
             if (str.startsWith("^")) {
-                return Regex.getPattern(str);
+                return Wregex.getPattern(str);
             }
         }
         return null;

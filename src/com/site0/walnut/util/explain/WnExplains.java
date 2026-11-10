@@ -10,12 +10,11 @@ import java.util.regex.Pattern;
 
 import org.nutz.castor.Castors;
 import org.nutz.lang.Mirror;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Regex;
+import com.site0.walnut.util.Wregex;
 import com.site0.walnut.util.Wlang;
-import com.site0.walnut.util.Ws;
 
 public class WnExplains {
 
@@ -59,13 +58,10 @@ public class WnExplains {
         return wx.explain(context);
     }
 
-    private static final Pattern EO1 = Regex
-        .getPattern("^:(:*(=|==|!=|->)(.+))$");
-    private static final Pattern EO2 = Regex.getPattern("^([-=]>)(.+)$");
-    private static final Pattern EO3 = Regex
-        .getPattern("^(==?|!=)([^?]+)(\\?(.*))?$");
-    private static final Pattern EO4 = Regex
-        .getPattern("^(([\\w\\d_.]+)\\?\\?)?(.+)$");
+    private static final Pattern EO1 = Wregex.getPattern("^:(:*(=|==|!=|->)(.+))$");
+    private static final Pattern EO2 = Wregex.getPattern("^([-=]>)(.+)$");
+    private static final Pattern EO3 = Wregex.getPattern("^(==?|!=)([^?]+)(\\?(.*))?$");
+    private static final Pattern EO4 = Wregex.getPattern("^(([\\w\\d_.]+)\\?\\?)?(.+)$");
 
     /**
      * 预先解析一个展开一个对象。可以是字符串，数组，集合，Map 等
@@ -96,17 +92,17 @@ public class WnExplains {
             m = EO2.matcher(str);
             if (m.find()) {
                 m_type = m.group(1);
-                m_val = Strings.trim(m.group(2));
+                m_val = Ws.trim(m.group(2));
             }
             // Find key in context
             else {
                 m = EO3.matcher(str);
                 if (m.find()) {
                     m_type = m.group(1);
-                    m_val = Strings.trim(m.group(2));
+                    m_val = Ws.trim(m.group(2));
 
                     // 搞默认值，聪明点，根据值的样子改变对象类型，不要傻傻的做成字符串
-                    String dft = Strings.trim(m.group(4));
+                    String dft = Ws.trim(m.group(4));
                     m_dft = dft;
                     // starts with "=" auto covert to JS value
                     if (dft != null) {
@@ -178,12 +174,8 @@ public class WnExplains {
             String valKey = map.getString("key");
             Object mapping = map.get("mapping");
             Object dftValue = map.get("dft");
-            if (!Strings.isBlank(valKey)
-                && null != mapping
-                && (mapping instanceof Map)) {
-                return new WxExplainValMapping(valKey,
-                                               (Map<String, Object>) mapping,
-                                               dftValue);
+            if (!Ws.isBlank(valKey) && null != mapping && (mapping instanceof Map)) {
+                return new WxExplainValMapping(valKey, (Map<String, Object>) mapping, dftValue);
             }
 
             // 递归

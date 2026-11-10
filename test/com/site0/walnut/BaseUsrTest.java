@@ -1,6 +1,6 @@
 package com.site0.walnut;
 
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.io.WnSecurity;
 import com.site0.walnut.impl.io.WnSecurityImpl;
@@ -12,7 +12,7 @@ import com.site0.walnut.util.WnContext;
 
 public abstract class BaseUsrTest extends BaseIoTest {
 
-    static Log log = Wlog.getTEST();
+    static WnLog log = Wlog.getTEST();
 
     protected WnSecurity security;
 

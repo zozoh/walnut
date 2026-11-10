@@ -3,7 +3,7 @@ package com.site0.walnut.impl.box.cmd;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
@@ -41,7 +41,7 @@ public class cmd_httpparam extends JvmExecutor {
         // 解析
         NutMap c;
         // 按照 JSON 方式解析
-        if (null != str && Strings.isQuoteBy(str, '{', '}')) {
+        if (null != str && Ws.isQuoteBy(str, '{', '}')) {
             c = Json.fromJson(NutMap.class, str);
         }
         // 按照 form 表单方式解析
@@ -65,14 +65,14 @@ public class cmd_httpparam extends JvmExecutor {
             for (String nm : mapping.keySet()) {
                 String sep = mapping.getString(nm);
                 String val = c.getString(nm);
-                String[] v2 = Strings.splitIgnoreBlank(val, sep);
+                String[] v2 = Ws.splitIgnoreBlank(val, sep);
                 c.put(nm, v2);
             }
         }
         // .......................................................
         // 将指定的参数变成整数
         if (params.has("vint")) {
-            String[] nms = Strings.splitIgnoreBlank(params.getString("vint"));
+            String[] nms = Ws.splitIgnoreBlank(params.getString("vint"));
             for (String nm : nms) {
                 int v2 = c.getInt(nm);
                 c.put(nm, v2);
@@ -81,7 +81,7 @@ public class cmd_httpparam extends JvmExecutor {
         // .......................................................
         // 将指定的参数变成布尔
         if (params.has("vbool")) {
-            String[] nms = Strings.splitIgnoreBlank(params.getString("vbool"));
+            String[] nms = Ws.splitIgnoreBlank(params.getString("vbool"));
             for (String nm : nms) {
                 boolean v2 = c.getBoolean(nm);
                 c.put(nm, v2);
@@ -90,7 +90,7 @@ public class cmd_httpparam extends JvmExecutor {
         // .......................................................
         // 将指定的参数变成浮点数
         if (params.has("vfloat")) {
-            String[] nms = Strings.splitIgnoreBlank(params.getString("vfloat"));
+            String[] nms = Ws.splitIgnoreBlank(params.getString("vfloat"));
             for (String nm : nms) {
                 float v2 = c.getFloat(nm);
                 c.put(nm, v2);
@@ -108,7 +108,7 @@ public class cmd_httpparam extends JvmExecutor {
         // .......................................................
         // 输出 @{xxx} 作为参数模板
         String out = params.get("out");
-        if (!Strings.isBlank(out)) {
+        if (!Ws.isBlank(out)) {
             sys.out.println(Cmds.out_by_tmpl(out, c));
         }
         // 否则就全部输出一个 JSON

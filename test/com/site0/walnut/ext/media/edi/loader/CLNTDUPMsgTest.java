@@ -6,14 +6,14 @@ import com.site0.walnut.ext.media.edi.msg.reply.clreg.IcsReplyCLNTDUP;
 import org.junit.Test;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 
 import static org.junit.Assert.*;
 
 public class CLNTDUPMsgTest {
 
     private String _read_input(String name) {
-        String txt = Files.read("com/site0/walnut/ext/media/edi/bean/pack/" + name + ".edi.txt");
+        String txt = Wfiles.read("com/site0/walnut/ext/media/edi/bean/pack/" + name + ".edi.txt");
         return txt.replaceAll("\r\n", "\n").trim();
     }
 

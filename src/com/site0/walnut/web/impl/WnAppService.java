@@ -7,10 +7,10 @@ import java.io.Writer;
 import java.util.List;
 
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.lang.Strings;
-import org.nutz.lang.util.Disks;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wdisks;
 import org.nutz.lang.util.NutBean;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
@@ -34,7 +34,7 @@ import org.nutz.web.WebException;
 @IocBean
 public class WnAppService extends WnRun {
 
-    private static final Log log = Wlog.getAPP();
+    private static final WnLog log = Wlog.getAPP();
 
     /**
      * 运行一个命令
@@ -86,7 +86,7 @@ public class WnAppService extends WnRun {
         // // 运行
         // WnAuthSession se = isSudo ? su_se : my_se;
         // NutMap vars = my_se.getVars();
-        // vars.put("PWD", Strings.sBlank(PWD, "~"));
+        // vars.put("PWD", Ws.sBlank(PWD, "~"));
         // vars.put("APP_HOME", oAppHome.path());
         //
         // // 准备变量，以便在回调里释放
@@ -104,7 +104,7 @@ public class WnAppService extends WnRun {
         WnSession se = app.getSession();
         NutBean vars = se.getEnv();
         String userHomePath = app.getSession().getUser().getHomePath();
-        vars.put("PWD", Strings.sBlank(PWD, userHomePath));
+        vars.put("PWD", Ws.sBlank(PWD, userHomePath));
         vars.put("APP_HOME", oAppHome.path());
 
         // 准备命令执行后的回调
@@ -161,7 +161,7 @@ public class WnAppService extends WnRun {
         CheapElement body = doc.body();
         WnSession se = app.getSession();
         WnUser user = se.getUser();
-        String dftLoginSite = Disks.appendPath(user.getHomePath(), "www/login");
+        String dftLoginSite = Wdisks.appendPath(user.getHomePath(), "www/login");
         String loginSite = user.getMetaString("LOGIN_SITE", dftLoginSite);
         body.attr("session-ticket", se.getTicket());
         body.attr("app-name", app.getName());
@@ -192,7 +192,7 @@ public class WnAppService extends WnRun {
         // vars.put("PWD", app.getHome().getRegularPath());
 
         // 默认就是主目录
-        if (Strings.isBlank(ph)) {
+        if (Ws.isBlank(ph)) {
             return null;
         }
         // 获取对象
@@ -210,7 +210,7 @@ public class WnAppService extends WnRun {
      */
     public WnObj getObjById(WnApp app, String id) {
         // 默认就是主目录
-        if (Strings.isBlank(id)) {
+        if (Ws.isBlank(id)) {
             return null;
         }
         // 获取对象
@@ -259,7 +259,7 @@ public class WnAppService extends WnRun {
      */
     public WnApp checkApp(String appName, WnLoginApi auth) {
         // 防空
-        if (Strings.isBlank(appName))
+        if (Ws.isBlank(appName))
             throw Er.create("e.app.noname");
         // 获取会话
         WnSession se = Wn.WC().checkSession();
@@ -287,7 +287,7 @@ public class WnAppService extends WnRun {
 
     private WnObj _find_app_home(String appName) {
         String appPaths = Wn.WC().checkSession().getEnv().getString("APP_PATH");
-        String[] bases = Strings.splitIgnoreBlank(appPaths, ":");
+        String[] bases = Ws.splitIgnoreBlank(appPaths, ":");
         for (String base : bases) {
             String ph = Wn.appendPath(base, appName);
             try {

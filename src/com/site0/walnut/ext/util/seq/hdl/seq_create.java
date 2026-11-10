@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
@@ -52,7 +52,7 @@ public class seq_create implements JvmHdl {
         // Tmpl t = Tmpl.parse(tmpl);
         WnTmpl t = Cmds.parse_tmpl(tmpl);
         // 简单序列模式
-        if (Strings.isBlank(list_match)) {
+        if (Ws.isBlank(list_match)) {
             for (int i = 0; i < count; i++) {
                 vars.put("seq", current);
                 sys.out.print(t.render(vars) + ",");
@@ -67,7 +67,7 @@ public class seq_create implements JvmHdl {
             List<WnObj> objs = null;
             int updated = 0;
             int nochange = 0;
-            if (Strings.isNotBlank(list_match)) {
+            if (Ws.isNotBlank(list_match)) {
                 WnQuery q = new WnQuery();
                 NutMap map = Wlang.map(list_match);
                 map.put("d0", "home");

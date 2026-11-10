@@ -4,7 +4,7 @@ import java.util.TimeZone;
 
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import org.nutz.trans.Atom;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.hook.WnHookContext;
@@ -17,7 +17,7 @@ import com.site0.walnut.util.Wtime;
 
 class JvmAtom extends JvmCmd implements Atom {
 
-    private static final Log log = Wlog.getBOX();
+    private static final WnLog log = Wlog.getBOX();
 
     int id;
 

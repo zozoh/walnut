@@ -6,8 +6,8 @@ import java.sql.Statement;
 import java.util.List;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Nums;
-import org.nutz.log.Log;
+import com.site0.walnut.util.Wnum;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.ext.data.sqlx.util.Sqlx;
@@ -15,9 +15,9 @@ import com.site0.walnut.util.Wlog;
 
 public class ExecProcessor implements SqlProcessor<SqlExecResult> {
 
-    private Log log;
+    private WnLog log;
 
-    public ExecProcessor(Log log) {
+    public ExecProcessor(WnLog log) {
         this.log = log;
     }
 
@@ -116,7 +116,7 @@ public class ExecProcessor implements SqlProcessor<SqlExecResult> {
             // 执行
             int[] batchResult = sta.executeBatch();
             re.updateCount = sta.getUpdateCount();
-            re.batchTotal = Nums.sum(batchResult);
+            re.batchTotal = Wnum.sum(batchResult);
 
         }
         catch (Exception e) {

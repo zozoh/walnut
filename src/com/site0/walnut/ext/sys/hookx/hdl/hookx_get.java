@@ -1,7 +1,7 @@
 package com.site0.walnut.ext.sys.hookx.hdl;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnQuery;
@@ -25,7 +25,7 @@ public class hookx_get extends HookXFilter {
                     }
                 }
                 // 查询条件
-                else if (Strings.isQuoteBy(val, '{', '}')) {
+                else if (Ws.isQuoteBy(val, '{', '}')) {
                     NutMap map = Json.fromJson(NutMap.class, val);
                     WnQuery q = new WnQuery();
                     q.add(map);

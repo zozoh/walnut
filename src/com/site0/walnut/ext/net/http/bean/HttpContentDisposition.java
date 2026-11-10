@@ -4,7 +4,7 @@ import java.net.URLDecoder;
 import java.util.List;
 import java.util.Map;
 
-import org.nutz.lang.Encoding;
+
 import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.util.Ws;
@@ -138,7 +138,7 @@ public class HttpContentDisposition {
                 }
             }
             // 默认按照 UTF-8 解码
-            return URLDecoder.decode(value, Encoding.CHARSET_UTF8);
+            return URLDecoder.decode(value, java.nio.charset.StandardCharsets.UTF_8);
         }
         catch (Exception e) {
             // 捕获所有异常，确保方法不会因解析错误而失败

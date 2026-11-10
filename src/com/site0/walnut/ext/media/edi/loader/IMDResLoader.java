@@ -5,7 +5,7 @@ import com.site0.walnut.ext.media.edi.bean.EdiSegment;
 import com.site0.walnut.ext.media.edi.msg.reply.imd.*;
 import com.site0.walnut.ext.media.edi.util.EdiSegmentFinder;
 import com.site0.walnut.ext.media.edi.util.IcsLoaderHelper;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
 
@@ -140,7 +140,7 @@ public class IMDResLoader implements EdiMsgLoader<IcsReplyImdRes> {
                 if ("AAE".equals(refCode)) {
                     re.setHeaderNatureType(refVal);
                 } else if ("ABO".equals(refCode)) {
-                    if (Strings.isNotBlank(refVal)) {
+                    if (Ws.isNotBlank(refVal)) {
                         re.setRefId(refVal);
                         re.setRefIdInLower(refVal.toLowerCase());
                         re.setRefVer(rff.getInt("refVer"));

@@ -1,18 +1,18 @@
 package com.site0.walnut.util.log;
 
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 
-public class WnLogWrapper implements Log {
+public class WnLogWrapper implements WnLog {
 
-    private Log log;
+    private WnLog log;
 
-    public WnLogWrapper(Log log) {
+    public WnLogWrapper(WnLog log) {
         this.log = log;
     }
 
-    public Log setTag(String tag) {
+    public WnLog setTag(String tag) {
         return log.setTag(tag);
     }
 

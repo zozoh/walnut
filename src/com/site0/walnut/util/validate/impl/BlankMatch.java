@@ -1,6 +1,6 @@
 package com.site0.walnut.util.validate.impl;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.validate.WnMatch;
 
 public class BlankMatch implements WnMatch {
@@ -10,7 +10,7 @@ public class BlankMatch implements WnMatch {
         if (null == val)
             return true;
 
-        return Strings.isBlank(val.toString());
+        return Ws.isBlank(val.toString());
     }
 
 }

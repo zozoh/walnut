@@ -3,7 +3,7 @@ package com.site0.walnut.core.eot;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.api.io.WnExpiObj;
 import com.site0.walnut.api.io.WnExpiObjTable;
@@ -14,7 +14,7 @@ import com.site0.walnut.api.lock.WnLockInvalidKeyException;
 
 public class WnSafeExpiObjTable implements WnExpiObjTable {
 
-    private static final Log log = Wlog.getIO();
+    private static final WnLog log = Wlog.getIO();
 
     private static final String LOCK_NAME = "WN_EXPI_OBJS";
 

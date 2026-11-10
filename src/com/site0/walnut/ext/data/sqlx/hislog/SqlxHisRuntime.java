@@ -10,7 +10,7 @@ import java.util.Map;
 import org.nutz.json.Json;
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.ext.data.sqlx.SqlxContext;
@@ -30,7 +30,7 @@ import com.site0.walnut.val.id.WnSnowQMaker;
 
 public class SqlxHisRuntime {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     private static final String BATCH_NO_KEY = "__batch_no";
 

@@ -1,7 +1,7 @@
 package com.site0.walnut.web2;
 
-import org.nutz.lang.Strings;
-import org.nutz.log.Log;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.web.WnConfig;
@@ -24,12 +24,12 @@ import com.site0.walnut.web2.service.WnServiceFactory;
  */
 public class WnLauncher2 {
 
-    private static final Log log = Wlog.getMAIN();
+    private static final WnLog log = Wlog.getMAIN();
 
     public static void main(String[] args) throws Exception {
         // 1. 读入参（配置路径，默认 web.properties）
         String confPath = "web.properties";
-        if (null != args && args.length > 0 && !Strings.isBlank(args[0])) {
+        if (null != args && args.length > 0 && !Ws.isBlank(args[0])) {
             confPath = args[0];
         }
         WnConfig conf = new WnConfig(confPath);

@@ -13,7 +13,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.nutz.json.Json;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.util.NutMap;
 import org.nutz.web.WebException;
 
@@ -664,7 +664,7 @@ public abstract class AbstractWnIoIndexerTest extends IoCoreTest {
     @Test
     public void test_19() {
         WnObj o = indexer.create(null, "/a", WnRace.FILE);
-        File f = Files.findFile("com/site0/walnut/core/req_meta.json");
+        File f = Wfiles.findFile("com/site0/walnut/core/req_meta.json");
         NutMap meta = Json.fromJsonFile(NutMap.class, f);
 
         WnObj o2 = indexer.setBy(o.id(), meta, true);

@@ -20,13 +20,13 @@ import org.nutz.img.Colors;
 import org.nutz.img.Images;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.lang.Encoding;
-import org.nutz.lang.Files;
-import org.nutz.lang.Nums;
+
+import com.site0.walnut.util.Wfiles;
+import com.site0.walnut.util.Wnum;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Regex;
+import com.site0.walnut.util.Wregex;
 import org.nutz.mvc.View;
 import org.nutz.mvc.adaptor.JsonAdaptor;
 import org.nutz.mvc.adaptor.QueryStringAdaptor;
@@ -103,7 +103,7 @@ public class ObjModule extends AbstractWnModule {
         }
 
         WnSession se = Wn.WC().checkSession();
-        String ph = URLDecoder.decode(str, Encoding.CHARSET_UTF8);
+        String ph = URLDecoder.decode(str, java.nio.charset.StandardCharsets.UTF_8);
         WnObj o = Wn.checkObj(io(), se, ph);
 
         if (loadAxis) {
@@ -430,7 +430,7 @@ public class ObjModule extends AbstractWnModule {
             else {
                 // 先确定一下类型
                 String tp = o.type();
-                if (Strings.isBlank(tp)) {
+                if (Ws.isBlank(tp)) {
                     tp = o.isDIR() ? "folder" : "unknown";
                 }
 
@@ -440,14 +440,14 @@ public class ObjModule extends AbstractWnModule {
 
         // 是否要缩放
         if (null != im && null != scale) {
-            Matcher m = Regex.getPattern("^(\\d+)[xX](\\d+)$").matcher(scale);
+            Matcher m = Wregex.getPattern("^(\\d+)[xX](\\d+)$").matcher(scale);
             if (m.find()) {
                 int w = Integer.parseInt(m.group(1));
                 int h = Integer.parseInt(m.group(2));
 
                 // 看看有没有必要缩放，如果没声明 force，则比较一下，只要宽高有一个要变小，就值得缩放
                 if (force || im.getWidth() > w || im.getHeight() > h) {
-                    if (Strings.isBlank(bg)) {
+                    if (Ws.isBlank(bg)) {
                         im = Images.zoomScale(im, w, h);
                     } else {
                         Color bgcolor = Colors.as(bg);
@@ -494,7 +494,7 @@ public class ObjModule extends AbstractWnModule {
         return im;
     }
 
-    private static final int[] SIZE_HINTS = Nums.array(16, 24, 32, 64, 128);
+    private static final int[] SIZE_HINTS = Wnum.array(16, 24, 32, 64, 128);
 
     private BufferedImage __read_dft_thumbnail(String tp,
                                                WnRace race,
@@ -592,7 +592,7 @@ public class ObjModule extends AbstractWnModule {
         // TODO 如果先生成一个对象，然后浏览器读取了，在服务器上将这个对象改成一个链接对象
         // 再次 read 时，因为浏览器端 Wn.read 会带上 sha1 校验，就 400 了。
         // 先暂时关掉校验功能，之后再想想怎么弄比较好
-        // if (!Strings.isBlank(sha1)) {
+        // if (!Ws.isBlank(sha1)) {
         // if (!o.isSameSha1(sha1))
         // return new HttpStatusView(400);
         // }
@@ -639,7 +639,7 @@ public class ObjModule extends AbstractWnModule {
         o = Wn.WC().whenRead(o, false);
 
         // 处理空
-        content = Strings.sNull(content, "");
+        content = Ws.sNull(content, "");
 
         // 写入: base64
         if (asBase64) {
@@ -746,7 +746,7 @@ public class ObjModule extends AbstractWnModule {
             o = Wn.real(o, io, new HashMap<>());
 
         // 默认模式
-        mode = Strings.sBlank(mode, "r");
+        mode = Ws.sBlank(mode, "r");
 
         // r- 替换模式：str可以存在，如果不存在或是目录根据 nm创建
         if ("r".equals(mode)) {
@@ -801,8 +801,8 @@ public class ObjModule extends AbstractWnModule {
             while (null != o) {
                 // 准备查找一个不存在的文件名
                 NutMap c = new NutMap();
-                c.put("major", Files.getMajorName(nm));
-                c.put("suffix", Files.getSuffix(nm));
+                c.put("major", Wfiles.getMajorName(nm));
+                c.put("suffix", Wfiles.getSuffix(nm));
                 c.put("nb", i++);
                 fname = seg.render(c);
                 // 一直找到一个不存在的名称
@@ -829,7 +829,7 @@ public class ObjModule extends AbstractWnModule {
         NutMap meta = Wlang.map("local", localMeta);
 
         // 设置标题
-        String title = Files.getMajorName(localName);
+        String title = Wfiles.getMajorName(localName);
         // 如果有前缀，则设置一下 title 以便保留原始信息
         // if (hasPrefix) {
         // // 为了保留追加模式下的自增后缀，我们从新名字开始
@@ -893,7 +893,7 @@ public class ObjModule extends AbstractWnModule {
         // 确保 str 的形式正确
         str = __format_str(str, isAbsolutePath);
         // 防御非法请求
-        if (Strings.isBlank(str)
+        if (Ws.isBlank(str)
             || str.equals("id:")
             || str.equals("id:undefined")) {
             return HttpStatusView.HTTP_404;
@@ -909,7 +909,7 @@ public class ObjModule extends AbstractWnModule {
         // TODO 如果先生成一个对象，然后浏览器读取了，在服务器上将这个对象改成一个链接对象
         // 再次 read 时，因为浏览器端 Wn.read 会带上 sha1 校验，就 400 了。
         // 先暂时关掉校验功能，之后再想想怎么弄比较好
-        // if (!Strings.isBlank(sha1)) {
+        // if (!Ws.isBlank(sha1)) {
         // if (!o.isSameSha1(sha1))
         // return new HttpStatusView(400);
         // }
@@ -1030,15 +1030,15 @@ public class ObjModule extends AbstractWnModule {
         else if (ta.isDIR()) {
             String fname = nm;
             // 如果重名就覆盖的话 ...
-            if (Strings.isBlank(dupp)) {
+            if (Ws.isBlank(dupp)) {
                 o = io().createIfNoExists(ta, fname, WnRace.FILE);
             }
             // 那么重名的话，则创建新文件
             else {
                 if (io().exists(ta, fname)) {
                     NutMap c = new NutMap();
-                    c.put("major", Files.getMajorName(nm));
-                    c.put("suffix", Files.getSuffix(nm));
+                    c.put("major", Wfiles.getMajorName(nm));
+                    c.put("suffix", Wfiles.getSuffix(nm));
                     WnTmpl seg = WnTmpl.parse(dupp);
                     int i = 1;
                     do {

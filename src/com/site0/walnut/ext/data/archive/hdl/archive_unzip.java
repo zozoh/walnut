@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.Streams;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
@@ -29,7 +29,7 @@ public class archive_unzip extends ArchiveFilter {
     protected void process(WnSystem sys, ArchiveContext fc, ZParams params) {
         // 分析参数
         String fnm = fc.oArchive.name();
-        String suffix = Files.getSuffixName(fnm);
+        String suffix = Wfiles.getSuffixName(fnm);
         if (fnm.endsWith(".tar.gz")) {
             suffix = "tar.gz";
         }
@@ -41,9 +41,9 @@ public class archive_unzip extends ArchiveFilter {
         fc.quiet = params.is("quiet");
 
         // 目标目录
-        String arName = Files.getMajorName(fc.oArchive.name());
+        String arName = Wfiles.getMajorName(fc.oArchive.name());
         if (arName.endsWith(".tar")) {
-            arName = Files.getMajorName(arName);
+            arName = Wfiles.getMajorName(arName);
         }
 
         // 默认采用压缩包主名作为目录

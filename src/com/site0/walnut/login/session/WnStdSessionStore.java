@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.nutz.lang.util.NutBean;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
@@ -23,7 +23,7 @@ import com.site0.walnut.web.WnConfig;
 
 public class WnStdSessionStore extends AbstractWnSessionStore {
 
-    private static final Log log = Wlog.getAUTH();
+    private static final WnLog log = Wlog.getAUTH();
 
     WnObj oHome;
 

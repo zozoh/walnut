@@ -4,7 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
 
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Wtimes;
 
 public class MxCrawl {
 
@@ -37,12 +37,12 @@ public class MxCrawl {
     }
 
     public MxCrawl lastDate(String last) {
-        this.lastDate = Times.D(last);
+        this.lastDate = Wtimes.D(last);
         return this;
     }
 
     public MxCrawl lastDate(long ms) {
-        this.lastDate = Times.D(ms);
+        this.lastDate = Wtimes.D(ms);
         return this;
     }
 

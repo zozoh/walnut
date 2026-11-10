@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Regex;
+import com.site0.walnut.util.Wregex;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.thing.WnThingService;
 import com.site0.walnut.ext.data.thing.options.ThUpdateOptions;
@@ -71,9 +71,9 @@ public class thing_update implements JvmHdl {
             }
             if (safe != null) {
                 String actived = safe.getString("actived");
-                Pattern act = Ws.isBlank(actived) ? null : Regex.getPattern(actived);
+                Pattern act = Ws.isBlank(actived) ? null : Wregex.getPattern(actived);
                 String locked = safe.getString("locked");
-                Pattern lock = Ws.isBlank(locked) ? null : Regex.getPattern(locked);
+                Pattern lock = Ws.isBlank(locked) ? null : Wregex.getPattern(locked);
                 for (String key : new HashSet<>(meta.keySet())) {
                     if (act != null && !act.matcher(key).find())
                         meta.remove(key);

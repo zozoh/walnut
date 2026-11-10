@@ -7,14 +7,14 @@ import java.util.Comparator;
 import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
 import org.nutz.lang.ExitLoop;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
 
-import org.nutz.lang.Strings;
-import org.nutz.lang.util.Disks;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wdisks;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.MimeMap;
@@ -30,7 +30,7 @@ import com.site0.walnut.util.validate.impl.AutoStrMatch;
 
 public class LocalFileIndexer extends AbstractIoVfsIndexer {
 
-    private static final Log log = Wlog.getIO();
+    private static final WnLog log = Wlog.getIO();
 
     protected File dHome;
 
@@ -39,7 +39,7 @@ public class LocalFileIndexer extends AbstractIoVfsIndexer {
     public LocalFileIndexer(WnObj root, MimeMap mimes, File dHome) {
         super(root, mimes);
         this.dHome = dHome;
-        this.phHome = Files.getAbsPath(dHome);
+        this.phHome = Wfiles.getAbsPath(dHome);
     }
 
     public File getFileHome() {
@@ -54,7 +54,7 @@ public class LocalFileIndexer extends AbstractIoVfsIndexer {
             WnLocalFileObj lp = (WnLocalFileObj) p;
             File f = lp.getFile();
             // 不在自己的范围内
-            String faph = Files.getAbsPath(f);
+            String faph = Wfiles.getAbsPath(f);
             if (!faph.startsWith(this.phHome)) {
                 throw Er.create("e.io.localfile.OutOfHome", p.path());
             }
@@ -72,7 +72,7 @@ public class LocalFileIndexer extends AbstractIoVfsIndexer {
     @Override
     public boolean existsId(String id) {
         String ph = Wobj.decodePathFromBase64(id);
-        File f = Files.getFile(dHome, ph);
+        File f = Wfiles.getFile(dHome, ph);
         return f.exists();
     }
 
@@ -100,7 +100,7 @@ public class LocalFileIndexer extends AbstractIoVfsIndexer {
                 }
             }
             // 相对于基线文件，调整 path，去掉内部的 ..
-            File f2 = Files.getFile(f, path);
+            File f2 = Wfiles.getFile(f, path);
             if (log.isTraceEnabled()) {
                 log.tracef("io:localFile: f2.exists=%s, fs=%s",
                            f2.exists(),
@@ -109,7 +109,7 @@ public class LocalFileIndexer extends AbstractIoVfsIndexer {
             if (!f2.exists()) {
                 return null;
             }
-            String fph = Disks.getCanonicalPath(f2.getAbsolutePath());
+            String fph = Wdisks.getCanonicalPath(f2.getAbsolutePath());
             if (log.isTraceEnabled()) {
                 log.tracef("io:localFile: fph=%s", fph);
             }
@@ -162,7 +162,7 @@ public class LocalFileIndexer extends AbstractIoVfsIndexer {
     @Override
     public WnObj get(String id) {
         String ph = Wobj.decodePathFromBase64(id);
-        File f = Files.getFile(dHome, ph);
+        File f = Wfiles.getFile(dHome, ph);
         if (!f.exists()) {
             return null;
         }
@@ -229,14 +229,14 @@ public class LocalFileIndexer extends AbstractIoVfsIndexer {
         String pid = q.first().getString("pid");
         File dir = null;
         // 默认用主目录
-        if (Strings.isBlank(pid) || this.root.isSameId(pid)) {
+        if (Ws.isBlank(pid) || this.root.isSameId(pid)) {
             dir = this.dHome;
         }
         // 否则选择目录
         // 进入到这个方法， IO 层已经把两段式 pid 使用了，仅会传第二段 ID 过来
         else {
             String pph = Wobj.decodePathFromBase64(pid);
-            dir = Files.getFile(dHome, pph);
+            dir = Wfiles.getFile(dHome, pph);
             if (!dir.exists()) {
                 throw Er.create("e.io.localfile.NoExists", pid + "=>" + pph);
             }
@@ -270,7 +270,7 @@ public class LocalFileIndexer extends AbstractIoVfsIndexer {
                 meta.put("race", WnRace.FILE.name());
             }
             meta.put("nm", f.getName());
-            String ftp = Files.getSuffixName(f);
+            String ftp = Wfiles.getSuffixName(f);
             if (null != ftp) {
                 ftp = ftp.toLowerCase();
                 meta.put("tp", ftp);

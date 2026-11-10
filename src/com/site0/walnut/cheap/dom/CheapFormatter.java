@@ -2,7 +2,7 @@ package com.site0.walnut.cheap.dom;
 
 import java.util.regex.Pattern;
 
-import org.nutz.lang.util.Regex;
+import com.site0.walnut.util.Wregex;
 import com.site0.walnut.util.Ws;
 
 /**
@@ -94,7 +94,7 @@ public class CheapFormatter {
         if (null == newlineTags) {
             P_BLOCK_TAGS = null;
         } else {
-            P_BLOCK_TAGS = Regex.getPattern(newlineTags);
+            P_BLOCK_TAGS = Wregex.getPattern(newlineTags);
         }
     }
 
@@ -103,7 +103,7 @@ public class CheapFormatter {
         if (null == brTags) {
             P_BR_TAGS = null;
         } else {
-            P_BR_TAGS = Regex.getPattern(brTags);
+            P_BR_TAGS = Wregex.getPattern(brTags);
         }
     }
 

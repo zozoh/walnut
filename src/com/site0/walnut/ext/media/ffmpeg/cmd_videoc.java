@@ -9,18 +9,18 @@ import java.util.regex.Pattern;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Encoding;
-import org.nutz.lang.Files;
+
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
-import org.nutz.lang.Times;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.Wtimes;
 import org.nutz.lang.random.R;
 import org.nutz.lang.segment.Segment;
 import org.nutz.lang.segment.Segments;
 import org.nutz.lang.util.NutMap;
 import org.nutz.lang.util.SimpleContext;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.impl.box.JvmExecutor;
@@ -45,7 +45,7 @@ public class cmd_videoc extends JvmExecutor {
         File mainTarget = new File(tmpDir, "main.mp4");
         File thumb = new File(tmpDir, "preview.jpg");
         File preview = new File(tmpDir, "preview.mp4");
-        Files.createDirIfNoExists(tmpDir);
+        Wfiles.createDirIfNoExists(tmpDir);
         NutMap vc_params = params.map();
         vc_params.setnx("vcodec", "libx264")
                  .setnx("bv", "3000")
@@ -63,10 +63,10 @@ public class cmd_videoc extends JvmExecutor {
         WnObj t;
         NutMap tMap = new NutMap().setv("videoc_source", obj.id());
 
-        Log log = sys.getLog(params);
+        WnLog log = sys.getLog(params);
         Pattern mode = params.has("mode") ? Pattern.compile(params.get("mode")) : null;
         try {
-            Files.write(source, sys.io.getInputStream(obj, 0));
+            Wfiles.write(source, sys.io.getInputStream(obj, 0));
             VideoInfo vi = cmd_videoi.readVideoInfo(source.getPath());
             if (vi == null)
                 throw Err.create("e.cmds.videoc.video_info_null");
@@ -90,14 +90,14 @@ public class cmd_videoc extends JvmExecutor {
             if (mode == null || mode.matcher("preview_image").find()) {
                 // 预览图不能是视频的第一秒，应该是开头的 38.2% 左右的帧
                 int preview_in_sec = (int) (vi.getLength() * 0.382);
-                String preview_in_secS = Times.sT(preview_in_sec);
+                String preview_in_secS = Wtimes.sT(preview_in_sec);
 
                 seg = Segments.create("ffmpeg -y -v quiet -ss "
                                       + preview_in_secS
                                       + ".00 -i ${source} -f image2 -vframes 1 ${thumbPath}");
                 cmd = seg.render(new SimpleContext(vc_params)).toString();
                 log.debug("cmd: " + cmd);
-                Wlang.execOutput(cmd, Encoding.CHARSET_UTF8);
+                Wlang.execOutput(cmd, java.nio.charset.StandardCharsets.UTF_8);
                 t = sys.io.createIfNoExists(tdir, "_preview.jpg", WnRace.FILE);
                 sys.io.writeAndClose(t, new FileInputStream(thumb));
                 t = sys.io.checkById(t.id());
@@ -105,7 +105,7 @@ public class cmd_videoc extends JvmExecutor {
                 // 如果预览图没有缩略图，生成它
                 if (!t.hasThumbnail()) {
                     String thumbSize = params.get("thumb");
-                    if (Strings.isBlank(thumbSize) || "true".equals(thumbSize))
+                    if (Ws.isBlank(thumbSize) || "true".equals(thumbSize))
                         thumbSize = "256x256";
                     sys.execf("iimg id:%s -thumb %s -Q", t.id(), thumbSize);
                     t = sys.io.checkById(t.id());
@@ -125,7 +125,7 @@ public class cmd_videoc extends JvmExecutor {
                 seg = Segments.create("ffmpeg -y -v quiet -i ${source} -movflags faststart -preset ultrafast -pix_fmt yuv420p -vcodec libx264 -maxrate ${preview_bv}k -bufsize 2048k -b:a 64k -r ${fps} -s ${preview_size} ${previewPath}");
                 cmd = seg.render(new SimpleContext(vc_params)).toString();
                 log.debug("cmd: " + cmd);
-                Wlang.execOutput(cmd, Encoding.CHARSET_UTF8);
+                Wlang.execOutput(cmd, java.nio.charset.StandardCharsets.UTF_8);
                 t = sys.io.createIfNoExists(tdir, "_preview.mp4", WnRace.FILE);
                 sys.io.writeAndClose(t, new FileInputStream(preview));
                 sys.io.appendMeta(obj, "video_preview:'" + t.id() + "'");
@@ -134,7 +134,7 @@ public class cmd_videoc extends JvmExecutor {
             // 生成主文件
             if (mode == null || mode.matcher("main_video").find()) {
                 String _crop = params.get("crop", "");
-                if (Strings.isBlank(_crop)) {
+                if (Ws.isBlank(_crop)) {
                     String tmp = obj.name();
                     if (pattern.matcher(tmp).find()) {
                         String cut = tmp.substring(0, tmp.indexOf('_'));
@@ -142,11 +142,11 @@ public class cmd_videoc extends JvmExecutor {
                         _crop = size.replace('x', ':') + ":" + cut.replace('-', ':');
                     }
                 }
-                if (Strings.isBlank(_crop)) {
+                if (Ws.isBlank(_crop)) {
                     seg = Segments.create("ffmpeg -y -v quiet -i ${source} -movflags faststart -pix_fmt yuv420p -preset ${preset} -vcodec ${vcodec} -acodec aac -maxrate ${bv}k -bufsize 2048k -b:a ${ba}k -r ${fps} -ar 48000 -ac 2 ${mainTarget}");
                     cmd = seg.render(new SimpleContext(vc_params)).toString();
                     log.debug("cmd: " + cmd);
-                    Wlang.execOutput(cmd, Encoding.CHARSET_UTF8);
+                    Wlang.execOutput(cmd, java.nio.charset.StandardCharsets.UTF_8);
                     t = sys.io.createIfNoExists(tdir, "_1_1.mp4", WnRace.FILE);
                     String fmd5 = Wlang.md5(mainTarget);
                     String smd5 = simpleMd5(mainTarget);
@@ -175,7 +175,7 @@ public class cmd_videoc extends JvmExecutor {
                             seg = Segments.create("ffmpeg -y -v quiet -i ${source} ${crop} -movflags faststart -pix_fmt yuv420p -preset ${preset} -vcodec ${vcodec} -acodec aac -maxrate ${bv}k -bufsize 2048k -b:a ${ba}k -r ${fps} -ar 48000 -ac 2 ${crop_target}");
                             cmd = seg.render(new SimpleContext(vc_params)).toString();
                             log.debug("cmd: " + cmd);
-                            Wlang.execOutput(cmd, Encoding.CHARSET_UTF8);
+                            Wlang.execOutput(cmd, java.nio.charset.StandardCharsets.UTF_8);
                             t = sys.io.createIfNoExists(tdir,
                                                         String.format("_%s_%s.mp4", i + 1, j + 1),
                                                         WnRace.FILE);
@@ -204,7 +204,7 @@ public class cmd_videoc extends JvmExecutor {
         }
         finally {
             if (!params.is("k"))
-                Files.deleteDir(tmpDir);
+                Wfiles.deleteDir(tmpDir);
         }
     }
 

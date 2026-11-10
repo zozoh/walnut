@@ -2,7 +2,7 @@ package com.site0.walnut.impl.box.cmd;
 
 import java.net.URLDecoder;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.ZParams;
@@ -24,7 +24,7 @@ public class cmd_str extends JvmExecutor {
         }
         // 去掉前后空白
         if (params.has("trim")) {
-            s2 = Strings.trim(s2);
+            s2 = Ws.trim(s2);
         }
         // 去掉指定字符（正则表达）
         if (params.has("replace")) {

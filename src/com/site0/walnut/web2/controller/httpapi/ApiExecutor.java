@@ -10,8 +10,8 @@ import org.nutz.json.Json;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.Callback2;
 import org.nutz.lang.util.NutMap;
-import org.nutz.lang.util.Regex;
-import org.nutz.log.Log;
+import com.site0.walnut.util.Wregex;
+import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.api.box.WnBox;
 import com.site0.walnut.api.box.WnBoxContext;
@@ -41,9 +41,9 @@ import com.site0.walnut.web2.controller.app.WnHttpRespStatusSetter;
  */
 public class ApiExecutor {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
-    private static final Pattern P = Regex.getPattern("^(attachment; *filename=\")(.+)(\")$");
+    private static final Pattern P = Wregex.getPattern("^(attachment; *filename=\")(.+)(\")$");
 
     private final HttpApiEngine engine;
 

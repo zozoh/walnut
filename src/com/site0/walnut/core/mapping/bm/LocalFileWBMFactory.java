@@ -2,7 +2,7 @@ package com.site0.walnut.core.mapping.bm;
 
 import java.io.File;
 
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.core.WnIoBM;
 import com.site0.walnut.core.WnIoHandleManager;
@@ -29,7 +29,7 @@ public class LocalFileWBMFactory implements WnBMFactory {
 
     @Override
     public WnIoBM load(WnObj oHome, String str) {
-        File f = Files.findFile(str);
+        File f = Wfiles.findFile(str);
         return new LocalFileWBM(handles, f);
     }
 

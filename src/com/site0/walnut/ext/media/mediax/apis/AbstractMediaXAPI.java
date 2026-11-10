@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.Arrays;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.ext.media.mediax.MediaXAPI;
 import com.site0.walnut.ext.media.mediax.bean.MxAccount;
@@ -37,7 +37,7 @@ public abstract class AbstractMediaXAPI implements MediaXAPI {
         this.account = account;
         // 看看是否提供了 target
         String ph = this.getClass().getPackage().getName().replace('.', '/');
-        File f = Files.findFile(ph + "/targets.js");
+        File f = Wfiles.findFile(ph + "/targets.js");
         if (null != f) {
             this.target = Json.fromJsonFile(MxURITarget.class, f);
         }

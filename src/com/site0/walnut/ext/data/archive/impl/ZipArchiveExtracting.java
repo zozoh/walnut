@@ -8,7 +8,7 @@ import java.time.Instant;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.nutz.lang.Encoding;
+
 import org.nutz.lang.Streams;
 
 import com.site0.walnut.ext.data.archive.api.ArchiveEntry;
@@ -28,7 +28,7 @@ public class ZipArchiveExtracting implements ArchiveExtracting {
 
     public ZipArchiveExtracting(InputStream ins, Charset charset) {
         if (null == charset) {
-            charset = Encoding.CHARSET_UTF8;
+            charset = java.nio.charset.StandardCharsets.UTF_8;
         }
         this.ins = ins;
         this.zip = new ZipInputStream(ins, charset);

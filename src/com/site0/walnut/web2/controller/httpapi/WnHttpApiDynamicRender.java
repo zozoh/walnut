@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 import com.site0.walnut.mvc.WnMvcResponse;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 
 /**
  * RM-NUTZ-09：照抄旧 {@code ext/sys/httpapi/HttpApiDynamicRender.java}（逐行复制），
@@ -180,8 +180,8 @@ public class WnHttpApiDynamicRender {
 
                 int statusCode = Integer.parseInt(m.group(1));
                 // zozoh: 下面貌似木有用，先注释掉
-                // String statusText = Strings.trim(m.group(3));
-                // if (Strings.isBlank(statusText))
+                // String statusText = Ws.trim(m.group(3));
+                // if (Ws.isBlank(statusText))
                 // statusText = Http.getStatusText(statusCode);
                 resp.status(statusCode);
                 // 读取头部信息
@@ -191,8 +191,8 @@ public class WnHttpApiDynamicRender {
                     String line = str.substring(pos, end);
                     // 拆分一下行
                     int p2 = line.indexOf(':');
-                    String key = Strings.trim(line.substring(0, p2));
-                    String val = Strings.trim(line.substring(p2 + 1));
+                    String key = Ws.trim(line.substring(0, p2));
+                    String val = Ws.trim(line.substring(p2 + 1));
                     resp.header(key, val);
                     // 指向下一行
                     pos = end + 1;

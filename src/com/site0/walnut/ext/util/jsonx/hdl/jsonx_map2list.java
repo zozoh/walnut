@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.ext.util.jsonx.JsonXContext;
 import com.site0.walnut.ext.util.jsonx.JsonXFilter;
@@ -49,7 +49,7 @@ public class jsonx_map2list extends JsonXFilter {
                             boolean not = false;
                             String igKey = ignore;
                             if (igKey.startsWith("!")) {
-                                igKey = Strings.trim(igKey.substring(1));
+                                igKey = Ws.trim(igKey.substring(1));
                                 not = true;
                             }
                             // 不存在就忽略

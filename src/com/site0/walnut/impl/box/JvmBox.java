@@ -3,13 +3,13 @@ package com.site0.walnut.impl.box;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.nutz.lang.Encoding;
+
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.random.R;
 import org.nutz.lang.util.Callback;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.util.Wlog;
 import org.nutz.repo.Base64;
 import com.site0.walnut.api.box.WnBox;
@@ -20,7 +20,7 @@ import com.site0.walnut.util.Cmds;
 
 public class JvmBox implements WnBox {
 
-    private static final Log log = Wlog.getBOX();
+    private static final WnLog log = Wlog.getBOX();
 
     OutputStream out;
 
@@ -70,12 +70,12 @@ public class JvmBox implements WnBox {
         String[] cmdLines = Cmds.splitCmdLines(cmdText);
 
         for (String cmdLine : cmdLines) {
-            if (Strings.isBlank(cmdLine))
+            if (Ws.isBlank(cmdLine))
                 continue;
-            if (Strings.trim(cmdLine).endsWith("&")) {
+            if (Ws.trim(cmdLine).endsWith("&")) {
                 cmdLine = cmdLine.substring(0, cmdLine.length() - 1);
                 cmdLine = "task add -base64 "
-                          + Base64.encodeToString(cmdLine.getBytes(Encoding.CHARSET_UTF8), false);
+                          + Base64.encodeToString(cmdLine.getBytes(java.nio.charset.StandardCharsets.UTF_8), false);
             }
             runner.run(cmdLine);
             runner.wait_for_idle();

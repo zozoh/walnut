@@ -3,7 +3,7 @@ package com.site0.walnut.core.hdl.redis;
 import java.util.Map;
 
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.core.HandleInfo;
 import com.site0.walnut.core.WnIoHandle;
@@ -72,7 +72,7 @@ public class RedisIoHandleManager extends AbstractIoHandleManager {
 
     @Override
     public void remove(String hid) {
-        if (!Strings.isBlank(hid)) {
+        if (!Ws.isBlank(hid)) {
             String key = _KEY(hid);
             Wedis.run(conf, jed -> {
                 jed.del(key);

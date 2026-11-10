@@ -3,7 +3,7 @@ package com.site0.walnut.web.view;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.mvc.View;
 import org.nutz.mvc.view.ServerRedirectView;
 import com.site0.walnut.util.Wn;
@@ -22,7 +22,7 @@ public class WnDelCookieViewWrapper implements View {
     }
 
     public WnDelCookieViewWrapper(String value) {
-        String[] ss = Strings.splitIgnoreBlank(value);
+        String[] ss = Ws.splitIgnoreBlank(value);
         // 只有一个: @Ok("--cookie>>:/")
         if (ss.length == 1) {
             this.cookieName = Wn.AT_SEID;

@@ -8,8 +8,8 @@ import java.util.Set;
 
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Times;
-import org.nutz.lang.Times.TmInfo;
+import com.site0.walnut.util.Wtimes;
+import com.site0.walnut.util.Wtimes.TmInfo;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.TextTable;
@@ -43,8 +43,8 @@ public class cmd_sys extends JvmExecutor {
 
             // 转换人类可阅读的信息
             String dfmt = "yyyy-MM-dd HH:mm:ss.SSS";
-            map.put("startAt", Times.format(dfmt, new Date(sta)));
-            map.put("nodeNow", Times.format(dfmt, new Date(now)));
+            map.put("startAt", Wtimes.format(dfmt, new Date(sta)));
+            map.put("nodeNow", Wtimes.format(dfmt, new Date(now)));
 
             // 格式化存活时间
             long days = liv / 86400000L;
@@ -52,7 +52,7 @@ public class cmd_sys extends JvmExecutor {
                 liv -= days * 86400000L;
             }
             String s = days > 0 ? days + "days " : "";
-            TmInfo ti = Times.Tims(liv);
+            TmInfo ti = Wtimes.Tims(liv);
             s += ti.toString();
             map.put("nodeLive", s);
 

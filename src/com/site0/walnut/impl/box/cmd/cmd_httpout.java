@@ -3,8 +3,8 @@ package com.site0.walnut.impl.box.cmd;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
-import org.nutz.lang.Encoding;
-import org.nutz.lang.Strings;
+
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.core.bm.bml.LocalSha1BM;
@@ -33,7 +33,7 @@ public class cmd_httpout extends JvmExecutor {
 
         // 准备下载
         String downloadName = params.get("download");
-        if (!Strings.isBlank(downloadName)) {
+        if (!Ws.isBlank(downloadName)) {
             // 指定了特殊的下载名称
             if (!"true".equals(downloadName)) {
                 resp.setDownloadName(downloadName);
@@ -46,7 +46,7 @@ public class cmd_httpout extends JvmExecutor {
         boolean asBase64 = params.is("base64");
         resp.setAsBase64(asBase64);
         String mime = params.getString("mime");
-        if (!Strings.isBlank(mime)) {
+        if (!Ws.isBlank(mime)) {
             resp.setContentType(mime);
         }
 
@@ -54,7 +54,7 @@ public class cmd_httpout extends JvmExecutor {
         String body = params.getString("body");
 
         // 输入来自文件对象
-        if (!Strings.isBlank(body)) {
+        if (!Ws.isBlank(body)) {
             String range = params.getString("range");
             // 如果是一个SHA1 指纹
             // 凑合先用全局桶支应一阵
@@ -77,8 +77,8 @@ public class cmd_httpout extends JvmExecutor {
         }
         // 直接在参数里指定了内容
         else if (params.vals.length > 0) {
-            String str = Strings.join("\n", params.vals);
-            byte[] buf = str.getBytes(Encoding.CHARSET_UTF8);
+            String str = Ws.join("\n", params.vals);
+            byte[] buf = str.getBytes(java.nio.charset.StandardCharsets.UTF_8);
             resp.prepare(buf);
         }
         // 从管道读取，或者从指定的标准输入读取

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
@@ -32,7 +32,7 @@ public class o_create extends OFilter {
         WnObj oP;
         // 首先确认一下父目录
         String pph = params.getString("p");
-        if (!Strings.isBlank(pph)) {
+        if (!Ws.isBlank(pph)) {
             String apph = Wn.normalizeFullPath(pph, sys);
             // 自动创建
             if (params.is("auto")) {
@@ -70,7 +70,7 @@ public class o_create extends OFilter {
         if (params.vals.length > 0) {
             list = new ArrayList<>(params.vals.length);
             for (String str : params.vals) {
-                if (Strings.isQuoteBy(str, '{', '}')) {
+                if (Ws.isQuoteBy(str, '{', '}')) {
                     list.add(Json.fromJson(str));
                 } else {
                     list.add(str);
@@ -98,7 +98,7 @@ public class o_create extends OFilter {
 
         // 参数神码都没有，就读取标准输入
         if (list.isEmpty()) {
-            String json = Strings.trim(sys.in.readAll());
+            String json = Ws.trim(sys.in.readAll());
             Object input = Json.fromJson(json);
             if (null != input) {
                 // 集合

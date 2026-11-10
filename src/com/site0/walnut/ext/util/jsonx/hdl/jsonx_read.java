@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.nutz.json.Json;
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.util.jsonx.JsonXContext;
@@ -34,7 +34,7 @@ public class jsonx_read extends JsonXFilter {
             WnObj o = Wn.checkObj(fc.sys, ph);
             String str = sys.io.readText(o);
             Object obj = Json.fromJson(str);
-            String key = Files.getMajorName(o.name());
+            String key = Wfiles.getMajorName(o.name());
             map.put(key, obj);
         }
         // ..............................................

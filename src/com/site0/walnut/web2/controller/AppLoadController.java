@@ -4,10 +4,10 @@ import java.io.IOException;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Stopwatch;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.stream.StringInputStream;
 import org.nutz.lang.util.NutMap;
-import org.nutz.log.Log;
+import com.site0.walnut.log.WnLog;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.mvc.WnMvcContext;
@@ -20,7 +20,7 @@ import com.site0.walnut.web2.view.WnDownloadView;
 
 public class AppLoadController extends AbstractAppController {
 
-    private static final Log log = Wlog.getAPP();
+    private static final WnLog log = Wlog.getAPP();
 
     @Override
     public WnMvcView handle(WnMvcContext ctx) {
@@ -54,7 +54,7 @@ public class AppLoadController extends AbstractAppController {
                 }
                 if (null != text) {
                     StringInputStream ins = new StringInputStream(text);
-                    return new WnDownloadView(ins, -1, ua, Strings.sBlank(mimeType, o.mime()),
+                    return new WnDownloadView(ins, -1, ua, Ws.sBlank(mimeType, o.mime()),
                                               o.name(), etag, range);
                 }
                 return new WnDownloadView(io, o, null, ua, etag, range);

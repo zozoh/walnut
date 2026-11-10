@@ -1,6 +1,6 @@
 package com.site0.walnut.ext.net.mailx.bean;
 
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutBean;
 
 public class WnMailReceiver {
@@ -12,7 +12,7 @@ public class WnMailReceiver {
     public WnMailReceiver() {}
 
     public WnMailReceiver(String str) {
-        String[] ss = Strings.splitIgnoreBlank(str, "=");
+        String[] ss = Ws.splitIgnoreBlank(str, "=");
         this.account = ss[0];
         if (ss.length > 1) {
             this.name = ss[1];
@@ -41,7 +41,7 @@ public class WnMailReceiver {
     }
 
     public boolean hasAccount() {
-        return !Strings.isBlank(account);
+        return !Ws.isBlank(account);
     }
 
     public String getAccount() {
@@ -53,7 +53,7 @@ public class WnMailReceiver {
     }
 
     public boolean hasName() {
-        return !Strings.isBlank(name);
+        return !Ws.isBlank(name);
     }
 
     public String getName() {

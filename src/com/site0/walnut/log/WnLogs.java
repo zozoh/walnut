@@ -7,7 +7,7 @@ package com.site0.walnut.log;
  * HOOK/SQL/AC/BG_*），RM-NUTZ-12 起全库改用本工厂；{@code util.Wlog} 保留为薄适配，
  * 待后续统一。
  * <p>
- * 实现直接用 log4j2；不依赖 {@code org.nutz.log}。
+ * 实现直接用 log4j2；不依赖 Nutz 日志。
  */
 public final class WnLogs {
 

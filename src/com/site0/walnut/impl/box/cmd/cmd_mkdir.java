@@ -3,7 +3,7 @@ package com.site0.walnut.impl.box.cmd;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.nutz.lang.Files;
+import com.site0.walnut.util.Wfiles;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
@@ -45,9 +45,9 @@ public class cmd_mkdir extends JvmExecutor {
 			}
 			// 不能自动创建父
 			else {
-				String pph = Files.getParent(path);
+				String pph = Wfiles.getParent(path);
 				WnObj pobj = sys.io.check(null, pph);
-				String nm = Files.getName(path);
+				String nm = Wfiles.getName(path);
 				if (noexists) {
 					o = sys.io.createIfNoExists(pobj, nm, WnRace.DIR);
 				} else {

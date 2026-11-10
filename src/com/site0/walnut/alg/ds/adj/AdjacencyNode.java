@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.nutz.castor.Castors;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.alg.ds.buf.WnLinkedArrayList;
 
 public class AdjacencyNode {
@@ -41,7 +41,7 @@ public class AdjacencyNode {
         if (str.length() > 3) {
             return str.substring(0, 3);
         }
-        return Strings.alignLeft(str, 3, ' ');
+        return Ws.alignLeft(str, 3, ' ');
     }
 
     public AdjacencyNode clone() {

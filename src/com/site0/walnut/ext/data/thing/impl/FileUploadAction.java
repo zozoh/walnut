@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.nutz.castor.Castors;
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
@@ -63,7 +63,7 @@ public class FileUploadAction extends ThingDataAction<List<WnObj>> {
         List<WnObj> list = new LinkedList<>();
 
         // 首先准备判断条件
-        // wm = Strings.isBlank(fnm) ? null : new AutoStrMatch(fnm);
+        // wm = Ws.isBlank(fnm) ? null : new AutoStrMatch(fnm);
 
         // 准备上传流解析
         HttpFormUpload upload = new HttpFormUpload(ins, boundary);
@@ -77,20 +77,20 @@ public class FileUploadAction extends ThingDataAction<List<WnObj>> {
                         // 文件名过滤器
                         if ("fnm".equals(fldName)) {
                             fnm = field.readAllString().trim();
-                            // wm = Strings.isBlank(fnm) ? null : new
+                            // wm = Ws.isBlank(fnm) ? null : new
                             // AutoStrMatch(fnm);
                         }
                         // 是否覆盖
                         else if ("overwrite".equals(fldName) || "ow".equals(fldName)) {
                             String ow = field.readAllString();
-                            if (!Strings.isBlank(ow)) {
+                            if (!Ws.isBlank(ow)) {
                                 overwrite = Castors.me().castTo(ow, Boolean.class);
                             }
                         }
                         // 重命名文件模板
                         else if ("dupp".equals(fldName)) {
                             String str = field.readAllString();
-                            dupp = Strings.sBlank(str, dupp);
+                            dupp = Ws.sBlank(str, dupp);
                         }
                     }
                     // 处理文件
@@ -99,7 +99,7 @@ public class FileUploadAction extends ThingDataAction<List<WnObj>> {
                         String localFileName = field.getFileName();
 
                         // 得到这个文件真正的名称
-                        String fileName = Strings.sBlank(fnm, localFileName);
+                        String fileName = Ws.sBlank(fnm, localFileName);
 
                         // 匹配文件
                         if (field.isName(fieldName) /*
@@ -116,7 +116,7 @@ public class FileUploadAction extends ThingDataAction<List<WnObj>> {
                             // 如果存在 ...
                             else {
                                 // 是否生成一个新的
-                                if (!Strings.isBlank(dupp)) {
+                                if (!Ws.isBlank(dupp)) {
                                     oM = Things.createFileNoDup(io, oDir, fileName, dupp);
                                 }
                                 // 不能生成一个新的，并且还不能覆盖就抛错

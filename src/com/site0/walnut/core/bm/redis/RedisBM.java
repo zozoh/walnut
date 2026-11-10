@@ -1,6 +1,6 @@
 package com.site0.walnut.core.bm.redis;
 
-import org.nutz.lang.Encoding;
+
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIoIndexer;
 import com.site0.walnut.api.io.WnObj;
@@ -106,6 +106,6 @@ public class RedisBM extends AbstractIoBM {
 
     private byte[] _KEY(String buckId) {
         String str = this.prefix + buckId;
-        return str.getBytes(Encoding.CHARSET_UTF8);
+        return str.getBytes(java.nio.charset.StandardCharsets.UTF_8);
     }
 }

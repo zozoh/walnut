@@ -1,10 +1,10 @@
 package com.site0.walnut.ext.sys.httpapi.hdl;
 
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Nums;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Wnum;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.Callback;
-import org.nutz.lang.util.Disks;
+import com.site0.walnut.util.Wdisks;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.io.WalkMode;
 import com.site0.walnut.api.io.WnObj;
@@ -30,14 +30,14 @@ public class httpapi_list implements JvmHdl {
                 tt.addHr();
 
                 // 依次循环 api 并输出
-                final int[] re = Nums.array(0);
+                final int[] re = Wnum.array(0);
                 sys.io.walk(c.oApiDir, new Callback<WnObj>() {
                     public void invoke(WnObj oApi) {
                         // M:方法
                         String method = oApi.getString("api_method", "GET");
 
                         // Path:路径
-                        String rph = Disks.getRelativePath(c.oApiDir.path(), oApi.path());
+                        String rph = Wdisks.getRelativePath(c.oApiDir.path(), oApi.path());
 
                         // Re:返回值类型
                         String reType = oApi.getString("api_return", "?");
@@ -46,7 +46,7 @@ public class httpapi_list implements JvmHdl {
                         NutMap params = oApi.getAs("params", NutMap.class);
                         String paKeys = "-none-";
                         if (null != params && params.size() > 0) {
-                            paKeys = Strings.join(", ", params.keySet());
+                            paKeys = Ws.join(", ", params.keySet());
                         }
 
                         // CT: 内容类型

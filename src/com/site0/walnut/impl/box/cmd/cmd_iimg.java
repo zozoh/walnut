@@ -16,10 +16,10 @@ import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.random.R;
-import org.nutz.lang.util.Regex;
-import org.nutz.log.Log;
+import com.site0.walnut.util.Wregex;
+import com.site0.walnut.log.WnLog;
 import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 import com.site0.walnut.api.err.Er;
@@ -37,7 +37,7 @@ import net.coobird.thumbnailator.Thumbnails;
 
 public class cmd_iimg extends JvmExecutor {
 
-    private static final Log log = Wlog.getCMD();
+    private static final WnLog log = Wlog.getCMD();
 
     @Override
     public void exec(WnSystem sys, String[] args) throws Exception {
@@ -49,7 +49,7 @@ public class cmd_iimg extends JvmExecutor {
         WnObj oim = Wn.checkObj(sys, imPh);
 
         // 如果这个图片是空的，那就啥也不干
-        if (Strings.isBlank(oim.sha1())) {
+        if (Ws.isBlank(oim.sha1())) {
             return;
         }
         // 如果不是图片，也不行
@@ -60,7 +60,7 @@ public class cmd_iimg extends JvmExecutor {
         // 如果是生成缩略图，那么是否指定了特殊的缩略图生成目标
         String thumbTa = params.get("thumbta");
         WnObj oThumbTa = oim;
-        if (!Strings.isBlank(thumbTa) && "true".equals(thumbTa)) {
+        if (!Ws.isBlank(thumbTa) && "true".equals(thumbTa)) {
             oThumbTa = sys.io.fetch(oim, thumbTa);
         }
 
@@ -114,7 +114,7 @@ public class cmd_iimg extends JvmExecutor {
 
         if (params.has("clip")) {
             String cpoints = params.getString("clip");
-            String[] parr = Strings.splitIgnoreBlank(cpoints, ",");
+            String[] parr = Ws.splitIgnoreBlank(cpoints, ",");
             if (parr.length == 4) {
                 int[] startPoint = new int[]{Integer.parseInt(parr[0]), Integer.parseInt(parr[1])};
                 int[] endPoint = new int[]{startPoint[0] + Integer.parseInt(parr[2]),
@@ -235,7 +235,7 @@ public class cmd_iimg extends JvmExecutor {
             return;
         }
 
-        Pattern p = Regex.getPattern("^(\\d+)[xX](\\d+)$");
+        Pattern p = Wregex.getPattern("^(\\d+)[xX](\\d+)$");
         Matcher m = p.matcher(params.check("thumb"));
         // 嗯，有缩略图属性，且写法是合法的
         if (m.find()) {
@@ -323,10 +323,10 @@ public class cmd_iimg extends JvmExecutor {
                 // 剪裁
                 else {
                     String cpoints = params.getString("clip");
-                    if (Strings.isBlank(cpoints)) {
+                    if (Ws.isBlank(cpoints)) {
                         im2 = Images.clipScale(im, w, h);
                     } else {
-                        String[] parr = Strings.splitIgnoreBlank(cpoints, ",");
+                        String[] parr = Ws.splitIgnoreBlank(cpoints, ",");
                         int[] startPoint = new int[]{Integer.parseInt(parr[0]),
                                                      Integer.parseInt(parr[1])};
                         int[] endPoint = new int[]{startPoint[0] + Integer.parseInt(parr[2]),

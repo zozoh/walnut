@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 
 import org.junit.Test;
-import org.nutz.lang.Encoding;
+
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.util.LinkedByteBuffer;
 import com.site0.walnut.api.io.WnIoIndexer;
@@ -38,7 +38,7 @@ public abstract class AbstractWnIoBMTest extends IoCoreTest {
         String sha1 = Wlang.sha1(str);
 
         // 写入
-        byte[] buf = str.getBytes(Encoding.CHARSET_UTF8);
+        byte[] buf = str.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         h.write(buf);
         h.close();
 
@@ -76,7 +76,7 @@ public abstract class AbstractWnIoBMTest extends IoCoreTest {
         String sha1 = Wlang.sha1(str);
 
         // 写入
-        byte[] buf = str.getBytes(Encoding.CHARSET_UTF8);
+        byte[] buf = str.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         h.write(buf);
         h.close();
 

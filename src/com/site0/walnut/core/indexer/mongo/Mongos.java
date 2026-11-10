@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 import org.bson.Document;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Mirror;
-import org.nutz.lang.Strings;
+import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.DateRange;
 import org.nutz.lang.util.FloatRange;
 import org.nutz.lang.util.IntRange;
@@ -50,7 +50,7 @@ public class Mongos {
                 Object val = en.getValue();
                 // 如果顶级条件是 "lbls"，那么自动拆解值为数组
                 if ("lbls".equals(key) && val instanceof CharSequence) {
-                    String[] ss = Strings.splitIgnoreBlank(val.toString(), "[ ,，\t;；]");
+                    String[] ss = Ws.splitIgnoreBlank(val.toString(), "[ ,，\t;；]");
                     if (0 == ss.length) {
                         val = null;
                     } else {
