@@ -167,6 +167,8 @@ public class JvmAtomRunner {
 
         // 准备运行的线程原子
         final WnContext wc = Wn.WC();
+        // 能力门：盒线程绑定本次 Box 的服务集合
+        Wn.bindServices(bc.services);
 
         // 启动安全检查接口
         final WnSecurity secu = new WnSecurityImpl(bc.io, bc.auth());

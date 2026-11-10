@@ -4,9 +4,9 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.nutz.ioc.Ioc;
 import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
+import com.site0.walnut.api.box.WnServiceGetter;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.util.Cmds;
 import com.site0.walnut.util.Wn;
@@ -15,7 +15,7 @@ import com.site0.walnut.util.ZParams;
 
 public abstract class JvmExecutor {
 
-    protected Ioc ioc;
+    protected WnServiceGetter services;
 
     public String[] prepareArgs(String[] args) {
         String[] re = new String[args.length];

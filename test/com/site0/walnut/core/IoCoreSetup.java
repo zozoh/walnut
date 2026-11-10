@@ -7,7 +7,6 @@ import java.util.Map;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import com.site0.walnut.web.setup.WnSetup;
 
-import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Files;
 import org.nutz.lang.Mirror;
 
@@ -76,7 +75,7 @@ public class IoCoreSetup {
 
     private static ZMoCo _co_expi;
 
-    private static PropertiesProxy _pp;
+    private static WebConfig _pp;
 
     private static MimeMap _mimes;
 
@@ -96,17 +95,6 @@ public class IoCoreSetup {
 
     private static WnBoxService _boxService;
 
-    // static {
-    // // 测试配置初始化
-    // if (null == _pp) {
-    // _pp = new WebConfig("test.properties");
-    // }
-    //
-    // // MimeMap 初始化
-    // if (null == _mimes)
-    // _mimes = new MimeMapImpl(new PropertiesProxy("mime.properties"));
-    // }
-
     public IoCoreSetup() {
         // 测试配置初始化
         if (null == _pp) {
@@ -115,7 +103,7 @@ public class IoCoreSetup {
 
         // MimeMap 初始化
         if (null == _mimes)
-            _mimes = new MimeMapImpl(new PropertiesProxy("mime.properties"));
+            _mimes = new MimeMapImpl(new WebConfig("mime.properties").toMap());
     }
 
     public String getConifg(String key) {
@@ -371,7 +359,7 @@ public class IoCoreSetup {
         return _globalIndexer;
     }
 
-    public PropertiesProxy getProperties() {
+    public WebConfig getProperties() {
         return _pp;
     }
 

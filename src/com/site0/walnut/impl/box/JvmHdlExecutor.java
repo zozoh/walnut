@@ -19,7 +19,7 @@ public abstract class JvmHdlExecutor extends JvmExecutor {
     public void exec(WnSystem sys, String[] args) throws Exception {
         // 准备上下文
         JvmHdlContext hc = new JvmHdlContext();
-        hc.ioc = this.ioc;
+        hc.services = this.services;
         hc.sys = sys;
         hc.setHandlers(this.hdls);
 

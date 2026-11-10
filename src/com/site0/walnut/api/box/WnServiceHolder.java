@@ -1,17 +1,26 @@
 package com.site0.walnut.api.box;
 
 import com.site0.walnut.api.hook.WnHookService;
+import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.lock.WnLockApi;
 import com.site0.walnut.core.WnReferApi;
+import com.site0.walnut.core.bm.bml.LocalSha1BM;
 import com.site0.walnut.ext.sys.cron.WnSysCronApi;
 import com.site0.walnut.ext.sys.schedule.WnSysScheduleApi;
 import com.site0.walnut.ext.sys.task.WnSysTaskApi;
 import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.lookup.impl.WnLookupMaker;
+import com.site0.walnut.util.MongoDB;
 import com.site0.walnut.web.WnConfig;
 import com.site0.walnut.web2.controller.app.WnAppService;
 
 public class WnServiceHolder {
+
+    private WnIo io;
+
+    private MongoDB mongoDB;
+
+    private LocalSha1BM globalBM;
 
     private WnHookService hookApi;
 
@@ -121,6 +130,30 @@ public class WnServiceHolder {
 
     public void setConfig(WnConfig config) {
         this.config = config;
+    }
+
+    public WnIo getIo() {
+        return io;
+    }
+
+    public void setIo(WnIo io) {
+        this.io = io;
+    }
+
+    public MongoDB getMongoDB() {
+        return mongoDB;
+    }
+
+    public void setMongoDB(MongoDB mongoDB) {
+        this.mongoDB = mongoDB;
+    }
+
+    public LocalSha1BM getGlobalBM() {
+        return globalBM;
+    }
+
+    public void setGlobalBM(LocalSha1BM globalBM) {
+        this.globalBM = globalBM;
     }
 
 }

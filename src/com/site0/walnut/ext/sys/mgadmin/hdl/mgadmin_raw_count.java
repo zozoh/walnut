@@ -18,7 +18,7 @@ public class mgadmin_raw_count extends mgadmin_raw {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
-        MongoDB mongoDB = hc.ioc.get(MongoDB.class, "mongoDB");
+        MongoDB mongoDB = hc.services.getMongoDB();
         ZMoCo co = mongoDB.getCollection(hc.params.get("co", "obj"));
         int limit = hc.params.getInt("limit", 100);
         int skip = hc.params.getInt("skip", 0);

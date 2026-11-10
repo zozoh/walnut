@@ -20,7 +20,7 @@ public class mgadmin_sanity_check implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
-        MongoDB mongoDB = hc.ioc.get(MongoDB.class, "mongoDB");
+        MongoDB mongoDB = hc.services.getMongoDB();
         String colName = hc.params.get("co", "obj");
         ZMoCo co = mongoDB.getCollection(colName);
 

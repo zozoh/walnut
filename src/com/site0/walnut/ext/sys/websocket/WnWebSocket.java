@@ -19,8 +19,6 @@ import javax.websocket.server.ServerEndpoint;
 
 import org.nutz.el.El;
 import org.nutz.el.opt.RunMethod;
-import org.nutz.ioc.loader.annotation.Inject;
-import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import com.site0.walnut.util.Wlang;
@@ -38,7 +36,6 @@ import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.WnRun;
 
 @ServerEndpoint(value = "/websocket", configurator = WnWebSocketConfigurator.class)
-@IocBean(create = "init")
 public class WnWebSocket extends Endpoint {
 
     private static final Log log = Wlog.getCMD();
@@ -47,7 +44,6 @@ public class WnWebSocket extends Endpoint {
 
     public static String KEY = "websocket_watch";
 
-    @Inject
     protected WnRun wnRun;
 
     protected Field idField;

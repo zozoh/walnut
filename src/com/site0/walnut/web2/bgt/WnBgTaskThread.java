@@ -9,6 +9,7 @@ import org.nutz.lang.random.StringGenerator;
 import org.nutz.lang.util.ByteInputStream;
 import org.nutz.log.Log;
 
+import com.site0.walnut.api.box.WnServiceHolder;
 import com.site0.walnut.api.lock.WnLockBusyException;
 import com.site0.walnut.api.lock.WnLockFailException;
 import com.site0.walnut.ext.sys.task.WnSysTask;
@@ -45,6 +46,8 @@ public class WnBgTaskThread extends Thread {
 
     private final WnSession rootSession;
 
+    private final WnServiceHolder services;
+
     public WnBgTaskThread(WnServiceFactory factory,
                           WnRun run,
                           WnSession rootSession) {
@@ -53,6 +56,7 @@ public class WnBgTaskThread extends Thread {
         this.auth = factory.getServiceHolder().getLoginApi();
         this.run = run;
         this.rootSession = rootSession;
+        this.services = factory.getServiceHolder();
         this.setDaemon(true);
     }
 
@@ -77,6 +81,7 @@ public class WnBgTaskThread extends Thread {
 
     @Override
     public void run() {
+        Wn.bindServices(services);
         // 准备上下文信息
         Wn.WC().setSession(rootSession);
 

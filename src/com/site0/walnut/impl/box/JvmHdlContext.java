@@ -4,11 +4,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.nutz.ioc.Ioc;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
+
+import com.site0.walnut.api.box.WnServiceGetter;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.util.WnPager;
@@ -16,7 +17,7 @@ import com.site0.walnut.util.ZParams;
 
 public class JvmHdlContext extends NutMap implements Cloneable {
 
-    public Ioc ioc;
+    public WnServiceGetter services;
 
     public WnSystem sys;
 
@@ -55,7 +56,7 @@ public class JvmHdlContext extends NutMap implements Cloneable {
 
     public JvmHdlContext clone() {
         JvmHdlContext hc = new JvmHdlContext();
-        hc.ioc = this.ioc;
+        hc.services = this.services;
         hc.sys = this.sys;
         hc.hdls = this.hdls;
         hc.hdlName = this.hdlName;
@@ -65,7 +66,7 @@ public class JvmHdlContext extends NutMap implements Cloneable {
         hc.pager = null == this.pager ? null : this.pager.clone();
         hc.oRefer = this.oRefer;
         hc.jfmt = null == this.jfmt ? null : this.jfmt.clone();
-        hc.ioc = this.ioc;
+        hc.services = this.services;
 
         return hc;
     }

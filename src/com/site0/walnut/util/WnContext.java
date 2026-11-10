@@ -16,6 +16,7 @@ import org.nutz.trans.Atom;
 import org.nutz.trans.Proton;
 
 import com.site0.walnut.api.err.Er;
+import com.site0.walnut.api.box.WnServiceHolder;
 import com.site0.walnut.api.hook.WnHook;
 import com.site0.walnut.api.hook.WnHookBreak;
 import com.site0.walnut.api.hook.WnHookContext;
@@ -44,6 +45,8 @@ public class WnContext extends NutMap {
     private WnUser _me;
 
     private WnSecurity security;
+
+    private WnServiceHolder services;
 
     private boolean synctime_off;
 
@@ -273,6 +276,24 @@ public class WnContext extends NutMap {
 
     public WnSecurity getSecurity() {
         return security;
+    }
+
+    public WnServiceHolder getServices() {
+        return services;
+    }
+
+    public void setServices(WnServiceHolder services) {
+        this.services = services;
+    }
+
+    /**
+     * 能力门：没有绑定服务集合时拒绝，而不是返回 null。
+     */
+    public WnServiceHolder checkServices() {
+        if (null == services) {
+            throw Er.create("e.wc.null.services");
+        }
+        return services;
     }
 
     public void setSecurity(WnSecurity callback) {

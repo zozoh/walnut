@@ -32,7 +32,7 @@ public class mgadmin_index implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
-        MongoDB mongoDB = hc.ioc.get(MongoDB.class, "mongoDB");
+        MongoDB mongoDB = hc.services.getMongoDB();
         MongoDatabase db = mongoDB.getRawApi();
         String colName = hc.params.get("co", "obj");
         MongoCollection<Document> co = db.getCollection(colName);

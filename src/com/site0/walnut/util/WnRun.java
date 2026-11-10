@@ -3,8 +3,6 @@ package com.site0.walnut.util;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.nutz.ioc.loader.annotation.Inject;
-import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.util.Callback;
 import org.nutz.lang.util.NutMap;
@@ -21,9 +19,6 @@ import com.site0.walnut.api.hook.WnHookContext;
 import com.site0.walnut.api.hook.WnHookService;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
-import com.site0.walnut.ext.sys.cron.WnSysCronApi;
-import com.site0.walnut.ext.sys.schedule.WnSysScheduleApi;
-import com.site0.walnut.ext.sys.task.WnSysTaskApi;
 import com.site0.walnut.impl.box.JvmExecutorFactory;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.impl.io.WnSecurityImpl;
@@ -33,45 +28,21 @@ import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.web.WnConfig;
 
-@IocBean
 public class WnRun {
 
     private static final Log boxLog = Wlog.getBOX();
 
-    @Inject("refer:serviceFactory")
     private WnServiceHolder services;
 
-    @Inject("refer:io")
     private WnIo io;
-
-    @Inject("refer:sysTaskService")
-    private WnSysTaskApi taskApi;
-
-    @Inject("refer:sysCronService")
-    private WnSysCronApi cronApi;
-
-    @Inject("refer:sysScheduleService")
-    private WnSysScheduleApi scheduleApi;
-
-    @Inject("refer:sysLoginApi")
     private WnLoginApi auth;
 
     // @Inject("refer:sysAuthService")
     // private WnAuthService auth;
-
-    @Inject("refer:jvmExecutorFactory")
     private JvmExecutorFactory jef;
-
-    @Inject("refer:boxService")
     private WnBoxService boxes;
-
-    @Inject("refer:hookService")
     private WnHookService hooks;
-
-    @Inject("java:$conf.getInt('box-alloc-timeout')")
     protected int allocTimeout;
-
-    @Inject("refer:conf")
     protected WnConfig conf;
 
     public WnServiceHolder getServiceFactory() {
@@ -106,18 +77,6 @@ public class WnRun {
         this.io = io;
     }
 
-    public void setTaskApi(WnSysTaskApi taskApi) {
-        this.taskApi = taskApi;
-    }
-
-    public void setCronApi(WnSysCronApi cronApi) {
-        this.cronApi = cronApi;
-    }
-
-    public void setScheduleApi(WnSysScheduleApi scheduleApi) {
-        this.scheduleApi = scheduleApi;
-    }
-
     public void setAuth(WnLoginApi auth) {
         this.auth = auth;
     }
@@ -146,10 +105,7 @@ public class WnRun {
         return exec(logPrefix, unm, null, cmdText);
     }
 
-    public String exec(String logPrefix,
-                       String unm,
-                       String input,
-                       String cmdText) {
+    public String exec(String logPrefix, String unm, String input, String cmdText) {
         // 检查用户和会话
         WnUser u = auth.checkUser(unm);
         int du = auth.getSessionDuration(false);
@@ -203,10 +159,7 @@ public class WnRun {
         return exec(logPrefix, se, null, cmdText);
     }
 
-    public String exec(String logPrefix,
-                       WnSession se,
-                       String input,
-                       String cmdText) {
+    public String exec(String logPrefix, WnSession se, String input, String cmdText) {
         StringBuilder sbOut = new StringBuilder();
         StringBuilder sbErr = new StringBuilder();
         OutputStream out = Wlang.ops(sbOut);
@@ -234,14 +187,7 @@ public class WnRun {
                                       OutputStream out,
                                       OutputStream err,
                                       InputStream ins) {
-        return new WnBoxRunning(logPrefix,
-                                io,
-                                services,
-                                allocTimeout,
-                                withHook,
-                                out,
-                                err,
-                                ins);
+        return new WnBoxRunning(logPrefix, io, services, allocTimeout, withHook, out, err, ins);
     }
 
     public void exec(String logPrefix,
@@ -311,10 +257,7 @@ public class WnRun {
         return bc;
     }
 
-    public void runWithHook(WnUser usr,
-                            String grp,
-                            NutMap env,
-                            Callback<WnSession> callback) {
+    public void runWithHook(WnUser usr, String grp, NutMap env, Callback<WnSession> callback) {
         int du = auth.getSessionDuration(false);
         WnSession se = auth.createSession(usr, Wn.SET_HOOK, du);
         try {
@@ -341,8 +284,7 @@ public class WnRun {
         ctx.setSession(se);
         ctx.core(new WnSecurityImpl(io, auth), false, hc, new Atom() {
             public void run() {
-                ctx.security(new WnSecurityImpl(io, auth),
-                             () -> callback.invoke(se));
+                ctx.security(new WnSecurityImpl(io, auth), () -> callback.invoke(se));
             }
         });
     }

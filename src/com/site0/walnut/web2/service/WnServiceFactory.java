@@ -13,6 +13,7 @@ import com.site0.walnut.api.io.MimeMap;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.lock.WnLockApi;
 import com.site0.walnut.core.WnReferApi;
+import com.site0.walnut.core.bm.bml.LocalSha1BM;
 import com.site0.walnut.ext.sys.cron.impl.WnSysCronService;
 import com.site0.walnut.ext.sys.schedule.impl.WnSysScheduleService;
 import com.site0.walnut.ext.sys.task.impl.WnSysTaskService;
@@ -312,6 +313,14 @@ public class WnServiceFactory {
 
     public WnIo getIo() {
         return fetch("io", WnIo.class);
+    }
+
+    public MongoDB getMongoDB() {
+        return fetch("mongoDB", MongoDB.class);
+    }
+
+    public LocalSha1BM getGlobalBM() {
+        return fetch("globalBM", LocalSha1BM.class);
     }
 
     public WnServiceHolder getServiceHolder() {

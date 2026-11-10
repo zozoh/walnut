@@ -3,8 +3,9 @@ package com.site0.walnut.ext.media.mediax.util;
 import java.net.URI;
 
 import org.nutz.http.Header;
-import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Strings;
+
+import com.site0.walnut.web.WnConfig;
 
 /**
  * 静态帮助方法集
@@ -27,7 +28,7 @@ public abstract class Mxs {
     public static Header genHeader(String name) {
         name = Strings.sBlank(name, "mac_chrome");
         String path = "com/site0/walnut/ext/mediax/util/httpheader/" + name + ".properties";
-        PropertiesProxy pp = new PropertiesProxy(path);
+        WnConfig pp = new WnConfig(path);
         return Header.create(pp.toMap());
     }
 

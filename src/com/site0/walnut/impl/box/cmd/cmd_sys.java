@@ -59,7 +59,7 @@ public class cmd_sys extends JvmExecutor {
         }
         // 获取启动时更详细的配置信息
         else if (params.is("setup")) {
-            WnConfig conf = this.ioc.get(WnConfig.class, "conf");
+            WnConfig conf = this.services.getConfig();
             map = new NutMap();
             map.putAll(conf);
         }

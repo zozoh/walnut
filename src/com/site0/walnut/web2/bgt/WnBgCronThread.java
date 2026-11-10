@@ -5,6 +5,7 @@ import java.util.List;
 import org.nutz.lang.random.R;
 import org.nutz.log.Log;
 
+import com.site0.walnut.api.box.WnServiceHolder;
 import com.site0.walnut.api.lock.WnLockBusyException;
 import com.site0.walnut.api.lock.WnLockFailException;
 import com.site0.walnut.ext.sys.cron.WnSysCron;
@@ -16,6 +17,7 @@ import com.site0.walnut.ext.sys.schedule.cmd_schedule;
 import com.site0.walnut.ext.sys.schedule.bean.WnMinuteSlotIndex;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
+import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wtime;
 import com.site0.walnut.util.time.WnDayTime;
@@ -24,8 +26,7 @@ import com.site0.walnut.web2.service.WnServiceFactory;
 /**
  * 定期任务加载线程（对应旧 {@code WnBgRunCronConsumer}）。
  * <p>
- * 与旧实现的差别：线程自己持有 {@link WnServiceFactory} 引用取服务，不依赖 Nutz； 提供可中断的
- * {@link #shutdown()}。
+ * 与旧实现的差别：线程自己持有 {@link WnServiceFactory} 引用取服务，不依赖 Nutz； 提供可中断的 {@link #shutdown()}。
  */
 public class WnBgCronThread extends Thread {
 
@@ -34,6 +35,8 @@ public class WnBgCronThread extends Thread {
     private final WnSysCronApi cronApi;
 
     private final WnSysScheduleApi scheduleApi;
+
+    private final WnServiceHolder services;
 
     /**
      * 每次最多填充多少个分钟槽
@@ -44,6 +47,7 @@ public class WnBgCronThread extends Thread {
         super("BGT_CRON");
         this.cronApi = factory.getServiceHolder().getCronApi();
         this.scheduleApi = factory.getServiceHolder().getScheduleApi();
+        this.services = factory.getServiceHolder();
         this.amount = amount;
         this.setDaemon(true);
     }
@@ -69,6 +73,7 @@ public class WnBgCronThread extends Thread {
 
     @Override
     public void run() {
+        Wn.bindServices(services);
         // 准备定期表达式的查询条件
         WnSysCronQuery q = new WnSysCronQuery();
         q.setLimit(1000);
@@ -123,8 +128,7 @@ public class WnBgCronThread extends Thread {
                 long ams = todayMs + (sec * 1000);
 
                 // 那么应该睡多久呢，至少要睡一个时间槽周期吧
-                long sleepMs = Math.max(ams - System.currentTimeMillis(),
-                                        (long) unit);
+                long sleepMs = Math.max(ams - System.currentTimeMillis(), (long) unit);
                 if (log.isDebugEnabled()) {
                     log.debugf("sleep %dms", sleepMs);
                 }

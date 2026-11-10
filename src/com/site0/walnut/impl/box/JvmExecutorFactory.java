@@ -7,10 +7,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.nutz.ioc.Ioc;
 import org.nutz.lang.Each;
 import org.nutz.lang.Mirror;
 import org.nutz.log.Log;
+import com.site0.walnut.api.box.WnServiceGetter;
 import com.site0.walnut.util.Wlog;
 import org.nutz.resource.Scans;
 
@@ -24,9 +24,13 @@ public class JvmExecutorFactory {
     String[] scanPkgs;
 
     /**
-     * Ioc 接口，以便执行器能用到
+     * 服务访问器，以便执行器能用到（RM-NUTZ-11 去 Nutz Ioc）
      */
-    Ioc ioc;
+    WnServiceGetter services;
+
+    public void setServices(WnServiceGetter services) {
+        this.services = services;
+    }
 
     /**
      * 缓存搜索结果
@@ -58,7 +62,7 @@ public class JvmExecutorFactory {
 								Mirror<?> mi = Mirror.me(klass);
 								if (mi.isOf(JvmExecutor.class)) {
 								    JvmExecutor je = (JvmExecutor) mi.born();
-								    je.ioc = ioc;
+								    je.services = services;
 								    String nm = je.getMyName();
 								    map.put(nm, je);
 								    if (log.isDebugEnabled())

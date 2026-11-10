@@ -12,7 +12,7 @@ import com.site0.walnut.login.UserRace;
 import com.site0.walnut.login.site.WnLoginSite;
 import com.site0.walnut.login.usr.WnLazyUser;
 import com.site0.walnut.login.usr.WnUserStore;
-import com.site0.walnut.web.setup.WnSetup;
+import com.site0.walnut.util.Wn;
 
 public abstract class AbstractWnSessionStore implements WnSessionStore {
 
@@ -150,7 +150,7 @@ public abstract class AbstractWnSessionStore implements WnSessionStore {
         else if (users.getUserRace() != UserRace.SYS
                  || !users.isStdUserStore()) {
             // TODO 这个代码味道不好，是不是应该采用全局函数之类的做个标准封装？
-            users = WnSetup.getIoc().get(WnUserStore.class, "sysUserStore");
+            users = Wn.services().getLoginApi().getUserStore();
         }
 
         // 组合完用户加载条件

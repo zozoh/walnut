@@ -19,7 +19,7 @@ import com.mongodb.client.FindIterable;
 public abstract class mgadmin_raw implements JvmHdl {
 
     public FindIterable<Document> rawQuery(ZParams params, JvmHdlContext hc) {
-        MongoDB mongoDB = hc.ioc.get(MongoDB.class, "mongoDB");
+        MongoDB mongoDB = hc.services.getMongoDB();
         ZMoCo co = mongoDB.getCollection(params.get("co", "obj"));
         int limit = params.getInt("limit", 100);
         int skip = params.getInt("skip", 0);

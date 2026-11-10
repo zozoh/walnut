@@ -2,7 +2,6 @@ package com.site0.walnut.impl.box.cmd;
 
 import java.util.List;
 
-import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Strings;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
@@ -94,7 +93,7 @@ public class cmd_mount extends JvmExecutor {
     }
 
     private boolean __is_in_local_file_white_list(WnSystem sys, String fph) {
-        PropertiesProxy conf = ioc.get(PropertiesProxy.class, "conf");
+        WnConfig conf = sys.services.getConfig();
         List<String> allows = conf.getList("mnt-file-allow");
         if (allows != null && allows.size() > 0) {
             for (String allow : allows) {
@@ -121,7 +120,7 @@ public class cmd_mount extends JvmExecutor {
     }
 
     private void __sync_init_mount(WnSystem sys) {
-        WnConfig conf = ioc.get(WnConfig.class, "conf");
+        WnConfig conf = sys.services.getConfig();
         for (WnInitMount wim : conf.getInitMount()) {
             WnObj o = sys.io.createIfNoExists(null, wim.path, WnRace.DIR);
             // 添加

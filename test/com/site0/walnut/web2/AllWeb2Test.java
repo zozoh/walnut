@@ -3,6 +3,8 @@ package com.site0.walnut.web2;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import com.site0.walnut.util.WnServiceGateTest;
+
 /**
  * web2 包测试套件（RM-NUTZ-05 起）：聚合 web2 内的单元测试。
  * <p>
@@ -11,5 +13,6 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({Jetty05ChainTest.class, Jetty06SwitchSessionTest.class, Jetty07AppTest.class,
-                     Jetty08ObjTest.class, Jetty09HttpApiTest.class, Jetty16CorsTest.class})
+                     Jetty08ObjTest.class, Jetty09HttpApiTest.class, Jetty16CorsTest.class,
+                     WnServiceGateTest.class})
 public class AllWeb2Test {}

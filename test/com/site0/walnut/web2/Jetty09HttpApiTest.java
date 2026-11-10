@@ -99,7 +99,6 @@ public class Jetty09HttpApiTest {
         appService.setServices(services);
         appService.setIo(io);
         appService.setAuth(auth);
-        appService.setConf(conf);
         appService.setBoxes(boxes);
         appService.setHooks(services.getHookApi());
         appService.setJef(jef);

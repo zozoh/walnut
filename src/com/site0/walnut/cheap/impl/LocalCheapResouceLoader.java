@@ -2,7 +2,6 @@ package com.site0.walnut.cheap.impl;
 
 import java.io.File;
 
-import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Files;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.MimeMap;
@@ -10,6 +9,7 @@ import com.site0.walnut.cheap.api.CheapResourceLoader;
 import com.site0.walnut.cheap.dom.bean.CheapResource;
 import com.site0.walnut.core.MimeMapImpl;
 import com.site0.walnut.util.Wlang;
+import com.site0.walnut.web.WnConfig;
 
 public class LocalCheapResouceLoader implements CheapResourceLoader {
 
@@ -29,8 +29,8 @@ public class LocalCheapResouceLoader implements CheapResourceLoader {
             throw Er.create("e.LCRL.home.mustBeDir", home);
         }
         this.home = home;
-        PropertiesProxy pp = new PropertiesProxy("mime.properties");
-        mimes = new MimeMapImpl(pp);
+        WnConfig pp = new WnConfig("mime.properties");
+        mimes = new MimeMapImpl(pp.toMap());
     }
 
     public LocalCheapResouceLoader(File home, MimeMap mimes) {

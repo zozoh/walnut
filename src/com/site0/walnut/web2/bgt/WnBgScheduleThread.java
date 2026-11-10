@@ -5,6 +5,7 @@ import java.util.List;
 import org.nutz.lang.random.R;
 import org.nutz.log.Log;
 
+import com.site0.walnut.api.box.WnServiceHolder;
 import com.site0.walnut.api.lock.WnLockBusyException;
 import com.site0.walnut.api.lock.WnLockFailException;
 import com.site0.walnut.ext.sys.schedule.WnCronSlot;
@@ -14,6 +15,7 @@ import com.site0.walnut.ext.sys.schedule.WnSysScheduleQuery;
 import com.site0.walnut.ext.sys.schedule.cmd_schedule;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
+import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Wtime;
 import com.site0.walnut.util.time.WnDayTime;
 import com.site0.walnut.web2.service.WnServiceFactory;
@@ -21,8 +23,7 @@ import com.site0.walnut.web2.service.WnServiceFactory;
 /**
  * 分钟计划任务线程（对应旧 {@code WnBgRunScheduleConsumer}）。
  * <p>
- * 与旧实现的差别：线程自己持有 {@link WnServiceFactory} 引用取服务，不依赖 Nutz； 提供可中断的
- * {@link #shutdown()}。
+ * 与旧实现的差别：线程自己持有 {@link WnServiceFactory} 引用取服务，不依赖 Nutz； 提供可中断的 {@link #shutdown()}。
  */
 public class WnBgScheduleThread extends Thread {
 
@@ -30,9 +31,12 @@ public class WnBgScheduleThread extends Thread {
 
     private final WnSysScheduleApi scheduleApi;
 
+    private final WnServiceHolder services;
+
     public WnBgScheduleThread(WnServiceFactory factory) {
         super("BGT_SCHEDULE");
         this.scheduleApi = factory.getServiceHolder().getScheduleApi();
+        this.services = factory.getServiceHolder();
         this.setDaemon(true);
     }
 
@@ -57,6 +61,7 @@ public class WnBgScheduleThread extends Thread {
 
     @Override
     public void run() {
+        Wn.bindServices(services);
         // 启动前，需要随机等几秒，否则 Cron 那边启动时，很大概率会有锁冲突
         long delayMs = R.random(1000, 3000);
         Wlang.quiteSleep(delayMs);
@@ -101,10 +106,7 @@ public class WnBgScheduleThread extends Thread {
                 long luckyMs = R.random(0, (unitInMs / 2));
                 long realSleepMs = sleepMs + luckyMs;
                 if (log.isDebugEnabled()) {
-                    log.debugf("sleep=%dms, luck=%dms, real=%dms",
-                               sleepMs,
-                               luckyMs,
-                               realSleepMs);
+                    log.debugf("sleep=%dms, luck=%dms, real=%dms", sleepMs, luckyMs, realSleepMs);
                 }
                 Wlang.wait(scheduleApi, realSleepMs);
             }

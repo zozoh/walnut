@@ -97,6 +97,9 @@ public class WnWebBoot {
         // 5. 建 store / 登录 / 任务服务
         factory.initStores();
 
+        // 5.1 能力门：主线程绑定服务集合（后续 Wn.services() 可用）
+        Wn.bindServices(factory.getServiceHolder());
+
         // 6. 全部必备 bean 就位才继续
         factory.checkup();
 

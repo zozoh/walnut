@@ -23,7 +23,7 @@ public class mgadmin_profile implements JvmHdl {
 
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) {
-        MongoDB mongoDB = hc.ioc.get(MongoDB.class, "mongoDB");
+        MongoDB mongoDB = hc.services.getMongoDB();
         MongoDatabase db = mongoDB.getRawApi();
         Document cmd;
         Document re;

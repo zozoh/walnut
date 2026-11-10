@@ -40,6 +40,8 @@ public class CreateMvcContextFilter implements WnMvcFilter {
     @Override
     public void doFilter(WnMvcContext ctx) {
         WnContext wc = Wn.WC();
+        // 能力门：每请求把 MVC 上下文的服务集合绑定到线程上下文
+        Wn.bindServices(ctx.services());
         wc.setLogOn();
         wc.setIPv4(ctx.request().getRemoteAddr());
 

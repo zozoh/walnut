@@ -1,16 +1,19 @@
 package com.site0.walnut.web2.service.register;
 
+import com.site0.walnut.api.box.WnServiceGetter;
 import com.site0.walnut.api.box.WnServiceHolder;
 import com.site0.walnut.api.hook.WnHookService;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.lock.WnLockApi;
 import com.site0.walnut.core.WnReferApi;
+import com.site0.walnut.core.bm.bml.LocalSha1BM;
 import com.site0.walnut.ext.sys.cron.WnSysCronApi;
 import com.site0.walnut.ext.sys.schedule.WnSysScheduleApi;
 import com.site0.walnut.ext.sys.task.WnSysTaskApi;
 import com.site0.walnut.impl.box.JvmBoxService;
 import com.site0.walnut.impl.box.JvmExecutorFactory;
 import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.util.MongoDB;
 import com.site0.walnut.util.WnRun;
 import com.site0.walnut.web.WnConfig;
 import com.site0.walnut.web2.service.WnServiceFactory;
@@ -46,6 +49,9 @@ public final class WnHolderRegistrar {
         // 产物：WnServiceHolder（bean 名沿用旧 ioc 的 "serviceFactory"）
         WnServiceHolder holder = new WnServiceHolder();
         holder.setConfig(conf);
+        holder.setIo(io);
+        holder.setMongoDB(factory.fetch("mongoDB", MongoDB.class));
+        holder.setGlobalBM(factory.fetch("globalBM", LocalSha1BM.class));
         holder.setHookApi(hookService);
         holder.setLoginApi(loginApi);
         holder.setTaskApi(safeTaskApi);
@@ -56,19 +62,18 @@ public final class WnHolderRegistrar {
         holder.setLockApi(lockApi);
         factory.register("serviceFactory", holder);
 
+        // 执行器/命令统一走 holder 的类型化 getter（RM-NUTZ-11）
+        jef.setServices(new WnServiceGetter(holder));
+
         // WnRun 是 BGT 任务线程的执行入口（旧路径由 @IocBean 装配；web2 程序化注入）
         WnRun run = new WnRun();
         run.setServices(holder);
         run.setIo(io);
-        run.setTaskApi(factory.fetch("sysTaskService", WnSysTaskApi.class));
-        run.setCronApi(cronApi);
-        run.setScheduleApi(factory.fetch("sysScheduleService", WnSysScheduleApi.class));
         run.setAuth(loginApi);
         run.setJef(jef);
         run.setBoxes(boxService);
         run.setHooks(hookService);
         run.setAllocTimeout(conf.getInt("box-alloc-timeout"));
-        run.setConf(conf);
         return run;
     }
 
