@@ -46,9 +46,6 @@ public abstract class AbstractAppController extends AbstractWnController {
         boolean forceFlushBuffer = bool(params, "ffb");
         boolean logOff = bool(params, "log_off");
         WnMvcResponse resp = ctx.response();
-        cors(ctx);
-        if (options(ctx))
-            return WnMvcView.none();
 
         if (logOff)
             Wn.WC().setLogOff();

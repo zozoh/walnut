@@ -6,6 +6,7 @@ import org.nutz.lang.util.NutBean;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.ext.net.xapi.impl.WnXApi;
 import com.site0.walnut.login.role.WnRoleStoreMaker;
+import com.site0.walnut.login.session.WnSessionStore;
 import com.site0.walnut.login.session.WnSessionStoreMaker;
 import com.site0.walnut.login.session.WnSessionStoreProxy;
 import com.site0.walnut.login.usr.WnUserStoreMaker;
@@ -62,13 +63,35 @@ public class WnLoginApiMaker {
     }
 
     public WnLoginApi make(WnIo io, NutBean sessionVars, WnLoginOptions options) {
+        return make(io, sessionVars, options, null);
+    }
+
+    /**
+     * @param sysSessions
+     *            系统会话存储（2026-11-10 去 Nutz/web2 新增）：hydrated 模式下优先采用；
+     *            为 null 时回退旧的 Nutz Ioc 取 {@code sysSessionStore}（老环境语义不变）。
+     */
+    public WnLoginApi make(WnIo io,
+                           NutBean sessionVars,
+                           WnLoginOptions options,
+                           WnSessionStore sysSessions) {
 
         WnSimpleLoginApi api = new WnSimpleLoginApi(io);
         
         // 混合模式，会话一定采用系统会话存储
         if (this.hydrated) {
-            Ioc ioc = WnSetup.getIoc();
-            api.sessions = ioc.get(WnSessionStoreProxy.class, "sysSessionStore");
+            if (null != sysSessions) {
+                api.sessions = sysSessions;
+            }
+            else {
+                Ioc ioc = WnSetup.getIoc();
+                // 2026-11-10 去 Nutz（web2）：Nutz Ioc 已不再装配（WnSetup.getIoc() 为 null），
+                // 必须由调用方显式传入 sysSessions（cmd_login/AbstractAppAuthController 等已改）；
+                // 旧 web 栈（RM-NUTZ-14 删除）在老环境仍有 ioc，不受影响
+                if (null != ioc) {
+                    api.sessions = ioc.get(WnSessionStoreProxy.class, "sysSessionStore");
+                }
+            }
         }
         // 采用指定的会话存储方式
         else {

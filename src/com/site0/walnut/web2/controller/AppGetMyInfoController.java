@@ -8,9 +8,6 @@ import com.site0.walnut.util.Wn;
 public class AppGetMyInfoController extends AbstractAppController {
     @Override
     public WnMvcView handle(WnMvcContext ctx) {
-        cors(ctx);
-        if (options(ctx))
-            return WnMvcView.none();
         try {
             WnSession se = Wn.WC().checkSession(auth(ctx));
             return WnMvcView.ajax(se.toBean(auth(ctx)));

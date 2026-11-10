@@ -36,13 +36,7 @@ public class ObjSaveStreamController extends AbstractWnController {
     @Override
     public WnMvcView handle(WnMvcContext ctx) {
         WnMvcRequest req = ctx.request();
-        // 这个接口开放给外部 app 调用
-        cors(ctx);
 
-        // Options 无视
-        if (options(ctx)) {
-            return null;
-        }
         try {
             NutMap qs = req.queryStringMap();
             String str = qs.getString("str");

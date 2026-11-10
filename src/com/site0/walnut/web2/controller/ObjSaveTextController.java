@@ -25,12 +25,6 @@ public class ObjSaveTextController extends AbstractWnController {
     @Override
     public WnMvcView handle(WnMvcContext ctx) {
         WnMvcRequest req = ctx.request();
-        // 这个接口开放给外部 app 调用
-        cors(ctx);
-        // 对于 options 放过
-        if (options(ctx)) {
-            return null;
-        }
         try {
             NutMap pm = params(req);
             String str = pm.getString("str");

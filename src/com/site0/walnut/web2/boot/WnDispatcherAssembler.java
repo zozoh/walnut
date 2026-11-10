@@ -15,6 +15,7 @@ import com.site0.walnut.mvc.WnMvcFilter;
 import com.site0.walnut.mvc.WnMvcMapping;
 import com.site0.walnut.web.WnConfig;
 import com.site0.walnut.web2.filter.global.CleanupFilter;
+import com.site0.walnut.web2.filter.global.CorsFilter;
 import com.site0.walnut.web2.filter.global.CreateMvcContextFilter;
 import com.site0.walnut.web2.filter.global.EncodingFilter;
 import com.site0.walnut.web2.filter.router.DmnRule;
@@ -73,8 +74,10 @@ public class WnDispatcherAssembler {
                                                          rules);
 
         WnAuthLookup auth = new WnLoginAuthLookup(holder.getLoginApi());
+        CorsFilter corsFilter = new CorsFilter();
         WnMvcFilter[] head = new WnMvcFilter[]{
                 new CreateMvcContextFilter(auth, factory.getIo()),
+                corsFilter,
                 new EncodingFilter(conf.get("encoding", "UTF-8")),
                 domain
         };

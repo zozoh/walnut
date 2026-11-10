@@ -47,6 +47,7 @@ import com.site0.walnut.web2.controller.WebRootController;
 import com.site0.walnut.web2.filter.atpath.SessionCheckFilter;
 import com.site0.walnut.web2.filter.global.CleanupFilter;
 import com.site0.walnut.web2.filter.global.CreateMvcContextFilter;
+import com.site0.walnut.web2.filter.global.CorsFilter;
 import com.site0.walnut.web2.router.WnRoutes;
 import com.site0.walnut.web2.support.WnLoginAuthLookup;
 
@@ -309,11 +310,15 @@ public class Jetty06SwitchSessionTest {
         route = mapping.match(WnMvcHttpMethod.GET, req("GET", "/"));
         assertEquals(WebRootController.class, route.controllerType());
         assertArrayEquals(new WnMvcHttpMethod[]{WnMvcHttpMethod.ANY}, route.methods());
-        for (String method : new String[]{"POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"}) {
+        for (String method : new String[]{"POST", "PUT", "DELETE", "PATCH", "HEAD"}) {
             route = mapping.match(WnMvcHttpMethod.valueOf(method), req(method, "/u/ajax/chse"));
             assertEquals(WebRootController.class, route.controllerType());
             assertNotFound(dispatch(req(method, "/u/ajax/chse")), true);
         }
+        // OPTIONS 由 CorsFilter 统一短路（RM-NUTZ-16）：204 + 默认头，不进 controller
+        MockWnMvcResponse cors = dispatch(req("OPTIONS", "/u/ajax/chse"));
+        assertEquals(204, cors.status());
+        assertEquals("*", cors.header("Access-Control-Allow-Origin"));
         assertEquals(0, factory.switchCalls);
         assertTrue(auth.checked.isEmpty());
     }
@@ -357,6 +362,7 @@ public class Jetty06SwitchSessionTest {
     private MockWnMvcResponse dispatch(MockWnMvcRequest req, WnMvcFilter... filters) {
         List<WnMvcFilter> head = new ArrayList<>();
         head.add(new CreateMvcContextFilter(new WnLoginAuthLookup(auth), factory.io()));
+        head.add(new CorsFilter());
         head.addAll(Arrays.asList(filters));
         WnMvcDispatcher dispatcher = new WnMvcDispatcher(factory.mapping(), factory,
                 head.toArray(new WnMvcFilter[0]), new WnMvcFilter[]{new CleanupFilter()},

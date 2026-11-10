@@ -33,9 +33,6 @@ public class AppOtpSendController extends AbstractAppAuthController {
         String captchaName = params.getString("captcha");
         String ticket = params.getString("ticket");
         String account = params.getString("account");
-        cors(ctx);
-        if (options(ctx))
-            return null;
         String reJson;
         try {
             if (Ws.isBlank(account)) {

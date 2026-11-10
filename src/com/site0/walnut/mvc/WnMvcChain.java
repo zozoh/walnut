@@ -131,6 +131,9 @@ public class WnMvcChain {
             // 2) controller 请求逻辑；controller 异常同样走失败视图
             view = action.invoke(context);
         }
+        catch (WnMvcShortCircuitException e) {
+            // 过滤器已写完响应（如 CORS 预检 204）：静默短路，不渲染失败视图、不打日志
+        }
         catch (Throwable e) {
             failed = true;
             fail(context, e);

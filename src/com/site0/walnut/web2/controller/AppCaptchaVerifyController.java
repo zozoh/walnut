@@ -14,12 +14,10 @@ import com.site0.walnut.web2.controller.app.WnOcmInfo;
 public class AppCaptchaVerifyController extends AbstractAppAuthController {
     @Override
     public WnMvcView handle(WnMvcContext ctx) {
-        cors(ctx);
-        if (options(ctx))
-            return WnMvcView.none();
         try {
-            // 2026-11-10 用户裁定：GET-only，参数只从 query string 取（不读 body JSON）
-            NutMap map = ctx.request().queryStringMap();
+            // 2026-11-10 用户修正：前端实际协议为 POST JSON 载荷；参数从 query/form/JSON body
+            // 合并（旧默认适配器语义，query 优先、body 补齐），不再只看 query string
+            NutMap map = params(ctx.request());
             String domain = map.getString("domain");
             if (!Strings.equals(domain, arg(ctx, 0))) {
                 String result = Json.toJson(new NutMap().setv("ok", false)

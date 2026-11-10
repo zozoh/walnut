@@ -70,6 +70,12 @@ public class WnWebBoot {
         if (setup) {
             return;
         }
+
+        // 0. 启动横幅（与收尾横幅呼应，标记 boot 起点）
+        log.info("===============================================================");
+        log.infof("                %s booting ...", WnVersion.getName());
+        log.info("===============================================================");
+
         this.conf = factory.getConfig();
 
         // 1. 写入自身进程 id

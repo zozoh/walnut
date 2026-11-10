@@ -25,6 +25,8 @@ import com.site0.walnut.util.Wlog;
  * <p>
  * 预分发过滤器只用于「必须在路由匹配前执行」的逻辑（Host→域 路径重写）；它同时也在
  * dispatcher 的 globalHead 中，链内以幂等标记跳过。
+ * <p>
+ * CORS/OPTIONS 统一由 globalHead 里的 CorsFilter 处理（RM-NUTZ-16），本 Handler 不特判。
  */
 public class WnMvcJettyHandler extends AbstractHandler {
 

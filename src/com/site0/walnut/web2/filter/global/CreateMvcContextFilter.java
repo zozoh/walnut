@@ -1,10 +1,13 @@
 package com.site0.walnut.web2.filter.global;
 
+import org.nutz.log.Log;
+
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.impl.io.WnEvalLink;
 import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.mvc.WnMvcContext;
 import com.site0.walnut.mvc.WnMvcFilter;
+import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 import com.site0.walnut.util.Ws;
@@ -22,6 +25,8 @@ import com.site0.walnut.web2.support.WnAuthLookup;
  * {@code WnMvcFactory.newContext} 创建；本过滤器只做上下文初始化。
  */
 public class CreateMvcContextFilter implements WnMvcFilter {
+
+    private static final Log log = Wlog.getAC();
 
     private final WnAuthLookup auth;
 
@@ -66,6 +71,17 @@ public class CreateMvcContextFilter implements WnMvcFilter {
         ctx.attrs().put("wn.mvc.filter.create", Boolean.TRUE);
         // 页面错误体开关：web2 请求一律按页面 HTML 渲染错误（API 前缀仍 JSON）
         ctx.attrs().put("wn.mvc.error.page", Boolean.TRUE);
+
+        // 显示准备接受调用（对照旧 CreateWnContext#setupWnContext 末尾）：
+        // _timestamp 是日志支撑状态，供收尾过滤器计算耗时 du
+        if (log.isInfoEnabled()) {
+            wc._timestamp = Wn.now();
+            if (log.isDebugEnabled()) {
+                log.debugf("ACCEPT: %s", ctx.request().getPath());
+            }
+        } else {
+            wc._timestamp = -1;
+        }
     }
 
 }

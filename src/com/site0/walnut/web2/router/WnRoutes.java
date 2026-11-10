@@ -3,7 +3,6 @@ package com.site0.walnut.web2.router;
 import com.site0.walnut.mvc.WnMvcFilter;
 import com.site0.walnut.mvc.WnMvcHttpMethod;
 import com.site0.walnut.mvc.WnMvcMapping;
-import com.site0.walnut.web2.controller.AppLoginController;
 import com.site0.walnut.web2.controller.AppLoginPageController;
 import com.site0.walnut.web2.controller.AppOpenController;
 import com.site0.walnut.web2.controller.AppLoadController;
@@ -24,7 +23,6 @@ import com.site0.walnut.web2.controller.ObjChildrenController;
 import com.site0.walnut.web2.controller.ObjContentController;
 import com.site0.walnut.web2.controller.ObjFetch2Controller;
 import com.site0.walnut.web2.controller.ObjFetchController;
-import com.site0.walnut.web2.controller.ObjFindController;
 import com.site0.walnut.web2.controller.ObjQueryController;
 import com.site0.walnut.web2.controller.ObjSaveStreamController;
 import com.site0.walnut.web2.controller.ObjSaveTextController;
@@ -40,63 +38,78 @@ public final class WnRoutes {
 
     private WnRoutes() {}
 
-    public static void register(WnMvcMapping mapping) {
+    public static void register(WnMvcMapping _m) {
         WnMvcFilter[] none = new WnMvcFilter[0];
-        mapping.route(new WnMvcHttpMethod[]{WnMvcHttpMethod.GET},
-                      "/u/ajax/chse", SwitchSessionController.class, none, none);
+        _m.route(new WnMvcHttpMethod[]{WnMvcHttpMethod.GET},
+                 "/u/ajax/chse",
+                 SwitchSessionController.class,
+                 none,
+                 none);
 
-        WnMvcHttpMethod[] any = {WnMvcHttpMethod.ANY};
+        WnMvcHttpMethod[] _ANY = {WnMvcHttpMethod.ANY};
         // 2026-11-10 用户裁定：读操作入口收紧为 GET；控制器带 CORS 的附OPTIONS（保预检）。
-        WnMvcHttpMethod[] get = {WnMvcHttpMethod.GET};
-        WnMvcHttpMethod[] getOpt = {WnMvcHttpMethod.GET, WnMvcHttpMethod.OPTIONS};
-        WnMvcFilter[] session = {ctx -> new SessionCheckFilter(
-                new WnLoginAuthLookup(ctx.services().getLoginApi())).doFilter(ctx)};
-        WnMvcFilter[] ajaxSession = {ctx -> new SessionCheckFilter(
-                new WnLoginAuthLookup(ctx.services().getLoginApi()), true, false).doFilter(ctx)};
-        WnMvcFilter[] root = {ctx -> new AsUsrFilter(
-                new WnLoginAuthLookup(ctx.services().getLoginApi()), "root").doFilter(ctx)};
-        mapping.route(any, "/a/login", AppLoginController.class, none, none);
-        mapping.route(any, "/a/login/**", AppLoginPageController.class, none, none);
-        mapping.route(get, "/a/open/?/**", AppOpenController.class, session, none);
-        mapping.route(get, "/a/load/?/**", AppLoadController.class, ajaxSession, none);
-        mapping.route(any, "/a/beacon_run/**", AppBeaconRunController.class, ajaxSession, none);
-        mapping.route(any, "/a/run/**", AppRunController.class, ajaxSession, none);
-        mapping.route(any, "/a/sys_login_by_passwd", AppSysLoginByPasswdController.class, none, none);
-        mapping.route(get, "/a/sys_logout", AppSysLogoutController.class, none, none);
-        mapping.route(any, "/a/auth_login_by_domain_passwd", AppAuthLoginByDomainPasswdController.class, root, none);
-        mapping.route(getOpt, "/a/captcha/get", AppCaptchaGetController.class, none, none);
-        mapping.route(getOpt, "/a/captcha/get/?", AppCaptchaGetController.class, none, none);
-        mapping.route(getOpt, "/a/captcha/verify", AppCaptchaVerifyController.class, none, none);
-        mapping.route(getOpt, "/a/captcha/verify/?", AppCaptchaVerifyController.class, none, none);
-        mapping.route(any, "/a/otp/send", AppOtpSendController.class, none, none);
-        mapping.route(any, "/a/otp/send/?", AppOtpSendController.class, none, none);
-        mapping.route(getOpt, "/a/login_mode", AppLoginModeController.class, none, none);
-        mapping.route(getOpt, "/a/me", AppGetMyInfoController.class, none, none);
-        mapping.route(getOpt, "/a/sys_ajax_logout", AppSysAjaxLogoutController.class, none, none);
-        mapping.route(getOpt, "/a/lookup/**", AppLookupController.class, none, none);
+        WnMvcHttpMethod[] _GET = {WnMvcHttpMethod.GET};
+
+        // 准备过滤器
+        WnMvcFilter[] session = {ctx -> new SessionCheckFilter(new WnLoginAuthLookup(ctx.services()
+            .getLoginApi())).doFilter(ctx)};
+        WnMvcFilter[] ajaxSession = {ctx -> new SessionCheckFilter(new WnLoginAuthLookup(ctx
+            .services()
+            .getLoginApi()), true, false).doFilter(ctx)};
+        WnMvcFilter[] root = {ctx -> new AsUsrFilter(new WnLoginAuthLookup(ctx.services()
+            .getLoginApi()), "root").doFilter(ctx)};
+
+        // 路由 AppModule 模块
+        _m.route(_ANY, "/a/login/**", AppLoginPageController.class, none, none);
+        _m.route(_GET, "/a/open/?/**", AppOpenController.class, session, none);
+        _m.route(_GET, "/a/load/?/**", AppLoadController.class, ajaxSession, none);
+        _m.route(_ANY, "/a/beacon_run/**", AppBeaconRunController.class, ajaxSession, none);
+        _m.route(_ANY, "/a/run/**", AppRunController.class, ajaxSession, none);
+        _m.route(_ANY, "/a/sys_login_by_passwd", AppSysLoginByPasswdController.class, none, none);
+        _m.route(_GET, "/a/sys_logout", AppSysLogoutController.class, none, none);
+        _m.route(_ANY,
+                 "/a/auth_login_by_domain_passwd",
+                 AppAuthLoginByDomainPasswdController.class,
+                 root,
+                 none);
+        _m.route(_ANY, "/a/captcha/get", AppCaptchaGetController.class, none, none);
+        _m.route(_ANY, "/a/captcha/get/?", AppCaptchaGetController.class, none, none);
+        _m.route(_ANY, "/a/captcha/verify", AppCaptchaVerifyController.class, none, none);
+        _m.route(_ANY, "/a/captcha/verify/?", AppCaptchaVerifyController.class, none, none);
+        _m.route(_ANY, "/a/otp/send", AppOtpSendController.class, none, none);
+        _m.route(_ANY, "/a/otp/send/?", AppOtpSendController.class, none, none);
+        _m.route(_GET, "/a/login_mode", AppLoginModeController.class, none, none);
+        _m.route(_GET, "/a/me", AppGetMyInfoController.class, session, none);
+        _m.route(_GET, "/a/sys_ajax_logout", AppSysAjaxLogoutController.class, none, none);
+        _m.route(_GET, "/a/lookup/**", AppLookupController.class, none, none);
 
         // RM-NUTZ-08: Obj routes (10 个非废弃入口；6 个 @Deprecated 弃用不迁).
         // fetch/fetch2 = SessionCheck(true)(401)，其余 = SessionCheck()(302 重定向).
-        // 2026-11-10 用户裁定：读操作入口（fetch/fetch2/ancestors/query/children/find/content）
-        // 收紧为 GET；fetch/fetch2/content 带 CORS 故附 OPTIONS（保预检）；update/save 保持 ANY。
-        mapping.route(getOpt, "/o/fetch", ObjFetchController.class, ajaxSession, none);
-        mapping.route(getOpt, "/o/fetch2", ObjFetch2Controller.class, ajaxSession, none);
-        mapping.route(get, "/o/ancestors", ObjAncestorsController.class, session, none);
-        mapping.route(any, "/o/update", ObjUpdateController.class, session, none);
-        mapping.route(get, "/o/query", ObjQueryController.class, session, none);
-        mapping.route(get, "/o/children", ObjChildrenController.class, session, none);
-        mapping.route(get, "/o/find", ObjFindController.class, session, none);
-        mapping.route(getOpt, "/o/content/**", ObjContentController.class, session, none);
-        mapping.route(any, "/o/save/text", ObjSaveTextController.class, session, none);
-        mapping.route(any, "/o/save/stream", ObjSaveStreamController.class, session, none);
+        // 2026-11-10
+        // 用户裁定：读操作入口（fetch/fetch2/ancestors/children/content）收紧为 GET；
+        // query 例外——查询条件复杂，支持 POST+GET（ANY）；find 弃用删除（2026-11-10）。
+        // update/save 保持 ANY。
+        _m.route(_GET, "/o/fetch", ObjFetchController.class, ajaxSession, none);
+        _m.route(_GET, "/o/fetch2", ObjFetch2Controller.class, ajaxSession, none);
+        _m.route(_GET, "/o/ancestors", ObjAncestorsController.class, session, none);
+        _m.route(_ANY, "/o/update", ObjUpdateController.class, session, none);
+        _m.route(_ANY, "/o/query", ObjQueryController.class, session, none);
+        _m.route(_GET, "/o/children", ObjChildrenController.class, session, none);
+        _m.route(_GET, "/o/content/**", ObjContentController.class, session, none);
+        _m.route(_ANY, "/o/save/text", ObjSaveTextController.class, session, none);
+        _m.route(_ANY, "/o/save/stream", ObjSaveStreamController.class, session, none);
 
         // RM-NUTZ-09: HttpApi routes.
-        // /api/?/** = 旧 HttpApiModule 唯一入口；类级 WnAsUsr("root") → headFilter AsUsrFilter("root").
-        mapping.route(any, "/api/?/**", HttpApiController.class, root, none);
+        // /api/?/** = 旧 HttpApiModule 唯一入口；类级 WnAsUsr("root") → headFilter
+        // AsUsrFilter("root").
+        _m.route(_ANY, "/api/?/**", HttpApiController.class, root, none);
 
         // Matching is first-registered-first: the catch-all must stay last.
-        mapping.route(new WnMvcHttpMethod[]{WnMvcHttpMethod.ANY},
-                      "/**", WebRootController.class, none, none);
+        _m.route(new WnMvcHttpMethod[]{WnMvcHttpMethod.ANY},
+                 "/**",
+                 WebRootController.class,
+                 none,
+                 none);
     }
 
 }

@@ -29,9 +29,6 @@ public class AppSysLoginByPasswdController extends AbstractAppAuthController {
         WnOcmInfo ocm = get_ocm_info(ctx, null, name);
         boolean ajax = bool(params, "ajax");
         String referer = ctx.request().getHeader("Referer");
-        cors(ctx);
-        if (options(ctx))
-            return null;
         WnAppModuleLoginMode mode = conf.getSysLoginMode();
         try {
             WnUser user = sysAuth.checkUser(name);

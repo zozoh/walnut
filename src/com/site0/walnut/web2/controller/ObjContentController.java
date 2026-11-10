@@ -29,13 +29,7 @@ public class ObjContentController extends AbstractWnController {
     @Override
     public WnMvcView handle(WnMvcContext ctx) {
         WnMvcRequest req = ctx.request();
-        // 这个接口开放给外部 app 调用
-        cors(ctx);
 
-        // Options 无视
-        if (options(ctx)) {
-            return null;
-        }
         try {
             String downloadName = arg(ctx, 0);
             // str / d 从 query string 取（2026-11-10 用户修订：content 是下载入口，

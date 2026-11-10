@@ -11,5 +11,5 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({Jetty05ChainTest.class, Jetty06SwitchSessionTest.class, Jetty07AppTest.class,
-                     Jetty08ObjTest.class, Jetty09HttpApiTest.class})
+                     Jetty08ObjTest.class, Jetty09HttpApiTest.class, Jetty16CorsTest.class})
 public class AllWeb2Test {}

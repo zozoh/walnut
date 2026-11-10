@@ -63,6 +63,7 @@ import com.site0.walnut.web2.controller.app.WnOcmInfo;
 import com.site0.walnut.web2.controller.app.WnAppService;
 import com.site0.walnut.web2.filter.global.CleanupFilter;
 import com.site0.walnut.web2.filter.global.CreateMvcContextFilter;
+import com.site0.walnut.web2.filter.global.CorsFilter;
 import com.site0.walnut.web2.router.WnRoutes;
 import com.site0.walnut.web2.support.WnLoginAuthLookup;
 
@@ -341,10 +342,12 @@ public class Jetty07AppTest {
         captcha.valid = false;
         fail(dispatch(req("/a/captcha/verify")
                 .query("account=tester&id=captcha-id&data=trace").build()), "e.captcha.invalid");
-        // body JSON 的参数不再生效（GET-only，只取 query string）
         assertEquals(1, captcha.checked);
+        // 2026-11-10 用户修正：body JSON 参数恢复绑定（POST JSON 前端协议）；此处 valid=false，
+        // 故 account 从 body 绑定后进入校验并得到 invalid
         fail(dispatch(req("/a/captcha/verify")
-                .bodyJson("{account:'tester',id:'captcha-id'}").build()), "e.captcha.need_account");
+                .bodyJson("{\"account\":\"tester\",\"id\":\"captcha-id\"}").build()), "e.captcha.invalid");
+        assertEquals(2, captcha.checked);
     }
 
     @Test
@@ -369,14 +372,18 @@ public class Jetty07AppTest {
 
     @Test
     public void t25_login_mode_returns_both_modes_including_options() {
-        for (String method : new String[]{"GET", "OPTIONS"}) {
-            MockWnMvcResponse resp = dispatch(req("/a/login_mode").method(method).build());
-            ok(resp);
-            NutMap data = body(resp).getAs("data", NutMap.class);
-            assertEquals("PASSWD_ONLY", data.getString("system"));
-            assertEquals("PASSWD_ONLY", data.getString("domain"));
-            assertEquals("*", resp.header("Access-Control-Allow-Origin"));
-        }
+        MockWnMvcResponse resp = dispatch(req("/a/login_mode").method("GET").build());
+        ok(resp);
+        NutMap data = body(resp).getAs("data", NutMap.class);
+        assertEquals("PASSWD_ONLY", data.getString("system"));
+        assertEquals("PASSWD_ONLY", data.getString("domain"));
+        assertEquals("*", resp.header("Access-Control-Allow-Origin"));
+
+        // OPTIONS 由 CorsFilter 统一短路（RM-NUTZ-16）：204 + 默认头，不再走业务 JSON
+        MockWnMvcResponse cors = dispatch(req("/a/login_mode").method("OPTIONS").build());
+        assertEquals(204, cors.status());
+        assertEquals("", cors.bodyString());
+        assertEquals("*", cors.header("Access-Control-Allow-Origin"));
     }
 
     @Test
@@ -393,11 +400,11 @@ public class Jetty07AppTest {
     }
 
     @Test
-    public void t28_me_without_session_fails_closed() {
+    public void t28_me_without_session_redirects_to_login() {
+        // 2026-11-10 用户定稿：/a/me 也校验会话——无/过期票据必须跳转（302 → /）
         MockWnMvcResponse resp = dispatch(req("/a/me").build());
-        assertEquals(200, resp.status());
-        assertFalse(body(resp).getBoolean("ok"));
-        assertNotNull(body(resp).getString("errCode"));
+        assertEquals(302, resp.status());
+        assertEquals("/", resp.redirectedTo());
     }
 
     @Test
@@ -445,32 +452,31 @@ public class Jetty07AppTest {
                 "/a/auth_login_by_domain_passwd", "/a/captcha/get", "/a/captcha/get/tester",
                 "/a/captcha/verify", "/a/captcha/verify/tester", "/a/otp/send", "/a/otp/send/tester",
                 "/a/login_mode", "/a/me", "/a/sys_ajax_logout", "/a/lookup/demo/people"};
-        Class<?>[] types = {AppLoginController.class, AppLoginPageController.class, AppOpenController.class,
+        Class<?>[] types = {AppLoginPageController.class, AppLoginPageController.class, AppOpenController.class,
                 AppLoadController.class, AppBeaconRunController.class, AppRunController.class,
                 AppSysLoginByPasswdController.class, AppSysLogoutController.class,
                 AppAuthLoginByDomainPasswdController.class, AppCaptchaGetController.class,
                 AppCaptchaGetController.class, AppCaptchaVerifyController.class, AppCaptchaVerifyController.class,
                 AppOtpSendController.class, AppOtpSendController.class, AppLoginModeController.class,
                 AppGetMyInfoController.class, AppSysAjaxLogoutController.class, AppLookupController.class};
-        // RM-NUTZ-08 追加 10 条 /o/* 路由、RM-NUTZ-09 追加 1 条 /api/?/** 路由后：
-        // 19 + chse + 兜底 + 10 + 1 = 32，兜底仍在最后
-        assertEquals(32, factory.mapping().patterns().size());
+        // 2026-11-10 路由合并：/a/login 与 /a/login/** 并为一条（AppLoginPageController 折叠 302），
+        // 19 → 18；RM-NUTZ-08 追加 9 条 /o/* 路由（/o/find 弃用删除）、RM-NUTZ-09 追加 1 条
+        // /api/?/** 路由后：18 + chse + 兜底 + 9 + 1 = 30，兜底仍在最后
+        assertEquals(30, factory.mapping().patterns().size());
         assertEquals("/u/ajax/chse", factory.mapping().patterns().get(0));
-        assertEquals("/**", factory.mapping().patterns().get(31));
+        assertEquals("/**", factory.mapping().patterns().get(29));
         // 2026-11-10 用户裁定收紧：读操作入口 GET-only——
         // 严格 GET（无 CORS）：POST/OPTIONS 都落兜底
         java.util.Set<String> getStrict = new java.util.HashSet<>(Arrays.asList("/a/open/demo/main",
                                                                                 "/a/load/demo/main",
                                                                                 "/a/sys_logout"));
         // 带 CORS 的 GET-only：POST 落兜底、OPTIONS 保留（预检）
-        java.util.Set<String> getOpt = new java.util.HashSet<>(Arrays.asList("/a/captcha/get",
-                                                                             "/a/captcha/get/tester",
-                                                                             "/a/captcha/verify",
-                                                                             "/a/captcha/verify/tester",
-                                                                             "/a/login_mode",
-                                                                             "/a/me",
-                                                                             "/a/sys_ajax_logout",
-                                                                             "/a/lookup/demo/people"));
+        java.util.Set<String> getOpt = new java.util.HashSet<>(Arrays.asList("/a/login_mode",
+                                                                              "/a/me",
+                                                                              "/a/sys_ajax_logout",
+                                                                              "/a/lookup/demo/people"));
+        // 2026-11-10 用户修正：captcha/verify、otp/send 前端为 POST JSON 协议，路由 ANY
+        // （POST/OPTIONS 均命中自己的控制器），不再列进 getOpt
         for (int i = 0; i < paths.length; i++) {
             // GET 一定命中自己的控制器
             assertEquals(paths[i] + " GET",
@@ -481,11 +487,7 @@ public class Jetty07AppTest {
             assertEquals(paths[i] + " POST",
                          isAny ? types[i] : WebRootController.class,
                          factory.mapping().match(WnMvcHttpMethod.POST, req(paths[i]).build()).controllerType());
-            // OPTIONS：ANY 与 {GET,OPTIONS} 路由命中，严格 GET 落兜底
-            boolean optOk = isAny || getOpt.contains(paths[i]);
-            assertEquals(paths[i] + " OPTIONS",
-                         optOk ? types[i] : WebRootController.class,
-                         factory.mapping().match(WnMvcHttpMethod.OPTIONS, req(paths[i]).build()).controllerType());
+            // OPTIONS 由 CorsFilter 在链内统一短路（RM-NUTZ-16，见 Jetty16CorsTest），路由层不再断言 OPTIONS 命中
         }
     }
 
@@ -544,17 +546,33 @@ public class Jetty07AppTest {
     }
 
     @Test
-    public void t38_options_cors_does_not_consume_body_or_call_services() {
+    public void t38_options_preflight_short_circuited_by_cors_filter() {
         for (String path : new String[]{"/a/captcha/get", "/a/captcha/verify", "/a/otp/send",
                 "/a/sys_login_by_passwd", "/a/run/demo", "/a/me", "/a/sys_ajax_logout", "/a/lookup/demo"}) {
             MockWnMvcResponse resp = dispatch(req(path).method("OPTIONS").bodyJson("invalid-json").build());
-            assertEquals(path, 200, resp.status());
+            assertEquals(path, 204, resp.status());
             assertEquals(path, "", resp.bodyString());
             assertEquals("*", resp.header("Access-Control-Allow-Origin"));
         }
         assertEquals(0, apps.checked);
         assertEquals(0, captcha.generated);
         assertEquals(0, captcha.checked);
+    }
+
+    @Test
+    public void t40_captcha_verify_post_json_body_binding() {
+        // 2026-11-10 用户修正：前端实际协议为 POST JSON 载荷；body 与 query 合并绑定
+        MockWnMvcResponse resp = dispatch(req("/a/captcha/verify/tester").method("POST")
+                .bodyJson("{\"id\":\"captcha-id\",\"data\":{\"x\":12},\"domain\":\"tester\","
+                          + "\"account\":\"tester\",\"captcha\":null}")
+                .build());
+        assertEquals(200, resp.status());
+        NutMap re = Json.fromJson(NutMap.class, resp.bodyString());
+        assertEquals(true, re.getBoolean("ok"));
+        assertEquals("captcha-ticket", re.getAs("data", NutMap.class).getString("ticket"));
+        assertEquals(1, captcha.checked);
+        assertEquals("tester", captcha.account);
+        assertEquals("{\"x\":12}", captcha.data);
     }
 
     @Test
@@ -594,7 +612,8 @@ public class Jetty07AppTest {
         io.streamFailure = true;
         MockWnMvcResponse resp = new MockWnMvcResponse();
         WnMvcDispatcher dispatcher = new WnMvcDispatcher(factory.mapping(), factory,
-                new WnMvcFilter[]{new CreateMvcContextFilter(new WnLoginAuthLookup(auth), io)},
+                new WnMvcFilter[]{new CreateMvcContextFilter(new WnLoginAuthLookup(auth), io),
+                                   new CorsFilter()},
                 new WnMvcFilter[]{new CleanupFilter()});
         try {
             dispatcher.dispatch(factory.newContext(signed("/a/load/demo/main.txt").build(), resp));
@@ -620,7 +639,8 @@ public class Jetty07AppTest {
     private MockWnMvcResponse dispatch(MockWnMvcRequest req) {
         MockWnMvcResponse resp = new MockWnMvcResponse();
         WnMvcDispatcher dispatcher = new WnMvcDispatcher(factory.mapping(), factory,
-                new WnMvcFilter[]{new CreateMvcContextFilter(new WnLoginAuthLookup(auth), io)},
+                new WnMvcFilter[]{new CreateMvcContextFilter(new WnLoginAuthLookup(auth), io),
+                                   new CorsFilter()},
                 new WnMvcFilter[]{new CleanupFilter()});
         dispatcher.dispatch(factory.newContext(req, resp));
         assertFalse(Wn.WC().hasTicket());

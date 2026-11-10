@@ -45,7 +45,6 @@ import com.site0.walnut.web2.controller.ObjChildrenController;
 import com.site0.walnut.web2.controller.ObjContentController;
 import com.site0.walnut.web2.controller.ObjFetch2Controller;
 import com.site0.walnut.web2.controller.ObjFetchController;
-import com.site0.walnut.web2.controller.ObjFindController;
 import com.site0.walnut.web2.controller.ObjQueryController;
 import com.site0.walnut.web2.controller.ObjSaveStreamController;
 import com.site0.walnut.web2.controller.ObjSaveTextController;
@@ -53,6 +52,7 @@ import com.site0.walnut.web2.controller.ObjUpdateController;
 import com.site0.walnut.web2.controller.WebRootController;
 import com.site0.walnut.web2.filter.global.CleanupFilter;
 import com.site0.walnut.web2.filter.global.CreateMvcContextFilter;
+import com.site0.walnut.web2.filter.global.CorsFilter;
 import com.site0.walnut.web2.router.WnRoutes;
 import com.site0.walnut.web2.support.WnLoginAuthLookup;
 
@@ -308,49 +308,6 @@ public class Jetty08ObjTest {
                          .build()).status());
     }
 
-    // ------------------------------------------------------------------
-    // find
-    // ------------------------------------------------------------------
-
-    @Test
-    public void t15_find_me_default_restricts_home_domain() {
-        MockWnMvcResponse resp = dispatch(signed("/o/find").query("nm=a.txt")
-            .build());
-        ok(resp);
-        NutMap data = body(resp).getAs("data", NutMap.class);
-        assertEquals(1, data.getAs("list", List.class).size());
-        assertEquals(1, data.getAs("pager", NutMap.class).getInt("totalCount"));
-        assertEquals("a.txt",
-                     ((NutMap) data.getAs("list", List.class).get(0))
-                         .getString("nm"));
-    }
-
-    @Test
-    public void t16_find_me_false_and_underscore_keys_stripped() {
-        // _me=false：不限制主域；`_` 开头的键（_l）剔除后不作为条件
-        MockWnMvcResponse resp = dispatch(signed("/o/find")
-            .query("_me=false&_l=5&nm=outside.txt")
-            .build());
-        ok(resp);
-        NutMap data = body(resp).getAs("data", NutMap.class);
-        NutMap pager = data.getAs("pager", NutMap.class);
-        assertEquals(5, pager.getInt("pageSize"));
-        assertEquals(1, pager.getInt("totalCount"));
-        assertEquals(1, pager.getInt("count"));
-        // 若 _l 被当作条件则 totalCount=0；outside.txt 在 /other 下证明 _me 生效
-        assertEquals("/other/outside.txt",
-                     ((NutMap) data.getAs("list", List.class).get(0))
-                         .getString("ph"));
-    }
-
-    @Test
-    public void t17_find_failures() {
-        assertEquals(302,
-                     dispatch(req("/o/find").query("nm=a.txt").build())
-                         .status());
-    }
-
-    // ------------------------------------------------------------------
     // content（JsonAdaptor + 下载视图）
     // ------------------------------------------------------------------
 
@@ -538,7 +495,7 @@ public class Jetty08ObjTest {
     // ------------------------------------------------------------------
 
     @Test
-    public void t28_options_cors_returns_empty_200() {
+    public void t28_options_preflight_returns_empty_204() {
         for (String path : new String[]{"/o/fetch",
                                         "/o/fetch2",
                                         "/o/content/x.txt",
@@ -546,7 +503,7 @@ public class Jetty08ObjTest {
                                         "/o/save/stream"}) {
             MockWnMvcResponse resp = dispatch(req(path).method("OPTIONS")
                 .build());
-            assertEquals(path, 200, resp.status());
+            assertEquals(path, 204, resp.status());
             assertEquals(path, "", resp.bodyString());
             assertEquals(path, "*", resp.header("Access-Control-Allow-Origin"));
         }
@@ -560,7 +517,6 @@ public class Jetty08ObjTest {
                           "/o/update",
                           "/o/query",
                           "/o/children",
-                          "/o/find",
                           "/o/content/x.txt",
                           "/o/save/text",
                           "/o/save/stream"};
@@ -570,13 +526,12 @@ public class Jetty08ObjTest {
                             ObjUpdateController.class,
                             ObjQueryController.class,
                             ObjChildrenController.class,
-                            ObjFindController.class,
                             ObjContentController.class,
                             ObjSaveTextController.class,
                             ObjSaveStreamController.class};
-        // 19（RM-NUTZ-06/07）+ 2（chse/兜底）+ 10（RM-NUTZ-08）+ 1（RM-NUTZ-09 /api/?/**）= 32
-        assertEquals(32, factory.mapping().patterns().size());
-        assertEquals("/**", factory.mapping().patterns().get(31));
+        // 18（RM-NUTZ-06/07，/a/login 已合并）+ 2（chse/兜底）+ 9（RM-NUTZ-08，/o/find 弃用删除）+ 1（RM-NUTZ-09 /api/?/**）= 30
+        assertEquals(30, factory.mapping().patterns().size());
+        assertEquals("/**", factory.mapping().patterns().get(29));
         for (int i = 0; i < paths.length; i++) {
             assertEquals(paths[i],
                          types[i],
@@ -585,8 +540,9 @@ public class Jetty08ObjTest {
                                     req(paths[i]).build())
                              .controllerType());
         }
-        // 6 个 @Deprecated 入口不注册：落入 /** 兜底
-        for (String path : new String[]{"/o/get/x",
+        // 7 个弃用入口不注册（6 个 @Deprecated + /o/find 2026-11-10 弃用）：落入 /** 兜底
+        for (String path : new String[]{"/o/find",
+"/o/get/x",
                                         "/o/set/x",
                                         "/o/thumbnail/x",
                                         "/o/read/x",
@@ -599,13 +555,11 @@ public class Jetty08ObjTest {
                                     req(path).build())
                              .controllerType());
         }
-        // 2026-11-10 用户裁定：读操作 GET-only——POST 落兜底；update/save 保持 ANY
+        // 2026-11-10 用户裁定：读操作 GET-only——POST 落兜底；query 例外（条件复杂，POST+GET）；update/save 保持 ANY
         for (String path : new String[]{"/o/fetch",
                                         "/o/fetch2",
                                         "/o/ancestors",
-                                        "/o/query",
                                         "/o/children",
-                                        "/o/find",
                                         "/o/content/x.txt"}) {
             assertEquals(path + " POST",
                          WebRootController.class,
@@ -614,8 +568,9 @@ public class Jetty08ObjTest {
                                     req(path).build())
                              .controllerType());
         }
-        String[] anyPaths = {"/o/update", "/o/save/text", "/o/save/stream"};
+        String[] anyPaths = {"/o/update", "/o/query", "/o/save/text", "/o/save/stream"};
         Class<?>[] anyTypes = {ObjUpdateController.class,
+                               ObjQueryController.class,
                                ObjSaveTextController.class,
                                ObjSaveStreamController.class};
         for (int i = 0; i < anyPaths.length; i++) {
@@ -639,8 +594,7 @@ public class Jetty08ObjTest {
                          .status());
         for (String path : new String[]{"/o/ancestors",
                                         "/o/query",
-                                        "/o/children",
-                                        "/o/find"}) {
+                                        "/o/children"}) {
             MockWnMvcResponse resp = dispatch(req(path).build());
             assertEquals(path, 302, resp.status());
             assertEquals(path, "/", resp.redirectedTo());
@@ -664,7 +618,8 @@ public class Jetty08ObjTest {
         WnMvcDispatcher dispatcher = new WnMvcDispatcher(factory.mapping(),
                                                          factory,
                                                          new WnMvcFilter[]{new CreateMvcContextFilter(new WnLoginAuthLookup(auth),
-                                                                                                      io)},
+                                                                                                      io),
+                                                                            new CorsFilter()},
                                                          new WnMvcFilter[]{new CleanupFilter()});
         dispatcher.dispatch(factory.newContext(req, resp));
         assertFalse(Wn.WC().hasTicket());

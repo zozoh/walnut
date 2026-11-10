@@ -7,6 +7,7 @@ import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.login.WnLoginApiMaker;
+import com.site0.walnut.login.WnSimpleLoginApi;
 import com.site0.walnut.login.WnLoginOptions;
 import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.login.site.WnLoginSite;
@@ -41,8 +42,14 @@ public class WnBoxContext {
             WnLoginSite site = WnLoginSite.createByPath(io, sitePath);
             NutBean env = site.getSessionVarsBySiteHome();
             WnLoginOptions options = site.getOptions();
+            // 2026-11-10 去 Nutz（web2）：hydrated 模式的系统会话存储不再取自 Nutz Ioc，
+            // 显式沿用 services 系统登录 API 的会话存储（语义等价旧 sysSessionStore）
+            WnLoginApi sysAuth = services.getLoginApi();
             WnLoginApi auth = WnLoginApiMaker.forHydrate()
-                .make(io, env, options);
+                .make(io, env, options,
+                      sysAuth instanceof WnSimpleLoginApi
+                              ? ((WnSimpleLoginApi) sysAuth).getSessionStore()
+                              : null);
             return auth;
         }
 

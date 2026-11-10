@@ -11,9 +11,6 @@ import com.site0.walnut.util.Ws;
 public class AppLookupController extends AbstractAppController {
     @Override
     public WnMvcView handle(WnMvcContext ctx) {
-        cors(ctx);
-        if (options(ctx))
-            return WnMvcView.none();
         try {
             // 2026-11-10 用户裁定：GET-only，参数只从 query string 取（不读 body form）
             NutMap params = ctx.request().queryStringMap();

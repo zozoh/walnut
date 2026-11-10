@@ -7,7 +7,6 @@ import com.site0.walnut.mvc.WnMvcView;
 public class AppLoginModeController extends AbstractAppController {
     @Override
     public WnMvcView handle(WnMvcContext ctx) {
-        cors(ctx);
         try {
             NutMap result = new NutMap();
             result.put("system", conf(ctx).getSysLoginMode());

@@ -9,9 +9,6 @@ import com.site0.walnut.util.Wn;
 public class AppSysAjaxLogoutController extends AbstractAppController {
     @Override
     public WnMvcView handle(WnMvcContext ctx) {
-        cors(ctx);
-        if (options(ctx))
-            return WnMvcView.none();
         try {
             NutMap result = new NutMap();
             if (Wn.WC().hasTicket()) {

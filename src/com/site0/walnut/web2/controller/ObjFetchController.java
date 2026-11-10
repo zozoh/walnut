@@ -25,12 +25,6 @@ public class ObjFetchController extends AbstractWnController {
     @Override
     public WnMvcView handle(WnMvcContext ctx) {
         WnMvcRequest req = ctx.request();
-        // 这个接口开放给外部 app 调用
-        cors(ctx);
-        // 对于 options 放过
-        if (options(ctx)) {
-            return null;
-        }
         try {
             // 2026-11-10 用户裁定：GET-only，参数只从 query string 取（不读 body form）
             NutMap params = req.queryStringMap();

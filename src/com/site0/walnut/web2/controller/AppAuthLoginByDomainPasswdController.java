@@ -5,6 +5,7 @@ import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnSimpleLoginApi;
 import com.site0.walnut.login.WnLoginApiMaker;
 import com.site0.walnut.login.WnLoginOptions;
 import com.site0.walnut.login.session.WnSession;
@@ -35,9 +36,6 @@ public class AppAuthLoginByDomainPasswdController extends AbstractAppAuthControl
         String otpCode = params.getString("otp_val");
         WnOcmInfo ocm = get_ocm_info(ctx, null == site ? null : site.getDomain(), account);
         boolean ajax = bool(params, "ajax");
-        cors(ctx);
-        if (options(ctx))
-            return null;
         Object reo = null;
         WnMvcView view = null;
         if (null == site) {
@@ -62,7 +60,12 @@ public class AppAuthLoginByDomainPasswdController extends AbstractAppAuthControl
                 WnLoginApiMaker loginMaker = WnLoginApiMaker.forHydrate();
                 NutBean sessionVars = site.getSessionVarsBySiteHome();
                 WnLoginOptions siteOptions = site.getOptions();
-                auth = loginMaker.make(io, sessionVars, siteOptions);
+                // 2026-11-10 去 Nutz（web2）：hydrated 模式的系统会话存储不再取自 Nutz Ioc，
+                // 显式沿用系统登录 API 的会话存储（语义等价旧 sysSessionStore）
+                auth = loginMaker.make(io, sessionVars, siteOptions,
+                        sysAuth instanceof WnSimpleLoginApi
+                                ? ((WnSimpleLoginApi) sysAuth).getSessionStore()
+                                : null);
             }
             if (log.isInfoEnabled())
                 log.infof("Login as %s: %s", asDomainOwner ? "sys-usr" : "domain-user", account);

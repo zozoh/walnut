@@ -300,6 +300,7 @@ public class ObjModule extends AbstractWnModule {
      *         </pre>
      */
     @At("/find")
+    @Deprecated
     public Object find(@Param("_l") int limit,
                        @Param("_o") int skip,
                        @Param("_s") String sort,

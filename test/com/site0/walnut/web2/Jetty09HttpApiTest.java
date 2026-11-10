@@ -284,9 +284,9 @@ public class Jetty09HttpApiTest {
         newApi("hello", "echo HelloAPI", null);
         WnMvcFactory factory = newFactory(services);
 
-        // 32 = 31（RM-NUTZ-06/07/08 + chse）+ 1（/api/?/**）；兜底仍在最后
-        assertEquals(32, factory.mapping().patterns().size());
-        assertEquals("/**", factory.mapping().patterns().get(31));
+        // 30 = 29（RM-NUTZ-06/07/08 + chse；/a/login 已合并、/o/find 弃用删除）+ 1（/api/?/**）；兜底仍在最后
+        assertEquals(30, factory.mapping().patterns().size());
+        assertEquals("/**", factory.mapping().patterns().get(29));
 
         // /api/?/** 命中 HttpApiController，?/** 绑定进 pathArgs
         MockWnMvcRequest r = req("hello").build();

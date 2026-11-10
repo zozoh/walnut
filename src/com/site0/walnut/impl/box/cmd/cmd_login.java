@@ -17,6 +17,7 @@ import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.impl.io.WnEvalLink;
 import com.site0.walnut.login.WnLoginApi;
+import com.site0.walnut.login.WnSimpleLoginApi;
 import com.site0.walnut.login.WnLoginApiMaker;
 import com.site0.walnut.login.WnLoginOptions;
 import com.site0.walnut.login.role.WnRoleList;
@@ -83,7 +84,12 @@ public class cmd_login extends JvmExecutor {
         if (null != site) {
             NutBean env = sys.session.getEnv();
             WnLoginOptions options = site.getOptions();
-            auth = WnLoginApiMaker.forHydrate().make(sys.io, env, options);
+            // 2026-11-10 去 Nutz（web2）：hydrated 模式的系统会话存储不再取自 Nutz Ioc
+            // （WnSetup.getIoc() 为 null），显式沿用当前登录 API 的会话存储（语义等价旧 sysSessionStore）
+            auth = WnLoginApiMaker.forHydrate().make(sys.io, env, options,
+                    sys.auth instanceof WnSimpleLoginApi
+                            ? ((WnSimpleLoginApi) sys.auth).getSessionStore()
+                            : null);
         }
 
         // 保存目标用户变量

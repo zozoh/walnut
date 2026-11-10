@@ -5,12 +5,19 @@ import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.mvc.WnMvcContext;
 import com.site0.walnut.mvc.WnMvcView;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.web2.view.WnAddCookieView;
 import com.site0.walnut.web2.view.WnLoginPage;
 
 public class AppLoginPageController extends AbstractAppController {
     @Override
     public WnMvcView handle(WnMvcContext ctx) {
+        // 2026-11-10 路由合并：/a/login 与 /a/login/** 并成一条 /a/login/**；
+        // 裸 /a/login 补 302 → /a/login/（URL 规范化，原 AppLoginController 的行为）
+        String path = ctx.request().getPath();
+        if (Ws.isBlank(arg(ctx, 0)) && !path.endsWith("/"))
+            return WnMvcView.redirect(path + "/");
+
         WnSession se = auth(ctx).getSession(Wn.WC().getTicket());
         if (null != se && !se.isExpired()) {
             String app = se.getEnv().getString("OPEN", "wn-term");

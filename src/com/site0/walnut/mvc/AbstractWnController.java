@@ -1,5 +1,6 @@
 package com.site0.walnut.mvc;
 
+import org.nutz.json.Json;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.box.WnBoxService;
@@ -17,7 +18,6 @@ import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.web.WnConfig;
-import com.site0.walnut.web.util.WnWeb;
 
 /**
  * 控制器公共基类：对照旧 <code>AbstractWnModule</code>/<code>WnRun</code>，提供
@@ -137,6 +137,21 @@ public abstract class AbstractWnController implements WnMvcController {
                 }
             });
         }
+        // 2026-11-10 用户修正：captcha/verify、otp/send 等前端实际协议是 POST JSON 载荷；
+        // 恢复旧默认适配器语义——JSON body 与 query 合并（query 优先，body 补齐缺失键）
+        else if (null != type && type.toLowerCase(java.util.Locale.ROOT).contains("json")) {
+            String jsonText = req.getInputJson();
+            if (!Ws.isBlank(jsonText)) {
+                NutMap body = Json.fromJson(NutMap.class, jsonText);
+                if (null != body) {
+                    body.forEach((key, value) -> {
+                        if (!params.containsKey(key)) {
+                            params.put(key, value);
+                        }
+                    });
+                }
+            }
+        }
         return params;
     }
 
@@ -153,11 +168,6 @@ public abstract class AbstractWnController implements WnMvcController {
     protected String attr(WnMvcContext ctx, String name) {
         Object value = ctx.request().getAttr(name);
         return null == value ? null : value.toString();
-    }
-
-    protected void cors(WnMvcContext ctx) {
-        WnWeb.setCrossDomainHeaders("*",
-                (name, value) -> ctx.response().header(WnWeb.niceHeaderName(name), value));
     }
 
     protected boolean options(WnMvcContext ctx) {

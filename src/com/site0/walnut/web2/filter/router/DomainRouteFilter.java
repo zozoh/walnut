@@ -4,11 +4,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.nutz.log.Log;
+
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.mvc.WnMvcContext;
 import com.site0.walnut.mvc.WnMvcFilter;
 import com.site0.walnut.mvc.WnMvcFilterException;
+import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
+import com.site0.walnut.util.Ws;
 import com.site0.walnut.web2.support.WnDomainResolver;
 import com.site0.walnut.web2.support.WnPathRewriter;
 
@@ -28,6 +32,8 @@ import com.site0.walnut.web2.support.WnPathRewriter;
  * {@code wn.mvc.domain.routed} 幂等跳过。
  */
 public class DomainRouteFilter implements WnMvcFilter {
+
+    private static final Log log = Wlog.getAC();
 
     private static final String ROUTED = "wn.mvc.domain.routed";
 
@@ -52,6 +58,15 @@ public class DomainRouteFilter implements WnMvcFilter {
         String path = ctx.request().getPath();
         String host = ctx.request().getHost();
 
+        // 被偷偷标志了关闭日志（对照旧 WalnutFilter 开头）：置线程 logOff，
+        // 本过滤器的 🌍/router 日志随即静默（WnLogWrapper 逐条查 Wn.WC().isLogOff()）。
+        // 后续 CreateMvcContextFilter.setLogOn() 会重置该标志（旧链 CreateWnContext
+        // 同样如此），✔️OK 行另有 qs 显式判定，均与旧链口径一致
+        String qs = ctx.request().getQueryString();
+        if (null != qs && qs.indexOf("log_off=true") >= 0) {
+            Wn.WC().setLogOff();
+        }
+
         // 一定记录属性
         ctx.request().getAttrs().put("wn_www_path_org", path);
         ctx.request().getAttrs().put("wn_www_host", host);
@@ -61,13 +76,42 @@ public class DomainRouteFilter implements WnMvcFilter {
         if (null == mainHost || (null != host && mainHost.matcher(host).find()))
             return;
 
+        // 入口日志（对照旧 WalnutFilter 的 🌍 行）
+        // 偏差：旧代码第 4 参为服务端本地端口（getLocalPort），中立请求接口只有
+        // 客户端端口 getRemotePort，暂以 remotePort 顶替
+        if (log.isInfoEnabled()) {
+            // 这种 URL 暂时先不打印，因为负载均衡会狂请求 ...
+            if (!"/".equals(path)) {
+                if (!Ws.isBlank(qs)) {
+                    qs = "?" + qs;
+                } else {
+                    qs = "";
+                }
+                log.infof("🌍[%s]<%s>:%s:%s:%s%s",
+                          ctx.request().getMethod(),
+                          ctx.request().getRemoteAddr(),
+                          host,
+                          ctx.request().getRemotePort(),
+                          path,
+                          qs);
+            }
+        }
+
         WnObj oDmn = null == resolver ? null : resolver.fetchDomain(host);
-        if (null == oDmn)
+        if (null == oDmn) {
+            // 找不到记录，全当没有
+            if (log.isDebugEnabled()) {
+                log.debug(" - no mapping!");
+            }
             return;
+        }
 
         // 过期记录（未声明 expi_at 表示无限期）
         long expiAt = oDmn.getLong("expi_at", 0);
         if (expiAt > 0 && expiAt < Wn.now()) {
+            if (log.isDebugEnabled()) {
+                log.debug(" - domain expired!");
+            }
             ctx.request().getAttrs().put("wn_www_error", "域名转发过期");
             throw new WnMvcFilterException(403, "e.domain.expired", "域名转发过期: " + host);
         }
@@ -78,11 +122,18 @@ public class DomainRouteFilter implements WnMvcFilter {
         ctx.request().getAttrs().put("wn_www_site", site);
 
         // B：只记录
-        if (oDmn.isType("B"))
+        if (oDmn.isType("B")) {
+            if (log.isDebugEnabled()) {
+                log.debugf(" - router(B) to: %s : %s", grp, site);
+            }
             return;
+        }
         // C：静态站点，由 WebRootController/StaticRouter 处理
         if (oDmn.isType("C")) {
             ctx.request().getAttrs().put("wn_www_static", "yes");
+            if (log.isDebugEnabled()) {
+                log.debugf(" - router(C) to: %s : %s", grp, site);
+            }
             return;
         }
 
@@ -91,12 +142,24 @@ public class DomainRouteFilter implements WnMvcFilter {
             String newPath = rule.render(path, grp);
             if (null == newPath)
                 continue;
-            if (newPath.startsWith("/websocket"))
+            if (newPath.startsWith("/websocket")) {
+                if (log.isDebugEnabled()) {
+                    log.debug(" - no rule -");
+                }
                 return;
+            }
             ctx.request().getAttrs().put("wn_www_path_new", newPath);
             if (ctx.request() instanceof WnPathRewriter)
                 ((WnPathRewriter) ctx.request()).setPath(newPath);
+            if (log.isDebugEnabled()) {
+                log.debug(" - router(A) to: " + newPath);
+            }
             return;
+        }
+
+        // 得不到修订的 URL，表示规则文件设定的不合理，没有考虑所有的情况
+        if (log.isDebugEnabled()) {
+            log.debug(" - no rule -");
         }
     }
 
