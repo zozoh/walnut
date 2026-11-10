@@ -29,7 +29,8 @@ public class ObjQueryController extends AbstractWnController {
     public WnMvcView handle(WnMvcContext ctx) {
         WnMvcRequest req = ctx.request();
         try {
-            NutMap pm = params(req);
+            // 2026-11-10 用户裁定：GET-only，参数只从 query string 取（不读 body form）
+            NutMap pm = req.queryStringMap();
             WnQuery q = new WnQuery();
             q.limit(pm.getInt("limit", 0));
             q.skip(pm.getInt("skip", 0));

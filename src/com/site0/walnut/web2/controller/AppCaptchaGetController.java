@@ -15,7 +15,8 @@ public class AppCaptchaGetController extends AbstractAppAuthController {
         if (options(ctx))
             return WnMvcView.none();
         try {
-            NutMap params = params(ctx.request());
+            // 2026-11-10 用户裁定：GET-only，参数只从 query string 取（不读 body form）
+            NutMap params = ctx.request().queryStringMap();
             WnOcmInfo ocm = get_ocm_info(ctx, arg(ctx, 0), params.getString("account"));
             String captchaName = params.getString("captcha");
             String reJson;

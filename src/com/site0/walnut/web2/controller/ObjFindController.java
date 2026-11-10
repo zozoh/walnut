@@ -28,7 +28,8 @@ public class ObjFindController extends AbstractWnController {
     public WnMvcView handle(WnMvcContext ctx) {
         WnMvcRequest req = ctx.request();
         try {
-            NutMap pm = params(req);
+            // 2026-11-10 用户裁定：GET-only，match = 全部 query string 参数（不读 body form）
+            NutMap pm = req.queryStringMap();
             int limit = pm.getInt("_l", 0);
             int skip = pm.getInt("_o", 0);
             String sort = pm.getString("_s");

@@ -15,7 +15,8 @@ public class AppLookupController extends AbstractAppController {
         if (options(ctx))
             return WnMvcView.none();
         try {
-            NutMap params = params(ctx.request());
+            // 2026-11-10 用户裁定：GET-only，参数只从 query string 取（不读 body form）
+            NutMap params = ctx.request().queryStringMap();
             WnLookupMaker maker = ctx.services().getLookupMaker();
             if (bool(params, "reset"))
                 maker.clear();

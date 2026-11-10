@@ -32,7 +32,8 @@ public class ObjFetchController extends AbstractWnController {
             return null;
         }
         try {
-            NutMap params = params(req);
+            // 2026-11-10 用户裁定：GET-only，参数只从 query string 取（不读 body form）
+            NutMap params = req.queryStringMap();
             String str = params.getString("str");
             boolean loadPath = params.getBoolean("path", false);
             boolean loadAxis = params.getBoolean("axis", false);

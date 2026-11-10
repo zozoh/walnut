@@ -357,9 +357,8 @@ public class Jetty08ObjTest {
     @Test
     public void t18_content_download_with_download_name_and_force() {
         MockWnMvcResponse resp = dispatch(signed("/o/content/renamed.txt")
-            .method("POST")
             .header("User-Agent", "Mozilla/5.0")
-            .bodyJson("{str:'/home/tester/main.txt',d:'force'}")
+            .query("str=/home/tester/main.txt&d=force")
             .build());
         assertEquals(resp.bodyString(), 200, resp.status());
         assertEquals("0123456789", resp.bodyString());
@@ -374,17 +373,16 @@ public class Jetty08ObjTest {
     @Test
     public void t19_content_range_and_etag_304() {
         MockWnMvcResponse resp = dispatch(signed("/o/content/x.txt")
-            .method("POST")
             .header("Range", "bytes=2-5")
-            .bodyJson("{str:'/home/tester/main.txt'}")
+            .query("str=/home/tester/main.txt")
             .build());
         assertEquals(206, resp.status());
         assertEquals("2345", resp.bodyString());
         assertEquals("bytes 2-5/10", resp.header("Content-Range"));
-        resp = dispatch(signed("/o/content/x.txt").method("POST")
+        resp = dispatch(signed("/o/content/x.txt")
             .header("If-None-Match",
                     Wn.getEtag(io.objects.get("/home/tester/main.txt")))
-            .bodyJson("{str:'/home/tester/main.txt'}")
+            .query("str=/home/tester/main.txt")
             .build());
         assertEquals(304, resp.status());
         assertEquals("", resp.bodyString());
@@ -392,19 +390,30 @@ public class Jetty08ObjTest {
 
     @Test
     public void t20_content_failures() {
-        // body 不含 str → 报错
-        fail(dispatch(signed("/o/content/x.txt").method("POST")
-            .bodyJson("{}")
-            .build()), "e.io.obj.noexists");
-        // GET 无 body：query string 的 str 被忽略（2026-11-10 用户定稿）→ 报错
+        // 无 str → 报错
+        fail(dispatch(signed("/o/content/x.txt").build()), "e.io.obj.noexists");
+        // GET 带 body JSON 的 str 也不生效（2026-11-10 用户修订：str/d 只从
+        // query string 取，不解析请求体；路由已收紧 GET-only）→ 报错
         fail(dispatch(signed("/o/content/x.txt")
-            .query("str=/home/tester/main.txt")
+            .bodyJson("{str:'/home/tester/main.txt'}")
             .build()), "e.io.obj.noexists");
         // 未登录 → 302
         assertEquals(302,
-                     dispatch(req("/o/content/x.txt").method("POST")
-                         .bodyJson("{str:'/home/tester/main.txt'}")
+                     dispatch(req("/o/content/x.txt")
+                         .query("str=/home/tester/main.txt")
                          .build()).status());
+    }
+
+    @Test
+    public void t20b_content_get_query_str_with_ticket() {
+        // 用户 ATEST 真机场景（2026-11-10 上报）：GET /o/content?str=<path>
+        // 无 downloadName 段、无 body，带票据 → 200 直写内容
+        // （对照 /o/content?str=/home/bunya/.domain/dicts.json5）
+        MockWnMvcResponse resp = dispatch(signed("/o/content")
+            .query("str=/home/tester/main.txt")
+            .build());
+        assertEquals(resp.bodyString(), 200, resp.status());
+        assertEquals("0123456789", resp.bodyString());
     }
 
     // ------------------------------------------------------------------
@@ -588,6 +597,33 @@ public class Jetty08ObjTest {
                          factory.mapping()
                              .match(com.site0.walnut.mvc.WnMvcHttpMethod.GET,
                                     req(path).build())
+                             .controllerType());
+        }
+        // 2026-11-10 用户裁定：读操作 GET-only——POST 落兜底；update/save 保持 ANY
+        for (String path : new String[]{"/o/fetch",
+                                        "/o/fetch2",
+                                        "/o/ancestors",
+                                        "/o/query",
+                                        "/o/children",
+                                        "/o/find",
+                                        "/o/content/x.txt"}) {
+            assertEquals(path + " POST",
+                         WebRootController.class,
+                         factory.mapping()
+                             .match(com.site0.walnut.mvc.WnMvcHttpMethod.POST,
+                                    req(path).build())
+                             .controllerType());
+        }
+        String[] anyPaths = {"/o/update", "/o/save/text", "/o/save/stream"};
+        Class<?>[] anyTypes = {ObjUpdateController.class,
+                               ObjSaveTextController.class,
+                               ObjSaveStreamController.class};
+        for (int i = 0; i < anyPaths.length; i++) {
+            assertEquals(anyPaths[i] + " POST",
+                         anyTypes[i],
+                         factory.mapping()
+                             .match(com.site0.walnut.mvc.WnMvcHttpMethod.POST,
+                                    req(anyPaths[i]).build())
                              .controllerType());
         }
     }

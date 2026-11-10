@@ -23,7 +23,8 @@ public class AppOpenController extends AbstractAppController {
 
     @Override
     public WnMvcView handle(WnMvcContext ctx) {
-        NutMap params = params(ctx.request());
+        // 2026-11-10 用户裁定：GET-only，参数只从 query string 取（不读 body form）
+        NutMap params = ctx.request().queryStringMap();
         WnAppService apps = services(ctx).getAppService();
         WnIo io = io(ctx);
         WnLoginApi auth = auth(ctx);

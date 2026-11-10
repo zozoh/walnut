@@ -22,7 +22,8 @@ public class ObjAncestorsController extends AbstractWnController {
     public WnMvcView handle(WnMvcContext ctx) {
         WnMvcRequest req = ctx.request();
         try {
-            String str = params(req).getString("str");
+            // 2026-11-10 用户裁定：GET-only，参数只从 query string 取（不读 body form）
+            String str = req.queryStringMap().getString("str");
             WnSession se = Wn.WC().checkSession();
             WnObj meta = Wn.checkObj(io(ctx), se, str);
             LinkedList<WnObj> ans = new LinkedList<>();

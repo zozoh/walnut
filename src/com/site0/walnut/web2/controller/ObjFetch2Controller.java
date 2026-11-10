@@ -22,7 +22,8 @@ public class ObjFetch2Controller extends AbstractWnController {
             return null;
         }
         try {
-            String str = params(req).getString("str");
+            // 2026-11-10 用户裁定：GET-only，参数只从 query string 取（不读 body form）
+            String str = req.queryStringMap().getString("str");
             return ObjFetchController.doFetch(ctx, str, true, false);
         }
         catch (RuntimeException e) {

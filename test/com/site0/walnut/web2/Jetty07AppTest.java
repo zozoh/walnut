@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -317,8 +318,11 @@ public class Jetty07AppTest {
 
     @Test
     public void t21_captcha_verify_raw_json_and_domain_binding() {
-        MockWnMvcResponse resp = dispatch(req("/a/captcha/verify/tester").method("POST")
-                .bodyJson("{domain:'tester',account:'tester',captcha:'slide',id:'captcha-id',data:{x:12}}").build());
+        // 2026-11-10 用户裁定：captcha 系列 GET-only，参数走 query string
+        // （data 传 URL 编码的 JSON 串）
+        MockWnMvcResponse resp = dispatch(req("/a/captcha/verify/tester")
+                .query("domain=tester&account=tester&captcha=slide&id=captcha-id&data="
+                       + URLEncoder.encode("{\"x\":12}", StandardCharsets.UTF_8)).build());
         ok(resp);
         assertEquals("captcha-ticket", body(resp).getAs("data", NutMap.class).getString("ticket"));
         assertEquals(12, Json.fromJson(NutMap.class, captcha.data).getInt("x"));
@@ -329,14 +333,18 @@ public class Jetty07AppTest {
 
     @Test
     public void t22_captcha_verify_mismatch_missing_account_and_invalid() {
-        fail(dispatch(req("/a/captcha/verify/tester").method("POST")
-                .bodyJson("{domain:'other',account:'tester'}").build()), "e.captcha.domain.mismatch");
+        fail(dispatch(req("/a/captcha/verify/tester")
+                .query("domain=other&account=tester").build()), "e.captcha.domain.mismatch");
         assertEquals(0, captcha.checked);
-        fail(dispatch(req("/a/captcha/verify").method("POST")
-                .bodyJson("{id:'captcha-id'}").build()), "e.captcha.need_account");
+        fail(dispatch(req("/a/captcha/verify").query("id=captcha-id").build()),
+             "e.captcha.need_account");
         captcha.valid = false;
-        fail(dispatch(req("/a/captcha/verify").method("POST")
-                .bodyJson("{account:'tester',id:'captcha-id',data:'trace'}").build()), "e.captcha.invalid");
+        fail(dispatch(req("/a/captcha/verify")
+                .query("account=tester&id=captcha-id&data=trace").build()), "e.captcha.invalid");
+        // body JSON 的参数不再生效（GET-only，只取 query string）
+        assertEquals(1, captcha.checked);
+        fail(dispatch(req("/a/captcha/verify")
+                .bodyJson("{account:'tester',id:'captcha-id'}").build()), "e.captcha.need_account");
     }
 
     @Test
@@ -449,12 +457,35 @@ public class Jetty07AppTest {
         assertEquals(32, factory.mapping().patterns().size());
         assertEquals("/u/ajax/chse", factory.mapping().patterns().get(0));
         assertEquals("/**", factory.mapping().patterns().get(31));
+        // 2026-11-10 用户裁定收紧：读操作入口 GET-only——
+        // 严格 GET（无 CORS）：POST/OPTIONS 都落兜底
+        java.util.Set<String> getStrict = new java.util.HashSet<>(Arrays.asList("/a/open/demo/main",
+                                                                                "/a/load/demo/main",
+                                                                                "/a/sys_logout"));
+        // 带 CORS 的 GET-only：POST 落兜底、OPTIONS 保留（预检）
+        java.util.Set<String> getOpt = new java.util.HashSet<>(Arrays.asList("/a/captcha/get",
+                                                                             "/a/captcha/get/tester",
+                                                                             "/a/captcha/verify",
+                                                                             "/a/captcha/verify/tester",
+                                                                             "/a/login_mode",
+                                                                             "/a/me",
+                                                                             "/a/sys_ajax_logout",
+                                                                             "/a/lookup/demo/people"));
         for (int i = 0; i < paths.length; i++) {
-            for (WnMvcHttpMethod method : new WnMvcHttpMethod[]{WnMvcHttpMethod.GET, WnMvcHttpMethod.POST,
-                                                              WnMvcHttpMethod.OPTIONS}) {
-                assertEquals(paths[i], types[i],
-                             factory.mapping().match(method, req(paths[i]).method(method.name()).build()).controllerType());
-            }
+            // GET 一定命中自己的控制器
+            assertEquals(paths[i] + " GET",
+                         types[i],
+                         factory.mapping().match(WnMvcHttpMethod.GET, req(paths[i]).build()).controllerType());
+            boolean isAny = !getStrict.contains(paths[i]) && !getOpt.contains(paths[i]);
+            // POST：仅 ANY 路由命中，收紧路由落 /** 兜底
+            assertEquals(paths[i] + " POST",
+                         isAny ? types[i] : WebRootController.class,
+                         factory.mapping().match(WnMvcHttpMethod.POST, req(paths[i]).build()).controllerType());
+            // OPTIONS：ANY 与 {GET,OPTIONS} 路由命中，严格 GET 落兜底
+            boolean optOk = isAny || getOpt.contains(paths[i]);
+            assertEquals(paths[i] + " OPTIONS",
+                         optOk ? types[i] : WebRootController.class,
+                         factory.mapping().match(WnMvcHttpMethod.OPTIONS, req(paths[i]).build()).controllerType());
         }
     }
 

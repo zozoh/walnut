@@ -25,7 +25,8 @@ public class ObjChildrenController extends AbstractWnController {
     public WnMvcView handle(WnMvcContext ctx) {
         WnMvcRequest req = ctx.request();
         try {
-            NutMap pm = params(req);
+            // 2026-11-10 用户裁定：GET-only，参数只从 query string 取（不读 body form）
+            NutMap pm = req.queryStringMap();
             String str = pm.getString("str");
             // 旧 @Param("pg") Boolean：缺省为 null（NutBean.getBoolean(String) 是
             // primitive 会吃掉 null，必须按 key 存在性判断）

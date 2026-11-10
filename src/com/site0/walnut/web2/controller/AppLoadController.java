@@ -25,7 +25,8 @@ public class AppLoadController extends AbstractAppController {
     @Override
     public WnMvcView handle(WnMvcContext ctx) {
         try {
-            NutMap params = params(ctx.request());
+            // 2026-11-10 用户裁定：GET-only，参数只从 query string 取（不读 body form）
+            NutMap params = ctx.request().queryStringMap();
             WnIo io = io(ctx);
             String appName = arg(ctx, 0);
             WnObj appHome = _check_app_home(ctx, appName);

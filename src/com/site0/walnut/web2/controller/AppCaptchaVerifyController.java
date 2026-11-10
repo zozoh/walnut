@@ -1,10 +1,8 @@
 package com.site0.walnut.web2.controller;
 
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
-import org.nutz.lang.Streams;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.mvc.WnMvcContext;
@@ -20,11 +18,8 @@ public class AppCaptchaVerifyController extends AbstractAppAuthController {
         if (options(ctx))
             return WnMvcView.none();
         try {
-            String json = Streams.readAndClose(new InputStreamReader(ctx.request().getInputStream(),
-                                                                     StandardCharsets.UTF_8));
-            NutMap map = Json.fromJson(NutMap.class, json);
-            if (null == map)
-                map = new NutMap();
+            // 2026-11-10 用户裁定：GET-only，参数只从 query string 取（不读 body JSON）
+            NutMap map = ctx.request().queryStringMap();
             String domain = map.getString("domain");
             if (!Strings.equals(domain, arg(ctx, 0))) {
                 String result = Json.toJson(new NutMap().setv("ok", false)

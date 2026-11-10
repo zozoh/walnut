@@ -4,7 +4,6 @@ import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
-import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.ext.data.pvg.BizPvgService;
 import com.site0.walnut.ext.data.pvg.WnAuthOptions;
 import com.site0.walnut.login.WnLoginApiMaker;
@@ -33,21 +32,24 @@ public class ApiWwwAuth {
         apc.isNeedWWWAuth = apc.oApi.getBoolean("http-www-auth", hasWWWHome);
         apc.wwwSe = null;
         if (hasWWWHome) {
-            String ticketBy = apc.oApi.getString("http-www-ticket", "http-qs-ticket");
+            String ticketBy = apc.oApi.getString("http-www-ticket",
+                                                 "http-qs-ticket");
             String ticket = apc.reqMeta.getString(ticketBy);
             if (!Ws.isBlank(ticket)) {
                 apc.oWWW = Wn.checkObj(io, apc.se, phWWW);
                 // 准备站点: 文件模式
                 if (apc.oWWW.isFILE()) {
-                    apc.authOptions = io.readJson(apc.oWWW, WnAuthOptions.class);
+                    apc.authOptions = io.readJson(apc.oWWW,
+                                                  WnAuthOptions.class);
                 }
                 // 准备站点: 目录模式
                 else {
-                    apc.authOptions = Wlang.map2Object(apc.oWWW, WnAuthOptions.class);
+                    apc.authOptions = Wlang.map2Object(apc.oWWW,
+                                                       WnAuthOptions.class);
                 }
                 // 创建权鉴接口
                 apc.loginApi = WnLoginApiMaker.forDomain()
-                                              .make(io, apc.se.getEnv(), apc.authOptions);
+                    .make(io, apc.se.getEnv(), apc.authOptions);
                 apc.wwwSe = apc.loginApi.checkSession(ticket);
                 apc.wwwMe = apc.wwwSe.getUser();
 
@@ -59,7 +61,8 @@ public class ApiWwwAuth {
                 apc.reqMeta.put("http-www-me", apc.wwwMe.getMeta());
                 apc.reqMeta.put("http-www-me-phone", apc.wwwMe.getPhone());
                 apc.reqMeta.put("http-www-me-email", apc.wwwMe.getEmail());
-                apc.reqMeta.put("http-www-me-mainGroup", apc.wwwMe.getMainGroup());
+                apc.reqMeta.put("http-www-me-mainGroup",
+                                apc.wwwMe.getMainGroup());
             }
         }
         // 检查一下权限
