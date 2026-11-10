@@ -1,20 +1,14 @@
 package com.site0.walnut.web2.controller.app;
 
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.LinkedList;
 import java.util.List;
 
-import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
-import com.site0.walnut.util.tmpl.WnTmpl;
-
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutBean;
-import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnObj;
@@ -22,7 +16,6 @@ import com.site0.walnut.api.io.WnQuery;
 import com.site0.walnut.cheap.dom.CheapDocument;
 import com.site0.walnut.cheap.dom.CheapElement;
 import com.site0.walnut.cheap.xml.CheapXmlParsing;
-import com.site0.walnut.ext.data.titanium.hdl.ti_webdeps;
 import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.login.usr.WnUser;
@@ -114,10 +107,7 @@ public class WnAppService extends WnRun {
 
         // 准备命令执行后的回调
         Writer w = new OutputStreamWriter(out);
-        WnAppCommandCallback callback = new WnAppCommandCallback(se,
-                                                             w,
-                                                             metaOutputSeparator,
-                                                             null);
+        WnAppCommandCallback callback = new WnAppCommandCallback(se, w, metaOutputSeparator, null);
 
         // 执行命令
         exec("", se, cmdText, out, err, ins, callback);
@@ -137,7 +127,7 @@ public class WnAppService extends WnRun {
 
         // 如果不存在，则默认采用动态模版方式
         if (Ws.isBlank(html)) {
-            html = _render_as_dynamic_tmpl(app);
+            html = "<html><body>APP without index.html</body></html>";
         }
 
         return html;
@@ -185,106 +175,6 @@ public class WnAppService extends WnRun {
 
         // 输出
         return doc.toHtml();
-    }
-
-    private String _render_as_dynamic_tmpl(WnApp app) {
-        NutMap c = new NutMap();
-        String appName = app.getName();
-        WnObj o = app.getObj();
-        WnObj oAppHome = app.getHome();
-        WnSession se = app.getSession();
-
-        // 这个是要输出的模板
-        String tmpl;
-
-        // 检查完毕后，生成 app 的 JSON 描述
-        JsonFormat jfmt = JsonFormat.nice().setQuoteName(true);
-        String appJson = app.toJson(jfmt);
-
-        tmpl = __find_tmpl(app.getName(), oAppHome);
-
-        // 标题
-        String title = appName;
-        if (null != o)
-            title = o.name() + " : " + title;
-
-        // 填充模板占位符
-        c.put("title", title);
-
-        // 这些优先级最高
-        String rs = conf.get("app-rs", "/gu/rs/");
-        c.put("session", se.toBean(auth()));
-        c.put("rs", rs);
-        c.put("appName", appName);
-        c.put("app", appJson);
-        c.put("appClass", appName.replace('.', '_').toLowerCase());
-
-        // 看看是否需要提供 debug 版
-        WnObj oDomain = io()
-            .fetch(null, Wn.appendPath(se.getUser().getHomePath(), ".domain"));
-        NutBean vars = se.getEnv();
-        if (null != oDomain
-            && oDomain.getBoolean("debug-app-" + appName.replace('.', '-'))) {
-            c.put("TiJs", "ti/core/ti.mjs");
-            c.put("WnJs", "ti/lib/walnut/walnut.mjs");
-        }
-        // 否则设置成 Release 版本
-        else {
-            // 有木有自定义的 preload呢？
-            List<String> preloads = new LinkedList<>();
-            preloads.add("@dist:es6/ti-more-all.js");
-            String cusPreload = vars.getString("TI_PRELOAD");
-            if (!Ws.isBlank(cusPreload)) {
-                String[] pres = Ws.splitIgnoreBlank(cusPreload, "[;, ]");
-                for (String pl : pres) {
-                    preloads.add(pl);
-                }
-            }
-
-            // 有木有自定义的 DEPS ?
-            String depsPaths = vars
-                .getString("TI_DEPS", "/rs/ti/dist/es6/ti-more-all.deps.json");
-            String depsUrl = vars.getString("TI_DEPS_URL", "/gu/rs/ti/deps/");
-            String depsPrefix = vars.getString("TI_DEPS_PREFIX", "@deps:");
-            String depsIgnore = vars.getString("TI_DEPS_IGNORE", null);
-            List<NutMap> depsList = ti_webdeps.getWebDepsList(io(),
-                                                              depsUrl,
-                                                              depsPrefix,
-                                                              depsIgnore,
-                                                              depsPaths);
-
-            // 生成 HTML
-            String depsHtml = ti_webdeps.renderHtml(depsList);
-
-            // 记入上下文变量
-            c.put("TiJs", "ti/dist/es6/ti-core.js");
-            c.put("WnJs", "ti/dist/es6/ti-walnut.js");
-            c.put("preloads", preloads);
-            c.put("TiWebDeps", depsHtml);
-        }
-
-        // 得到 Theme 的路径
-        String theme = vars.getString("THEME", "light");
-        c.put("theme", theme);
-
-        // 得到快捷的 theme css 路径
-        String themeCss = theme;
-        // 确保是一个 css
-        if (!themeCss.endsWith(".css")) {
-            themeCss += ".css";
-        }
-        // 这里声明的是一个自定义的全路径主题
-        if (themeCss.startsWith("/")) {
-            c.put("themeCss", themeCss);
-        }
-        // 自带主题
-        else {
-            c.put("themeCss", Wn.appendPath(rs, "ti/theme", themeCss));
-        }
-
-        // 渲染视图
-        String html = WnTmpl.exec(tmpl, c);
-        return html;
     }
 
     /**
@@ -389,44 +279,6 @@ public class WnAppService extends WnRun {
         app.setSession(se);
         app.setAuth(auth);
         return app;
-    }
-
-    private String __find_tmpl(String appName, WnObj oAppHome) {
-        // 找到主界面模板
-        String tt = "pc"; // 可以是 "pc" 或者 "mobile"
-
-        // 首先看看有木有自定义的模板
-        WnObj oTmpl = io().fetch(oAppHome, tt + "_tmpl.html");
-
-        // 没有模板，那么从所有的 APP_PATH 里寻找
-        if (null == oTmpl) {
-            // 一层层向上寻找
-            String nmTmpl = "dft_app_" + tt + "_tmpl.html";
-
-            // 在所有的 APP_PATH 里寻找
-            if (null == oTmpl) {
-                String appPaths = Wn.WC()
-                    .checkSession()
-                    .getEnv()
-                    .getString("APP_PATH");
-                String[] bases = Strings.splitIgnoreBlank(appPaths, ":");
-                for (String base : bases) {
-                    String phTmpl = Wn.appendPath(base, nmTmpl);
-                    oTmpl = io().fetch(null, phTmpl);
-                    if (null != oTmpl)
-                        break;
-                }
-            }
-
-            // 还是没有，就抛错
-            if (null == oTmpl) {
-                throw Er.create("e.app.notemplate", appName);
-            }
-        }
-
-        // 读取模板并分析
-        String tmpl = io().readText(oTmpl);
-        return tmpl;
     }
 
     private WnObj _check_app_home(String appName) {

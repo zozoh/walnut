@@ -9,7 +9,6 @@ import com.site0.walnut.ext.data.sqlx.AllSqlxTest;
 import com.site0.walnut.ext.dsync.bean.WnDataSyncItemTest;
 import com.site0.walnut.ext.httpapi.HttpApiDynamicRenderTest;
 import com.site0.walnut.ext.media.AllMediasTest;
-import com.site0.walnut.ext.mq.WnMqMessageTest;
 import com.site0.walnut.ext.net.AllNetTest;
 import com.site0.walnut.ext.sys.AllSysTest;
 import com.site0.walnut.ext.xo.AllXoTest;
@@ -24,6 +23,5 @@ import com.site0.walnut.ext.xo.AllXoTest;
                      AllNetTest.class,
                      AllSysTest.class,
                      WnDataSyncItemTest.class,
-                     WnMqMessageTest.class,
                      AllSqlxTest.class})
 public class AllExtTest {}

@@ -33,7 +33,6 @@ import com.site0.walnut.web2.service.register.WnIoRegistrar;
 import com.site0.walnut.web2.service.register.WnLockRegistrar;
 import com.site0.walnut.web2.service.register.WnLoginRegistrar;
 import com.site0.walnut.web2.service.register.WnMongoRegistrar;
-import com.site0.walnut.web2.service.register.WnMqRegistrar;
 import com.site0.walnut.web2.service.register.WnRedisRegistrar;
 import com.site0.walnut.web2.service.register.WnScheduleRegistrar;
 import com.site0.walnut.web2.service.register.WnTaskRegistrar;
@@ -41,27 +40,25 @@ import com.site0.walnut.web2.service.register.WnTaskRegistrar;
 /**
  * web2 启动流程的非单例装配器。
  * <p>
- * 用法：{@code new WnServiceFactory(conf)}，每次 new 都会装配一套独立的服务，
- * 产物是 {@link WnServiceHolder}（对外只给类型化 getter，注册表仅供内部/自检）。
+ * 用法：{@code new WnServiceFactory(conf)}，每次 new 都会装配一套独立的服务， 产物是 {@link WnServiceHolder}（对外只给类型化
+ * getter，注册表仅供内部/自检）。
  * <p>
- * 本类只负责<b>阶段编排</b>，具体"创建 + 配置 + 注册"按服务域拆到
- * {@code com.site0.walnut.web2.service.register} 下的静态帮助类。
+ * 本类只负责<b>阶段编排</b>，具体"创建 + 配置 + 注册"按服务域拆到 {@code com.site0.walnut.web2.service.register} 下的静态帮助类。
  * <p>
  * 分三阶段（空库首启教训，见 RM-NUTZ-04 §4.3）：
  * <ol>
- * <li><b>构造器</b>：配置、Mongo/Redis 客户端、锁、IO 主链等不触碰账户目录的服务；
- * 任何一步失败立即抛（fail-fast）。<b>绝不 new store</b>。</li>
- * <li>{@link #initStores()}：账户/会话/角色 store、sysLoginApi、task/schedule/cron
- * 服务及其安全包装；必须等 "/sys/usr"、"/var/session" 等目录已建。</li>
+ * <li><b>构造器</b>：配置、Mongo/Redis 客户端、锁、IO 主链等不触碰账户目录的服务； 任何一步失败立即抛（fail-fast）。<b>绝不 new
+ * store</b>。</li>
+ * <li>{@link #initStores()}：账户/会话/角色 store、sysLoginApi、task/schedule/cron 服务及其安全包装；必须等
+ * "/sys/usr"、"/var/session" 等目录已建。</li>
  * <li>{@link #initServices()}：on_create（建 "/sys/*" 目录，要求 root 存在）。</li>
  * </ol>
- * 装配清单 = {@code conf/ioc/*.js} 的 6 个文件共 58 条定义，剔除
- * {@code loader/webscan/ioService/sessionService} 后注册 54 个 bean；逐条对照见
- * {@code wn-doc/plan/261108-jetty12/inventory.md} §5。
- * RM-NUTZ-07 在第二阶段额外装配复制版 {@code appService}，并写入 holder。
+ * 装配清单 = {@code conf/ioc/*.js} 的 6 个文件共 58 条定义，剔除 {@code loader/webscan/ioService/sessionService}
+ * 后注册 54 个 bean；逐条对照见 {@code wn-doc/plan/261108-jetty12/inventory.md} §5。 RM-NUTZ-07 在第二阶段额外装配复制版
+ * {@code appService}，并写入 holder。
  * <p>
- * 边界：本包不 import {@code org.nutz.mvc/ioc/web}；{@code org.nutz.mongo.ZMoCo}
- * 只是 Mongo 驱动封装参数类型，随 RM-NUTZ-12 一起迁移。
+ * 边界：本包不 import {@code org.nutz.mvc/ioc/web}；{@code org.nutz.mongo.ZMoCo} 只是 Mongo 驱动封装参数类型，随
+ * RM-NUTZ-12 一起迁移。
  */
 public class WnServiceFactory {
 
@@ -70,40 +67,38 @@ public class WnServiceFactory {
     /**
      * checkup() 校验的必备清单（32 个），holder 单独校验。
      */
-    private static final String[] REQUIRED = {
-            "conf",
-            "mongoDB",
-            "messageQueueApi",
-            "lockApi",
-            "referApi",
-            "mimes",
-            "ioMappingFactory",
-            "ioHandleManager",
-            "io",
-            "rawIo",
-            "hookedIo",
-            "__io",
-            "expiObjTable",
-            "safeExpiObjTable",
-            "rawUserStore",
-            "sysUserStore",
-            "rawSessionStore",
-            "sysSessionStore",
-            "rawRoleStore",
-            "sysRoleStore",
-            "sysLoginApi",
-            "sysXApi",
-            "sysTaskService",
-            "safeSysTaskService",
-            "sysScheduleService",
-            "safeSysScheduleService",
-            "sysCronService",
-            "boxService",
-            "jvmExecutorFactory",
-            "hookService",
-            "lookupMaker",
-            "appService"
-    };
+    private static final String[] REQUIRED = {"conf",
+                                              "mongoDB",
+                                              "messageQueueApi",
+                                              "lockApi",
+                                              "referApi",
+                                              "mimes",
+                                              "ioMappingFactory",
+                                              "ioHandleManager",
+                                              "io",
+                                              "rawIo",
+                                              "hookedIo",
+                                              "__io",
+                                              "expiObjTable",
+                                              "safeExpiObjTable",
+                                              "rawUserStore",
+                                              "sysUserStore",
+                                              "rawSessionStore",
+                                              "sysSessionStore",
+                                              "rawRoleStore",
+                                              "sysRoleStore",
+                                              "sysLoginApi",
+                                              "sysXApi",
+                                              "sysTaskService",
+                                              "safeSysTaskService",
+                                              "sysScheduleService",
+                                              "safeSysScheduleService",
+                                              "sysCronService",
+                                              "boxService",
+                                              "jvmExecutorFactory",
+                                              "hookService",
+                                              "lookupMaker",
+                                              "appService"};
 
     private final WnConfig conf;
 
@@ -131,7 +126,8 @@ public class WnServiceFactory {
     /**
      * 构造器阶段：配置/连接/锁/IO 主链。不 new 任何 store。
      *
-     * @param conf 配置（不可为 null）
+     * @param conf
+     *            配置（不可为 null）
      */
     public WnServiceFactory(WnConfig conf) {
         if (null == conf) {
@@ -146,7 +142,6 @@ public class WnServiceFactory {
         // 连接类（Mongo/Redis/MQ）
         WnMongoRegistrar.register(this);
         WnRedisRegistrar.register(this);
-        WnMqRegistrar.register(this);
 
         // 锁，以及 IO 主链依赖的过期对象表
         WnLockRegistrar.register(this);
@@ -170,8 +165,7 @@ public class WnServiceFactory {
     /**
      * 账户/会话/角色 store、sysLoginApi、task/schedule/cron 及 safe 包装，最后产出 holder。
      * <p>
-     * 调用前必须已建好 "/sys/usr"、"/sys/role"、"/var/session" 三个关键目录
-     * （见 {@code WnWebBoot.setup()}）。
+     * 调用前必须已建好 "/sys/usr"、"/sys/role"、"/var/session" 三个关键目录 （见 {@code WnWebBoot.setup()}）。
      */
     public synchronized void initStores() {
         if (storesReady) {
@@ -289,7 +283,9 @@ public class WnServiceFactory {
     public <T> T fetch(String name, Class<T> type) {
         Object bean = beans.get(name);
         if (null == bean) {
-            throw new IllegalStateException("WnServiceFactory: bean '" + name + "' is not registered/ready");
+            throw new IllegalStateException("WnServiceFactory: bean '"
+                                            + name
+                                            + "' is not registered/ready");
         }
         return type.cast(bean);
     }

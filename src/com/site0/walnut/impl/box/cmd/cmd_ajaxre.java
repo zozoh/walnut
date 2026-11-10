@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 import org.nutz.json.Json;
 import org.nutz.json.JsonFormat;
 import org.nutz.lang.Strings;
-import com.site0.walnut.ext.sys.i18n.Wni18nService;
 import com.site0.walnut.impl.box.JvmExecutor;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.util.Cmds;
@@ -86,22 +85,13 @@ public class cmd_ajaxre extends JvmExecutor {
     }
 
     protected void __fill_re_msg(WnSystem sys, ZParams params, AjaxReturn re) {
-        // 获取服务类
-        Wni18nService i18ns = this.ioc.get(Wni18nService.class);
-
-        // 得到语言
-        String lang = params.getString("lang", sys.getLang());
-
         // 得到错误码
         String errCode = params.getString("msg", re.getErrCode());
 
-        // 得到多国语言错误消息
-        String errStr = i18ns.getMsg(lang, errCode);
-
         if (null == re.getData()) {
-            re.setMsg(errStr);
+            re.setMsg(errCode);
         } else {
-            re.setMsg(errStr + " : " + re.getData());
+            re.setMsg(errCode + " : " + re.getData());
         }
     }
 
