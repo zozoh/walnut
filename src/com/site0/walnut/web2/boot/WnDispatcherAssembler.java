@@ -13,7 +13,7 @@ import com.site0.walnut.mvc.WnMvcDispatcher;
 import com.site0.walnut.mvc.WnMvcFactory;
 import com.site0.walnut.mvc.WnMvcFilter;
 import com.site0.walnut.mvc.WnMvcMapping;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 import com.site0.walnut.web2.filter.global.CleanupFilter;
 import com.site0.walnut.web2.filter.global.CorsFilter;
 import com.site0.walnut.web2.filter.global.CreateMvcContextFilter;

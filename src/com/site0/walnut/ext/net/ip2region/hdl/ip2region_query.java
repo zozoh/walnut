@@ -7,7 +7,6 @@ import org.lionsoul.ip2region.DbSearcher;
 import com.site0.walnut.util.Wlang;
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutMap;
-import org.nutz.mvc.Mvcs;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.impl.box.JvmHdl;
 import com.site0.walnut.impl.box.JvmHdlContext;
@@ -43,7 +42,7 @@ public class ip2region_query implements JvmHdl {
         LinkedHashMap<String, NutMap> list = new LinkedHashMap<>();
         for (String ip : hc.params.vals) {
             if ("self".equals(ip)) {
-                ip = Wlang.getIP(Mvcs.getReq());
+                ip = Wn.WC().getIPv4();
             }
             String region = this.getRegion(ip);
             String[] tmp = region.split("\\|");

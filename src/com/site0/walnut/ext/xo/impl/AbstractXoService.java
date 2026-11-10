@@ -17,7 +17,7 @@ import com.site0.walnut.ext.xo.bean.XoBean;
 import com.site0.walnut.ext.xo.util.XoClientGetter;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Ws;
-import com.site0.walnut.web.util.WnWeb;
+import com.site0.walnut.util.WnWeb;
 
 public abstract class AbstractXoService<T> implements XoService {
 

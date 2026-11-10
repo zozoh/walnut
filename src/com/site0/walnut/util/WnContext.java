@@ -4,8 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 
 import org.nutz.lang.Stopwatch;
 import org.nutz.lang.random.R;
@@ -623,20 +621,6 @@ public class WnContext extends NutMap {
      * @param cookieNames
      *            Cookie 名称列表
      */
-    public void copyCookieItems(HttpServletRequest req, String[] cookieNames) {
-        // 从 cookie 获得 SEID
-        Cookie[] cookies = req.getCookies();
-        if (null != cookies)
-            for (Cookie co : cookies) {
-                String cknm = co.getName();
-                if (Wlang.contains(cookieNames, cknm)) {
-                    if (Wn.AT_SEID.equals(cknm)) {
-                        this.ticket = co.getValue();
-                    } else {
-                        this.setv(cknm, co.getValue());
-                    }
-                }
-            }
-    }
+
 
 }

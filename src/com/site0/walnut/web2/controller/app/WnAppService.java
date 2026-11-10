@@ -22,7 +22,7 @@ import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnRun;
-import com.site0.walnut.web.bean.WnApp;
+import com.site0.walnut.api.bean.WnApp;
 
 /**
  * 封装系统 应用的相关逻辑

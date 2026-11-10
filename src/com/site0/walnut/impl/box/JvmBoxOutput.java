@@ -61,7 +61,7 @@ public class JvmBoxOutput implements WnOutputable {
             Streams.write(ops, ins);
             ops.flush();
         }
-        catch (org.eclipse.jetty.io.EofException e) {
+        catch (java.io.EOFException e) {
             if (log.isDebugEnabled())
                 log.debug("EofException cached");
         }
@@ -76,7 +76,7 @@ public class JvmBoxOutput implements WnOutputable {
             Streams.write(ops, ins);
             ops.flush();
         }
-        catch (org.eclipse.jetty.io.EofException e) {
+        catch (java.io.EOFException e) {
             if (log.isDebugEnabled())
                 log.debug("EofException cached");
         }
@@ -99,7 +99,7 @@ public class JvmBoxOutput implements WnOutputable {
             ops.write(b, off, len);
             ops.flush();
         }
-        catch (org.eclipse.jetty.io.EofException e) {
+        catch (java.io.EOFException e) {
             if (log.isDebugEnabled())
                 log.debug("EofException cached");
         }
@@ -148,7 +148,7 @@ public class JvmBoxOutput implements WnOutputable {
             Json.toJson(w, o, fmt);
             w.flush();
         }
-        catch (org.eclipse.jetty.io.EofException e) {
+        catch (java.io.EOFException e) {
             if (log.isDebugEnabled())
                 log.debug("EofException cached");
         }
@@ -174,7 +174,7 @@ public class JvmBoxOutput implements WnOutputable {
             w.write(null == msg ? "null" : msg.toString());
             w.flush();
         }
-        catch (org.eclipse.jetty.io.EofException e) {
+        catch (java.io.EOFException e) {
             if (log.isDebugEnabled())
                 log.debug("EofException cached");
         }

@@ -35,7 +35,7 @@ import com.site0.walnut.util.range.WnGetInputStream;
 import com.site0.walnut.util.range.WnGetLocalFileInputStream;
 import com.site0.walnut.util.range.WnGetObjInputStream;
 import com.site0.walnut.util.stream.WnByteInputStream;
-import com.site0.walnut.web.util.WnWeb;
+import com.site0.walnut.util.WnWeb;
 // import org.subethamail.smtp.util.Base64;
 
 /**

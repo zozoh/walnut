@@ -15,7 +15,7 @@ import com.site0.walnut.mvc.WnMvcFilterException;
 import com.site0.walnut.mvc.WnMvcView;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.web.util.WnWeb;
+import com.site0.walnut.util.WnWeb;
 import com.site0.walnut.web2.view.WnDownloadView;
 
 public class AppLoadController extends AbstractAppController {

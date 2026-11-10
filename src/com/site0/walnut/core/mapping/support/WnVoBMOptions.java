@@ -15,7 +15,7 @@ import com.site0.walnut.ext.sys.redis.util.CheckAllowResult;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Wobj;
 import com.site0.walnut.util.Ws;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 
 public class WnVoBMOptions extends WnVofsOptions {
 

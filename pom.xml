@@ -10,9 +10,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<elasticsearch.version>6.3.2</elasticsearch.version>
-		<jetty.version>9.4.54.v20240208</jetty.version>
     <jetty12.version>12.0.16</jetty12.version>
-    <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
 	</properties>
 	<licenses>
 		<license>
@@ -63,12 +61,6 @@
 			<artifactId>h2</artifactId>
 			<version>1.4.200</version>
 		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<version>3.1.0</version>
-			<!-- <scope>provided</scope> -->
-		</dependency>
 		<!-- RM-NUTZ-14: Jetty12 core（web2.jetty 适配器直接面对 core Request/Response，不需要 servlet/jakarta/ee10；旧 web 栈仍用 Jetty9/javax 至 RM-NUTZ-15） -->
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
@@ -79,24 +71,6 @@
 			<groupId>org.eclipse.jetty.http2</groupId>
 			<artifactId>jetty-http2-server</artifactId>
 			<version>${jetty12.version}</version>
-		</dependency>
-
-
-		<dependency>
-			<groupId>org.eclipse.jetty.websocket</groupId>
-			<artifactId>websocket-server</artifactId>
-			<version>${jetty.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty.websocket</groupId>
-			<artifactId>javax-websocket-server-impl</artifactId>
-			<version>${jetty.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.eclipse.jetty</groupId>
-					<artifactId>jetty-jndi</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 
@@ -444,13 +418,7 @@
 				<configuration>
 					<source>17</source>
 					<target>17</target>
-					<!-- RM-NUTZ-14：Jetty9 专属源码（旧 war 部署件，RM-NUTZ-15 随 org.nutz.web 删除）不参与编译 -->
-					<excludes>
-						<exclude>org/nutz/web/WebServer.java</exclude>
-						<exclude>org/nutz/web/NutOnlyWebServer.java</exclude>
-						<exclude>org/nutz/web/handler/JettyHandlerHook.java</exclude>
-						<exclude>org/nutz/web/jsp/tld/MsgTag.java</exclude>
-					</excludes>
+
 					<compilerArgs>
 						<arg>-parameters</arg>
 					</compilerArgs>

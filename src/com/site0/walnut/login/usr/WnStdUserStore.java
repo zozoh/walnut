@@ -16,7 +16,7 @@ import com.site0.walnut.core.bean.WnObjId;
 import com.site0.walnut.login.UserRace;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 
 public class WnStdUserStore extends AbstractWnUserStore {
 

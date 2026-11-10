@@ -4,7 +4,7 @@ import com.site0.walnut.api.lock.WnLockApi;
 import com.site0.walnut.core.eot.WnSafeExpiObjTable;
 import com.site0.walnut.core.eot.mongo.MongoExpiObjTable;
 import com.site0.walnut.util.MongoDB;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 import com.site0.walnut.web2.service.WnServiceFactory;
 
 /**

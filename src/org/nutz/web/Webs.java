@@ -1,6 +1,5 @@
 package org.nutz.web;
 
-import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.lang.Strings;
 
 /**

@@ -16,8 +16,8 @@ import com.site0.walnut.util.Cmds;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnPager;
 import com.site0.walnut.util.ZParams;
-import com.site0.walnut.web.WnConfig;
-import com.site0.walnut.web.WnInitMount;
+import com.site0.walnut.util.WnConfig;
+import com.site0.walnut.util.WnInitMount;
 
 public class cmd_mount extends JvmExecutor {
 

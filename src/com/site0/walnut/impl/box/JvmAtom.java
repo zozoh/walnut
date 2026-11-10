@@ -48,7 +48,7 @@ class JvmAtom extends JvmCmd implements Atom {
             catch (Exception e) {
                 // 如果是 Eof 就忍了
                 Throwable e2 = Wlang.unwrapThrow(e);
-                if (e2 instanceof org.eclipse.jetty.io.EofException) {
+                if (e2 instanceof java.io.EOFException) {
                     if (log.isDebugEnabled())
                         log.debug("EofException cached");
                 }

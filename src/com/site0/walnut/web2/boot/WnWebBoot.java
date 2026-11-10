@@ -18,7 +18,7 @@ import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnSysRuntime;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 import com.site0.walnut.web2.bgt.WnBgCronThread;
 import com.site0.walnut.web2.bgt.WnBgScheduleThread;
 import com.site0.walnut.web2.bgt.WnBgTaskThread;

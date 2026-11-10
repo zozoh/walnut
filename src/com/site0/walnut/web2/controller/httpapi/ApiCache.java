@@ -16,10 +16,10 @@ import com.site0.walnut.util.Wsum;
 import com.site0.walnut.util.tmpl.WnTmpl;
 import com.site0.walnut.util.validate.WnMatch;
 import com.site0.walnut.util.validate.impl.AutoMatch;
-import com.site0.walnut.web.util.WnWeb;
+import com.site0.walnut.util.WnWeb;
 
 /**
- * RM-NUTZ-09：照抄旧 {@code HttpApiModule.__try_cache}（651-774）与
+ * RM-NUTZ-09：照抄旧 {@code 旧 HTTP API 模块.__try_cache}（651-774）与
  * {@code __is_cache_match}（776-782）。命中后直写响应（标准接口）。
  */
 public class ApiCache {

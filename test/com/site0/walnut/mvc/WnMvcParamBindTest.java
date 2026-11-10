@@ -91,7 +91,7 @@ public class WnMvcParamBindTest extends WnMvcTestBase {
 
     /**
      * T-24 `@Attr` 等价能力：请求属性由动作链写入、controller 读取。
-     * <p>对应旧 <code>@Attr("wn_www_grp")</code>：WalnutFilter 写请求属性，
+     * <p>对应旧 <code>@Attr("wn_www_grp")</code>：旧 Walnut 过滤器 写请求属性，
      * 新体系由 HeadFilter 写 {@link WnMvcRequest#getAttrs()}。</p>
      */
     @Test

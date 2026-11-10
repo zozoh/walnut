@@ -5,7 +5,7 @@ import com.site0.walnut.mvc.WnMvcContext;
 import com.site0.walnut.mvc.WnMvcView;
 
 /**
- * RM-NUTZ-09：{@code /api/?/**} 动态入口薄控制器（对照旧 {@code HttpApiModule.do_api}，
+ * RM-NUTZ-09：{@code /api/?/**} 动态入口薄控制器（对照旧 {@code 旧 HTTP API 模块.do_api}，
  * 类级 {@code WnAsUsr("root")} 由路由 headFilter {@code AsUsrFilter("root")} 承担）。
  *
  * <p>薄适配：{@code ?}/{@code **} 路径绑定从 {@code ctx.pathArg(0/1)} 取；

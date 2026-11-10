@@ -11,7 +11,7 @@ import com.site0.walnut.ext.sys.task.WnSysTaskApi;
 import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.lookup.impl.WnLookupMaker;
 import com.site0.walnut.util.MongoDB;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 import com.site0.walnut.web2.controller.app.WnAppService;
 
 public class WnServiceHolder {

@@ -9,7 +9,7 @@ import com.site0.walnut.cheap.api.CheapResourceLoader;
 import com.site0.walnut.cheap.dom.bean.CheapResource;
 import com.site0.walnut.core.MimeMapImpl;
 import com.site0.walnut.util.Wlang;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 
 public class LocalCheapResouceLoader implements CheapResourceLoader {
 

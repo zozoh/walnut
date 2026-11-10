@@ -41,7 +41,7 @@ import com.site0.walnut.mvc.WnMvcFilterException;
 import com.site0.walnut.mvc.WnMvcHttpMethod;
 import com.site0.walnut.mvc.WnMvcMapping;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 import com.site0.walnut.web2.controller.SwitchSessionController;
 import com.site0.walnut.web2.controller.WebRootController;
 import com.site0.walnut.web2.filter.atpath.SessionCheckFilter;
@@ -242,7 +242,7 @@ public class Jetty06SwitchSessionTest {
         MockWnMvcResponse resp = dispatch(req("GET", "/favicon"));
         assertEquals(200, resp.status());
         assertEquals("image/x-icon", resp.header("Content-Type"));
-        try (var in = WebRootController.class.getResourceAsStream("/com/site0/walnut/web/favicon.ico")) {
+        try (var in = WebRootController.class.getResourceAsStream("/com/site0/walnut/web2/favicon.ico")) {
             assertNotNull(in);
             assertArrayEquals(in.readAllBytes(), resp.bodyBytes());
         }

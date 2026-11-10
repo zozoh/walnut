@@ -14,7 +14,6 @@ import org.nutz.lang.Mirror;
 import org.nutz.lang.util.Disks;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
-import org.nutz.mvc.Mvcs;
 
 public class JdbcExpertConfigFile {
 
@@ -105,7 +104,7 @@ public class JdbcExpertConfigFile {
   			if (home.contains("${app.home}")) {
   				try {
   					// 这里引用了Mvcs类, 不太舒服,但应该还是有益处的
-  					home = home.replace("${app.home}", Mvcs.getServletContext().getRealPath("/"));
+  					home = home.replace("${app.home}", System.getProperty("user.dir"));
   				} catch (Throwable e) {
   				}
   			}
@@ -113,10 +112,10 @@ public class JdbcExpertConfigFile {
   				pool = NutFilePool.getOrCreatePool(home, max);
   			} catch (Exception e) {
   				// 看看是不是Mvc环境,尝试在WebContent下创建
-  				if (!home.startsWith("~/") || Mvcs.getServletContext() == null)
+  				if (!home.startsWith("~/"))
   					throw e;
   				try {
-  					String tmp = Mvcs.getServletContext().getRealPath("/") + home.substring(2);
+  					String tmp = System.getProperty("user.dir") + home.substring(2);
   					pool = NutFilePool.getOrCreatePool(tmp, max);
   					log.info("had created filepool under webapp root path");
   				} catch (Exception e1) {

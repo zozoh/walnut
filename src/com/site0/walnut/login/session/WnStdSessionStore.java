@@ -19,7 +19,7 @@ import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Ws;
 import com.site0.walnut.util.Wtime;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 
 public class WnStdSessionStore extends AbstractWnSessionStore {
 

@@ -23,7 +23,6 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import javax.servlet.ServletContext;
 
 import org.nutz.castor.Castors;
 import org.nutz.lang.Encoding;
@@ -42,7 +41,6 @@ import org.nutz.resource.impl.JarResource;
 import org.nutz.resource.impl.JarResourceLocation;
 import org.nutz.resource.impl.ResourceLocation;
 import org.nutz.resource.impl.SimpleResource;
-import org.nutz.resource.impl.WebClassesResourceLocation;
 
 /**
  * 资源扫描的帮助函数集
@@ -70,37 +68,7 @@ public class Scans {
      * <p/>
      * 调用一次就可以了
      */
-	public Scans init(final ServletContext sc) {
-	    Stopwatch sw = Stopwatch.begin();
-        // 获取classes文件夹的路径, 优先级为125
-	    String classesPath = sc.getRealPath("/WEB-INF/classes");
-	    if (classesPath == null)
-	        addResourceLocation(new WebClassesResourceLocation(sc));
-	    else {
-	        ResourceLocation rc = ResourceLocation.file(new File(classesPath));
-	        if (rc instanceof FileSystemResourceLocation)
-	            ((FileSystemResourceLocation)rc).priority = 125;
-	        addResourceLocation(rc);
-	    }
 
-        // 获取lib文件夹中的全部jar, 优先级是50
-        Set<String> jars = sc.getResourcePaths("/WEB-INF/lib/");
-        if (jars != null) {// 这个文件夹不一定存在,尤其是Maven的WebApp项目
-            for (String path : jars) {
-                if (!path.endsWith(".jar"))
-                    continue;
-                try {
-                    addResourceLocation(new JarResourceLocation(sc.getResource(path)));
-                }
-                catch (Exception e) {
-                    log.debug("parse jar fail >> " + e.getMessage());
-                }
-            }
-        }
-        sw.stop();
-        printLocations(sw);
-        return this;
-    }
 
     public List<NutResource> loadResource(String regex, String... paths) {
         List<NutResource> list = new LinkedList<NutResource>();

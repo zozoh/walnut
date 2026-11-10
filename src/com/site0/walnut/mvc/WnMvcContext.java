@@ -141,7 +141,7 @@ public class WnMvcContext {
     /**
      * 逃生口：把底层「原生」能力按给定类型取出（例如 Jetty9 的
      * <code>HttpServletRequest</code> / Jetty12 的 <code>jakarta.servlet...Request</code>）。
-     * <p>仅 <code>HttpApiModule</code> 等确需底层能力的场景使用；优先取 request、再取 response。</p>
+     * <p>仅 <code>旧 HTTP API 模块</code> 等确需底层能力的场景使用；优先取 request、再取 response。</p>
      *
      * @param <T>
      *            目标类型

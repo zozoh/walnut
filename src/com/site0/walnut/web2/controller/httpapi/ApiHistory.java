@@ -17,7 +17,7 @@ import com.site0.walnut.util.validate.WnMatch;
 import com.site0.walnut.util.validate.impl.AutoMatch;
 
 /**
- * RM-NUTZ-09：照抄旧 {@code HttpApiModule._record_history}（1160-1255，
+ * RM-NUTZ-09：照抄旧 {@code 旧 HTTP API 模块._record_history}（1160-1255，
  * Dao 部分旧代码本就是注释 TODO，照抄注释态）。
  */
 public class ApiHistory {

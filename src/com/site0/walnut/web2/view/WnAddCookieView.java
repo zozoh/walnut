@@ -4,7 +4,7 @@ import org.nutz.lang.util.NutMap;
 import com.site0.walnut.mvc.WnMvcContext;
 import com.site0.walnut.mvc.WnMvcView;
 import com.site0.walnut.util.Wlang;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 
 public class WnAddCookieView implements WnMvcView {
 

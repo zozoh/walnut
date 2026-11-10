@@ -19,7 +19,7 @@ import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnSysRuntime;
 import com.site0.walnut.util.ZParams;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 
 public class cmd_sys extends JvmExecutor {
 

@@ -10,7 +10,7 @@ import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.api.io.WnRace;
 import com.site0.walnut.util.Ws;
-import com.site0.walnut.web.util.WnWeb;
+import com.site0.walnut.util.WnWeb;
 
 public class XoBean {
 

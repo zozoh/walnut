@@ -2,15 +2,11 @@ package org.nutz.web;
 
 import java.io.Reader;
 
-import org.nutz.ioc.impl.PropertiesProxy;
 import org.nutz.json.Json;
 
 import com.site0.walnut.util.Wlang;
-import org.nutz.lang.Strings;
-import org.nutz.lang.segment.Segments;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
-import org.nutz.web.jsp.RsScaner;
 
 /**
  * 封装 web.properies 的读取，你的应用可以继承这个类，实现自己更专有的配置文件读取类
@@ -137,17 +133,7 @@ public class WebConfig extends PropertiesProxy {
      * 
      * @return 资源扫描器
      */
-    public RsScaner getScaner() {
-        // 生成对象
-        RsScaner jrs = new RsScaner();
-        jrs.setRs(check("app-rs"));
-        jrs.setRsHome(check("app-rs-home"));
-        jrs.setSegCss(Segments.create(check("app-rs-css")));
-        jrs.setSegJs(Segments.create(check("app-rs-script")));
-        jrs.setScanPaths(Strings.splitIgnoreBlank(check("app-rs-scan-path"), "\n"));
-        jrs.setForce("force".equalsIgnoreCase(get("app-rs-scan", "force")));
-        return jrs;
-    }
+
 
     /**
      * 在构造函数中解析配置文件

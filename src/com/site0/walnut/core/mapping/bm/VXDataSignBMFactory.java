@@ -9,7 +9,7 @@ import com.site0.walnut.core.bm.bmv.VXDataSignBM;
 import com.site0.walnut.core.mapping.WnBMFactory;
 import com.site0.walnut.core.mapping.support.WnVoBMOptions;
 import com.site0.walnut.ext.xo.impl.XoService;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 
 public class VXDataSignBMFactory implements WnBMFactory {
 

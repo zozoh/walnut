@@ -128,7 +128,7 @@ public interface WnMvcResponse {
 
     /**
      * 逃生口：把底层「原生」响应按给定类型取出（例如 <code>HttpServletResponse</code>）。
-     * <p>仅 <code>HttpApiModule</code> 等确需底层能力的场景使用。</p>
+     * <p>仅 <code>旧 HTTP API 模块</code> 等确需底层能力的场景使用。</p>
      *
      * @param <T>
      *            目标类型

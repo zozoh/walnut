@@ -17,7 +17,7 @@ import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Ws;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 
 /**
  * 控制器公共基类：对照旧 <code>AbstractWnModule</code>/<code>WnRun</code>，提供

@@ -34,8 +34,8 @@ import com.site0.walnut.mvc.WnMvcFilter;
 import com.site0.walnut.mvc.WnMvcHttpMethod;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.web.WnConfig;
-import com.site0.walnut.web.setup.WnSetup;
+import com.site0.walnut.util.WnConfig;
+import com.site0.walnut.util.WnWeb;
 import com.site0.walnut.web2.controller.app.WnAppService;
 import com.site0.walnut.web2.controller.httpapi.HttpApiController;
 import com.site0.walnut.web2.controller.httpapi.HttpApiEngine;
@@ -45,7 +45,7 @@ import com.site0.walnut.web2.router.WnRoutes;
 import com.site0.walnut.web2.support.WnLoginAuthLookup;
 
 /**
- * RM-NUTZ-09：HttpApiModule 迁移测试（任务文档 T6 十组用例）。
+ * RM-NUTZ-09：旧 HTTP API 模块 迁移测试（任务文档 T6 十组用例）。
  *
  * <p>引擎直接 new + WnRun setter 装配<b>真实服务</b>（IoCoreSetup：Mongo 索引 +
  * LocalSha1BM + 真实 JvmBoxService 执行真实命令）；路由组走完整 dispatch。</p>
@@ -81,7 +81,7 @@ public class Jetty09HttpApiTest {
         setup = new IoCoreSetup();
         setup.cleanAllData();
         io = setup.getIo();
-        WnSetup.makeWalnutKeyDirIfNoExists(io);
+        WnWeb.makeWalnutKeyDirIfNoExists(io);
         auth = setup.getLoginApi();
         auth.addRootUserIfNoExists("123456");
         boxes = setup.getBoxService();

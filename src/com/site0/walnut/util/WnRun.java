@@ -26,7 +26,6 @@ import com.site0.walnut.impl.srv.WnBoxRunning;
 import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.login.session.WnSession;
 import com.site0.walnut.login.usr.WnUser;
-import com.site0.walnut.web.WnConfig;
 
 public class WnRun {
 

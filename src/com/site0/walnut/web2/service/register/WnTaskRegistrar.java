@@ -5,7 +5,7 @@ import com.site0.walnut.api.lock.WnLockApi;
 import com.site0.walnut.ext.sys.task.impl.WnSafeSysTaskService;
 import com.site0.walnut.ext.sys.task.impl.WnSysTaskService;
 import com.site0.walnut.login.WnLoginApi;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 import com.site0.walnut.web2.service.WnServiceFactory;
 
 /**

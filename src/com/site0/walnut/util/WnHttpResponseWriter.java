@@ -12,16 +12,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.sshd.common.util.io.LimitInputStream;
 import org.nutz.http.Http;
 
 import org.nutz.lang.Streams;
 import org.nutz.lang.util.NutMap;
-import org.nutz.mvc.view.RawView;
-import org.nutz.mvc.view.RawView.RangeRange;
-import org.nutz.mvc.view.RawView2;
 
 import com.site0.walnut.api.err.Er;
 import com.site0.walnut.api.io.WnIo;
@@ -30,8 +25,6 @@ import com.site0.walnut.util.range.WnGetInputStream;
 import com.site0.walnut.util.range.WnGetLocalFileInputStream;
 import com.site0.walnut.util.range.WnGetObjInputStream;
 import com.site0.walnut.util.stream.WnByteInputStream;
-import com.site0.walnut.web.util.WnWeb;
-// import org.subethamail.smtp.util.Base64;
 
 /**
  * 封装 HTTP 流写出逻辑，提供给诸如 `cmd_httpout` 等命令使用 <br>
@@ -146,8 +139,7 @@ public class WnHttpResponseWriter {
             }
         }
         // 确保下载名称以正确的后缀来结尾
-        else if (wobj.hasType()
-                 && !this.downloadName.endsWith("." + wobj.type())) {
+        else if (wobj.hasType() && !this.downloadName.endsWith("." + wobj.type())) {
             this.downloadName += "." + wobj.type();
         }
 
@@ -239,12 +231,11 @@ public class WnHttpResponseWriter {
                 ins = getInput.getStream(0);
                 headers.put("Content-Length", objLen);
             } else {
-                // 解析 Range
-                List<RangeRange> rs = new ArrayList<RawView.RangeRange>();
-                if (!RawView2.parseRange(range, rs, objLen) || rs.size() != 1) {
+                // 解析 Range（只支持单区间，RM-NUTZ-15 去 Nutz MVC 依赖）
+                List<RangeRange> rs = new ArrayList<>();
+                if (!parseRange(range, rs, objLen) || rs.size() != 1) {
                     this.status = 400;
-                    this.headers.put("Walnut-Http-Range-WARN",
-                                     "Range Not Satisfiable");
+                    this.headers.put("Walnut-Http-Range-WARN", "Range Not Satisfiable");
                 }
                 // 解析成功
                 else {
@@ -252,10 +243,7 @@ public class WnHttpResponseWriter {
                     headers.put("Content-Length", rr.end - rr.start);
                     headers.put("Accept-Ranges", "bytes");
                     headers.put("Content-Range",
-                                String.format("bytes %d-%d/%d",
-                                              rr.start,
-                                              rr.end - 1,
-                                              objLen));
+                                String.format("bytes %d-%d/%d", rr.start, rr.end - 1, objLen));
                     status = 206;
                     ins = getInput.getStream(rr.start);
                     ins = new LimitInputStream(ins, rr.end - rr.start);
@@ -338,13 +326,9 @@ public class WnHttpResponseWriter {
         }
 
         // 是否声明有下载目标信息呀？
-        if (!Ws.isBlank(this.userAgent)
-            && !Ws.isBlank(this.downloadName)) {
-            headers
-                .putDefault("Content-Disposition",
-                            WnWeb
-                                .autoContentDisposition(this.downloadName,
-                                                                     this.userAgent));
+        if (!Ws.isBlank(this.userAgent) && !Ws.isBlank(this.downloadName)) {
+            headers.putDefault("Content-Disposition",
+                               WnWeb.autoContentDisposition(this.downloadName, this.userAgent));
         }
 
         // 输出Header
@@ -356,49 +340,6 @@ public class WnHttpResponseWriter {
                 if (!Ws.isBlank(str)) {
                     callback.invoke(key, str);
                 }
-            }
-        }
-    }
-
-    /**
-     * 向一个HTTP响应输出流写入数据
-     * 
-     * @param resp
-     *            响应对象
-     * 
-     * @throws IOException
-     */
-    public void writeTo(HttpServletResponse resp) throws IOException {
-        // 设置状态码
-        resp.setStatus(this.status);
-
-        // 输出Header
-        this.__do_header((key, val) -> {
-            resp.setHeader(key, val);
-        });
-
-        // 解决iphone读取视频失败的问题
-        String cntType = resp.getContentType();
-        if (cntType != null) {
-            if (cntType.startsWith("video/")
-                || cntType.startsWith("image/")
-                || cntType.startsWith("audio")) {
-                resp.setCharacterEncoding(null);
-            }
-        }
-
-        // 来个空行准备写 Body
-        resp.flushBuffer();
-
-        // 写入Body
-        if (null != ins) {
-            try {
-                OutputStream ops = resp.getOutputStream();
-                __write_to_output(ops, ins);
-                resp.flushBuffer();
-            }
-            finally {
-                Streams.safeClose(ins);
             }
         }
     }
@@ -447,8 +388,7 @@ public class WnHttpResponseWriter {
         }
     }
 
-    private void __write_to_output(OutputStream ops, InputStream ins)
-            throws IOException {
+    private void __write_to_output(OutputStream ops, InputStream ins) throws IOException {
         // Covert base 64
         if (this.asBase64) {
             // Load bytes
@@ -485,7 +425,57 @@ public class WnHttpResponseWriter {
     }
 
     public WnHttpResponseWriter(String headers_str) {
-        this.headers = Ws.isBlank(headers_str) ? new NutMap()
-                                                    : Wlang.map(headers_str);
+        this.headers = Ws.isBlank(headers_str) ? new NutMap() : Wlang.map(headers_str);
     }
+
+    private static class RangeRange {
+        long start;
+        long end;
+    }
+
+    private static boolean parseRange(String range, List<RangeRange> rs, long len) {
+        if (null == range || !range.startsWith("bytes=")) {
+            return false;
+        }
+        String s = range.substring(6).trim();
+        if (s.isEmpty() || s.indexOf(',') >= 0) {
+            return false;
+        }
+        int p = s.indexOf('-');
+        if (p < 0) {
+            return false;
+        }
+        try {
+            String a = s.substring(0, p).trim();
+            String b = s.substring(p + 1).trim();
+            long start;
+            long end;
+            if (a.isEmpty()) {
+                long suffix = Long.parseLong(b);
+                if (suffix <= 0) {
+                    return false;
+                }
+                start = Math.max(0, len - suffix);
+                end = len;
+            } else {
+                start = Long.parseLong(a);
+                if (start < 0 || start >= len) {
+                    return false;
+                }
+                end = b.isEmpty() ? len : Math.min(len, Long.parseLong(b) + 1);
+                if (end <= start) {
+                    return false;
+                }
+            }
+            RangeRange rr = new RangeRange();
+            rr.start = start;
+            rr.end = end;
+            rs.add(rr);
+            return true;
+        }
+        catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
 }

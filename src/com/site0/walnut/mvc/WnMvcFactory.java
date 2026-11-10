@@ -27,7 +27,7 @@ import com.site0.walnut.util.Wlang;
  * <li>控制器：无参构造器（实例不注入服务，服务经 {@link WnMvcContext} 取用）；
  * <b>每请求命中路由时 born 一个新实例</b>，即用即弃。</li>
  * <li>请求/响应实现类：构造器直接接受原生 Servlet 对象——Jetty9 实现类构造器收
- * <code>javax.servlet.http.HttpServletRequest/Response</code>；换 Jetty12 时<b>只改工厂的
+ * <code>Servlet API 请求/Response</code>；换 Jetty12 时<b>只改工厂的
  * requestType/responseType 注册与这两个实现类</b>，controller 与业务代码零改动。</li>
  * </ul>
  *
@@ -114,7 +114,7 @@ public class WnMvcFactory {
 
     /**
      * 注册 {@link WnMvcRequest} 的实现类（Jetty9：构造器接受
-     * <code>javax.servlet.http.HttpServletRequest</code>）。
+     * <code>Servlet API 请求</code>）。
      */
     public WnMvcFactory requestType(Class<? extends WnMvcRequest> type) {
         this.requestType = type;
@@ -123,7 +123,7 @@ public class WnMvcFactory {
 
     /**
      * 注册 {@link WnMvcResponse} 的实现类（Jetty9：构造器接受
-     * <code>javax.servlet.http.HttpServletResponse</code>）。
+     * <code>Servlet API 响应</code>）。
      */
     public WnMvcFactory responseType(Class<? extends WnMvcResponse> type) {
         this.responseType = type;

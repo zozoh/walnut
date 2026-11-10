@@ -100,7 +100,7 @@ public final class WnRoutes {
         _m.route(_ANY, "/o/save/stream", ObjSaveStreamController.class, session, none);
 
         // RM-NUTZ-09: HttpApi routes.
-        // /api/?/** = 旧 HttpApiModule 唯一入口；类级 WnAsUsr("root") → headFilter
+        // /api/?/** = 旧 旧 HTTP API 模块 唯一入口；类级 WnAsUsr("root") → headFilter
         // AsUsrFilter("root").
         _m.route(_ANY, "/api/?/**", HttpApiController.class, root, none);
 

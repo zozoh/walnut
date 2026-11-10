@@ -5,7 +5,7 @@ import com.site0.walnut.impl.box.JvmBoxService;
 import com.site0.walnut.impl.box.JvmExecutorFactory;
 import com.site0.walnut.impl.hook.CachedWnHookService;
 import com.site0.walnut.lookup.impl.WnLookupMaker;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 import com.site0.walnut.web2.service.WnServiceFactory;
 
 /**

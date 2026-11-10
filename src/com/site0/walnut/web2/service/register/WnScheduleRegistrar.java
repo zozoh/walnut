@@ -8,7 +8,7 @@ import com.site0.walnut.ext.sys.schedule.impl.WnSysScheduleService;
 import com.site0.walnut.ext.sys.task.WnSysTaskApi;
 import com.site0.walnut.ext.sys.task.impl.WnSafeSysTaskService;
 import com.site0.walnut.login.WnLoginApi;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 import com.site0.walnut.web2.service.WnServiceFactory;
 
 /**

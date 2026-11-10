@@ -17,7 +17,7 @@ import com.site0.walnut.web2.support.WnDomainResolver;
 import com.site0.walnut.web2.support.WnPathRewriter;
 
 /**
- * Host→域 路由过滤器（router 包；对照旧 {@code WalnutFilter} 的域名路由段）。
+ * Host→域 路由过滤器（router 包；对照旧 {@code 旧 Walnut 过滤器} 的域名路由段）。
  * <p>
  * 行为：
  * <ul>
@@ -58,7 +58,7 @@ public class DomainRouteFilter implements WnMvcFilter {
         String path = ctx.request().getPath();
         String host = ctx.request().getHost();
 
-        // 被偷偷标志了关闭日志（对照旧 WalnutFilter 开头）：置线程 logOff，
+        // 被偷偷标志了关闭日志（对照旧 旧 Walnut 过滤器 开头）：置线程 logOff，
         // 本过滤器的 🌍/router 日志随即静默（WnLogWrapper 逐条查 Wn.WC().isLogOff()）。
         // 后续 CreateMvcContextFilter.setLogOn() 会重置该标志（旧链 CreateWnContext
         // 同样如此），✔️OK 行另有 qs 显式判定，均与旧链口径一致
@@ -76,7 +76,7 @@ public class DomainRouteFilter implements WnMvcFilter {
         if (null == mainHost || (null != host && mainHost.matcher(host).find()))
             return;
 
-        // 入口日志（对照旧 WalnutFilter 的 🌍 行）
+        // 入口日志（对照旧 旧 Walnut 过滤器 的 🌍 行）
         // 偏差：旧代码第 4 参为服务端本地端口（getLocalPort），中立请求接口只有
         // 客户端端口 getRemotePort，暂以 remotePort 顶替
         if (log.isInfoEnabled()) {

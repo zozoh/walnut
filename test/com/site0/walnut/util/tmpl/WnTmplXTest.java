@@ -359,7 +359,7 @@ public class WnTmplXTest {
 
     @Test
     public void test_builtin_login_preserves_javascript_interpolation() {
-        String html = Wfiles.read("com/site0/walnut/web/module/login.html");
+        String html = Wfiles.read("com/site0/walnut/web2/view/login.html");
         WnTmplX tmpl = WnTmplX.parse(html);
         String placeholder = "${app-module-sys-login?PASSWD_AND_OTP}";
         String literal = html.replace("$${", "${");

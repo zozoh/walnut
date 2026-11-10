@@ -5,7 +5,7 @@ import com.site0.walnut.util.Ws;
 import org.nutz.lang.util.NutMap;
 import com.site0.walnut.ext.sys.redis.util.CheckAllowResult;
 import com.site0.walnut.util.Wlang;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 
 import redis.clients.jedis.Jedis;
 

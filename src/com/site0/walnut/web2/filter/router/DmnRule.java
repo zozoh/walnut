@@ -8,7 +8,7 @@ import org.nutz.lang.util.NutMap;
 import com.site0.walnut.util.tmpl.WnTmpl;
 
 /**
- * hostmap 的一条重写规则：正则匹配 + 模板渲染（对照旧 {@code WalnutFilter.DmnMatcher}）。
+ * hostmap 的一条重写规则：正则匹配 + 模板渲染（对照旧 {@code 旧 Walnut 过滤器.DmnMatcher}）。
  */
 public class DmnRule {
 

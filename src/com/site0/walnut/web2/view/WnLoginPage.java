@@ -139,7 +139,7 @@ public class WnLoginPage {
     // private static final String LOGIN_SHA1;
 
     static {
-        LOGIN_HTML = Wfiles.read("com/site0/walnut/web/module/login.html");
+        LOGIN_HTML = Wfiles.read("com/site0/walnut/web2/view/login.html");
         LOGIN_TMPL = WnTmplX.parse(LOGIN_HTML);
         // LOGIN_SHA1 = Wlang.sha1(LOGIN_HTML);
     }

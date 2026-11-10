@@ -13,8 +13,8 @@ import com.site0.walnut.mvc.WnMvcContext;
 import com.site0.walnut.mvc.WnMvcView;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wlog;
-import com.site0.walnut.web.bean.WnApp;
-import com.site0.walnut.web.impl.AppCheckAccess;
+import com.site0.walnut.api.bean.WnApp;
+import com.site0.walnut.api.bean.AppCheckAccess;
 import com.site0.walnut.web2.controller.app.WnAppService;
 
 public class AppOpenController extends AbstractAppController {

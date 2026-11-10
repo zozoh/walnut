@@ -8,7 +8,7 @@ import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.WnVersion;
 import com.site0.walnut.mvc.AbstractWnController;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 import com.site0.walnut.mvc.WnMvcContext;
 import com.site0.walnut.mvc.WnMvcFilterException;
 import com.site0.walnut.mvc.WnMvcView;
@@ -19,7 +19,7 @@ import com.site0.walnut.mvc.WnDefaultStaticService;
 import com.site0.walnut.mvc.WnIoStaticResolver;
 
 /**
- * 统一 {@code /**} 兜底控制器：内部处理 {@code /}、{@code /favicon}、
+ * 统一 {@code /**} 兜底控制器：内部处理 {@code /}、{@code /favicon}、{@code /favicon.ico}、
  * {@code /u/version}、{@code /u/runtime} 与静态资源。
  * <p>
  * 静态/C 记录命中由 {@link WnDefaultStaticService} 直接写响应；
@@ -35,7 +35,7 @@ public class WebRootController extends AbstractWnController {
         String path = ctx.request().getPath();
         if ("/".equals(path))
             return __root(ctx);
-        if ("/favicon".equals(path))
+        if ("/favicon".equals(path) || "/favicon.ico".equals(path))
             return __favicon(ctx);
         if ("/u/version".equals(path))
             return __version(ctx);
@@ -97,7 +97,7 @@ public class WebRootController extends AbstractWnController {
     // ----------------------------------------------------------------------
 
     private static byte[] __read_favicon() {
-        try (InputStream in = WebRootController.class.getResourceAsStream("/com/site0/walnut/web/favicon.ico")) {
+        try (InputStream in = WebRootController.class.getResourceAsStream("/com/site0/walnut/web2/favicon.ico")) {
             return null == in ? null : in.readAllBytes();
         }
         catch (Throwable e) {

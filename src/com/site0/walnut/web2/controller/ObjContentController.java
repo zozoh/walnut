@@ -9,7 +9,7 @@ import com.site0.walnut.mvc.WnMvcContext;
 import com.site0.walnut.mvc.WnMvcRequest;
 import com.site0.walnut.mvc.WnMvcView;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.web.util.WnWeb;
+import com.site0.walnut.util.WnWeb;
 import com.site0.walnut.web2.view.WnDownloadView;
 
 /**

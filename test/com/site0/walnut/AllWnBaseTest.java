@@ -17,7 +17,6 @@ import com.site0.walnut.security.AllSecurityTest;
 import com.site0.walnut.util.AllUtilTest;
 import com.site0.walnut.val.AllValMakerTest;
 import com.site0.walnut.validate.WnMatchTest;
-import com.site0.walnut.web.AllWebTest;
 import com.site0.walnut.web2.AllWeb2Test;
 
 @RunWith(Suite.class)
@@ -32,7 +31,6 @@ import com.site0.walnut.web2.AllWeb2Test;
                      WnCronTest.class,
                      WnMatchTest.class,
                      OomlsTest.class,
-                     AllWebTest.class,
                      AllImplTest.class,
                      AllWnMvcTest.class,
                      AllWeb2Test.class,

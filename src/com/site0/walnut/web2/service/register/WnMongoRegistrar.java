@@ -1,7 +1,7 @@
 package com.site0.walnut.web2.service.register;
 
 import com.site0.walnut.util.MongoDB;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 import com.site0.walnut.web2.service.WnServiceFactory;
 
 /**

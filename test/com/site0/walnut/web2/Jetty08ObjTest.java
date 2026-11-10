@@ -39,7 +39,7 @@ import com.site0.walnut.mvc.WnMvcFactory;
 import com.site0.walnut.mvc.WnMvcFilter;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 import com.site0.walnut.web2.controller.ObjAncestorsController;
 import com.site0.walnut.web2.controller.ObjChildrenController;
 import com.site0.walnut.web2.controller.ObjContentController;

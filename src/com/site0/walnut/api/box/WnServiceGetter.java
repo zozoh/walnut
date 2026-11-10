@@ -10,7 +10,7 @@ import com.site0.walnut.ext.sys.schedule.WnSysScheduleApi;
 import com.site0.walnut.ext.sys.task.WnSysTaskApi;
 import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.util.MongoDB;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 
 /**
  * 执行器/命令的服务访问器（RM-NUTZ-11）。

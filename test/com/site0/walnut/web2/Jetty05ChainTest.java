@@ -45,7 +45,7 @@ import com.site0.walnut.mvc.WnMvcStaticService;
 import com.site0.walnut.mvc.WnMvcView;
 import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.Wlang;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 import com.site0.walnut.web2.controller.WebRootController;
 import com.site0.walnut.web2.filter.atpath.AsUsrFilter;
 import com.site0.walnut.web2.filter.atpath.SessionCheckFilter;
@@ -386,6 +386,13 @@ public class Jetty05ChainTest {
         assertEquals(200, ico.status());
         assertTrue(ico.bodyString().length() > 0);
         assertTrue(ico.header("Content-Type").contains("image/x-icon"));
+
+        // /favicon.ico 与 /favicon 同处理（2026-11-11 用户拍板 B 方案：浏览器自动请求）
+        MockWnMvcResponse ico2 = new MockWnMvcResponse();
+        dispatchRoot(holder, req("GET", "/favicon.ico", null), ico2);
+        assertEquals(200, ico2.status());
+        assertTrue(ico2.bodyString().length() > 0);
+        assertTrue(ico2.header("Content-Type").contains("image/x-icon"));
 
         MockWnMvcResponse ver = new MockWnMvcResponse();
         dispatchRoot(holder, req("GET", "/u/version", null), ver);

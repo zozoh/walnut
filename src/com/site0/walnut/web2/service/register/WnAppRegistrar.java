@@ -3,7 +3,7 @@ package com.site0.walnut.web2.service.register;
 import com.site0.walnut.api.box.WnServiceHolder;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.impl.box.JvmExecutorFactory;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 import com.site0.walnut.web2.controller.app.WnAppService;
 import com.site0.walnut.web2.service.WnServiceFactory;
 

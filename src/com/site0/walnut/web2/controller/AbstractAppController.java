@@ -11,7 +11,7 @@ import com.site0.walnut.mvc.WnMvcResponse;
 import com.site0.walnut.mvc.WnMvcView;
 import com.site0.walnut.util.Wlang;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.web.bean.WnApp;
+import com.site0.walnut.api.bean.WnApp;
 import com.site0.walnut.web2.controller.app.WnAppRespOpsWrapper;
 import com.site0.walnut.web2.controller.app.WnHttpRespStatusSetter;
 

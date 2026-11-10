@@ -109,7 +109,7 @@ public class WnMvcMappingTest extends WnMvcTestBase {
     }
 
     /**
-     * T-07 `?` + `**` 组合（HttpApiModule `/api/?/**` 形态）：`?` 先进 args，`**` 余段随后。
+     * T-07 `?` + `**` 组合（旧 HTTP API 模块 `/api/?/**` 形态）：`?` 先进 args，`**` 余段随后。
      */
     @Test
     public void t07_qmark_then_dstar() {

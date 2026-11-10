@@ -9,7 +9,7 @@ import com.site0.walnut.impl.box.JvmFilterContext;
 import com.site0.walnut.impl.box.WnSystem;
 import com.site0.walnut.login.role.WnRoleList;
 import com.site0.walnut.login.usr.WnUser;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 
 public class ReferContext extends JvmFilterContext {
 

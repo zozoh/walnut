@@ -44,7 +44,7 @@ import com.site0.walnut.core.refer.redis.RedisReferService;
 import com.site0.walnut.ext.sys.redis.WedisConfig;
 import com.site0.walnut.util.MongoDB;
 import com.site0.walnut.util.Wlog;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 import com.site0.walnut.web2.service.WnServiceFactory;
 
 /**

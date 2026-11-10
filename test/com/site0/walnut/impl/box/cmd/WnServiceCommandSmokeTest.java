@@ -14,7 +14,7 @@ import com.site0.walnut.api.box.WnServiceHolder;
 import com.site0.walnut.impl.box.JvmBoxInput;
 import com.site0.walnut.impl.box.JvmBoxOutput;
 import com.site0.walnut.impl.box.WnSystem;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 
 /**
  * RM-NUTZ-11 命令侧冒烟：改造后的命令通过 {@link WnServiceGetter} 取服务可正常执行。

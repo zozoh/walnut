@@ -11,7 +11,7 @@ import com.site0.walnut.login.usr.WnSimpleUser;
 import com.site0.walnut.login.usr.WnUser;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.Wn;
-import com.site0.walnut.web.setup.WnSetup;
+import com.site0.walnut.util.WnWeb;
 
 public abstract class BaseIoTest extends IoCoreTest {
 
@@ -60,7 +60,7 @@ public abstract class BaseIoTest extends IoCoreTest {
         io = setup.getIo();
 
         // 准备系统关键的对象路径
-        WnSetup.makeWalnutKeyDirIfNoExists(io);
+        WnWeb.makeWalnutKeyDirIfNoExists(io);
 
         // 准备会话校验接口
         auth = setup.getLoginApi();

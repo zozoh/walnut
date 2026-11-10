@@ -9,7 +9,7 @@ import com.site0.walnut.login.session.WnSessionStoreProxy;
 import com.site0.walnut.login.session.WnStdSessionStore;
 import com.site0.walnut.login.usr.WnStdUserStore;
 import com.site0.walnut.login.usr.WnUserStoreProxy;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 import com.site0.walnut.web2.service.WnServiceFactory;
 
 /**

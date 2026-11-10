@@ -4,7 +4,7 @@ import com.site0.walnut.util.Ws;
 import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.util.Wlog;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 import com.site0.walnut.web2.boot.WnDispatcherAssembler;
 import com.site0.walnut.web2.boot.WnWebBoot;
 import com.site0.walnut.web2.jetty.WnAdminStopServer;

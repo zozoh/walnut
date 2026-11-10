@@ -39,7 +39,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletRequest;
 
 import org.nutz.castor.Castors;
 import org.nutz.castor.FailToCastObjectException;
@@ -1218,50 +1217,9 @@ public class Wlang {
      *            如果是空字符串或者不是 ipv4 或者 v6 那么就返回空串
      * @return 来源ip
      */
-    public static String getIP(HttpServletRequest req, boolean checkStrictBlank) {
-        if (req == null)
-            return "";
-        String ip = req.getHeader("X-Forwarded-For");
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-                ip = req.getHeader("Proxy-Client-IP");
-            }
-            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-                ip = req.getHeader("WL-Proxy-Client-IP");
-            }
-            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-                ip = req.getHeader("HTTP_CLIENT_IP");
-            }
-            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-                ip = req.getHeader("HTTP_X_FORWARDED_FOR");
-            }
-            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-                ip = req.getRemoteAddr();
-            }
-        } else if (ip.length() > 15) {
-            String[] ips = ip.split(",");
-            for (int index = 0; index < ips.length; index++) {
-                String strIp = ips[index];
-                if (!("unknown".equalsIgnoreCase(strIp))) {
-                    ip = strIp;
-                    break;
-                }
-            }
-        }
-        if (!checkStrictBlank) {
-            return Ws.trim(ip);
-        }
-        if (Ws.isBlank(ip))
-            return "";
-        if (isIPv4Address(ip) || isIPv6Address(ip)) {
-            return ip;
-        }
-        return "";
-    }
 
-    public static String getIP(HttpServletRequest req) {
-        return getIP(req, true);
-    }
+
+
 
     /**
      * @return 返回当前程序运行的根目录

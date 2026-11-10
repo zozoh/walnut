@@ -15,9 +15,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.nutz.json.Json;
 import org.nutz.lang.ContinueLoop;
 import org.nutz.lang.Each;
@@ -54,7 +51,6 @@ import com.site0.walnut.util.each.WnEachIteratee;
 import com.site0.walnut.util.explain.WnExplain;
 import com.site0.walnut.util.explain.WnExplains;
 import com.site0.walnut.util.tmpl.WnTmplX;
-import com.site0.walnut.web.WnConfig;
 
 /**
  * Walnut 系统的各种帮助函数集合
@@ -1836,13 +1832,6 @@ public abstract class Wn {
                 return io.readJson(oSysConf, NutMap.class);
             }
         });
-    }
-
-    public static boolean checkEtag(WnObj wobj, HttpServletRequest req, HttpServletResponse resp) {
-        String etag = getEtag(wobj);
-        if (resp != null)
-            resp.setHeader("ETag", etag);
-        return etag.equals(req.getHeader("If-None-Match"));
     }
 
     public static String getEtag(WnObj wobj) {

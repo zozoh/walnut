@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.site0.walnut.util.tmpl.WnTmpl;
-import com.site0.walnut.web.setup.WnSetup;
+import com.site0.walnut.util.WnWeb;
 
 import com.site0.walnut.util.Wfiles;
 import org.nutz.lang.Mirror;
@@ -133,7 +133,7 @@ public class IoCoreSetup {
             _io = new WnIoImpl2(mappings);
 
             // 准备系统关键的对象路径
-            WnSetup.makeWalnutKeyDirIfNoExists(_io);
+            WnWeb.makeWalnutKeyDirIfNoExists(_io);
 
             // 设置映射工厂，有些类需要上面准备的关键路径
             this.setupWnIoMappingFactory(_io);

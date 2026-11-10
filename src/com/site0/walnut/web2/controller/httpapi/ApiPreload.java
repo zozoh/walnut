@@ -16,7 +16,7 @@ import com.site0.walnut.util.validate.WnMatch;
 import com.site0.walnut.util.validate.impl.AutoMatch;
 
 /**
- * RM-NUTZ-09：照抄旧 {@code HttpApiModule.__do_preload}（922-1019）。
+ * RM-NUTZ-09：照抄旧 {@code 旧 HTTP API 模块.__do_preload}（922-1019）。
  * 预加载命令的执行走引擎继承自 {@code WnRun} 的 {@code exec}。
  */
 public class ApiPreload {

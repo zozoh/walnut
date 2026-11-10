@@ -7,7 +7,6 @@ import com.site0.walnut.ext.data.AllExtDataTest;
 import com.site0.walnut.ext.data.o.util.WnPopsTest;
 import com.site0.walnut.ext.data.sqlx.AllSqlxTest;
 import com.site0.walnut.ext.dsync.bean.WnDataSyncItemTest;
-import com.site0.walnut.ext.httpapi.HttpApiDynamicRenderTest;
 import com.site0.walnut.ext.media.AllMediasTest;
 import com.site0.walnut.ext.net.AllNetTest;
 import com.site0.walnut.ext.sys.AllSysTest;
@@ -16,7 +15,6 @@ import com.site0.walnut.ext.xo.AllXoTest;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({AllXoTest.class,
                      AppInitServiceTest.class,
-                     HttpApiDynamicRenderTest.class,
                      AllMediasTest.class,
                      AllExtDataTest.class,
                      WnPopsTest.class,

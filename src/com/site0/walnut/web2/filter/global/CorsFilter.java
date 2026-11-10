@@ -3,7 +3,7 @@ package com.site0.walnut.web2.filter.global;
 import com.site0.walnut.mvc.WnMvcContext;
 import com.site0.walnut.mvc.WnMvcFilter;
 import com.site0.walnut.mvc.WnMvcShortCircuitException;
-import com.site0.walnut.web.util.WnWeb;
+import com.site0.walnut.util.WnWeb;
 
 /**
  * 统一 CORS 过滤器（RM-NUTZ-16）：跨域逻辑的唯一封装点。

@@ -5,7 +5,7 @@ import java.net.URI;
 import org.nutz.http.Header;
 import com.site0.walnut.util.Ws;
 
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 
 /**
  * 静态帮助方法集

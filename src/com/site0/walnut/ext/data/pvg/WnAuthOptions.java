@@ -5,7 +5,7 @@ import com.site0.walnut.login.WnLoginOptions;
 public class WnAuthOptions extends WnLoginOptions {
 
     /**
-     * 为 HttpApi 设计的 pvg_setup，在 HttpApiModule 里 读取信息时，解析 Json 的时候，用本类，一边读取额外的
+     * 为 HttpApi 设计的 pvg_setup，在 旧 HTTP API 模块 里 读取信息时，解析 Json 的时候，用本类，一边读取额外的
      * pvgSetup 选项
      * 
      * 参看:

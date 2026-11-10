@@ -3,7 +3,7 @@ package com.site0.walnut.web2.service.register;
 import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.ext.sys.redis.WedisConfig;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 import com.site0.walnut.web2.service.WnServiceFactory;
 
 /**

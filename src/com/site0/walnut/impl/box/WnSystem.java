@@ -30,7 +30,7 @@ import com.site0.walnut.util.Wn;
 import com.site0.walnut.util.WnContext;
 import com.site0.walnut.util.WnSysConf;
 import com.site0.walnut.util.ZParams;
-import com.site0.walnut.web.util.WalnutLog;
+import com.site0.walnut.util.log.WalnutLog;
 
 public class WnSystem implements WnAuthExecutable {
 

@@ -15,7 +15,7 @@ import com.site0.walnut.impl.box.JvmExecutorFactory;
 import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.util.MongoDB;
 import com.site0.walnut.util.WnRun;
-import com.site0.walnut.web.WnConfig;
+import com.site0.walnut.util.WnConfig;
 import com.site0.walnut.web2.service.WnServiceFactory;
 
 /**
