@@ -5,31 +5,31 @@
 # 用法
 
 ```bash
-task @处理器 [参数...]
+task [list|add|run|remove|notify] [参数...]
 ```
 
 支持的处理器：
 
 ```bash
-@list      # 列出任务堆栈里的所有任务
-@run       # 主动执行任务堆栈里的一个或者多个任务
-@add       # 向堆栈中添加一个任务
-@remove    # 删除任务堆栈中的一条或者多条任务
-@notify    # 通知后台任务消费线程立即处理后台任务队列
+list      # 列出任务堆栈里的所有任务
+run       # 主动执行任务堆栈里的一个或者多个任务
+add       # 向堆栈中添加一个任务
+remove    # 删除任务堆栈中的一条或者多条任务
+notify    # 通知后台任务消费线程立即处理后台任务队列
 ```
 
 # 示例
 
 ```bash
 # 列出任务堆栈
-task @list
+task list
 
 # 添加一个任务
-task @add
+task add
 
 # 主动执行任务
-task @run
+task run
 
 # 通知后台线程立即处理队列
-task @notify
+task notify
 ```

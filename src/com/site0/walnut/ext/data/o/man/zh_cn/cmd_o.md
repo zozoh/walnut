@@ -40,7 +40,6 @@ o [options] [[@filter filter-args...]...]
 #
 @path       # 确保上下文对象都加载了路径
 @tree       # 将上下文对象归纳成一棵树
-@group      # 聚集对象
 @refer      # 读取上下文对象关联的对象详情
 @read       # 读取上下文对象的内容
 @ancestors  # 查询上下文中的对象的所有祖先对象

@@ -79,7 +79,7 @@ def whoami_name(path):
 ATEST_SAMPLE = """# ATEST — 本项目 Agent 测试手册
 
 > 本文档是 Agent 在本项目执行 Walnut 后台测试的唯一权威说明。
-> 通用约定见 Walnut 仓库 `doc/reference/102.auto-test/` 系列。
+> 通用约定见 Walnut 仓库 `wn-doc/public/reference/102.auto-test/` 系列。
 > 凭据不要写进本文档，放 `.at/credentials.json`（已 gitignore）。
 
 - walnut_url: http://localhost:8080
@@ -111,9 +111,9 @@ LOCAL_REF_SAMPLE = """# LOCAL_REF — 本工作目录引用的工程仓库
 """
 
 # .at/AGENTS.md —— 智能体最敏感的入口文件名。内容刻意保持"引用"而非
-# 复制：真正的操作套路只有一份（walnut 仓库 doc/skill/use-wn-cli.skill.md），
-# 这里只指路。找 walnut 仓库的通用约定是 LOCAL_REF.md；找不到就停下
-# 来问主人，不遍历磁盘猜。
+# 复制：真正的操作套路只有一份（wn-doc 仓库 public/skill/use-wn-cli.skill.md，
+# wn-doc 与 walnut 同级），这里只指路。找仓库的通用约定是 LOCAL_REF.md；
+# 找不到就停下来问主人，不遍历磁盘猜。
 AT_AGENTS_MD = """# AGENTS.md — 本目录是 Walnut 测试营地（.at/）
 
 本 `.at/` 由 walnut-at-init 生成：`whoami.toml`（身份牌）、
@@ -121,7 +121,8 @@ AT_AGENTS_MD = """# AGENTS.md — 本目录是 Walnut 测试营地（.at/）
 
 ## 操作 Walnut 前必读
 
-先读 Walnut 仓库的 skill 文档 **`doc/skill/use-wn-cli.skill.md`**
+先读 wn-doc 仓库（与 walnut 同级）的 skill 文档
+**`public/skill/use-wn-cli.skill.md`**
 （操作套路：先查命令表、纯用命令、找不到命令就停下来问主人）。
 
 ## 如何找到 Walnut 仓库
@@ -340,7 +341,7 @@ def main():
            "server": bool(args.with_server), "created": created, "kept": kept}
     print(json.dumps(out, ensure_ascii=False, indent=2))
     print("下一步: 完善 ATEST.md 与 .at/credentials.json，然后读 "
-          "doc/reference/102.auto-test/20-at-setup.md 开始登录。", file=sys.stderr)
+          "wn-doc/public/reference/102.auto-test/20-at-setup.md 开始登录。", file=sys.stderr)
     return EXIT_OK
 
 

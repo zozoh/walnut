@@ -13,7 +13,7 @@ REM  Stop order: send "stop" to admin-port (graceful, triggers
 REM              WnSetup destroy) -> wait for exit -> taskkill fallback
 REM
 REM  NOTE: keep messages ASCII-only (see start.cmd header).
-REM  Contract: doc/reference/102.auto-test/20-at-setup.md
+REM  Contract: wn-doc/public/reference/102.auto-test/20-at-setup.md
 REM ============================================================
 set "DIST_HOME=%~dp0.."
 set "PORT="

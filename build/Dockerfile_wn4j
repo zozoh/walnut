@@ -27,7 +27,7 @@ ADD ./titanium /opt/mnt/titanium
 ENV WALNUT_HOME=/opt/wn4j
 ENV JAVA_HOME=/usr/java/latest/
 ENV WL_PID_PATH=/var/run/walnut.pid
-ENV WN_MAIN_CLASS=com.site0.walnut.web.WnLauncher
+ENV WN_MAIN_CLASS=com.site0.walnut.web2.WnLauncher2
 ENV PATH="${WALNUT_HOME}/sbin:${JAVA_HOME}/bin:${PATH}"
 
 # 暴露端口

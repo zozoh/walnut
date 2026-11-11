@@ -1,6 +1,6 @@
 # 过滤器简介
 
-`@add` 向任务堆栈中添加一条任务。
+`add` 向任务堆栈中添加一条任务。
 
 命令执行后返回当前任务堆栈里剩余的任务对象列表：
 
@@ -17,7 +17,7 @@
 # 用法
 
 ```bash
-task @add [命令模板] [-base64] [-input 内容] [-f 路径] [-u 用户] [-quiet] [-json] [-cqn]
+task add [命令模板] [-base64] [-input 内容] [-f 路径] [-u 用户] [-quiet] [-json] [-cqn]
   # 命令模板    # 任务执行的命令模板，不给则从标准输入读取
   -base64     # 输入的命令采用了 Base64 编码，入栈前预先解码
   -input      # 任务的标准输入内容；只声明不给值则试图从标准输入读取
@@ -32,11 +32,11 @@ task @add [命令模板] [-base64] [-input 内容] [-f 路径] [-u 用户] [-qui
 
 ```bash
 # 添加一条任务
-task @add 'echo `date` >> ~/task.log'
+task add 'echo `date` >> ~/task.log'
 
 # 命令从管道读
-echo 'obj ~/tmp @count' | task @add
+echo 'o ~/tmp @count' | task add
 
 # 任务的输入内容来自文件
-task @add 'cat > ~/out.txt' -f ~/in.txt
+task add 'cat > ~/out.txt' -f ~/in.txt
 ```

@@ -3,7 +3,7 @@
 """
 wn-down — 温柔停止一个 Walnut 实例
 
-停止顺序（doc/reference/102.auto-test/20-at-setup.md）:
+停止顺序（wn-doc/public/reference/102.auto-test/20-at-setup.md）:
     1. 读运行锁 run/pid-<port>.json，核对归属（agent/work_path 必须是自己）
        - 运行锁缺失/归属不符 → 拒绝（退出 2），宁可不停
     2. 连 127.0.0.1:admin_port 发送 "stop"（温柔，触发 WnSetup destroy）
@@ -21,7 +21,7 @@ wn-down — 温柔停止一个 Walnut 实例
 退出码: 0 停止成功；1 用法错误；2 拒绝停止（归属不符/锁缺失）
 输出: {"action":"stop","gentle":true|false,"pid":...,"redis":{...}|null}
 
-文档: doc/reference/102.auto-test/30-at-tools.md
+文档: wn-doc/public/reference/102.auto-test/30-at-tools.md
 """
 
 import argparse

@@ -87,7 +87,7 @@ public class ApiWwwAuth {
         }
 
         // 防空
-        if (!apc.isNeedWWWAuth || null != apc.authOptions) {
+        if (!apc.isNeedWWWAuth || null == apc.authOptions) {
             return;
         }
 

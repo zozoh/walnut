@@ -5,7 +5,7 @@
 # 用法
 
 ```
-o [Path] [[@filter filter-args...]...]
+ooml [Path] [[@filter filter-args...]...]
 ```
 
 # 过滤器列表

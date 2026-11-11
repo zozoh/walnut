@@ -1,12 +1,12 @@
 # 过滤器简介 
 
-`@msg` 设置邮件上下文中的正文
+`@content` 设置邮件上下文中的正文
  
 
 # 用法
 
 ```bash
-@msg
+@content
   [Text ...]  # 正文内容
   [-html]     # 表示正文内容为 HTML
 ```
@@ -17,4 +17,3 @@
 ```bash
 mailx @content Hello world
 ```
-

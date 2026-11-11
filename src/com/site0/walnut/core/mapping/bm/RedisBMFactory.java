@@ -48,9 +48,14 @@ public class RedisBMFactory implements WnBMFactory {
         WnContext wc = Wn.WC();
         WnUser me = wc.getMe();
         WnSession se = wc.getSession();
+        // 只有注入了 auth 且当前用户存在时才能判定 root 组成员身份。
+        // auth 由 stage-2 回填；未就绪 / 无当前用户时不得触碰权限链，否则 NPE。
+        WnRoleList roles = null;
+        if (null != auth && null != me) {
+            roles = auth.roleLoader(se).getRoles(me);
+        }
         // 如果当前用户为 root 组成员，或者当前木有做权限检查，可以从预定义里获取
-        WnRoleList roles = auth.roleLoader(se).getRoles(me);
-        if (null == auth || wc.isSecurityNoCheck() || roles.isMemberOfRole("root")) {
+        if (wc.isSecurityNoCheck() || (null != roles && roles.isMemberOfRole("root"))) {
             bm = bms.get(str);
         }
         // 尝试从自己的域读取

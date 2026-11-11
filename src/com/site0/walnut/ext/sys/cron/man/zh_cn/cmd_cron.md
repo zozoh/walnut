@@ -2,13 +2,13 @@
 
 `cron` 用来管理处理系统定期任务列表.
 
-详细请参见文档: `c1-cron-task.md`
+详细请参见文档: `wn-doc/public/reference/60.sched-async/10-cron-task.md`
     
 
 # 用法
 
 ```
-cron [list|add|remove|preview] [options...]
+cron [list|add|remove|preview|explain] [options...]
 ```
 
 它支持的子命令有：

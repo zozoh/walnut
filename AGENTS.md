@@ -10,7 +10,7 @@ Walnut 是一个**业务系统开发基座**（Java + 内嵌 Nutz 框架），�
 
 - 一切数据都是对象（文件/目录/会话/支付单……），对象 = 元数据 + 内容桶，
   元数据与内容可存在不同介质上（Mongo/SQL/Redis/文件/对象存储，可任意组合）
-- 操作全部命令化（157 个命令：73 内置 + 84 扩展），支持管道与重定向，高仿 Linux
+- 操作全部命令化（139 个命令：71 内置（可执行）+ 68 扩展），支持管道与重定向，高仿 Linux
 - 每个命令有 man 文档，随源码存放（`man/zh_cn/cmd_*.md`）
 - 业务逻辑主要用 `jsc` 命令 + JS 脚本动态扩展，无需重新部署
 
@@ -56,15 +56,15 @@ wn-doc/
 ```bash
 api/     # 核心接口（io/auth/hook/session……）—— 先读接口，语义都在 Javadoc
 core/    # api 的主要实现（io 映射/索引器/桶管理器）
-impl/    # 服务实现；impl/box/cmd/ = 73 个内置命令，每个一个文件
-ext/     # 84 个扩展命令，按逻辑分类：data / geo / media / net / sys / util / xo
-web/     # Jetty/HTTP 适配，regapi（动态 API）在这里
+impl/    # 服务实现；impl/box/cmd/ = 71 个可执行内置命令（73 个文件含 2 抽象基类）
+ext/     # 68 个扩展命令，按逻辑分类：data / geo / media / net / sys / util / xo
+web2/    # Jetty12 HTTP 栈（WnLauncher2/WnMvcJetty12Handler/WnRoutes/控制器/regapi）；mvc/ = 中立 MVC 层
 cron/    # WnCron 表达式引擎（Quartz 兼容 + 区间扩展）
 ooml/    # OOML 文档格式（类 Markdown， Walnut 富文本）
 login/   # 账户与会话；util/ alg/ val/ = 工具层
 ```
 
-构建运行：Maven 项目（`pom.xml`），配置走 Nutz Ioc（`conf/ioc/`）。
+构建运行：Maven 项目（`pom.xml`）；服务装配走 `web2/service`（WnServiceFactory + register/*，无 IoC 容器），配置在 `conf/web.properties`。
 上手步骤见 `{WN_DOC_HOME}/public/reference/00.start-here/quick-start.md`。
 
 ## 重要：这些已弃用，不要读不要改

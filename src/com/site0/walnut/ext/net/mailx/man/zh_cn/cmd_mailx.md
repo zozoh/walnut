@@ -2,10 +2,10 @@
 
 `mailx` 命令用来处理电子邮件相关操作的过滤器型命令。可以支持：
 
-- 收发邮件(SMTP/POP3/IMAP)
-- 支持加密解密(S/MIME)
-- 支持数字签名
+- 发信（SMTP）与收信（IMAP / 虚拟文件系统 fs）
 - 富文本以及附件
+- S/MIME 签名与加密（通过 `@load` 的 `security` 配置）
+- 邮件模板与变量
 
 -------------------------------------------------------------
 # 用法
@@ -13,8 +13,8 @@
 
 ```bash
 mailx 
-  [ConfigName]                   # 配置名称
-  [-lang zh-cn]                  # 语言，默认 zh-cn
+  [ConfigName]                   # 配置名称，默认 default
+  [-lang zh-cn]                  # 语言，默认取配置的 smtp.lang，再缺省 zh-cn
   [-quiet]                       # 静默输出
   [-json]                        # 将结果输出为 JSON
   [-cqn]                         # 非静默输出的 JSON 格式
@@ -22,7 +22,8 @@ mailx
   [[@filter filter-args...]...]  # 过滤器
 ```
 
-其中 `ConfigName` 表示配置文件名，对应为 `.mail/${ConfigName}.json`
+其中 `ConfigName` 表示配置文件名，对应为 `~/.mailx/${ConfigName}.json`
+（如果没写 `.json` 后缀会自动补上）。
 
 
 它支持的过滤器有：
@@ -43,17 +44,17 @@ mailx
 @cc         # 添加抄送者
 @bcc        # 添加密送者
 #-------------------------------------
-@fto        # 根据文件或目录添加接收者
-@fcc        # 根据文件或目录添加抄送者
-@fbcc       # 根据文件或目录添加密送者
-#-------------------------------------
 @sub        # 邮件标题
 #-------------------------------------
 # 设置内容
 #-------------------------------------
 @content    # 邮件正文
-@tmpl       # 邮件模板
+@tmpl       # 邮件模板（路径相对于 ~/.mailx/i18n/<lang>/）
 @at         # 邮件附件
+#-------------------------------------
+# 加载整封邮件
+#-------------------------------------
+@load       # 从 JSON 文件或标准输入加载整封邮件
 #-------------------------------------
 # 模板相关
 #-------------------------------------
@@ -68,21 +69,23 @@ mailx
 # 示例
 
 ```bash 
-# 发送邮件
-mailx @config ics @sub xxx @at ~/a.edi @send
+# 最简单：收件人 + 标题 + 正文（过滤器链跑完自动发送）
+mailx default @to a@b.c @sub 你好 @content 'hello world'
 
 
-# 发送邮件
-mailx @to a@b.c b@8.com @sub xxx @at ~/a.edi \
-      @sign -type smime -store_passwd xxx  -alias xxx -priv_passwd xxx ~/path.store.pfx \
-      @encrypt -type smime ~/some.cer
+# 带附件
+mailx default @to a@b.c @sub 报表 @at ~/report.xlsx
 
-# 发送邮件
-mailx @from xx@xx.com @to a@b.c @sub xxx @at ~/a.edi \
-      @sign -conf ~/sign.json \
-      @encrypt -conf ~/encrypt.json \
-      @save ~/outbox/index
 
-# 接受邮件
-office365 token xxx.json | mailx @imap INBOX -conf imap.json -passwd 
+# 模板发信：使用 ~/.mailx/i18n/<lang>/login 作为正文模板
+mailx default @to a@b.c @sub 欢迎 @tmpl login -html @vars '{name:"zozoh"}'
+
+
+# 从配置文件加载整封邮件（to/subject/content/attachments/security）
+mailx default @load ~/mail.json
+
+
+# 收信：把未读邮件存成对象，附件单独存放
+mailx default @imap INBOX -flags '!SEEN' -to '~/mymail/${msg_id}' \
+      -at '~/mymail/${msg_id}/${file_name}'
 ```

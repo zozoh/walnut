@@ -3,7 +3,7 @@
 """
 build/wn4j-make.py — Walnut 构建脚本
 
-契约见 doc/reference/102.auto-test/10-at-build.md。
+契约见 wn-doc/public/reference/102.auto-test/10-at-build.md。
 
 用法:
     python build/wn4j-make.py            # 默认: 编译(mvn) + 打包(dist) + 校验
@@ -233,8 +233,7 @@ DIST_LAYOUT = [
     ("sbin/start.cmd", "file"),
     ("sbin/stop.cmd", "file"),
     ("run", "edir"),
-    ("WebContent", "dir"),
-]
+    ]
 
 # ============================================================
 # 计时
@@ -457,9 +456,6 @@ def do_dist():
         print(" ++ sbin/ (start/stop, start/stop_with_redis, redis=%s)" % RD_SERVER)
     else:
         print(" ++ sbin/ (start/stop; REDIS_SERVER 为空，不生成 with_redis 脚本)")
-
-    # --- WebContent ---
-    shutil.copytree(str(D_WN / "WebContent"), str(D_OUT / "WebContent"))
 
     # --- version.json ---
     ver_json = D_OUT / "core" / "conf" / "version.json"

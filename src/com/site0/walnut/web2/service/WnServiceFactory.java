@@ -173,6 +173,8 @@ public class WnServiceFactory {
         }
 
         WnLoginRegistrar.register(this);
+        // RedisBMFactory 在 stage-1 装配，这里等 sysLoginApi 就绪后回填 auth
+        WnIoRegistrar.bindAuth(this);
         WnTaskRegistrar.register(this);
         WnCronRegistrar.register(this);
         WnScheduleRegistrar.register(this);

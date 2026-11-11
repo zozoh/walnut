@@ -44,11 +44,11 @@
 
 ```bash
 # 收取最近的邮件，如果是加密邮件自动解密，并存入一个指定数据集
-mailx @vsf -decrypt -to ~/mymail
+mailx @fs -decrypt -to ~/mymail
 
 # 收取所有最近邮件，并在控制台打印邮件头
-mailx @vsf -json -cqn
+mailx @fs -json -cqn
 
 # 读取所有未读邮件，并自动解密（根据 test.secuy的设置），并存入指定数据集
-mailx @load ~/tmp/test.secuy.json @vsf -decrypt -content 'Application/EDIFACT' -to ~/myemails
+mailx @load ~/tmp/test.secuy.json @fs -decrypt -content 'Application/EDIFACT' -to ~/myemails
 ```

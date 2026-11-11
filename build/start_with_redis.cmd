@@ -36,7 +36,7 @@ REM  them at load time and Chinese bytes break under chcp 65001.
 REM  Subroutines live at the top (before :main) - labels defined
 REM  after the first call may not be found by cmd.exe.
 REM
-REM  Contract: doc/reference/102.auto-test/20-at-setup.md
+REM  Contract: wn-doc/public/reference/102.auto-test/20-at-setup.md
 REM ============================================================
 set "DIST_HOME=%~dp0.."
 set "CONF_DIR="

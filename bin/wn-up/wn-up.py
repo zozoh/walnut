@@ -3,7 +3,7 @@
 """
 wn-up — 启动（或复用）一个 Walnut 实例
 
-决策流程（doc/reference/102.auto-test/20-at-setup.md）:
+决策流程（wn-doc/public/reference/102.auto-test/20-at-setup.md）:
     1. wn-ping 探活
        - 活着 → 输出 {"action":"reuse"}，退出（绝不停止现有实例）
        - 端口被非 Walnut 程序占用 → 报错退出 2
@@ -11,7 +11,7 @@ wn-up — 启动（或复用）一个 Walnut 实例
        若产物带 start_with_redis.cmd（构建时 make.json 的 REDIS_SERVER
        非空才会生成），则改调它 —— 先按生效 conf 的 redis-port 拉起
        私有 redis 进程，再原样委托 start.cmd（2/3 级完全数据隔离，
-       机制见 doc/reference/102.auto-test/20-at-setup.md）
+       机制见 wn-doc/public/reference/102.auto-test/20-at-setup.md）
        - 启动前把身份（.at/whoami.toml 的代号，或 --who）经
          WN_AGENT_NAME / WN_WORK_PATH 环境变量注入，写进运行锁
     3. 循环探活直到就绪（--wait 秒），超时退出 4
@@ -23,7 +23,7 @@ wn-up — 启动（或复用）一个 Walnut 实例
 
 退出码: 0 成功/复用；1 用法错误；2 端口被占或探活失败；4 启动失败或超时
 
-文档: doc/reference/102.auto-test/30-at-tools.md
+文档: wn-doc/public/reference/102.auto-test/30-at-tools.md
 """
 
 import argparse

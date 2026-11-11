@@ -17,18 +17,18 @@ o @json
   #--------------------------------------
   [-path]    # 确保对象加载了路径
   [-cqn]     # 指定的格式化方式  
-  #--------------------------------------
-  [-mapping /path]  # 将结果做转换，指向一个BeanMapping映射文件
-  [-by "key"]       # 映射文件的某个键下面的内容才是映射信息
-  [-only]           # 当映射时不在映射集合内的对象，将会被无视
-  [-explain {..}]   # 【选2】将结果（mapping之后）再次转换成新值
-  [-explainBy /path] # 【选2】比explain更优先，用一个JSON 文件
-                     # 提供更加复杂的转换行为
+  [-l]       # 即使只有一个对象，也保持数组输出
 ```
 
 # 示例
 
 ```bash
+# 输出全部字段
 o @get ID1 ID2 ID3 @json -cqn
-```
 
+# 只输出 id/nm 两个键（KeyMatch 是一个 AutoMatch 字符串）
+o @get ID1 ID2 ID3 @json '^(id|nm)$' -cqn
+
+# 只有一个对象时也保持数组形态
+o @get ID1 @json -l -cqn
+```

@@ -3,10 +3,11 @@
 """
 wn-cli — Walnut 智能体客户端
 
-对接三个 HTTP 模块（doc/reference/102.auto-test/30-at-tools.md）:
-    UsrModule   /u/do/login/ajax     登录（含 UsrNoExists→root 建域的决策树）
-    AppModule   /a/run/wn-term       命令通道（mkdir/mount/ln/o/app init/sqlx ...）
-    ObjModule   /o/*                 对象与文件字节（get/children/set/save/upload/content）
+对接 web2 路由（wn-doc/public/reference/102.auto-test/30-at-tools.md）:
+    AppSysLoginByPasswdController  /a/sys_login_by_passwd  登录（ajax 信封）
+    AppRunController               /a/run/wn-term          命令通道（mkdir/mount/ln/o/app init/sqlx ...）
+    Obj*Controller                 /o/*                    对象与文件字节
+                                                           （fetch/children/query/update/save/content）
 
 子命令:
     login   登录并缓存票据（密码错 3 次终止）
@@ -157,9 +158,13 @@ def http(base, method, path, params=None, form=None, body=None,
 
 
 def api_login(base, usr, passwd):
-    """登录，返回 (ticket, data)。按错误码区分 NoUser / Failed。"""
-    st, body = http(base, "POST", "/u/do/login/ajax",
-                    form={"nm": usr, "passwd": passwd})
+    """登录，返回 (ticket, data)。按错误码区分 NoUser / Failed。
+
+    端点与载荷以 web2 AppSysLoginByPasswdController 为准：
+    POST 表单 name/passwd/ajax=1；成功 {"ok":true,"data":{ticket,...}}，
+    失败 {"ok":false,"errCode":...,"data":原因}。"""
+    st, body = http(base, "POST", "/a/sys_login_by_passwd",
+                    form={"name": usr, "passwd": passwd, "ajax": "1"})
     text = body.decode("utf-8", "replace")
     try:
         j = json.loads(text)
@@ -167,11 +172,16 @@ def api_login(base, usr, passwd):
         raise WnError(EXIT_BAD, "登录响应不是 JSON: %s" % text[:300])
     if j.get("ok"):
         data = j.get("data") or {}
-        ticket = data.get("nm") or data.get("ticket")
+        ticket = data.get("ticket") or data.get("nm")
         if not ticket:
             raise WnError(EXIT_BAD, "登录响应缺少票据: %s" % text[:300])
         return ticket, data
-    msg = str(j.get("msg") or j.get("err") or text)
+    msg = str(j.get("errCode") or j.get("msg") or j.get("err") or text)
+    reason = j.get("data")
+    if reason:
+        if not isinstance(reason, str):
+            reason = json.dumps(reason, ensure_ascii=False)
+        msg += ": " + reason
     if "UsrNoExists" in msg or "noexists" in msg:
         raise WnNoUser(msg)
     raise WnLoginFailed(msg)
@@ -354,7 +364,7 @@ def toml_parse(text):
 class Session:
     """会话缓存: <session_dir>/<se>.toml（兼容读旧 <se>.json）
 
-    契约见 doc/reference/102.auto-test/30-at-tools.md 的 wn-cli 一节:
+    契约见 wn-doc/public/reference/102.auto-test/30-at-tools.md 的 wn-cli 一节:
 
       base       实例地址
       loginName  登录名（root 或域用户）
@@ -611,7 +621,7 @@ class WnClient:
     # ---------------- 对象操作 ----------------
     def obj_get(self, path):
         path = self._ph(path)
-        st, body = self._req("GET", "/o/get", params={"str": path})
+        st, body = self._req("GET", "/o/fetch", params={"str": path})
         self._check(st, body)
         return json.loads(body.decode("utf-8", "replace"))
 
@@ -622,10 +632,13 @@ class WnClient:
         return json.loads(body.decode("utf-8", "replace"))
 
     def obj_set(self, path, metas):
+        """POST /o/update：整个 body 就是 JSON，元数据平铺 + str 键定位对象
+        （ObjUpdateController 只从 body 取，query 参数一律忽略）。"""
         path = self._ph(path)
-        q = urllib.parse.quote(path, safe="")
-        st, body = self._req("POST", "/o/set/%s" % q, params={"aph": "0"},
-                             body=json.dumps(metas),
+        payload = dict(metas or {})
+        payload["str"] = path
+        st, body = self._req("POST", "/o/update",
+                             body=json.dumps(payload, ensure_ascii=False),
                              headers={"Content-Type": "application/json"})
         self._check(st, body)
         return json.loads(body.decode("utf-8", "replace"))
@@ -650,7 +663,7 @@ class WnClient:
         """原始字节流上传到 /o/save/stream（QueryStringAdaptor：
         参数走 query string，body 就是文件内容本身）。
         mode: r=替换/自动 s=严格(目标文件必须存在) a=追加(按模板重名避让)
-        注意不是 /o/upload——那个端点已 @Deprecated 且契约不同。"""
+        注意不是 /o/upload——该端点已不在 web2 路由里。"""
         path = self._ph(path)
         file_path = Path(file_path)
         data = file_path.read_bytes()
@@ -665,11 +678,13 @@ class WnClient:
         return json.loads(rb.decode("utf-8", "replace"))
 
     def obj_find(self, pairs, limit=100):
-        params = dict(pairs)
-        params["_l"] = str(limit)
-        st, body = self._req("GET", "/o/find", params=params)
-        if st >= 400:
-            raise WnError(EXIT_BAD, body.decode("utf-8", "replace")[:300])
+        """GET /o/query：list 是查询条件 JSON 数组（单对象内多键 = AND，
+        多对象 = OR），limit 为分页大小（ObjQueryController）。"""
+        conds = [dict(pairs)] if pairs else [{}]
+        params = {"list": json.dumps(conds, ensure_ascii=False),
+                  "limit": str(limit)}
+        st, body = self._req("GET", "/o/query", params=params)
+        self._check(st, body)
         return json.loads(body.decode("utf-8", "replace"))
 
     # ---------------- 挂载（含自检） ----------------
@@ -699,7 +714,7 @@ class WnClient:
         return {"mounted": path, "url": file_url, "checked": True,
                 "listing_head": listing.strip().splitlines()[:10]}
 
-    # ---------------- 节点初始化（root，见 a-walnut-init.md） ----------------
+    # ---------------- 节点初始化（root，见 wn-doc/public/reference/102.auto-test/） ----------------
     def check_node(self):
         """看 /app 权限就知道节点是否初始化过（空白库启动时是 0750）。
         返回 initialized + 细节，自身总是成功（除非连不上）。"""
@@ -710,7 +725,7 @@ class WnClient:
 
     def init_node(self):
         """空白数据库节点的首次初始化（幂等，可重复跑）。
-        步骤来自 doc/reference/102.auto-test 与 a-walnut-init.md：
+        步骤来自 wn-doc/public/reference/102.auto-test：
         1. 顶级目录放开读+执行
         2. 系统钩子（缩略图/视频预览）
         3. MongoDB 索引（mgadmin）

@@ -2,12 +2,12 @@
 
 `schedule` 管理系统的分钟计划表
 
-详细请参见文档: `c1-cron-schedule.md` 
+详细请参见文档: `wn-doc/public/reference/60.sched-async/30-schedule-slot.md`
 
 # 用法
 
 ```
-schedule [list|load|clean] [options...]
+schedule [list|load|push|clean|awake] [options...]
 ```
 
 它支持的子命令有：

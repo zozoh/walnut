@@ -31,7 +31,10 @@
 # 用法
 
 ```bash
-@config path/to.json
+@load path/to.json
+
+# 省略路径时，从标准输入读取 JSON 配置
+@load
 ```
 
 
@@ -39,6 +42,6 @@
 =======
 
 ```bash
-mailx @config demo.json
+mailx @load demo.json
 ```
 

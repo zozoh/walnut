@@ -2,7 +2,7 @@
 
 `@explain` 将当前条目内容（XML）作为模板，展开指定的变量集
 
-> 具体的语法参见 `f1-ooml-explain-syntax.md`
+> 具体的语法参见 `wn-doc/public/reference/70.functionate/30-office-ooml.md`
 
 # 用法
 

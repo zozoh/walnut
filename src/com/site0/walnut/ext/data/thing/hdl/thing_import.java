@@ -25,21 +25,23 @@ public class thing_import implements JvmHdl {
     @Override
     public void invoke(WnSystem sys, JvmHdlContext hc) throws Exception {
         ZParams params = ZParams.parse(hc.args, null);
-        // 参数
+        // 参数：clz 必须是调用方提供、实现 ThingFill 的类
+        // （没有通用默认实现：原默认值 WnSetup 既不实现 ThingFill，类也已删除）
         String tarRootPath = params.getString("path", null);
-        String tarImportClzName = params.getString("clz", "org.nutz.walnut.web.WnSetup");
+        String tarImportClzName = params.getString("clz");
 
         WnObj rootPathObj = sys.io.fetch(null, Wn.normalizeFullPath(tarRootPath, sys));
-        Class<?> tarClz = Class.forName(tarImportClzName);
 
         if (rootPathObj == null) {
             sys.err.print("param [path] not exist");
             return;
         }
-        if (tarClz == null) {
+        if (null == tarImportClzName) {
             sys.err.print("param [clz] not exist");
             return;
         }
+
+        Class<?> tarClz = Class.forName(tarImportClzName);
 
         // 判断clz是否为导入接口的实现类
         if (!ThingFill.class.isAssignableFrom(tarClz)) {

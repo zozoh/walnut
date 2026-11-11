@@ -42,6 +42,7 @@ import com.site0.walnut.core.mapping.indexer.VofsIndexerFactory;
 import com.site0.walnut.core.refer.mongo.MongoReferService;
 import com.site0.walnut.core.refer.redis.RedisReferService;
 import com.site0.walnut.ext.sys.redis.WedisConfig;
+import com.site0.walnut.login.WnLoginApi;
 import com.site0.walnut.util.MongoDB;
 import com.site0.walnut.util.Wlog;
 import com.site0.walnut.util.WnConfig;
@@ -216,6 +217,17 @@ public final class WnIoRegistrar {
 
         ioMappingFactory.setGlobalIndexer(globalIndexer);
         ioMappingFactory.setGlobalBM(globalBM);
+    }
+
+    /**
+     * stage-2 回填：{@code sysLoginApi} 要到 {@code initStores()} 才产出，而
+     * {@link RedisBMFactory} 在 stage-1 已装配，因此登录 API 就绪后再注入 auth
+     * （旧 {@code conf/ioc/io.js} 里是构造期注入）。
+     */
+    public static void bindAuth(WnServiceFactory factory) {
+        RedisBMFactory redisBMFactory = factory.fetch("redisBMFactory",
+                                                     RedisBMFactory.class);
+        redisBMFactory.setAuth(factory.fetch("sysLoginApi", WnLoginApi.class));
     }
 
     /**

@@ -26,7 +26,7 @@ public class cmd_alias extends JvmExecutor {
         if ("-r".equals(args[0]) && args.length > 1) {
             JvmExecutor exec = sys.jef.get(args[1]);
             if (exec != null && exec instanceof cmd_alias_entry) {
-                sys.jef.remove(args[0]);
+                sys.jef.remove(args[1]);
             }
             return;
         }

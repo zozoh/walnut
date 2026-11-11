@@ -30,14 +30,14 @@ o @agg [聚集参数...] [-match JSON] [-tab] [-bish] [-ibase N] [-cqn]
 ## 聚集分组键
 
 ```bash
-# 多个分组键用半角逗号分隔，语法为
+# 多个分组键各占一个位置参数（空格分隔），语法为
 输出字段名=[函数:]?键名
 # 譬如
-name=AMS_TO_DATE:ct,type=tp
+name=TIMESTAMP_TO_DATE:ct type=tp
 
 # 系统支持的转换函数
-AMS_TO_DATE     # 毫秒时间戳转日期（按日统计）
-AMS_TO_AHOU     # 毫秒时间戳转日期时间（精确到小时，按小时统计）
+TIMESTAMP_TO_DATE  # 毫秒时间戳转日期（按日统计）
+# 「按小时」暂无实现；未知转换函数会抛 IllegalArgumentException
 ```
 
 # 示例

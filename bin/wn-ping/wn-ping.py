@@ -19,7 +19,7 @@ wn-ping — Walnut 探活工具
     2  探活失败（连接拒绝/超时/响应不符合契约）
     1  参数错误
 
-文档: doc/reference/102.auto-test/30-at-tools.md
+文档: wn-doc/public/reference/102.auto-test/30-at-tools.md
 """
 
 import argparse

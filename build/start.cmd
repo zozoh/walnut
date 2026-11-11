@@ -14,7 +14,7 @@ REM  NOTE: keep every user-facing message ASCII-only, and avoid
 REM  unquoted parentheses inside (...) blocks - cmd.exe parses
 REM  them at load time and Chinese bytes break under chcp 65001.
 REM
-REM  Contract: doc/reference/102.auto-test/20-at-setup.md
+REM  Contract: wn-doc/public/reference/102.auto-test/20-at-setup.md
 REM ============================================================
 set "DIST_HOME=%~dp0.."
 set "CONF_DIR="
@@ -90,7 +90,7 @@ echo   log : %LOG_OUT% 1>&2
 
 REM ---------- launch JVM in background, capture PID ----------
 set "WPID_FILE=%TEMP%\_wn_start_%RANDOM%%RANDOM%.txt"
-powershell -NoProfile -Command "$p = Start-Process -FilePath '%JAVA_EXE%' -ArgumentList '-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -cp \"%CP%\" com.site0.walnut.web.WnLauncher' -WorkingDirectory '%DIST_HOME%' -WindowStyle Hidden -RedirectStandardOutput '%LOG_OUT%' -RedirectStandardError '%LOG_ERR%' -PassThru; $p.Id | Out-File -Encoding ascii '%WPID_FILE%'" || (echo *** JVM launch failed 1>&2 & exit /b 4)
+powershell -NoProfile -Command "$p = Start-Process -FilePath '%JAVA_EXE%' -ArgumentList '-Dfile.encoding=UTF-8 -Dsun.jnu.encoding=UTF-8 -cp \"%CP%\" com.site0.walnut.web2.WnLauncher2' -WorkingDirectory '%DIST_HOME%' -WindowStyle Hidden -RedirectStandardOutput '%LOG_OUT%' -RedirectStandardError '%LOG_ERR%' -PassThru; $p.Id | Out-File -Encoding ascii '%WPID_FILE%'" || (echo *** JVM launch failed 1>&2 & exit /b 4)
 set /p WPID=<"%WPID_FILE%"
 del "%WPID_FILE%" >nul 2>nul
 if not defined WPID (echo *** cannot get JVM pid 1>&2 & exit /b 4)
