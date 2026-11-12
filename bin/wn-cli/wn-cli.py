@@ -16,14 +16,21 @@ wn-cli — Walnut 智能体客户端
     mnt     挂载本地目录（写 mnt 元数据 + 自动 ls 自检）
 
 全局选项:
-    --url           实例地址（缺省取会话缓存里的 base）
-    --se            会话名（约定 se-<登录名>-00，如 se-root-00/se-demo-00；
-                    缺省 login 时按登录名生成，其他子命令为 se-00）
+    --url           实例地址（缺省按 --level 从实例登记解析，再退到会话缓存里的 base）
+    --level         实例级别 L1/L2：决定会话名与会话解析（见下）
+    --instances     实例登记文件（缺省 $WN_INSTANCES > 当前目录逐级向上 > 用户目录）
+    --se            会话名（缺省 <级别>-<登录名>-00，如 L1-demo-00；
+                    没有级别时沿用 se-<登录名>-00，其他子命令按级别找唯一会话）
     --session-dir   会话缓存目录（默认 ./.at/client/session）
     --dist          dist/wn4j 目录：root 密码发现（conf/web_local.properties
                     → core/conf/web.properties 的 root-init-passwd）
     --who           智能体代号（写入会话缓存 agent.name；缺省读 .at/whoami.toml）
     --creds         凭据 JSON（默认若 ./.at/credentials.json 存在则用它）
+
+实例登记 `.wn-instances.json`（开发者维护，智能体只读）:
+    {"L1": {"host": "127.0.0.1", "port": 8080},
+     "L2": {"host": "127.0.0.1", "port": 8090}}
+    给了 --level 就能省掉 --url；会话按级别分开存，同一项目在 L1/L2 上互不串用。
 
 会话缓存是 TOML 文件（<se>.toml），只存票据与身份（base/loginName/ticket/
 agent/create_on/saved_at），不存任何密码：root 会话的密码每次从实例配置现找，
@@ -132,6 +139,81 @@ class WnNoUser(WnError):
 class WnLoginFailed(WnError):
     def __init__(self, msg="e.auth.login.Failed"):
         super().__init__(EXIT_AUTH, msg)
+
+
+# ---------------- 实例登记（.wn-instances.json） ----------------
+# 约定：项目根/工作区到用户目录逐级向上找；键是级别（L1/L2），值是 host+port。
+# 用途：由 --level（或 url 反查）决定会话名 <级别>-<登录名>-<序号>。
+INSTANCES_NAME = ".wn-instances.json"
+_LOOPBACK = {"localhost", "127.0.0.1", "::1"}
+
+
+def _same_host(a, b):
+    a, b = (a or "").lower(), (b or "").lower()
+    if a in _LOOPBACK and b in _LOOPBACK:
+        return True
+    return a == b
+
+
+def load_instances(start=None, explicit=None):
+    """按 --instances > $WN_INSTANCES > 当前目录逐级向上 > 用户目录 找实例登记。
+
+    返回 (dict, Path|None)；找不到返回 ({}, None)，不抛异常。
+    """
+    cands = []
+    if explicit:
+        cands.append(Path(explicit))
+    env = os.environ.get("WN_INSTANCES")
+    if env:
+        cands.append(Path(env))
+    here = Path(start or os.getcwd()).resolve()
+    cands.extend([d / INSTANCES_NAME for d in [here] + list(here.parents)])
+    cands.append(Path.home() / INSTANCES_NAME)
+    for f in cands:
+        if f.is_file():
+            try:
+                return json.loads(f.read_text(encoding="utf-8")), f
+            except ValueError:
+                return {}, f
+    return {}, None
+
+
+def level_of(url, instances):
+    """按 url 的 host:port 反查级别；找不到返回 None。"""
+    if not url or not instances:
+        return None
+    u = urllib.parse.urlparse(url if "://" in url else "http://" + url)
+    host = u.hostname or "localhost"
+    port = u.port or (443 if u.scheme == "https" else 80)
+    for name, ep in instances.items():
+        if not isinstance(ep, dict):
+            continue
+        try:
+            if (int(ep.get("port", 0) or 0) == port
+                    and _same_host(str(ep.get("host", "127.0.0.1")), host)):
+                return name
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
+def endpoint_of(level, instances):
+    """由级别取 base，如 http://127.0.0.1:8080；取不到返回 None。"""
+    ep = (instances or {}).get(level) or {}
+    if not ep.get("port"):
+        return None
+    return "http://%s:%d" % (ep.get("host", "127.0.0.1"), int(ep["port"]))
+
+
+def pick_session(session_dir, level):
+    """非 login 子命令：按级别找唯一会话 <级别>-<登录名>-<序号>.toml。"""
+    hits = sorted(Path(session_dir).glob("%s-*.toml" % level))
+    if len(hits) == 1:
+        return hits[0].stem
+    if len(hits) > 1:
+        raise WnError(EXIT_USAGE, "有多个 %s 会话（%s），请用 --se 指定"
+                      % (level, ", ".join(h.stem for h in hits)))
+    raise WnError(EXIT_USAGE, "%s 级别还没有会话，先 login（或用 --se 指定）" % level)
 
 
 def http(base, method, path, params=None, form=None, body=None,
@@ -836,9 +918,11 @@ def kv_pairs(pairs):
 
 def main():
     ap = argparse.ArgumentParser(description="Walnut 智能体客户端")
-    ap.add_argument("--url", help="实例地址")
-    ap.add_argument("--se", help="会话名（缺省 login 时为 se-<登录名>-00，"
-                                 "其他子命令为 se-00）")
+    ap.add_argument("--url", help="实例地址（缺省按 --level 从实例登记解析，再退到会话缓存）")
+    ap.add_argument("--level", choices=["L1", "L2"],
+                    help="实例级别：决定会话名（<级别>-<登录名>-00）与端点解析")
+    ap.add_argument("--instances", help="实例登记文件（缺省 $WN_INSTANCES > 逐级向上 > 用户目录）")
+    ap.add_argument("--se", help="会话名（缺省 <级别>-<登录名>-00；无级别时 se-<登录名>-00）")
     ap.add_argument("--session-dir", default=".at/client/session",
                     help="会话缓存目录")
     ap.add_argument("--dist", help="dist/wn4j 目录（root 密码发现）")
@@ -880,13 +964,25 @@ def main():
     creds = load_creds(args.creds)
     dist = args.dist or creds.get("dist")
 
-    try:
-        # 会话名约定: login 时缺省 se-<登录名>-00（如 se-root-00），
-        # 其他子命令缺省 se-00（向后兼容）
-        usr_for_se = args.usr or creds.get("usr") if args.sub == "login" else None
-        se = args.se or ("se-%s-00" % usr_for_se if usr_for_se else "se-00")
+    instances, inst_file = load_instances(explicit=args.instances)
+    level = args.level or level_of(args.url, instances)
+    # 没给 --url 但知道级别：直接用登记里的端点（智能体"自己找到地方"）
+    base = args.url or endpoint_of(level, instances)
 
-        c = WnClient(args.url, session_dir=args.session_dir, se=se)
+    try:
+        # 会话名约定：<级别>-<登录名>-<序号>（如 L1-demo-00）；
+        # 没有级别时沿用旧约定 se-<登录名>-00，保证向后兼容。
+        usr_for_se = args.usr or creds.get("usr") if args.sub == "login" else None
+        if args.se:
+            se = args.se
+        elif usr_for_se:
+            se = "%s-%s-00" % (level or "se", usr_for_se)
+        elif level:
+            se = pick_session(args.session_dir, level)
+        else:
+            se = "se-00"
+
+        c = WnClient(base, session_dir=args.session_dir, se=se)
         if dist:
             c.session.dist = dist
 
