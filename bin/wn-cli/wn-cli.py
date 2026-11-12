@@ -205,6 +205,22 @@ def endpoint_of(level, instances):
     return "http://%s:%d" % (ep.get("host", "127.0.0.1"), int(ep["port"]))
 
 
+def resolve_session_dir(explicit, instances_file):
+    """会话缓存目录：--session-dir > $WN_SESSION_DIR > 工作区级 > 项目级。
+
+    「工作区级」= 命中的 .wn-instances.json 所在目录下的 .at/client/session ——
+    同一个工作区里所有项目共用一个会话池，`L1-demo-00` 只需登录一次。
+    """
+    if explicit:
+        return explicit
+    env = os.environ.get("WN_SESSION_DIR")
+    if env:
+        return env
+    if instances_file:
+        return str(Path(instances_file).parent / ".at" / "client" / "session")
+    return ".at/client/session"
+
+
 def pick_session(session_dir, level):
     """非 login 子命令：按级别找唯一会话 <级别>-<登录名>-<序号>.toml。"""
     hits = sorted(Path(session_dir).glob("%s-*.toml" % level))
@@ -477,12 +493,12 @@ class Session:
         data = None
         if self.path.exists():
             try:
-                data = toml_parse(self.path.read_text(encoding="utf-8"))
+                data = toml_parse(self.path.read_text(encoding="utf-8-sig"))
             except (ValueError, OSError):
                 data = None
         if not isinstance(data, dict) and self.legacy_path.exists():
             try:
-                data = json.loads(self.legacy_path.read_text(encoding="utf-8"))
+                data = json.loads(self.legacy_path.read_text(encoding="utf-8-sig"))
             except (ValueError, OSError):
                 data = None
         if not isinstance(data, dict):
@@ -662,6 +678,15 @@ class WnClient:
             print("会话过期，自动重新登录 ...", file=sys.stderr)
             return self._req(method, path, retried=True, **kw)
         if st == 401:
+            # 票据确认失效：删掉本地缓存，下次 login 从干净状态开始。
+            # 只删当前会话文件；网络错误/连不上不走这里，不误删。
+            if self.session.ticket and self.session.path.exists():
+                try:
+                    self.session.path.unlink()
+                    print("会话已失效，已删除缓存 %s（请重新 login）"
+                          % self.session.path, file=sys.stderr)
+                except OSError as e:
+                    print("会话已失效，但删除缓存失败：%s" % e, file=sys.stderr)
             raise WnError(EXIT_AUTH,
                           "未登录或会话失效（401）。root 会话重登失败时，"
                           "请与主人核对 root 密码；域会话请重新 login")
@@ -923,8 +948,8 @@ def main():
                     help="实例级别：决定会话名（<级别>-<登录名>-00）与端点解析")
     ap.add_argument("--instances", help="实例登记文件（缺省 $WN_INSTANCES > 逐级向上 > 用户目录）")
     ap.add_argument("--se", help="会话名（缺省 <级别>-<登录名>-00；无级别时 se-<登录名>-00）")
-    ap.add_argument("--session-dir", default=".at/client/session",
-                    help="会话缓存目录")
+    ap.add_argument("--session-dir",
+                    help="会话缓存目录（缺省：$WN_SESSION_DIR > 工作区级 .at/client/session > 项目级）")
     ap.add_argument("--dist", help="dist/wn4j 目录（root 密码发现）")
     ap.add_argument("--who", help="智能体代号（写入会话缓存 agent.name）")
     ap.add_argument("--creds", help="凭据 JSON 文件")
@@ -968,6 +993,8 @@ def main():
     level = args.level or level_of(args.url, instances)
     # 没给 --url 但知道级别：直接用登记里的端点（智能体"自己找到地方"）
     base = args.url or endpoint_of(level, instances)
+    # 会话池默认落在工作区级：同一工作区的所有项目共用一份登录
+    session_dir = resolve_session_dir(args.session_dir, inst_file)
 
     try:
         # 会话名约定：<级别>-<登录名>-<序号>（如 L1-demo-00）；
@@ -978,11 +1005,11 @@ def main():
         elif usr_for_se:
             se = "%s-%s-00" % (level or "se", usr_for_se)
         elif level:
-            se = pick_session(args.session_dir, level)
+            se = pick_session(session_dir, level)
         else:
             se = "se-00"
 
-        c = WnClient(base, session_dir=args.session_dir, se=se)
+        c = WnClient(base, session_dir=session_dir, se=se)
         if dist:
             c.session.dist = dist
 
@@ -1006,7 +1033,9 @@ def main():
                                           resolve_agent_name(args.who))
             ticket, how = c.login_or_create_domain(usr, passwd, root_usr, root_passwd)
             print(json.dumps({"ok": True, "action": how, "usr": usr,
-                              "base": c.base}, ensure_ascii=False))
+                              "base": c.base,
+                              "session": str(c.session.path)},
+                             ensure_ascii=False))
             return EXIT_OK
 
         if args.sub == "cmd":

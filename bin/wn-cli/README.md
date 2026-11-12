@@ -39,11 +39,13 @@ python wn-cli.py --level L1 mnt ~/site D:/work/proj/www
 
 查找顺序：`--instances <路径>` → `$WN_INSTANCES` → 从当前目录逐级向上 → `~/.wn-instances.json`。
 
-会话缓存：`.at/client/session/<级别>-<登录名>-00.toml`（如 `L1-demo-00.toml`；TOML 格式；
-兼容读旧 `.json`）。**级别进名字**，同一个项目在 1 级/2 级上的会话不会串用；
-同名的第二个会话用 `--se L1-demo-01`。不给 `--level` 时退化为旧命名 `se-<登录名>-00`。
+会话缓存：`<工作区>/.at/client/session/<级别>-<登录名>-00.toml`（如 `L1-demo-00.toml`；TOML）。
+**会话池是工作区级的**——同一工作区里所有项目共用一份登录，换个仓库不用重登。
+目录解析顺序：`--session-dir` → `$WN_SESSION_DIR` → 工作区级（`.wn-instances.json` 所在目录）
+→ 项目级 `./.at/client/session`。**级别进名字**，1 级/2 级互不串用；第二个会话用 `--se L1-demo-01`。
 **缓存不存密码**：root 密码每次按上面顺序从实例配置现找，域密码不落盘。
-401 时 root 会话自动重登一次，再失败报错退出（码 3）；域会话重新 login。
+401：root 会话自动重登一次；确认失效的会话**直接删掉本地缓存**并报错（码 3），
+下次 login 从干净状态开始（网络错误不删）。
 
 也可作库使用：
 
