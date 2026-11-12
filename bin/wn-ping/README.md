@@ -14,4 +14,5 @@ python wn-ping.py --url http://localhost:8090 --timeout 5
 
 退出码：`0` 活着；`2` 探活失败；`1` 参数错误。
 
-`agent_ready=false` 表示实例活着但未开启 PASSWD_ONLY，不满足智能体测试前提。
+`agent_ready=false` 表示实例活着，但登录模式不允许纯密码（`PASSWD_AND_OTP` 或 `OTP_ONLY`），
+不满足智能体测试前提。`PASSWD_ONLY` 与 `PASSWD_OR_OTP` 都算可用。

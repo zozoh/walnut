@@ -5,13 +5,14 @@ wn-ping — Walnut 探活工具
 
 探测目标实例的 GET /a/login_mode（无需登录），输出 JSON 结论：
   - alive:        HTTP 可达且 ajax 外层 ok=true
-  - agent_ready:  system 与 domain 登录模式均为 PASSWD_ONLY（智能体测试前提）
+  - agent_ready:  system 与 domain 登录模式都允许「纯密码登录」
+                  （PASSWD_ONLY 或 PASSWD_OR_OTP；PASSWD_AND_OTP / OTP_ONLY 不算）
 
 用法:
     python wn-ping.py [--url http://localhost:8080] [--timeout 3]
 
 输出(stdout，单行 JSON):
-    {"ok":true,"alive":true,"url":"...","system":"PASSWD_ONLY","domain":"PASSWD_ONLY","agent_ready":true}
+    {"ok":true,"alive":true,"url":"...","system":"PASSWD_ONLY","domain":"PASSWD_OR_OTP","agent_ready":true}
     探活失败时: {"ok":true,"alive":false,"url":"...","error":"..."}
 
 退出码:
@@ -31,6 +32,10 @@ EXIT_OK = 0
 EXIT_USAGE = 1
 EXIT_NO_TARGET = 2
 EXIT_BAD_RESPONSE = 4
+
+# 允许「纯密码登录」的两种模式：ONLY 只认密码，OR_OTP 密码或 OTP 皆可。
+# PASSWD_AND_OTP（密码 + OTP）与 OTP_ONLY 都不满足智能体测试前提。
+PASSWORD_LOGIN_MODES = {"PASSWD_ONLY", "PASSWD_OR_OTP"}
 
 
 def ping(url, timeout):
@@ -53,7 +58,7 @@ def ping(url, timeout):
     return True, {
         "system": system,
         "domain": domain,
-        "agent_ready": system == "PASSWD_ONLY" and domain == "PASSWD_ONLY",
+        "agent_ready": system in PASSWORD_LOGIN_MODES and domain in PASSWORD_LOGIN_MODES,
     }
 
 
