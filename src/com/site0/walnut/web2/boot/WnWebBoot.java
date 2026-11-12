@@ -8,6 +8,7 @@ import org.nutz.lang.util.NutMap;
 import com.site0.walnut.log.WnLog;
 
 import com.site0.walnut.WnVersion;
+import com.site0.walnut.api.io.WnExpiObjTable;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.api.io.WnRace;
@@ -22,6 +23,7 @@ import com.site0.walnut.util.WnConfig;
 import com.site0.walnut.web2.bgt.WnBgCronThread;
 import com.site0.walnut.web2.bgt.WnBgScheduleThread;
 import com.site0.walnut.web2.bgt.WnBgTaskThread;
+import com.site0.walnut.web2.bgt.WnExpiObjTableCleaner;
 import com.site0.walnut.web2.service.WnServiceFactory;
 
 /**
@@ -54,6 +56,8 @@ public class WnWebBoot {
     private Thread bgtSchedule;
 
     private Thread bgtCron;
+
+    private Thread expiCleaner;
 
     private boolean setup;
 
@@ -136,9 +140,11 @@ public class WnWebBoot {
         __stopBgt(bgtTask, "BGT_TASK");
         __stopBgt(bgtSchedule, "BGT_SCHEDULE");
         __stopBgt(bgtCron, "BGT_CRON");
+        __stopBgt(expiCleaner, "BGT_EXPI_CLEAN");
         bgtTask = null;
         bgtSchedule = null;
         bgtCron = null;
+        expiCleaner = null;
         factory.depose();
         log.info("WnWebBoot: destroyed");
     }
@@ -185,6 +191,24 @@ public class WnWebBoot {
         this.bgtTask = bgtTask;
         log.infof("--> THREAD: %s started", bgtTask.getName());
         rt.props().put("BGT_TASK", true);
+
+        // 过期对象清理线程（RM-NUTZ-15 随 web/clean 删除后补回 web2/bgt）
+        boolean expiCleanEnabled = conf.getBoolean("expi-obj-clean-enabled", true);
+        if (expiCleanEnabled) {
+            WnExpiObjTable expiTable = factory.fetch("safeExpiObjTable", WnExpiObjTable.class);
+            long expiInterval = conf.getLong("expi-obj-clean-interval", 60000L);
+            int expiLimit = conf.getInt("expi-obj-clean-limit", 100);
+            long expiHold = conf.getLong("expi-obj-clean-hold", expiInterval);
+            WnExpiObjTableCleaner cleaner = new WnExpiObjTableCleaner(expiTable,
+                                                                      factory.getIo(),
+                                                                      expiInterval,
+                                                                      expiLimit,
+                                                                      expiHold);
+            cleaner.start();
+            this.expiCleaner = cleaner;
+            log.infof("--> THREAD: %s started", cleaner.getName());
+            rt.props().put("BGT_EXPI_CLEAN", true);
+        }
 
         // 默认开始系统后台计划任务
         boolean sysScheduleEnabled = conf.getBoolean("sys-schedule-enabled", true);
