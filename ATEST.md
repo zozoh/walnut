@@ -24,3 +24,17 @@
 ## reset
 
 <重置数据的具体步骤：清哪些表（sqlx）、删哪些对象（o @delete）>
+
+<!-- at-init:begin（工具维护段：--force 会刷新；段外内容不受影响） -->
+## 集成测试（ATEST）
+
+- project: walnut
+- instance: L2            # L1=IDE 里的实例（快速回路）/ L2=隔离实例（完整回归与基线）；端口见 .wn-instances.json
+- test_domain: atest      # 本项目专用测试域：只增不减，跨用例复用
+- credentials_file: .at/credentials.json
+- init_template: test/atest.init
+- sql_datasource: default # 域内 .dao 配置名，数据操作走 sqlx
+
+套件启动前清缓存（`jsc -clear`、`sqlx @cache -clear`）；失败必须分诊为
+bug / drift / env / flaky 之一并附证据；基线只在 2 级实例上建立与更新。
+<!-- at-init:end -->

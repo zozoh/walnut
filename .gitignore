@@ -73,3 +73,7 @@ bin/test/
 
 /test/test_local.properties
 /.claude/
+
+# at-init: ATEST 产物（报告不进库；实例登记真身是本机配置）
+/test/report/
+/.wn-instances.json
