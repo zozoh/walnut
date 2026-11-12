@@ -18,8 +18,11 @@ at-init — 运行时集成测试（ATEST）项目骨架脚手架
 
 幂等：已存在的文件一律 `kept`，**绝不覆盖用户内容**。`--force` 只刷新"样例段"
 （ATEST.md 的 `<!-- at-init:begin -->` ~ `<!-- at-init:end -->` 之间，以及
-`.wn-instances.example.json`），`cases/` / `scripts/` / `baseline/` 里的内容
-和 `test/atest.init` 永远不动。
+`.wn-instances.example.json`），且**保留段内用户设定的字段值**
+（`instance` / `test_domain` / `credentials_file` / `sql_datasource`，以及没给
+`--name` 时的 `project`）——只刷新说明文字、注释与缺失字段，不会把
+`instance: L1` 静默改回样例默认的 `L2`。`cases/` / `scripts/` / `baseline/` 里的
+内容和 `test/atest.init` 永远不动。
 
 所有写入都是 UTF-8 无 BOM（新文件 LF 换行；改写已有文件时沿用其原换行——
 带 BOM 会让 TOML/JSON 解析出空值，本项目踩过）。
@@ -56,6 +59,13 @@ END_MARK = "<!-- at-init:end -->"
 
 PROJECT_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,31}$")
 
+# 标记段里的字段行：`- key: 值   # 注释`
+FIELD_RE = re.compile(r"^-\s*([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(.*)$")
+
+# --force 刷新标记段时必须保留的**用户设定值**（不能让样例默认值把它们改回去）
+KEEP_ON_FORCE = ("instance", "test_domain", "credentials_file",
+                 "sql_datasource")
+
 GITIGNORE_MARK = "# at-init: ATEST 产物（报告不进库；实例登记真身是本机配置）"
 GITIGNORE_BLOCK = GITIGNORE_MARK + "\n/test/report/\n/.wn-instances.json\n"
 
@@ -79,7 +89,9 @@ EPILOG = """\
 
 幂等:
   已存在一律 kept，重复执行不产生任何写入。--force 只刷新"样例段"
-  （ATEST.md 的 begin~end 之间、.wn-instances.example.json）；
+  （ATEST.md 的 begin~end 之间、.wn-instances.example.json），并且**保留用户
+  设定的字段值**（instance / test_domain / credentials_file / sql_datasource，
+  以及没给 --name 时的 project），只刷新说明文字与缺失字段。
   cases/ scripts/ baseline/ 与 test/atest.init 里的内容永不覆盖。
 
 分工:
@@ -92,7 +104,8 @@ EPILOG = """\
 
 输出（stdout，单行 JSON）:
   {"ok":true,"dry_run":false,"dir":"...","project":"...",
-   "created":[...],"appended":[...],"refreshed":[...],"kept":[...],"warnings":[...]}
+   "created":[...],"appended":[...],"refreshed":[...],"kept":[...],
+   "preserved":["instance",...],"warnings":[...]}
 
 示例:
   python at-init.py --dir D:/work/myproj --name myproj
@@ -191,8 +204,60 @@ def check_atest(work):
                        "请人工补上 %s 再跑" % END_MARK)
 
 
-def ensure_atest(work, doc, block, force, dry_run, warnings):
-    """生成或续写 ATEST.md；只动标记段，段外内容按字节保留。"""
+def _split_comment(rest):
+    """把「- key: 值   # 注释」拆成 (值, 注释)；注释 = 空白 + # 到行尾。"""
+    m = re.search(r"\s+#", rest)
+    if m:
+        return rest[:m.start()].strip(), rest[m.start():]
+    return rest.strip(), ""
+
+
+def parse_fields(block):
+    """取出标记段里的 `- key: value  # 注释`；返回 {key: value}。"""
+    fields = {}
+    for line in block.splitlines():
+        m = FIELD_RE.match(line.strip())
+        if not m:
+            continue
+        value, _comment = _split_comment(m.group(2))
+        fields[m.group(1)] = value
+    return fields
+
+
+def merge_block(old_block, new_block, keep):
+    """按新模板重建标记段，但 keep 里的字段沿用旧段里的值。
+
+    返回 (合并后的段, 被保留的字段名列表)。旧值为空时不保留（视为缺失字段，
+    用模板默认值补上）。
+    """
+    old = parse_fields(old_block)
+    preserved = []
+    out = []
+    for line in new_block.splitlines():
+        m = FIELD_RE.match(line.strip())
+        if m and m.group(1) in keep:
+            key = m.group(1)
+            tmpl_value, comment = _split_comment(m.group(2))
+            value = old.get(key, "")
+            if value:
+                line = "- %s: %s%s" % (key, value, comment)
+                if value != tmpl_value:
+                    preserved.append(key)
+        out.append(line)
+    text = "\n".join(out)
+    if new_block.endswith("\n"):
+        text += "\n"
+    return text, preserved
+
+
+def ensure_atest(work, doc, block, force, dry_run, warnings, keep,
+                 preserved):
+    """生成或续写 ATEST.md；只动标记段，段外内容按字节保留。
+
+    `--force` 刷新时，`keep` 里的字段**沿用文件里的既有值**（用户设定的
+    instance / test_domain 等不能被样例默认值静默改回去），只刷新说明文字、
+    注释与缺失字段。
+    """
     path = work / ATEST_MD
     if not path.exists():
         if not dry_run:
@@ -223,15 +288,19 @@ def ensure_atest(work, doc, block, force, dry_run, warnings):
                        "请人工补上 %s 再跑" % END_MARK)
     lines = text.splitlines(keepends=True)
     old_block = "".join(lines[begin:end + 1])
-    if old_block == block:
+    new_block, kept_fields = merge_block(old_block, block, keep)
+    if new_block == old_block:
+        # 用户改的值已经生效、模板说明文字没变：无事可做，也不报"模板不同"
         return "kept"
     if not force:
-        warnings.append("ATEST.md 的 at-init 段与当前模板不同：未改动它"
-                        "（--force 可刷新，段外内容不受影响）")
+        warnings.append("ATEST.md 的 at-init 段与当前模板不同（含你设定的 %s 等值）："
+                        "未改动它；--force 可刷新说明文字并保留这些字段值"
+                        % " / ".join(sorted(keep)))
         return "kept"
     if had_bom:
         warnings.append("ATEST.md 原带 BOM：本次重写后为 UTF-8 无 BOM")
-    new = "".join(lines[:begin]) + block + "".join(lines[end + 1:])
+    preserved.extend(kept_fields)
+    new = "".join(lines[:begin]) + new_block + "".join(lines[end + 1:])
     if not dry_run:
         write_text(path, new, newline=file_nl)
     return "refreshed"
@@ -265,7 +334,10 @@ def main(argv=None):
     ap.add_argument("--name", metavar="NAME",
                     help="项目名，写进 ATEST.md 的 project 段（默认取目录名）")
     ap.add_argument("--force", action="store_true",
-                    help="刷新样例段（ATEST.md 标记段、.wn-instances.example.json）；"
+                    help="刷新样例段（ATEST.md 标记段：刷新说明文字，"
+                         "保留你设定的 project/instance/test_domain/"
+                         "credentials_file/sql_datasource 值；"
+                         "以及 .wn-instances.example.json）；"
                          "不动 cases/ scripts/ baseline/ 与 test/atest.init")
     ap.add_argument("--dry-run", action="store_true",
                     help="只计算并输出计划，不写任何文件")
@@ -318,7 +390,12 @@ def main(argv=None):
     doc = (before + block + tail).replace("{{project}}", project)
 
     dry = args.dry_run
-    created, appended, refreshed, kept, warnings = [], [], [], [], []
+    created, appended, refreshed, kept, warnings, preserved = \
+        [], [], [], [], [], []
+    # --force 刷新时保留的字段：四个用户设定值 +（没给 --name 时的）project
+    keep = set(KEEP_ON_FORCE)
+    if not args.name:
+        keep.add("project")
 
     def bucket(action):
         return {"created": created, "appended": appended,
@@ -344,8 +421,8 @@ def main(argv=None):
         for rel in GITKEEP_FILES:
             ensure(rel, "")
 
-        bucket(ensure_atest(work, doc, block, args.force, dry, warnings)) \
-            .append(ATEST_MD)
+        bucket(ensure_atest(work, doc, block, args.force, dry, warnings,
+                            keep, preserved)).append(ATEST_MD)
 
         ensure(INSTANCES_EXAMPLE, read_text(tmpl_instances), force=True)
 
@@ -386,7 +463,8 @@ def main(argv=None):
     print(json.dumps({"ok": True, "dry_run": dry, "dir": str(work),
                       "project": project, "created": created,
                       "appended": appended, "refreshed": refreshed,
-                      "kept": kept, "warnings": warnings},
+                      "kept": kept, "preserved": sorted(preserved),
+                      "warnings": warnings},
                      ensure_ascii=False))
     if dry:
         print("dry-run：以上只是计划，未写任何文件。", file=sys.stderr)

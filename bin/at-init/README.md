@@ -27,7 +27,7 @@ python bin/at-init/at-init.py --force
 |------|------|
 | `--dir DIR` | 目标项目目录，默认当前目录 |
 | `--name NAME` | 项目名，写进 `ATEST.md` 的 `project:` 段；默认取目录名 |
-| `--force` | 只刷新**样例段**（`ATEST.md` 标记段、`.wn-instances.example.json`） |
+| `--force` | 刷新**样例文案**（`ATEST.md` 标记段、`.wn-instances.example.json`）；标记段里你设定的字段值**保留**（见下） |
 | `--dry-run` | 只输出计划，不写任何文件 |
 
 退出码：`0` 成功（含"全部 kept"）；`1` 用法错误（参数 / 项目名不合法）；
@@ -36,8 +36,10 @@ python bin/at-init/at-init.py --force
 stdout 是**单行 JSON**（适合机器解析，提示进 stderr）：
 
 ```json
-{"ok":true,"dry_run":false,"dir":"...","project":"myproj","created":[...],"appended":[...],"refreshed":[...],"kept":[...],"warnings":[...]}
+{"ok":true,"dry_run":false,"dir":"...","project":"myproj","created":[...],"appended":[...],"refreshed":[...],"kept":[...],"preserved":["instance"],"warnings":[...]}
 ```
+
+`preserved` 只在 `--force` 真刷新标记段时出现，列出被保留下来的用户字段。
 
 ## 生成物
 
@@ -70,14 +72,22 @@ stdout 是**单行 JSON**（适合机器解析，提示进 stderr）：
 | `test/` 各级目录 | `created` | `kept` | 同左 |
 | `test/atest.init` | `created` | `kept` | **不覆盖** |
 | `.gitkeep` 占位 | `created` | `kept` | 同左 |
-| `ATEST.md` 标记段 | `created` / `appended` | `kept` | 段内**刷新**，段外不动 |
+| `ATEST.md` 标记段 | `created` / `appended` | `kept` | 段内**刷新说明文字**、补齐缺失字段；**用户设定的字段值保留**（见下） |
 | `.wn-instances.example.json` | `created` | `kept` | 内容有差异时**刷新** |
 | `.gitignore` 的 `# at-init:` 块 | `created` / `appended` | `kept` | 同左 |
 
 `cases/`、`scripts/`、`baseline/` 里的用户内容**在任何情况下都不动**。
 
-`ATEST.md` 已存在但没有标记段时，追加段（`appended`）而不是重写文件；
-标记段与模板不同而没加 `--force` 时保持 `kept` 并在 `warnings` 里提示。
+`ATEST.md` 已存在但没有标记段时，追加段（`appended`）而不是重写文件。
+
+`--force` **保留**这些字段已写在文件里的值（空值视为缺失，用模板默认值补上）：
+
+`project`（未给 `--name` 时）· `instance` · `test_domain` · `credentials_file` · `sql_datasource`
+
+即：你把 `instance` 改成 `L1` 做快速回路，之后跑 `--force` 仍然是 `L1`——不会被
+样例默认的 `L2` 静默改回去。标记段里**其它**人工改动（说明文字、注释、额外行）
+会被模板刷掉，那些请写在段外。段内容与"模板 + 你的字段值"一致时不报差异；
+不一致且没加 `--force` 时保持 `kept` 并在 `warnings` 里提示。
 
 ## ATEST.md 的字段
 
@@ -116,8 +126,8 @@ stdout 是**单行 JSON**（适合机器解析，提示进 stderr）：
 
 - 编码：生成物一律 UTF-8 无 BOM；新文件用 LF，改写已有文件时沿用其原换行
   （Windows 上 `core.autocrlf=true` 检出成 CRLF 也不会让标记段比较失真）；
-- 不解析 `ATEST.md` 里的既有值：`--force` 用模板重写整个标记段（人工改在段内的
-  内容会被覆盖，请改在段外）；
+- 只解析标记段里的 `- key: value` 行来拿用户值；`--force` 保留上表那几个字段的
+  值，其余人工改动（说明文字、注释、额外行）会被模板刷掉，请改在段外；
 - 不校验 `instance` 是否在 `.wn-instances.json` 里登记（那是 `at-run` 的事）；
 - 旧项目里由 `walnut-at-init` 生成的 `ATEST.md`（`walnut_url` / `walnut_level` /
   `walnut_dist`）与新的两级实例模型并存：本工具只追加自己的段，不改旧段，
