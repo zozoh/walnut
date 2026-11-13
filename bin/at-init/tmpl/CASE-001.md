@@ -23,8 +23,9 @@ expected: inline
 
 1. `python bin/wn-cli/wn-cli.py cmd 'o ~ @create atest-dir -race DIR -upsert'`
    —— 在域 home 下创建目录对象（级别由 runner 按 `ATEST.md` 注入；手工复跑时补 `--level L1`）；
-2. `python bin/wn-cli/wn-cli.py cmd 'o ~/atest-dir @json'`
-   —— 按路径读回该对象，原始 JSON 落到证据目录。
+2. `python bin/wn-cli/wn-cli.py cmd 'o ~/atest-dir @json -cqn'`
+   —— 按路径读回该对象，原始 JSON 落到证据目录。**必须带 `-cqn`**：裸 `@json` 是 HOCON 风格
+   （键不加引号），脚本没法直接 `json.loads`。
 
 ## 期望
 
