@@ -64,7 +64,7 @@ python bin/at-run/at-run.py --check atest/cases/
 # 全量跑（级别 / 测试域 / 端点都按 atest.json 与 .wn-instances.json 解析）
 python bin/at-run/at-run.py
 
-# 录制：跑全套并另写 <ts>.actual.json（不比较期望；喂给 bin/at-baseline 建基线）
+# 录制：跑全套并另写 <ts>/actual.json（不比较期望；喂给 bin/at-baseline 建基线）
 python bin/at-run/at-run.py --record
 python bin/at-run/at-run.py --record --only CASE-101,CASE-102
 
@@ -87,7 +87,7 @@ python bin/at-run/at-run.py --no-gc
 | 参数 | 说明 |
 |------|------|
 | `--check` | 只校验，不执行；可用位置参数指定文件或目录（缺省 `<dir>/<root>/cases`） |
-| `--record` | 跑全套并另写 `<root>/report/<ts>.actual.json`；只验脚本契约，**不比较期望** |
+| `--record` | 跑全套并另写 `<root>/report/<ts>/actual.json`；只验脚本契约，**不比较期望** |
 | `--dir DIR` | 项目目录（默认当前目录） |
 | `--root NAME` | 集成测试根目录；缺省读 `atest.json` 的 `root`，再缺省 `atest` |
 | `--instance L1\|L2` | 实例级别；缺省读 `atest.json` 的 `instance` |
@@ -114,10 +114,10 @@ stdout 是**单行 JSON**（提示与逐例进度进 stderr）：
 
 ```json
 {"ok":true,"root":"atest","instance":"L1","test_domain":"demo",
- "init_template":"atest/atest.init","instance_source":".../atest.json",
+ "init_template":"atest/atest.init","instance_source":"atest.json",
  "session":"L1-demo-00","session_created":false,"reset":true,"cleanup":"ok",
  "total":1,"passed":1,"failed":0,"blocked":0,"skipped":0,"archived":0,
- "report":".../atest/report/20261113T113351.json",
+ "report":".../atest/report/20261113T113351/report.json",
  "latest":".../atest/report/latest.json","exit":0}
 ```
 
@@ -134,7 +134,7 @@ CASE-ID → 脚本 actual）：
 
 ```json
 {"_meta":{"schema":"atest-actual/1","timestamp":"2026-11-13T15:09:08+08:00",
-          "instance":"L1","root":"atest","report":"atest/report/…json",
+          "instance":"L1","root":"atest","report":"atest/report/<ts>/report.json",
           "recorded":4,"unrecorded":[]},
  "CASE-101":{"nm":"case101-dir","race":"DIR","pid":"…"}}
 ```
@@ -274,7 +274,7 @@ emit({"atest-owner": obj.get("atest-owner")})
   删 `/home/<域>` 或 `/app` 这类动作；
 - 没有清理脚本视为"该用例幂等"，直接跑；
 - 清理失败 → 该例 **blocked**（不判红），证据进该例 `clean/summary.txt`；
-  `--reset` 的套件清理失败 → 全批 **blocked**，证据在 `<run>/_reset/`；
+  `--reset` 的套件清理失败 → 全批 **blocked**，证据在 `<run>/cases/_reset/`；
 - 执行顺序固定：**清理 → 初始化（fixture）→ 用例**；`$t0` 在清理成功后才取。
 
 ### `--check` 的夹具警告（不阻塞）
@@ -391,7 +391,7 @@ emit({"status": st, "ctype": hdrs.get("Content-Type", "")})
   显式写了 matcher 的键以 matcher 为准；
 - 失败时报告带 `diff: [{path, expected, actual}]`（`actual: null` 表示缺键）；
   matcher 失败时 `expected` 里是**代入后**的值（如 `{"$range": [t0, t1]}` 的毫秒数）；
-- 每例证据目录 `<report>/<timestamp>/<CASE-ID>/`：
+- 每例证据目录 `<root>/report/<timestamp>/cases/<CASE-ID>/`：
   - `summary.txt`：一句话结论 + diff 前三处 + 复现命令 + L1 日志不可用声明 +
     脚本 `note()` 记录（**每例都有**，失败时先看它）；
   - `objects/`：脚本 `snap()` 抓的对象 JSON（按路径命名）；
@@ -438,22 +438,25 @@ emit({"status": st, "ctype": hdrs.get("Content-Type", "")})
 ## 报告
 
 ```text
-<root>/report/<timestamp>.json     # 本次报告（JSON 是唯一源）
-<root>/report/latest.json          # 同内容（覆盖写）
-<root>/report/<timestamp>/<CASE-ID>/  # 每例证据目录
-<root>/report/archive/<timestamp>.zip # 旧报告（at-gc 归档；保留最近 report_keep 次）
+<root>/report/<timestamp>/report.json   # 本次报告（JSON 是唯一源）
+<root>/report/<timestamp>/report.md     # at-report 生成的人读视图
+<root>/report/<timestamp>/actual.json   # 仅 --record：{CASE-ID: actual} + _meta
+<root>/report/<timestamp>/cases/<CASE-ID>/  # 每例证据目录
+<root>/report/latest.json               # 同内容完整副本（覆盖写，不是指针）
+<root>/report/latest.md                 # at-report 刷新的最近视图
+<root>/report/archive/<timestamp>.zip   # 旧报告（at-gc 归档；保留最近 report_keep 次）
 ```
 
 ```json
 {"schema":"atest-report/2","timestamp":"2026-11-13T12:22:24+08:00",
- "instance":"L1","instance_source":".../atest.json","reset":true,"cleanup":"ok",
+ "instance":"L1","instance_source":"atest.json","reset":true,"cleanup":"ok",
  "total":2,"passed":1,"failed":1,"blocked":0,
  "cases":[{"caseID":"CASE-101","status":"passed","duration_ms":391,
-           "evidence_dir":"...","diff":[],
+           "evidence_dir":"atest/report/20261113T172335/cases/CASE-101","diff":[],
            "evidence":["clock.txt","cmd.txt","env.txt","objects/…",
                        "result.json","stderr.txt","stdout.txt","summary.txt"]},
           {"caseID":"CASE-104","status":"failed","duration_ms":855,
-           "evidence_dir":"...",
+           "evidence_dir":"atest/report/20261113T172335/cases/CASE-104",
            "diff":[{"path":"items[1].nm","expected":"atest-b","actual":"atest-c"}],
            "evidence":["clock.txt","cmd.txt","env.txt","note.txt","objects/…",
                        "result.json","stderr.txt","stdout.txt","summary.txt"]}]}
@@ -464,8 +467,12 @@ emit({"status": st, "ctype": hdrs.get("Content-Type", "")})
   ATESET-05 追加 `reset` / `cleanup`（`cleanup` = `skipped` / `missing` / `ok` / `failed`）；
 - 每例多出 `clean/`（用例级清理证据）与 `cleanup.txt`（套件清理失败时的整批证据）；
 - `evidence` 是相对 `evidence_dir` 的文件清单（正斜杠、排序稳定），指向真实文件；
-- `status` 只有 `passed` / `failed` / `blocked`。`instance_source` 为 `cli`
-  （`--instance` 生效）或 `atest.json` 的绝对路径。`<root>/report/` 已在项目
+- `status` 只有 `passed` / `failed` / `blocked`。
+- **报告内路径一律相对项目根 + `/`**：`evidence_dir` 形如
+  `atest/report/<ts>/cases/CASE-101`，`instance_source` 为 `cli`（`--instance`
+  生效）或相对路径 `atest.json`——报告是可搬运的产物，不该出现盘符与反斜杠。
+- **stdout 摘要的 `report` / `latest` / `actual` 是绝对路径**（给人复制粘贴），
+  与报告内的相对路径**有意不同**；别把它当 bug。`<root>/report/` 已在项目
   `.gitignore` 里（`at-init` 追加），报告不进库。
 - 写完后自动调用 `bin/at-gc` 归档旧报告：保留最近 `report_keep` 次（缺省 3），
   更早的压成 `archive/<timestamp>.zip`（校验通过才删原件）。本次报告与

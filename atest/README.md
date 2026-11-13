@@ -75,9 +75,10 @@ python atest/run.py --reset              # 整批跑之前先执行 atest/cleanu
 
 | 内容 | 位置 |
 |---|---|
-| 机器可读报告 | `atest/report/<时间戳>.json`、`atest/report/latest.json` |
-| 人读报告 | `atest/report/<时间戳>.md`、`atest/report/latest.md` |
-| 每例证据 | `atest/report/<时间戳>/<CASE-ID>/`（stdout、stderr、diff、对象快照） |
+| 机器可读报告 | `atest/report/<时间戳>/report.json`、`atest/report/latest.json` |
+| 人读报告 | `atest/report/<时间戳>/report.md`、`atest/report/latest.md` |
+| 录制数据（`--record`） | `atest/report/<时间戳>/actual.json`（喂给 `at-baseline` 建基线） |
+| 每例证据 | `atest/report/<时间戳>/cases/<CASE-ID>/`（stdout、stderr、diff、对象快照） |
 
 ## 环境依赖
 

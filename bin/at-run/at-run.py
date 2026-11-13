@@ -8,7 +8,7 @@ at-run — ATEST 运行器（v2）
     --check                 只校验用例（字段 / 命名 / 四节 / 期望声明一致性），不执行
     （无参数）              发现用例 → 解析实例 → 复用会话 → 逐例执行 → 写 JSON 报告
     --record                同一次执行，另把每例 actual 写到
-                            <root>/report/<ts>.actual.json，供 bin/at-baseline 建基线；
+                            <root>/report/<ts>/actual.json，供 bin/at-baseline 建基线；
                             该模式**不比较期望**（录制不是验收，绿以普通运行为准）
     --only                  选例执行；--stop-on-fail 遇到红灯即停
     --instance L1|L2        跑哪一级实例（缺省读 atest.json 的 instance）
@@ -60,11 +60,16 @@ at-run — ATEST 运行器（v2）
     不认识 / 混用多个 matcher → --check 报 expected-invalid。
 
 报告（JSON，唯一源；Markdown 归 07）:
-    <root>/report/<timestamp>.json  +  同内容的 latest.json
-    <root>/report/<timestamp>.actual.json  仅 --record：{CASE-ID: actual} + _meta
+    <root>/report/<timestamp>/report.json  +  同内容的 latest.json
+    <root>/report/<timestamp>/report.md    由 bin/at-report 生成
+    <root>/report/<timestamp>/actual.json  仅 --record：{CASE-ID: actual} + _meta
+    <root>/report/<timestamp>/cases/<CASE-ID>/…  每例证据
     {"schema","timestamp","instance","instance_source","total","passed",
      "failed","blocked","cases":[{"caseID","status","duration_ms","evidence_dir",
      "diff","evidence"}]}
+    报告内路径一律**相对项目根 + `/`**（evidence_dir 如
+    atest/report/<ts>/cases/CASE-101，instance_source 如 atest.json）；
+    stdout 摘要的 report / latest / actual 仍是绝对路径（给人复制粘贴），有意为之。
     schema = "atest-report/2"（v1 无此键，只增不改；v2 用例格式去掉 suite）；
     status = passed / failed / blocked（blocked = 未实现或缺基线，不算红）；
     evidence 是相对证据目录的文件清单（summary.txt / objects/… 等）。
@@ -201,11 +206,17 @@ EPILOG = """\
   不认识 / 多 matcher 混用 / 放在期望根上 → --check 报 expected-invalid
 
 报告:
-  <root>/report/<timestamp>.json 与同内容 latest.json
+  <root>/report/<timestamp>/report.json 与同内容 latest.json
+  <root>/report/<timestamp>/report.md（由 bin/at-report 生成）
+  <root>/report/<timestamp>/actual.json（仅 --record，喂给 bin/at-baseline）
+  <root>/report/<timestamp>/cases/<CASE-ID>/（每例证据）
   schema = "atest-report/2"（03 的顶层键保留；用例格式 v2 去掉 suite；只增不改）
   cases[] = {"caseID","status","duration_ms","evidence_dir","diff","evidence"}
   status = passed / failed / blocked（blocked 不算红）
   evidence = 相对证据目录的文件清单（summary.txt / objects/…）
+  报告内路径一律相对项目根 + `/`（evidence_dir 如 atest/report/<ts>/cases/CASE-101，
+  instance_source 如 atest.json）；stdout 摘要的 report / latest / actual 是绝对
+  路径（方便复制粘贴）——这个差异是有意的，别把它当 bug。
   跑完自动调用 bin/at-gc 归档旧报告（保留最近 report_keep 次，缺省 3）：
   stderr 打印 at-gc 的摘要，stdout JSON 多一个 archived = 本次归档数；
   --no-gc 关闭；at-gc 失败只警告，不改变本次退出码。
@@ -1544,7 +1555,7 @@ def run_suite(project, args, root, config, config_path):
                        "或用 --instance 覆盖" % config_path)
     if level not in ("L1", "L2"):
         raise EnvError("instance 只能是 L1 / L2，现在是 %r" % level)
-    instance_source = "cli" if args.instance else str(config_path)
+    instance_source = "cli" if args.instance else rel(config_path, project)
 
     domain = args.domain or config.get("test_domain")
     if not domain:
@@ -1629,7 +1640,7 @@ def run_suite(project, args, root, config, config_path):
     report_base = project / root / "report"
     run_id = unique_run_id(report_base, started)
     run_dir = report_base / run_id
-    report_path = report_base / (run_id + ".json")
+    report_path = run_dir / "report.json"
     latest_path = report_base / "latest.json"
 
     if not port_open(host, port):
@@ -1666,7 +1677,7 @@ def run_suite(project, args, root, config, config_path):
             print("at-run: --reset 但缺 %s：跳过套件级清理（视为套件幂等）"
                   % rel(cleanup_script, project), file=sys.stderr)
         else:
-            reset_dir = run_dir / "_reset"
+            reset_dir = run_dir / "cases" / "_reset"
             reset_env = {"AT_LEVEL": level, "AT_URL": url,
                          "AT_SESSION_DIR": str(session_dir),
                          "AT_DOMAIN": domain, "AT_WNCLI": str(wncli),
@@ -1690,17 +1701,17 @@ def run_suite(project, args, root, config, config_path):
         if stopped:
             not_run.append(case_id)
             continue
-        evidence = run_dir / case_id
+        evidence = run_dir / "cases" / case_id
         evidence.mkdir(parents=True, exist_ok=True)
         entry = {"caseID": case_id, "status": "blocked", "duration_ms": 0,
-                 "evidence_dir": str(evidence.resolve()), "diff": [],
+                 "evidence_dir": rel(evidence, project), "diff": [],
                  "evidence": []}
         note = ""
         repro = ('python "%s" --dir "%s" --instance %s --domain %s --only %s'
                  % (Path(__file__).resolve(), project, level, domain, case_id))
 
         if batch_cleanup_note:
-            reset_summary = run_dir / "_reset" / "summary.txt"
+            reset_summary = run_dir / "cases" / "_reset" / "summary.txt"
             if reset_summary.is_file():
                 write_text(evidence / "cleanup.txt",
                            read_text(reset_summary))
@@ -1878,7 +1889,7 @@ def run_suite(project, args, root, config, config_path):
     actual_path = None
     actual_doc = None
     if args.record:
-        actual_path = report_base / (run_id + ".actual.json")
+        actual_path = run_dir / "actual.json"
         actual_doc = {"_meta": {"schema": ACTUAL_SCHEMA,
                                 "timestamp": report["timestamp"],
                                 "instance": level,
@@ -1943,7 +1954,7 @@ def main(argv=None):
     ap.add_argument("--check", action="store_true",
                     help="只校验用例（字段/命名/四节/期望声明一致性），不执行")
     ap.add_argument("--record", action="store_true",
-                    help="跑全套并另写 <root>/report/<ts>.actual.json（供 "
+                    help="跑全套并另写 <root>/report/<ts>/actual.json（供 "
                          "at-baseline 建基线；本模式不比较期望）")
     ap.add_argument("paths", nargs="*", metavar="PATH",
                     help="--check 要检查的用例文件或目录（缺省 <dir>/<root>/cases）")

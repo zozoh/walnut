@@ -3,11 +3,17 @@
 """
 at-report — ATEST 报告视图（JSON → Markdown）
 
-读最近一次（或指定）JSON 报告，生成两份内容相同的 Markdown：
+读最近一次（或指定）JSON 报告，生成内容相同的 Markdown：
 
-    <root>/report/<timestamp>.md      本次报告的人读视图
-    <root>/report/latest.md           同内容（覆盖写，供人"只看一眼"）
+    新布局（ATESET-16 起，一次执行一个目录）:
+        <root>/report/<ts>/report.md    本次报告的人读视图
+        <root>/report/latest.md         同内容（覆盖写，供人"只看一眼"）
 
+    旧布局（历史报告，仍是扁平文件）:
+        <root>/report/<ts>.md           旧报告的人读视图仍在顶层生成
+        <root>/report/latest.md         同内容（覆盖写）
+
+参数接受 latest（缺省）/ <ts> 目录 / <ts>/report.json / <ts>.json（含旧版扁平）。
 报告结构（ATESET-07 定稿，改动先改任务书）：
 
     # ATEST 报告 · <timestamp>
@@ -22,7 +28,8 @@ at-report — ATEST 报告视图（JSON → Markdown）
 证据与报告路径一律相对项目根（报告可整体挪走而不失效）。
 
 报告 JSON 由 at-run 产出（schema = "atest-report/2"；v1 无 schema 也接受）。
-"上一份" = 与源 JSON **同目录**、按时间戳排序紧邻的前一份（排除 latest.json）。
+"上一份" = 同一 `<root>/report/` 下按时间戳排序紧邻的前一份（新旧两种
+盘上形态都认，排除 latest.json）。
 
 退出码（沿用 bin 工具语义）:
     0  生成成功且报告无红（blocked 不算红）
@@ -60,8 +67,14 @@ DESCRIPTION = "at-report — 把 ATEST JSON 报告渲染成人读的 Markdown"
 EPILOG = """示例:
   python bin/at-report/at-report.py
   python bin/at-report/at-report.py latest
-  python bin/at-report/at-report.py atest/report/20261113T145425.json
+  python bin/at-report/at-report.py 20261113T171822
+  python bin/at-report/at-report.py atest/report/20261113T171822
+  python bin/at-report/at-report.py atest/report/20261113T145425.json   # 旧版扁平
   python bin/at-report/at-report.py --dir D:/work/myproj --root spec
+
+输出:
+  新布局 <root>/report/<ts>/report.md；旧版扁平 <root>/report/<ts>.md；
+  两种形态都同步覆盖 <root>/report/latest.md。
 """
 
 
@@ -159,20 +172,52 @@ def resolve_root(config, config_path, override):
     return root
 
 
+def is_under(path, directory):
+    """path 是否在 directory 下（解析后判断；出错按"不在"处理）。"""
+    try:
+        Path(path).resolve().relative_to(Path(directory).resolve())
+        return True
+    except (ValueError, OSError):
+        return False
+
+
 def resolve_report(project, root, arg):
-    """报告路径：latest（缺省）→ <root>/report/latest.json；否则按路径解析。"""
+    """报告路径：latest（缺省）/ <ts> 目录 / <ts>/report.json / <ts>.json。
+
+    相对路径先按项目根、再按 <root>/report/ 解析；新旧两种盘上形态都接受：
+    新形态从目录里取 report.json，旧形态直接是 <ts>.json 文件。
+    """
+    report_dir = Path(project) / root / REPORT_DIR_NAME
     if arg is None or arg == "" or arg == "latest":
-        path = Path(project) / root / REPORT_DIR_NAME / LATEST_JSON
+        path = report_dir / LATEST_JSON
         if not path.is_file():
             raise EnvError("找不到最近的报告 %s：先跑 bin/at-run/at-run.py"
                            "（或用位置参数指定一份 JSON 报告）" % path)
         return path
-    path = Path(arg).expanduser()
-    if not path.is_absolute():
-        path = Path(project) / path
-    if not path.is_file():
-        raise EnvError("报告文件不存在：%s" % path)
-    return path
+    given = Path(arg).expanduser()
+    if given.is_absolute():
+        candidates = [given]
+    else:
+        candidates = [Path(project) / given, report_dir / given]
+    tried = []
+    for candidate in candidates:
+        tried.append(str(candidate))
+        try:
+            if candidate.is_dir():
+                inner = candidate / "report.json"
+                if inner.is_file():
+                    return inner
+                # 旧形态：<ts>/ 是证据目录，主报告在旁边的 <ts>.json
+                sibling = candidate.with_name(candidate.name + ".json")
+                if sibling.is_file():
+                    return sibling
+                continue
+            if candidate.is_file():
+                return candidate
+        except OSError:
+            continue
+    raise EnvError("报告不存在：%s（可用 latest / <ts> / <ts>.json / "
+                   "<ts>/report.json）" % "；".join(tried))
 
 
 def load_report(path):
@@ -218,14 +263,17 @@ def load_report(path):
 
 
 def run_id_of(path, report):
-    """报告的运行 ID：优先用文件名（<timestamp>.json），否则由 timestamp 推。"""
-    stem = Path(path).stem
-    if RUN_ID_RE.match(stem):
-        return stem
+    """运行 ID：新形态取 <ts>/report.json 的目录名；旧形态取文件名；
+    都不像时由报告 timestamp 推。"""
+    path = Path(path)
+    if path.name == "report.json" and RUN_ID_RE.match(path.parent.name):
+        return path.parent.name
+    if RUN_ID_RE.match(path.stem):
+        return path.stem
     stamp = report.get("timestamp")
     if not isinstance(stamp, str) or not stamp:
-        raise EnvError("%s 既不是 <timestamp>.json，也没有 timestamp 字段："
-                       "无法决定 Markdown 文件名" % path)
+        raise EnvError("%s 既不是 <timestamp>.json（或 <timestamp>/report.json），"
+                       "也没有 timestamp 字段：无法决定 Markdown 文件名" % path)
     try:
         return datetime.fromisoformat(stamp.replace("Z", "+00:00")) \
             .strftime("%Y%m%dT%H%M%S")
@@ -233,30 +281,82 @@ def run_id_of(path, report):
         raise EnvError("%s 的 timestamp 不是 ISO 时间：%r" % (path, stamp))
 
 
-def find_previous(source, run_id):
-    """同目录中按运行 ID 紧邻的前一份（排除 latest.json）；返回 (path, report, err)。"""
-    parent = Path(source).parent
-    candidates = []
+def scan_runs(directory):
+    """目录里的"一次执行"：新形态 <ts>/report.json 与旧形态 <ts>.json 都认。
+
+    返回 {运行 ID: 主报告路径}；latest.json 与别的文件一律忽略。
+    """
+    runs = {}
     try:
-        entries = list(parent.glob("*.json"))
+        entries = list(Path(directory).iterdir())
     except OSError:
-        entries = []
-    for path in entries:
-        if path.name in IGNORED_REPORTS:
+        return runs
+    for entry in entries:
+        name = entry.name
+        if name in IGNORED_REPORTS:
             continue
-        if path == Path(source):
+        try:
+            if entry.is_dir():
+                if RUN_ID_RE.match(name) and (entry / "report.json").is_file():
+                    runs[name] = entry / "report.json"
+            elif entry.is_file() and entry.suffix == ".json" \
+                    and RUN_ID_RE.match(entry.stem):
+                runs.setdefault(entry.stem, entry)
+        except OSError:
             continue
-        stem = path.stem
-        if not RUN_ID_RE.match(stem) or stem >= run_id:
-            continue
-        candidates.append((stem, path))
-    if not candidates:
+    return runs
+
+
+def locate_run(report_dir, source, report):
+    """确定 (运行 ID, Markdown 落点)。
+
+    - 源是 <ts>/report.json → 同目录 report.md；
+    - 源是 <ts>.json（含旧版扁平）→ 顶层 <ts>.md；
+    - 源是 latest.json → 与 report/ 下的运行逐字节比对，找到它复制自哪一次，
+      按该次形态落点；找不到（latest 被改过）就按 timestamp 推顶层落点。
+    """
+    source = Path(source)
+    if source.name == "report.json" and RUN_ID_RE.match(source.parent.name):
+        return source.parent.name, source.parent / "report.md"
+    if source.suffix == ".json" and RUN_ID_RE.match(source.stem):
+        return source.stem, Path(report_dir) / (source.stem + ".md")
+    if source.name == LATEST_JSON and is_under(source, report_dir):
+        try:
+            raw = source.read_bytes()
+        except OSError:
+            raw = None
+        if raw is not None:
+            runs = scan_runs(report_dir)
+            for run_id in sorted(runs, reverse=True):
+                try:
+                    if runs[run_id].read_bytes() != raw:
+                        continue
+                except OSError:
+                    continue
+                path = runs[run_id]
+                if path.name == "report.json" \
+                        and RUN_ID_RE.match(path.parent.name):
+                    return run_id, path.parent / "report.md"
+                return run_id, Path(report_dir) / (run_id + ".md")
+    run_id = run_id_of(source, report)
+    return run_id, Path(report_dir) / (run_id + ".md")
+
+
+def find_previous(source, run_id, report_dir):
+    """同一 report/ 中运行 ID 紧邻的前一份（新旧形态都认）；返回 (id, report, err)。"""
+    source = Path(source)
+    scan_dir = Path(report_dir) if is_under(source, report_dir) \
+        else source.parent
+    runs = scan_runs(scan_dir)
+    earlier = [ts for ts in runs if ts < run_id]
+    if not earlier:
         return None, None, ""
-    _, prev_path = max(candidates, key=lambda item: item[0])
+    previous_id = max(earlier)
+    previous_path = runs[previous_id]
     try:
-        return prev_path, load_report(prev_path), ""
+        return previous_id, load_report(previous_path), ""
     except EnvError as e:
-        return prev_path, None, str(e)
+        return previous_id, None, str(e)
 
 
 # ---------------------------------------------------------------- 取值与格式化
@@ -303,14 +403,24 @@ def cell(text):
     return str(text).replace("|", "\\|").replace("\r", " ").replace("\n", " ")
 
 
-def summary_line(case):
-    """从证据 summary.txt 首行取一句结论（失败/blocked 摘要用）；读不到返回空。"""
+def evidence_base(project, case):
+    """证据目录：新报告写相对项目根，旧报告写绝对路径；都按项目根落地。"""
     evidence_dir = case.get("evidence_dir") or ""
     if not evidence_dir:
+        return None
+    path = Path(evidence_dir)
+    if not path.is_absolute():
+        path = Path(project) / path
+    return path
+
+
+def summary_line(project, case):
+    """从证据 summary.txt 首行取一句结论（失败/blocked 摘要用）；读不到返回空。"""
+    base = evidence_base(project, case)
+    if base is None:
         return ""
-    path = Path(evidence_dir) / "summary.txt"
     try:
-        first = read_text(path).splitlines()[0].strip()
+        first = read_text(base / "summary.txt").splitlines()[0].strip()
     except (EnvError, OSError, IndexError):
         return ""
     marker = " —— "
@@ -319,7 +429,7 @@ def summary_line(case):
     return first
 
 
-def case_summary(case):
+def case_summary(project, case):
     """表格「摘要」列：失败看 diff 路径，blocked 看一句话，通关是 —。"""
     if case["status"] == "passed":
         return "—"
@@ -330,7 +440,7 @@ def case_summary(case):
         if len(paths) > 3:
             text += " 等 %d 处" % len(paths)
         return text
-    note = summary_line(case)
+    note = summary_line(project, case)
     if note:
         return note[:80] + (" …" if len(note) > 80 else "")
     return "—"
@@ -338,8 +448,8 @@ def case_summary(case):
 
 def evidence_paths(project, case):
     """证据文件相对项目根的路径；summary.txt 在前，objects/ 次之。"""
-    evidence_dir = case.get("evidence_dir") or ""
     names = [str(n) for n in (case.get("evidence") or [])]
+    base = evidence_base(project, case)
 
     def order(name):
         if name == "summary.txt":
@@ -350,7 +460,7 @@ def evidence_paths(project, case):
 
     out = []
     for name in sorted(names, key=order):
-        path = Path(evidence_dir) / name if evidence_dir else None
+        path = base / name if base is not None else None
         out.append(rel(project, path) if path is not None else name)
     return out
 
@@ -370,14 +480,15 @@ def fmt_ids(ids):
 
 # ---------------------------------------------------------------- 渲染
 
-def compute_trend(source, run_id, report):
-    """与同目录上一份报告比：新红 / 修好 / 仍红 / 新增 / 消失。"""
-    previous_path, previous, previous_err = find_previous(source, run_id)
+def compute_trend(source, run_id, report, report_dir):
+    """与同一 report/ 的上一份比：新红 / 修好 / 仍红 / 新增 / 消失。"""
+    previous_id, previous, previous_err = find_previous(source, run_id,
+                                                        report_dir)
     trend = {"previous": None, "error": previous_err,
              "new_red": [], "fixed": [], "still_red": [],
              "added": [], "removed": []}
     if previous is not None:
-        trend["previous"] = run_id_of(previous_path, previous)
+        trend["previous"] = previous_id
         prev_status = {c["caseID"]: c["status"] for c in previous["cases"]}
         cur_status = {c["caseID"]: c["status"] for c in report["cases"]}
         trend["new_red"] = [c["caseID"] for c in report["cases"]
@@ -425,7 +536,7 @@ def render(report, project, root, config, run_id, trend):
                      % (cell(case["caseID"]),
                         BADGE[case["status"]],
                         fmt_duration(case.get("duration_ms", 0)),
-                        cell(case_summary(case))))
+                        cell(case_summary(project, case))))
     lines.append("")
 
     # ---- 红灯
@@ -457,7 +568,7 @@ def render(report, project, root, config, run_id, trend):
                                         code(actual)))
             else:
                 lines.append("### %s（无 diff）" % case_id)
-                note = summary_line(case)
+                note = summary_line(project, case)
                 if note:
                     lines.append("- 结论：%s" % note)
             evidence = evidence_paths(project, case)
@@ -532,12 +643,11 @@ def main(argv=None):
         root = resolve_root(config, config_path, args.root)
         source = resolve_report(project, root, args.report)
         report = load_report(source)
-        run_id = run_id_of(source, report)
-        trend = compute_trend(source, run_id, report)
+        report_dir = Path(project) / root / REPORT_DIR_NAME
+        run_id, md_path = locate_run(report_dir, source, report)
+        trend = compute_trend(source, run_id, report, report_dir)
         text = render(report, project, root, config, run_id, trend)
 
-        report_dir = Path(project) / root / REPORT_DIR_NAME
-        md_path = report_dir / (run_id + ".md")
         latest_md = report_dir / LATEST_MD
         write_text(md_path, text)
         write_text(latest_md, text)

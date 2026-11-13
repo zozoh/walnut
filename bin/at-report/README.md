@@ -6,7 +6,11 @@
 一条命令、纯读、可重复：**只读 JSON 报告与证据里的 `summary.txt`，不执行用例、不连实例**。
 
 ```text
-<root>/report/<timestamp>.json   →   <root>/report/<timestamp>.md + latest.md
+新布局（ATESET-16 起，一次执行一个目录）:
+<root>/report/<timestamp>/report.json   →   <root>/report/<timestamp>/report.md + latest.md
+
+旧布局（历史扁平报告，不迁移）:
+<root>/report/<timestamp>.json          →   <root>/report/<timestamp>.md + latest.md
 ```
 
 Markdown 由工具生成，不让模型手写——省 token、可复现、格式稳定。
@@ -14,14 +18,19 @@ Markdown 由工具生成，不让模型手写——省 token、可复现、格�
 ## 用法
 
 ```bash
-# 最近一次（<root>/report/latest.json）
+# 最近一次（<root>/report/latest.json），md 写回它所属的那次目录
 python bin/at-report/at-report.py
 
 # 显式写 latest，等价于上一条
 python bin/at-report/at-report.py latest
 
-# 指定某一份报告（给复核/复盘用）
+# 指定某一次执行（新布局：<ts> 目录 / <ts>/report.json）
+python bin/at-report/at-report.py 20261113T172335
+python bin/at-report/at-report.py atest/report/20261113T172335
+
+# 旧版扁平报告（仍是 <ts>.json；不迁移但继续可读）
 python bin/at-report/at-report.py atest/report/20261113T145425.json
+python bin/at-report/at-report.py 20261113T145425
 
 # 别的项目 / 别的根目录
 python bin/at-report/at-report.py --dir D:/work/myproj --root spec
@@ -29,7 +38,7 @@ python bin/at-report/at-report.py --dir D:/work/myproj --root spec
 
 | 参数 | 说明 |
 |------|------|
-| `REPORT` | JSON 报告路径；`latest`（缺省）读 `<root>/report/latest.json`。相对路径按 `--dir` 解析 |
+| `REPORT` | `latest`（缺省）读 `<root>/report/latest.json`；也可给 `<ts>` 目录 / `<ts>.json` / 任意报告 JSON 路径。相对路径先按 `--dir`、再按 `<root>/report/` 解析 |
 | `--dir DIR` | 项目目录，默认当前目录 |
 | `--root NAME` | 集成测试根目录名；缺省读 `<dir>/atest.json` 的 `root`，再缺省 `atest` |
 
@@ -44,7 +53,7 @@ python bin/at-report/at-report.py --dir D:/work/myproj --root spec
 stdout 先打印两行人读摘要，**最后一行是单行 JSON**（机器解析用）：
 
 ```json
-{"ok":true,"source":"atest/report/latest.json","report":"atest/report/20261113T145550.md","latest":"atest/report/latest.md","timestamp":"20261113T145550","total":4,"passed":4,"failed":0,"blocked":0,"trend":{"previous":"20261113T145446","new_red":[],"fixed":[],"still_red":[],"added":[],"removed":[]},"exit":0}
+{"ok":true,"source":"atest/report/latest.json","report":"atest/report/20261113T145550/report.md","latest":"atest/report/latest.md","timestamp":"20261113T145550","total":4,"passed":4,"failed":0,"blocked":0,"trend":{"previous":"20261113T145446","new_red":[],"fixed":[],"still_red":[],"added":[],"removed":[]},"exit":0}
 ```
 
 - `report` / `latest` / `source` 都是**相对项目根**的路径，可直接贴进文档；
@@ -73,7 +82,7 @@ stdout 先打印两行人读摘要，**最后一行是单行 JSON**（机器解�
 
 ### CASE-102 diff: content
 - 期望：`"hello"`　实际：`"hello "`
-- 证据：`atest/report/20261113T145550/CASE-102/summary.txt`、`…/objects/…json`
+- 证据：`atest/report/20261113T145550/cases/CASE-102/summary.txt`、`…/objects/…json`
 - 复现：`python bin/at-run/at-run.py --dir . --root atest --instance L1 --domain demo --only CASE-102`
 
 ## 趋势（对比 20261113T145446）
@@ -96,13 +105,14 @@ stdout 先打印两行人读摘要，**最后一行是单行 JSON**（机器解�
   - 无 diff（如脚本没输出结果 JSON）：`### <CASE-ID>（无 diff）` + `summary.txt` 的结论；
   - 证据清单：`summary.txt` 在前、`objects/` 次之，其余按名字；
   - 复现命令：`at-run --only <CASE-ID>`，可在项目根直接复制执行；
-- **趋势**：只与**同目录**上一份比，见下节；
+- **趋势**：只与同一 `<root>/report/` 的上一份比，见下节；
 - **建议**：固定留空，工具永远不写内容——由人或智能体补充。
 
 ## 趋势怎么算
 
-「上一份」= 与源 JSON **同目录**、文件名符合 `<YYYYMMDD>T<HHMMSS>[-n].json`、
-运行 ID 严格小于当前份的**最大**那份；`latest.json` 永远排除（它只是副本）。
+「上一份」= 同一 `<root>/report/` 下、运行 ID 严格小于当前份的**最大**那份；
+新旧两种盘上形态都认（`<ts>/report.json` 与 `<ts>.json`），`latest.json`
+永远排除（它只是副本）。
 
 | 分类 | 判定 |
 |------|------|
@@ -111,16 +121,18 @@ stdout 先打印两行人读摘要，**最后一行是单行 JSON**（机器解�
 | 仍红 | 两份都是 `failed` |
 | 新增 / 消失 | 只在一份里出现的 CASE-ID；有才显示这一行 |
 
-首份（同目录没有更早的报告）显示 `- 无上一份报告可比（首份）`；上一份 JSON 坏了
+首份（`report/` 没有更早的报告）显示 `- 无上一份报告可比（首份）`；上一份 JSON 坏了
 只降级成一行提示，**不阻塞**本次报告生成。
 
 ## 路径与可移植性
 
-- 证据路径一律**相对项目根**：`evidence_dir`（at-run 写成绝对路径）在渲染时转成
-  `atest/report/<ts>/<CASE-ID>/…`，报告整体挪走也不失效；
+- 证据路径一律**相对项目根**：at-run 新报告直接写
+  `atest/report/<ts>/cases/<CASE-ID>`，渲染时原样保留；旧报告的 `evidence_dir`
+  是绝对路径，渲染时同样转成相对项目根——报告整体挪走也不失效；
+- 相对 `evidence_dir` 按项目根解析（不是按当前目录），旧绝对路径原样可用；
 - 万一 `evidence_dir` 不在项目根下（人为构造的报告），原样保留绝对路径，不猜；
-- 报告文件名：源文件是 `<timestamp>.json` 就直接用；是 `latest.json` 或自定义名时，
-  由 JSON 的 `timestamp` 字段（ISO 时间）推出 `<YYYYMMDD>T<HHMMSS>`；
+- Markdown 落点：新布局进 `<ts>/report.md`，旧版扁平仍在顶层 `<ts>.md`；
+  `latest` 按与 `latest.json` 逐字节一致的那次执行定位；
 - 重复生成同一份会**覆盖**同名 `.md` 与 `latest.md`（纯函数，幂等）。
 
 > `latest.md` 的含义是「**最近一次生成的**报告」，不是「最新时间戳的报告」：
