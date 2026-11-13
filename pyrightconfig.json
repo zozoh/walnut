@@ -15,5 +15,6 @@
     "bin/at-run"
   ],
   "pythonVersion": "3.12",
-  "typeCheckingMode": "basic"
+  "typeCheckingMode": "basic",
+  "strict": []
 }

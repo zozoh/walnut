@@ -20,6 +20,23 @@ JSON 输出、退出码有语义。直接用仓库里的同一份，**不要复�
 | `at-gc` | 报告归档：保留最近 N 次（`report_keep`，默认 3），更早的压成 `report/archive/<ts>.zip`，校验通过才删原件；`at-run` 跑完自动调用 |
 | `at-doctor` | 环境自检：Python / atest.json / 用例 / 实例登记 / 可达 / 会话 / 工具 / 报告目录共 8 项，一项命令判断"这台机器能不能跑" |
 
+## 代码约定（Python）
+
+工具是给人**和智能体**读的代码，所以按"注解即文档"来写：
+
+1. **公共函数必须有参数与返回注解**，例如 `def find_runner() -> Optional[Path]:`、
+   `bases: list[Path] = []`。空列表/空字典要显式标注元素类型，否则 Pyright 会推成
+   `Unknown`，调用方就失去类型信息。
+2. **不把 `Unknown` 泄出去**：返回 `Unknown | None` 这类"部分未知"会在 strict 模式下报
+   `reportUnknown*`。遇到就先补注解，**不要用 `# type: ignore` 或关规则糊过去**。
+3. `Any` 只出现在边界（解析 JSON、读外部输出）；进了内部逻辑就收敛成具体类型。
+4. 只用标准库；不引入第三方依赖（智能体的环境里不一定有 pip）。
+5. **目标是在 Pyright `strict` 下无告警**，但是**渐进**的：`walnut/pyrightconfig.json`
+   现在是 `basic`，某个目录的注解补齐后，把它加进该文件的 `strict` 数组。
+   新增/修改的函数按 strict 的标准写，存量代码按触碰补。
+6. 检查方式：VSCode 的 Pylance（工作区根在 `walnut` 时读 `pyrightconfig.json`），
+   或 `npx pyright`（需要 Node 与网络；没有就靠编辑器）。
+
 行为契约（参数/退出码/输出格式）见
 `{WN_DOC_HOME}/reference/102.auto-test/30-at-tools.md`（`{WN_DOC_HOME}` = 工作区同级 `../wn-doc/`）；
 操作套路（先查命令表、纯用命令、找不到就问）见

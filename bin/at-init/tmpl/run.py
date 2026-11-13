@@ -11,7 +11,8 @@
 
 所有参数原样转给 `bin/at-run/at-run.py`（`--help` 看全集）。
 工具位置查找顺序：`$WALNUT_HOME` → 本项目目录 → 各级父目录（找 `bin/at-run/at-run.py`）。
-零依赖：只用 Python 标准库。
+零依赖：只用 Python 标准库。代码约定（类型注解、Pyright strict 渐进）见
+`walnut/bin/README.md`。
 """
 
 import os
