@@ -1,31 +1,48 @@
-# CASE-001 <一句话：被测行为>
+---
+caseID: CASE-001
+title: 新建目录后按路径能读到
+source: ATESET / man cmd_o §@create
+contract: cmd_o @create
+expected: inline
+---
 
-> 样例用例模板（`bin/at-init/tmpl/`）：复制成 `test/cases/<CASE-ID>.md` 后改写。
-> 字段以 ATESET-02 定稿为准；头五项是必填。
+# CASE-001 新建目录后按路径能读到
 
-- 需求来源: <计划 ID / 需求 / man 页，如 `man cmd_o`>
-- 被测契约: <命令或 API，如 `o / @json`>
-- 作者: <智能体代号>
-- 实例: 继承 ATEST.md 的 instance（或写死 L1 / L2）
-- 期望来源: 内联 expected（内联 expected / 独立期望文件 / 基线快照，三选一）
+> **本文件就是一个合法用例，照抄即可**：把它复制成 `test/cases/<CASE-ID>.md` 后改三处——
+> 文件名、`caseID`、正文一级标题里的 ID 与 `title`（两处同文）；再按需改下面四节。
+> 选填字段：`instance`（缺省取 `ATEST.md` 的 instance）、`suite`（缺省 `default`）、
+> `owner`、`created`；不写就是缺省，不要为了"填满"硬写。
+> 字段与校验规则的权威定义见 ATESET-02 任务书；写作套路见 `write-test-case` skill。
 
 ## 前置
 
-- 静态布局见 `test/atest.init`；本例只新增下列动态数据，脚本自带清理，可重复跑。
+- 静态布局见 `test/atest.init`：域 home（`~`）已存在；本例不依赖任何 `.dao` / `.regapi` 接口。
+- 本例只新增动态数据 `~/atest-dir` 一个目录；用 `-upsert` 保证重复执行不报错，无独立清理脚本。
 
 ## 步骤
 
-1. `test/scripts/CASE-001.py` 执行被测契约，原始响应落到证据目录；
-2. 结果写进测试域（对象树），由 at-run 断言。
+1. `python bin/wn-cli/wn-cli.py cmd 'o ~ @create atest-dir -race DIR -upsert'`
+   —— 在域 home 下创建目录对象（级别由 runner 按 `ATEST.md` 注入；手工复跑时补 `--level L1`）；
+2. `python bin/wn-cli/wn-cli.py cmd 'o ~/atest-dir @json'`
+   —— 按路径读回该对象，原始 JSON 落到证据目录。
 
 ## 期望
 
+只比下面 json 里出现的键；`id` / `pid` / `ct` / `lm` / `sha1` 每次执行都不同，不写、不比。
+
 ```json
 {
-  "ok": true
+  "nm": "atest-dir",
+  "race": "DIR"
 }
 ```
 
 ## 证据
 
-- 报告需带：执行的命令、原始响应、对象树快照路径、运行时间区间。
+默认三件，失败时由脚本按本节抓取（够用就不必改这一节）：
+
+1. 两步 `wn-cli` 的原始 stdout / stderr 与退出码；
+2. `o ~/atest-dir @json` 的完整对象快照；
+3. 该会话、该路径对应的 `access.log` 片段。
+
+> 需要额外快照（例如 `~` 的子节点列表）或前后时间区间时，在本节加一条，写明取什么、存哪。

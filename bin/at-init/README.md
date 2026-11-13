@@ -52,16 +52,17 @@ stdout 是**单行 JSON**（适合机器解析，提示进 stderr）：
     |-- atest.init             # 静态布局模板（夹具；05 消费）
     |-- cases/                 # 用例 <CASE-ID>.md
     |-- scripts/               # 脚本 <CASE-ID>.<ext>
+    |-- expect/                # 独立期望文件 <CASE-ID>.json（expected: file）
     |-- baseline/              # 基线 <CASE-ID>.json
     `-- report/                # 报告输出（gitignore）
 ```
 
-进库：`ATEST.md`、`test/atest.init`、`test/cases/`、`test/scripts/`、
+进库：`ATEST.md`、`test/atest.init`、`test/cases/`、`test/scripts/`、`test/expect/`、
 `test/baseline/`、`.wn-instances.example.json`。
 不进库：`test/report/`、`.wn-instances.json`（本机配置）——两条都已追加进
 项目 `.gitignore`（带 `# at-init:` 标记，重复执行不重复追加）。
 
-> 生成**只创建空目录与占位文件**，不往 `cases/` / `scripts/` 里塞示例用例：
+> 生成**只创建空目录与占位文件**，不往 `cases/` / `scripts/` / `expect/` 里塞示例用例：
 > 用例格式由 ATESET-02 定稿，模板在 [`tmpl/`](tmpl/) 里照抄改名即可。
 > `test/atest.init` 是项目的夹具文件，生成一次后由人编辑，`--force` 不碰它。
 
@@ -76,7 +77,7 @@ stdout 是**单行 JSON**（适合机器解析，提示进 stderr）：
 | `.wn-instances.example.json` | `created` | `kept` | 内容有差异时**刷新** |
 | `.gitignore` 的 `# at-init:` 块 | `created` / `appended` | `kept` | 同左 |
 
-`cases/`、`scripts/`、`baseline/` 里的用户内容**在任何情况下都不动**。
+`cases/`、`scripts/`、`expect/`、`baseline/` 里的用户内容**在任何情况下都不动**。
 
 `ATEST.md` 已存在但没有标记段时，追加段（`appended`）而不是重写文件。
 
@@ -118,7 +119,8 @@ stdout 是**单行 JSON**（适合机器解析，提示进 stderr）：
 |--------------------------|------|
 | `ATEST.md` | 手册骨架 + 工具维护段（`{{project}}` 占位） |
 | `atest.init` | 静态布局模板骨架（注释示例，由 05 定稿语法） |
-| `CASE-001.md` | 用例模板：头五项必填（来源 / 契约 / 作者 / 实例 / 期望来源） |
+| `CASE-001.md` | 用例模板（本身即合法用例，照抄改名即可）：front-matter 5 个必填（`caseID` / `title` / `source` / `contract` / `expected`）+ 正文四节（前置 / 步骤 / 期望 / 证据） |
+| `CASE-001-bad.md` | 反例：7 类常见错误逐条标注"为什么错"；只当教材，**别复制进 `test/cases/`** |
 | `CASE-001.py` | 脚本骨架：契约未定稿前**退出 2 并说明未实现**，不假装通过 |
 | `wn-instances.example.json` | 生成到项目根的 `.wn-instances.example.json` |
 

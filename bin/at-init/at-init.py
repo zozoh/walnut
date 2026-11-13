@@ -8,6 +8,7 @@ at-init — 运行时集成测试（ATEST）项目骨架脚手架
     test/atest.init             静态布局模板（夹具，人编辑）
     test/cases/                 用例 <CASE-ID>.md
     test/scripts/               用例脚本 <CASE-ID>.<ext>
+    test/expect/                独立期望文件 <CASE-ID>.json（expected: file）
     test/baseline/              基线 <CASE-ID>.json（审核者写）
     test/report/                执行报告（写进 .gitignore，不进库）
     ATEST.md                    集成测试标记段（instance / 测试域 / 凭据位置 / init 模板）
@@ -21,8 +22,8 @@ at-init — 运行时集成测试（ATEST）项目骨架脚手架
 `.wn-instances.example.json`），且**保留段内用户设定的字段值**
 （`instance` / `test_domain` / `credentials_file` / `sql_datasource`，以及没给
 `--name` 时的 `project`）——只刷新说明文字、注释与缺失字段，不会把
-`instance: L1` 静默改回样例默认的 `L2`。`cases/` / `scripts/` / `baseline/` 里的
-内容和 `test/atest.init` 永远不动。
+`instance: L1` 静默改回样例默认的 `L2`。`cases/` / `scripts/` / `expect/` /
+`baseline/` 里的内容，以及 `test/atest.init`，永远不动。
 
 所有写入都是 UTF-8 无 BOM（新文件 LF 换行；改写已有文件时沿用其原换行——
 带 BOM 会让 TOML/JSON 解析出空值，本项目踩过）。
@@ -69,9 +70,10 @@ KEEP_ON_FORCE = ("instance", "test_domain", "credentials_file",
 GITIGNORE_MARK = "# at-init: ATEST 产物（报告不进库；实例登记真身是本机配置）"
 GITIGNORE_BLOCK = GITIGNORE_MARK + "\n/test/report/\n/.wn-instances.json\n"
 
-TREE_DIRS = ("test", "test/cases", "test/scripts", "test/baseline", "test/report")
+TREE_DIRS = ("test", "test/cases", "test/scripts", "test/expect",
+             "test/baseline", "test/report")
 GITKEEP_FILES = ("test/cases/.gitkeep", "test/scripts/.gitkeep",
-                 "test/baseline/.gitkeep")
+                 "test/expect/.gitkeep", "test/baseline/.gitkeep")
 
 DESCRIPTION = """\
 在项目里生成 ATEST（运行时集成测试）的 test/ 骨架、ATEST.md 标记段与实例登记样例。
@@ -82,6 +84,7 @@ EPILOG = """\
   test/atest.init             静态布局模板（夹具；可编辑，--force 不覆盖）
   test/cases/                 用例 <CASE-ID>.md
   test/scripts/               用例脚本 <CASE-ID>.<ext>
+  test/expect/                独立期望文件 <CASE-ID>.json（expected: file）
   test/baseline/              基线 <CASE-ID>.json
   test/report/                报告输出（追加进 .gitignore）
   ATEST.md                    集成测试标记段（instance / test_domain / ...）
@@ -92,7 +95,7 @@ EPILOG = """\
   （ATEST.md 的 begin~end 之间、.wn-instances.example.json），并且**保留用户
   设定的字段值**（instance / test_domain / credentials_file / sql_datasource，
   以及没给 --name 时的 project），只刷新说明文字与缺失字段。
-  cases/ scripts/ baseline/ 与 test/atest.init 里的内容永不覆盖。
+  cases/ scripts/ expect/ baseline/ 与 test/atest.init 里的内容永不覆盖。
 
 分工:
   .at/（身份 / 会话 / 凭据）归 walnut-at-init；本工具只管 test/ 与 ATEST.md 段。
@@ -338,7 +341,7 @@ def main(argv=None):
                          "保留你设定的 project/instance/test_domain/"
                          "credentials_file/sql_datasource 值；"
                          "以及 .wn-instances.example.json）；"
-                         "不动 cases/ scripts/ baseline/ 与 test/atest.init")
+                         "不动 cases/ scripts/ expect/ baseline/ 与 test/atest.init")
     ap.add_argument("--dry-run", action="store_true",
                     help="只计算并输出计划，不写任何文件")
     args = ap.parse_args(argv)
