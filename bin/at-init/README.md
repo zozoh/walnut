@@ -135,7 +135,7 @@ stdout 是**单行 JSON**（适合机器解析，提示进 stderr）：
 | 模板（[`tmpl/`](tmpl/)） | 用途 |
 |--------------------------|------|
 | `atest.init` | 静态布局模板骨架（`{{root}}` 占位；注释示例，由 05 定稿语法） |
-| `CASE-001.md` | 用例模板（本身即合法用例，照抄改名即可）：front-matter 5 个必填（`caseID` / `title` / `source` / `contract` / `expected`）+ 正文四节（前置 / 步骤 / 期望 / 证据） |
+| `CASE-001.md` | 用例模板（本身即合法用例，照抄改名即可）：front-matter 5 个必填（`caseID` / `title` / `source` / `contracts` / `expected`）+ 正文四节（前置 / 步骤 / 期望 / 证据） |
 | `CASE-001-bad.md` | 反例：7 类常见错误逐条标注"为什么错"；只当教材，**别复制进 `atest/cases/`** |
 | `CASE-001.py` | 脚本骨架：改用 `atlib`（`wn/snap/emit/note`），照抄即可跑通 |
 | `wn-instances.example.json` | 生成到项目根的 `.wn-instances.example.json` |
