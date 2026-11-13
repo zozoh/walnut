@@ -3,24 +3,17 @@
 # 这里只写"世界应该长什么样"：目录、配置文件等**静态布局**。
 # 每例新增的业务数据不写这里，写到 {{root}}/scripts/<CASE-ID>.<ext>。
 #
-# 怎么执行（ATESET-05）：
-#   - 用例脚本里调 `atlib.fixture()`：atlib 本地渲染本文件，再用
-#     `mkdir -p` / `obj save-text` / `o ... @update` 落到域里；
-#   - **不调用 `app init`**（L1 实测三条路都不通，见 README 与任务书决策记录）；
-#   - 变量来自 {{root}}/vars.json（可选；把本目录的 vars.json 复制过去改），
-#     缺省 `{}`；
+# 怎么执行（ATESET-05 最终版）：
+#   - 用例脚本里调 `atlib.fixture()`：它把本文件上传到 ~/.atest/init/，再执行
+#     `app init -conf ~/.atest/init/<name>.init -script off`（收尾脚本默认关）；
+#   - 变量来自 {{root}}/vars.json（可选），经 `-vars` 传入，缺省 `{}`；
 #   - 非幂等用例另写 {{root}}/scripts/<CASE-ID>.clean.py；
 #     套件级脏数据写 {{root}}/cleanup.py（at-run --reset 时先跑）。
 #
-# v1 支持的子集（不支持的写法会明确报错，不静默忽略）：
-#   @DIR  <path> ['quick meta'] [{json}]
-#   @FILE <path> ['quick meta'] [{json}]
-#   %TMPL: ... %END%      文本模板（${var} / ${var?默认值}）
-#   %EXPLAIN: ... %END%   JSON/配置（=key 从变量取，=key?默认值）
-#   %COPY: ... %END%      原样写入
-#
-# 不支持：@HOME / @ENV / @API / @INCLUDE、%COPY > 外部文件、`?` 条件写入。
-# 这些请在用例脚本里直接做（例如 @API 用 `o <path> @create` + `obj save-text`）。
+# 写法与 `app init` 完全一致（见 man cmd_app_init）：
+#   @DIR / @FILE / @API / @HOME / @ENV / @INCLUDE
+#   %TMPL: / %COPY: / %EXPLAIN: ... %END%
+# 注意：用 `%COPY >` 引用外部文件时，该文件必须与模板同目录上传。
 #
 # 幂等：目标已存在则跳过内容写入（元数据仍合并），同一模板可重复执行。
 # 敏感值：不要放进 vars.json（它进项目库）；密码留在 .at/credentials.json。

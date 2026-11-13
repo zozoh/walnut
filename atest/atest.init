@@ -3,19 +3,16 @@
 # 这里只写"世界应该长什么样"：~ 下先有一个 atest-lab 实验目录、一个 docs 子目录，
 # 以及一个由模板渲染出来的 hello.txt。每例新增的业务数据写到 atest/scripts/<CASE-ID>.py。
 #
-# 怎么执行（ATESET-05 定稿）：
-#   - 用例脚本第一行调 `atlib.fixture()`：atlib 本地渲染本文件，再用
-#     `mkdir -p` / `obj save-text` / `o ... @update` 落到域里（不调用 `app init`）；
-#   - 变量来自 atest/vars.json（本项目是 {"who": "walnut"}）；
-#   - 幂等：目标已存在则跳过内容写入（元数据仍合并），同一模板可重复执行。
+# 怎么执行（ATESET-05 最终版）：
+#   - 用例脚本第一行调 `atlib.fixture()`：它把本文件上传到 ~/.atest/init/，
+#     再执行 `app init -conf ~/.atest/init/atest.init -script off`；
+#   - 变量来自 atest/vars.json（本项目是 {"who": "walnut"}），经 `-vars` 传入；
+#   - 幂等由 `app init` 保证（非空文件不覆盖），同一模板可重复执行。
 #
-# 支持的写法（v1 子集；不支持的写法会明确报错，不静默忽略）：
-#   @DIR  <path> ['quick meta'] [{json}]
-#   @FILE <path> ['quick meta'] [{json}]
-#   %TMPL: ... %END%      文本模板（${var} / ${var?默认值}）
-#   %EXPLAIN: ... %END%   JSON/配置（=key 从变量取）
-#   %COPY: ... %END%      原样写入
-# 不支持：@HOME / @ENV / @API / @INCLUDE、%COPY > 外部文件、`?` 条件写入。
+# 写法与 `app init` 完全一致（见 man cmd_app_init）：
+#   @DIR / @FILE / @API / @HOME / @ENV / @INCLUDE
+#   %TMPL: / %COPY: / %EXPLAIN: ... %END%
+# 注意：用 `%COPY >` 引用外部文件时，该文件必须与模板同目录上传。
 
 # 实验目录与子目录（路径相对域 home，父目录由 atlib 自动建）
 @DIR atest-lab

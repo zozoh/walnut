@@ -578,13 +578,14 @@ def init_template_warnings(project, config, root):
         stripped = line.strip()
         if INIT_EXTERNAL_RE.match(stripped):
             out.append(warn_of(path, "init-template-external-ref",
-                               "第 %d 行用了 v1 不支持的外部文件引用：`%s`；"
-                               "atlib.fixture() 会报错，改成内联内容块"
+                               "第 %d 行引用了外部文件（`%s`）：`app init` 支持，"
+                               "但引用文件须与模板同目录上传"
+                               "（atlib.fixture 只上传模板本身）"
                                % (i, stripped)))
         elif INIT_INCLUDE_RE.match(stripped):
             out.append(warn_of(path, "init-template-include",
-                               "第 %d 行用了 v1 不支持的 @INCLUDE："
-                               "把被包含的模板内联进来" % i))
+                               "第 %d 行用了 @INCLUDE：`app init` 支持，"
+                               "但被包含文件须与模板同目录上传" % i))
     return out
 
 
