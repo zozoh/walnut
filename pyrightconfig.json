@@ -3,7 +3,9 @@
     "atest",
     "bin/at-run",
     "bin/at-init",
-    "bin/at-baseline"
+    "bin/at-baseline",
+    "bin/at-doctor",
+    "bin/at-gc"
   ],
   "exclude": [
     "**/node_modules",
@@ -17,6 +19,7 @@
   "pythonVersion": "3.12",
   "typeCheckingMode": "basic",
   "strict": [
-    "bin/at-doctor"
+    "bin/at-doctor",
+    "bin/at-gc"
   ]
 }
