@@ -1,14 +1,14 @@
 ---
 caseID: CASE-002
 title: 新建目录能看到
-contract: o
+contracts: [o]
 expected: baseline
 ---
 
 # 反例：CASE-002 新建目录后能看到（**故意写错，不要照抄**）
 
 > 本文件只当教材，**不要复制进 `atest/cases/`**。`at-run --check` 应当在它身上报出 7 条：
-> ① 文件名 ≠ caseID　② 缺 `source`　③ `contract` 过泛　④ `expected` 声明与内容矛盾　
+> ① 文件名 ≠ caseID　② 缺 `source`　③ `contracts: [o]` 过泛　④ `expected` 声明与内容矛盾　
 > ⑤ 步骤里写断言　⑥ 期望写死时间　⑦ 缺 `## 证据` 节。
 > 正确写法见同目录 [`CASE-001.md`](CASE-001.md)：字段齐全、四节齐全、声明与内容一致。
 > （本文件的正文一级标题也没和 `title` 同文——教材用它叙述；真实用例必须 `# <CASE-ID> <title 同文>`。）
@@ -22,8 +22,9 @@ expected: baseline
      它本该写 "ATESET / man cmd_o §@create"。没有需求来源，就无法区分"期望"来自需求还是来自实现；
      把 bug 写成预期（"现状即正确"）时，没有任何人会发现。写不出来就别写这个用例。 -->
 
-<!-- ✗ 错误 3：`contract` 写成命令族 `o`，不是被测契约。
-     应具体到子命令，如 `cmd_o @create`。契约不唯一，`at-run` 无法判断该用哪个脚本、该比哪段结果。 -->
+<!-- ✗ 错误 3：`contracts` 写成命令族 `o`，不是被测契约。
+     应具体到子命令，如 `cmd_o @create`；端点以 `/` 开头，脚本以 `.js` 结尾。
+     契约不唯一，`at-run` 无法判断该用哪个脚本、该比哪段结果。 -->
 
 <!-- ✗ 错误 4：`expected: baseline` 与 `## 期望` 的实际内容矛盾。
      声明 `baseline` 表示期望值在 `atest/baseline/<CASE-ID>.json`，由 08 的审核者在 L2 建立，

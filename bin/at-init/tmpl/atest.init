@@ -1,24 +1,28 @@
 # atest.init — 静态布局模板（夹具）
 #
-# 这里只写"世界应该长什么样"：目录、.dao、.regapi 接口、配置等**静态布局**。
+# 这里只写"世界应该长什么样"：目录、配置文件等**静态布局**。
 # 每例新增的业务数据不写这里，写到 {{root}}/scripts/<CASE-ID>.<ext>。
 #
 # 怎么执行（ATESET-05）：
-#   - 用例脚本里调 `atlib.fixture()`：at-run 会把本文件上传到域内
-#     ~/.atest/init/atest.init，再执行 `app init`；
-#   - 变量来自 {{root}}/vars.json（可选；把本目录的 vars.json 复制过去改）；
-#     没有 vars.json 时用 app init 的默认 ~/.domain/vars.json；
+#   - 用例脚本里调 `atlib.fixture()`：atlib 本地渲染本文件，再用
+#     `mkdir -p` / `obj save-text` / `o ... @update` 落到域里；
+#   - **不调用 `app init`**（L1 实测三条路都不通，见 README 与任务书决策记录）；
+#   - 变量来自 {{root}}/vars.json（可选；把本目录的 vars.json 复制过去改），
+#     缺省 `{}`；
 #   - 非幂等用例另写 {{root}}/scripts/<CASE-ID>.clean.py；
 #     套件级脏数据写 {{root}}/cleanup.py（at-run --reset 时先跑）。
 #
-# 语法以 `man cmd_app_init` 与源码为准。v1 只支持**内联内容块**：
+# v1 支持的子集（不支持的写法会明确报错，不静默忽略）：
+#   @DIR  <path> ['quick meta'] [{json}]
+#   @FILE <path> ['quick meta'] [{json}]
 #   %TMPL: ... %END%      文本模板（${var} / ${var?默认值}）
 #   %EXPLAIN: ... %END%   JSON/配置（=key 从变量取，=key?默认值）
 #   %COPY: ... %END%      原样写入
-# 不支持 `%COPY > 外部文件` 与 `@INCLUDE`（atlib.fixture() 会明确报错）；
-# 需要外部文件时，先用 `wn-cli obj save-text` 上传到域内，再改成内联。
 #
-# 幂等：app init 默认**不覆盖**已有文件；不要写 `%` 强制覆盖。
+# 不支持：@HOME / @ENV / @API / @INCLUDE、%COPY > 外部文件、`?` 条件写入。
+# 这些请在用例脚本里直接做（例如 @API 用 `o <path> @create` + `obj save-text`）。
+#
+# 幂等：目标已存在则跳过内容写入（元数据仍合并），同一模板可重复执行。
 # 敏感值：不要放进 vars.json（它进项目库）；密码留在 .at/credentials.json。
 
 # ---------------------------------------------------------------
@@ -47,21 +51,3 @@ owner : ${atest_owner?demo}
   "enabled": true
 }
 %END%
-
-# ---------------------------------------------------------------
-# 可选：regapi 接口（取消注释前先确认域里有该路径）
-# ---------------------------------------------------------------
-# @API .regapi/api/atest/ping 'cross/json'
-# {
-# }
-# %COPY:
-# o '${http-qs-p?}' @json
-# %END%
-
-# ---------------------------------------------------------------
-# 可选：给域主目录打业务元数据（会写到域 home，仅按需启用）
-# ---------------------------------------------------------------
-# @HOME
-# {
-#   "atest-fixture": true
-# }

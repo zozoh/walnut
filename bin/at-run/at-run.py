@@ -7,13 +7,14 @@ at-run — ATEST 运行器（v2）
 
     --check                 只校验用例（字段 / 命名 / 四节 / 期望声明一致性），不执行
     （无参数）              发现用例 → 解析实例 → 复用会话 → 逐例执行 → 写 JSON 报告
-    --only / --suite        选例执行；--stop-on-fail 遇到红灯即停
+    --only                  选例执行；--stop-on-fail 遇到红灯即停
     --instance L1|L2        跑哪一级实例（缺省读 atest.json 的 instance）
     --reset                 整批执行前先跑 <root>/cleanup.py（套件级清理）
 
-夹具（ATESET-05）：静态布局写进 `<root>/atest.init`，用例脚本用 `atlib.fixture()`
-把它送进域并执行 `app init`；非幂等用例另带 `<root>/scripts/<CASE-ID>.clean.py`，
-执行顺序固定为 **清理 → 初始化 → 用例**。清理脚本失败记 blocked（不判红）。
+夹具（ATESET-05）：静态布局写进 `<root>/atest.init`，用例脚本用
+`atlib.fixture()` 的本地最小渲染器铺进域；非幂等用例另带
+`<root>/scripts/<CASE-ID>.clean.py`，执行顺序固定为 **清理 → 初始化 → 用例**。
+清理脚本失败记 blocked（不判红）。
 
 实例解析（两个轴分开，都不猜）:
     级别:  --instance  →  atest.json 的 instance  →  报错
@@ -50,11 +51,11 @@ at-run — ATEST 运行器（v2）
     不认识 / 混用多个 matcher → --check 报 expected-invalid。
 
 报告（JSON，唯一源；Markdown 归 07）:
-    <root>/report/<suite>/<timestamp>.json  +  同内容的 latest.json
-    {"schema","suite","timestamp","instance","instance_source","total","passed",
+    <root>/report/<timestamp>.json  +  同内容的 latest.json
+    {"schema","timestamp","instance","instance_source","total","passed",
      "failed","blocked","cases":[{"caseID","status","duration_ms","evidence_dir",
      "diff","evidence"}]}
-    schema = "atest-report/2"（v1 无此键，只增不改）；
+    schema = "atest-report/2"（v1 无此键，只增不改；v2 用例格式去掉 suite）；
     status = passed / failed / blocked（blocked = 未实现或缺基线，不算红）；
     evidence 是相对证据目录的文件清单（summary.txt / objects/… 等）。
 
@@ -90,13 +91,14 @@ ROOT_RE = re.compile(r"^[A-Za-z0-9._-]+$")
 CLEANUP_NAME = "cleanup.py"
 CASE_CLEAN_SUFFIX = ".clean.py"
 INIT_MAX_BYTES = 256 * 1024
-# app init 的 v1 只支持内联内容块；这两类写法引用外部文件
+# 夹具 v1 只支持内联内容块；这两类写法引用外部文件
 INIT_EXTERNAL_RE = re.compile(r"^[%?](COPY|TMPL|EXPLAIN)(\{.*\})?\s*>", re.I)
 INIT_INCLUDE_RE = re.compile(r"^@INCLUDE\b", re.I)
 
-REQUIRED_FIELDS = ("caseID", "title", "source", "contract", "expected")
+REQUIRED_FIELDS = ("caseID", "title", "source", "contracts", "expected")
 EXPECTED_KINDS = ("inline", "file", "baseline")
 SECTIONS = ("前置", "步骤", "期望", "证据")
+REMOVED_FIELDS = ("instance", "suite")
 
 # 比较时忽略的易变字段（DRAFT §4.4：每次执行都不同），以及以 _ 开头的内部键
 IGNORE_KEYS = ("id", "pid", "ct", "lm", "sha1")
@@ -105,7 +107,7 @@ IGNORE_KEYS = ("id", "pid", "ct", "lm", "sha1")
 MATCHER_KEYS = ("$ignore", "$range", "$regex")
 REPORT_SCHEMA = "atest-report/2"
 
-# contract 只写命令族不算"被测契约"（02 反例错误 3）
+# contracts 某项只写命令族不算"被测契约"（02 反例错误 3）
 GENERIC_CONTRACTS = ("o", "obj", "cmd", "cmd_o", "cmd_obj", "cmd_sqlx", "sqlx",
                      "jsc", "api", "regapi", "cmd_app")
 
@@ -165,16 +167,17 @@ EPILOG = """\
   不认识 / 多 matcher 混用 / 放在期望根上 → --check 报 expected-invalid
 
 报告:
-  <root>/report/<suite>/<timestamp>.json 与同内容 latest.json
-  schema = "atest-report/2"（03 的 9 个顶层键与每例 5 个键保持不变，只增不改）
+  <root>/report/<timestamp>.json 与同内容 latest.json
+  schema = "atest-report/2"（03 的顶层键保留；用例格式 v2 去掉 suite；只增不改）
   cases[] = {"caseID","status","duration_ms","evidence_dir","diff","evidence"}
   status = passed / failed / blocked（blocked 不算红）
   evidence = 相对证据目录的文件清单（summary.txt / objects/…）
 
 --check 错误码:
-  filename-mismatch / caseid-invalid / missing-field / expected-invalid /
-  contract-too-generic / missing-section / assertion-in-steps /
-  expected-mismatch / expected-invalid-json / volatile-field / caseid-duplicate
+  filename-mismatch / caseid-invalid / missing-field / removed-field /
+  expected-invalid / contract-too-generic / missing-section /
+  assertion-in-steps / expected-mismatch / expected-invalid-json /
+  volatile-field / caseid-duplicate
 
 --check 警告码（只警告，不影响退出码）:
   init-template-missing / init-template-not-file / init-template-unreadable /
@@ -183,7 +186,6 @@ EPILOG = """\
 示例:
   python bin/at-run/at-run.py --check
   python bin/at-run/at-run.py --check bin/at-init/tmpl/CASE-001.md
-  python bin/at-run/at-run.py --instance L1 --suite smoke
   python bin/at-run/at-run.py --instance L1 --only CASE-001,CASE-002
   python bin/at-run/at-run.py --instance L1 --reset
   python bin/at-run/at-run.py --instance L2 --stop-on-fail
@@ -330,22 +332,60 @@ def split_front_matter(text):
     return None, text
 
 
+def _unquote(value):
+    value = value.strip()
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+        return value[1:-1]
+    return value
+
+
+def _inline_list(value):
+    """`[a, b]` → list；优先按 JSON，失败再按逗号切（兼容不加引号的写法）。"""
+    text = value.strip()[1:-1].strip()
+    if not text:
+        return []
+    try:
+        parsed = json.loads("[%s]" % text)
+        if isinstance(parsed, list):
+            return [_unquote(str(x)) for x in parsed]
+    except ValueError:
+        pass
+    return [_unquote(x) for x in text.split(",") if x.strip()]
+
+
 def parse_front_matter(fm):
-    """只认 `key: value`；值一律转成字符串（YAML 的日期类型会被 str 归一，02 的 F2）。"""
+    """解析 front-matter：标量按 `key: value`，`contracts` 支持块列表/内联列表。
+
+    标量值一律转字符串（YAML 的日期类型会被 str 归一，02 的 F2）；
+    `key:` 后没有值表示一个列表字段，后续 `- item` 行逐个收集。
+    """
     fields = {}
+    current = None
     if fm is None:
         return fields
     for raw in fm.splitlines():
         s = raw.strip()
         if not s or s.startswith("#"):
             continue
+        if s.startswith("-"):
+            item = _unquote(s[1:].strip())
+            if current and isinstance(fields.get(current), list):
+                fields[current].append(item)
+            continue
         m = FIELD_RE.match(s)
         if not m:
             continue
+        key = m.group(1)
         value = m.group(2).strip()
-        if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
-            value = value[1:-1]
-        fields[m.group(1)] = value
+        if not value:
+            fields[key] = []
+            current = key
+        elif value.startswith("[") and value.endswith("]"):
+            fields[key] = _inline_list(value)
+            current = None
+        else:
+            fields[key] = _unquote(value)
+            current = None
     return fields
 
 
@@ -536,6 +576,28 @@ def init_template_warnings(project, config, root):
     return out
 
 
+def contract_is_generic(item):
+    """契约项是否只写了命令族（02 反例错误 3）。"""
+    text = item.strip()
+    if not text:
+        return True
+    low = text.lower()
+    if low in GENERIC_CONTRACTS:
+        return True
+    # 端点或以 .js 结尾的脚本，本身就是具体契约
+    if text.startswith("/") or text.endswith(".js"):
+        return False
+    parts = text.split()
+    if len(parts) < 2:
+        return True
+    # o / cmd / jsc 这类族名必须带 @子命令才算具体
+    if parts[0].lower() in ("o", "obj", "cmd", "jsc", "sqlx", "api",
+                            "regapi") \
+            and not any(p.startswith("@") for p in parts[1:]):
+        return True
+    return False
+
+
 def check_case(path, text, root=ROOT_DEFAULT, project=None):
     """校验一个用例文件；返回 (fields, sections, errors)。root 只用于路径文案。"""
     errors = []
@@ -554,7 +616,18 @@ def check_case(path, text, root=ROOT_DEFAULT, project=None):
         errors.append(err_of(path, case_id, "caseid-invalid",
                              "caseID %r 不匹配 %s"
                              % (case_id, CASE_ID_RE.pattern)))
+    for removed in REMOVED_FIELDS:
+        if removed in fields:
+            errors.append(err_of(
+                path, case_id, "removed-field",
+                "字段 `%s` 已移除：%s" % (
+                    removed,
+                    "实例是运行期信息，请在 atest.json / --instance 指定"
+                    if removed == "instance"
+                    else "用 --only 选批，不再有 suite")))
     for name in REQUIRED_FIELDS:
+        if name == "contracts":
+            continue
         if not fields.get(name):
             errors.append(err_of(path, case_id, "missing-field",
                                  "缺少必填字段 %s" % name))
@@ -564,11 +637,24 @@ def check_case(path, text, root=ROOT_DEFAULT, project=None):
         errors.append(err_of(path, case_id, "expected-invalid",
                              "expected 只能是 %s，现在是 %r"
                              % (" / ".join(EXPECTED_KINDS), kind)))
-    contract = fields.get("contract", "").strip()
-    if contract and contract.lower() in GENERIC_CONTRACTS:
-        errors.append(err_of(path, case_id, "contract-too-generic",
-                             "contract %r 过泛：要具体到子命令/端点"
-                             "（如 cmd_o @create）" % contract))
+    contracts = fields.get("contracts")
+    if not contracts:
+        errors.append(err_of(path, case_id, "missing-field",
+                             "缺少必填字段 contracts：非空数组，按调用顺序列"
+                             "（如 - cmd_o @create / - /api/x / - a.js）"))
+    elif not isinstance(contracts, list):
+        errors.append(err_of(path, case_id, "missing-field",
+                             "contracts 必须是非空数组（现在 %r）" % (contracts,)))
+    else:
+        for idx, item in enumerate(contracts, 1):
+            if not isinstance(item, str) or not item.strip():
+                errors.append(err_of(path, case_id, "missing-field",
+                                     "contracts 第 %d 项为空/不是字符串" % idx))
+            elif contract_is_generic(item):
+                errors.append(err_of(
+                    path, case_id, "contract-too-generic",
+                    "contracts 第 %d 项 %r 过泛：要具体到子命令/端点/脚本"
+                    "（如 cmd_o @create、/api/x、a.js）" % (idx, item)))
 
     sections = split_sections(body)
     for name in SECTIONS:
@@ -635,8 +721,9 @@ def check_case(path, text, root=ROOT_DEFAULT, project=None):
         if data is not None:
             for message in expected_matcher_errors(data):
                 errors.append(err_of(path, case_id, "expected-invalid", message))
-        # 易变字段只查内联期望（03 的既有行为）；期望文件/基线不在 --check 展开
-        if kind == "inline" and data is not None:
+        # 易变字段：inline 期望与反例里"声明 baseline 却贴 inline"的块都查；
+        # 期望文件/基线不在这里展开。
+        if data is not None:
             volatiles = volatile_paths(data)
             if volatiles:
                 errors.append(err_of(path, case_id, "volatile-field",
@@ -1057,18 +1144,6 @@ def write_summary(evidence, case_id, status, duration, diff, note, repro,
     write_text(Path(evidence) / "summary.txt", "\n".join(lines) + "\n")
 
 
-def pick_suite(args, selected):
-    suites = split_list(args.suite)
-    if len(suites) == 1:
-        return suites[0]
-    if len(suites) > 1:
-        return "default"
-    names = {(c["fields"].get("suite") or "default") for c in selected}
-    if len(names) == 1:
-        return names.pop()
-    return "default"
-
-
 def split_list(values):
     out = []
     for value in values or []:
@@ -1206,13 +1281,10 @@ def run_suite(project, args, root, config, config_path):
                        "写一个" % rel(cases_dir, project))
 
     only = set(split_list(args.only))
-    suites = set(split_list(args.suite))
 
     def match(case):
         case_id = case["fields"].get("caseID", "")
         if only and case_id not in only:
-            return False
-        if suites and (case["fields"].get("suite") or "default") not in suites:
             return False
         return True
 
@@ -1225,7 +1297,7 @@ def run_suite(project, args, root, config, config_path):
                              % (", ".join(unknown),
                                 ", ".join(sorted(x for x in known if x)) or "无"))
     if not selected:
-        raise UsageError("筛选条件没有命中任何用例（--only / --suite 太窄）")
+        raise UsageError("筛选条件没有命中任何用例（--only 太窄）")
 
     broken = [c for c in selected if c["errors"]]
     if broken:
@@ -1236,7 +1308,7 @@ def run_suite(project, args, root, config, config_path):
         return EXIT_USAGE
 
     started = datetime.now().astimezone()
-    report_base = project / root / "report" / pick_suite(args, selected)
+    report_base = project / root / "report"
     run_id = unique_run_id(report_base, started)
     run_dir = report_base / run_id
     report_path = report_base / (run_id + ".json")
@@ -1248,7 +1320,7 @@ def run_suite(project, args, root, config, config_path):
     se = ensure_session(wncli, level, domain, session_dir, url, project)
 
     cleanup_state = "skipped"
-    suite_cleanup_note = ""
+    batch_cleanup_note = ""
     if args.reset:
         cleanup_script = project / root / CLEANUP_NAME
         if not cleanup_script.is_file():
@@ -1265,7 +1337,7 @@ def run_suite(project, args, root, config, config_path):
                                      reset_env, args.timeout, "套件")
             cleanup_state = "ok" if ok else "failed"
             if not ok:
-                suite_cleanup_note = (
+                batch_cleanup_note = (
                     "整批 blocked：套件级 cleanup.py 失败（%s）；证据见 "
                     "../_reset/summary.txt" % detail)
                 print("at-run: --reset 清理失败（%s），全批记 blocked（不是红）"
@@ -1288,26 +1360,22 @@ def run_suite(project, args, root, config, config_path):
         repro = ('python "%s" --dir "%s" --instance %s --domain %s --only %s'
                  % (Path(__file__).resolve(), project, level, domain, case_id))
 
-        if suite_cleanup_note:
+        if batch_cleanup_note:
             reset_summary = run_dir / "_reset" / "summary.txt"
             if reset_summary.is_file():
                 write_text(evidence / "cleanup.txt",
                            read_text(reset_summary))
             write_summary(evidence, case_id, "blocked", 0, [],
-                          suite_cleanup_note, repro, None, level, [])
+                          batch_cleanup_note, repro, None, level, [])
             entry["evidence"] = evidence_files(evidence)
             results.append(entry)
-            print("at-run: %s blocked —— %s" % (case_id, suite_cleanup_note),
+            print("at-run: %s blocked —— %s" % (case_id, batch_cleanup_note),
                   file=sys.stderr)
             continue
 
-        case_instance = case["fields"].get("instance")
         script = project / root / "scripts" / ("%s.py" % case_id)
         expected = None
-        if case_instance and case_instance != level:
-            note = ("该例声明 instance=%s，与本次运行 %s 不一致：单独用 "
-                    "--instance %s 跑" % (case_instance, level, case_instance))
-        elif not script.is_file():
+        if not script.is_file():
             note = "脚本未实现：缺 %s" % rel(script, project)
         else:
             try:
@@ -1413,7 +1481,6 @@ def run_suite(project, args, root, config, config_path):
     failed = sum(1 for r in results if r["status"] == "failed")
     blocked = sum(1 for r in results if r["status"] == "blocked")
     report = {"schema": REPORT_SCHEMA,
-              "suite": report_base.name,
               "timestamp": started.isoformat(timespec="seconds"),
               "instance": level,
               "instance_source": instance_source,
@@ -1428,7 +1495,7 @@ def run_suite(project, args, root, config, config_path):
     write_json(latest_path, report)
 
     exit_code = EXIT_OK if failed == 0 else EXIT_USAGE
-    emit({"ok": failed == 0, "suite": report_base.name, "root": root,
+    emit({"ok": failed == 0, "root": root,
           "instance": level, "test_domain": domain,
           "init_template": init_template,
           "instance_source": instance_source, "session": se,
@@ -1437,8 +1504,8 @@ def run_suite(project, args, root, config, config_path):
           "blocked": blocked, "skipped": len(not_run),
           "report": str(report_path.resolve()),
           "latest": str(latest_path.resolve()), "exit": exit_code})
-    print("at-run: %s %s —— %d 例：%d 绿 / %d 红 / %d blocked%s（报告 %s）"
-          % (report_base.name, level, len(results), passed, failed, blocked,
+    print("at-run: %s —— %d 例：%d 绿 / %d 红 / %d blocked%s（报告 %s）"
+          % (level, len(results), passed, failed, blocked,
              "，%d 例未执行" % len(not_run) if not_run else "",
              rel(report_path, project)),
           file=sys.stderr)
@@ -1470,8 +1537,6 @@ def main(argv=None):
                     help="会话池目录（缺省：登记文件所在目录的 .at/client/session）")
     ap.add_argument("--only", action="append", default=[], metavar="IDS",
                     help="只跑这些 CASE-ID（逗号分隔，可重复）")
-    ap.add_argument("--suite", action="append", default=[], metavar="NAMES",
-                    help="只跑这些 suite（逗号分隔，可重复；缺省全部）")
     ap.add_argument("--stop-on-fail", action="store_true",
                     help="遇到第一个红灯即停（blocked 不算红）")
     ap.add_argument("--reset", action="store_true",
@@ -1484,15 +1549,13 @@ def main(argv=None):
     if args.timeout <= 0:
         emit({"ok": False, "error": "--timeout 必须大于 0"})
         return EXIT_USAGE
-    if args.check and (args.only or args.suite or args.stop_on_fail
-                       or args.reset):
+    if args.check and (args.only or args.stop_on_fail or args.reset):
         emit({"ok": False,
-              "error": "--check 不接受 --only / --suite / --stop-on-fail / "
-                       "--reset"})
+              "error": "--check 不接受 --only / --stop-on-fail / --reset"})
         return EXIT_USAGE
     if not args.check and args.paths:
         emit({"ok": False,
-              "error": "位置参数只用于 --check；执行请用 --only / --suite"})
+              "error": "位置参数只用于 --check；执行请用 --only"})
         return EXIT_USAGE
 
     project = Path(args.dir).expanduser()

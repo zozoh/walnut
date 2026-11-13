@@ -9,8 +9,11 @@ v2（ATESET-04）在 v1 之上补了**表达力**与**证据**：期望支持
 脚本侧另给薄库 [`atlib.py`](atlib.py)（`wn` / `fixture` / `snap` / `emit` / `note`）。
 
 ATESET-05 补上**夹具**：静态布局写进 `<root>/atest.init`，用例脚本用
-`atlib.fixture()` 送进域并执行 `app init`；非幂等用例再带清理脚本，
-执行顺序固定为 **清理 → 初始化 → 用例**（见下文「夹具与清理」）。
+`atlib.fixture()` 的本地最小渲染器铺进域（**不调用 `app init`**）；非幂等用例
+再带清理脚本，执行顺序固定为 **清理 → 初始化 → 用例**（见下文「夹具与清理」）。
+
+> 用例格式 v2（2026-11-13）：必填 `contracts` 有序数组；不再有 `instance` /
+> `suite` 字段，报告也不再按 suite 分目录。权威定义见 ATESET-02 任务书。
 
 与 [`at-init`](../at-init/) 分工：`at-init` 铺骨架，**本工具只跑**；用例格式由
 ATESET-02 定稿（模板 [`bin/at-init/tmpl/CASE-001.md`](../at-init/tmpl/CASE-001.md)），
@@ -60,7 +63,6 @@ python bin/at-run/at-run.py
 # 只跑一例 / 一个套件；遇到红灯即停
 python bin/at-run/at-run.py --only CASE-001
 python bin/at-run/at-run.py --only CASE-001,CASE-002 --stop-on-fail
-python bin/at-run/at-run.py --suite smoke
 
 # 整批执行前先跑套件级清理 <root>/cleanup.py
 python bin/at-run/at-run.py --reset
@@ -80,14 +82,13 @@ python bin/at-run/at-run.py --root spec --check
 | `--instances FILE` | 实例登记文件；缺省 `$WN_INSTANCES` → 从 `<dir>` 逐级向上 → 用户目录 |
 | `--session-dir DIR` | 会话池目录；缺省登记文件所在目录的 `.at/client/session`（工作区级） |
 | `--only IDS` | 只跑这些 CASE-ID（逗号分隔，可重复） |
-| `--suite NAMES` | 只跑这些 suite（逗号分隔，可重复；缺省全部） |
 | `--stop-on-fail` | 第一个红灯即停；**blocked 不算红** |
 | `--reset` | 整批执行前先跑 `<root>/cleanup.py`；失败则全批记 **blocked**（不算红） |
 | `--timeout SEC` | 单例脚本 / 清理脚本超时（默认 120 秒） |
 
 > `--dir` / `--root` / `--domain` / `--instances` / `--session-dir` / `--timeout`
-> 是实现层参数（任务书只列了 `--suite` / `--only` / `--stop-on-fail` /
-> `--instance`，原文是"参数含"）。`--domain` 的用途：`atest.json` 里
+> 是实现层参数（任务书只列了 `--only` / `--stop-on-fail` / `--instance`，
+> 原文是"参数含"）。`--domain` 的用途：`atest.json` 里
 > `test_domain` 还没改成实际测试域时，不改文件也能跑。
 
 退出码：`0` 全绿（`failed == 0`，**blocked 不算红**）；`1` 有红 / 用法错误
@@ -97,12 +98,12 @@ python bin/at-run/at-run.py --root spec --check
 stdout 是**单行 JSON**（提示与逐例进度进 stderr）：
 
 ```json
-{"ok":true,"suite":"default","root":"atest","instance":"L1","test_domain":"demo",
+{"ok":true,"root":"atest","instance":"L1","test_domain":"demo",
  "init_template":"atest/atest.init","instance_source":".../atest.json",
  "session":"L1-demo-00","reset":true,"cleanup":"ok",
  "total":1,"passed":1,"failed":0,"blocked":0,"skipped":0,
- "report":".../atest/report/default/20261113T113351.json",
- "latest":".../atest/report/default/latest.json","exit":0}
+ "report":".../atest/report/20261113T113351.json",
+ "latest":".../atest/report/latest.json","exit":0}
 ```
 
 `skipped` = `--stop-on-fail` 提前结束时未执行的用例数（它们**不进报告**，但一定
@@ -155,12 +156,17 @@ JSON；`-cqn` 才是紧凑标准 JSON）。
 ## 夹具与清理（ATESET-05）
 
 静态布局**不写进用例命令**：`<root>/atest.init` 声明"世界该有什么"，
-用例脚本调 `atlib.fixture()` 把它送进域并执行 `app init`；变量在
+用例脚本调 `atlib.fixture()` 的本地最小渲染器铺进域；变量在
 `<root>/vars.json`。动态数据（每例新增的业务记录）仍写脚本。
 
+> **不再调用 `app init`**。L1 实测三条路都不通：`app init <文件> -vars` 把文件
+> 当目录找 `_files`；建 `~/.atest/init/vp/_files` 后 exit 0 但 0 对象 / 4ms；
+> `cat vars.json | app init <dir>` 同样 0 对象。man 写"首参是模板文件"与源码
+> 行为对不上，因此改为 atlib 自带的最小渲染器（任务书决策记录已标"撤销"）。
+
 ```text
-<root>/atest.init                 静态布局模板（app init 语法；只支持内联内容块）
-<root>/vars.json                  可选；对象，项目级变量（覆盖调用方默认值）
+<root>/atest.init                 静态布局模板（v1 子集；见下）
+<root>/vars.json                  可选；对象，项目级变量（缺省 {}）
 <root>/cleanup.py                 可选；套件级清理（at-run --reset 时先跑）
 <root>/scripts/<CASE-ID>.clean.py 可选；用例级清理（该例执行前跑）
 ```
@@ -179,30 +185,21 @@ obj = snap("~/.atest/demo")     # 模板铺好的对象
 emit({"atest-owner": obj.get("atest-owner")})
 ```
 
-`fixture(root=None, name=None, vars=None)` 的真实步骤（不挂 `mnt`、不实现 `.init` 解析器）：
+`fixture(root=None, name=None, vars=None)`：
 
-```text
-读 <root>/atest.init
-  → obj save-text 到 ~/.atest/init/<name>.init
-  → app init ~/.atest/init -by <name>.init -dir ~ -script off
-     （有 <root>/vars.json 时：cat ~/.atest/init/<name>.vars.json | app init …）
-```
-
-- `name` 缺省取模板文件名（`atest.init` → `atest`）；
-- `vars` 是调用方给的默认值，`<root>/vars.json` 的同名键覆盖它（项目级优先）；
-- **变量走 stdin 而不是 `-vars`**：当前 Walnut 构建里 `app_init.java` 读的是
-  `hc.getString("vars")`（上下文 map），不是 `hc.params`，所以 `-vars` 被静默忽略；
-  `app init` 的 `[STDIN]` 通道是源码支持的变量来源，效果与 `-vars` 相同。
-  这是本任务实测发现并记录在案的源码/文档不一致（不改 Walnut，改任务书）；
-- `-script off`：不执行模板目录下的 `_script`（v1 只支持内联块，不跑收尾脚本）；
-- `app init` 默认**不覆盖**已有文件，所以同一模板连跑两次安全；模板别写 `%` 强制覆盖；
-- 失败（缺模板 / vars 不是对象 / 外部文件引用 / 上传或执行失败）→ `SystemExit(2)`，
+- 读 `<root>/atest.init` 与 `<root>/vars.json`（JSON 对象，缺省 `{}`）；
+  `vars` 是调用方默认值，项目 vars.json 覆盖同名键；
+- **v1 支持**：
+  - `@DIR <path> ['quick meta'] [{json}]`
+  - `@FILE <path> ['quick meta'] [{json}]` + `%TMPL:` / `%COPY:` / `%EXPLAIN:` … `%END%`
+  - `${var}` / `${var?默认值}`；`%EXPLAIN` 支持 `=key` / `=key?默认` / `==key` / `!=key`
+- 路径相对域 home（`@DIR .atest/x` → `~/.atest/x`）；父目录自动建；
+  文件内容用 `obj save-text`；元数据用 `o ... @update` 合并；
+- **幂等**：目标已存在则跳过内容写入（元数据仍合并），同一模板连跑两次安全；
+- **明确拒绝**（记 blocked，不静默忽略）：`@HOME` / `@ENV` / `@API` /
+  `@INCLUDE`、`%COPY > 外部文件`、`?` 条件写入。这些请在用例脚本里直接做；
+- 失败（缺模板 / vars 非法 / 不支持的写法 / wn-cli 失败）→ `SystemExit(2)`，
   runner 记 **blocked**，原因进 `summary.txt`。
-
-**v1 只支持内联内容块**：`%TMPL:` / `%EXPLAIN:` / `%COPY:` … `%END%`。
-`%COPY > 外部文件` 与 `@INCLUDE` 会引用模板目录外的文件，`fixture()` 直接报错并
-给出改法；确实需要外部文件时，先用 `wn-cli obj save-text <域内路径> --file <本地文件>`
-上传，再把模板改成内联内容。`--check` 对这类写法只给**警告**（不阻塞）。
 
 ### 清理约定
 
@@ -275,7 +272,7 @@ emit({"nm": obj["nm"], "race": obj["race"]})     # 输出契约那一行 JSON �
 | 函数 | 行为 |
 |---|---|
 | `wn(cmd, timeout=90)` | 经 `wn-cli cmd` 执行；非 0 退出码 → `SystemExit(2)`（记 blocked） |
-| `fixture(root=None, name=None, vars=None)` | 上传 `<root>/atest.init` / `<root>/vars.json` 并执行 `app init`；失败即抛（记 blocked） |
+| `fixture(root=None, name=None, vars=None)` | 本地渲染 `<root>/atest.init`（`@DIR`/`@FILE` + 内联内容）并铺进域；失败即抛（记 blocked） |
 | `snap(path, name=None)` | `o <path> @json -cqn` → dict；落 `<AT_OUT>/objects/<路径>.json`（`/` 换 `__`）；取不到即抛 |
 | `emit(actual)` | 打印 `{"ok":true,"actual":...}` 后退出 0——**之后不要再往 stdout 写任何东西** |
 | `note(text)` | 追加一行 `[script] …` 到 `summary.txt`；runner 重写 summary 时原样保留 |
@@ -322,13 +319,13 @@ atlib 只依赖标准库与 `AT_*` 环境变量；失败一律 `SystemExit(2)` �
 ## 报告
 
 ```text
-<root>/report/<suite>/<timestamp>.json     # 本次报告（JSON 是唯一源）
-<root>/report/<suite>/latest.json          # 同内容（覆盖写）
-<root>/report/<suite>/<timestamp>/<CASE-ID>/  # 每例证据目录
+<root>/report/<timestamp>.json     # 本次报告（JSON 是唯一源）
+<root>/report/latest.json          # 同内容（覆盖写）
+<root>/report/<timestamp>/<CASE-ID>/  # 每例证据目录
 ```
 
 ```json
-{"schema":"atest-report/2","suite":"default","timestamp":"2026-11-13T12:22:24+08:00",
+{"schema":"atest-report/2","timestamp":"2026-11-13T12:22:24+08:00",
  "instance":"L1","instance_source":".../atest.json","reset":true,"cleanup":"ok",
  "total":2,"passed":1,"failed":1,"blocked":0,
  "cases":[{"caseID":"CASE-101","status":"passed","duration_ms":391,
@@ -342,9 +339,9 @@ atlib 只依赖标准库与 `AT_*` 环境变量；失败一律 `SystemExit(2)` �
                        "result.json","stderr.txt","stdout.txt","summary.txt"]}]}
 ```
 
-- `schema` 是 v2 新增的顶层键（`"atest-report/2"`）；03 的 9 个顶层键与每例 5 个键
-  **保持不变**，`evidence` 追加在每例的最后；ATESET-05 追加 `reset` / `cleanup`
-  （`cleanup` = `skipped` / `missing` / `ok` / `failed`）；
+- `schema` 是 v2 新增的顶层键（`"atest-report/2"`）；03 的顶层键与每例 5 个键
+  **保持不变**（用例格式 v2 去掉 `suite`，报告也不再按 suite 分目录）；
+  ATESET-05 追加 `reset` / `cleanup`（`cleanup` = `skipped` / `missing` / `ok` / `failed`）；
 - 每例多出 `clean/`（用例级清理证据）与 `cleanup.txt`（套件清理失败时的整批证据）；
 - `evidence` 是相对 `evidence_dir` 的文件清单（正斜杠、排序稳定），指向真实文件；
 - `status` 只有 `passed` / `failed` / `blocked`。`instance_source` 为 `cli`
@@ -357,9 +354,10 @@ atlib 只依赖标准库与 `AT_*` 环境变量；失败一律 `SystemExit(2)` �
 |---|---|
 | `filename-mismatch` | 文件名（去 `.md`）≠ `caseID` |
 | `caseid-invalid` | 不匹配 `^CASE-[A-Z0-9-]{1,32}$` |
-| `missing-field` | 缺 5 个必填之一（`caseID` / `title` / `source` / `contract` / `expected`） |
+| `missing-field` | 缺必填（`caseID` / `title` / `source` / `contracts` / `expected`）；或 `contracts` 不是非空数组 |
+| `removed-field` | 出现已移除的 `instance` / `suite`（实例是运行期信息；用 `--only` 选批） |
 | `expected-invalid` | `expected` 不是 `inline` / `file` / `baseline`；或期望值里的 matcher 不合法（不认识 / 混用 / 类型不对 / 正则编译失败 / 放在根上） |
-| `contract-too-generic` | `contract` 只写命令族（`o` / `jsc` 等），不具体 |
+| `contract-too-generic` | `contracts` 某项只写命令族（`o` / `jsc` 等），不具体；要子命令 / `/` 端点 / `.js` 脚本 |
 | `missing-section` | 缺 `## 前置` / `## 步骤` / `## 期望` / `## 证据` |
 | `assertion-in-steps` | `## 步骤` 里出现断言词（检查/确认/断言/判失败…） |
 | `expected-mismatch` | 声明与内容矛盾（inline 无 json 块；file/baseline 却贴了 json 块） |
@@ -375,19 +373,19 @@ atlib 只依赖标准库与 `AT_*` 环境变量；失败一律 `SystemExit(2)` �
 
 - 比较仍是**子集**语义（只比期望里出现的键），不做整棵对象树的等价判断；
   三个 matcher 之外的自定义比较交给用例脚本自己算；
-- 不做全量快照（只存脚本显式 `snap()` 的路径）；不实现 `.init` 解析器
-  （夹具一律走 `app init`）；不挂 `mnt`；不写 Markdown 报告（07）；不建基线（08）；
-  **不并发**执行；
-- 夹具只支持 `app init` 的内联内容块（`%TMPL:` / `%EXPLAIN:` / `%COPY:` … `%END%`）；
-  `%COPY > 外部文件` 与 `@INCLUDE` 明确拒绝，需先 `wn-cli obj save-text` 上传外部文件；
+- 不做全量快照（只存脚本显式 `snap()` 的路径）；夹具走 `atlib.fixture()`
+  的本地最小渲染器（**不调用 `app init`**）；不挂 `mnt`；不写 Markdown 报告（07）；
+  不建基线（08）；**不并发**执行；
+- 夹具 v1 只支持 `@DIR` / `@FILE` + `%TMPL:` / `%EXPLAIN:` / `%COPY:` 内联块；
+  `@HOME` / `@ENV` / `@API` / `@INCLUDE` / `%COPY >` / `?` 条件写入明确拒绝；
 - 清理脚本的约束是**约定**，工具不做静态检查：不许删域 / 删数据目录，只删自己造的对象；
 - `--reset` 的套件清理失败把全批记 blocked（退出码仍 0，按"blocked 不算红"）；
   每例的 `clean/` 证据会进报告 `evidence` 清单；
 - 清理脚本与用例脚本共用一个 `--timeout`；超时只杀直接子进程；
 - 脚本固定 `<CASE-ID>.py`（任务书的契约）；其它语言留给后续任务；
 - 超时只杀直接子进程（脚本自己起的 `wn-cli` 子进程不保证一起终止）；
-- 用例级 `instance` 与本次运行级别不一致时记 **blocked**（附原因），不会在一次
-  运行里混跑两级实例；
+- 用例格式 v2 不再有 `instance` / `suite`；`instance` 是运行期信息，
+  由 `atest.json` / `--instance` 指定，`suite` 用 `--only` 代替；
 - 全 blocked 的运行退出码仍是 `0`（按"blocked 不算红"的约定）；报告里
   `passed=0` / `blocked=n` 与 stderr 摘要是唯一警示；
 - 子进程注入 `PYTHONUTF8=1` / `PYTHONIOENCODING=utf-8`（Windows 控制台 cp936 会把

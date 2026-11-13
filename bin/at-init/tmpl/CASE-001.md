@@ -2,7 +2,8 @@
 caseID: CASE-001
 title: 新建目录后按路径能读到
 source: ATESET / man cmd_o §@create
-contract: cmd_o @create
+contracts:
+  - cmd_o @create
 expected: inline
 ---
 
@@ -10,8 +11,8 @@ expected: inline
 
 > **本文件就是一个合法用例，照抄即可**：把它复制成 `atest/cases/<CASE-ID>.md` 后改三处——
 > 文件名、`caseID`、正文一级标题里的 ID 与 `title`（两处同文）；再按需改下面四节。
-> 选填字段：`instance`（缺省取 `atest.json` 的 instance）、`suite`（缺省 `default`）、
-> `owner`、`created`；不写就是缺省，不要为了"填满"硬写。
+> `contracts` 按调用顺序列（命令 / HTTP API / jsbin 都可以出现），至少一项；
+> 选填字段：`owner`、`created`；不写就是缺省，不要为了"填满"硬写。
 > 字段与校验规则的权威定义见 ATESET-02 任务书；写作套路见 `write-test-case` skill。
 
 ## 前置
