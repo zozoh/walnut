@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """CASE-001 脚本骨架（`bin/at-init/tmpl/` 模板；复制成
-`test/scripts/CASE-001.py` 后改写）
+`atest/scripts/CASE-001.py` 后改写）
 
 脚本契约**尚未定稿**（ATESET-03/04 负责）：本文件只固定骨架形状，不承诺
 参数与输出格式。定稿前的默认行为是**退出 2 并说明"未实现"**——绝不假装通过。

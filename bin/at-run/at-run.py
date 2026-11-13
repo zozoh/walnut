@@ -8,17 +8,25 @@ at-run — ATEST 运行器（v1）
     --check                 只校验用例（字段 / 命名 / 四节 / 期望声明一致性），不执行
     （无参数）              发现用例 → 解析实例 → 复用会话 → 逐例执行 → 写 JSON 报告
     --only / --suite        选例执行；--stop-on-fail 遇到红灯即停
-    --instance L1|L2        跑哪一级实例（缺省读 ATEST.md 的 instance）
+    --instance L1|L2        跑哪一级实例（缺省读 atest.json 的 instance）
 
 实例解析（两个轴分开，都不猜）:
-    级别:  --instance  →  ATEST.md 的 instance  →  报错
+    级别:  --instance  →  atest.json 的 instance  →  报错
     端点:  .wn-instances.json（--instances > $WN_INSTANCES > 从项目目录逐级向上
            > 用户目录；先命中先用）→ 报错，并打印搜过的路径清单与模板
     会话:  工作区级会话池（.wn-instances.json 所在目录的 .at/client/session）里的
            <级别>-<测试域>-00；**只复用、不代登录**——缺失或失效就退出 2 并提示登录命令。
 
+配置解析（项目根 atest.json，唯一来源）:
+    root:         atest.json 的 root（缺省 atest）→ --root 覆盖。
+    instance:     --instance 覆盖 → atest.json 的 instance → 空则退出 2。
+    test_domain:  --domain 覆盖 → atest.json 的 test_domain → 空则退出 2。
+    init_template: atest.json 的 init_template（缺省 <root>/atest.init；v1 只读取回显，
+                   渲染归 ATESET-05）。
+    atest.json 缺失 → 退出 2，提示先跑 at-init 或补上配置。
+
 脚本契约（ATESET-03 T1 定稿，见同目录 README）:
-    runner 以子进程执行 test/scripts/<CASE-ID>.py（argv 传参，绝不经 shell），
+    runner 以子进程执行 <root>/scripts/<CASE-ID>.py（argv 传参，绝不经 shell），
     工作目录 = 项目目录，并注入 AT_LEVEL / AT_URL / AT_SESSION_DIR / AT_DOMAIN /
     AT_WNCLI / AT_CASE_ID / AT_OUT。脚本 stdout 的**最后一行**必须是单行 JSON:
         成功 {"ok": true, "actual": {...}}
@@ -26,13 +34,13 @@ at-run — ATEST 运行器（v1）
     断言不在脚本里做：runner 按用例 md 的 `## 期望` 统一比较（防"实现即预期"）。
 
 报告（JSON，唯一源；Markdown 归 07）:
-    test/report/<suite>/<timestamp>.json  +  同内容的 latest.json
+    <root>/report/<suite>/<timestamp>.json  +  同内容的 latest.json
     {"suite","timestamp","instance","instance_source","total","passed","failed",
      "blocked","cases":[{"caseID","status","duration_ms","evidence_dir","diff"}]}
     status = passed / failed / blocked（blocked = 未实现或缺基线，不算红）。
 
 退出码: 0 全绿（failed 为 0，blocked 不算红）；1 有红 / 用法错误；
-        2 环境不可用（ATEST.md 或实例登记缺失、端口不通、会话缺失或失效）。
+        2 环境不可用（atest.json 或实例登记缺失、端口不通、会话缺失或失效）。
 
 零依赖 Python3；所有写入 UTF-8 无 BOM、LF。
 """
@@ -52,8 +60,12 @@ EXIT_OK = 0
 EXIT_USAGE = 1
 EXIT_ENV = 2
 
-ATEST_MD = "ATEST.md"
 INSTANCES_NAME = ".wn-instances.json"
+CONFIG_NAME = "atest.json"
+
+ROOT_DEFAULT = "atest"
+# 集成测试根目录名：不许路径分隔符，也不许 . / ..（否则路径会跑出项目）
+ROOT_RE = re.compile(r"^[A-Za-z0-9._-]+$")
 
 REQUIRED_FIELDS = ("caseID", "title", "source", "contract", "expected")
 EXPECTED_KINDS = ("inline", "file", "baseline")
@@ -72,9 +84,7 @@ ASSERT_WORDS = ("检查", "确认", "断言", "判失败", "判为", "不得", "
 
 CASE_ID_RE = re.compile(r"^CASE-[A-Z0-9-]{1,32}$")
 FIELD_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(.*)$")
-ATEST_FIELD_RE = re.compile(r"^-\s*([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(.*)$")
 H2_RE = re.compile(r"^##\s+(.+?)\s*$")
-COMMENT_RE = re.compile(r"\s+#")
 
 INSTANCES_TEMPLATE = ('{\n'
                       '  "L1": {"host": "127.0.0.1", "port": 8080},\n'
@@ -86,11 +96,19 @@ ATEST 运行器：校验用例、解析实例、复用会话、逐例执行并�
 退出码 0 全绿 / 1 有红（或用法错误） / 2 环境不可用。"""
 
 EPILOG = """\
+根目录:
+  atest.json 的 root（缺省 atest）→ --root 覆盖；cases / scripts / expect /
+  baseline / report 都在 <root>/ 下。atest.json 缺失 → 退出 2（先跑 at-init）。
+
+配置（项目根 atest.json，唯一来源）:
+  root / instance / test_domain / init_template 都从这里读；
+  --root / --instance / --domain 可覆盖；instance 为空 → 退出 2（--check 也一样）。
+
 用例发现:
-  <dir>/test/cases/*.md    文件名 = caseID；脚本 test/scripts/<caseID>.py
+  <dir>/<root>/cases/*.md    文件名 = caseID；脚本 <root>/scripts/<caseID>.py
 
 实例与会话:
-  级别  --instance L1|L2  →  ATEST.md 的 instance  →  报错
+  级别  --instance L1|L2  →  atest.json 的 instance  →  报错
   端点  .wn-instances.json（--instances > $WN_INSTANCES > 逐级向上 > 用户目录）
   会话  工作区池 .at/client/session 的 <级别>-<测试域>-00（只复用；缺失请先 wn-cli login）
 
@@ -100,7 +118,7 @@ EPILOG = """\
   exit 2 = 环境不可用（记 blocked）；其它非 0 = 记 failed
 
 报告:
-  test/report/<suite>/<timestamp>.json 与同内容 latest.json
+  <root>/report/<suite>/<timestamp>.json 与同内容 latest.json
   cases[] = {"caseID","status","duration_ms","evidence_dir","diff"}
   status = passed / failed / blocked（blocked 不算红）
 
@@ -115,6 +133,7 @@ EPILOG = """\
   python bin/at-run/at-run.py --instance L1 --suite smoke
   python bin/at-run/at-run.py --instance L1 --only CASE-001,CASE-002
   python bin/at-run/at-run.py --instance L2 --stop-on-fail
+  python bin/at-run/at-run.py --root spec --check
 """
 
 
@@ -167,6 +186,39 @@ def write_json(path, obj):
     write_text(path, json.dumps(obj, ensure_ascii=False, indent=2) + "\n")
 
 
+def load_config(project):
+    """读项目根 atest.json（唯一配置源）；缺失/坏档 → 退出 2，不猜。"""
+    path = Path(project) / CONFIG_NAME
+    if not path.is_file():
+        raise EnvError("找不到 %s：先跑 bin/at-init/at-init.py 生成它，"
+                       "或在项目根建 atest.json 并填 instance" % path)
+    try:
+        data = json.loads(path.read_text(encoding="utf-8-sig"))
+    except (ValueError, OSError) as e:
+        raise EnvError("%s 不是合法 JSON（%s）：请修正后再跑" % (path, e))
+    if not isinstance(data, dict):
+        raise EnvError("%s 格式不对：顶层应为对象（version / root / instance ...）"
+                       % path)
+    return data, path
+
+
+def resolve_root(config, config_path, override):
+    """根目录：--root 覆盖 > atest.json 的 root > atest；非法值退出 2 / 1。"""
+    if override is not None:
+        if override in (".", "..") or not ROOT_RE.match(override):
+            raise UsageError("--root 不合法：%r（需匹配 %s，且不能是 . 或 ..）"
+                             % (override, ROOT_RE.pattern))
+        return override
+    root = config.get("root")
+    if root is None or root == "":
+        return ROOT_DEFAULT
+    if not isinstance(root, str) or root in (".", "..") \
+            or not ROOT_RE.match(root):
+        raise EnvError("%s 的 root 不合法：%r（需匹配 %s，且不能是 . 或 ..）"
+                       % (config_path, root, ROOT_RE.pattern))
+    return root
+
+
 def rel(path, root):
     try:
         return str(Path(path).resolve().relative_to(Path(root).resolve())
@@ -214,45 +266,6 @@ def parse_front_matter(fm):
         if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
             value = value[1:-1]
         fields[m.group(1)] = value
-    return fields
-
-
-def atest_block(text):
-    """ATEST.md 的 at-init 标记段（工具维护段）文本；没有标记段返回 None。
-
-    字段只认这一段：旧段（walnut_url / walnut_level / walnut_dist）是上一代
-    约定，13 会统一清理；同时读会让同一个字段有两个来源（02 已记录该遗留）。
-    """
-    lines = text.splitlines(keepends=True)
-    begin = end = None
-    for i, line in enumerate(lines):
-        s = line.strip()
-        if begin is None and s.startswith("<!-- at-init:begin"):
-            begin = i
-        elif begin is not None and s == "<!-- at-init:end -->":
-            end = i
-            break
-    if begin is None or end is None:
-        return None
-    return "".join(lines[begin:end + 1])
-
-
-def parse_atest(text):
-    """读 ATEST.md 的字段行：`- key: value  # 注释`（也容忍不带 `-` 的写法）。"""
-    fields = {}
-    for raw in text.splitlines():
-        s = raw.strip()
-        m = ATEST_FIELD_RE.match(s)
-        if not m:
-            m = FIELD_RE.match(s)
-        if not m:
-            continue
-        key, rest = m.group(1), m.group(2)
-        cut = COMMENT_RE.search(rest)
-        value = rest[:cut.start()].strip() if cut else rest.strip()
-        if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
-            value = value[1:-1]
-        fields.setdefault(key, value)
     return fields
 
 
@@ -316,8 +329,8 @@ def err_of(path, case_id, code, message):
             "message": message}
 
 
-def check_case(path, text):
-    """校验一个用例文件；返回 (fields, sections, errors)。"""
+def check_case(path, text, root=ROOT_DEFAULT):
+    """校验一个用例文件；返回 (fields, sections, errors)。root 只用于路径文案。"""
     errors = []
     fm, body = split_front_matter(text)
     if fm is None:
@@ -384,16 +397,17 @@ def check_case(path, text):
             if blocks:
                 errors.append(err_of(path, case_id, "expected-mismatch",
                                      "expected: file 却贴了内联 json 块：期望值应放 "
-                                     "test/expect/%s.json" % case_id))
-            elif case_id and ("test/expect/%s.json" % case_id) \
+                                     "%s/expect/%s.json" % (root, case_id)))
+            elif case_id and ("%s/expect/%s.json" % (root, case_id)) \
                     not in expected_section:
                 errors.append(err_of(path, case_id, "expected-mismatch",
                                      "expected: file 但 `## 期望` 没写 "
-                                     "test/expect/%s.json 路径" % case_id))
+                                     "%s/expect/%s.json 路径" % (root, case_id)))
         elif kind == "baseline" and blocks:
             errors.append(err_of(path, case_id, "expected-mismatch",
                                  "expected: baseline 却贴了内联 json 块：基线的值只能"
-                                 "来自 test/baseline/%s.json（审核者写）" % case_id))
+                                 "来自 %s/baseline/%s.json（审核者写）"
+                                 % (root, case_id)))
 
         if data is None and blocks and kind != "inline":
             # 声明与内容矛盾已单独报错；这里只为易变字段检查试着解析
@@ -411,8 +425,8 @@ def check_case(path, text):
     return fields, sections, errors
 
 
-def collect_cases(paths, project):
-    """按 --check 的 paths（或 <dir>/test/cases）收集用例文件。"""
+def collect_cases(paths, project, root=ROOT_DEFAULT):
+    """按 --check 的 paths（或 <dir>/<root>/cases）收集用例文件。"""
     targets = []
     for raw in paths:
         p = Path(raw)
@@ -426,14 +440,14 @@ def collect_cases(paths, project):
             raise UsageError("用例路径不存在：%s" % raw)
     if paths:
         return targets
-    cases_dir = Path(project) / "test" / "cases"
+    cases_dir = Path(project) / root / "cases"
     if not cases_dir.is_dir():
         raise EnvError("找不到用例目录 %s：先跑 bin/at-init/at-init.py" % cases_dir)
     return sorted(x for x in cases_dir.glob("*.md") if x.is_file())
 
 
-def run_check(project, paths):
-    targets = collect_cases(paths, project)
+def run_check(project, paths, root=ROOT_DEFAULT):
+    targets = collect_cases(paths, project, root)
     errors = []
     seen = {}
     checked = []
@@ -443,7 +457,7 @@ def run_check(project, paths):
         except EnvError as e:
             errors.append(err_of(path, "", "read-failed", str(e)))
             continue
-        fields, _sections, errs = check_case(path, text)
+        fields, _sections, errs = check_case(path, text, root)
         errors.extend(errs)
         case_id = fields.get("caseID", "")
         checked.append(str(path))
@@ -455,7 +469,7 @@ def run_check(project, paths):
             else:
                 seen[case_id] = str(path)
     ok = not errors
-    emit({"ok": ok, "check": True, "checked": len(checked),
+    emit({"ok": ok, "check": True, "root": root, "checked": len(checked),
           "files": checked, "error_count": len(errors), "errors": errors})
     if not ok:
         print("at-run --check：%d 个用例文件，%d 条错误（修完再跑；"
@@ -608,17 +622,17 @@ def read_json_file(path):
         raise EnvError("期望文件不是合法 JSON：%s（%s）" % (path, e))
 
 
-def load_expected(project, case, kind):
+def load_expected(project, case, kind, root=ROOT_DEFAULT):
     """按 expected 声明取期望值；返回 (值, 缺失原因)。缺基线/期望文件 = blocked。"""
     case_id = case["caseID"]
     if kind == "inline":
         return case["expected_value"], None
     if kind == "file":
-        path = Path(project) / "test" / "expect" / ("%s.json" % case_id)
+        path = Path(project) / root / "expect" / ("%s.json" % case_id)
         if not path.is_file():
             return None, "期望文件缺失：%s（expected: file）" % rel(path, project)
         return read_json_file(path), None
-    path = Path(project) / "test" / "baseline" / ("%s.json" % case_id)
+    path = Path(project) / root / "baseline" / ("%s.json" % case_id)
     if not path.is_file():
         return None, ("基线缺失：%s（expected: baseline，由审核者在 L2 建立，08）"
                       % rel(path, project))
@@ -738,25 +752,23 @@ def unique_run_id(report_base, started):
     return candidate
 
 
-def run_suite(project, args):
+def run_suite(project, args, root, config, config_path):
     project = Path(project).resolve()
-    atest_path = project / ATEST_MD
-    if not atest_path.is_file():
-        raise EnvError("找不到 %s：先跑 bin/at-init/at-init.py" % atest_path)
-    atest_raw = read_text(atest_path)
-    block = atest_block(atest_raw)
-    atest = parse_atest(block if block is not None else atest_raw)
 
-    level = args.instance or atest.get("instance")
+    level = args.instance or config.get("instance")
     if not level:
-        raise EnvError("实例级别未定：--instance 或 ATEST.md 的 instance 至少给一个")
+        raise EnvError("实例级别未定：在 %s 里填 instance（如 L1 / L2），"
+                       "或用 --instance 覆盖" % config_path)
     if level not in ("L1", "L2"):
         raise EnvError("instance 只能是 L1 / L2，现在是 %r" % level)
-    instance_source = "cli" if args.instance else str(atest_path)
+    instance_source = "cli" if args.instance else str(config_path)
 
-    domain = args.domain or atest.get("test_domain")
+    domain = args.domain or config.get("test_domain")
     if not domain:
-        raise EnvError("测试域未定：--domain 或 ATEST.md 的 test_domain")
+        raise EnvError("测试域未定：在 %s 里填 test_domain，或用 --domain 覆盖"
+                       % config_path)
+
+    init_template = config.get("init_template") or ("%s/atest.init" % root)
 
     instances, inst_file, _searched = load_instances(project, args.instances)
     endpoint = endpoint_of(level, instances)
@@ -773,7 +785,7 @@ def run_suite(project, args):
                        % (Path(__file__).resolve().parent.parent
                           / "wn-cli" / "wn-cli.py"))
 
-    cases_dir = project / "test" / "cases"
+    cases_dir = project / root / "cases"
     if not cases_dir.is_dir():
         raise EnvError("找不到用例目录 %s：先跑 bin/at-init/at-init.py"
                        % cases_dir)
@@ -781,7 +793,7 @@ def run_suite(project, args):
 
     parsed = []
     for path in files:
-        fields, sections, errors = check_case(path, read_text(path))
+        fields, sections, errors = check_case(path, read_text(path), root)
         expected_value = None
         if fields.get("expected") == "inline":
             blocks = json_blocks(sections.get("期望", ""))
@@ -828,7 +840,7 @@ def run_suite(project, args):
         return EXIT_USAGE
 
     started = datetime.now().astimezone()
-    report_base = project / "test" / "report" / pick_suite(args, selected)
+    report_base = project / root / "report" / pick_suite(args, selected)
     run_id = unique_run_id(report_base, started)
     run_dir = report_base / run_id
     report_path = report_base / (run_id + ".json")
@@ -854,7 +866,7 @@ def run_suite(project, args):
         note = ""
 
         case_instance = case["fields"].get("instance")
-        script = project / "test" / "scripts" / ("%s.py" % case_id)
+        script = project / root / "scripts" / ("%s.py" % case_id)
         expected = None
         if case_instance and case_instance != level:
             note = ("该例声明 instance=%s，与本次运行 %s 不一致：单独用 "
@@ -864,7 +876,7 @@ def run_suite(project, args):
         else:
             try:
                 expected, missing = load_expected(
-                    project, case, case["fields"].get("expected", ""))
+                    project, case, case["fields"].get("expected", ""), root)
             except EnvError as e:
                 # 坏的期望文件/基线是项目资产问题：记 blocked 并继续跑其余用例，
                 # 不整体中断（失败隔离），也不把它伪装成红/绿。
@@ -940,7 +952,9 @@ def run_suite(project, args):
     write_json(latest_path, report)
 
     exit_code = EXIT_OK if failed == 0 else EXIT_USAGE
-    emit({"ok": failed == 0, "suite": report_base.name, "instance": level,
+    emit({"ok": failed == 0, "suite": report_base.name, "root": root,
+          "instance": level, "test_domain": domain,
+          "init_template": init_template,
           "instance_source": instance_source, "session": se,
           "total": len(results), "passed": passed, "failed": failed,
           "blocked": blocked, "skipped": len(not_run),
@@ -963,13 +977,16 @@ def main(argv=None):
     ap.add_argument("--check", action="store_true",
                     help="只校验用例（字段/命名/四节/期望声明一致性），不执行")
     ap.add_argument("paths", nargs="*", metavar="PATH",
-                    help="--check 要检查的用例文件或目录（缺省 <dir>/test/cases）")
+                    help="--check 要检查的用例文件或目录（缺省 <dir>/<root>/cases）")
     ap.add_argument("--dir", default=".", metavar="DIR",
                     help="项目目录（默认当前目录）")
+    ap.add_argument("--root", metavar="NAME",
+                    help="集成测试根目录名（缺省读 <dir>/atest.json 的 root，"
+                         "再缺省 atest）")
     ap.add_argument("--instance", choices=["L1", "L2"],
-                    help="实例级别（缺省读 ATEST.md 的 instance）")
+                    help="实例级别（缺省读 atest.json 的 instance）")
     ap.add_argument("--domain", metavar="DOMAIN",
-                    help="覆盖 ATEST.md 的 test_domain；会话名用 <级别>-<域>-00")
+                    help="覆盖 atest.json 的 test_domain；会话名用 <级别>-<域>-00")
     ap.add_argument("--instances", metavar="FILE",
                     help="实例登记文件（缺省 $WN_INSTANCES > 逐级向上 > 用户目录）")
     ap.add_argument("--session-dir", metavar="DIR",
@@ -1005,9 +1022,14 @@ def main(argv=None):
         return EXIT_ENV
 
     try:
+        config, config_path = load_config(project)
+        root = resolve_root(config, config_path, args.root)
+        if not (args.instance or config.get("instance")):
+            raise EnvError("实例级别未定：在 %s 里填 instance（如 L1 / L2），"
+                           "或用 --instance 覆盖" % config_path)
         if args.check:
-            return run_check(project, args.paths)
-        return run_suite(project, args)
+            return run_check(project, args.paths, root)
+        return run_suite(project, args, root, config, config_path)
     except UsageError as e:
         emit({"ok": False, "error": str(e)})
         return EXIT_USAGE

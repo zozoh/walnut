@@ -3,39 +3,47 @@
 """
 at-init — 运行时集成测试（ATEST）项目骨架脚手架
 
-一条命令在项目里铺开 ATEST 约定好的东西：
+一条命令在项目里铺开 ATEST 约定好的东西（`<root>` 默认 `atest`，`--root` 可改）：
 
-    test/atest.init             静态布局模板（夹具，人编辑）
-    test/cases/                 用例 <CASE-ID>.md
-    test/scripts/               用例脚本 <CASE-ID>.<ext>
-    test/expect/                独立期望文件 <CASE-ID>.json（expected: file）
-    test/baseline/              基线 <CASE-ID>.json（审核者写）
-    test/report/                执行报告（写进 .gitignore，不进库）
-    ATEST.md                    集成测试标记段（instance / 测试域 / 凭据位置 / init 模板）
+    <root>/atest.init           静态布局模板（夹具，人编辑）
+    <root>/cases/               用例 <CASE-ID>.md
+    <root>/scripts/             用例脚本 <CASE-ID>.<ext>
+    <root>/expect/              独立期望文件 <CASE-ID>.json（expected: file）
+    <root>/baseline/            基线 <CASE-ID>.json（审核者写）
+    <root>/report/              执行报告（写进 .gitignore，不进库）
+    atest.json                  项目配置（机器可读；人也能看）
     .wn-instances.example.json  实例登记**样例**（真身由开发者维护，本工具不写）
 
-分工：`.at/`（身份、会话、私有配置）归 `walnut-at-init`；本工具**只管 test/**
-与 ATEST.md 的标记段，检测到 `.at/` 缺失时只提示、不代建。
+**配置只有 `atest.json` 一份**：
+`project` / `root` / `instance` / `test_domain` / `credentials_file` /
+`init_template` / `sql_datasource` 都在里面，`at-run` 从同一份文件读。
 
-幂等：已存在的文件一律 `kept`，**绝不覆盖用户内容**。`--force` 只刷新"样例段"
-（ATEST.md 的 `<!-- at-init:begin -->` ~ `<!-- at-init:end -->` 之间，以及
-`.wn-instances.example.json`），且**保留段内用户设定的字段值**
-（`instance` / `test_domain` / `credentials_file` / `sql_datasource`，以及没给
-`--name` 时的 `project`）——只刷新说明文字、注释与缺失字段，不会把
-`instance: L1` 静默改回样例默认的 `L2`。`cases/` / `scripts/` / `expect/` /
-`baseline/` 里的内容，以及 `test/atest.init`，永远不动。
+根目录名只允许 `^[A-Za-z0-9._-]+$`，且不能是 `.` / `..`（非法 → 退出码 1）。
+之所以不叫 `test/`：项目自己的测试框架（如 Maven 的 `testSourceDirectory`）已经
+占用了这个目录，集成测试另起一个根。
+
+分工：`.at/`（身份、会话、私有配置）归 `walnut-at-init`；本工具**只管 <root>/**
+与 `atest.json`，检测到 `.at/` 缺失时只提示、不代建。
+
+幂等：已存在的文件一律 `kept`，**绝不覆盖用户内容**。`--force` 只刷新
+`.wn-instances.example.json`（内容确有差异时）；`atest.json` 只补缺失的键，
+**不覆盖用户已写的值**（`--force` 也不碰）。`cases/` / `scripts/` / `expect/` /
+`baseline/` 里的内容，以及 `<root>/atest.init`，永远不动。
+
+已有 `.gitignore` 里旧的 `/test/report/` 行会被替换成 `/<root>/report/`（迁移）。
 
 所有写入都是 UTF-8 无 BOM（新文件 LF 换行；改写已有文件时沿用其原换行——
 带 BOM 会让 TOML/JSON 解析出空值，本项目踩过）。
 
 用法:
-    python at-init.py                              # 当前目录
+    python at-init.py                              # 当前目录，根目录 atest
     python at-init.py --dir D:/work/myproj --name myproj
+    python at-init.py --root spec                  # 集成测试根目录改名 spec
     python at-init.py --dry-run                    # 只报计划，不落盘
-    python at-init.py --force                      # 刷新样例段
+    python at-init.py --force                      # 刷新 .wn-instances.example.json
 
 退出码: 0 成功；1 用法错误；2 环境问题（目录不存在 / 模板缺失 / 写入失败 /
-ATEST.md 标记段损坏）
+atest.json 不是合法 JSON）
 """
 
 import argparse
@@ -51,67 +59,99 @@ EXIT_ENV = 2
 # 模板真身就在本脚本旁边：bin/at-init/tmpl/（与代码同仓，可离线使用）
 TMPL_DIR = Path(__file__).resolve().parent / "tmpl"
 
-ATEST_MD = "ATEST.md"
+CONFIG_NAME = "atest.json"
 INSTANCES_EXAMPLE = ".wn-instances.example.json"
 INSTANCES_REAL = ".wn-instances.json"
 
-BEGIN_PREFIX = "<!-- at-init:begin"
-END_MARK = "<!-- at-init:end -->"
+ROOT_DEFAULT = "atest"
 
 PROJECT_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,31}$")
-
-# 标记段里的字段行：`- key: 值   # 注释`
-FIELD_RE = re.compile(r"^-\s*([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(.*)$")
-
-# --force 刷新标记段时必须保留的**用户设定值**（不能让样例默认值把它们改回去）
-KEEP_ON_FORCE = ("instance", "test_domain", "credentials_file",
-                 "sql_datasource")
+# 集成测试根目录名：不允许路径分隔符，也不允许 . / ..（否则 <root>/cases 会跑出项目）
+ROOT_RE = re.compile(r"^[A-Za-z0-9._-]+$")
 
 GITIGNORE_MARK = "# at-init: ATEST 产物（报告不进库；实例登记真身是本机配置）"
-GITIGNORE_BLOCK = GITIGNORE_MARK + "\n/test/report/\n/.wn-instances.json\n"
 
-TREE_DIRS = ("test", "test/cases", "test/scripts", "test/expect",
-             "test/baseline", "test/report")
-GITKEEP_FILES = ("test/cases/.gitkeep", "test/scripts/.gitkeep",
-                 "test/expect/.gitkeep", "test/baseline/.gitkeep")
+
+def gitignore_block(root):
+    return GITIGNORE_MARK + "\n/%s/report/\n/.wn-instances.json\n" % root
+
+
+def tree_dirs(root):
+    return (root, root + "/cases", root + "/scripts", root + "/expect",
+            root + "/baseline", root + "/report")
+
+
+def gitkeep_files(root):
+    return (root + "/cases/.gitkeep", root + "/scripts/.gitkeep",
+            root + "/expect/.gitkeep", root + "/baseline/.gitkeep")
+
+
+def default_config(project, root):
+    """atest.json 的默认值（键顺序即写盘顺序）。instance 缺省 L2：完整回归建基线用。"""
+    return {
+        "version": 1,
+        "project": project,
+        "root": root,
+        "instance": "L2",
+        "test_domain": "atest",
+        "credentials_file": ".at/credentials.json",
+        "init_template": "%s/atest.init" % root,
+        "sql_datasource": "default",
+    }
+
 
 DESCRIPTION = """\
-在项目里生成 ATEST（运行时集成测试）的 test/ 骨架、ATEST.md 标记段与实例登记样例。
-幂等：已存在一律 kept；--force 只刷新样例段，不动用户内容。"""
+在项目里生成 ATEST（运行时集成测试）的 <root>/ 骨架、atest.json 与实例登记样例。
+根目录默认 atest（--root 可改）。
+幂等：已存在一律 kept；--force 只刷新 .wn-instances.example.json，不动用户内容。"""
 
 EPILOG = """\
-生成物:
-  test/atest.init             静态布局模板（夹具；可编辑，--force 不覆盖）
-  test/cases/                 用例 <CASE-ID>.md
-  test/scripts/               用例脚本 <CASE-ID>.<ext>
-  test/expect/                独立期望文件 <CASE-ID>.json（expected: file）
-  test/baseline/              基线 <CASE-ID>.json
-  test/report/                报告输出（追加进 .gitignore）
-  ATEST.md                    集成测试标记段（instance / test_domain / ...）
+生成物（<root> 默认 atest，由 --root 指定）:
+  <root>/atest.init           静态布局模板（夹具；可编辑，--force 不覆盖）
+  <root>/cases/               用例 <CASE-ID>.md
+  <root>/scripts/             用例脚本 <CASE-ID>.<ext>
+  <root>/expect/              独立期望文件 <CASE-ID>.json（expected: file）
+  <root>/baseline/            基线 <CASE-ID>.json
+  <root>/report/              报告输出（追加进 .gitignore）
+  atest.json                  项目配置（version / project / root / instance /
+                              test_domain / credentials_file / init_template /
+                              sql_datasource）
   .wn-instances.example.json  实例登记样例（真身由开发者维护，本工具不写）
 
+根部为什么叫 atest:
+  项目自己的测试框架可能已经占用 test/（如 Maven 的 testSourceDirectory）；
+  集成测试另起根目录，机器配置写 atest.json 的 root，at-run 据此解析。
+
+配置只有 atest.json 一份:
+  atest.json 缺失时新建并写默认值；已存在时**只补缺失的键**，
+  不覆盖你已写的值（--force 同样不碰）。instance 缺省 L2（完整回归与基线在
+  2 级实例上做），只在 1 级快速回路时改成 L1；instance 为空时 at-run 会退出 2。
+
 幂等:
-  已存在一律 kept，重复执行不产生任何写入。--force 只刷新"样例段"
-  （ATEST.md 的 begin~end 之间、.wn-instances.example.json），并且**保留用户
-  设定的字段值**（instance / test_domain / credentials_file / sql_datasource，
-  以及没给 --name 时的 project），只刷新说明文字与缺失字段。
-  cases/ scripts/ expect/ baseline/ 与 test/atest.init 里的内容永不覆盖。
+  已存在一律 kept，重复执行不产生任何写入。--force 只刷新
+  .wn-instances.example.json（内容有差异时），并且不碰 atest.json 的已有值。
+  cases/ scripts/ expect/ baseline/ 与 <root>/atest.init 里的内容永不覆盖。
+
+.gitignore:
+  追加 `# at-init:` 标记块：/<root>/report/ 与 /.wn-instances.json；
+  旧块里的 /test/report/ 会被替换成 /<root>/report/（迁移），其余行不动。
 
 分工:
-  .at/（身份 / 会话 / 凭据）归 walnut-at-init；本工具只管 test/ 与 ATEST.md 段。
+  .at/（身份 / 会话 / 凭据）归 walnut-at-init；本工具只管 <root>/ 与 atest.json。
 
 退出码:
   0  成功（含"全部 kept"）
-  1  用法错误（参数不合法、项目名不合法）
-  2  环境问题（目标目录不存在、模板缺失、写入失败、ATEST.md 标记段损坏）
+  1  用法错误（参数不合法、项目名不合法、根目录名不合法）
+  2  环境问题（目标目录不存在、模板缺失、写入失败、atest.json 不是合法 JSON）
 
 输出（stdout，单行 JSON）:
-  {"ok":true,"dry_run":false,"dir":"...","project":"...",
+  {"ok":true,"dry_run":false,"dir":"...","project":"...","root":"atest",
    "created":[...],"appended":[...],"refreshed":[...],"kept":[...],
-   "preserved":["instance",...],"warnings":[...]}
+   "warnings":[...]}
 
 示例:
   python at-init.py --dir D:/work/myproj --name myproj
+  python at-init.py --root spec
   python at-init.py --dry-run
   python at-init.py --force
 """
@@ -162,150 +202,85 @@ def ensure_file(path, content, force, dry_run):
     return "created"
 
 
-def split_tmpl(text):
-    """从模板里切出 (段前, 标记段, 段后)；模板坏了返回 None。"""
-    lines = text.splitlines(keepends=True)
-    begin = end = None
-    for i, line in enumerate(lines):
-        s = line.strip()
-        if begin is None and s.startswith(BEGIN_PREFIX):
-            begin = i
-        elif begin is not None and s == END_MARK:
-            end = i
-            break
-    if begin is None or end is None:
-        return None
-    return ("".join(lines[:begin]),
-            "".join(lines[begin:end + 1]),
-            "".join(lines[end + 1:]))
-
-
-def find_markers(text):
-    """在任意 markdown 里找工具维护段；返回 (begin, end) 行号或 None。"""
-    lines = text.splitlines(keepends=True)
-    begin = end = None
-    for i, line in enumerate(lines):
-        s = line.strip()
-        if begin is None and s.startswith(BEGIN_PREFIX):
-            begin = i
-        elif begin is not None and s == END_MARK:
-            end = i
-            break
-    if begin is None:
-        return None
-    return (begin, end)
-
-
-def check_atest(work):
-    """先校验 ATEST.md，坏档在写任何文件之前就退出（失败尽量原子）。"""
-    path = work / ATEST_MD
-    if not path.exists():
-        return
-    found = find_markers(read_text(path))
-    if found is not None and found[1] is None:
-        raise EnvError("ATEST.md 的 at-init 标记段不完整（有 begin 无 end），"
-                       "请人工补上 %s 再跑" % END_MARK)
-
-
-def _split_comment(rest):
-    """把「- key: 值   # 注释」拆成 (值, 注释)；注释 = 空白 + # 到行尾。"""
-    m = re.search(r"\s+#", rest)
-    if m:
-        return rest[:m.start()].strip(), rest[m.start():]
-    return rest.strip(), ""
-
-
-def parse_fields(block):
-    """取出标记段里的 `- key: value  # 注释`；返回 {key: value}。"""
-    fields = {}
-    for line in block.splitlines():
-        m = FIELD_RE.match(line.strip())
-        if not m:
-            continue
-        value, _comment = _split_comment(m.group(2))
-        fields[m.group(1)] = value
-    return fields
-
-
-def merge_block(old_block, new_block, keep):
-    """按新模板重建标记段，但 keep 里的字段沿用旧段里的值。
-
-    返回 (合并后的段, 被保留的字段名列表)。旧值为空时不保留（视为缺失字段，
-    用模板默认值补上）。
-    """
-    old = parse_fields(old_block)
-    preserved = []
-    out = []
-    for line in new_block.splitlines():
-        m = FIELD_RE.match(line.strip())
-        if m and m.group(1) in keep:
-            key = m.group(1)
-            tmpl_value, comment = _split_comment(m.group(2))
-            value = old.get(key, "")
-            if value:
-                line = "- %s: %s%s" % (key, value, comment)
-                if value != tmpl_value:
-                    preserved.append(key)
-        out.append(line)
-    text = "\n".join(out)
-    if new_block.endswith("\n"):
-        text += "\n"
-    return text, preserved
-
-
-def ensure_atest(work, doc, block, force, dry_run, warnings, keep,
-                 preserved):
-    """生成或续写 ATEST.md；只动标记段，段外内容按字节保留。
-
-    `--force` 刷新时，`keep` 里的字段**沿用文件里的既有值**（用户设定的
-    instance / test_domain 等不能被样例默认值静默改回去），只刷新说明文字、
-    注释与缺失字段。
-    """
-    path = work / ATEST_MD
+def ensure_config(work, project, root, dry_run, warnings):
+    """项目根 atest.json：新建写默认值；已存在只补缺失键，不覆盖用户已写的值。"""
+    path = work / CONFIG_NAME
+    defaults = default_config(project, root)
     if not path.exists():
         if not dry_run:
-            write_text(path, doc)
+            write_text(path, json.dumps(defaults, ensure_ascii=False, indent=2)
+                       + "\n")
         return "created"
+    try:
+        data = json.loads(read_text(path))
+    except (ValueError, EnvError) as e:
+        raise EnvError("%s 不是合法 JSON（%s）：请修正后再跑（本工具不猜）"
+                       % (path, e))
+    if not isinstance(data, dict):
+        raise EnvError("%s 格式不对：顶层应为对象（如 "
+                       "{\"version\": 1, \"root\": \"%s\"}）" % (path, root))
+    before = dict(data)
+    for key, value in defaults.items():
+        data.setdefault(key, value)
+    changed = data != before
+    if changed and not dry_run:
+        file_nl = "\r\n" if b"\r\n" in path.read_bytes() else "\n"
+        write_text(path, json.dumps(data, ensure_ascii=False, indent=2)
+                   + "\n", newline=file_nl)
+    # 不覆盖用户值，但不一致要当面说出来
+    if data.get("root") != root:
+        warnings.append("%s 里的 root=%r 与本次 --root=%r 不一致：保留文件里的值"
+                        "（不覆盖），请确认后统一"
+                        % (CONFIG_NAME, data.get("root"), root))
+    if not data.get("instance"):
+        warnings.append("%s 的 instance 为空：at-run 会退出 2；请填 L1 或 L2"
+                        % CONFIG_NAME)
+    return "refreshed" if changed else "kept"
 
-    raw = path.read_bytes()
-    had_bom = raw.startswith(b"\xef\xbb\xbf")
-    file_nl = "\r\n" if b"\r\n" in raw else "\n"
-    text = read_text(path)          # 通用换行：比较一律用 LF
-    found = find_markers(text)
 
-    if found is None:
-        # 没有标记段：追加，不碰已有内容
-        if text == "":
-            new = block
-        elif text.endswith("\n"):
-            new = text + "\n" + block
-        else:
-            new = text + "\n\n" + block
+def update_gitignore(work, root, dry_run, warnings):
+    """维护 .gitignore 标记块；旧的 /test/report/ 行迁移成 /<root>/report/。"""
+    path = work / ".gitignore"
+    block = gitignore_block(root)
+    if not path.exists():
         if not dry_run:
-            write_text(path, new, newline=file_nl)
+            write_text(path, block)
+        return "created"
+    old = read_text(path)
+    file_nl = "\r\n" if b"\r\n" in path.read_bytes() else "\n"
+    if GITIGNORE_MARK not in old:
+        sep = "" if (old == "" or old.endswith("\n")) else "\n"
+        lead = "\n" if old.strip() else ""
+        if not dry_run:
+            write_text(path, old + sep + lead + block, newline=file_nl)
         return "appended"
 
-    begin, end = found
-    if end is None:
-        raise EnvError("ATEST.md 的 at-init 标记段不完整（有 begin 无 end），"
-                       "请人工补上 %s 再跑" % END_MARK)
-    lines = text.splitlines(keepends=True)
-    old_block = "".join(lines[begin:end + 1])
-    new_block, kept_fields = merge_block(old_block, block, keep)
-    if new_block == old_block:
-        # 用户改的值已经生效、模板说明文字没变：无事可做，也不报"模板不同"
+    new = old
+    migrated = False
+    if "/test/report/" in new:
+        new = new.replace("/test/report/", "/%s/report/" % root)
+        migrated = True
+    missing = []
+    if ("/%s/report/" % root) not in new:
+        missing.append("/%s/report/" % root)
+    if "/.wn-instances.json" not in new:
+        missing.append("/.wn-instances.json")
+    if missing:
+        lines = new.splitlines()
+        idx = next((i for i, line in enumerate(lines)
+                    if line.strip() == GITIGNORE_MARK), None)
+        if idx is None:
+            lines.extend(missing)
+        else:
+            lines[idx + 1:idx + 1] = missing
+        new = "\n".join(lines) + ("\n" if new.endswith("\n") else "")
+    if new == old:
         return "kept"
-    if not force:
-        warnings.append("ATEST.md 的 at-init 段与当前模板不同（含你设定的 %s 等值）："
-                        "未改动它；--force 可刷新说明文字并保留这些字段值"
-                        % " / ".join(sorted(keep)))
-        return "kept"
-    if had_bom:
-        warnings.append("ATEST.md 原带 BOM：本次重写后为 UTF-8 无 BOM")
-    preserved.extend(kept_fields)
-    new = "".join(lines[:begin]) + new_block + "".join(lines[end + 1:])
     if not dry_run:
         write_text(path, new, newline=file_nl)
+    if migrated:
+        warnings.append(".gitignore 的旧行 /test/report/ 已迁移为 /%s/report/"
+                        % root)
     return "refreshed"
 
 
@@ -335,13 +310,15 @@ def main(argv=None):
     ap.add_argument("--dir", default=".", metavar="DIR",
                     help="目标项目目录（默认当前目录）")
     ap.add_argument("--name", metavar="NAME",
-                    help="项目名，写进 ATEST.md 的 project 段（默认取目录名）")
+                    help="项目名，写进 atest.json 的 project 键（默认取目录名）")
+    ap.add_argument("--root", default=ROOT_DEFAULT, metavar="NAME",
+                    help="集成测试根目录名（默认 %s；匹配 %s，不能是 . 或 ..）"
+                         % (ROOT_DEFAULT, ROOT_RE.pattern))
     ap.add_argument("--force", action="store_true",
-                    help="刷新样例段（ATEST.md 标记段：刷新说明文字，"
-                         "保留你设定的 project/instance/test_domain/"
-                         "credentials_file/sql_datasource 值；"
-                         "以及 .wn-instances.example.json）；"
-                         "不动 cases/ scripts/ expect/ baseline/ 与 test/atest.init")
+                    help="刷新 .wn-instances.example.json（内容有差异时）；"
+                         "atest.json 只补缺失键，不覆盖已有值；"
+                         "不动 cases/ scripts/ expect/ baseline/ 与"
+                         " <root>/atest.init")
     ap.add_argument("--dry-run", action="store_true",
                     help="只计算并输出计划，不写任何文件")
     args = ap.parse_args(argv)
@@ -365,10 +342,17 @@ def main(argv=None):
                          ensure_ascii=False))
         return EXIT_USAGE
 
-    tmpl_atest = TMPL_DIR / "ATEST.md"
+    root = args.root
+    if root in (".", "..") or not ROOT_RE.match(root):
+        print(json.dumps({"ok": False,
+                          "error": "根目录名不合法: %r（需匹配 %s，且不能是 . 或 ..）"
+                                   % (root, ROOT_RE.pattern)},
+                         ensure_ascii=False))
+        return EXIT_USAGE
+
     tmpl_init = TMPL_DIR / "atest.init"
     tmpl_instances = TMPL_DIR / "wn-instances.example.json"
-    missing = [str(p) for p in (tmpl_atest, tmpl_init, tmpl_instances)
+    missing = [str(p) for p in (tmpl_init, tmpl_instances)
                if not p.is_file()]
     if missing:
         print(json.dumps({"ok": False,
@@ -377,28 +361,8 @@ def main(argv=None):
                          ensure_ascii=False))
         return EXIT_ENV
 
-    try:
-        parts = split_tmpl(read_text(tmpl_atest))
-    except (OSError, EnvError) as e:
-        print(json.dumps({"ok": False, "error": "读模板失败: %s" % e},
-                         ensure_ascii=False))
-        return EXIT_ENV
-    if parts is None:
-        print(json.dumps({"ok": False,
-                          "error": "模板 %s 缺少 at-init 标记段" % tmpl_atest},
-                         ensure_ascii=False))
-        return EXIT_ENV
-    before, block, tail = parts
-    block = block.replace("{{project}}", project)
-    doc = (before + block + tail).replace("{{project}}", project)
-
     dry = args.dry_run
-    created, appended, refreshed, kept, warnings, preserved = \
-        [], [], [], [], [], []
-    # --force 刷新时保留的字段：四个用户设定值 +（没给 --name 时的）project
-    keep = set(KEEP_ON_FORCE)
-    if not args.name:
-        keep.add("project")
+    created, appended, refreshed, kept, warnings = [], [], [], [], []
 
     def bucket(action):
         return {"created": created, "appended": appended,
@@ -410,8 +374,7 @@ def main(argv=None):
         return action
 
     try:
-        check_atest(work)
-        for rel in TREE_DIRS:
+        for rel in tree_dirs(root):
             p = work / rel
             if p.is_dir():
                 kept.append(rel + "/")
@@ -420,33 +383,18 @@ def main(argv=None):
                 p.mkdir(parents=True, exist_ok=True)
             created.append(rel + "/")
 
-        ensure("test/atest.init", read_text(tmpl_init))
-        for rel in GITKEEP_FILES:
+        ensure(root + "/atest.init",
+               read_text(tmpl_init).replace("{{root}}", root))
+        for rel in gitkeep_files(root):
             ensure(rel, "")
 
-        bucket(ensure_atest(work, doc, block, args.force, dry, warnings,
-                            keep, preserved)).append(ATEST_MD)
+        bucket(ensure_config(work, project, root, dry, warnings)
+               ).append(CONFIG_NAME)
 
         ensure(INSTANCES_EXAMPLE, read_text(tmpl_instances), force=True)
 
-        # .gitignore：报告与本机实例配置不进库
-        gi = work / ".gitignore"
-        if gi.exists():
-            old = read_text(gi)
-            file_nl = "\r\n" if b"\r\n" in gi.read_bytes() else "\n"
-            if GITIGNORE_MARK in old:
-                kept.append(".gitignore")
-            else:
-                sep = "" if (old == "" or old.endswith("\n")) else "\n"
-                lead = "\n" if old.strip() else ""
-                if not dry:
-                    write_text(gi, old + sep + lead + GITIGNORE_BLOCK,
-                               newline=file_nl)
-                appended.append(".gitignore")
-        else:
-            if not dry:
-                write_text(gi, GITIGNORE_BLOCK)
-            created.append(".gitignore")
+        # .gitignore：报告与本机实例配置不进库（旧的 /test/report/ 会迁移）
+        bucket(update_gitignore(work, root, dry, warnings)).append(".gitignore")
     except EnvError as e:
         print(json.dumps({"ok": False, "error": str(e)}, ensure_ascii=False))
         return EXIT_ENV
@@ -464,16 +412,15 @@ def main(argv=None):
                         % (work, INSTANCES_REAL, INSTANCES_EXAMPLE))
 
     print(json.dumps({"ok": True, "dry_run": dry, "dir": str(work),
-                      "project": project, "created": created,
+                      "project": project, "root": root, "created": created,
                       "appended": appended, "refreshed": refreshed,
-                      "kept": kept, "preserved": sorted(preserved),
-                      "warnings": warnings},
+                      "kept": kept, "warnings": warnings},
                      ensure_ascii=False))
     if dry:
         print("dry-run：以上只是计划，未写任何文件。", file=sys.stderr)
     else:
-        print("下一步: 改 ATEST.md 的 instance / test_domain，写 test/atest.init，"
-              "再照 bin/at-init/tmpl/ 写第一个用例。", file=sys.stderr)
+        print("下一步: 改 atest.json 的 instance / test_domain，写 %s/atest.init，"
+              "再照 bin/at-init/tmpl/ 写第一个用例。" % root, file=sys.stderr)
     return EXIT_OK
 
 

@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "project": "walnut",
+  "root": "atest",
+  "instance": "L1",
+  "test_domain": "demo",
+  "credentials_file": ".at/credentials.json",
+  "init_template": "atest/atest.init",
+  "sql_datasource": "default"
+}

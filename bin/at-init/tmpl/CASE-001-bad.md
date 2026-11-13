@@ -7,15 +7,15 @@ expected: baseline
 
 # 反例：CASE-002 新建目录后能看到（**故意写错，不要照抄**）
 
-> 本文件只当教材，**不要复制进 `test/cases/`**。`at-run --check` 应当在它身上报出 7 条：
+> 本文件只当教材，**不要复制进 `atest/cases/`**。`at-run --check` 应当在它身上报出 7 条：
 > ① 文件名 ≠ caseID　② 缺 `source`　③ `contract` 过泛　④ `expected` 声明与内容矛盾　
 > ⑤ 步骤里写断言　⑥ 期望写死时间　⑦ 缺 `## 证据` 节。
 > 正确写法见同目录 [`CASE-001.md`](CASE-001.md)：字段齐全、四节齐全、声明与内容一致。
 > （本文件的正文一级标题也没和 `title` 同文——教材用它叙述；真实用例必须 `# <CASE-ID> <title 同文>`。）
 
 <!-- ✗ 错误 1：文件名与 caseID 不符。
-     规则：文件固定叫 `test/cases/<caseID>.md`，两处逐字符相同——报告、脚本、基线都靠 CASE-ID 对账。
-     本文件是教材，原名 `CASE-001-bad.md`；放进项目后应叫 `test/cases/CASE-002.md`（与下面的 caseID 同）。
+     规则：文件固定叫 `atest/cases/<caseID>.md`，两处逐字符相同——报告、脚本、基线都靠 CASE-ID 对账。
+     本文件是教材，原名 `CASE-001-bad.md`；放进项目后应叫 `atest/cases/CASE-002.md`（与下面的 caseID 同）。
      对不上的后果是二选一：要么找不到文件，要么报告挂到错的 ID 上——"用例绿了但没跑到"多源于此。 -->
 
 <!-- ✗ 错误 2：缺 `source` 字段（整个没有）。
@@ -26,7 +26,7 @@ expected: baseline
      应具体到子命令，如 `cmd_o @create`。契约不唯一，`at-run` 无法判断该用哪个脚本、该比哪段结果。 -->
 
 <!-- ✗ 错误 4：`expected: baseline` 与 `## 期望` 的实际内容矛盾。
-     声明 `baseline` 表示期望值在 `test/baseline/<CASE-ID>.json`，由 08 的审核者在 L2 建立，
+     声明 `baseline` 表示期望值在 `atest/baseline/<CASE-ID>.json`，由 08 的审核者在 L2 建立，
      作者不贴值；可下面却贴了内联 json 块。工具只能猜，而猜错的那次会把基线静默覆盖掉。 -->
 
 ## 前置

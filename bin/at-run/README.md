@@ -10,15 +10,41 @@ ATESET-02 定稿（模板 [`bin/at-init/tmpl/CASE-001.md`](../at-init/tmpl/CASE-
 > 契约来源：ATESET-03 任务书 §脚本契约 / §报告（T1 定稿，硬接口）。
 > 本 README 是实现口径的补充，**不改变**那两处定义。
 
+## 配置：项目根 `atest.json`
+
+**唯一配置源**（不再有 `ATEST.md`）。`at-init` 生成，人可直接编辑：
+
+```json
+{
+  "version": 1,
+  "project": "myproj",
+  "root": "atest",
+  "instance": "L1",
+  "test_domain": "demo",
+  "credentials_file": ".at/credentials.json",
+  "init_template": "atest/atest.init",
+  "sql_datasource": "default"
+}
+```
+
+- `root`：集成测试根目录；`cases/` / `scripts/` / `expect/` / `baseline/` /
+  `report/` 都在它下面；
+- `instance`：`L1` / `L2`，缺省来源；为空时执行退出 2；
+- `test_domain`：会话名 `<级别>-<域>-00`；
+- `init_template`：夹具模板路径（v1 只读取并在 stdout 回显；渲染归 ATESET-05）；
+- 文件缺失、不是合法 JSON、或无 `instance` → 退出码 2，不猜（`--check` 也一样）。
+
+CLI 覆盖：`--root` / `--instance` / `--domain`。
+
 ## 用法
 
 ```bash
 # 只校验用例格式，不执行（0 错 = 退出 0）
 python bin/at-run/at-run.py --check
 python bin/at-run/at-run.py --check bin/at-init/tmpl/CASE-001.md
-python bin/at-run/at-run.py --check test/cases/
+python bin/at-run/at-run.py --check atest/cases/
 
-# 全量跑（级别 / 测试域 / 端点都按 ATEST.md 与 .wn-instances.json 解析）
+# 全量跑（级别 / 测试域 / 端点都按 atest.json 与 .wn-instances.json 解析）
 python bin/at-run/at-run.py
 
 # 只跑一例 / 一个套件；遇到红灯即停
@@ -26,16 +52,18 @@ python bin/at-run/at-run.py --only CASE-001
 python bin/at-run/at-run.py --only CASE-001,CASE-002 --stop-on-fail
 python bin/at-run/at-run.py --suite smoke
 
-# 指定项目目录 / 实例级别 / 测试域（--domain 覆盖 ATEST.md 的 test_domain）
+# 指定项目目录 / 实例级别 / 测试域 / 根目录
 python bin/at-run/at-run.py --dir D:/work/myproj --instance L2 --domain mytest
+python bin/at-run/at-run.py --root spec --check
 ```
 
 | 参数 | 说明 |
 |------|------|
-| `--check` | 只校验，不执行；可用位置参数指定文件或目录（缺省 `<dir>/test/cases`） |
+| `--check` | 只校验，不执行；可用位置参数指定文件或目录（缺省 `<dir>/<root>/cases`） |
 | `--dir DIR` | 项目目录（默认当前目录） |
-| `--instance L1\|L2` | 实例级别；缺省读 `ATEST.md` 的 `instance` |
-| `--domain NAME` | 覆盖 `ATEST.md` 的 `test_domain`（会话名 `<级别>-<域>-00`） |
+| `--root NAME` | 集成测试根目录；缺省读 `atest.json` 的 `root`，再缺省 `atest` |
+| `--instance L1\|L2` | 实例级别；缺省读 `atest.json` 的 `instance` |
+| `--domain NAME` | 覆盖 `atest.json` 的 `test_domain`（会话名 `<级别>-<域>-00`） |
 | `--instances FILE` | 实例登记文件；缺省 `$WN_INSTANCES` → 从 `<dir>` 逐级向上 → 用户目录 |
 | `--session-dir DIR` | 会话池目录；缺省登记文件所在目录的 `.at/client/session`（工作区级） |
 | `--only IDS` | 只跑这些 CASE-ID（逗号分隔，可重复） |
@@ -43,32 +71,34 @@ python bin/at-run/at-run.py --dir D:/work/myproj --instance L2 --domain mytest
 | `--stop-on-fail` | 第一个红灯即停；**blocked 不算红** |
 | `--timeout SEC` | 单例脚本超时（默认 120 秒） |
 
-> `--dir` / `--domain` / `--instances` / `--session-dir` / `--timeout` 是实现层
-> 参数（任务书只列了 `--suite` / `--only` / `--stop-on-fail` / `--instance`，原文是
-> "参数含"）。`--domain` 的用途：`ATEST.md` 里 `test_domain` 还没改成实际测试域时，
-> 不改文件也能跑（本任务在 `walnut` 实测时就用到）。
+> `--dir` / `--root` / `--domain` / `--instances` / `--session-dir` / `--timeout`
+> 是实现层参数（任务书只列了 `--suite` / `--only` / `--stop-on-fail` /
+> `--instance`，原文是"参数含"）。`--domain` 的用途：`atest.json` 里
+> `test_domain` 还没改成实际测试域时，不改文件也能跑。
 
 退出码：`0` 全绿（`failed == 0`，**blocked 不算红**）；`1` 有红 / 用法错误
 （参数、`--check` 有错、`--only` 指向不存在的用例）；`2` 环境不可用
-（`ATEST.md` 或实例登记缺失/不合法、端点连不上、会话缺失或失效）。
+（`atest.json` 或实例登记缺失/不合法、端点连不上、会话缺失或失效）。
 
 stdout 是**单行 JSON**（提示与逐例进度进 stderr）：
 
 ```json
-{"ok":true,"suite":"default","instance":"L1","instance_source":".../ATEST.md",
+{"ok":true,"suite":"default","root":"atest","instance":"L1","test_domain":"demo",
+ "init_template":"atest/atest.init","instance_source":".../atest.json",
  "session":"L1-demo-00","total":1,"passed":1,"failed":0,"blocked":0,"skipped":0,
- "report":".../test/report/default/20261113T113351.json",
- "latest":".../test/report/default/latest.json","exit":0}
+ "report":".../atest/report/default/20261113T113351.json",
+ "latest":".../atest/report/default/latest.json","exit":0}
 ```
 
 `skipped` = `--stop-on-fail` 提前结束时未执行的用例数（它们**不进报告**，但一定
 出现在这个字段与 stderr 摘要里，不静默）。
 
+`--check` 的 stdout 还带 `root`；它读同一份配置（缺 `atest.json` 或 `instance`
+为空同样退出 2），只是不执行。
+
 ## 实例与会话（只连不管）
 
-- **级别**：`--instance` → `ATEST.md` 的 `instance` → 退出 2。只认
-  `ATEST.md` 的 **at-init 标记段**（`<!-- at-init:begin -->` ~ `end`）；旧段
-  `walnut_url` / `walnut_level` / `walnut_dist` 不参与解析（13 统一清理）。
+- **级别**：`--instance` → `atest.json` 的 `instance` → 退出 2。
 - **端点**：`.wn-instances.json` 的 `{级别: {host, port}}`。查找顺序
   `--instances` → `$WN_INSTANCES` → 从 `<dir>` 逐级向上 → `~/.wn-instances.json`；
   显式给出的文件**必须存在**（静默回退会跑错实例）。
@@ -80,14 +110,14 @@ stdout 是**单行 JSON**（提示与逐例进度进 stderr）：
 
 ## 脚本契约（T1 定稿）
 
-runner 执行 `test/scripts/<CASE-ID>.py`（argv 传参，**绝不经 shell**；
+runner 执行 `<root>/scripts/<CASE-ID>.py`（argv 传参，**绝不经 shell**；
 `subprocess.run([...])`），工作目录 = 项目目录，注入：
 
 | 变量 | 含义 |
 |---|---|
 | `AT_LEVEL` / `AT_URL` | 实例级别与端点（如 `L1` / `http://127.0.0.1:8080`） |
 | `AT_SESSION_DIR` | 会话池目录（工作区级） |
-| `AT_DOMAIN` | `ATEST.md` 的 `test_domain`（或 `--domain`） |
+| `AT_DOMAIN` | `atest.json` 的 `test_domain`（或 `--domain`） |
 | `AT_WNCLI` | `wn-cli.py` 绝对路径（脚本统一经它操作实例） |
 | `AT_CASE_ID` / `AT_OUT` | 用例 ID / 证据目录（runner 预建） |
 
@@ -118,14 +148,14 @@ JSON；`-cqn` 才是紧凑标准 JSON）。
 ## 报告
 
 ```text
-test/report/<suite>/<timestamp>.json     # 本次报告（JSON 是唯一源）
-test/report/<suite>/latest.json          # 同内容（覆盖写）
-test/report/<suite>/<timestamp>/<CASE-ID>/  # 每例证据目录
+<root>/report/<suite>/<timestamp>.json     # 本次报告（JSON 是唯一源）
+<root>/report/<suite>/latest.json          # 同内容（覆盖写）
+<root>/report/<suite>/<timestamp>/<CASE-ID>/  # 每例证据目录
 ```
 
 ```json
 {"suite":"default","timestamp":"2026-11-13T11:35:08+08:00","instance":"L1",
- "instance_source":".../ATEST.md","total":2,"passed":1,"failed":1,"blocked":0,
+ "instance_source":".../atest.json","total":2,"passed":1,"failed":1,"blocked":0,
  "cases":[{"caseID":"CASE-101","status":"passed","duration_ms":391,
            "evidence_dir":"...","diff":[]},
           {"caseID":"CASE-102","status":"failed","duration_ms":359,
@@ -133,7 +163,7 @@ test/report/<suite>/<timestamp>/<CASE-ID>/  # 每例证据目录
 ```
 
 `status` 只有 `passed` / `failed` / `blocked`。`instance_source` 为 `cli`
-（`--instance` 生效）或 `ATEST.md` 的绝对路径。`test/report/` 已在项目
+（`--instance` 生效）或 `atest.json` 的绝对路径。`<root>/report/` 已在项目
 `.gitignore` 里（`at-init` 追加），报告不进库。
 
 ## `--check` 的错误码
@@ -153,12 +183,12 @@ test/report/<suite>/<timestamp>/<CASE-ID>/  # 每例证据目录
 | `caseid-duplicate` | 多个用例文件用同一个 `caseID` |
 
 `--check` 对目录是**扫全部 `*.md`**（缺 front-matter 的 md 会被报错，这样
-`test/cases/` 里混进草稿不会静默漏检）。执行前也会对选中的用例做同一套校验：
+`<root>/cases/` 里混进草稿不会静默漏检）。执行前也会对选中的用例做同一套校验：
 有格式错误就**整体不执行**（退出 1），不出"半绿"报告。
 
 ## 已知边界
 
-- v1 只做子集比较，不做快照/diff 细化（04）；不渲染 `test/atest.init`（05）；
+- v1 只做子集比较，不做快照/diff 细化（04）；不渲染 `<root>/atest.init`（05）；
   不写 Markdown 报告（07）；不建基线（08）；**不并发**执行；
 - 脚本固定 `<CASE-ID>.py`（任务书的契约）；其它语言留给后续任务；
 - 超时只杀直接子进程（脚本自己起的 `wn-cli` 子进程不保证一起终止）；
