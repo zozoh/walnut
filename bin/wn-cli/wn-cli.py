@@ -221,15 +221,81 @@ def resolve_session_dir(explicit, instances_file):
     return ".at/client/session"
 
 
+def default_test_user(start=None):
+    """项目默认的测试用户。
+
+    依次看：`atest.json` 的 `test_domain` → `.at/credentials.json` 的 `usr`。
+    找不到就返回 None（由调用方退化为"非 root 会话优先"）。
+    """
+    here = Path(start or os.getcwd()).resolve()
+    chain = [here] + list(here.parents)
+    for d in chain:
+        cfg = d / "atest.json"
+        if cfg.is_file():
+            try:
+                data = json.loads(cfg.read_text(encoding="utf-8-sig"))
+                usr = data.get("test_domain") if isinstance(data, dict) else None
+                if usr:
+                    return str(usr)
+            except (ValueError, OSError):
+                pass
+            break
+    for d in chain:
+        cred = d / ".at" / "credentials.json"
+        if cred.is_file():
+            try:
+                data = json.loads(cred.read_text(encoding="utf-8-sig"))
+                usr = data.get("usr") if isinstance(data, dict) else None
+                if usr:
+                    return str(usr)
+            except (ValueError, OSError):
+                pass
+            break
+    return None
+
+
+def _session_seq(path):
+    """<级别>-<用户>-<序号>.toml 里的序号；解析不了排最后。"""
+    try:
+        return int(path.stem.rsplit("-", 1)[1])
+    except (ValueError, IndexError):
+        return 10 ** 6
+
+
 def pick_session(session_dir, level):
-    """非 login 子命令：按级别找唯一会话 <级别>-<登录名>-<序号>.toml。"""
-    hits = sorted(Path(session_dir).glob("%s-*.toml" % level))
-    if len(hits) == 1:
-        return hits[0].stem
-    if len(hits) > 1:
-        raise WnError(EXIT_USAGE, "有多个 %s 会话（%s），请用 --se 指定"
+    """非 login 子命令：按级别挑一个会话。
+
+    顺序（ATESET 定稿）：
+    1. 项目默认用户（`atest.json` 的 `test_domain` → `.at/credentials.json` 的 `usr`）
+       对应的 `<级别>-<用户>-NN`；
+    2. 没有该级别会话 → 报错；
+    3. 有多个用户时：优先非 root；仍多个 → 报错并列出候选；
+    4. 同一用户的多个会话（00/01/02…）→ 取序号最小的，**不报错**（共享会话是预期特征）。
+    """
+    hits = sorted(Path(session_dir).glob("%s-*.toml" % level), key=_session_seq)
+    if not hits:
+        raise WnError(EXIT_USAGE, "%s 级别还没有会话，先 login（或用 --se 指定）" % level)
+
+    usr = default_test_user()
+    if usr:
+        mine = [h for h in hits
+                if h.stem.startswith("%s-%s-" % (level, usr))]
+        if not mine:
+            raise WnError(EXIT_USAGE, "%s 级别没有用户 %s 的会话（现有：%s）；"
+                                      "先 login，或用 --se 指定"
+                          % (level, usr, ", ".join(h.stem for h in hits)))
+        return mine[0].stem
+
+    non_root = [h for h in hits if not h.stem.startswith("%s-root-" % level)]
+    pick_from = non_root or hits
+    users = sorted({h.stem.split("-")[1] for h in pick_from
+                    if len(h.stem.split("-")) >= 3})
+    if len(users) > 1:
+        raise WnError(EXIT_USAGE,
+                      "%s 级别有多个用户的会话（%s），请用 --se 指定，"
+                      "或在 atest.json 里设 test_domain"
                       % (level, ", ".join(h.stem for h in hits)))
-    raise WnError(EXIT_USAGE, "%s 级别还没有会话，先 login（或用 --se 指定）" % level)
+    return pick_from[0].stem
 
 
 def http(base, method, path, params=None, form=None, body=None,
