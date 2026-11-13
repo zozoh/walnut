@@ -16,5 +16,7 @@
   ],
   "pythonVersion": "3.12",
   "typeCheckingMode": "basic",
-  "strict": []
+  "strict": [
+    "bin/at-doctor"
+  ]
 }
