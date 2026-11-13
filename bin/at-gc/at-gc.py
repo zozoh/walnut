@@ -27,10 +27,16 @@ at-gc — ATEST 报告归档（ATESET-14）
 - 幂等：成功归档后原件已删，重复运行没有可归档对象；若在"校验通过、
   删到一半"时中断，下次核对 zip 覆盖剩余原件后把删除做完，不重复压缩；
 - `--dry-run` 只打印计划：不建 archive/、不写 zip、不删任何文件。
+- 归档动作之后清理**过期归档**：扫描 `<root>/report/archive/*.zip`，mtime 早于
+  `--archive-days`（缺省 30，0 = 不清理）天的删除；只认 archive/ 直接子项里的
+  普通 `.zip` 文件（目录 / 符号链接 / 非 zip 一律不动），`--dry-run` 只报告不删。
 
 输出最后一行单行 JSON：`{ok, kept, archived:[{ts,zip,files,bytes,form}],
-freed_bytes, dry_run, keep, skipped, errors}`；人读摘要进 stderr。
+freed_bytes, deleted_archives:[{name,days}], deleted_bytes, dry_run, keep,
+skipped, errors}`；人读摘要进 stderr。
 `files` 是这次被归档的顶层原件（相对项目根，正斜杠），`bytes` 是原来件总字节。
+`deleted_archives` 是本轮删掉的过期归档（`name` = archive/ 下的文件名，
+`days` = 实际存放天数），`deleted_bytes` 是这些 zip 的总字节（dry-run 时是"将删除"）。
 
 退出码: 0 好 / 1 用法或 IO 错 / 2 环境不可用（atest.json、report 目录缺失或坏档）。
 零依赖 Python3；所有写入 UTF-8 无 BOM、LF；argv 传参不经 shell。
@@ -66,10 +72,14 @@ KEEP_KEY = "report_keep"
 KEEP_DEFAULT = 3
 # 5 分钟内改过的报告视为"正在写"，不归 gc（防并发误删）
 INFLIGHT_SECONDS = 300
+# 过期归档：archive/ 下 mtime 早于 N 天的 .zip 删除；缺省保留 30 天，0 = 不清理
+ARCHIVE_DAYS_DEFAULT = 30
+ARCHIVE_DAYS_SECONDS = 86400
 
 DESCRIPTION = """\
 ATEST 报告归档：只保留最近 N 次报告，更早的压成 report/archive/<T>.zip
-（校验通过才删原件）。新（<T>/report.json）旧（<T>.json）两种形态都认。
+（校验通过才删原件）；archive/ 里 mtime 早于 --archive-days（缺省 30）天的
+zip 一并删除。新（<T>/report.json）旧（<T>.json）两种形态都认。
 退出码 0 好 / 1 用法或 IO 错 / 2 环境不可用。"""
 
 EPILOG = """\
@@ -93,10 +103,17 @@ zip 内的布局（统一成新一代形态，解出来就是一次执行）:
 保留数:
   --keep > atest.json 的 report_keep > 3；项目可在 atest.json 里覆盖。
 
+过期归档（默认保留 30 天）:
+  归档动作之后扫描 <root>/report/archive/*.zip，mtime 早于 --archive-days N 天
+  的删除，逐个打印 `at-gc: 删除过期归档 <name>（<N> 天前）`。
+  --archive-days 缺省 30，0 = 不清理；只删 archive/ 直接子项里的普通 .zip 文件，
+  目录 / 符号链接 / 非 zip 一律不动；--dry-run 只报告、不删。
+
 输出:
   stderr 人读摘要；stdout 最后一行单行 JSON:
   {"ok":true,"kept":3,"archived":[{"ts","zip","files","bytes","form"}],
-   "freed_bytes":123,"dry_run":false,"keep":3,"skipped":[],"errors":[]}
+   "freed_bytes":123,"deleted_archives":[{"name","days"}],"deleted_bytes":45,
+   "dry_run":false,"keep":3,"skipped":[],"errors":[]}
 
 示例:
   python bin/at-gc/at-gc.py --dry-run
@@ -361,6 +378,44 @@ def source_files(run, project):
     return out
 
 
+def prune_archives(archive_dir, days, dry_run, now):
+    """删 archive/ 下 mtime 早于 days 天的 .zip；返回 (清单, 字节数, 错误)。
+
+    安全边界：只看 archive/ 的**直接子项**，只认普通文件（目录 / 符号链接 /
+    非 `.zip` 一律不动）；days == 0 = 不清理；dry_run 只报告、不删。
+    清单项 = {"name": 文件名, "days": 实际存放天数}；name 用文件名，archive/ 是
+    固定位置，不必再带路径。
+    """
+    if days <= 0 or not archive_dir.is_dir():
+        return [], 0, []
+    cutoff = now - days * ARCHIVE_DAYS_SECONDS
+    deleted = []
+    freed = 0
+    errors = []
+    for path in sorted(archive_dir.iterdir(), key=lambda p: p.name):
+        if path.is_symlink() or not path.is_file():
+            continue
+        if not path.name.lower().endswith(".zip"):
+            continue
+        try:
+            info = path.stat()
+        except OSError as e:
+            errors.append({"name": path.name, "error": "读不了归档：%s" % e})
+            continue
+        if info.st_mtime >= cutoff:
+            continue
+        age_days = int((now - info.st_mtime) // ARCHIVE_DAYS_SECONDS)
+        if not dry_run:
+            try:
+                path.unlink()
+            except OSError as e:
+                errors.append({"name": path.name, "error": "删除失败：%s" % e})
+                continue
+        deleted.append({"name": path.name, "days": age_days})
+        freed += info.st_size
+    return deleted, freed, errors
+
+
 def cmd_gc(project, root, config, config_path, args):
     project = Path(project).resolve()
     report_dir = project / root / REPORT_DIR_NAME
@@ -464,17 +519,30 @@ def cmd_gc(project, root, config, config_path, args):
                          "files": source_files(run, project),
                          "bytes": total, "form": form})
 
+    # 归档动作之后再清过期归档：刚写出的 zip mtime 是现在，不会被误删。
+    deleted_archives, deleted_bytes, prune_errors = prune_archives(
+        archive_dir, args.archive_days, args.dry_run, now)
+    errors.extend(prune_errors)
+
     payload = {"ok": not errors, "kept": len(newest),
                "archived": archived, "freed_bytes": freed,
+               "deleted_archives": deleted_archives,
+               "deleted_bytes": deleted_bytes,
                "dry_run": bool(args.dry_run), "keep": keep,
                "skipped": skipped, "errors": errors}
     emit(payload)
 
     tag = "[dry-run] " if args.dry_run else ""
+    prune_tail = ""
+    if deleted_archives:
+        prune_tail = ("，%s删除过期归档 %d 个（%s）"
+                      % ("计划" if args.dry_run else "",
+                         len(deleted_archives), size_text(deleted_bytes)))
     print("at-gc: %s报告 %d 个：保留最新 %d 个，%s归档 %d 个，释放 %s（跳过 %d）"
+          "%s"
           % (tag, len(ordered), len(newest),
              "计划" if args.dry_run else "", len(archived),
-             size_text(freed), len(skipped)), file=sys.stderr)
+             size_text(freed), len(skipped), prune_tail), file=sys.stderr)
     for item in archived:
         print("at-gc: %s%s%s → %s（%d 个顶层原件，%s）%s"
               % (tag, item["ts"],
@@ -483,12 +551,16 @@ def cmd_gc(project, root, config, config_path, args):
                  size_text(item["bytes"]),
                  "（补删上次未删完的原件）" if item.get("resumed") else ""),
               file=sys.stderr)
+    for item in deleted_archives:
+        print("at-gc: %s删除过期归档 %s（%d 天前）"
+              % (tag, item["name"], item["days"]), file=sys.stderr)
     for item in skipped:
         label = item.get("ts") or item.get("name") or "?"
         print("at-gc: 跳过 %s（%s）" % (label, item.get("detail", "")),
               file=sys.stderr)
     for item in errors:
-        print("at-gc: 错误 %s —— %s" % (item.get("ts", "?"), item["error"]),
+        label = item.get("ts") or item.get("name") or "?"
+        print("at-gc: 错误 %s —— %s" % (label, item["error"]),
               file=sys.stderr)
     return EXIT_OK if not errors else EXIT_USAGE
 
@@ -504,9 +576,19 @@ def main(argv=None):
     ap.add_argument("--keep", type=int, metavar="N",
                     help="保留最近 N 次报告（缺省读 atest.json 的 report_keep，"
                          "再缺省 %d）" % KEEP_DEFAULT)
+    ap.add_argument("--archive-days", type=int, default=ARCHIVE_DAYS_DEFAULT,
+                    metavar="N",
+                    help="归档后删除 archive/ 下 mtime 早于 N 天的 .zip"
+                         "（0 = 不清理；缺省 %d）" % ARCHIVE_DAYS_DEFAULT)
     ap.add_argument("--dry-run", action="store_true",
                     help="只打印计划：不建 archive/、不写 zip、不删文件")
     args = ap.parse_args(argv)
+
+    if args.archive_days < 0:
+        emit({"ok": False,
+              "error": "--archive-days 不能为负：%d（0 = 不清理）"
+                       % args.archive_days})
+        return EXIT_USAGE
 
     project = Path(args.dir).expanduser()
     if not project.exists() or not project.is_dir():

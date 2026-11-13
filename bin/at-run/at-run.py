@@ -83,6 +83,9 @@ at-run — ATEST 运行器（v2）
     正在写的报告（含本次）由 at-gc 按"缺 json 或 5 分钟内改过"跳过，绝不动 latest.*。
     stdout 摘要另有 session_created（本次是否新建会话：true = 自动登录新建，
     false = 复用已有会话），便于人确认没有悄悄换身份。
+    逐例结果与结尾汇总的 stderr 日志带状态图标（✅ / ❌ / ⛔ / ⏭️）；控制台编码
+    写不了 emoji（如 cp936 / ascii）时退回 [OK] / [FAIL] / [BLOCK] / [SKIP]，
+    其他文案不变；stdout 的 JSON 摘要永远不加图标（机器读的格式）。
 
 退出码: 0 全绿（failed 为 0，blocked 不算红）；1 有红 / 用法错误；
         2 环境不可用（atest.json 或实例登记缺失、端口不通、缺凭据或自动登录失败）。
@@ -148,6 +151,15 @@ REPORT_SCHEMA = "atest-report/2"
 # --record 产出的 actual 文件（喂给 bin/at-baseline --from）；_meta 是录制元信息，
 # 其余键 = CASE-ID → 脚本 actual。at-baseline 把 _ 开头的键当元信息、不当用例。
 ACTUAL_SCHEMA = "atest-actual/1"
+
+# 状态图标：逐例结果行与结尾汇总的视觉标记。控制台编码写不了 emoji（Windows
+# cp936 / ascii）时退回纯文本标记，其他文案一字不改；stdout 的 JSON 永远不加
+# 图标（那是机器读的格式）。
+STATUS_MARKS = {"passed": "✅", "failed": "❌", "blocked": "⛔", "skipped": "⏭️"}
+STATUS_MARKS_PLAIN = {"passed": "[OK]", "failed": "[FAIL]",
+                      "blocked": "[BLOCK]", "skipped": "[SKIP]"}
+_STARTUP_ENCODING = None    # force_utf8_stdio 重配之前的 stdout 编码
+_EMOJI_OK = None            # 能力探测结果（进程内只探测一次）
 
 # contracts 某项只写命令族不算"被测契约"（02 反例错误 3）
 GENERIC_CONTRACTS = ("o", "obj", "cmd", "cmd_o", "cmd_obj", "cmd_sqlx", "sqlx",
@@ -276,12 +288,45 @@ class UsageError(Exception):
 
 
 def force_utf8_stdio():
-    """Windows 控制台默认按 cp936 编码，中文 JSON 进管道会变味。"""
+    """Windows 控制台默认按 cp936 编码，中文 JSON 进管道会变味。
+
+    顺手记下**重配之前**的 stdout 编码：状态图标能不能写 emoji 由它决定——
+    reconfigure 只改流本身的编码，改不了控制台/下游能不能显示 emoji。
+    """
+    global _STARTUP_ENCODING
+    if _STARTUP_ENCODING is None:
+        _STARTUP_ENCODING = getattr(sys.stdout, "encoding", None)
     for stream in (sys.stdout, sys.stderr):
         try:
             stream.reconfigure(encoding="utf-8")
         except (AttributeError, ValueError, OSError):
             pass
+
+
+def emoji_ok():
+    """stdout 能否可靠写出 ✅：探测一次，进程内缓存。
+
+    探测用启动时的编码（cp936 / ascii 上 `"✅".encode(...)` 抛
+    UnicodeEncodeError，未知编码名抛 LookupError）；不能写就退回纯文本标记，
+    绝不让图标把整批执行打崩。
+    """
+    global _EMOJI_OK
+    if _EMOJI_OK is None:
+        encoding = (_STARTUP_ENCODING
+                    or getattr(sys.stdout, "encoding", None) or "utf-8")
+        try:
+            "✅".encode(encoding, "strict")
+        except (UnicodeEncodeError, LookupError):
+            _EMOJI_OK = False
+        else:
+            _EMOJI_OK = True
+    return _EMOJI_OK
+
+
+def status_mark(status):
+    """状态 → 行首标记；不能写 emoji 时用 [OK] / [FAIL] / [BLOCK] / [SKIP]。"""
+    table = STATUS_MARKS if emoji_ok() else STATUS_MARKS_PLAIN
+    return table.get(status, "[?]")
 
 
 def emit(obj):
@@ -1897,7 +1942,8 @@ def run_suite(project, args, root, config, config_path):
                           batch_cleanup_note, repro, None, level, [])
             entry["evidence"] = evidence_files(evidence)
             results.append(entry)
-            print("at-run: %s blocked —— %s" % (case_id, batch_cleanup_note),
+            print("at-run: %s %s blocked —— %s"
+                  % (status_mark("blocked"), case_id, batch_cleanup_note),
                   file=sys.stderr)
             continue
 
@@ -1926,8 +1972,8 @@ def run_suite(project, args, root, config, config_path):
                           None, level, [])
             entry["evidence"] = evidence_files(evidence)
             results.append(entry)
-            print("at-run: %s blocked —— %s" % (case_id, note),
-                  file=sys.stderr)
+            print("at-run: %s %s blocked —— %s"
+                  % (status_mark("blocked"), case_id, note), file=sys.stderr)
             continue
 
         env_extra = {"AT_LEVEL": level, "AT_URL": url,
@@ -2037,7 +2083,8 @@ def run_suite(project, args, root, config, config_path):
                       record=args.record)
         entry["evidence"] = evidence_files(evidence)
         results.append(entry)
-        line = "at-run: %s %s（%dms）" % (
+        line = "at-run: %s %s %s（%dms）" % (
+            status_mark(entry["status"]),
             case_id,
             "recorded" if args.record and entry["status"] == "passed"
             else entry["status"],
@@ -2115,10 +2162,15 @@ def run_suite(project, args, root, config, config_path):
               % (level, len(actuals), len(results) - len(actuals),
                  rel(actual_path, project)), file=sys.stderr)
     else:
-        print("at-run: %s —— %d 例：%d 绿 / %d 红 / %d blocked%s（报告 %s）"
-              % (level, len(results), passed, failed, blocked,
-                 "，%d 例未执行" % len(not_run) if not_run else "",
-                 rel(report_path, project)),
+        not_run_text = ("，%d %s 未执行"
+                        % (len(not_run), status_mark("skipped"))
+                        if not_run else "")
+        print("at-run: %s —— %d 例：%d %s / %d %s / %d %s%s（报告 %s）"
+              % (level, len(results),
+                 passed, status_mark("passed"),
+                 failed, status_mark("failed"),
+                 blocked, status_mark("blocked"),
+                 not_run_text, rel(report_path, project)),
               file=sys.stderr)
     return exit_code
 

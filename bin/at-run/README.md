@@ -158,6 +158,33 @@ CASE-ID → 脚本 actual）：
 `--check` 的 stdout 还带 `root`；它读同一份配置（缺 `atest.json` 或 `instance`
 为空同样退出 2），只是不执行。
 
+## 日志（stderr）
+
+逐例结果行与结尾汇总带状态图标（`--record` 的 `recorded` 也按 `passed` 显示）：
+
+```text
+at-run: ✅ CASE-101 passed（1704ms）
+at-run: ❌ CASE-104 failed（855ms）—— 与期望不一致（1 处）
+at-run: ⛔ CASE-105 blocked —— 脚本未实现：缺 atest/scripts/CASE-105.py
+at-run: L2 —— 11 例：11 ✅ / 0 ❌ / 0 ⛔（报告 atest/report/20261113T182221/report.json）
+```
+
+- `passed` → `✅`、`failed` → `❌`、`blocked` → `⛔`、`skipped` → `⏭️`
+  （`skipped` 只出现在汇总的"未执行"计数里，如 `，2 ⏭️ 未执行`）；
+- **编码兜底**：进程启动时探测 stdout 能否编码 `✅`（Windows 的 `cp936` / `ascii`
+  上会 `UnicodeEncodeError`）。能写就用 emoji；不能写就退回纯文本标记
+  `[OK]` / `[FAIL]` / `[BLOCK]` / `[SKIP]`，**其他文案一字不改**：
+
+  ```text
+  at-run: [OK] CASE-101 passed（1704ms）
+  at-run: L2 —— 11 例：11 [OK] / 0 [FAIL] / 0 [BLOCK]（报告 …）
+  ```
+
+- 探测只做一次、进程内缓存。看的是**进程启动时**的 stdout 编码
+  （`PYTHONIOENCODING` / 区域设置），不是 `force_utf8_stdio()` 重配之后的流编码：
+  `reconfigure` 只改流本身，改不了控制台或下游能不能显示 emoji；
+- **stdout 的 JSON 摘要保持不变**：机器读的格式永远不带图标，也不因降级而变。
+
 ## 实例与会话（会话自动建立）
 
 - **级别**：`--instance` → `atest.json` 的 `instance` → 退出 2。
