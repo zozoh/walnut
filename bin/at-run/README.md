@@ -9,8 +9,9 @@ v2（ATESET-04）在 v1 之上补了**表达力**与**证据**：期望支持
 脚本侧另给薄库 [`atlib.py`](atlib.py)（`wn` / `fixture` / `snap` / `emit` / `note`）。
 
 ATESET-05 补上**夹具**：静态布局写进 `<root>/atest.init`，用例脚本用
-`atlib.fixture()` 的本地最小渲染器铺进域（**不调用 `app init`**）；非幂等用例
-再带清理脚本，执行顺序固定为 **清理 → 初始化 → 用例**（见下文「夹具与清理」）。
+`atlib.fixture()` 调 Walnut 自己的 `app init` 铺进域（`-conf` 指定上传后的模板，
+`-script off`）；非幂等用例再带清理脚本，执行顺序固定为 **清理 → 初始化 → 用例**
+（见下文「夹具与清理」）。
 
 > 用例格式 v2（2026-11-13）：必填 `contracts` 有序数组；不再有 `instance` /
 > `suite` 字段，报告也不再按 suite 分目录。权威定义见 ATESET-02 任务书。
@@ -44,7 +45,7 @@ ATESET-02 定稿（模板 [`bin/at-init/tmpl/CASE-001.md`](../at-init/tmpl/CASE-
 - `instance`：`L1` / `L2`，缺省来源；为空时执行退出 2；
 - `test_domain`：会话名 `<级别>-<域>-00`；
 - `init_template`：夹具模板路径（缺省 `<root>/atest.init`）；`atlib.fixture()` 用它，
-  `--check` 会警告缺失 / 异常大 / v1 不支持的外部引用；
+  `--check` 会警告缺失 / 异常大 / 外部引用（外部引用只是审阅提示，`app init` 支持）；
 - 文件缺失、不是合法 JSON、或无 `instance` → 退出码 2，不猜（`--check` 也一样）。
 
 CLI 覆盖：`--root` / `--instance` / `--domain`。
@@ -178,16 +179,20 @@ JSON；`-cqn` 才是紧凑标准 JSON）。
 ## 夹具与清理（ATESET-05）
 
 静态布局**不写进用例命令**：`<root>/atest.init` 声明"世界该有什么"，
-用例脚本调 `atlib.fixture()` 的本地最小渲染器铺进域；变量在
+用例脚本调 `atlib.fixture()`，由 Walnut 自己的 `app init` 铺进域；变量在
 `<root>/vars.json`。动态数据（每例新增的业务记录）仍写脚本。
 
-> **不再调用 `app init`**。L1 实测三条路都不通：`app init <文件> -vars` 把文件
-> 当目录找 `_files`；建 `~/.atest/init/vp/_files` 后 exit 0 但 0 对象 / 4ms；
-> `cat vars.json | app init <dir>` 同样 0 对象。man 写"首参是模板文件"与源码
-> 行为对不上，因此改为 atlib 自带的最小渲染器（任务书决策记录已标"撤销"）。
+> **由 `app init` 执行**：`fixture()` 把模板上传到 `~/.atest/init/<name>.init`，
+> 再跑 `app init -conf ~/.atest/init/<name>.init -script off`（有变量时加
+> `-vars '<json>'`）。模板里可以使用 `app init` 的**全部指令**：
+> `@DIR` / `@FILE` / `@API` / `@HOME` / `@ENV` / `@INCLUDE` 与
+> `%TMPL` / `%COPY` / `%EXPLAIN`。atlib 不再维护自己的模板子集。
+>
+> `-script` 默认 **off**：脚本测试要收尾脚本时自己在用例脚本里调
+> （收尾脚本名 / 内容由模板作者约定）。
 
 ```text
-<root>/atest.init                 静态布局模板（v1 子集；见下）
+<root>/atest.init                 静态布局模板（app init 语法）
 <root>/vars.json                  可选；对象，项目级变量（缺省 {}）
 <root>/cleanup.py                 可选；套件级清理（at-run --reset 时先跑）
 <root>/scripts/<CASE-ID>.clean.py 可选；用例级清理（该例执行前跑）
@@ -207,21 +212,25 @@ obj = snap("~/.atest/demo")     # 模板铺好的对象
 emit({"atest-owner": obj.get("atest-owner")})
 ```
 
-`fixture(root=None, name=None, vars=None)`：
+`fixture(root=None, name=None, vars=None, timeout=90)`：
 
-- 读 `<root>/atest.init` 与 `<root>/vars.json`（JSON 对象，缺省 `{}`）；
-  `vars` 是调用方默认值，项目 vars.json 覆盖同名键；
-- **v1 支持**：
-  - `@DIR <path> ['quick meta'] [{json}]`
-  - `@FILE <path> ['quick meta'] [{json}]` + `%TMPL:` / `%COPY:` / `%EXPLAIN:` … `%END%`
-  - `${var}` / `${var?默认值}`；`%EXPLAIN` 支持 `=key` / `=key?默认` / `==key` / `!=key`
-- 路径相对域 home（`@DIR .atest/x` → `~/.atest/x`）；父目录自动建；
-  文件内容用 `obj save-text`；元数据用 `o ... @update` 合并；
-- **幂等**：目标已存在则跳过内容写入（元数据仍合并），同一模板连跑两次安全；
-- **明确拒绝**（记 blocked，不静默忽略）：`@HOME` / `@ENV` / `@API` /
-  `@INCLUDE`、`%COPY > 外部文件`、`?` 条件写入。这些请在用例脚本里直接做；
-- 失败（缺模板 / vars 非法 / 不支持的写法 / wn-cli 失败）→ `SystemExit(2)`，
-  runner 记 **blocked**，原因进 `summary.txt`。
+- 读 `<root>/atest.json` 的 `root` / `init_template`，定位模板与
+  `<root>/vars.json`（JSON 对象，缺省 `{}`）；`vars` 是调用方默认值，
+  项目 vars.json 覆盖同名键；
+- 把模板 `obj save-text` 到 `~/.atest/init/<name>.init`（覆盖写；`name`
+  缺省为模板文件名）；有变量时把合并后的 JSON `obj save-text` 到
+  `~/.atest/vars.json`，并作为 `-vars` 传给 `app init`；
+- 执行 `app init -conf ~/.atest/init/<name>.init -script off`——模板支持
+  `@DIR` / `@FILE` / `@API` / `@HOME` / `@ENV` / `@INCLUDE` 与
+  `%TMPL` / `%COPY` / `%EXPLAIN`（`${var}` / `${var?默认值}`、
+  `%COPY >` 外部文件引用等 `app init` 语义都可用）；
+- **幂等**由 `app init` 自身保证：目标文件已存在且内容非空时跳过写入，
+  目录/元数据按模板合并；同一模板连跑两次安全、对象不重复；
+- 失败（模板缺失 / vars.json 非法 / 上传失败 / `app init` 非 0）→
+  `SystemExit(2)`，runner 记 **blocked**，原因与 `app init` 的原始输出进
+  `summary.txt` 与 stderr；
+- 返回 `{"name", "template", "vars", "entries", "counts"}`（后两项由
+  `app init` 输出统计，供日志参考）。
 
 ### 清理约定
 
@@ -241,7 +250,9 @@ emit({"atest-owner": obj.get("atest-owner")})
 ### `--check` 的夹具警告（不阻塞）
 
 `--check` 会检查 `<root>/atest.init`（或 `atest.json` 的 `init_template`），
-问题只进 `warnings`、不影响 `ok` / 退出码：
+问题只进 `warnings`、不影响 `ok` / 退出码。其中 `init-template-external-ref` /
+`init-template-include` 是**审阅提示**：`app init` 本身支持这些写法，只是
+外部引用越多、模板越难审。
 
 | 警告码 | 含义 |
 |---|---|
@@ -307,7 +318,7 @@ emit({"nm": obj["nm"], "race": obj["race"]})     # 输出契约那一行 JSON �
 | 函数 | 行为 |
 |---|---|
 | `wn(cmd, timeout=90)` | 经 `wn-cli cmd` 执行；非 0 退出码 → `SystemExit(2)`（记 blocked） |
-| `fixture(root=None, name=None, vars=None)` | 本地渲染 `<root>/atest.init`（`@DIR`/`@FILE` + 内联内容）并铺进域；失败即抛（记 blocked） |
+| `fixture(root=None, name=None, vars=None)` | 上传模板 / 变量，调 `app init -conf ... -script off` 铺进域；失败即抛（记 blocked） |
 | `snap(path, name=None)` | `o <path> @json -cqn` → dict；落 `<AT_OUT>/objects/<路径>.json`（`/` 换 `__`）；取不到即抛 |
 | `emit(actual)` | 打印 `{"ok":true,"actual":...}` 后退出 0——**之后不要再往 stdout 写任何东西** |
 | `note(text)` | 追加一行 `[script] …` 到 `summary.txt`；runner 重写 summary 时原样保留 |
@@ -425,11 +436,11 @@ atlib 只依赖标准库与 `AT_*` 环境变量；失败一律 `SystemExit(2)` �
 
 - 比较仍是**子集**语义（只比期望里出现的键），不做整棵对象树的等价判断；
   三个 matcher 之外的自定义比较交给用例脚本自己算；
-- 不做全量快照（只存脚本显式 `snap()` 的路径）；夹具走 `atlib.fixture()`
-  的本地最小渲染器（**不调用 `app init`**）；不挂 `mnt`；不写 Markdown 报告（07）；
+- 不做全量快照（只存脚本显式 `snap()` 的路径）；夹具由 `app init` 执行
+  （`-conf` + `-vars`，`-script off`）；不挂 `mnt`；不写 Markdown 报告（07）；
   不建基线（`--record` 只录 actual，清洗/落盘归 `bin/at-baseline`）；**不并发**执行；
-- 夹具 v1 只支持 `@DIR` / `@FILE` + `%TMPL:` / `%EXPLAIN:` / `%COPY:` 内联块；
-  `@HOME` / `@ENV` / `@API` / `@INCLUDE` / `%COPY >` / `?` 条件写入明确拒绝；
+- 夹具模板的解析/渲染全部交给 `app init`，atlib 只负责上传与调用；
+  `-script` 默认 off（收尾脚本由用例自己调）；
 - 清理脚本的约束是**约定**，工具不做静态检查：不许删域 / 删数据目录，只删自己造的对象；
 - `--reset` 的套件清理失败把全批记 blocked（退出码仍 0，按"blocked 不算红"）；
   每例的 `clean/` 证据会进报告 `evidence` 清单；

@@ -29,19 +29,26 @@ public class app_init implements JvmHdl {
         // 准备上下文
         AppInitContext ac = new AppInitContext();
         // 找到模板的源，会依次尝试
-        // 0. vals[0]
-        // 1. ~/.domain/init/_files
-        // 2. /mnt/project/${domain}/init/domain/_files
-        // 3. /mnt/project/${domain}/*/init/domain/_files
-        loadHome(sys, hc, ac);
+        // 0. -conf <模板文件路径>（优先于下面所有查找）
+        // 1. vals[0] <模板所在目录> + -by <文件名>
+        // 2. ~/.domain/init/_files
+        // 3. /mnt/project/${domain}/init/domain/_files
+        // 4. /mnt/project/${domain}/*/init/domain/_files
+        String phConf = hc.params.getString("conf");
+        if (!Ws.isBlank(phConf)) {
+            ac.oInitFile = Wn.checkObj(sys, phConf);
+            ac.oHome = ac.oInitFile.parent();
+        } else {
+            loadHome(sys, hc, ac);
+        }
 
         // 找到操作目标目录，默认为 ~
         String phDist = hc.params.getString("dir", "~");
         ac.oDist = Wn.checkObj(sys, phDist);
 
         // 找到上下文变量，会依次尝试
-        // 0. -vars
-        String varJson = hc.getString("vars");
+        // 0. -vars（参数在 hc.params；兼容旧写法在上下文 map 里）
+        String varJson = hc.params.getString("vars", hc.getString("vars"));
         // 1. [STDIN]
         if (Ws.isBlank(varJson)) {
             varJson = sys.in.readAll();
@@ -98,7 +105,7 @@ public class app_init implements JvmHdl {
         }
 
         // 找到模板的源，会依次尝试
-        // 0. vals[0]
+        // 0. vals[0]（模板所在目录）+ -by（文件名，缺省 _files）
         String phHome = hc.params.val(0);
         if (!Ws.isBlank(phHome)) {
             String phFile = Wn.appendPath(phHome, fName);

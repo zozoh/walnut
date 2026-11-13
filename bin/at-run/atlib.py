@@ -6,7 +6,7 @@
 本库把每个脚本都会重写的样板收成五个函数：
 
     wn(cmd)       经 wn-cli 执行一条 Walnut 命令（自动带级别 / 会话 / 端点）
-    fixture(...)  用本地最小渲染器把 <root>/atest.init 铺进域（ATESET-05）
+    fixture(...)  用 Walnut 自己的 `app init` 把 <root>/atest.init 铺进域（ATESET-05）
     snap(path)    读对象 JSON，落 <AT_OUT>/objects/，返回 dict
     emit(actual)  输出契约要求的最后一行 JSON，并退出 0
     note(text)    往 <AT_OUT>/summary.txt 追加一行（runner 重写 summary 时保留）
@@ -38,6 +38,9 @@
     fixture()                       # <root>/atest.init + <root>/vars.json
     obj = snap("~/.atest/demo")     # 模板铺好的对象
     emit({"atest-owner": obj.get("atest-owner")})
+
+夹具由 `app init` 执行：`atest.init` 里可以使用它的全部指令
+（@DIR / @FILE / @API / @HOME / @ENV / @INCLUDE / %TMPL / %COPY / %EXPLAIN）。
 """
 
 import json
@@ -58,10 +61,11 @@ ROOT_DEFAULT = "atest"
 INIT_NAME = "atest.init"
 VARS_NAME = "vars.json"
 
-# 远程工具目录：模板每次重写，避免旧模板残留（ATESET-05 T1 约定）
+# 远程工具目录：模板与变量每次都重写，避免旧文件残留（ATESET-05 T1 约定）
 REMOTE_INIT_DIR = "~/.atest/init"
+REMOTE_VARS = "~/.atest/vars.json"
 
-# v1 只支持内联内容块；未支持的写法在 _parse_fixture 里明确报错
+# 夹具名就是上传后的模板文件名，只允许安全字符
 NAME_RE = re.compile(r"^[A-Za-z0-9._-]+$")
 
 
@@ -205,187 +209,14 @@ def _read_text_file(path, what):
     return ""
 
 
-# ---------------------------------------------------------------- 夹具渲染器
-#
-# v1 只覆盖 ATEST 需要的子集（见 README）：
-#   @DIR <path> ['quick meta'] [{meta json}]
-#   @FILE <path> ...  +  %TMPL: / %COPY: / %EXPLAIN: ... %END%
-# 其它写法显式报错，不静默忽略。
-
-ENTRY_RE = re.compile(r"^@([A-Za-z]+)\b(.*)$")
-CONTENT_RE = re.compile(
-    r"^([%?])(COPY|TMPL|EXPLAIN)(\{.*\})?\s*([:>])\s*(.*)$", re.I)
-VAR_RE = re.compile(r"\$\{([^{}]+)\}")
-
-
-def _var_text(value):
-    if value is None:
-        return ""
-    if value is True:
-        return "true"
-    if value is False:
-        return "false"
-    if isinstance(value, (dict, list)):
-        return json.dumps(value, ensure_ascii=False)
-    return str(value)
-
-
-def _render(text, variables):
-    """最小 TMPL：${var} / ${var?默认值}；没有变量且无默认值时保留原样。"""
-    def repl(m):
-        expr = m.group(1)
-        name, sep, default = expr.partition("?")
-        name = name.strip()
-        if name in variables:
-            return _var_text(variables[name])
-        if sep:
-            return default
-        return m.group(0)
-
-    return VAR_RE.sub(repl, text)
-
-
-def _truthy(value):
-    if isinstance(value, str):
-        return value.strip().lower() not in ("", "0", "false", "no", "null")
-    return bool(value)
-
-
-def _parse_default(text):
-    if text.startswith("="):
-        text = text[1:]
-    try:
-        return json.loads(text)
-    except ValueError:
-        return text
-
-
-def _resolve_explain(value, variables):
-    """EXPLAIN 的最小语义：=key / =key?默认 / ==key / !=key。"""
-    if isinstance(value, str):
-        if value.startswith("=="):
-            return _truthy(variables.get(value[2:].strip()))
-        if value.startswith("!="):
-            return not _truthy(variables.get(value[2:].strip()))
-        if value.startswith("="):
-            name, sep, default = value[1:].partition("?")
-            name = name.strip()
-            if name in variables:
-                return variables[name]
-            if sep:
-                return _parse_default(default)
-            return None
-        return value
-    if isinstance(value, dict):
-        return {k: _resolve_explain(v, variables) for k, v in value.items()}
-    if isinstance(value, list):
-        return [_resolve_explain(v, variables) for v in value]
-    return value
-
-
-def _quick_meta(text, variables):
-    """把 'i18n:xx/<fas-yy>/cross/json' 译成元数据（兼容旧模板的速记子集）。"""
-    meta = {}
-    for token in [x for x in _render(text, variables).split("/") if x]:
-        if token.startswith("="):
-            meta["tp"] = token[1:].strip()
-        elif token.startswith("<") and token.endswith(">"):
-            meta["icon"] = token[1:-1].strip()
-        elif token == "cross":
-            meta["http-cross-origin"] = "*"
-        elif token == "json":
-            meta["http-header-Content-Type"] = "text/json"
-        elif token == "dynamic":
-            meta["http-dynamic-header"] = True
-        elif token == "hook":
-            meta["run-with-hook"] = True
-        elif re.match(r"^http\d{3}$", token):
-            meta["http-resp-code"] = int(token[4:])
-        else:
-            # 旧约定：其余都当 title（i18n:xxx 原样）
-            meta["title"] = token
-    return meta
-
-
-def _die_entry(line_no, message):
-    _die("atest.init 第 %d 行：%s" % (line_no, message))
-
-
-def _split_entry(rest, line_no):
-    """拆出 (path, quick meta, 同行 JSON 文本)。"""
-    rest = rest.strip()
-    if not rest:
-        _die_entry(line_no, "缺少条目路径")
-    if rest[0] in "'\"":
-        quote = rest[0]
-        end = rest.find(quote, 1)
-        if end < 0:
-            _die_entry(line_no, "路径引号没有闭合")
-        path = rest[1:end]
-        rest = rest[end + 1:].strip()
-    else:
-        parts = rest.split(None, 1)
-        path = parts[0]
-        rest = parts[1].strip() if len(parts) > 1 else ""
-    quick = ""
-    if rest.startswith("'"):
-        end = rest.find("'", 1)
-        if end < 0:
-            _die_entry(line_no, "quick meta 的引号没有闭合")
-        quick = rest[1:end]
-        rest = rest[end + 1:].strip()
-    if rest and not rest.startswith("{"):
-        _die_entry(line_no, "条目尾部无法解析（只支持 'quick meta' 与 {json}）：%s"
-                   % rest)
-    return path, quick, rest
-
-
-def _normalize_path(path, line_no):
-    path = path.strip()
-    if not path:
-        _die_entry(line_no, "路径为空")
-    if path.startswith("./"):
-        path = path[2:]
-    if path.startswith("~") or path.startswith("/"):
-        return path
-    return "~/" + path
-
-
 def _cmd_arg(text):
     """命令通道的参数：无空白原样；有空白用单引号（含单引号则拒绝）。"""
     text = str(text)
     if not re.search(r"[\s'\"]", text):
         return text
     if "'" in text:
-        _die("v1 不支持含单引号的路径/参数：%r（请改用无单引号路径）" % text)
+        _die("不支持含单引号的路径/参数：%r（JSON 里不要出现单引号）" % text)
     return "'%s'" % text
-
-
-def _object_of(path, timeout):
-    rc, out, err = _call_wncli(["obj", "get", path], timeout=timeout)
-    if rc is None:
-        _die("检查对象 %s 失败：wn-cli %s" % (path, err))
-    if rc == 0:
-        try:
-            data = json.loads(out)
-        except ValueError as e:
-            _die("读对象 %s 的返回不是 JSON：%s" % (path, e))
-        data = data.get("data") if isinstance(data, dict) else None
-        if not isinstance(data, dict):
-            _die("读对象 %s 的返回缺 data：%r" % (path, out[:200]))
-        return data
-    detail = (err + out).lower()
-    if "noexist" in detail or "no.exists" in detail:
-        return None
-    _die("检查对象 %s 失败（wn-cli %s）：%s"
-         % (path, rc, (err.strip() or out.strip())[:300]))
-
-
-def _ensure_parent(path, timeout):
-    parent = path.rsplit("/", 1)[0] if "/" in path else ""
-    if not parent or parent in ("~", "/"):
-        return
-    wn("mkdir -p -noexists %s" % _cmd_arg(parent), timeout=timeout)
 
 
 def _save_text(path, content, timeout):
@@ -393,149 +224,48 @@ def _save_text(path, content, timeout):
                timeout=timeout)
 
 
-def _update_meta(fixture_name, path, meta, timeout):
-    """元数据走 `o ... @update`：JSON 先上传成临时对象，再 cat 进 stdin。
+def _scan_counts(text):
+    """从 `app init` 的输出里数条目（`@DIR xxx` / `@FILE xxx` 行）。
 
-    这样不用把 JSON 拼进命令文本，避免引号/空格把参数拆坏。
+    只做统计，用来保持返回值形状与日志可读；真正的解析在 `app init` 里。
     """
-    if not meta:
-        return
-    payload = json.dumps(meta, ensure_ascii=False)
-    remote = "%s/%s.meta.json" % (REMOTE_INIT_DIR, fixture_name)
-    _run_wncli(["obj", "save-text", remote], stdin_text=payload,
-               timeout=timeout)
-    wn("cat %s | o %s @update" % (remote, _cmd_arg(path)), timeout=timeout)
-
-
-def _parse_fixture(text, variables):
-    """解析 v1 模板；任何不支持的写法都在执行前报错。"""
-    lines = text.splitlines()
-    items = []
-    i = 0
-    while i < len(lines):
-        raw = lines[i]
-        stripped = raw.strip()
-        line_no = i + 1
-        i += 1
-        if not stripped or stripped.startswith("#"):
-            continue
-        if stripped.startswith(("%", "?")):
-            _die_entry(line_no, "内容块必须紧跟在 @FILE 后（这里是 %s）"
-                       % stripped)
-        m = ENTRY_RE.match(stripped)
+    counts = {"DIR": 0, "FILE": 0}
+    entries = 0
+    for line in text.splitlines():
+        m = re.match(r"^@([A-Za-z]+)\s", line.strip())
         if not m:
-            _die_entry(line_no, "无法解析（条目要以 @ 开头）：%s" % stripped)
+            continue
+        entries += 1
         typ = m.group(1).upper()
-        rest = m.group(2).strip()
-        if typ in ("HOME", "ENV", "API", "INCLUDE"):
-            _die_entry(line_no, "v1 未支持 @%s：请在用例脚本里直接做"
-                       "（@API 可用 o @create + obj save-text；@HOME/@ENV 用 "
-                       "o ... @update）" % typ)
-        if typ not in ("DIR", "FILE"):
-            _die_entry(line_no, "v1 未支持的类型 @%s：只支持 @DIR / @FILE" % typ)
-
-        path, quick, inline_meta = _split_entry(rest, line_no)
-        path = _normalize_path(_render(path, variables), line_no)
-
-        meta_parts = [inline_meta] if inline_meta else []
-        while i < len(lines):
-            nxt = lines[i]
-            ns = nxt.strip()
-            if not ns:
-                i += 1
-                continue
-            if ns.startswith("#") or ns.startswith("@"):
-                break
-            if CONTENT_RE.match(ns):
-                break
-            if ns.startswith(("%", "?")):
-                _die_entry(i + 1, "无法识别的内容块/指令：%s" % ns)
-            meta_parts.append(nxt)
-            i += 1
-
-        meta = _quick_meta(quick, variables) if quick else {}
-        if meta_parts:
-            meta_text = _render("\n".join(meta_parts), variables)
-            try:
-                extra = json.loads(meta_text)
-            except ValueError as e:
-                _die_entry(line_no, "元数据不是合法 JSON（%s）：%s"
-                           % (e, meta_text[:300]))
-            if not isinstance(extra, dict):
-                _die_entry(line_no, "元数据 JSON 顶层必须是对象")
-            meta.update(_resolve_explain(extra, variables))
-
-        content = None
-        if i < len(lines):
-            cm = CONTENT_RE.match(lines[i].strip())
-            if cm:
-                content_line = i + 1
-                flag, kind, _braces, sep, tail = cm.groups()
-                kind = kind.upper()
-                if sep == ">":
-                    _die_entry(content_line,
-                               "v1 未支持外部文件内容（%s > 文件）：请先 "
-                               "wn-cli obj save-text 上传，或在用例脚本里直接做"
-                               % kind)
-                if flag != "%":
-                    _die_entry(content_line,
-                               "v1 只支持 %s: ... %%END%%，不支持 ? 条件写入"
-                               % kind)
-                if typ == "DIR":
-                    _die_entry(content_line, "@DIR 不能带内容块")
-                body = [tail] if tail and tail.strip() else []
-                i += 1
-                closed = False
-                while i < len(lines):
-                    if lines[i].strip() == "%END%":
-                        closed = True
-                        i += 1
-                        break
-                    body.append(lines[i])
-                    i += 1
-                if not closed:
-                    _die_entry(content_line, "%s 内容缺少 %%END%%" % kind)
-                raw_content = "\n".join(body)
-                if kind == "TMPL":
-                    content = _render(raw_content, variables)
-                elif kind == "COPY":
-                    content = raw_content
-                else:
-                    try:
-                        parsed = json.loads(_render(raw_content, variables))
-                    except ValueError as e:
-                        _die_entry(content_line, "EXPLAIN 内容不是合法 JSON：%s"
-                                   % e)
-                    content = json.dumps(_resolve_explain(parsed, variables),
-                                         ensure_ascii=False, indent=2)
-
-        items.append({"type": typ, "path": path, "meta": meta,
-                      "content": content, "line": line_no})
-    return items
+        if typ in counts:
+            counts[typ] += 1
+    return entries, counts
 
 
 def fixture(root=None, name=None, vars=None, timeout=90):
-    """按 `<root>/atest.init` 的最小渲染器铺夹具（不调用 `app init`）。
+    """用 Walnut 自己的 `app init` 把 `<root>/atest.init` 铺进域。
 
-    支持（v1 子集）：
+    步骤（ATESET-05）：
 
-        @DIR <path> ['quick meta'] [{json}]
-        @FILE <path> ['quick meta'] [{json}]
-        %TMPL: ... %END%      ${var} / ${var?默认值}
-        %COPY: ... %END%      原样写入
-        %EXPLAIN: ... %END%   JSON；=key / =key?默认 / ==key / !=key
+    1. 读 `<root>/atest.json` 的 `root` / `init_template`，定位模板与
+       `<root>/vars.json`；
+    2. 模板原文 `obj save-text` 到 `~/.atest/init/<name>.init`（覆盖写）；
+    3. 变量 = `vars` 参数 + `<root>/vars.json`（项目同名键优先）；非空则
+       再 `obj save-text` 到 `~/.atest/vars.json`，并作为 `-vars` 传给 app init；
+    4. 执行 `app init -conf ~/.atest/init/<name>.init -script off`
+       （所以模板里可以直接用 `@DIR` / `@FILE` / `@API` / `@HOME` / `@ENV` /
+       `@INCLUDE` 与 `%TMPL` / `%COPY` / `%EXPLAIN`；`-script` 默认 **off**，
+       脚本测试要收尾脚本时自己调）；
+    5. 幂等由 `app init` 自身保证：目标文件已存在且内容非空时跳过写入，
+       目录 / 元数据按模板合并，同一模板连跑两次安全。
 
-    - 变量：`<root>/vars.json`（JSON 对象，缺省 `{}`）；`vars` 是调用方给的
-      默认值，项目 vars.json 覆盖同名键；
-    - 路径相对域 home（`@DIR .atest/x` → `~/.atest/x`）；父目录自动建；
-    - 文件内容用 `obj save-text` 写；元数据用 `o ... @update` 合并；
-    - **幂等**：目标已存在则跳过内容写入（元数据仍合并，与应用初始化器的
-      "非覆盖内容"语义一致）；
-    - `@HOME` / `@ENV` / `@API` / `@INCLUDE` / `%COPY > 外部文件` 一律明确报错
-      （v1 未支持，请在用例脚本里直接做），不静默忽略。
+    - `root` 缺省读 `atest.json` 的 `root`（再缺省 `atest`）；`name` 缺省为
+      模板文件名（`atest.init` → `atest`）；
+    - 失败（模板缺失、上传失败、`app init` 非 0、vars.json 非法）→
+      `SystemExit(2)`：runner 记 **blocked**，并带上 `app init` 的原始输出。
 
-    失败（缺模板、变量/JSON 非法、不支持写法、wn-cli 失败）→ `SystemExit(2)`：
-    runner 记 **blocked**，不伪装成红/绿。
+    返回值形状保持 `{"name", "template", "vars", "entries", "counts"}`
+    （`entries` / `counts` 由 `app init` 的输出统计，仅供日志与调用方参考）。
     """
     if vars is not None and not isinstance(vars, dict):
         _die("fixture(vars=...) 必须是 dict（现在是 %r）" % (vars,))
@@ -565,42 +295,44 @@ def fixture(root=None, name=None, vars=None, timeout=90):
             _die("%s 格式不对：顶层应为对象（{\"key\": \"value\"}）" % vars_path)
         merged.update(project_vars)
 
-    items = _parse_fixture(text, merged)
-    if not items:
-        _die("夹具模板里没有任何 @DIR / @FILE：%s" % init_path)
-
-    print("atlib: fixture %s：%d 条，变量键=%s"
-          % (init_path.name, len(items),
+    print("atlib: fixture %s：模板=%s，变量键=%s"
+          % (fixture_name, init_path.name,
              ", ".join(sorted(merged)) if merged else "（无）"),
           file=sys.stderr)
-    # 元数据临时文件放工具目录；先确保目录存在
+
+    # 模板 / 变量都上传到工具目录；app init 从对象树里读模板
     wn("mkdir -p -noexists %s" % REMOTE_INIT_DIR, timeout=timeout)
+    remote_init = "%s/%s.init" % (REMOTE_INIT_DIR, fixture_name)
+    _save_text(remote_init, text, timeout)
 
-    counts = {"DIR": 0, "FILE": 0}
-    for item in items:
-        path = item["path"]
-        counts[item["type"]] += 1
-        obj = _object_of(path, timeout)
-        if obj is not None:
-            expected = "DIR" if item["type"] == "DIR" else "FILE"
-            if obj.get("race") != expected:
-                _die("夹具路径 %s 已存在，但类型是 %s（模板要求 %s）"
-                     % (path, obj.get("race"), expected))
-            # 已存在：不覆盖内容，只合并元数据
-        elif item["type"] == "DIR":
-            wn("mkdir -p -noexists %s" % _cmd_arg(path), timeout=timeout)
-        else:
-            _ensure_parent(path, timeout)
-            _save_text(path, item["content"] or "", timeout)
-        _update_meta(fixture_name, path, item["meta"], timeout)
-        print("atlib: fixture %s %s" % (item["type"], path), file=sys.stderr)
+    vars_json = None
+    if merged:
+        vars_json = json.dumps(merged, ensure_ascii=False)
+        _save_text(REMOTE_VARS, vars_json, timeout)
 
-    note("fixture %s：模板=%s，%d 条（DIR %d / FILE %d），变量键=%s"
-         % (fixture_name, init_path.name, len(items),
+    cmd = "app init -conf %s -script off" % _cmd_arg(remote_init)
+    if vars_json is not None:
+        cmd += " -vars %s" % _cmd_arg(vars_json)
+
+    rc, out, err = _call_wncli(["cmd", cmd], timeout=timeout)
+    if rc is None:
+        if err == "timeout":
+            _die("app init 超时（%ss）：%s" % (timeout, cmd))
+        _die("app init 启动失败：%s（命令：%s）" % (err, cmd))
+    if rc != 0:
+        raw = "\n".join(x for x in (out.strip(), err.strip()) if x)
+        if raw:
+            print("atlib: app init 原始输出：\n%s" % raw, file=sys.stderr)
+        detail = raw.replace("\r", " ").replace("\n", " ")[:800] or "（无输出）"
+        _die("app init 退出码 %d：%s（命令：%s）" % (rc, detail, cmd))
+
+    entries, counts = _scan_counts(out)
+    note("fixture %s：模板=%s，app init 成功（%d 条，DIR %d / FILE %d），变量键=%s"
+         % (fixture_name, init_path.name, entries,
             counts["DIR"], counts["FILE"],
             ", ".join(sorted(merged)) if merged else "（无）"))
     return {"name": fixture_name, "template": str(init_path),
-            "vars": sorted(merged), "entries": len(items),
+            "vars": sorted(merged), "entries": entries,
             "counts": counts}
 
 
