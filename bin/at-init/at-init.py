@@ -6,6 +6,8 @@ at-init — 运行时集成测试（ATEST）项目骨架脚手架
 一条命令在项目里铺开 ATEST 约定好的东西（`<root>` 默认 `atest`，`--root` 可改）：
 
     <root>/atest.init           静态布局模板（夹具，人编辑）
+    <root>/run.py               总入口（转发给 bin/at-run/at-run.py）
+    <root>/README.md            给人看的保姆教程（运行/依赖/排错）
     <root>/cases/               用例 <CASE-ID>.md
     <root>/scripts/             用例脚本 <CASE-ID>.<ext>
     <root>/expect/              独立期望文件 <CASE-ID>.json（expected: file）
@@ -108,6 +110,8 @@ DESCRIPTION = """\
 EPILOG = """\
 生成物（<root> 默认 atest，由 --root 指定）:
   <root>/atest.init           静态布局模板（夹具；可编辑，--force 不覆盖）
+  <root>/run.py               总入口：python <root>/run.py [--only ...] [--check] ...
+  <root>/README.md            保姆教程（人读：怎么跑、要什么环境、出问题怎么办）
   <root>/cases/               用例 <CASE-ID>.md
   <root>/scripts/             用例脚本 <CASE-ID>.<ext>
   <root>/expect/              独立期望文件 <CASE-ID>.json（expected: file）
@@ -352,7 +356,9 @@ def main(argv=None):
 
     tmpl_init = TMPL_DIR / "atest.init"
     tmpl_instances = TMPL_DIR / "wn-instances.example.json"
-    missing = [str(p) for p in (tmpl_init, tmpl_instances)
+    tmpl_run = TMPL_DIR / "run.py"
+    tmpl_readme = TMPL_DIR / "README.md"
+    missing = [str(p) for p in (tmpl_init, tmpl_instances, tmpl_run, tmpl_readme)
                if not p.is_file()]
     if missing:
         print(json.dumps({"ok": False,
@@ -385,6 +391,10 @@ def main(argv=None):
 
         ensure(root + "/atest.init",
                read_text(tmpl_init).replace("{{root}}", root))
+        # 总入口与人读手册：只在缺失时创建，--force 也不覆盖（用户会改）
+        ensure(root + "/run.py", read_text(tmpl_run))
+        ensure(root + "/README.md",
+               read_text(tmpl_readme).replace("{{root}}", root))
         for rel in gitkeep_files(root):
             ensure(rel, "")
 
@@ -420,7 +430,8 @@ def main(argv=None):
         print("dry-run：以上只是计划，未写任何文件。", file=sys.stderr)
     else:
         print("下一步: 改 atest.json 的 instance / test_domain，写 %s/atest.init，"
-              "再照 bin/at-init/tmpl/ 写第一个用例。" % root, file=sys.stderr)
+              "再照 bin/at-init/tmpl/ 写第一个用例；跑 `python %s/run.py --check` 自检。"
+              % (root, root), file=sys.stderr)
     return EXIT_OK
 
 

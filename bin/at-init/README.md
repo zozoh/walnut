@@ -59,6 +59,8 @@ stdout 是**单行 JSON**（适合机器解析，提示进 stderr）：
 |-- atest.json                 # 唯一配置（机器可读，人也能看）
 |-- .wn-instances.example.json # 实例登记样例（真身由开发者维护）
 `-- atest/                     # 根目录名由 --root 决定
+    |-- run.py                 # 总入口：python atest/run.py [--only …] [--check] …
+    |-- README.md              # 保姆教程（人读：怎么跑、什么依赖、出问题怎么办）
     |-- atest.init             # 静态布局模板（夹具；05 消费）
     |-- cases/                 # 用例 <CASE-ID>.md
     |-- scripts/               # 脚本 <CASE-ID>.<ext>
@@ -67,8 +69,9 @@ stdout 是**单行 JSON**（适合机器解析，提示进 stderr）：
     `-- report/                # 报告输出（gitignore）
 ```
 
-进库：`atest.json`、`atest/atest.init`、`atest/cases/`、`atest/scripts/`、
-`atest/expect/`、`atest/baseline/`、`.wn-instances.example.json`。
+进库：`atest.json`、`atest/run.py`、`atest/README.md`、`atest/atest.init`、
+`atest/cases/`、`atest/scripts/`、`atest/expect/`、`atest/baseline/`、
+`.wn-instances.example.json`。
 不进库：`atest/report/`、`.wn-instances.json`（本机配置）——两条都已追加进
 项目 `.gitignore`（带 `# at-init:` 标记，重复执行不重复追加）。
 **迁移**：已有 `.gitignore` 里的旧行 `/test/report/` 会被替换成 `/<root>/report/`，
@@ -116,6 +119,8 @@ stdout 是**单行 JSON**（适合机器解析，提示进 stderr）：
 |------|----------|----------|-----------|
 | `<root>/` 各级目录 | `created` | `kept` | 同左 |
 | `<root>/atest.init` | `created` | `kept` | **不覆盖** |
+| `<root>/run.py` | `created` | `kept` | **不覆盖**（可自行改） |
+| `<root>/README.md` | `created` | `kept` | **不覆盖**（人会往里加东西） |
 | `.gitkeep` 占位 | `created` | `kept` | 同左 |
 | `atest.json` | `created` | `kept` | 只补缺键，**不覆盖已有值** |
 | `.wn-instances.example.json` | `created` | `kept` | 内容有差异时**刷新** |
@@ -134,7 +139,9 @@ stdout 是**单行 JSON**（适合机器解析，提示进 stderr）：
 
 | 模板（[`tmpl/`](tmpl/)） | 用途 |
 |--------------------------|------|
-| `atest.init` | 静态布局模板骨架（`{{root}}` 占位；注释示例，由 05 定稿语法） |
+| `atest.init` | 静态布局模板骨架（`{{root}}` 占位；语法与 `app init` 一致，由 05 定稿） |
+| `run.py` | 总入口：定位 walnut 的 `at-run.py` 并转发参数（`$WALNUT_HOME` → 本项目 → 父目录） |
+| `README.md` | 保姆教程（`{{root}}` 占位）：一分钟跑起来 / 只跑几条 / 环境依赖 / 排错 |
 | `CASE-001.md` | 用例模板（本身即合法用例，照抄改名即可）：front-matter 5 个必填（`caseID` / `title` / `source` / `contracts` / `expected`）+ 正文四节（前置 / 步骤 / 期望 / 证据） |
 | `CASE-001-bad.md` | 反例：7 类常见错误逐条标注"为什么错"；只当教材，**别复制进 `atest/cases/`** |
 | `CASE-001.py` | 脚本骨架：改用 `atlib`（`wn/snap/emit/note`），照抄即可跑通 |
