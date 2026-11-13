@@ -3,9 +3,10 @@
 """atlib — ATEST 用例脚本薄库（ATESET-04 / 05）
 
 脚本只"执行 + 取证"，断言交给 at-run（按用例 md 的 `## 期望` 统一比较）。
-本库把每个脚本都会重写的样板收成五个函数：
+本库把每个脚本都会重写的样板收成六个函数：
 
     wn(cmd)       经 wn-cli 执行一条 Walnut 命令（自动带级别 / 会话 / 端点）
+    http(...)     用标准库 urllib 真打 HTTP 接口（ATESET-09；不跟随重定向）
     fixture(...)  用 Walnut 自己的 `app init` 把 <root>/atest.init 铺进域（ATESET-05）
     snap(path)    读对象 JSON，落 <AT_OUT>/objects/，返回 dict
     emit(actual)  输出契约要求的最后一行 JSON，并退出 0
@@ -41,6 +42,13 @@
 
 夹具由 `app init` 执行：`atest.init` 里可以使用它的全部指令
 （@DIR / @FILE / @API / @HOME / @ENV / @INCLUDE / %TMPL / %COPY / %EXPLAIN）。
+
+示例（ATESET-09，真 HTTP，不绕命令通道）：
+
+    from atlib import http, emit
+
+    st, hdrs, body = http("/api/demo/ping")     # 302/403 也照常返回
+    emit({"status": st, "ctype": hdrs.get("Content-Type", "")})
 """
 
 import json
@@ -48,6 +56,9 @@ import os
 import re
 import subprocess
 import sys
+import urllib.error
+import urllib.parse
+import urllib.request
 from pathlib import Path
 
 REQUIRED_ENV = ("AT_LEVEL", "AT_URL", "AT_SESSION_DIR", "AT_DOMAIN",
@@ -55,6 +66,7 @@ REQUIRED_ENV = ("AT_LEVEL", "AT_URL", "AT_SESSION_DIR", "AT_DOMAIN",
 
 SUMMARY_NAME = "summary.txt"
 OBJECTS_DIR = "objects"
+HTTP_DIR = "http"
 
 CONFIG_NAME = "atest.json"
 ROOT_DEFAULT = "atest"
@@ -160,6 +172,118 @@ def wn(command, timeout=90):
     print("atlib: wn %s" % command, file=sys.stderr)
     return _run_wncli(["cmd", str(command)], stdout_label=str(command),
                       timeout=timeout)
+
+
+class Headers(dict):
+    """响应头：键保持服务端原样，`get()` 大小写不敏感。
+
+    HTTP 头名本来就不区分大小写（`Content-Type` / `content-type` 是一回事），
+    脚本不该为服务端写法猜大小写。它仍是 dict，可直接遍历 / 序列化。
+    """
+
+    def get(self, name, default=None):
+        want = str(name).lower()
+        for key, value in self.items():
+            if key.lower() == want:
+                return value
+        return default
+
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """302 是被测行为（ATESET-09 CASE-203），不能让 urllib 自己跟过去。"""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+def _decode_body(raw, content_type):
+    """按响应头 charset 解码；缺省 / 不认识 / 解不动都退回 UTF-8 替换。"""
+    charset = "utf-8"
+    m = re.search(r"charset=([A-Za-z0-9_.-]+)", content_type or "", re.I)
+    if m:
+        charset = m.group(1)
+    try:
+        return raw.decode(charset)
+    except (LookupError, UnicodeDecodeError):
+        return raw.decode("utf-8", "replace")
+
+
+def _http_evidence(method, url, status, headers, text):
+    """把原始响应落到 <AT_OUT>/http/（状态行 + 响应头 + body），供复核。"""
+    out = os.environ.get("AT_OUT")
+    if not out:
+        return
+    folder = Path(out) / HTTP_DIR
+    label = re.sub(r"[^A-Za-z0-9._-]+", "_", url.split("://", 1)[-1])[:80]
+    try:
+        folder.mkdir(parents=True, exist_ok=True)
+        seq = len(list(folder.glob("*.txt"))) + 1
+        target = folder / ("%02d-%s-%s.txt"
+                           % (seq, method, label.strip("_") or "root"))
+        with open(str(target), "w", encoding="utf-8", newline="\n") as f:
+            f.write("%s %s -> %d\n" % (method, url, status))
+            for key in headers:
+                f.write("%s: %s\n" % (key, headers[key]))
+            f.write("\n")
+            f.write(text)
+    except OSError:
+        # 证据写不进去不该让用例本身崩掉；stderr 里已经留了痕
+        pass
+
+
+def http(path, method="GET", headers=None, data=None, timeout=30):
+    """真打一个 HTTP 接口，返回 `(status, headers, body_text)`。
+
+    - `path` 形如 `/api/<域>/<接口>`，拼在 `AT_URL` 上；也接受完整
+      `http(s)://` URL；
+    - **4xx/5xx 不抛**：403 / 302 都是被测行为，照常返回状态码与响应体；
+    - **不跟随重定向**：302 原样返回，`Location` 在 headers 里；
+    - 连不上 / 超时 / URL 不合法 → `SystemExit(2)`（runner 记 blocked）：
+      这是"实例挂了"，与"接口回了错误码"是两件事；
+    - 每次调用的原始响应落 `<AT_OUT>/http/`（状态行 + 全部响应头 + body），
+      与 `snap()` 一样属于取证，不是断言；
+    - `headers` 是 dict；`data` 传 dict 走 url-encoded 表单，传 str / bytes
+      原样发送，None 表示无请求体。
+
+    断言不在这里做：脚本只把可观察值 `emit()` 出去，判定交给 runner。
+    """
+    base = _env("AT_URL").rstrip("/")
+    raw = str(path)
+    if re.match(r"^https?://", raw, re.I):
+        url = raw
+    else:
+        url = base + ("" if raw.startswith("/") else "/") + raw
+    verb = str(method or "GET").upper()
+
+    body = None
+    if data is not None:
+        if isinstance(data, (dict, list)):
+            body = urllib.parse.urlencode(data).encode("ascii")
+        elif isinstance(data, str):
+            body = data.encode("utf-8")
+        else:
+            body = data
+
+    req = urllib.request.Request(url, data=body,
+                                 headers=dict(headers or {}), method=verb)
+    opener = urllib.request.build_opener(_NoRedirect)
+    try:
+        with opener.open(req, timeout=timeout) as resp:
+            status = resp.status
+            hdrs = Headers(resp.headers.items())
+            raw_body = resp.read()
+    # HTTPError 是 URLError 的子类，必须先接：403/404/500 是响应不是故障
+    except urllib.error.HTTPError as e:
+        status = e.code
+        hdrs = Headers(e.headers.items()) if e.headers else Headers()
+        raw_body = e.read()
+    except (OSError, ValueError) as e:
+        _die("http %s %s 失败（端点不可用？）：%s" % (verb, url, e))
+
+    text = _decode_body(raw_body, hdrs.get("Content-Type"))
+    print("atlib: http %s %s -> %d" % (verb, url, status), file=sys.stderr)
+    _http_evidence(verb, url, status, hdrs, text)
+    return status, hdrs, text
 
 
 def _load_config():

@@ -6,7 +6,7 @@
 v2（ATESET-04）在 v1 之上补了**表达力**与**证据**：期望支持
 `$ignore` / `$range` / `$regex` 三个 matcher，diff 给出嵌套路径，
 每例产 `summary.txt` 与 `objects/`，报告只增不改（新增 `schema` 与 `evidence`）。
-脚本侧另给薄库 [`atlib.py`](atlib.py)（`wn` / `fixture` / `snap` / `emit` / `note`）。
+脚本侧另给薄库 [`atlib.py`](atlib.py)（`wn` / `http` / `fixture` / `snap` / `emit` / `note`）。
 
 ATESET-05 补上**夹具**：静态布局写进 `<root>/atest.init`，用例脚本用
 `atlib.fixture()` 调 Walnut 自己的 `app init` 铺进域（`-conf` 指定上传后的模板，
@@ -339,6 +339,7 @@ emit({"nm": obj["nm"], "race": obj["race"]})     # 输出契约那一行 JSON �
 | 函数 | 行为 |
 |---|---|
 | `wn(cmd, timeout=90)` | 经 `wn-cli cmd` 执行；非 0 退出码 → `SystemExit(2)`（记 blocked） |
+| `http(path, method="GET", headers=None, data=None, timeout=30)` | 用标准库 `urllib` 真打 `AT_URL` 上的接口，返回 `(status, headers, body_text)`；4xx/5xx **不抛**、**不跟随重定向**；连不上 → `SystemExit(2)`（记 blocked） |
 | `fixture(root=None, name=None, vars=None)` | 上传模板 / 变量，调 `app init -conf ... -script off` 铺进域；失败即抛（记 blocked） |
 | `snap(path, name=None)` | `o <path> @json -cqn` → dict；落 `<AT_OUT>/objects/<路径>.json`（`/` 换 `__`）；取不到即抛 |
 | `emit(actual)` | 打印 `{"ok":true,"actual":...}` 后退出 0——**之后不要再往 stdout 写任何东西** |
@@ -347,6 +348,31 @@ emit({"nm": obj["nm"], "race": obj["race"]})     # 输出契约那一行 JSON �
 atlib 只依赖标准库与 `AT_*` 环境变量；失败一律 `SystemExit(2)` 且原因进 summary，
 所以脚本里不用再包 try/except。手工跑脚本时自己设
 `PYTHONPATH=<walnut>/bin/at-run` 并补齐 `AT_*`（正常路径永远是经 at-run）。
+
+### `atlib.http()`：真 HTTP 通道（ATESET-09）
+
+夹具里用 `@API` 声明接口对象（`.regapi/api/<name>`，一个文件一个接口），用例脚本用
+真 HTTP 调 `<AT_URL>/api/<测试域>/<name>`——**不绕命令通道**，测的是对外契约：
+
+```python
+from atlib import fixture, http, emit, note
+
+fixture()
+st, hdrs, body = http("/api/demo/ping")      # 302/403 也照常返回
+emit({"status": st, "ctype": hdrs.get("Content-Type", "")})
+```
+
+- 返回 `(status, headers, body_text)`：`headers` 是 dict，`get()` **大小写不敏感**
+  （HTTP 头名本来就不区分大小写）；body 按响应 `charset` 解码，缺省 UTF-8；
+- **不跟随重定向**：`http-resp-code: 302` 的接口原样返回 302，`Location` 在 headers 里
+  ——跟过去就测不到跳转本身了；
+- **4xx/5xx 不抛**：`api-access-token` 的 403 是被测行为，不是脚本失败；
+- **连不上 → `SystemExit(2)`**（runner 记 **blocked**）：实例挂了与"接口返回错误码"
+  是两件事，不允许混成红灯或绿灯；
+- 每次调用的原始响应落 `<AT_OUT>/http/NN-<方法>-<URL>.txt`
+  （状态行 + 全部响应头 + body），进该例证据清单，供人工复核；
+- `data` 传 dict 走 url-encoded 表单，传 str / bytes 原样发送，None 表示无请求体；
+- 断言仍不在这里做：脚本只把可观察值 `emit()` 出去，判定交给 runner 按 `## 期望`。
 
 ## 判定与证据
 

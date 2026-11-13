@@ -24,3 +24,47 @@
 hello from atest
 who: ${who}
 %END%
+
+#---------------------------------------------------------
+# ATESET-09：regapi HTTP 通道样例
+#
+# 接口对象只在这里声明一次（用例脚本不负责造接口）：
+#   路径相对域 home，`.regapi/api/<name>` 就是一个接口，
+#   内容 = 命令模板，元数据 = 行为；对外 URL 是
+#   `<实例地址>/api/<测试域>/<name>`。
+# 快捷元数据（`@API ... 'cross/json'`）：
+#   cross → http-cross-origin:"*"，json → Content-Type:"text/json"，
+#   http302 → http-resp-code:302。
+#---------------------------------------------------------
+
+# CASE-201 普通 JSON 接口：GET /api/<域>/ping
+@API .regapi/api/ping 'cross/json'
+%COPY:
+echo '{"ok":true,"msg":"pong"}'
+%END%
+
+# CASE-202 令牌保护：不带 ?at=<令牌> 一律 403。
+# ⚠️ 元数据值是**请求元数据键**（http-qs-at），不是裸参数名：源码
+# `ApiMetaFiller.checkApiAccessToken` 直接拿它去查 reqMeta，写 "at" 会永远取不到
+# 而恒 403（wn-doc 里 "at" 的示例与源码不符，以源码为准）。令牌文件走默认位置。
+@API .regapi/api/secret 'cross/json'
+{"api-access-token": "http-qs-at"}
+
+@FILE .domain/api_access_token
+%COPY:
+s3cr3t-atest
+%END%
+
+# CASE-203 302 跳转：stdout 就是目标 URL。
+# 必须 `echo -n`：带换行时 Jetty 会把行尾换行写成 Location 的尾随空格。
+@API .regapi/api/go 'http302'
+%COPY:
+echo -n 'http://example.com/atest'
+%END%
+
+# CASE-204 接口写对象：副作用落在 ~/atest-lab/api-side-effect.txt。
+# `content` 是**元数据**不是文件内容；`-upsert` 让同一接口连跑多次不报"已存在"。
+@API .regapi/api/write 'cross/json'
+%COPY:
+o @create -p ~/atest-lab -upsert '{"nm":"api-side-effect.txt","content":"from-api"}'
+%END%
