@@ -1,9 +1,9 @@
 {
   "meta": {
     "case": "CASE-102",
-    "source_hash": "77b6352641f3b860",
-    "instance": "L1",
-    "recorded_at": "2026-11-13T15:47:49+08:00",
+    "source_hash": "569a59ce4828ca1c",
+    "instance": "L2",
+    "recorded_at": "2026-11-13T16:40:59+08:00",
     "reviewer": "HIVE/智群",
     "dropped": [],
     "matcherized": []
