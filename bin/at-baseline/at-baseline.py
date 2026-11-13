@@ -30,11 +30,16 @@ at-baseline — ATEST 基线工具（ATESET-08）
               "dropped","matcherized"},
      "expected": {…}}
 
-来源哈希 = sha256(用例 md + 夹具模板) 前 16 位；公式与 `bin/at-run/at-run.py` 的
-`source_hash()` **必须完全一致**（两处都带注释，改一处就得改另一处）：
+来源哈希 = sha256(用例 md + 夹具入口 + 递归 @INCLUDE 片段) 前 16 位；公式与
+`bin/at-run/at-run.py` 的 `source_hash()` **必须完全一致**（两处都带注释，改一处
+就得改另一处）：
 
-    sha256("md\\n" + md + "\\x00" + "init\\n" + init + "\\x00")[:16]
+    sha256("md\\n"+md+"\\x00" + "init\\n"+入口+"\\x00"
+           + Σ "inc:<相对路径>\\n"+片段+"\\x00")[:16]
 
+夹具入口按布局取：存在 `<root>/init/` → `init/<suite>.init`（suite = 用例 md
+相对 `cases/` 的目录名，ATESET-15），再递归解析它 `@INCLUDE` 到的片段；
+否则就是 `init_template`（旧布局，字节流与 ATESET-08 完全一致）。
 CRLF 先归一成 LF，同一份内容在 Windows / Linux checkout 上哈希相同。
 
 本工具**不判断值对不对**（那是审核者的事）：只做机械清洗 + 留痕。录完把
@@ -48,6 +53,7 @@ CRLF 先归一成 LF，同一份内容在 Windows / Linux checkout 上哈希相�
 import argparse
 import hashlib
 import json
+import os
 import re
 import sys
 from datetime import datetime
@@ -62,6 +68,11 @@ ROOT_DEFAULT = "atest"
 ROOT_RE = re.compile(r"^[A-Za-z0-9._-]+$")
 CASE_ID_RE = re.compile(r"^CASE-[A-Z0-9-]{1,32}$")
 FIELD_RE = re.compile(r"^expected\s*:\s*(\S+)\s*$", re.M)
+
+# 布局（ATESET-15）：<root>/init/ 存在 → 「目录即 suite」；否则旧的单模板布局
+INIT_DIR_NAME = "init"
+# 解析 @INCLUDE 只认行首指令（`@INCLUDE <相对路径>`），不执行变量渲染
+INIT_INCLUDE_LINE_RE = re.compile(r"^@INCLUDE\s+(\S+)\s*$", re.I)
 
 # 清洗规则（定稿）：每次执行都不同 / 与环境绑定的键，进基线就没法移植
 DROP_KEYS = ("id", "pid", "sha1", "ph", "mnt", "ln", "c", "m", "g",
@@ -94,8 +105,10 @@ EPILOG = """\
   基线里的 expected 与用例 md 内联期望**用同一套 matcher**（比较器只看这个结构）。
 
 来源哈希:
-  sha256(用例 md + 夹具模板) 前 16 位（CRLF 归一），与 at-run 的 source_hash 一致。
-  用例 md 或 atest.init 一改，--audit 就报 stale。
+  sha256(用例 md + 夹具入口 + 递归 @INCLUDE) 前 16 位（CRLF 归一），与 at-run 的
+  source_hash 一致。夹具入口：有 <root>/init/ 取 init/<suite>.init（目录即 suite），
+  否则取 init_template（旧布局，字节流与 ATESET-08 一致）。
+  用例 md 或该用例的夹具入口/片段一改，--audit 就报 stale。
 
 审核流程（写进 README）:
   执行者 --record + --from（机械动作）→ 审核者逐条看 expected、签 meta.reviewer
@@ -200,7 +213,7 @@ def resolve_root(config, override):
 
 
 def init_template_path(project, config, root):
-    """夹具模板路径：atest.json 的 init_template > <root>/atest.init。"""
+    """旧布局夹具模板路径：atest.json 的 init_template > <root>/atest.init。"""
     raw = (config or {}).get("init_template") or ("%s/atest.init" % root)
     path = Path(raw)
     if not path.is_absolute():
@@ -208,15 +221,100 @@ def init_template_path(project, config, root):
     return path
 
 
-def source_hash(case_path, init_path):
-    """基线来源哈希：sha256(用例 md + 夹具模板) 前 16 位（ATESET-08 定稿）。
+def init_dir(project, root):
+    """`<root>/init/` 目录；存在即启用「目录即 suite」布局（ATESET-15）。"""
+    path = Path(project) / root / INIT_DIR_NAME
+    return path if path.is_dir() else None
+
+
+def case_suite(project, root, case_path):
+    """用例所属 suite = `<root>/cases` 下的相对目录名（`/` 分隔）；无子目录 = ""。"""
+    base = Path(project) / root / "cases"
+    try:
+        relative = Path(case_path).resolve().relative_to(base.resolve())
+    except (ValueError, OSError):
+        return ""
+    parent = relative.parent.as_posix()
+    return "" if parent == "." else parent
+
+
+def suite_init_path(project, root, suite):
+    """suite 的夹具入口：`<root>/init/<suite>.init`（suite 名 = cases/ 下目录名）。"""
+    return Path(project) / root / INIT_DIR_NAME / ("%s.init" % suite)
+
+
+def case_init_path(project, config, root, case_path):
+    """该用例的夹具入口；返回 `(路径, 错误说明)`（与 at-run 同一口径）。"""
+    if init_dir(project, root) is None:
+        return init_template_path(project, config, root), ""
+    suite = case_suite(project, root, case_path)
+    if not suite:
+        return None, ("用例 %s 不在 %s/cases/<suite>/ 下：存在 %s/init/ 时目录即 "
+                      "suite，该例的来源哈希算不了"
+                      % (rel(case_path, project), root, root))
+    path = suite_init_path(project, root, suite)
+    if not path.is_file():
+        return None, ("缺 suite 入口 %s（suite %r）"
+                      % (rel(path, project), suite))
+    return path, ""
+
+
+def resolve_includes(entry):
+    """递归解析入口模板里的 `@INCLUDE`，返回 `[(相对入口目录, 路径)]`。
+
+    路径解析与 `app init` 的 oHome 一致：一律相对**入口**模板所在目录；只看
+    行首 `@INCLUDE <path>`，不执行变量渲染。按相对路径排序、按真实路径去重；
+    循环 include / 缺文件 → `ValueError`。
+    """
+    entry = Path(entry)
+    base = entry.parent
+    found = {}
+    done = set()
+    stack = []
+
+    def walk(path):
+        key = str(path.resolve())
+        if key in stack:
+            raise ValueError("循环 @INCLUDE：%s"
+                             % " -> ".join(stack + [key]))
+        if key in done:
+            return
+        stack.append(key)
+        try:
+            text = read_text(path)
+        except (EnvError, OSError) as e:
+            raise ValueError("读不了被包含文件 %s：%s" % (path, e))
+        for lineno, line in enumerate(text.splitlines(), 1):
+            m = INIT_INCLUDE_LINE_RE.match(line.strip())
+            if not m:
+                continue
+            target = base / m.group(1)
+            if not target.is_file():
+                raise ValueError("第 %d 行的 @INCLUDE 找不到文件 %s（相对 %s）"
+                                 % (lineno, m.group(1), base))
+            walk(target)
+            relp = os.path.relpath(str(target.resolve()), str(base.resolve()))
+            found[key] = (relp.replace("\\", "/"), target)
+        stack.pop()
+        done.add(key)
+
+    walk(entry)
+    return [found[k] for k in sorted(found, key=lambda x: found[x][0])]
+
+
+def source_hash(case_path, init_path, includes=()):
+    """基线来源哈希：sha256(用例 md + suite 入口 + 递归 @INCLUDE) 前 16 位。
 
     公式必须与 bin/at-run/at-run.py 的 source_hash() 完全一致：
-        sha256("md\n" + md + "\x00" + "init\n" + init + "\x00")[:16]
-    CRLF 先归一成 LF，同一份内容在 Windows / Linux checkout 上哈希相同。
+        sha256("md\\n"+md+"\\x00" + "init\\n"+入口+"\\x00"
+               + Σ "inc:<相对路径>\\n"+片段+"\\x00")[:16]
+    旧布局（无 <root>/init/）`includes` 为空 → 字节流与 ATESET-08 完全一致，
+    老基线不用重签。CRLF 先归一成 LF，Windows / Linux checkout 哈希相同。
     """
+    parts = [("md", case_path), ("init", init_path)]
+    parts.extend(("inc:%s" % relp, path) for relp, path in includes)
     digest = hashlib.sha256()
-    for label, path in (("md", case_path), ("init", init_path)):
+    for label, path in parts:
         text = read_text(path).replace("\r\n", "\n").replace("\r", "\n")
         digest.update(label.encode("ascii") + b"\n")
         digest.update(text.encode("utf-8"))
@@ -224,8 +322,37 @@ def source_hash(case_path, init_path):
     return digest.hexdigest()[:16]
 
 
+def case_source_hash(project, config, root, case_path):
+    """按布局算某用例的来源哈希；算不了 → `EnvError`。"""
+    init, error = case_init_path(project, config, root, case_path)
+    if error:
+        raise EnvError(error)
+    if not init.is_file():
+        raise EnvError("缺夹具模板 %s：来源哈希必须含它（夹具变了期望常跟着变）"
+                       % rel(init, project))
+    includes = ()
+    if init_dir(project, root) is not None:
+        try:
+            includes = resolve_includes(init)
+        except ValueError as e:
+            raise EnvError(str(e))
+    return source_hash(case_path, init, includes)
+
+
 def case_md_path(project, root, case_id):
-    return Path(project) / root / "cases" / ("%s.md" % case_id)
+    """用例 md 路径：先看 `<root>/cases/<CASE-ID>.md`，再递归找 suite 目录。"""
+    base = Path(project) / root / "cases"
+    direct = base / ("%s.md" % case_id)
+    if direct.is_file():
+        return direct
+    if base.is_dir():
+        hits = sorted(x for x in base.rglob("%s.md" % case_id) if x.is_file())
+        if len(hits) > 1:
+            raise EnvError("用例 %s 有多份 md：%s（目录即 suite 要求 caseID 全局唯一）"
+                           % (case_id, ", ".join(rel(x, project) for x in hits)))
+        if hits:
+            return hits[0]
+    return direct
 
 
 def expected_kind(md_text):
@@ -325,7 +452,9 @@ def build_baseline(project, root, config, case_id, actual, meta_in, reviewer):
     if kind != "baseline":
         raise UsageError("用例 %s 的 expected 是 %r，不是 baseline：生成基线不会生效，"
                          "先改用例再录" % (case_id, kind or "（缺）"))
-    init = init_template_path(project, config, root)
+    init, _error = case_init_path(project, config, root, md)
+    if _error:
+        raise EnvError(_error)
     if not init.is_file():
         raise EnvError("缺夹具模板 %s：来源哈希必须含它（夹具变了期望常跟着变）"
                        % rel(init, project))
@@ -336,7 +465,7 @@ def build_baseline(project, root, config, case_id, actual, meta_in, reviewer):
     recorded_at = meta_in.get("timestamp") or datetime.now().astimezone(
     ).isoformat(timespec="seconds")
     meta = {"case": case_id,
-            "source_hash": source_hash(md, init),
+            "source_hash": case_source_hash(project, config, root, md),
             "instance": instance,
             "recorded_at": recorded_at,
             "reviewer": reviewer,
@@ -425,7 +554,6 @@ def cmd_audit(project, root, config):
     if not baseline_dir.is_dir():
         raise EnvError("找不到基线目录 %s：先跑 bin/at-init/at-init.py"
                        % rel(baseline_dir, project))
-    init = init_template_path(project, config, root)
     files = sorted(x for x in baseline_dir.glob("*.json") if x.is_file())
     results = []
     for path in files:
@@ -451,7 +579,7 @@ def cmd_audit(project, root, config):
         meta = data.get("meta")
         stored = meta.get("source_hash") if isinstance(meta, dict) else None
         try:
-            current = source_hash(md, init)
+            current = case_source_hash(project, config, root, md)
         except (EnvError, OSError) as e:
             item.update(status="hash-skipped", reason="算不了来源哈希：%s" % e)
             results.append(item)

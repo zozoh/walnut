@@ -1,0 +1,21 @@
+# common.init — 各 suite 共用的静态夹具（ATESET-15「目录即 suite」）
+#
+# 只放"每个 suite 都要的世界"：~ 下先有一个 atest-lab 实验目录与 docs 子目录。
+# suite 专属的夹具写在 init/<suite>.init 里，用 `@INCLUDE common.init` 组合。
+# 每例新增的业务数据仍写到 atest/scripts/<suite>/<CASE-ID>.py。
+#
+# 怎么执行：用例脚本第一行调 `atlib.fixture()` —— 它把整个 init/ 树按原相对
+# 路径上传到 ~/.atest/init/，再执行
+#   app init -conf ~/.atest/init/<suite>.init -script off
+# 变量来自 atest/vars.json（本项目是 {"who": "walnut"}），经 `-vars` 传入；
+# 幂等由 `app init` 保证（非空文件不覆盖），同一模板可重复执行。
+#
+# 写法与 `app init` 完全一致（见 man cmd_app_init）：
+#   @DIR / @FILE / @API / @HOME / @ENV / @INCLUDE
+#   %TMPL: / %COPY: / %EXPLAIN: ... %END%
+# @INCLUDE 的路径相对**入口模板**所在目录（app init 的 oHome），所以片段都放
+# 同一个 init/ 目录树里。
+
+# 实验目录与子目录（路径相对域 home，父目录由 atlib 自动建）
+@DIR atest-lab
+@DIR atest-lab/docs

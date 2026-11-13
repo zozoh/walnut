@@ -32,15 +32,21 @@
     obj = snap("~/atest-dir")
     emit({"nm": obj["nm"], "race": obj["race"]})
 
-夹具（ATESET-05，静态布局必须写进模板，不在用例里现拼）：
+夹具（ATESET-05 / 15，静态布局必须写进模板，不在用例里现拼）：
 
     from atlib import fixture, snap, emit
 
-    fixture()                       # <root>/atest.init + <root>/vars.json
+    fixture()                       # 新布局：init/<suite>.init；旧布局：atest.init
     obj = snap("~/.atest/demo")     # 模板铺好的对象
     emit({"atest-owner": obj.get("atest-owner")})
 
-夹具由 `app init` 执行：`atest.init` 里可以使用它的全部指令
+  - 存在 `<root>/init/` → **目录即 suite**：suite 名 = 用例 md 相对 `cases/` 的
+    目录名（由 AT_CASE_ID 反查），入口是 `init/<suite>.init`，可写
+    `@INCLUDE common.init` 组合公共片段；整个 `init/**/*.init` 会按原相对路径
+    上传到 `~/.atest/init/`，再执行 `app init -conf ~/.atest/init/<suite>.init`。
+  - 否则走旧布局：单个 `<root>/atest.init` 上传成 `~/.atest/init/<name>.init`。
+
+夹具由 `app init` 执行：模板里可以使用它的全部指令
 （@DIR / @FILE / @API / @HOME / @ENV / @INCLUDE / %TMPL / %COPY / %EXPLAIN）。
 
 示例（ATESET-09，真 HTTP，不绕命令通道）：
@@ -59,7 +65,7 @@ import sys
 import urllib.error
 import urllib.parse
 import urllib.request
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 REQUIRED_ENV = ("AT_LEVEL", "AT_URL", "AT_SESSION_DIR", "AT_DOMAIN",
                 "AT_WNCLI", "AT_OUT")
@@ -71,6 +77,7 @@ HTTP_DIR = "http"
 CONFIG_NAME = "atest.json"
 ROOT_DEFAULT = "atest"
 INIT_NAME = "atest.init"
+INIT_DIR_NAME = "init"
 VARS_NAME = "vars.json"
 
 # 远程工具目录：模板与变量每次都重写，避免旧文件残留（ATESET-05 T1 约定）
@@ -79,6 +86,8 @@ REMOTE_VARS = "~/.atest/vars.json"
 
 # 夹具名就是上传后的模板文件名，只允许安全字符
 NAME_RE = re.compile(r"^[A-Za-z0-9._-]+$")
+# 解析 @INCLUDE 只认行首指令（`@INCLUDE <相对路径>`），与 at-run 的哈希公式一致
+INCLUDE_RE = re.compile(r"^@INCLUDE\s+(\S+)\s*$", re.I)
 
 
 def note(text):
@@ -303,24 +312,231 @@ def _load_config():
     return data
 
 
-def _fixture_paths(root, config):
-    """返回 (模板路径, 变量文件路径)；root 为 None 时读 atest.json 的 root。"""
-    if root:
-        root_name = root
-        raw = "%s/%s" % (root_name, INIT_NAME)
-    else:
-        root_name = config.get("root") or ROOT_DEFAULT
-        raw = config.get("init_template") or ("%s/%s" % (root_name, INIT_NAME))
-    init_path = Path(raw)
-    if not init_path.is_absolute():
-        init_path = Path.cwd() / init_path
-    root_name = str(root_name)
-    if root_name in (".", "..") or not re.match(r"^[A-Za-z0-9._-]+$",
-                                                root_name):
+def _fixture_root(root, config):
+    """夹具根目录名：参数 > atest.json 的 root > atest；非法即 blocked。"""
+    root_name = str(root or config.get("root") or ROOT_DEFAULT)
+    if root_name in (".", "..") or not NAME_RE.match(root_name):
         _die("夹具根目录 %r 不合法：只允许字母/数字/._-，且不能是 . / .."
              % (root_name,))
+    return root_name
+
+
+def _init_template_path(root_name, config):
+    """旧布局的夹具模板：atest.json 的 init_template > <root>/atest.init。"""
+    raw = config.get("init_template") or ("%s/%s" % (root_name, INIT_NAME))
+    path = Path(raw)
+    if not path.is_absolute():
+        path = Path.cwd() / path
+    return path
+
+
+def _safe_rel(name, what):
+    """相对路径名（可含 `/` 分隔的层级）：逐段校验，拒绝 . / .. 与怪字符。"""
+    parts = [x for x in str(name).split("/") if x]
+    if not parts or any(x in (".", "..") or not NAME_RE.match(x)
+                        for x in parts):
+        _die("%s %r 不合法：只允许字母/数字/._-（可用 / 分层）" % (what, name))
+    return "/".join(parts)
+
+
+def _case_suite(root_name):
+    """从 AT_CASE_ID 反查用例 md，取其相对 `cases/` 的目录名（目录即 suite）。"""
+    base = Path.cwd() / root_name / "cases"
+    if not base.is_dir():
+        _die("找不到用例目录 %s：fixture() 无法判断 suite" % base)
+    case_id = os.environ.get("AT_CASE_ID") or ""
+    if case_id:
+        hits = sorted(x for x in base.rglob("%s.md" % case_id) if x.is_file())
+        if len(hits) > 1:
+            _die("用例 %s 有多份 md（%s）：目录即 suite 要求 caseID 全局唯一"
+                 % (case_id, ", ".join(str(x) for x in hits)))
+        if hits:
+            parent = hits[0].parent.relative_to(base).as_posix()
+            return "" if parent == "." else parent
+    _die("定位不到用例 md（AT_CASE_ID=%r，%s）：新布局要求 "
+         "cases/<suite>/<CASE-ID>.md" % (case_id, base))
+
+
+def _resolve_includes(entry):
+    """递归解析 `@INCLUDE`（相对入口模板目录，与 app init 的 oHome 一致）。
+
+    只做安全检查：循环 include / 缺片段 → `SystemExit(2)`（runner 记 blocked），
+    不静默地把夹具铺一半。
+    """
+    base = entry.parent
+    stack = []
+    done = set()
+
+    def walk(path):
+        key = str(path.resolve())
+        if key in stack:
+            _die("循环 @INCLUDE：%s" % " -> ".join(stack + [key]))
+        if key in done:
+            return
+        stack.append(key)
+        text = _read_text_file(path, "被包含的夹具片段")
+        for lineno, line in enumerate(text.splitlines(), 1):
+            m = INCLUDE_RE.match(line.strip())
+            if not m:
+                continue
+            target = base / m.group(1)
+            if not target.is_file():
+                _die("第 %d 行的 @INCLUDE 找不到文件 %s（相对 %s）"
+                     % (lineno, m.group(1), base))
+            walk(target)
+        stack.pop()
+        done.add(key)
+
+    walk(entry)
+
+
+def _upload_init_tree(folder, timeout):
+    """把 `<root>/init/**/*.init` 按原相对路径上传到 `~/.atest/init/`。
+
+    必须保持层级：`@INCLUDE` 的路径相对**入口模板**所在目录（app init 的
+    oHome），片段与入口在同一棵树里才解析得到。
+    """
+    files = sorted(x for x in folder.rglob("*.init") if x.is_file())
+    if not files:
+        _die("%s 下没有 *.init：新布局要求至少 init/<suite>.init" % folder)
+    rels = [x.relative_to(folder).as_posix() for x in files]
+    wn("mkdir -p -noexists %s" % REMOTE_INIT_DIR, timeout=timeout)
+    dirs = sorted({str(PurePosixPath(r).parent) for r in rels
+                   if str(PurePosixPath(r).parent) != "."})
+    for sub in dirs:
+        wn("mkdir -p -noexists %s"
+           % _cmd_arg("%s/%s" % (REMOTE_INIT_DIR, sub)), timeout=timeout)
+    for relp, path in zip(rels, files):
+        _save_text("%s/%s" % (REMOTE_INIT_DIR, relp),
+                   _read_text_file(path, "夹具模板"), timeout)
+    return rels
+
+
+def fixture(root=None, name=None, vars=None, timeout=90):
+    """用 Walnut 自己的 `app init` 把静态夹具铺进域。
+
+    两套布局（ATESET-15）：
+
+    - **新布局**（存在 `<root>/init/`，目录即 suite）：suite = 用例 md 相对
+      `cases/` 的目录名（也可用 `name` 显式指定），入口
+      `init/<suite>.init`；把 `init/**/*.init` 按原相对路径上传到
+      `~/.atest/init/`，再执行
+      `app init -conf ~/.atest/init/<suite>.init -script off`。
+      入口可写 `@INCLUDE common.init` 组合公共片段。
+    - **旧布局**（没有 `init/`）：单个 `<root>/atest.init`（或 atest.json 的
+      `init_template`）上传成 `~/.atest/init/<name>.init` 再执行。
+
+    公共步骤：
+
+    1. 读 `<root>/atest.json` 的 `root` / `init_template`，定位模板与
+       `<root>/vars.json`；
+    2. 模板（新布局是整个 `init/` 树）`obj save-text` 到 `~/.atest/init/`
+       （覆盖写）；
+    3. 变量 = `vars` 参数 + `<root>/vars.json`（项目同名键优先）；非空则
+       再 `obj save-text` 到 `~/.atest/vars.json`，并作为 `-vars` 传给 app init；
+    4. 执行 `app init -conf <入口> -script off`（`-script` 默认 **off**，
+       脚本测试要收尾脚本时自己调）；
+    5. 幂等由 `app init` 自身保证：目标文件已存在且内容非空时跳过写入，
+       目录 / 元数据按模板合并，同一模板连跑两次安全。
+
+    - `root` 缺省读 `atest.json` 的 `root`（再缺省 `atest`）；`name` 缺省为
+      suite 名（新布局）或模板文件名（旧布局，`atest.init` → `atest`）；
+    - 失败（模板缺失 / suite 入口缺失 / 循环 @INCLUDE / vars.json 非法 /
+      上传失败 / `app init` 非 0）→ `SystemExit(2)`：runner 记 **blocked**，
+      并带上原始输出与"缺哪个文件"。
+
+    返回值形状保持 `{"name", "template", "suite", "vars", "entries",
+    "counts", "uploaded"}`（`entries` / `counts` 由 `app init` 的输出统计，
+    仅供日志与调用方参考；`suite` 在旧布局为 None）。
+    """
+    if vars is not None and not isinstance(vars, dict):
+        _die("fixture(vars=...) 必须是 dict（现在是 %r）" % (vars,))
+
+    config = _load_config()
+    root_name = _fixture_root(root, config)
     vars_path = Path.cwd() / root_name / VARS_NAME
-    return init_path, vars_path
+    init_folder = Path.cwd() / root_name / INIT_DIR_NAME
+
+    suite = None
+    uploaded = []
+    if init_folder.is_dir():
+        suite = _safe_rel(name or _case_suite(root_name), "suite 名")
+        template = init_folder / ("%s.init" % suite)
+        if not template.is_file():
+            _die("缺 suite 入口 %s（suite %r）：新布局要求 init/<suite>.init；"
+                 "通常写成 `@INCLUDE common.init` + 本 suite 专属项"
+                 % (template, suite))
+        fixture_name = suite
+        _resolve_includes(template)
+        uploaded = _upload_init_tree(init_folder, timeout)
+        remote_init = "%s/%s.init" % (REMOTE_INIT_DIR, suite)
+        print("atlib: fixture %s：suite=%s，上传 %d 份 init 片段（入口 %s）"
+              % (fixture_name, suite, len(uploaded), template.name),
+              file=sys.stderr)
+    else:
+        init_path = _init_template_path(root_name, config)
+        fixture_name = str(name or init_path.stem)
+        if not fixture_name or fixture_name in (".", "..") \
+                or not NAME_RE.match(fixture_name):
+            _die("夹具名 %r 不合法：只允许 %s（且不能是 . / ..）"
+                 % (fixture_name, NAME_RE.pattern))
+        if not init_path.is_file():
+            _die("夹具模板不存在：%s（先照 bin/at-init/tmpl/atest.init 写一份）"
+                 % init_path)
+        template = init_path
+        text = _read_text_file(init_path, "夹具模板")
+
+        print("atlib: fixture %s：模板=%s，变量键=%s"
+              % (fixture_name, init_path.name,
+                 ", ".join(sorted(vars or {})) if vars else "（无）"),
+              file=sys.stderr)
+
+        # 模板 / 变量都上传到工具目录；app init 从对象树里读模板
+        wn("mkdir -p -noexists %s" % REMOTE_INIT_DIR, timeout=timeout)
+        remote_init = "%s/%s.init" % (REMOTE_INIT_DIR, fixture_name)
+        _save_text(remote_init, text, timeout)
+
+    merged = dict(vars or {})
+    project_vars = {}
+    if vars_path.is_file():
+        raw = _read_text_file(vars_path, "夹具变量文件")
+        try:
+            project_vars = json.loads(raw)
+        except ValueError as e:
+            _die("%s 不是合法 JSON（%s）：vars.json 必须是对象" % (vars_path, e))
+        if not isinstance(project_vars, dict):
+            _die("%s 格式不对：顶层应为对象（{\"key\": \"value\"}）" % vars_path)
+        merged.update(project_vars)
+
+    vars_json = None
+    if merged:
+        vars_json = json.dumps(merged, ensure_ascii=False)
+        _save_text(REMOTE_VARS, vars_json, timeout)
+
+    cmd = "app init -conf %s -script off" % _cmd_arg(remote_init)
+    if vars_json is not None:
+        cmd += " -vars %s" % _cmd_arg(vars_json)
+
+    rc, out, err = _call_wncli(["cmd", cmd], timeout=timeout)
+    if rc is None:
+        if err == "timeout":
+            _die("app init 超时（%ss）：%s" % (timeout, cmd))
+        _die("app init 启动失败：%s（命令：%s）" % (err, cmd))
+    if rc != 0:
+        raw = "\n".join(x for x in (out.strip(), err.strip()) if x)
+        if raw:
+            print("atlib: app init 原始输出：\n%s" % raw, file=sys.stderr)
+        detail = raw.replace("\r", " ").replace("\n", " ")[:800] or "（无输出）"
+        _die("app init 退出码 %d：%s（命令：%s）" % (rc, detail, cmd))
+
+    entries, counts = _scan_counts(out)
+    note("fixture %s：模板=%s，app init 成功（%d 条，DIR %d / FILE %d），变量键=%s"
+         % (fixture_name, template.name, entries,
+            counts["DIR"], counts["FILE"],
+            ", ".join(sorted(merged)) if merged else "（无）"))
+    return {"name": fixture_name, "template": str(template), "suite": suite,
+            "vars": sorted(merged), "entries": entries,
+            "counts": counts, "uploaded": len(uploaded)}
 
 
 def _read_text_file(path, what):
@@ -352,11 +568,12 @@ def _scan_counts(text):
     """从 `app init` 的输出里数条目（`@DIR xxx` / `@FILE xxx` 行）。
 
     只做统计，用来保持返回值形状与日志可读；真正的解析在 `app init` 里。
+    被 `@INCLUDE` 展开的条目带 `>> ` 前缀（入口模板的 outPrefix），一并数进去。
     """
     counts = {"DIR": 0, "FILE": 0}
     entries = 0
     for line in text.splitlines():
-        m = re.match(r"^@([A-Za-z]+)\s", line.strip())
+        m = re.match(r"^(?:>+\s*)?@([A-Za-z]+)\s", line.strip())
         if not m:
             continue
         entries += 1
@@ -364,100 +581,6 @@ def _scan_counts(text):
         if typ in counts:
             counts[typ] += 1
     return entries, counts
-
-
-def fixture(root=None, name=None, vars=None, timeout=90):
-    """用 Walnut 自己的 `app init` 把 `<root>/atest.init` 铺进域。
-
-    步骤（ATESET-05）：
-
-    1. 读 `<root>/atest.json` 的 `root` / `init_template`，定位模板与
-       `<root>/vars.json`；
-    2. 模板原文 `obj save-text` 到 `~/.atest/init/<name>.init`（覆盖写）；
-    3. 变量 = `vars` 参数 + `<root>/vars.json`（项目同名键优先）；非空则
-       再 `obj save-text` 到 `~/.atest/vars.json`，并作为 `-vars` 传给 app init；
-    4. 执行 `app init -conf ~/.atest/init/<name>.init -script off`
-       （所以模板里可以直接用 `@DIR` / `@FILE` / `@API` / `@HOME` / `@ENV` /
-       `@INCLUDE` 与 `%TMPL` / `%COPY` / `%EXPLAIN`；`-script` 默认 **off**，
-       脚本测试要收尾脚本时自己调）；
-    5. 幂等由 `app init` 自身保证：目标文件已存在且内容非空时跳过写入，
-       目录 / 元数据按模板合并，同一模板连跑两次安全。
-
-    - `root` 缺省读 `atest.json` 的 `root`（再缺省 `atest`）；`name` 缺省为
-      模板文件名（`atest.init` → `atest`）；
-    - 失败（模板缺失、上传失败、`app init` 非 0、vars.json 非法）→
-      `SystemExit(2)`：runner 记 **blocked**，并带上 `app init` 的原始输出。
-
-    返回值形状保持 `{"name", "template", "vars", "entries", "counts"}`
-    （`entries` / `counts` 由 `app init` 的输出统计，仅供日志与调用方参考）。
-    """
-    if vars is not None and not isinstance(vars, dict):
-        _die("fixture(vars=...) 必须是 dict（现在是 %r）" % (vars,))
-
-    config = _load_config()
-    init_path, vars_path = _fixture_paths(root, config)
-    fixture_name = str(name or init_path.stem)
-    if not fixture_name or fixture_name in (".", "..") \
-            or not NAME_RE.match(fixture_name):
-        _die("夹具名 %r 不合法：只允许 %s（且不能是 . / ..）"
-             % (fixture_name, NAME_RE.pattern))
-
-    if not init_path.is_file():
-        _die("夹具模板不存在：%s（先照 bin/at-init/tmpl/atest.init 写一份）"
-             % init_path)
-    text = _read_text_file(init_path, "夹具模板")
-
-    merged = dict(vars or {})
-    project_vars = {}
-    if vars_path.is_file():
-        raw = _read_text_file(vars_path, "夹具变量文件")
-        try:
-            project_vars = json.loads(raw)
-        except ValueError as e:
-            _die("%s 不是合法 JSON（%s）：vars.json 必须是对象" % (vars_path, e))
-        if not isinstance(project_vars, dict):
-            _die("%s 格式不对：顶层应为对象（{\"key\": \"value\"}）" % vars_path)
-        merged.update(project_vars)
-
-    print("atlib: fixture %s：模板=%s，变量键=%s"
-          % (fixture_name, init_path.name,
-             ", ".join(sorted(merged)) if merged else "（无）"),
-          file=sys.stderr)
-
-    # 模板 / 变量都上传到工具目录；app init 从对象树里读模板
-    wn("mkdir -p -noexists %s" % REMOTE_INIT_DIR, timeout=timeout)
-    remote_init = "%s/%s.init" % (REMOTE_INIT_DIR, fixture_name)
-    _save_text(remote_init, text, timeout)
-
-    vars_json = None
-    if merged:
-        vars_json = json.dumps(merged, ensure_ascii=False)
-        _save_text(REMOTE_VARS, vars_json, timeout)
-
-    cmd = "app init -conf %s -script off" % _cmd_arg(remote_init)
-    if vars_json is not None:
-        cmd += " -vars %s" % _cmd_arg(vars_json)
-
-    rc, out, err = _call_wncli(["cmd", cmd], timeout=timeout)
-    if rc is None:
-        if err == "timeout":
-            _die("app init 超时（%ss）：%s" % (timeout, cmd))
-        _die("app init 启动失败：%s（命令：%s）" % (err, cmd))
-    if rc != 0:
-        raw = "\n".join(x for x in (out.strip(), err.strip()) if x)
-        if raw:
-            print("atlib: app init 原始输出：\n%s" % raw, file=sys.stderr)
-        detail = raw.replace("\r", " ").replace("\n", " ")[:800] or "（无输出）"
-        _die("app init 退出码 %d：%s（命令：%s）" % (rc, detail, cmd))
-
-    entries, counts = _scan_counts(out)
-    note("fixture %s：模板=%s，app init 成功（%d 条，DIR %d / FILE %d），变量键=%s"
-         % (fixture_name, init_path.name, entries,
-            counts["DIR"], counts["FILE"],
-            ", ".join(sorted(merged)) if merged else "（无）"))
-    return {"name": fixture_name, "template": str(init_path),
-            "vars": sorted(merged), "entries": entries,
-            "counts": counts}
 
 
 def _object_name(path, name):

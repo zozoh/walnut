@@ -1,0 +1,13 @@
+# cmd_o.init — cmd_o 套件的静态夹具（CASE-101 .. CASE-104）
+#
+# 公共部分（~/atest-lab 与 ~/atest-lab/docs）来自 common.init；
+# 这里只加本 suite 专属的 hello.txt。改这个文件只影响 cmd_o 的基线。
+
+@INCLUDE common.init
+
+# 由模板渲染的文本文件：内容随 vars.json 的 who 变化（CASE-104 改它的元数据）
+@FILE atest-lab/hello.txt
+%TMPL:
+hello from atest
+who: ${who}
+%END%

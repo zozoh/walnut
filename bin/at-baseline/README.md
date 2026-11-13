@@ -19,7 +19,7 @@ bug，**不用"两套基线"消化**（2026-11-13 用户裁定）。
 ```text
 at-run --record                     → <root>/report/<ts>/actual.json
 at-baseline --from <actual.json>    → <root>/baseline/<CASE-ID>.json（清洗 + meta）
-at-baseline --audit                 → 用例 md / 夹具模板变了就报 stale
+at-baseline --audit                 → 用例 md / 它那份夹具变了就报 stale
 ```
 
 "这个值在业务上对不对"由**审核者**判断并签 `meta.reviewer`，工具不判断。
@@ -36,7 +36,7 @@ python bin/at-baseline/at-baseline.py --from atest/report/20261113T150908/actual
 # 3) 只录/只刷其中几例，并签名
 python bin/at-baseline/at-baseline.py --from <file> --only CASE-101,CASE-102 --reviewer 智群
 
-# 4) 复核：用例 md 或 atest.init 改过 → stale（退出码 1）
+# 4) 复核：用例 md 或该用例的夹具入口（含 @INCLUDE 片段）改过 → stale（退出码 1）
 python bin/at-baseline/at-baseline.py --audit
 ```
 
@@ -50,7 +50,7 @@ python bin/at-baseline/at-baseline.py --audit
 | `--reviewer NAME` | 写进 `meta.reviewer` 的审核者标识（默认 `unreviewed` = 未审核） |
 | `--force` | 基线已存在时覆盖（默认拒绝；覆盖 = 期望换了，要重新复核） |
 
-`--from` 会先校验**每个**用例：md 存在、`expected: baseline`、夹具模板可读；
+`--from` 会先校验**每个**用例：md 存在、`expected: baseline`、夹具入口可读；
 有一条不满足就整体不写（不留半套基线）。
 
 ## 基线格式
@@ -103,10 +103,20 @@ python bin/at-baseline/at-baseline.py --audit
 ## 来源哈希
 
 ```text
-source_hash = sha256("md\n" + 用例 md + "\x00" + "init\n" + 夹具模板 + "\x00")[:16]
+source_hash = sha256("md\n" + 用例 md + "\x00"
+                     + "init\n" + 夹具入口 + "\x00"
+                     + Σ("inc:<相对路径>\n" + 片段 + "\x00"))[:16]
 ```
 
-- **必须含 `atest.init`**：夹具变了，期望往往也跟着变；
+- **夹具入口按布局取**：存在 `<root>/init/` → `init/<suite>.init`（suite = 用例
+  md 相对 `cases/` 的目录名，ATESET-15「目录即 suite」），再递归解析它
+  `@INCLUDE` 到的片段（相对入口目录、按相对路径排序、按真实路径去重）；
+  没有 `<root>/init/` → `init_template`（缺省 `<root>/atest.init`）。
+- **旧布局的字节流与 ATESET-08 完全一致**（`includes` 为空），老基线不用重签；
+  新布局改别的 suite 的夹具**不会**让你的基线变 stale（这正是拆分的理由），
+  但改 `common.init` 会让所有引用它的 suite 都 stale——公共件就该影响全部。
+- 循环 / 缺失的 `@INCLUDE` → `--audit` 报 `hash-skipped`、`--from` 报错、
+  `atlib.fixture()` 记 blocked，都不静默；
 - CRLF 先归一成 LF，同一份内容在 Windows / Linux checkout 上哈希相同；
 - 公式在 `bin/at-run/at-run.py` 与 `bin/at-baseline/at-baseline.py` 各有一份
   （两个工具互不 import），**改一处必须改另一处**；`at-run --check` 与
@@ -119,19 +129,19 @@ source_hash = sha256("md\n" + 用例 md + "\x00" + "init\n" + 夹具模板 + "\x
    顺手复核 `meta.dropped`，确认没把业务字段洗掉；
 3. 审核者签名：把 `meta.reviewer` 改成自己的标识（或 `--from --reviewer` 重录）；
    有疑问的在报告里提出，**不改基线**；
-4. 之后用例 md / `atest.init` 一改 → `--audit`（或 `at-run --check`）报 stale →
-   回到 2。重新录制再走一遍 1~3。
+4. 之后用例 md / 该用例的夹具入口（或它 `@INCLUDE` 的片段）一改 →
+   `--audit`（或 `at-run --check`）报 stale → 回到 2。重新录制再走一遍 1~3。
 
 ## `--audit` 的状态
 
 | status | 含义 |
 |--------|------|
-| `ok` | 基线哈希与当前用例 md + 夹具模板一致 |
-| `stale` | 用例 md / 夹具模板改过：基线待复核（重新审核后 `--from --force`） |
+| `ok` | 基线哈希与当前用例 md + 该用例的夹具入口/片段一致 |
+| `stale` | 用例 md / 夹具改过：基线待复核（重新审核后 `--from --force`） |
 | `no-hash` | 基线没有 `meta.source_hash`（手写裸对象）：改了用例也发现不了 |
 | `orphan` | 基线对应的用例 md 不见了（基线该删，或用例该补） |
 | `invalid` | 基线读不了 / 不是合法 JSON / 顶层不是对象 |
-| `hash-skipped` | 夹具模板缺失或不可读，算不了哈希 |
+| `hash-skipped` | 夹具入口缺失/不可读，或 @INCLUDE 循环/缺片段，算不了哈希 |
 
 `--audit` 输出是**单行 JSON**（`checked` / `stale` / `results`），stale 时退出 1；
 人读摘要进 stderr。退出码：`0` 全部对得上；`1` 有 stale / 用法错误；

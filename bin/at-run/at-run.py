@@ -15,10 +15,15 @@ at-run — ATEST 运行器（v2）
     --reset                 整批执行前先跑 <root>/cleanup.py（套件级清理）
     --no-gc                 跑完不自动归档旧报告（缺省会自动调用 bin/at-gc）
 
-夹具（ATESET-05）：静态布局写进 `<root>/atest.init`，用例脚本用
-`atlib.fixture()` 的本地最小渲染器铺进域；非幂等用例另带
+夹具（ATESET-05 / 15）：静态布局写进夹具模板，用例脚本用 `atlib.fixture()`
+调 Walnut 自己的 `app init` 铺进域；非幂等用例另带
 `<root>/scripts/<CASE-ID>.clean.py`，执行顺序固定为 **清理 → 初始化 → 用例**。
 清理脚本失败记 blocked（不判红）。
+
+布局（ATESET-15）：`<root>/init/` 存在 = 「目录即 suite」——suite 名就是
+`cases/` 下的目录名，入口是 `init/<suite>.init`（用 `@INCLUDE common.init`
+组合公共片段）；不存在 = 旧的单模板（`<root>/atest.init`）+ 扁平 cases。
+两种布局都用同一套 CASE-ID 对账，旧项目行为不变。
 
 实例解析（两个轴分开，都不猜）:
     级别:  --instance  →  atest.json 的 instance  →  报错
@@ -124,6 +129,11 @@ INIT_MAX_BYTES = 256 * 1024
 INIT_EXTERNAL_RE = re.compile(r"^[%?](COPY|TMPL|EXPLAIN)(\{.*\})?\s*>", re.I)
 INIT_INCLUDE_RE = re.compile(r"^@INCLUDE\b", re.I)
 
+# 布局（ATESET-15）：<root>/init/ 存在 → 「目录即 suite」；否则走旧的单模板布局
+INIT_DIR_NAME = "init"
+# 解析 @INCLUDE 只认行首指令（`@INCLUDE <相对路径>`），不执行变量渲染
+INIT_INCLUDE_LINE_RE = re.compile(r"^@INCLUDE\s+(\S+)\s*$", re.I)
+
 REQUIRED_FIELDS = ("caseID", "title", "source", "contracts", "expected")
 EXPECTED_KINDS = ("inline", "file", "baseline")
 SECTIONS = ("前置", "步骤", "期望", "证据")
@@ -174,13 +184,16 @@ EPILOG = """\
   （--check 也一样）；凭据只在需要自动登录时读（--check 不读、不登录）。
 
 用例发现:
-  <dir>/<root>/cases/*.md    文件名 = caseID；脚本 <root>/scripts/<caseID>.py
+  <dir>/<root>/cases/**/*.md    递归发现；文件名 = caseID；suite = 相对 cases/ 的目录名
+  脚本 <dir>/<root>/scripts/<suite>/<caseID>.py（旧布局平铺 scripts/<caseID>.py）
 
-夹具与清理（ATESET-05）:
-  静态布局 -> <root>/atest.init（只支持内联块；用例里用 atlib.fixture() 执行）
+夹具与清理（ATESET-05 / 15）:
+  新布局   -> <root>/init/<suite>.init 入口（可 @INCLUDE 公共片段）；
+              atlib.fixture() 上传 <root>/init/**/*.init 到 ~/.atest/init/
+  旧布局   -> <root>/atest.init（只支持内联块；用例里用 atlib.fixture() 执行）
   变量     -> <root>/vars.json（可选；对象，项目级覆盖调用方默认值）
   套件清理 -> <root>/cleanup.py（--reset 时先跑；失败全批 blocked）
-  用例清理 -> <root>/scripts/<CASE-ID>.clean.py（该例前跑；失败该例 blocked）
+  用例清理 -> <root>/scripts/[<suite>/]<CASE-ID>.clean.py（该例前跑；失败该例 blocked）
   顺序     -> 清理 → 初始化（fixture）→ 用例；清理脚本不许删域/数据目录
 
 实例与会话:
@@ -230,6 +243,7 @@ EPILOG = """\
 --check 警告码（只警告，不影响退出码）:
   init-template-missing / init-template-not-file / init-template-unreadable /
   init-template-too-large / init-template-external-ref / init-template-include /
+  init-suite-missing / init-include-unresolved / init-include-cycle /
   baseline-missing / baseline-invalid / baseline-no-hash / baseline-stale /
   baseline-hash-skipped
 
@@ -588,9 +602,138 @@ def init_template_path(project, config, root):
     return path
 
 
-def init_template_warnings(project, config, root):
-    """--check 对夹具模板的**警告**（不阻塞）：缺失、异常大、不可读、v1 不支持。"""
-    path = init_template_path(project, config, root)
+def init_dir(project, root):
+    """`<root>/init/` 目录；存在即启用「目录即 suite」布局（ATESET-15）。"""
+    path = Path(project) / root / INIT_DIR_NAME
+    return path if path.is_dir() else None
+
+
+def case_suite(project, root, case_path):
+    """用例所属 suite = `<root>/cases` 下的相对目录名（`/` 分隔）；无子目录 = ""。"""
+    base = Path(project) / root / "cases"
+    try:
+        relative = Path(case_path).resolve().relative_to(base.resolve())
+    except (ValueError, OSError):
+        return ""
+    parent = relative.parent.as_posix()
+    return "" if parent == "." else parent
+
+
+def suite_init_path(project, root, suite):
+    """suite 的夹具入口：`<root>/init/<suite>.init`（suite 名 = cases/ 下目录名）。"""
+    return Path(project) / root / INIT_DIR_NAME / ("%s.init" % suite)
+
+
+def case_script_path(project, root, case_path, case_id, suffix=""):
+    """用例脚本路径：新布局 `scripts/<suite>/<CASE-ID>[.clean].py`；旧布局平铺。"""
+    name = "%s%s.py" % (case_id, suffix)
+    base = Path(project) / root / "scripts"
+    suite = case_suite(project, root, case_path)
+    if init_dir(project, root) is not None and suite:
+        return base / suite / name
+    return base / name
+
+
+def case_init_path(project, config, root, case_path):
+    """该用例的夹具入口；返回 `(路径, 错误说明)`。
+
+    新布局（存在 `<root>/init/`）= `init/<suite>.init`；旧布局 = `init_template`。
+    错误说明非空 = 算不了来源哈希 / 铺不了夹具（用例不在 suite 目录、入口缺失）。
+    """
+    if init_dir(project, root) is None:
+        return init_template_path(project, config, root), ""
+    suite = case_suite(project, root, case_path)
+    if not suite:
+        return None, ("用例 %s 不在 %s/cases/<suite>/ 下：存在 %s/init/ 时目录即 "
+                      "suite，该例的夹具与来源哈希都算不了"
+                      % (rel(case_path, project), root, root))
+    path = suite_init_path(project, root, suite)
+    if not path.is_file():
+        return None, ("缺 suite 入口 %s（suite %r 的用例执行时 blocked）"
+                      % (rel(path, project), suite))
+    return path, ""
+
+
+def resolve_includes(entry):
+    """递归解析入口模板里的 `@INCLUDE`，返回 `[(相对入口目录, 路径)]`。
+
+    路径解析与 `app init` 的 oHome 一致：一律相对**入口**模板所在目录（不是被
+    包含文件所在目录）；只看行首 `@INCLUDE <path>`，不执行变量渲染。
+    结果按相对路径排序、按真实路径去重；循环 include / 缺文件 → `ValueError`。
+    """
+    entry = Path(entry)
+    base = entry.parent
+    found = {}
+    done = set()
+    stack = []
+
+    def walk(path):
+        key = str(path.resolve())
+        if key in stack:
+            raise ValueError("循环 @INCLUDE：%s"
+                             % " -> ".join(stack + [key]))
+        if key in done:
+            return
+        stack.append(key)
+        try:
+            text = read_text(path)
+        except (EnvError, OSError) as e:
+            raise ValueError("读不了被包含文件 %s：%s" % (path, e))
+        for lineno, line in enumerate(text.splitlines(), 1):
+            m = INIT_INCLUDE_LINE_RE.match(line.strip())
+            if not m:
+                continue
+            target = base / m.group(1)
+            if not target.is_file():
+                raise ValueError("第 %d 行的 @INCLUDE 找不到文件 %s（相对 %s）"
+                                 % (lineno, m.group(1), base))
+            walk(target)
+            relp = os.path.relpath(str(target.resolve()), str(base.resolve()))
+            found[key] = (relp.replace("\\", "/"), target)
+        stack.pop()
+        done.add(key)
+
+    walk(entry)
+    return [found[k] for k in sorted(found, key=lambda x: found[x][0])]
+
+
+def source_hash(case_path, init_path, includes=()):
+    """基线来源哈希：sha256(用例 md + suite 入口 + 递归 @INCLUDE) 前 16 位。
+
+    公式必须与 bin/at-baseline/at-baseline.py 完全一致（两处都写了注释）：
+        sha256("md\\n"+md+"\\x00" + "init\\n"+入口+"\\x00"
+               + Σ "inc:<相对路径>\\n"+片段+"\\x00")[:16]
+    **旧布局**（无 <root>/init/）`includes` 为空 → 字节流与 ATESET-08 的
+    `sha256("md\\n"+md+"\\x00"+"init\\n"+init+"\\x00")` 完全一致，老基线不用重签。
+    CRLF 先归一成 LF，同一份内容在 Windows / Linux checkout 上哈希相同。
+    """
+    parts = [("md", case_path), ("init", init_path)]
+    parts.extend(("inc:%s" % relp, path) for relp, path in includes)
+    digest = hashlib.sha256()
+    for label, path in parts:
+        text = read_text(path).replace("\r\n", "\n").replace("\r", "\n")
+        digest.update(label.encode("ascii") + b"\n")
+        digest.update(text.encode("utf-8"))
+        digest.update(b"\x00")
+    return digest.hexdigest()[:16]
+
+
+def case_source_hash(project, config, root, case_path):
+    """按布局算某用例的来源哈希；算不了 → `EnvError`（调用方转警告/blocked）。"""
+    init, error = case_init_path(project, config, root, case_path)
+    if error:
+        raise EnvError(error)
+    includes = ()
+    if init_dir(project, root) is not None:
+        try:
+            includes = resolve_includes(init)
+        except ValueError as e:
+            raise EnvError(str(e))
+    return source_hash(case_path, init, includes)
+
+
+def _init_file_warnings(path, project, warn_includes, uploads_tree=False):
+    """单份夹具模板的审阅警告：缺失、异常大、不可读、v1 不支持的外部引用。"""
     if not path.exists():
         return [warn_of(path, "init-template-missing",
                         "缺夹具模板 %s：用例仍可跑，但 atlib.fixture() 会记 "
@@ -619,31 +762,57 @@ def init_template_warnings(project, config, root):
         if INIT_EXTERNAL_RE.match(stripped):
             out.append(warn_of(path, "init-template-external-ref",
                                "第 %d 行引用了外部文件（`%s`）：`app init` 支持，"
-                               "但引用文件须与模板同目录上传"
-                               "（atlib.fixture 只上传模板本身）"
-                               % (i, stripped)))
-        elif INIT_INCLUDE_RE.match(stripped):
+                               "但引用文件必须一起上传（%s）"
+                               % (i, stripped,
+                                  "新布局会传整个 init/**/*.init：放进该树即可"
+                                  if uploads_tree else
+                                  "旧布局 atlib.fixture 只上传模板本身")))
+        elif warn_includes and INIT_INCLUDE_RE.match(stripped):
             out.append(warn_of(path, "init-template-include",
                                "第 %d 行用了 @INCLUDE：`app init` 支持，"
-                               "但被包含文件须与模板同目录上传" % i))
+                               "但被包含文件须与模板一起上传" % i))
     return out
 
 
-def source_hash(case_path, init_path):
-    """基线来源哈希：sha256(用例 md + 夹具模板) 前 16 位（ATESET-08 定稿）。
+def init_template_warnings(project, config, root, cases=()):
+    """--check 对夹具的**警告**（不阻塞）。
 
-    用例 md 或夹具模板改了，期望就可能变——两者都进哈希。
-    公式必须与 bin/at-baseline/at-baseline.py 完全一致（两处都写了注释）：
-        sha256("md\n" + md + "\\x00" + "init\n" + init + "\\x00")[:16]
-    CRLF 先归一成 LF，同一份内容在 Windows / Linux checkout 上哈希相同。
+    旧布局：只看 `init_template`（行为与 ATESET-05 一致，@INCLUDE 仍是审阅提示）。
+    新布局（有 `<root>/init/`）：每个 suite 的入口各查一次；`@INCLUDE` 不再告警
+    （拆分夹具正是要用它），改成缺文件 / 循环的告警。
     """
-    digest = hashlib.sha256()
-    for label, path in (("md", case_path), ("init", init_path)):
-        text = read_text(path).replace("\r\n", "\n").replace("\r", "\n")
-        digest.update(label.encode("ascii") + b"\n")
-        digest.update(text.encode("utf-8"))
-        digest.update(b"\x00")
-    return digest.hexdigest()[:16]
+    if init_dir(project, root) is None:
+        return _init_file_warnings(init_template_path(project, config, root),
+                                   project, True)
+    out = []
+    entries = {}
+    for case_path in cases:
+        suite = case_suite(project, root, case_path)
+        if not suite:
+            out.append(warn_of(
+                case_path, "init-suite-missing",
+                "用例不在 %s/cases/<suite>/ 下：存在 %s/init/ 时目录即 suite，"
+                "该例的夹具与来源哈希都算不了（执行时 blocked）"
+                % (root, root)))
+            continue
+        entries[suite] = suite_init_path(project, root, suite)
+    for suite in sorted(entries):
+        path = entries[suite]
+        if not path.is_file():
+            out.append(warn_of(
+                path, "init-template-missing",
+                "缺 suite 入口 %s（suite %r 的用例执行时 blocked；通常写成 "
+                "`@INCLUDE common.init` + 本 suite 专属项）"
+                % (rel(path, project), suite)))
+            continue
+        out.extend(_init_file_warnings(path, project, False, True))
+        try:
+            resolve_includes(path)
+        except ValueError as e:
+            code = ("init-include-cycle" if "循环 @INCLUDE" in str(e)
+                    else "init-include-unresolved")
+            out.append(warn_of(path, code, str(e)))
+    return out
 
 
 def baseline_warnings(project, root, config, case_path, case_id):
@@ -667,17 +836,18 @@ def baseline_warnings(project, root, config, case_path, case_id):
     meta = data.get("meta")
     stored = meta.get("source_hash") if isinstance(meta, dict) else None
     try:
-        current = source_hash(case_path, init_template_path(project, config, root))
+        current = case_source_hash(project, config or {}, root, case_path)
     except (EnvError, OSError) as e:
         return [warn_of(path, "baseline-hash-skipped",
-                        "算不了来源哈希（夹具模板缺失/不可读？）：%s" % e)]
+                        "算不了来源哈希（suite 入口缺失/不可读/循环 @INCLUDE？）："
+                        "%s" % e)]
     if not stored:
         return [warn_of(path, "baseline-no-hash",
                         "基线缺 meta.source_hash：用例改了也发现不了；"
                         "用 at-baseline --from 重录（当前哈希 %s）" % current)]
     if stored != current:
         return [warn_of(path, "baseline-stale",
-                        "用例 md / 夹具模板已改，基线待复核："
+                        "用例 md / 夹具已改，基线待复核："
                         "基线 %s ≠ 当前 %s（重新审核后 at-baseline --from --force）"
                         % (stored, current))]
     return []
@@ -841,14 +1011,18 @@ def check_case(path, text, root=ROOT_DEFAULT, project=None):
 
 
 def collect_cases(paths, project, root=ROOT_DEFAULT):
-    """按 --check 的 paths（或 <dir>/<root>/cases）收集用例文件。"""
+    """按 --check 的 paths（或 <dir>/<root>/cases）收集用例文件。
+
+    ATESET-15：目录**递归**收集（新布局 `cases/<suite>/*.md`）；用例的 suite
+    由其相对 `cases/` 的目录名推出，文件名仍只按 CASE-ID 对账。
+    """
     targets = []
     for raw in paths:
         p = Path(raw)
         if not p.is_absolute():
             p = Path.cwd() / p
         if p.is_dir():
-            targets.extend(sorted(x for x in p.glob("*.md") if x.is_file()))
+            targets.extend(sorted(x for x in p.rglob("*.md") if x.is_file()))
         elif p.is_file():
             targets.append(p)
         else:
@@ -858,13 +1032,13 @@ def collect_cases(paths, project, root=ROOT_DEFAULT):
     cases_dir = Path(project) / root / "cases"
     if not cases_dir.is_dir():
         raise EnvError("找不到用例目录 %s：先跑 bin/at-init/at-init.py" % cases_dir)
-    return sorted(x for x in cases_dir.glob("*.md") if x.is_file())
+    return sorted(x for x in cases_dir.rglob("*.md") if x.is_file())
 
 
 def run_check(project, paths, root=ROOT_DEFAULT, config=None):
     targets = collect_cases(paths, project, root)
     errors = []
-    warnings = init_template_warnings(project, config or {}, root)
+    warnings = init_template_warnings(project, config or {}, root, targets)
     seen = {}
     checked = []
     for path in targets:
@@ -1562,7 +1736,11 @@ def run_suite(project, args, root, config, config_path):
         raise EnvError("测试域未定：在 %s 里填 test_domain，或用 --domain 覆盖"
                        % config_path)
 
-    init_template = config.get("init_template") or ("%s/atest.init" % root)
+    # 摘要里的夹具来源：新布局是 init/ 目录（每例取自己的 <suite>.init），
+    # 旧布局仍是 init_template 文件；key 不变（报告只增不改）。
+    init_template = (rel(init_dir(project, root), project) + "/"
+                     if init_dir(project, root) is not None
+                     else config.get("init_template") or ("%s/atest.init" % root))
 
     instances, inst_file, _searched = load_instances(project, args.instances)
     endpoint = endpoint_of(level, instances)
@@ -1588,7 +1766,7 @@ def run_suite(project, args, root, config, config_path):
     if not cases_dir.is_dir():
         raise EnvError("找不到用例目录 %s：先跑 bin/at-init/at-init.py"
                        % cases_dir)
-    files = sorted(x for x in cases_dir.glob("*.md") if x.is_file())
+    files = sorted(x for x in cases_dir.rglob("*.md") if x.is_file())
 
     parsed = []
     for path in files:
@@ -1723,7 +1901,7 @@ def run_suite(project, args, root, config, config_path):
                   file=sys.stderr)
             continue
 
-        script = project / root / "scripts" / ("%s.py" % case_id)
+        script = case_script_path(project, root, case["file"], case_id)
         expected = None
         if not script.is_file():
             note = "脚本未实现：缺 %s" % rel(script, project)
@@ -1759,8 +1937,8 @@ def run_suite(project, args, root, config, config_path):
 
         # 用例级清理（ATESET-05）：非幂等用例在执行前定点清理；
         # 清理失败 → blocked（不是红），证据落 evidence/clean/。
-        clean_script = (project / root / "scripts"
-                        / ("%s%s" % (case_id, CASE_CLEAN_SUFFIX)))
+        clean_script = case_script_path(project, root, case["file"], case_id,
+                                        CASE_CLEAN_SUFFIX)
         if clean_script.is_file():
             clean_env = dict(env_extra)
             clean_env["AT_OUT"] = str(evidence / "clean")

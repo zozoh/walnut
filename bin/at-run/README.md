@@ -8,10 +8,17 @@ v2（ATESET-04）在 v1 之上补了**表达力**与**证据**：期望支持
 每例产 `summary.txt` 与 `objects/`，报告只增不改（新增 `schema` 与 `evidence`）。
 脚本侧另给薄库 [`atlib.py`](atlib.py)（`wn` / `http` / `fixture` / `snap` / `emit` / `note`）。
 
-ATESET-05 补上**夹具**：静态布局写进 `<root>/atest.init`，用例脚本用
+ATESET-05 补上**夹具**：静态布局写进夹具模板，用例脚本用
 `atlib.fixture()` 调 Walnut 自己的 `app init` 铺进域（`-conf` 指定上传后的模板，
 `-script off`）；非幂等用例再带清理脚本，执行顺序固定为 **清理 → 初始化 → 用例**
 （见下文「夹具与清理」）。
+
+ATESET-15 起支持**目录即 suite**：存在 `<root>/init/` 时，suite 名就是
+`cases/` 下的目录名（`cases/cmd_o/CASE-101.md` → suite `cmd_o`），夹具入口是
+`init/cmd_o.init`（可用 `@INCLUDE common.init` 组合公共片段），脚本在
+`scripts/cmd_o/`；`source_hash` 只覆盖本用例的 md + 自己的入口 + 它递归
+`@INCLUDE` 到的片段。没有 `<root>/init/` 的项目**完全走旧路径**（单个
+`atest.init` + 扁平 cases/scripts），行为与哈希都不变。
 
 > 用例格式 v2（2026-11-13）：必填 `contracts` 有序数组；不再有 `instance` /
 > `suite` 字段，报告也不再按 suite 分目录。权威定义见 ATESET-02 任务书。
@@ -45,8 +52,10 @@ ATESET-02 定稿（模板 [`bin/at-init/tmpl/CASE-001.md`](../at-init/tmpl/CASE-
   `report/` 都在它下面；
 - `instance`：`L1` / `L2`，缺省来源；为空时执行退出 2；
 - `test_domain`：会话名 `<级别>-<域>-00`；
-- `init_template`：夹具模板路径（缺省 `<root>/atest.init`）；`atlib.fixture()` 用它，
-  `--check` 会警告缺失 / 异常大 / 外部引用（外部引用只是审阅提示，`app init` 支持）；
+- `init_template`：**旧布局**的夹具模板路径（缺省 `<root>/atest.init`）；
+  存在 `<root>/init/` 时忽略它（夹具入口改为 `init/<suite>.init`）。`atlib.fixture()`
+  用它，`--check` 会警告缺失 / 异常大 / 外部引用（外部引用只是审阅提示，
+  `app init` 支持）；
 - `credentials_file`：凭据文件位置（缺省 `.at/credentials.json`）；只在**需要自动
   登录**时读（会话还在就不读，手工登录过的项目不受影响）；
 - 文件缺失、不是合法 JSON、或无 `instance` → 退出码 2，不猜（`--check` 也一样）。
@@ -206,27 +215,45 @@ md 的 `## 期望` 统一做（防"实现即预期"）。退出码：脚本 `0` 
 脚本里取机器可读结果请用 `o ... @json -cqn`（裸 `@json` 是 HOCON 风格，不是严格
 JSON；`-cqn` 才是紧凑标准 JSON）。
 
-## 夹具与清理（ATESET-05）
+## 夹具与清理（ATESET-05 / 15）
 
-静态布局**不写进用例命令**：`<root>/atest.init` 声明"世界该有什么"，
-用例脚本调 `atlib.fixture()`，由 Walnut 自己的 `app init` 铺进域；变量在
+静态布局**不写进用例命令**：夹具模板声明"世界该有什么"，用例脚本调
+`atlib.fixture()`，由 Walnut 自己的 `app init` 铺进域；变量在
 `<root>/vars.json`。动态数据（每例新增的业务记录）仍写脚本。
 
-> **由 `app init` 执行**：`fixture()` 把模板上传到 `~/.atest/init/<name>.init`，
-> 再跑 `app init -conf ~/.atest/init/<name>.init -script off`（有变量时加
-> `-vars '<json>'`）。模板里可以使用 `app init` 的**全部指令**：
+两套布局由 `<root>/init/` 是否存在决定（**存在才启用新逻辑**，旧项目不受影响）：
+
+```text
+# 新布局：目录即 suite（ATESET-15）
+<root>/init/common.init           公共片段（@DIR …；被各 suite 入口 @INCLUDE）
+<root>/init/<suite>.init          suite 入口：@INCLUDE common.init + 本 suite 专属
+<root>/cases/<suite>/CASE-*.md    用例
+<root>/scripts/<suite>/CASE-*.py  脚本（清理脚本同目录 <CASE-ID>.clean.py）
+
+# 旧布局：单模板 + 扁平（ATESET-05 及更早）
+<root>/atest.init                 静态布局模板（app init 语法）
+<root>/cases/CASE-*.md
+<root>/scripts/CASE-*.py
+<root>/scripts/<CASE-ID>.clean.py 可选；用例级清理（该例执行前跑）
+```
+
+- **suite 名 = `cases/` 下的目录名**，必须与 `init/<suite>.init` 一一对应；
+  用例里**不写** suite 字段（schema v2 会报 `removed-field`），报告也不加
+  suite 字段（需要分组时从用例路径推）；
+- `<root>/init/<suite>.init` 缺失 → 该 suite 的用例执行时记 **blocked**
+  （不是 failed），原因写明缺哪个文件；`--check` 给 `init-template-missing` 警告；
+- 有 `<root>/init/` 时 `atest.json` 的 `init_template` 被忽略；
+- 两种布局共用：`<root>/vars.json`（可选；对象，项目级变量）、
+  `<root>/cleanup.py`（可选；套件级清理，`at-run --reset` 时先跑）。
+
+> **由 `app init` 执行**：`fixture()` 把模板上传到 `~/.atest/init/`，
+> 再跑 `app init -conf <入口> -script off`（有变量时加 `-vars '<json>'`）。
+> 模板里可以使用 `app init` 的**全部指令**：
 > `@DIR` / `@FILE` / `@API` / `@HOME` / `@ENV` / `@INCLUDE` 与
 > `%TMPL` / `%COPY` / `%EXPLAIN`。atlib 不再维护自己的模板子集。
 >
 > `-script` 默认 **off**：脚本测试要收尾脚本时自己在用例脚本里调
 > （收尾脚本名 / 内容由模板作者约定）。
-
-```text
-<root>/atest.init                 静态布局模板（app init 语法）
-<root>/vars.json                  可选；对象，项目级变量（缺省 {}）
-<root>/cleanup.py                 可选；套件级清理（at-run --reset 时先跑）
-<root>/scripts/<CASE-ID>.clean.py 可选；用例级清理（该例执行前跑）
-```
 
 > `at-init` 目前只复制 `atest.init`；需要变量时把
 > `bin/at-init/tmpl/vars.json` 复制成 `<root>/vars.json` 再改（模板里的变量都有
@@ -237,37 +264,41 @@ JSON；`-cqn` 才是紧凑标准 JSON）。
 ```python
 from atlib import fixture, snap, emit
 
-fixture()                       # 默认读 atest.json 的 root / init_template
+fixture()                       # 新布局：按用例所属 suite 执行 init/<suite>.init
+                                # 旧布局：init_template（缺省 atest.init）
 obj = snap("~/.atest/demo")     # 模板铺好的对象
 emit({"atest-owner": obj.get("atest-owner")})
 ```
 
 `fixture(root=None, name=None, vars=None, timeout=90)`：
 
-- 读 `<root>/atest.json` 的 `root` / `init_template`，定位模板与
-  `<root>/vars.json`（JSON 对象，缺省 `{}`）；`vars` 是调用方默认值，
-  项目 vars.json 覆盖同名键；
-- 把模板 `obj save-text` 到 `~/.atest/init/<name>.init`（覆盖写；`name`
-  缺省为模板文件名）；有变量时把合并后的 JSON `obj save-text` 到
-  `~/.atest/vars.json`，并作为 `-vars` 传给 `app init`；
-- 执行 `app init -conf ~/.atest/init/<name>.init -script off`——模板支持
-  `@DIR` / `@FILE` / `@API` / `@HOME` / `@ENV` / `@INCLUDE` 与
-  `%TMPL` / `%COPY` / `%EXPLAIN`（`${var}` / `${var?默认值}`、
-  `%COPY >` 外部文件引用等 `app init` 语义都可用）；
+- 读 `atest.json` 的 `root`（`root` 参数可覆盖）与 `<root>/vars.json`
+  （JSON 对象，缺省 `{}`）；`vars` 是调用方默认值，项目 vars.json 覆盖同名键；
+- **新布局**（存在 `<root>/init/`）：suite 由 `AT_CASE_ID` 反查用例 md 得出
+  （`cases/<suite>/<CASE-ID>.md`），也可用 `name` 显式指定；入口
+  `init/<suite>.init` 缺失即 blocked；整棵 `init/**/*.init` 按原相对路径
+  `obj save-text` 到 `~/.atest/init/`（保持层级——`@INCLUDE` 的路径相对入口
+  模板所在目录），再执行
+  `app init -conf ~/.atest/init/<suite>.init -script off`；
+- **旧布局**（没有 `<root>/init/`）：把模板 `obj save-text` 到
+  `~/.atest/init/<name>.init`（`name` 缺省为模板文件名）再执行；
+- 有变量时把合并后的 JSON `obj save-text` 到 `~/.atest/vars.json`，并作为
+  `-vars` 传给 `app init`；
 - **幂等**由 `app init` 自身保证：目标文件已存在且内容非空时跳过写入，
   目录/元数据按模板合并；同一模板连跑两次安全、对象不重复；
-- 失败（模板缺失 / vars.json 非法 / 上传失败 / `app init` 非 0）→
-  `SystemExit(2)`，runner 记 **blocked**，原因与 `app init` 的原始输出进
-  `summary.txt` 与 stderr；
-- 返回 `{"name", "template", "vars", "entries", "counts"}`（后两项由
-  `app init` 输出统计，供日志参考）。
+- 失败（模板缺失 / suite 入口缺失 / 循环或缺失的 `@INCLUDE` / vars.json 非法 /
+  上传失败 / `app init` 非 0）→ `SystemExit(2)`，runner 记 **blocked**，
+  原因与 `app init` 的原始输出进 `summary.txt` 与 stderr；
+- 返回 `{"name", "template", "suite", "vars", "entries", "counts", "uploaded"}`
+  （`entries` / `counts` 由 `app init` 输出统计；`suite` 在旧布局为 None，
+  `uploaded` 是本次上传的 init 片段数，仅供日志参考）。
 
 ### 清理约定
 
 | 脚本 | 何时跑 | 用途 |
 |---|---|---|
 | `<root>/cleanup.py` | `at-run --reset` 时、整批用例之前 | 把套件共用的脏数据清掉 |
-| `<root>/scripts/<CASE-ID>.clean.py` | 该用例执行前 | 非幂等用例的定点清理 |
+| `<root>/scripts/[<suite>/]<CASE-ID>.clean.py` | 该用例执行前 | 非幂等用例的定点清理 |
 
 - 两个脚本都用 `atlib`（`wn()` 直接可用；清理脚本也可 `note()` 留证）；
 - **不许删域、不许删数据目录**：只删自己造的对象 / 清表，禁止 `o ~ @delete -r`、
@@ -279,19 +310,23 @@ emit({"atest-owner": obj.get("atest-owner")})
 
 ### `--check` 的夹具警告（不阻塞）
 
-`--check` 会检查 `<root>/atest.init`（或 `atest.json` 的 `init_template`），
-问题只进 `warnings`、不影响 `ok` / 退出码。其中 `init-template-external-ref` /
-`init-template-include` 是**审阅提示**：`app init` 本身支持这些写法，只是
-外部引用越多、模板越难审。
+旧布局检查 `<root>/atest.init`（或 `atest.json` 的 `init_template`）；新布局
+（有 `<root>/init/`）逐个 suite 检查 `init/<suite>.init`。问题只进 `warnings`、
+不影响 `ok` / 退出码。`init-template-external-ref` 是**审阅提示**：`app init`
+本身支持这些写法，只是外部引用越多、模板越难审；新布局里 `@INCLUDE` 是
+**推荐用法**（拆分夹具的目的），因此不再告警，改成缺片段 / 循环的告警。
 
 | 警告码 | 含义 |
 |---|---|
-| `init-template-missing` | 模板缺失（`fixture()` 运行时会 blocked） |
+| `init-template-missing` | 模板 / suite 入口缺失（`fixture()` 运行时会 blocked） |
 | `init-template-not-file` | 路径不是文件 |
 | `init-template-unreadable` | 读不了（编码 / 权限 / IO） |
 | `init-template-too-large` | 超过 256 KiB（太大难审；大内容先上传再引用） |
 | `init-template-external-ref` | `%COPY >` / `%TMPL >` / `%EXPLAIN >` 等外部文件引用 |
-| `init-template-include` | `@INCLUDE`（也是外部文件引用） |
+| `init-template-include` | 只有旧布局有：`@INCLUDE`（审阅提示） |
+| `init-suite-missing` | 新布局下用例不在 `cases/<suite>/` 里（目录即 suite） |
+| `init-include-unresolved` | `@INCLUDE` 指的文件不存在（哈希算不了、`fixture()` blocked） |
+| `init-include-cycle` | 循环 `@INCLUDE`（同样 blocked，不静默） |
 
 ### `--check` 的基线警告（不阻塞）
 
@@ -431,6 +466,10 @@ emit({"status": st, "ctype": hdrs.get("Content-Type", "")})
   `expected` 这个结构）：`$range` / `$regex` / `$ignore` 在基线里同样生效；
 - 建法：`--record` 录 actual → `bin/at-baseline --from <actual.json>` 清洗落盘；
   已有基线缺 `--force` 不覆盖（防误刷），`--audit` 比对来源哈希报"待复核"；
+- **来源哈希** = 用例 md + 该用例的夹具入口 + 它递归 `@INCLUDE` 到的片段
+  （按相对路径排序、去重；新布局按 suite 算，改别的 suite 的夹具不会让你的
+  基线变 stale）；旧布局仍是单个 `atest.init`，字节流与 ATESET-08 一致。
+  公式在 `at-run` 与 `bin/at-baseline` 各有一份，必须逐字节一致（两处都带注释）；
 - 缺基线仍是 **blocked**（不算红），提示里给完整路径；本工具不建/不改基线；
 - `--check` 不要求基线存在，但对存在性/哈希给 warning（见上表）；期望声明与内容
   矛盾仍报 `expected-mismatch`。
@@ -495,9 +534,9 @@ emit({"status": st, "ctype": hdrs.get("Content-Type", "")})
 | `volatile-field` | 期望里写死 `id` / `pid` / `ct` / `lm` / `sha1`（写 matcher 不算） |
 | `caseid-duplicate` | 多个用例文件用同一个 `caseID` |
 
-`--check` 对目录是**扫全部 `*.md`**（缺 front-matter 的 md 会被报错，这样
-`<root>/cases/` 里混进草稿不会静默漏检）。执行前也会对选中的用例做同一套校验：
-有格式错误就**整体不执行**（退出 1），不出"半绿"报告。
+`--check` 对目录是**递归扫描全部 `*.md`**（缺 front-matter 的 md 会被报错，这样
+`<root>/cases/`（含 `cases/<suite>/`）里混进草稿不会静默漏检）。执行前也会对选中的
+用例做同一套校验：有格式错误就**整体不执行**（退出 1），不出"半绿"报告。
 
 ## 已知边界
 
@@ -512,6 +551,8 @@ emit({"status": st, "ctype": hdrs.get("Content-Type", "")})
 - `--reset` 的套件清理失败把全批记 blocked（退出码仍 0，按"blocked 不算红"）；
   每例的 `clean/` 证据会进报告 `evidence` 清单；
 - 清理脚本与用例脚本共用一个 `--timeout`；超时只杀直接子进程；
+- 脚本路径按布局：新布局 `scripts/<suite>/<CASE-ID>.py`，旧布局
+  `scripts/<CASE-ID>.py`（任务书的脚本契约不变）；
 - 脚本固定 `<CASE-ID>.py`（任务书的契约）；其它语言留给后续任务；
 - 超时只杀直接子进程（脚本自己起的 `wn-cli` 子进程不保证一起终止）；
 - 用例格式 v2 不再有 `instance` / `suite`；`instance` 是运行期信息，

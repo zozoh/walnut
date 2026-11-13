@@ -104,14 +104,20 @@ python atest/run.py --check      # 0 错 = 用例格式没问题
 atest/
 |-- run.py              总入口（本文件所在目录）
 |-- README.md           本文件
-|-- atest.init          静态夹具：测试前"世界该长什么样"（由 app init 执行）
+|-- init/               夹具片段（app init 语法，ATESET-15「目录即 suite」）
+|   |-- common.init     各 suite 共用：@DIR atest-lab …
+|   `-- <suite>.init    入口：@INCLUDE common.init + 本 suite 专属
 |-- vars.json           夹具变量（可选；不要放密码）
-|-- cases/<CASE-ID>.md  用例：人写意图，一例一文件
-|-- scripts/<CASE-ID>.py 用例脚本：产出 actual
+|-- cases/<suite>/CASE-*.md    用例：人写意图，一例一文件
+|-- scripts/<suite>/CASE-*.py  用例脚本：产出 actual
 |-- baseline/<CASE-ID>.json 基线：审核者签过的期望值（可移植，不分实例）
 |-- expect/<CASE-ID>.json   手写期望（expected: file 时用）
 `-- report/             报告与证据（不进 git）
 ```
+
+- **suite 名 = `cases/` 下的目录名**（本仓库：`cmd_o` / `regapi` / `jsbin`），
+  与 `init/<suite>.init` 一一对应；用例里**不写** suite 字段，脚本放同名目录。
+- 旧布局（单个 `atest.init` + 扁平 `cases/`）仍可用；有 `init/` 才走新逻辑。
 
 ## 常见问题
 
@@ -129,7 +135,9 @@ atest/
 该用例声明了 `expected: baseline` 但还没建基线。先 `--record` 再 `at-baseline --from`，由**审核者**签发。
 
 **`--check` 报 `baseline-stale`**
-用例 md 或 `atest.init` 改了，基线需要重新审核（不是"随便刷一下"，要人看这个值还对不对）。
+用例 md 或**该用例那份夹具**（`init/<suite>.init` 与它 `@INCLUDE` 的片段，
+如 `common.init`）改了，基线需要重新审核（不是"随便刷一下"，要人看这个值还对不对）。
+改别的 suite 的夹具不会让这些基线变 stale。
 
 **红灯看不懂**
 打开 `atest/report/<时间戳>/<CASE-ID>/summary.txt`：里面有一句话结论、diff 前三处、复现命令。
@@ -141,5 +149,5 @@ atest/
 ## 更多
 
 - 用例怎么写：`at-init` 模板目录里的 `CASE-001.md` 与 skill 文档；
-- 夹具怎么写：`atest.init` 顶部注释（语法与 `app init` 一致）；
+- 夹具怎么写：`init/common.init` 与 `init/<suite>.init` 顶部注释（语法与 `app init` 一致）；
 - 计划与规则：`wn-plan` 仓库的 ATESET 计划。
