@@ -6,5 +6,6 @@
   "test_domain": "demo",
   "credentials_file": ".at/credentials.json",
   "init_template": "atest/atest.init",
-  "sql_datasource": "default"
+  "sql_datasource": "default",
+  "report_keep": 3
 }

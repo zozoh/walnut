@@ -79,6 +79,9 @@ python bin/at-run/at-run.py --reset
 python bin/at-run/at-run.py --dir D:/work/myproj --instance L2 --domain mytest
 python bin/at-run/at-run.py --creds .at/temp-creds.json
 python bin/at-run/at-run.py --root spec --check
+
+# 本次跑完不归档旧报告（排查报告目录时用）
+python bin/at-run/at-run.py --no-gc
 ```
 
 | 参数 | 说明 |
@@ -96,6 +99,7 @@ python bin/at-run/at-run.py --root spec --check
 | `--stop-on-fail` | 第一个红灯即停；**blocked 不算红** |
 | `--reset` | 整批执行前先跑 `<root>/cleanup.py`；失败则全批记 **blocked**（不算红） |
 | `--timeout SEC` | 单例脚本 / 清理脚本超时（默认 120 秒） |
+| `--no-gc` | 跑完不自动调用 `at-gc` 归档旧报告（缺省会自动归档，见「报告」） |
 
 > `--dir` / `--root` / `--domain` / `--instances` / `--session-dir` / `--timeout`
 > 是实现层参数（任务书只列了 `--only` / `--stop-on-fail` / `--instance`，
@@ -112,13 +116,18 @@ stdout 是**单行 JSON**（提示与逐例进度进 stderr）：
 {"ok":true,"root":"atest","instance":"L1","test_domain":"demo",
  "init_template":"atest/atest.init","instance_source":".../atest.json",
  "session":"L1-demo-00","session_created":false,"reset":true,"cleanup":"ok",
- "total":1,"passed":1,"failed":0,"blocked":0,"skipped":0,
+ "total":1,"passed":1,"failed":0,"blocked":0,"skipped":0,"archived":0,
  "report":".../atest/report/20261113T113351.json",
  "latest":".../atest/report/latest.json","exit":0}
 ```
 
 `skipped` = `--stop-on-fail` 提前结束时未执行的用例数（它们**不进报告**，但一定
 出现在这个字段与 stderr 摘要里，不静默）。
+
+`archived` = 本次跑完 `at-gc` 归档的旧报告数（`0` = 没触发/没归档）：
+报告写完后自动调用 `at-gc`，保留最近 `atest.json` 的 `report_keep` 次（缺省 3）；
+本次报告刚写完（5 分钟内），一定被跳过，不会删掉；`at-gc` 失败只在 stderr
+警告、**不改变本次退出码**；`--no-gc` 关闭。
 
 `--record` 另写一份 actual（同一次执行的产物；`_meta` 是录制元信息，其余键 =
 CASE-ID → 脚本 actual）：
@@ -432,6 +441,7 @@ emit({"status": st, "ctype": hdrs.get("Content-Type", "")})
 <root>/report/<timestamp>.json     # 本次报告（JSON 是唯一源）
 <root>/report/latest.json          # 同内容（覆盖写）
 <root>/report/<timestamp>/<CASE-ID>/  # 每例证据目录
+<root>/report/archive/<timestamp>.zip # 旧报告（at-gc 归档；保留最近 report_keep 次）
 ```
 
 ```json
@@ -457,6 +467,9 @@ emit({"status": st, "ctype": hdrs.get("Content-Type", "")})
 - `status` 只有 `passed` / `failed` / `blocked`。`instance_source` 为 `cli`
   （`--instance` 生效）或 `atest.json` 的绝对路径。`<root>/report/` 已在项目
   `.gitignore` 里（`at-init` 追加），报告不进库。
+- 写完后自动调用 `bin/at-gc` 归档旧报告：保留最近 `report_keep` 次（缺省 3），
+  更早的压成 `archive/<timestamp>.zip`（校验通过才删原件）。本次报告与
+  `latest.*` 永不归档；`--no-gc` 关闭；归档失败只在 stderr 警告，退出码不变。
 
 ## `--check` 的错误码
 

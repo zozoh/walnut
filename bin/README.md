@@ -17,6 +17,8 @@ JSON 输出、退出码有语义。直接用仓库里的同一份，**不要复�
 | `at-run` | 运行器：校验用例 → 解析实例/会话 → 逐例执行 → JSON 报告；`--record` 录 actual 供建基线 |
 | `at-baseline` | 基线：`--from` 把 actual 清洗成可移植基线（来源哈希 + `meta.dropped` 留痕），`--audit` 查"用例改了、基线没重审" |
 | `at-report` | 报告视图：JSON → Markdown（总览 / 用例表格 / 红灯 diff 与证据 / 趋势），并刷新 `latest.md` |
+| `at-gc` | 报告归档：保留最近 N 次（`report_keep`，默认 3），更早的压成 `report/archive/<ts>.zip`，校验通过才删原件；`at-run` 跑完自动调用 |
+| `at-doctor` | 环境自检：Python / atest.json / 用例 / 实例登记 / 可达 / 会话 / 工具 / 报告目录共 8 项，一项命令判断"这台机器能不能跑" |
 
 行为契约（参数/退出码/输出格式）见
 `{WN_DOC_HOME}/reference/102.auto-test/30-at-tools.md`（`{WN_DOC_HOME}` = 工作区同级 `../wn-doc/`）；

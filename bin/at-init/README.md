@@ -9,7 +9,7 @@
 
 **配置只有 `atest.json` 一份**（不再生成 `ATEST.md`）：`project` / `root` /
 `instance` / `test_domain` / `credentials_file` / `init_template` /
-`sql_datasource` 都在里面——智能体读它，人也能直接看和改。
+`sql_datasource` / `report_keep` 都在里面——智能体读它，人也能直接看和改。
 
 与 [`walnut-at-init`](../walnut-at-init/) 分工：后者管 `.at/`（身份 / 会话 /
 私有配置），**本工具只管 `<root>/` 与 `atest.json`**；检测到 `.at/`
@@ -92,7 +92,8 @@ stdout 是**单行 JSON**（适合机器解析，提示进 stderr）：
   "test_domain": "atest",
   "credentials_file": ".at/credentials.json",
   "init_template": "atest/atest.init",
-  "sql_datasource": "default"
+  "sql_datasource": "default",
+  "report_keep": 3
 }
 ```
 
@@ -106,6 +107,7 @@ stdout 是**单行 JSON**（适合机器解析，提示进 stderr）：
 | `credentials_file` | 否 | `.at/credentials.json` | 凭据文件位置（gitignore） |
 | `init_template` | 否 | `<root>/atest.init` | 静态布局模板（必填语义，缺省已填好） |
 | `sql_datasource` | 否 | `default` | 域内 `.dao` 配置名，数据操作走 `sqlx` |
+| `report_keep` | 否 | `3` | 报告保留最近几次；`at-run` 跑完自动调 `at-gc` 归档更早的 |
 
 - 首次运行按上表写全；已存在时**只补缺失的键**，不覆盖你已写的值
   （`--force` 同样不碰）；

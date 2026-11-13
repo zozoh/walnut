@@ -78,6 +78,7 @@ python atest/run.py --reset              # 整批跑之前先执行 atest/cleanu
 | 机器可读报告 | `atest/report/<时间戳>.json`、`atest/report/latest.json` |
 | 人读报告 | `atest/report/<时间戳>.md`、`atest/report/latest.md` |
 | 每例证据 | `atest/report/<时间戳>/<CASE-ID>/`（stdout、stderr、diff、对象快照） |
+| 旧报告归档 | `atest/report/archive/<时间戳>.zip`（保留最近 `report_keep` 次，默认 3；`at-run` 跑完自动归档） |
 
 ## 环境依赖
 

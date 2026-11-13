@@ -99,6 +99,7 @@ def default_config(project, root):
         "credentials_file": ".at/credentials.json",
         "init_template": "%s/atest.init" % root,
         "sql_datasource": "default",
+        "report_keep": 3,
     }
 
 
@@ -119,7 +120,7 @@ EPILOG = """\
   <root>/report/              报告输出（追加进 .gitignore）
   atest.json                  项目配置（version / project / root / instance /
                               test_domain / credentials_file / init_template /
-                              sql_datasource）
+                              sql_datasource / report_keep）
   .wn-instances.example.json  实例登记样例（真身由开发者维护，本工具不写）
 
 根部为什么叫 atest:

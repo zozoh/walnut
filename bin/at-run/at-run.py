@@ -13,6 +13,7 @@ at-run — ATEST 运行器（v2）
     --only                  选例执行；--stop-on-fail 遇到红灯即停
     --instance L1|L2        跑哪一级实例（缺省读 atest.json 的 instance）
     --reset                 整批执行前先跑 <root>/cleanup.py（套件级清理）
+    --no-gc                 跑完不自动归档旧报告（缺省会自动调用 bin/at-gc）
 
 夹具（ATESET-05）：静态布局写进 `<root>/atest.init`，用例脚本用
 `atlib.fixture()` 的本地最小渲染器铺进域；非幂等用例另带
@@ -67,6 +68,9 @@ at-run — ATEST 运行器（v2）
     schema = "atest-report/2"（v1 无此键，只增不改；v2 用例格式去掉 suite）；
     status = passed / failed / blocked（blocked = 未实现或缺基线，不算红）；
     evidence 是相对证据目录的文件清单（summary.txt / objects/… 等）。
+    写完后自动调用 bin/at-gc 归档旧报告（保留最近 atest.json 的 report_keep 次，
+    缺省 3）；归档失败只警告、不改变退出码，stdout 摘要的 archived = 本次归档数。
+    正在写的报告（含本次）由 at-gc 按"缺 json 或 5 分钟内改过"跳过，绝不动 latest.*。
     stdout 摘要另有 session_created（本次是否新建会话：true = 自动登录新建，
     false = 复用已有会话），便于人确认没有悄悄换身份。
 
@@ -202,6 +206,9 @@ EPILOG = """\
   cases[] = {"caseID","status","duration_ms","evidence_dir","diff","evidence"}
   status = passed / failed / blocked（blocked 不算红）
   evidence = 相对证据目录的文件清单（summary.txt / objects/…）
+  跑完自动调用 bin/at-gc 归档旧报告（保留最近 report_keep 次，缺省 3）：
+  stderr 打印 at-gc 的摘要，stdout JSON 多一个 archived = 本次归档数；
+  --no-gc 关闭；at-gc 失败只警告，不改变本次退出码。
 
 --check 错误码:
   filename-mismatch / caseid-invalid / missing-field / removed-field /
@@ -1488,6 +1495,46 @@ def run_case_script(script, project, env_extra, timeout):
     return out
 
 
+# ---------------------------------------------------------------- 报告归档
+
+def run_gc(project, root):
+    """跑完自动归档旧报告（bin/at-gc）；失败只警告，返回归档数。
+
+    at-gc 的退出码不影响本次 at-run 的退出码：报告已经写完，归档是收尾动作；
+    失败时把原因打到 stderr，让人知道旧报告还堆着，而不是静默跳过。
+    """
+    script = Path(__file__).resolve().parent.parent / "at-gc" / "at-gc.py"
+    if not script.is_file():
+        print("at-run: 找不到 %s，跳过报告归档（--no-gc 可显式关闭）"
+              % script, file=sys.stderr)
+        return 0
+    try:
+        proc = subprocess.run(
+            [sys.executable, str(script), "--dir", str(project),
+             "--root", root],
+            cwd=str(project), env=child_env(),
+            stdout=subprocess.PIPE, timeout=180.0)
+    except subprocess.TimeoutExpired:
+        print("at-run: 自动归档超时（180s），本次不归档；不影响结果",
+              file=sys.stderr)
+        return 0
+    except OSError as e:
+        print("at-run: 自动归档启动失败：%s；不影响结果" % e, file=sys.stderr)
+        return 0
+    out = proc.stdout.decode("utf-8", "replace")
+    data, _problem = last_json_line(out)
+    if proc.returncode != 0 or not isinstance(data, dict):
+        tail = (out.strip().splitlines() or ["无输出"])[-1]
+        print("at-run: 自动归档失败（at-gc 退出码 %d）：%s；旧报告保留，"
+              "不影响本次结果" % (proc.returncode, tail[:300]), file=sys.stderr)
+        return 0
+    count = len(data.get("archived") or [])
+    if count:
+        print("at-run: 自动归档 %d 个旧报告（保留最近 %s 个；--no-gc 可关闭）"
+              % (count, data.get("keep")), file=sys.stderr)
+    return count
+
+
 def run_suite(project, args, root, config, config_path):
     project = Path(project).resolve()
 
@@ -1850,6 +1897,12 @@ def run_suite(project, args, root, config, config_path):
     if actual_path is not None:
         write_json(actual_path, actual_doc)
 
+    # 报告落盘之后再归档旧报告（本次报告 mtime 是新的，at-gc 会跳过它）；
+    # 归档失败只警告，不改判定与退出码。
+    archived = 0
+    if not args.no_gc:
+        archived = run_gc(project, root)
+
     exit_code = EXIT_OK if failed == 0 else EXIT_USAGE
     summary = {"ok": failed == 0, "root": root,
                "instance": level, "test_domain": domain,
@@ -1859,6 +1912,7 @@ def run_suite(project, args, root, config, config_path):
                "reset": bool(args.reset), "cleanup": cleanup_state,
                "total": len(results), "passed": passed, "failed": failed,
                "blocked": blocked, "skipped": len(not_run),
+               "archived": archived,
                "report": str(report_path.resolve()),
                "latest": str(latest_path.resolve()), "exit": exit_code}
     if args.record:
@@ -1917,6 +1971,8 @@ def main(argv=None):
     ap.add_argument("--reset", action="store_true",
                     help="整批执行前先跑 <root>/cleanup.py（套件级清理；"
                          "失败则全批记 blocked，不算红）")
+    ap.add_argument("--no-gc", action="store_true",
+                    help="跑完不自动调用 bin/at-gc 归档旧报告（缺省会自动归档）")
     ap.add_argument("--timeout", type=float, default=120.0, metavar="SEC",
                     help="单个用例脚本 / 清理脚本超时秒数（默认 120）")
     args = ap.parse_args(argv)
@@ -1925,10 +1981,10 @@ def main(argv=None):
         emit({"ok": False, "error": "--timeout 必须大于 0"})
         return EXIT_USAGE
     if args.check and (args.only or args.stop_on_fail or args.reset
-                       or args.record):
+                       or args.record or args.no_gc):
         emit({"ok": False,
               "error": "--check 不接受 --only / --stop-on-fail / --reset / "
-                       "--record"})
+                       "--record / --no-gc"})
         return EXIT_USAGE
     if not args.check and args.paths:
         emit({"ok": False,
