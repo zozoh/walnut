@@ -18,14 +18,15 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from typing import Optional
 
 HERE = Path(__file__).resolve().parent      # <项目>/<root>
 PROJECT = HERE.parent                       # <项目>
 
 
-def find_runner():
+def find_runner() -> Optional[Path]:
     """找 walnut 仓库里的 at-run.py。"""
-    bases = []
+    bases: list[Path] = []
     env = os.environ.get("WALNUT_HOME")
     if env:
         bases.append(Path(env))
@@ -38,7 +39,7 @@ def find_runner():
     return None
 
 
-def main():
+def main() -> int:
     runner = find_runner()
     if runner is None:
         print("找不到 bin/at-run/at-run.py。\n"
