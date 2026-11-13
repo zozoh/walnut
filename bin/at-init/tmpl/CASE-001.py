@@ -1,45 +1,31 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""CASE-001 脚本骨架（`bin/at-init/tmpl/` 模板；复制成
-`atest/scripts/CASE-001.py` 后改写）
+"""CASE-001 脚本模板（`bin/at-init/tmpl/`；复制成 `atest/scripts/CASE-001.py` 后改写）
 
-脚本契约**尚未定稿**（ATESET-03/04 负责）：本文件只固定骨架形状，不承诺
-参数与输出格式。定稿前的默认行为是**退出 2 并说明"未实现"**——绝不假装通过。
+与 `CASE-001.md` 配套：在域 home 下建一个目录对象，再把取到的结果交给 runner 断言。
+**本文件可直接跑**（`at-run --only CASE-001`）；新用例复制后只改 TODO 1~3。
 
-约定草案（预计由 at-run 注入，定稿以任务 03 的 README 为准）：
-
-    AT_INSTANCE   L1 | L2
-    AT_DOMAIN     测试域
-    AT_SESSION    会话名
-    AT_OUT        证据输出目录
-
-脚本只做"执行 + 取证"，断言交给 at-run（结果对象比较）。
-stdout 最后一行是结果 JSON：{"case": "<CASE-ID>", "ok": bool, "evidence": {...}}
-退出码：0 通过 / 1 用例失败 / 2 环境不可用（含"脚本未实现"）。
+脚本契约（ATESET-03 T1 定稿）：runner 注入 AT_LEVEL / AT_URL / AT_SESSION_DIR /
+AT_DOMAIN / AT_WNCLI / AT_CASE_ID / AT_OUT，并把 bin/at-run 放进子进程 PYTHONPATH
+（所以能 `from atlib import ...`；手工跑脚本时自己设 PYTHONPATH）。
+stdout 最后一行必须是 {"ok": true, "actual": {...}} 或 {"ok": false, "error": "..."}；
+断言不在脚本里做——runner 按用例 md 的 `## 期望` 统一比较（防"实现即预期"）。
 """
 
-import json
-import os
-import sys
-
-CASE_ID = "CASE-001"
+from atlib import wn, snap, emit, note
 
 
 def main():
-    missing = [k for k in ("AT_INSTANCE", "AT_DOMAIN") if not os.environ.get(k)]
-    if missing:
-        print(json.dumps({"case": CASE_ID, "ok": False,
-                          "error": "缺少环境变量: %s" % ", ".join(missing)},
-                         ensure_ascii=False))
-        return 2
+    # TODO 1: 换成用例要测的契约。wn() 自动带级别/会话/端点，别手写 --level
+    note("创建 ~/atest-dir（-upsert，可重复执行）")
+    wn("o ~ @create atest-dir -race DIR -upsert")
 
-    # TODO 1: 用 wn-cli 执行被测契约（cmd / HTTP / jsbin），原始响应存到 AT_OUT
-    # TODO 2: 把结果写进域（对象树），供 at-run 断言
-    print(json.dumps({"case": CASE_ID, "ok": False,
-                      "error": "脚本未实现：请按用例步骤填充 TODO 1/2"},
-                     ensure_ascii=False))
-    return 2
+    # TODO 2: 取结果对象的快照（落 evidence/objects/，同时返回 dict）
+    obj = snap("~/atest-dir")
+
+    # TODO 3: 只挑用例 `## 期望` 里声明要比的字段；断言由 runner 做，脚本不比
+    emit({"nm": obj["nm"], "race": obj["race"]})
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

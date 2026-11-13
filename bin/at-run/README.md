@@ -1,7 +1,12 @@
-# at-run — ATEST 运行器（v1）
+# at-run — ATEST 运行器（v2）
 
 一条命令把 ATEST 串起来：发现用例 → 校验格式 → 解析实例 → 复用会话 →
 逐例执行 → 写 JSON 报告。它是"绿灯可信"的物理载体：人只认它的退出码与报告。
+
+v2（ATESET-04）在 v1 之上补了**表达力**与**证据**：期望支持
+`$ignore` / `$range` / `$regex` 三个 matcher，diff 给出嵌套路径，
+每例产 `summary.txt` 与 `objects/`，报告只增不改（新增 `schema` 与 `evidence`）。
+脚本侧另给薄库 [`atlib.py`](atlib.py)（`wn` / `snap` / `emit` / `note`）。
 
 与 [`at-init`](../at-init/) 分工：`at-init` 铺骨架，**本工具只跑**；用例格式由
 ATESET-02 定稿（模板 [`bin/at-init/tmpl/CASE-001.md`](../at-init/tmpl/CASE-001.md)），
@@ -27,8 +32,8 @@ ATESET-02 定稿（模板 [`bin/at-init/tmpl/CASE-001.md`](../at-init/tmpl/CASE-
 }
 ```
 
-- `root`：集成测试根目录；`cases/` / `scripts/` / `expect/` / `baseline/` /
-  `report/` 都在它下面；
+- `root`：集成测试根目录；`cases/` / `scripts/` / `expect/` /
+  `baseline/<实例>/` / `report/` 都在它下面（基线按实例分目录，见下文）；
 - `instance`：`L1` / `L2`，缺省来源；为空时执行退出 2；
 - `test_domain`：会话名 `<级别>-<域>-00`；
 - `init_template`：夹具模板路径（v1 只读取并在 stdout 回显；渲染归 ATESET-05）；
@@ -121,6 +126,9 @@ runner 执行 `<root>/scripts/<CASE-ID>.py`（argv 传参，**绝不经 shell**�
 | `AT_WNCLI` | `wn-cli.py` 绝对路径（脚本统一经它操作实例） |
 | `AT_CASE_ID` / `AT_OUT` | 用例 ID / 证据目录（runner 预建） |
 
+另外把 `bin/at-run` 放进子进程 `PYTHONPATH`（**不是**新的 `AT_*` 契约变量），
+脚本因此能 `from atlib import wn, snap, emit, note`（见下文薄库一节）。
+
 脚本 stdout **最后一行**必须是单行 JSON：
 
 - 成功：`{"ok": true, "actual": {...}}` —— `actual` 是要比的结果对象；
@@ -133,17 +141,95 @@ md 的 `## 期望` 统一做（防"实现即预期"）。退出码：脚本 `0` 
 脚本里取机器可读结果请用 `o ... @json -cqn`（裸 `@json` 是 HOCON 风格，不是严格
 JSON；`-cqn` 才是紧凑标准 JSON）。
 
+## 期望 matcher（T1 定稿）
+
+`## 期望` 里某个字段的值可以是 matcher 对象（`$` 前缀与普通字段区分）：
+
+```json
+{
+  "nm": "atest-dir",
+  "ct": {"$range": ["$t0", "$t1"]},
+  "name": {"$regex": "^CASE-\\d+$"},
+  "tmp_field": {"$ignore": true}
+}
+```
+
+| matcher | 语义 | 合法值 |
+|---|---|---|
+| `{"$ignore": true}` | 跳过该键（等价于不写，但显式声明"我知道它不稳定"）；键不存在也算通过 | 只能是 `true` |
+| `{"$range": ["$t0", "$t1"]}` | 实际值须是数字且落在闭区间内；`$t0` / `$t1` 由 runner 在用例**开始前 / 结束后**各取一次毫秒时间戳，脚本的本地时钟不参与 | 两个元素：`"$t0"` / `"$t1"` / 数字 |
+| `{"$regex": "..."}` | 实际值须是字符串且正则命中（Python `re.search`；要整串匹配自己写 `^...$`） | 能编译的字符串 |
+
+- 三者**互斥**：一个 matcher 对象只能有一个键，不能和普通字段混用；
+- 不认识 `$xxx`、值类型不对、正则编译失败、把 matcher 放在期望**根**上 →
+  `--check` 报 `expected-invalid`（`--check` 也会校验已存在的
+  `expect/<CASE-ID>.json`；文件缺失仍留给执行时记 blocked）；
+- matcher 显式写在默认忽略的键上（如 `ct`）时**以 matcher 为准**——
+  这正是"时间区间"用例的写法；写普通字面值仍按 `volatile-field` 报错。
+
+## 脚本侧薄库 `atlib.py`
+
+脚本不必重写样板；runner 把 `bin/at-run` 放进子进程 `PYTHONPATH`，直接：
+
+```python
+from atlib import wn, snap, emit, note
+
+wn("o ~ @create atest-dir -race DIR -upsert")   # 自动带 --level/--se/--url/--session-dir
+obj = snap("~/atest-dir")                        # 落 evidence/objects/，返回 dict
+note("准备完成")                                 # 写进 summary.txt（runner 会保留）
+emit({"nm": obj["nm"], "race": obj["race"]})     # 输出契约那一行 JSON 并退出 0
+```
+
+| 函数 | 行为 |
+|---|---|
+| `wn(cmd, timeout=90)` | 经 `wn-cli cmd` 执行；非 0 退出码 → `SystemExit(2)`（记 blocked） |
+| `snap(path, name=None)` | `o <path> @json -cqn` → dict；落 `<AT_OUT>/objects/<路径>.json`（`/` 换 `__`）；取不到即抛 |
+| `emit(actual)` | 打印 `{"ok":true,"actual":...}` 后退出 0——**之后不要再往 stdout 写任何东西** |
+| `note(text)` | 追加一行 `[script] …` 到 `summary.txt`；runner 重写 summary 时原样保留 |
+
+atlib 只依赖标准库与 `AT_*` 环境变量；失败一律 `SystemExit(2)` 且原因进 summary，
+所以脚本里不用再包 try/except。手工跑脚本时自己设
+`PYTHONPATH=<walnut>/bin/at-run` 并补齐 `AT_*`（正常路径永远是经 at-run）。
+
 ## 判定与证据
 
-- **只比 expected 里出现的键**（子集匹配）；数组按顺序、等长逐项比；
+- **只比 expected 里出现的键**（子集匹配）；数组按顺序、等长逐项比，diff 路径
+  形如 `items[1].nm`；
 - 忽略 `id` / `pid` / `ct` / `lm` / `sha1`（任意深度）与以 `_` 开头的键；
+  显式写了 matcher 的键以 matcher 为准；
 - 失败时报告带 `diff: [{path, expected, actual}]`（`actual: null` 表示缺键）；
-- 每例证据目录 `<report>/<timestamp>/<CASE-ID>/`：`cmd.txt` / `env.txt` /
-  `stdout.txt` / `stderr.txt` / `result.json`（脚本结果 JSON）/ `note.txt`
-  （blocked 或失败原因；报告 schema 是硬接口，**没有**往 cases[] 里加字段）；
+  matcher 失败时 `expected` 里是**代入后**的值（如 `{"$range": [t0, t1]}` 的毫秒数）；
+- 每例证据目录 `<report>/<timestamp>/<CASE-ID>/`：
+  - `summary.txt`：一句话结论 + diff 前三处 + 复现命令 + L1 日志不可用声明 +
+    脚本 `note()` 记录（**每例都有**，失败时先看它）；
+  - `objects/`：脚本 `snap()` 抓的对象 JSON（按路径命名）；
+  - `cmd.txt` / `env.txt` / `stdout.txt` / `stderr.txt` / `result.json` /
+    `note.txt` / `clock.txt`（`$t0` / `$t1` 的毫秒与本地时间）；
 - `blocked` 的来源：缺脚本（未实现）、缺期望文件或基线（`expected: file` /
   `baseline`）、期望文件/基线不是合法 JSON（记 blocked 而非红，也不中断其余用例）。
-  基线缺失不算红（基线由 08 的审核者在 L2 建立）。
+  基线缺失不算红（路径按实例展开，08 建立；L1 对照审核、L2 最终判定）。
+
+## 基线（按实例分目录）
+
+`expected: baseline` 的期望值放在：
+
+```text
+<root>/baseline/<实例>/<CASE-ID>.json
+```
+
+`<实例>` 是本次运行解析出的级别（`--instance` 或 `atest.json` 的 `instance`）：
+
+```text
+atest/baseline/L1/CASE-101.json    # L1 基线：用于对照审核（用户拿它比）
+atest/baseline/L2/CASE-101.json    # L2 基线：最终判定（08 由审核者建立）
+```
+
+- 级别不同、期望值就可能不同，所以**不共用一份文件**，避免 L1/L2 互相覆盖；
+- 缺基线仍是 **blocked**（不算红），提示里带按级别展开的完整路径；本工具不建基线、
+  不改基线（08）；
+- `--check` 不要求基线存在（尚未建立是常态），但期望声明与内容矛盾会报
+  `expected-mismatch`，文案里同样给出按级别展开的路径（`--check` 用的是
+  `--instance` 或 `atest.json` 的级别）。
 
 ## 报告
 
@@ -154,17 +240,27 @@ JSON；`-cqn` 才是紧凑标准 JSON）。
 ```
 
 ```json
-{"suite":"default","timestamp":"2026-11-13T11:35:08+08:00","instance":"L1",
- "instance_source":".../atest.json","total":2,"passed":1,"failed":1,"blocked":0,
+{"schema":"atest-report/2","suite":"default","timestamp":"2026-11-13T12:22:24+08:00",
+ "instance":"L1","instance_source":".../atest.json","total":2,"passed":1,"failed":1,
+ "blocked":0,
  "cases":[{"caseID":"CASE-101","status":"passed","duration_ms":391,
-           "evidence_dir":"...","diff":[]},
-          {"caseID":"CASE-102","status":"failed","duration_ms":359,
-           "evidence_dir":"...","diff":[{"path":"race","expected":"FILE","actual":"DIR"}]}]}
+           "evidence_dir":"...","diff":[],
+           "evidence":["clock.txt","cmd.txt","env.txt",
+                       "objects/~__atest04-range.json","result.json",
+                       "stderr.txt","stdout.txt","summary.txt"]},
+          {"caseID":"CASE-104","status":"failed","duration_ms":855,
+           "evidence_dir":"...",
+           "diff":[{"path":"items[1].nm","expected":"atest-b","actual":"atest-c"}],
+           "evidence":["clock.txt","cmd.txt","env.txt","note.txt","objects/…",
+                       "result.json","stderr.txt","stdout.txt","summary.txt"]}]}
 ```
 
-`status` 只有 `passed` / `failed` / `blocked`。`instance_source` 为 `cli`
-（`--instance` 生效）或 `atest.json` 的绝对路径。`<root>/report/` 已在项目
-`.gitignore` 里（`at-init` 追加），报告不进库。
+- `schema` 是 v2 新增的顶层键（`"atest-report/2"`）；03 的 9 个顶层键与每例 5 个键
+  **保持不变**，`evidence` 追加在每例的最后；
+- `evidence` 是相对 `evidence_dir` 的文件清单（正斜杠、排序稳定），指向真实文件；
+- `status` 只有 `passed` / `failed` / `blocked`。`instance_source` 为 `cli`
+  （`--instance` 生效）或 `atest.json` 的绝对路径。`<root>/report/` 已在项目
+  `.gitignore` 里（`at-init` 追加），报告不进库。
 
 ## `--check` 的错误码
 
@@ -173,13 +269,13 @@ JSON；`-cqn` 才是紧凑标准 JSON）。
 | `filename-mismatch` | 文件名（去 `.md`）≠ `caseID` |
 | `caseid-invalid` | 不匹配 `^CASE-[A-Z0-9-]{1,32}$` |
 | `missing-field` | 缺 5 个必填之一（`caseID` / `title` / `source` / `contract` / `expected`） |
-| `expected-invalid` | `expected` 不是 `inline` / `file` / `baseline` |
+| `expected-invalid` | `expected` 不是 `inline` / `file` / `baseline`；或期望值里的 matcher 不合法（不认识 / 混用 / 类型不对 / 正则编译失败 / 放在根上） |
 | `contract-too-generic` | `contract` 只写命令族（`o` / `jsc` 等），不具体 |
 | `missing-section` | 缺 `## 前置` / `## 步骤` / `## 期望` / `## 证据` |
 | `assertion-in-steps` | `## 步骤` 里出现断言词（检查/确认/断言/判失败…） |
 | `expected-mismatch` | 声明与内容矛盾（inline 无 json 块；file/baseline 却贴了 json 块） |
-| `expected-invalid-json` | `## 期望` 的 json 块解析失败 |
-| `volatile-field` | 期望里写死 `id` / `pid` / `ct` / `lm` / `sha1` |
+| `expected-invalid-json` | `## 期望` 的 json 块（或已存在的 `expect/<CASE-ID>.json`）解析失败 |
+| `volatile-field` | 期望里写死 `id` / `pid` / `ct` / `lm` / `sha1`（写 matcher 不算） |
 | `caseid-duplicate` | 多个用例文件用同一个 `caseID` |
 
 `--check` 对目录是**扫全部 `*.md`**（缺 front-matter 的 md 会被报错，这样
@@ -188,7 +284,9 @@ JSON；`-cqn` 才是紧凑标准 JSON）。
 
 ## 已知边界
 
-- v1 只做子集比较，不做快照/diff 细化（04）；不渲染 `<root>/atest.init`（05）；
+- 比较仍是**子集**语义（只比期望里出现的键），不做整棵对象树的等价判断；
+  三个 matcher 之外的自定义比较交给用例脚本自己算；
+- 不做全量快照（只存脚本显式 `snap()` 的路径）；不渲染 `<root>/atest.init`（05）；
   不写 Markdown 报告（07）；不建基线（08）；**不并发**执行；
 - 脚本固定 `<CASE-ID>.py`（任务书的契约）；其它语言留给后续任务；
 - 超时只杀直接子进程（脚本自己起的 `wn-cli` 子进程不保证一起终止）；
@@ -196,5 +294,7 @@ JSON；`-cqn` 才是紧凑标准 JSON）。
   运行里混跑两级实例；
 - 全 blocked 的运行退出码仍是 `0`（按"blocked 不算红"的约定）；报告里
   `passed=0` / `blocked=n` 与 stderr 摘要是唯一警示；
-- 子进程注入 `PYTHONUTF8=1` / `PYTHONIOENCODING=utf-8`，避免 Windows 控制台代码页
-  把中文证据拆坏；不新增 `AT_*` 契约变量。
+- 子进程注入 `PYTHONUTF8=1` / `PYTHONIOENCODING=utf-8`（Windows 控制台 cp936 会把
+  中文证据拆坏）、`PYTHONDONTWRITEBYTECODE=1`（脚本 import `atlib` 不往仓库里落
+  `__pycache__`）与 `PYTHONPATH`（指向 `bin/at-run`，供 `import atlib`）；
+  不新增 `AT_*` 契约变量。
