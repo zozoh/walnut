@@ -1,13 +1,12 @@
 {
   "meta": {
     "case": "CASE-103",
-    "source_hash": "30665da260f3987e",
+    "source_hash": "11d9514a98478b39",
     "instance": "L1",
-    "recorded_at": "2026-11-13T15:14:45+08:00",
+    "recorded_at": "2026-11-13T15:47:49+08:00",
     "reviewer": "HIVE/智群",
     "dropped": [],
-    "matcherized": [],
-    "reviewed_at": "2026-11-13T15:18:24+08:00"
+    "matcherized": []
   },
   "expected": {
     "nm": [

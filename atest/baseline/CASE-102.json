@@ -1,13 +1,12 @@
 {
   "meta": {
     "case": "CASE-102",
-    "source_hash": "748349e0ae75a189",
+    "source_hash": "77b6352641f3b860",
     "instance": "L1",
-    "recorded_at": "2026-11-13T15:14:45+08:00",
+    "recorded_at": "2026-11-13T15:47:49+08:00",
     "reviewer": "HIVE/智群",
     "dropped": [],
-    "matcherized": [],
-    "reviewed_at": "2026-11-13T15:18:24+08:00"
+    "matcherized": []
   },
   "expected": {
     "content": "hello from atest case102"

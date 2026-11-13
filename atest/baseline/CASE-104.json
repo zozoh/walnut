@@ -1,15 +1,14 @@
 {
   "meta": {
     "case": "CASE-104",
-    "source_hash": "2fa7cbc21c2ad36b",
+    "source_hash": "6922fb6d76a9c4d9",
     "instance": "L1",
-    "recorded_at": "2026-11-13T15:14:45+08:00",
+    "recorded_at": "2026-11-13T15:47:49+08:00",
     "reviewer": "HIVE/智群",
     "dropped": [],
     "matcherized": [
       "lm"
-    ],
-    "reviewed_at": "2026-11-13T15:18:24+08:00"
+    ]
   },
   "expected": {
     "nm": "hello.txt",

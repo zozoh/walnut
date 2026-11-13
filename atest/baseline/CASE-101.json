@@ -1,15 +1,14 @@
 {
   "meta": {
     "case": "CASE-101",
-    "source_hash": "c98a92e31e265e2d",
+    "source_hash": "7eea647961fdb02b",
     "instance": "L1",
-    "recorded_at": "2026-11-13T15:14:45+08:00",
+    "recorded_at": "2026-11-13T15:47:49+08:00",
     "reviewer": "HIVE/智群",
     "dropped": [
       "pid"
     ],
-    "matcherized": [],
-    "reviewed_at": "2026-11-13T15:18:24+08:00"
+    "matcherized": []
   },
   "expected": {
     "nm": "case101-dir",
