@@ -3,15 +3,53 @@
 # 这里只写"世界应该长什么样"：目录、.dao、.regapi 接口、配置等**静态布局**。
 # 每例新增的业务数据不写这里，写到 {{root}}/scripts/<CASE-ID>.<ext>。
 #
-# 渲染方式（由 ATESET-05 定稿并实现）：at-run 先用 {{root}}/vars.json 填充 ${var}
-# 占位符，再对目标测试域执行 `app init <本文件>`；语法见 `man cmd_app_init`。
-# 敏感取值不进库（放 .at/，gitignore）。
+# 怎么执行（ATESET-05）：
+#   - 用例脚本里调 `atlib.fixture()`：at-run 会把本文件上传到域内
+#     ~/.atest/init/atest.init，再执行 `app init`；
+#   - 变量来自 {{root}}/vars.json（可选；把本目录的 vars.json 复制过去改）；
+#     没有 vars.json 时用 app init 的默认 ~/.domain/vars.json；
+#   - 非幂等用例另写 {{root}}/scripts/<CASE-ID>.clean.py；
+#     套件级脏数据写 {{root}}/cleanup.py（at-run --reset 时先跑）。
 #
-# 幂等：同一模板会被重复渲染，命令要写成"已存在则跳过/更新"的形状，
-# 不要依赖"这一遍恰好是空的"。
+# 语法以 `man cmd_app_init` 与源码为准。v1 只支持**内联内容块**：
+#   %TMPL: ... %END%      文本模板（${var} / ${var?默认值}）
+#   %EXPLAIN: ... %END%   JSON/配置（=key 从变量取，=key?默认值）
+#   %COPY: ... %END%      原样写入
+# 不支持 `%COPY > 外部文件` 与 `@INCLUDE`（atlib.fixture() 会明确报错）；
+# 需要外部文件时，先用 `wn-cli obj save-text` 上传到域内，再改成内联。
+#
+# 幂等：app init 默认**不覆盖**已有文件；不要写 `%` 强制覆盖。
+# 敏感值：不要放进 vars.json（它进项目库）；密码留在 .at/credentials.json。
 
 # ---------------------------------------------------------------
-# 示例（默认注释掉；确认语义后再启用并改写）
+# 示例：目录 + 元数据（可直接运行；变量都有默认值）
+# ---------------------------------------------------------------
+@DIR .atest/demo 'i18n:atest-demo/<fas-flask>'
+{
+  "atest-title": "${atest_title?ATESET Demo}",
+  "atest-owner": "${atest_owner?demo}"
+}
+
+# 内联 TMPL：文本内容
+@FILE .atest/demo/README.txt
+%TMPL:
+ATESET fixture
+title : ${atest_title?ATESET Demo}
+owner : ${atest_owner?demo}
+%END%
+
+# 内联 EXPLAIN：JSON/配置内容（=key 从变量取，?后面是默认值）
+@FILE .atest/demo/config.json
+%EXPLAIN:
+{
+  "owner": "=atest_owner?demo",
+  "title": "=atest_title?ATESET Demo",
+  "enabled": true
+}
+%END%
+
+# ---------------------------------------------------------------
+# 可选：regapi 接口（取消注释前先确认域里有该路径）
 # ---------------------------------------------------------------
 # @API .regapi/api/atest/ping 'cross/json'
 # {
@@ -19,3 +57,11 @@
 # %COPY:
 # o '${http-qs-p?}' @json
 # %END%
+
+# ---------------------------------------------------------------
+# 可选：给域主目录打业务元数据（会写到域 home，仅按需启用）
+# ---------------------------------------------------------------
+# @HOME
+# {
+#   "atest-fixture": true
+# }

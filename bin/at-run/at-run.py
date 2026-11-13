@@ -9,6 +9,11 @@ at-run — ATEST 运行器（v2）
     （无参数）              发现用例 → 解析实例 → 复用会话 → 逐例执行 → 写 JSON 报告
     --only / --suite        选例执行；--stop-on-fail 遇到红灯即停
     --instance L1|L2        跑哪一级实例（缺省读 atest.json 的 instance）
+    --reset                 整批执行前先跑 <root>/cleanup.py（套件级清理）
+
+夹具（ATESET-05）：静态布局写进 `<root>/atest.init`，用例脚本用 `atlib.fixture()`
+把它送进域并执行 `app init`；非幂等用例另带 `<root>/scripts/<CASE-ID>.clean.py`，
+执行顺序固定为 **清理 → 初始化 → 用例**。清理脚本失败记 blocked（不判红）。
 
 实例解析（两个轴分开，都不猜）:
     级别:  --instance  →  atest.json 的 instance  →  报错
@@ -21,8 +26,8 @@ at-run — ATEST 运行器（v2）
     root:         atest.json 的 root（缺省 atest）→ --root 覆盖。
     instance:     --instance 覆盖 → atest.json 的 instance → 空则退出 2。
     test_domain:  --domain 覆盖 → atest.json 的 test_domain → 空则退出 2。
-    init_template: atest.json 的 init_template（缺省 <root>/atest.init；v1 只读取回显，
-                   渲染归 ATESET-05）。
+    init_template: atest.json 的 init_template（缺省 <root>/atest.init）；
+                   夹具模板；--check 会警告缺失、异常大与 v1 不支持的外部引用。
     atest.json 缺失 → 退出 2，提示先跑 at-init 或补上配置。
 
 脚本契约（ATESET-03 T1 定稿，见同目录 README）:
@@ -34,6 +39,8 @@ at-run — ATEST 运行器（v2）
     断言不在脚本里做：runner 按用例 md 的 `## 期望` 统一比较（防"实现即预期"）。
     另把 bin/at-run 放进子进程 PYTHONPATH，脚本可 `from atlib import ...`（薄库见
     atlib.py；手工跑脚本需自己设 PYTHONPATH）。
+    脚本退出码 2 = 环境不可用（记 blocked），即使没输出结果 JSON（如 atlib 的
+    _die）也按 blocked；其它非 0 或超时 = failed。
 
 期望 matcher（ATESET-04 T1 定稿的硬接口，三者互斥）:
     {"$ignore": true}                 跳过该键（等价于不写，但显式声明"它不稳定"）
@@ -78,6 +85,14 @@ CONFIG_NAME = "atest.json"
 ROOT_DEFAULT = "atest"
 # 集成测试根目录名：不许路径分隔符，也不许 . / ..（否则路径会跑出项目）
 ROOT_RE = re.compile(r"^[A-Za-z0-9._-]+$")
+
+# 夹具（ATESET-05）：套件级清理脚本与 --check 的模板大小阈值
+CLEANUP_NAME = "cleanup.py"
+CASE_CLEAN_SUFFIX = ".clean.py"
+INIT_MAX_BYTES = 256 * 1024
+# app init 的 v1 只支持内联内容块；这两类写法引用外部文件
+INIT_EXTERNAL_RE = re.compile(r"^[%?](COPY|TMPL|EXPLAIN)(\{.*\})?\s*>", re.I)
+INIT_INCLUDE_RE = re.compile(r"^@INCLUDE\b", re.I)
 
 REQUIRED_FIELDS = ("caseID", "title", "source", "contract", "expected")
 EXPECTED_KINDS = ("inline", "file", "baseline")
@@ -125,6 +140,13 @@ EPILOG = """\
 用例发现:
   <dir>/<root>/cases/*.md    文件名 = caseID；脚本 <root>/scripts/<caseID>.py
 
+夹具与清理（ATESET-05）:
+  静态布局 -> <root>/atest.init（只支持内联块；用例里用 atlib.fixture() 执行）
+  变量     -> <root>/vars.json（可选；对象，项目级覆盖调用方默认值）
+  套件清理 -> <root>/cleanup.py（--reset 时先跑；失败全批 blocked）
+  用例清理 -> <root>/scripts/<CASE-ID>.clean.py（该例前跑；失败该例 blocked）
+  顺序     -> 清理 → 初始化（fixture）→ 用例；清理脚本不许删域/数据目录
+
 实例与会话:
   级别  --instance L1|L2  →  atest.json 的 instance  →  报错
   端点  .wn-instances.json（--instances > $WN_INSTANCES > 逐级向上 > 用户目录）
@@ -154,11 +176,16 @@ EPILOG = """\
   contract-too-generic / missing-section / assertion-in-steps /
   expected-mismatch / expected-invalid-json / volatile-field / caseid-duplicate
 
+--check 警告码（只警告，不影响退出码）:
+  init-template-missing / init-template-not-file / init-template-unreadable /
+  init-template-too-large / init-template-external-ref / init-template-include
+
 示例:
   python bin/at-run/at-run.py --check
   python bin/at-run/at-run.py --check bin/at-init/tmpl/CASE-001.md
   python bin/at-run/at-run.py --instance L1 --suite smoke
   python bin/at-run/at-run.py --instance L1 --only CASE-001,CASE-002
+  python bin/at-run/at-run.py --instance L1 --reset
   python bin/at-run/at-run.py --instance L2 --stop-on-fail
   python bin/at-run/at-run.py --root spec --check
 """
@@ -456,6 +483,59 @@ def err_of(path, case_id, code, message):
             "message": message}
 
 
+def warn_of(path, code, message):
+    return {"file": str(path), "code": code, "message": message}
+
+
+def init_template_path(project, config, root):
+    """夹具模板路径：atest.json 的 init_template > <root>/atest.init。"""
+    raw = (config or {}).get("init_template") or ("%s/atest.init" % root)
+    path = Path(raw)
+    if not path.is_absolute():
+        path = Path(project) / path
+    return path
+
+
+def init_template_warnings(project, config, root):
+    """--check 对夹具模板的**警告**（不阻塞）：缺失、异常大、不可读、v1 不支持。"""
+    path = init_template_path(project, config, root)
+    if not path.exists():
+        return [warn_of(path, "init-template-missing",
+                        "缺夹具模板 %s：用例仍可跑，但 atlib.fixture() 会记 "
+                        "blocked；照 bin/at-init/tmpl/atest.init 写一份"
+                        % rel(path, project))]
+    if not path.is_file():
+        return [warn_of(path, "init-template-not-file",
+                        "%s 不是文件：夹具模板必须是文件" % rel(path, project))]
+    try:
+        size = path.stat().st_size
+    except OSError as e:
+        return [warn_of(path, "init-template-unreadable",
+                        "读不了 %s 的大小：%s" % (rel(path, project), e))]
+    if size > INIT_MAX_BYTES:
+        return [warn_of(path, "init-template-too-large",
+                        "夹具模板 %s 有 %d 字节（阈值 %d）：模板越大越难审；"
+                        "大块内容先用 wn-cli obj save-text 上传再引用"
+                        % (rel(path, project), size, INIT_MAX_BYTES))]
+    try:
+        text = read_text(path)
+    except (EnvError, OSError) as e:
+        return [warn_of(path, "init-template-unreadable", str(e))]
+    out = []
+    for i, line in enumerate(text.splitlines(), 1):
+        stripped = line.strip()
+        if INIT_EXTERNAL_RE.match(stripped):
+            out.append(warn_of(path, "init-template-external-ref",
+                               "第 %d 行用了 v1 不支持的外部文件引用：`%s`；"
+                               "atlib.fixture() 会报错，改成内联内容块"
+                               % (i, stripped)))
+        elif INIT_INCLUDE_RE.match(stripped):
+            out.append(warn_of(path, "init-template-include",
+                               "第 %d 行用了 v1 不支持的 @INCLUDE："
+                               "把被包含的模板内联进来" % i))
+    return out
+
+
 def check_case(path, text, root=ROOT_DEFAULT, project=None):
     """校验一个用例文件；返回 (fields, sections, errors)。root 只用于路径文案。"""
     errors = []
@@ -587,9 +667,10 @@ def collect_cases(paths, project, root=ROOT_DEFAULT):
     return sorted(x for x in cases_dir.glob("*.md") if x.is_file())
 
 
-def run_check(project, paths, root=ROOT_DEFAULT):
+def run_check(project, paths, root=ROOT_DEFAULT, config=None):
     targets = collect_cases(paths, project, root)
     errors = []
+    warnings = init_template_warnings(project, config or {}, root)
     seen = {}
     checked = []
     for path in targets:
@@ -611,11 +692,15 @@ def run_check(project, paths, root=ROOT_DEFAULT):
                 seen[case_id] = str(path)
     ok = not errors
     emit({"ok": ok, "check": True, "root": root, "checked": len(checked),
-          "files": checked, "error_count": len(errors), "errors": errors})
+          "files": checked, "error_count": len(errors), "errors": errors,
+          "warning_count": len(warnings), "warnings": warnings})
     if not ok:
         print("at-run --check：%d 个用例文件，%d 条错误（修完再跑；"
               "错误码含义见 --help）" % (len(checked), len(errors)),
               file=sys.stderr)
+    if warnings:
+        print("at-run --check：%d 条警告（不阻塞；夹具模板问题见 --help）"
+              % len(warnings), file=sys.stderr)
     return EXIT_OK if ok else EXIT_USAGE
 
 
@@ -878,6 +963,11 @@ def judge(returncode, stdout, expected, evidence, clock=None):
     """按脚本契约判定一例；返回 (status, diff, note)。"""
     result, problem = last_json_line(stdout)
     if problem:
+        # 脚本以 2 退出但没来得及写结果 JSON（如 atlib 在 fixture/snap 里
+        # _die）仍是"环境不可用"，按契约记 blocked，不伪装成红。
+        if returncode == 2:
+            return "blocked", [], ("脚本报环境不可用（exit 2）：%s"
+                                   % problem)
         return "failed", [], problem
     write_json(Path(evidence) / "result.json", result)
     if not isinstance(result, dict):
@@ -1001,6 +1091,62 @@ def unique_run_id(report_base, started):
     return candidate
 
 
+def run_cleanup(project, script, evidence, env_extra, timeout, label):
+    """执行一个清理脚本（ATESET-05），证据落 evidence/。
+
+    返回 (ok, detail)：ok=False 时 detail 是一句可放进 blocked 说明的原因。
+    清理脚本的 stdout/stderr/summary 都在 evidence/ 下；脚本自己用 atlib.note()
+    写的行会被保留进 summary.txt。
+    """
+    evidence = Path(evidence)
+    evidence.mkdir(parents=True, exist_ok=True)
+    write_text(evidence / "cmd.txt",
+               "\n".join([sys.executable, str(script)]) + "\n")
+    write_text(evidence / "env.txt",
+               "\n".join("%s=%s" % (k, env_extra[k])
+                          for k in sorted(env_extra)) + "\n")
+    print("at-run: %s清理 %s" % (label, rel(script, project)),
+          file=sys.stderr)
+    stdout = stderr = ""
+    detail = ""
+    ok = False
+    t0 = int(time.time() * 1000)
+    try:
+        proc = subprocess.run([sys.executable, str(script)],
+                              cwd=str(project), env=script_env(env_extra),
+                              capture_output=True, timeout=timeout)
+        stdout = proc.stdout.decode("utf-8", "replace")
+        stderr = proc.stderr.decode("utf-8", "replace")
+        ok = proc.returncode == 0
+        if not ok:
+            detail = "退出码 %d" % proc.returncode
+    except subprocess.TimeoutExpired as e:
+        stdout = (e.stdout or b"").decode("utf-8", "replace")
+        detail = "超时（%.0fs）已被终止" % timeout
+    except OSError as e:
+        detail = "启动失败：%s" % e
+    duration = int(time.time() * 1000) - t0
+    write_text(evidence / "stdout.txt", stdout)
+    write_text(evidence / "stderr.txt", stderr)
+
+    notes = script_notes(evidence)
+    lines = []
+    if ok:
+        lines.append("%s清理 ok（%dms）" % (label, duration))
+    else:
+        lines.append("%s清理失败 —— %s（%dms）" % (label, detail, duration))
+        tail = (stderr.strip() or stdout.strip()).replace("\n", " ")
+        if tail:
+            lines.append("输出: %s" % tail[:500])
+    lines.append("复现: %s" % " ".join([sys.executable, str(script)]))
+    if notes:
+        lines.append("")
+        lines.append("脚本记录:")
+        lines.extend(notes)
+    write_text(evidence / "summary.txt", "\n".join(lines) + "\n")
+    return ok, detail
+
+
 def run_suite(project, args, root, config, config_path):
     project = Path(project).resolve()
 
@@ -1101,6 +1247,30 @@ def run_suite(project, args, root, config, config_path):
                        "请开发者确认实例状态" % (level, url))
     se = ensure_session(wncli, level, domain, session_dir, url, project)
 
+    cleanup_state = "skipped"
+    suite_cleanup_note = ""
+    if args.reset:
+        cleanup_script = project / root / CLEANUP_NAME
+        if not cleanup_script.is_file():
+            cleanup_state = "missing"
+            print("at-run: --reset 但缺 %s：跳过套件级清理（视为套件幂等）"
+                  % rel(cleanup_script, project), file=sys.stderr)
+        else:
+            reset_dir = run_dir / "_reset"
+            reset_env = {"AT_LEVEL": level, "AT_URL": url,
+                         "AT_SESSION_DIR": str(session_dir),
+                         "AT_DOMAIN": domain, "AT_WNCLI": str(wncli),
+                         "AT_CASE_ID": "_RESET", "AT_OUT": str(reset_dir)}
+            ok, detail = run_cleanup(project, cleanup_script, reset_dir,
+                                     reset_env, args.timeout, "套件")
+            cleanup_state = "ok" if ok else "failed"
+            if not ok:
+                suite_cleanup_note = (
+                    "整批 blocked：套件级 cleanup.py 失败（%s）；证据见 "
+                    "../_reset/summary.txt" % detail)
+                print("at-run: --reset 清理失败（%s），全批记 blocked（不是红）"
+                      % detail, file=sys.stderr)
+
     results = []
     not_run = []
     stopped = False
@@ -1117,6 +1287,19 @@ def run_suite(project, args, root, config, config_path):
         note = ""
         repro = ('python "%s" --dir "%s" --instance %s --domain %s --only %s'
                  % (Path(__file__).resolve(), project, level, domain, case_id))
+
+        if suite_cleanup_note:
+            reset_summary = run_dir / "_reset" / "summary.txt"
+            if reset_summary.is_file():
+                write_text(evidence / "cleanup.txt",
+                           read_text(reset_summary))
+            write_summary(evidence, case_id, "blocked", 0, [],
+                          suite_cleanup_note, repro, None, level, [])
+            entry["evidence"] = evidence_files(evidence)
+            results.append(entry)
+            print("at-run: %s blocked —— %s" % (case_id, suite_cleanup_note),
+                  file=sys.stderr)
+            continue
 
         case_instance = case["fields"].get("instance")
         script = project / root / "scripts" / ("%s.py" % case_id)
@@ -1150,6 +1333,29 @@ def run_suite(project, args, root, config, config_path):
                      "AT_SESSION_DIR": str(session_dir),
                      "AT_DOMAIN": domain, "AT_WNCLI": str(wncli),
                      "AT_CASE_ID": case_id, "AT_OUT": str(evidence)}
+
+        # 用例级清理（ATESET-05）：非幂等用例在执行前定点清理；
+        # 清理失败 → blocked（不是红），证据落 evidence/clean/。
+        clean_script = (project / root / "scripts"
+                        / ("%s%s" % (case_id, CASE_CLEAN_SUFFIX)))
+        if clean_script.is_file():
+            clean_env = dict(env_extra)
+            clean_env["AT_OUT"] = str(evidence / "clean")
+            clean_ok, clean_detail = run_cleanup(
+                project, clean_script, evidence / "clean", clean_env,
+                args.timeout, "用例 %s " % case_id)
+            if not clean_ok:
+                note = ("用例级清理失败：%s（%s）；证据见 clean/summary.txt"
+                        % (clean_detail, rel(clean_script, project)))
+                write_text(evidence / "note.txt", note + "\n")
+                write_summary(evidence, case_id, "blocked", 0, [], note, repro,
+                              None, level, [])
+                entry["evidence"] = evidence_files(evidence)
+                results.append(entry)
+                print("at-run: %s blocked —— %s" % (case_id, note),
+                      file=sys.stderr)
+                continue
+
         write_text(evidence / "cmd.txt",
                    "\n".join([sys.executable, str(script)]) + "\n")
         write_text(evidence / "env.txt",
@@ -1211,6 +1417,8 @@ def run_suite(project, args, root, config, config_path):
               "timestamp": started.isoformat(timespec="seconds"),
               "instance": level,
               "instance_source": instance_source,
+              "reset": bool(args.reset),
+              "cleanup": cleanup_state,
               "total": len(results),
               "passed": passed,
               "failed": failed,
@@ -1224,6 +1432,7 @@ def run_suite(project, args, root, config, config_path):
           "instance": level, "test_domain": domain,
           "init_template": init_template,
           "instance_source": instance_source, "session": se,
+          "reset": bool(args.reset), "cleanup": cleanup_state,
           "total": len(results), "passed": passed, "failed": failed,
           "blocked": blocked, "skipped": len(not_run),
           "report": str(report_path.resolve()),
@@ -1265,16 +1474,21 @@ def main(argv=None):
                     help="只跑这些 suite（逗号分隔，可重复；缺省全部）")
     ap.add_argument("--stop-on-fail", action="store_true",
                     help="遇到第一个红灯即停（blocked 不算红）")
+    ap.add_argument("--reset", action="store_true",
+                    help="整批执行前先跑 <root>/cleanup.py（套件级清理；"
+                         "失败则全批记 blocked，不算红）")
     ap.add_argument("--timeout", type=float, default=120.0, metavar="SEC",
-                    help="单个用例脚本超时秒数（默认 120）")
+                    help="单个用例脚本 / 清理脚本超时秒数（默认 120）")
     args = ap.parse_args(argv)
 
     if args.timeout <= 0:
         emit({"ok": False, "error": "--timeout 必须大于 0"})
         return EXIT_USAGE
-    if args.check and (args.only or args.suite or args.stop_on_fail):
+    if args.check and (args.only or args.suite or args.stop_on_fail
+                       or args.reset):
         emit({"ok": False,
-              "error": "--check 不接受 --only / --suite / --stop-on-fail"})
+              "error": "--check 不接受 --only / --suite / --stop-on-fail / "
+                       "--reset"})
         return EXIT_USAGE
     if not args.check and args.paths:
         emit({"ok": False,
@@ -1296,7 +1510,7 @@ def main(argv=None):
             raise EnvError("实例级别未定：在 %s 里填 instance（如 L1 / L2），"
                            "或用 --instance 覆盖" % config_path)
         if args.check:
-            return run_check(project, args.paths, root)
+            return run_check(project, args.paths, root, config)
         return run_suite(project, args, root, config, config_path)
     except UsageError as e:
         emit({"ok": False, "error": str(e)})
