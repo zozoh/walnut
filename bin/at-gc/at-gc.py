@@ -50,7 +50,9 @@ import shutil
 import sys
 import time
 import zipfile
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from pathlib import Path
+from typing import NoReturn, TypeAlias, TypedDict, cast
 
 EXIT_OK = 0
 EXIT_USAGE = 1
@@ -75,6 +77,64 @@ INFLIGHT_SECONDS = 300
 # 过期归档：archive/ 下 mtime 早于 N 天的 .zip 删除；缺省保留 30 天，0 = 不清理
 ARCHIVE_DAYS_DEFAULT = 30
 ARCHIVE_DAYS_SECONDS = 86400
+
+Entry: TypeAlias = tuple[Path, str]
+
+
+class Run(TypedDict):
+    """report/ 顶层按时间戳归并后的一次执行。"""
+
+    dir: Path | None
+    files: list[Path]
+    report: Path | None
+    new: bool
+
+
+class _ArchivedRequired(TypedDict):
+    ts: str
+    zip: str
+    files: list[str]
+    bytes: int
+    form: str
+
+
+class ArchivedReport(_ArchivedRequired, total=False):
+    resumed: bool
+
+
+class _SkippedRequired(TypedDict):
+    reason: str
+    detail: str
+
+
+class SkippedItem(_SkippedRequired, total=False):
+    ts: str
+    name: str
+
+
+class _ErrorRequired(TypedDict):
+    error: str
+
+
+class ErrorItem(_ErrorRequired, total=False):
+    ts: str
+    name: str
+
+
+class DeletedArchive(TypedDict):
+    name: str
+    days: int
+
+
+class _Args(argparse.Namespace):
+    """argparse 解析结果（类型视图，运行期仍是 Namespace）。"""
+
+    dir: str
+    root: str | None
+    keep: int | None
+    archive_days: int
+    dry_run: bool
+
 
 DESCRIPTION = """\
 ATEST 报告归档：只保留最近 N 次报告，更早的压成 report/archive/<T>.zip
@@ -125,7 +185,7 @@ zip 内的布局（统一成新一代形态，解出来就是一次执行）:
 class _Parser(argparse.ArgumentParser):
     """argparse 默认用退出码 2 报参数错误，与本工具的「2 = 环境问题」冲突。"""
 
-    def error(self, message):
+    def error(self, message: str) -> NoReturn:
         emit({"ok": False, "error": "%s（--help 看用法）" % message})
         raise SystemExit(EXIT_USAGE)
 
@@ -142,20 +202,22 @@ class VerifyError(Exception):
     """zip 校验失败（退出码 1；原件不删）"""
 
 
-def force_utf8_stdio():
+def force_utf8_stdio() -> None:
     """Windows 控制台默认按 cp936 编码，中文 JSON 进管道会变味。"""
     for stream in (sys.stdout, sys.stderr):
         try:
-            stream.reconfigure(encoding="utf-8")
+            reconfigure = cast(Callable[..., None],
+                               getattr(stream, "reconfigure"))
+            reconfigure(encoding="utf-8")
         except (AttributeError, ValueError, OSError):
             pass
 
 
-def emit(obj):
+def emit(obj: Mapping[str, object]) -> None:
     print(json.dumps(obj, ensure_ascii=False))
 
 
-def rel(path, root):
+def rel(path: Path, root: Path) -> str:
     try:
         return str(Path(path).resolve().relative_to(Path(root).resolve())
                    ).replace("\\", "/")
@@ -163,7 +225,7 @@ def rel(path, root):
         return str(path)
 
 
-def size_text(num):
+def size_text(num: int) -> str:
     """人读字节数（1024 进制，一位小数）。"""
     value = float(num)
     for unit in ("B", "KB", "MB", "GB"):
@@ -174,23 +236,24 @@ def size_text(num):
     return "%d B" % num
 
 
-def load_config(project):
+def load_config(project: Path) -> tuple[dict[str, object], Path]:
     """读项目根 atest.json（唯一配置源）；缺失/坏档 → 退出 2，不猜。"""
     path = Path(project) / CONFIG_NAME
     if not path.is_file():
         raise EnvError("找不到 %s：先跑 bin/at-init/at-init.py 生成它"
                        % path)
     try:
-        data = json.loads(path.read_text(encoding="utf-8-sig"))
+        data: object = json.loads(path.read_text(encoding="utf-8-sig"))
     except (ValueError, OSError) as e:
         raise EnvError("%s 不是合法 JSON（%s）：请修正后再跑" % (path, e))
     if not isinstance(data, dict):
         raise EnvError("%s 格式不对：顶层应为对象（version / root / "
                        "report_keep ...）" % path)
-    return data, path
+    return cast(dict[str, object], data), path
 
 
-def resolve_root(config, config_path, override):
+def resolve_root(config: Mapping[str, object], config_path: Path,
+                 override: str | None) -> str:
     """根目录：--root 覆盖 > atest.json 的 root > atest；非法值退出 2 / 1。"""
     if override is not None:
         if override in (".", "..") or not ROOT_RE.match(override):
@@ -207,7 +270,8 @@ def resolve_root(config, config_path, override):
     return root
 
 
-def load_keep(config, config_path, override):
+def load_keep(config: Mapping[str, object], config_path: Path,
+              override: int | None) -> int:
     """保留数：--keep > atest.json 的 report_keep > 3（非负整数）。"""
     if override is not None:
         if override < 0:
@@ -222,7 +286,7 @@ def load_keep(config, config_path, override):
     return raw
 
 
-def run_id_of(name):
+def run_id_of(name: str) -> str | None:
     """文件名 → 时间戳前缀；不是报告产物时返回 None。"""
     for suffix in REPORT_SUFFIXES:
         if name.endswith(suffix):
@@ -231,9 +295,9 @@ def run_id_of(name):
     return None
 
 
-def walk_files(directory):
+def walk_files(directory: Path) -> list[Path]:
     """目录下的全部文件（不跟随目录符号链接；顺序稳定）。"""
-    out = []
+    out: list[Path] = []
     for dirpath, dirnames, filenames in os.walk(str(directory)):
         dirnames.sort()
         for name in sorted(filenames):
@@ -241,16 +305,16 @@ def walk_files(directory):
     return out
 
 
-def scan_runs(report_dir):
+def scan_runs(report_dir: Path) -> tuple[dict[str, Run], list[Path]]:
     """把 report/ 顶层条目按时间戳分组；返回 (runs, invalid)。
 
     runs[ts] = {"dir": 目录|None, "files": [顶层文件], "report": 主报告|None,
                 "new": 是否新形态}。
     latest.json / latest.md 与 archive/ 直接忽略；名字不像时间戳的报告产物进 invalid。
     """
-    dirs = {}
-    files = {}
-    invalid = []
+    dirs: dict[str, Path] = {}
+    files: dict[str, list[Path]] = {}
+    invalid: list[Path] = []
     for entry in sorted(report_dir.iterdir(), key=lambda p: p.name):
         name = entry.name
         if name in (LATEST_JSON, LATEST_MD, ARCHIVE_DIR_NAME):
@@ -269,11 +333,11 @@ def scan_runs(report_dir):
             continue
         files.setdefault(ts, []).append(entry)
 
-    runs = {}
+    runs: dict[str, Run] = {}
     for ts in sorted(set(dirs) | set(files)):
         directory = dirs.get(ts)
         flat = sorted(files.get(ts, []), key=lambda p: p.name)
-        new_report = None
+        new_report: Path | None = None
         if directory is not None:
             candidate = directory / "report.json"
             if candidate.is_file():
@@ -288,11 +352,11 @@ def scan_runs(report_dir):
     return runs, invalid
 
 
-def collect_entries(run, ts):
+def collect_entries(run: Run, ts: str) -> list[Entry]:
     """(原件, zip 内路径) 清单；zip 内统一成新一代形态、正斜杠。"""
-    entries = []
+    entries: list[Entry] = []
     if run["new"]:
-        directory = run["dir"]
+        directory = cast(Path, run["dir"])
         for path in walk_files(directory):
             entries.append((path, path.relative_to(directory).as_posix()))
         # 同一 T 若还残留旧形态散件，一并收进同一个 zip（避免归档后变孤儿）
@@ -309,26 +373,28 @@ def collect_entries(run, ts):
             else:
                 arc = path.name
             entries.append((path, arc))
-        if run["dir"] is not None:
-            for path in walk_files(run["dir"]):
-                rel_in_dir = path.relative_to(run["dir"]).as_posix()
+        evidence_dir = run["dir"]
+        if evidence_dir is not None:
+            for path in walk_files(evidence_dir):
+                rel_in_dir = path.relative_to(evidence_dir).as_posix()
                 entries.append((path, "cases/" + rel_in_dir))
     entries.sort(key=lambda item: item[1])
     return entries
 
 
-def entries_size(entries):
+def entries_size(entries: Iterable[Entry]) -> int:
     return sum(path.stat().st_size for path, _arc in entries)
 
 
-def verify_zip(zip_path, entries, allow_extra=False):
+def verify_zip(zip_path: Path, entries: Sequence[Entry],
+               allow_extra: bool = False) -> None:
     """zip 可读 + 每个原件都有同名成员且内容一致；否则 VerifyError。"""
     try:
         with zipfile.ZipFile(str(zip_path)) as zf:
             bad = zf.testzip()
             if bad is not None:
                 raise VerifyError("zip 成员 CRC 校验失败：%s" % bad)
-            names = set(zf.namelist())
+            names: set[str] = set(zf.namelist())
             if not allow_extra and len(names) != len(entries):
                 raise VerifyError("zip 成员数 %d ≠ 原件数 %d"
                                   % (len(names), len(entries)))
@@ -345,7 +411,7 @@ def verify_zip(zip_path, entries, allow_extra=False):
         raise VerifyError("zip 坏档（%s）：%s" % (zip_path, e))
 
 
-def write_zip(entries, zip_path):
+def write_zip(entries: Sequence[Entry], zip_path: Path) -> None:
     """写临时 zip → 校验 → 原子改名到正式路径；任何失败都不留半份 zip。"""
     tmp = zip_path.with_name(zip_path.name + ".tmp")
     try:
@@ -362,23 +428,26 @@ def write_zip(entries, zip_path):
                 pass
 
 
-def delete_originals(run):
+def delete_originals(run: Run) -> None:
     """删这次报告的原件（顶层文件先、证据目录后）。"""
     for path in run["files"]:
         path.unlink()
-    if run["dir"] is not None:
-        shutil.rmtree(str(run["dir"]))
+    directory = run["dir"]
+    if directory is not None:
+        shutil.rmtree(str(directory))
 
 
-def source_files(run, project):
+def source_files(run: Run, project: Path) -> list[str]:
     """归档前用于输出的顶层原件清单（相对项目根）。"""
-    out = [rel(path, project) for path in run["files"]]
-    if run["dir"] is not None:
-        out.append(rel(run["dir"], project) + "/")
+    out: list[str] = [rel(path, project) for path in run["files"]]
+    directory = run["dir"]
+    if directory is not None:
+        out.append(rel(directory, project) + "/")
     return out
 
 
-def prune_archives(archive_dir, days, dry_run, now):
+def prune_archives(archive_dir: Path, days: int, dry_run: bool,
+                   now: float) -> tuple[list[DeletedArchive], int, list[ErrorItem]]:
     """删 archive/ 下 mtime 早于 days 天的 .zip；返回 (清单, 字节数, 错误)。
 
     安全边界：只看 archive/ 的**直接子项**，只认普通文件（目录 / 符号链接 /
@@ -389,16 +458,16 @@ def prune_archives(archive_dir, days, dry_run, now):
     if days <= 0 or not archive_dir.is_dir():
         return [], 0, []
     cutoff = now - days * ARCHIVE_DAYS_SECONDS
-    deleted = []
+    deleted: list[DeletedArchive] = []
     freed = 0
-    errors = []
+    errors: list[ErrorItem] = []
     for path in sorted(archive_dir.iterdir(), key=lambda p: p.name):
         if path.is_symlink() or not path.is_file():
             continue
         if not path.name.lower().endswith(".zip"):
             continue
         try:
-            info = path.stat()
+            info: os.stat_result = path.stat()
         except OSError as e:
             errors.append({"name": path.name, "error": "读不了归档：%s" % e})
             continue
@@ -416,7 +485,8 @@ def prune_archives(archive_dir, days, dry_run, now):
     return deleted, freed, errors
 
 
-def cmd_gc(project, root, config, config_path, args):
+def cmd_gc(project: Path, root: str, config: Mapping[str, object],
+           config_path: Path, args: _Args) -> int:
     project = Path(project).resolve()
     report_dir = project / root / REPORT_DIR_NAME
     if not report_dir.is_dir():
@@ -427,12 +497,12 @@ def cmd_gc(project, root, config, config_path, args):
     runs, invalid = scan_runs(report_dir)
     ordered = sorted(runs)
 
-    newest = ordered[-keep:] if keep > 0 else []
-    older = ordered[:len(ordered) - len(newest)] if newest else ordered
+    newest: list[str] = ordered[-keep:] if keep > 0 else []
+    older: list[str] = ordered[:len(ordered) - len(newest)] if newest else ordered
 
-    archived = []
-    skipped = []
-    errors = []
+    archived: list[ArchivedReport] = []
+    skipped: list[SkippedItem] = []
+    errors: list[ErrorItem] = []
     freed = 0
 
     for path in invalid:
@@ -479,13 +549,14 @@ def cmd_gc(project, root, config, config_path, args):
                              "bytes": total, "form": form, "resumed": True})
             continue
 
-        if run["report"] is None:
+        report_path = run["report"]
+        if report_path is None:
             skipped.append({"ts": ts, "reason": "in-flight",
                             "detail": "缺主报告 json（新形态 report.json / "
                                       "旧形态 %s.json），可能正在写" % ts})
             continue
         try:
-            report_mtime = run["report"].stat().st_mtime
+            report_mtime = report_path.stat().st_mtime
         except OSError as e:
             errors.append({"ts": ts, "error": "读不了主报告：%s" % e})
             continue
@@ -524,12 +595,14 @@ def cmd_gc(project, root, config, config_path, args):
         archive_dir, args.archive_days, args.dry_run, now)
     errors.extend(prune_errors)
 
-    payload = {"ok": not errors, "kept": len(newest),
-               "archived": archived, "freed_bytes": freed,
-               "deleted_archives": deleted_archives,
-               "deleted_bytes": deleted_bytes,
-               "dry_run": bool(args.dry_run), "keep": keep,
-               "skipped": skipped, "errors": errors}
+    payload: dict[str, object] = {
+        "ok": not errors, "kept": len(newest),
+        "archived": archived, "freed_bytes": freed,
+        "deleted_archives": deleted_archives,
+        "deleted_bytes": deleted_bytes,
+        "dry_run": bool(args.dry_run), "keep": keep,
+        "skipped": skipped, "errors": errors,
+    }
     emit(payload)
 
     tag = "[dry-run] " if args.dry_run else ""
@@ -565,7 +638,7 @@ def cmd_gc(project, root, config, config_path, args):
     return EXIT_OK if not errors else EXIT_USAGE
 
 
-def main(argv=None):
+def main(argv: Sequence[str] | None = None) -> int:
     force_utf8_stdio()
     ap = _Parser(prog="at-gc", description=DESCRIPTION, epilog=EPILOG,
                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -582,7 +655,7 @@ def main(argv=None):
                          "（0 = 不清理；缺省 %d）" % ARCHIVE_DAYS_DEFAULT)
     ap.add_argument("--dry-run", action="store_true",
                     help="只打印计划：不建 archive/、不写 zip、不删文件")
-    args = ap.parse_args(argv)
+    args = cast(_Args, ap.parse_args(argv))
 
     if args.archive_days < 0:
         emit({"ok": False,
