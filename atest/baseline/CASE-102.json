@@ -3,9 +3,10 @@
     "case": "CASE-102",
     "source_hash": "748349e0ae75a189",
     "instance": "L1",
-    "recorded_at": "2026-11-13T15:09:08+08:00",
+    "recorded_at": "2026-11-13T15:14:45+08:00",
     "reviewer": "unreviewed",
-    "dropped": []
+    "dropped": [],
+    "matcherized": []
   },
   "expected": {
     "content": "hello from atest case102"

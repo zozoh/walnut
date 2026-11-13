@@ -7,21 +7,27 @@ at-baseline — ATEST 基线工具（ATESET-08）
 
     --from <actual.json>   把 `at-run --record` 录到的 actual 清洗成**可移植**基线：
                            <root>/baseline/<CASE-ID>.json，带 meta（来源哈希 / 录制实例 /
-                           录制时间 / 审核者 / 被丢字段）；已有基线缺 --force 时拒绝覆盖。
+                           录制时间 / 审核者 / 被丢字段 / 被转 matcher 的字段）；
+                           已有基线缺 --force 时拒绝覆盖。
     --audit                扫全部基线，比对来源哈希：用例 md 或夹具模板改了 → 报 stale
                            （"基线待复核"），退出码 1。
 
 清洗规则（ATESET-08 定稿，写进同目录 README）：
 
-    - 丢掉键 `id` / `pid` / `ct` / `lm` / `sha1` / `ph` / `mnt` / `ln` / `c` /
-      `m` / `g` / `d0` / `d1`（任意深度）；
+    - 丢掉键 `id` / `pid` / `sha1` / `ph` / `mnt` / `ln` / `c` / `m` / `g` /
+      `d0` / `d1`（任意深度）；
     - 丢掉**值里含绝对路径**的键（`/home/…`、`C:\\…`、`file://…`、UNC `\\\\host\\…`）；
+    - **时间类键 `ct` / `lm` / `expi` 不丢**：数值转成 `{"$range": ["$t0", "$t1"]}`
+      ——"这个字段在运行期被写入过"仍是可断言的，只是不写死时刻（runner 的比较器
+      对基线 `expected` 与 md 内联期望**用同一套 matcher**）；
     - 其余原样保留——它们就是"业务结果"；
-    - 丢了什么一律列进 `meta.dropped`，审核者据此复核"没把业务字段洗掉"。
+    - 被丢的列进 `meta.dropped`、被转 matcher 的列进 `meta.matcherized`，
+      审核者据此复核"没把业务字段洗掉、也没漏掉时间断言"。
 
 基线格式（runner 只读 `expected`，`meta` 不是断言）：
 
-    {"meta": {"case","source_hash","instance","recorded_at","reviewer","dropped"},
+    {"meta": {"case","source_hash","instance","recorded_at","reviewer",
+              "dropped","matcherized"},
      "expected": {…}}
 
 来源哈希 = sha256(用例 md + 夹具模板) 前 16 位；公式与 `bin/at-run/at-run.py` 的
@@ -58,8 +64,11 @@ CASE_ID_RE = re.compile(r"^CASE-[A-Z0-9-]{1,32}$")
 FIELD_RE = re.compile(r"^expected\s*:\s*(\S+)\s*$", re.M)
 
 # 清洗规则（定稿）：每次执行都不同 / 与环境绑定的键，进基线就没法移植
-DROP_KEYS = ("id", "pid", "ct", "lm", "sha1", "ph", "mnt", "ln",
-             "c", "m", "g", "d0", "d1")
+DROP_KEYS = ("id", "pid", "sha1", "ph", "mnt", "ln", "c", "m", "g",
+             "d0", "d1")
+# 时间类键：不丢、不写死——转成 $range matcher，"运行期被写入过"仍可断言
+RANGE_KEYS = ("ct", "lm", "expi")
+RANGE_MATCHER = {"$range": ["$t0", "$t1"]}
 # 值里含绝对路径（含本机目录 / 文件 URL / UNC）→ 整键丢弃
 ABS_PATH_RE = re.compile(
     r"(?:^|[\s\"'(=,:;])/(?:home|users|root|tmp|var|opt|mnt|usr|etc|srv|private|data)/"
@@ -79,8 +88,10 @@ EPILOG = """\
   不同实例结果不同本身就是 bug，不用"两套基线"消化。
 
 清洗（--from 自动做，规则见同目录 README）:
-  丢键 id/pid/ct/lm/sha1/ph/mnt/ln/c/m/g/d0/d1；丢值里含绝对路径的键；
-  其余原样保留；被丢的字段路径列表写进 meta.dropped。
+  丢键 id/pid/sha1/ph/mnt/ln/c/m/g/d0/d1；丢值里含绝对路径的键；
+  ct/lm/expi 不丢——数值转成 {"$range": ["$t0", "$t1"]}（时间不写死，仍可断言）；
+  被丢的进 meta.dropped、被转 matcher 的进 meta.matcherized。
+  基线里的 expected 与用例 md 内联期望**用同一套 matcher**（比较器只看这个结构）。
 
 来源哈希:
   sha256(用例 md + 夹具模板) 前 16 位（CRLF 归一），与 at-run 的 source_hash 一致。
@@ -237,21 +248,42 @@ def has_absolute_path(value):
     return isinstance(value, str) and ABS_PATH_RE.search(value) is not None
 
 
-def clean_actual(value, path="", dropped=None):
-    """递归清洗 actual；返回干净副本，被丢项的路径收进 dropped（留痕）。"""
+def is_number(value):
+    """JSON 数字（排除 bool——Python 里 True 也是 int）。"""
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def clean_actual(value, path="", dropped=None, matcherized=None):
+    """递归清洗 actual；返回干净副本，并留痕两类处理。
+
+    - 易变/环境键 → dropped（字段路径）；
+    - 时间类键（ct/lm/expi）且值是数字 → 换成 {"$range": ["$t0", "$t1"]}，
+      路径进 matcherized（"运行期被写入过"仍可断言，只是不写死时刻）；
+    - 含绝对路径的值 → dropped（带 (absolute-path)）。
+    """
     if dropped is None:
         dropped = []
+    if matcherized is None:
+        matcherized = []
     if isinstance(value, dict):
         out = {}
         for key, val in value.items():
             child = "%s.%s" % (path, key) if path else str(key)
+            if str(key) in RANGE_KEYS:
+                if is_number(val):
+                    out[key] = dict(RANGE_MATCHER)
+                    matcherized.append(child)
+                else:
+                    # 非数字的时间类值转不了 $range，只能丢（留痕）
+                    dropped.append(child)
+                continue
             if str(key) in DROP_KEYS:
                 dropped.append(child)
                 continue
             if has_absolute_path(val):
                 dropped.append("%s (absolute-path)" % child)
                 continue
-            out[key] = clean_actual(val, child, dropped)
+            out[key] = clean_actual(val, child, dropped, matcherized)
         return out
     if isinstance(value, list):
         out = []
@@ -260,7 +292,7 @@ def clean_actual(value, path="", dropped=None):
             if has_absolute_path(val):
                 dropped.append("%s (absolute-path)" % child)
                 continue
-            out.append(clean_actual(val, child, dropped))
+            out.append(clean_actual(val, child, dropped, matcherized))
         return out
     return value
 
@@ -298,7 +330,8 @@ def build_baseline(project, root, config, case_id, actual, meta_in, reviewer):
         raise EnvError("缺夹具模板 %s：来源哈希必须含它（夹具变了期望常跟着变）"
                        % rel(init, project))
     dropped = []
-    expected = clean_actual(actual, dropped=dropped)
+    matcherized = []
+    expected = clean_actual(actual, dropped=dropped, matcherized=matcherized)
     instance = meta_in.get("instance") or config.get("instance") or ""
     recorded_at = meta_in.get("timestamp") or datetime.now().astimezone(
     ).isoformat(timespec="seconds")
@@ -307,7 +340,8 @@ def build_baseline(project, root, config, case_id, actual, meta_in, reviewer):
             "instance": instance,
             "recorded_at": recorded_at,
             "reviewer": reviewer,
-            "dropped": dropped}
+            "dropped": dropped,
+            "matcherized": matcherized}
     return {"meta": meta, "expected": expected}
 
 
@@ -363,9 +397,10 @@ def cmd_from(project, root, config, args):
     for case_id, target, doc in docs:
         write_json(target, doc)
         written.append(rel(target, project))
-        print("at-baseline: %s → %s（dropped: %s；reviewer: %s）"
+        print("at-baseline: %s → %s（dropped: %s；matcherized: %s；reviewer: %s）"
               % (case_id, rel(target, project),
                  ", ".join(doc["meta"]["dropped"]) or "无",
+                 ", ".join(doc["meta"]["matcherized"]) or "无",
                  doc["meta"]["reviewer"]), file=sys.stderr)
     if args.reviewer == REVIEWER_DEFAULT:
         print("at-baseline: meta.reviewer 仍是 %r —— 审核者复核后改成自己的标识"
@@ -377,7 +412,8 @@ def cmd_from(project, root, config, args):
           "cases": [{"caseID": cid, "file": rel(target, project),
                      "source_hash": doc["meta"]["source_hash"],
                      "reviewer": doc["meta"]["reviewer"],
-                     "dropped": doc["meta"]["dropped"]}
+                     "dropped": doc["meta"]["dropped"],
+                     "matcherized": doc["meta"]["matcherized"]}
                     for cid, target, doc in docs],
           "written": written, "forced": bool(existing),
           "exit": EXIT_OK})

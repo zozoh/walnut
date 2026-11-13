@@ -63,13 +63,16 @@ python bin/at-baseline/at-baseline.py --audit
     "instance": "L1",
     "recorded_at": "2026-11-13T15:09:08+08:00",
     "reviewer": "unreviewed",
-    "dropped": ["pid"]
+    "dropped": ["pid"],
+    "matcherized": []
   },
   "expected": { "nm": "case101-dir", "race": "DIR" }
 }
 ```
 
 - **runner 只读 `expected`**：`meta` 不是断言，改 hash/审核者不会改变判定；
+- `expected` 里可以有 matcher（如 `"lm": {"$range": ["$t0", "$t1"]}`），与用例 md
+  内联期望是同一套；`meta.matcherized` 记明哪些字段是工具转的；
 - 没有 `expected` 键的**裸对象**（手写基线）整份当期望，向后兼容——但 `--audit`
   会报 `no-hash`（它没有来源哈希）；
 - `instance` / `recorded_at` 取自 actual 的 `_meta`（录制时的实例与时间）；
@@ -77,19 +80,25 @@ python bin/at-baseline/at-baseline.py --audit
 
 ## 清洗规则（定稿，工具执行）
 
-基线只收与**环境无关**的值。规则三条：
+基线只收与**环境无关**的值。规则四类：
 
 | 规则 | 处理 | 留痕 |
 |------|------|------|
-| 丢掉键 `id` / `pid` / `ct` / `lm` / `sha1` / `ph` / `mnt` / `ln` / `c` / `m` / `g` / `d0` / `d1`（任意深度） | 整键删除 | `meta.dropped` 记字段路径（嵌套用 `a.b`，数组用 `a[0]`） |
+| 丢掉键 `id` / `pid` / `sha1` / `ph` / `mnt` / `ln` / `c` / `m` / `g` / `d0` / `d1`（任意深度） | 整键删除 | `meta.dropped` 记字段路径（嵌套用 `a.b`，数组用 `a[0]`） |
 | 丢掉**值里含绝对路径**的键（`/home/…`、`/Users/…`、`C:\…`、`file://…`、UNC `\\host\…`） | 整键删除；数组元素删该元素 | `meta.dropped` 记 `字段 (absolute-path)` |
+| 时间类键 `ct` / `lm` / `expi`（值是数字） | 换成 `{"$range": ["$t0", "$t1"]}` | `meta.matcherized` 记字段路径 |
 | 其余原样保留 | —— | —— |
 
 - `meta.dropped` 是审核者的**复核入口**：如果业务字段被洗掉了，会在这里露出来
   （清洗太狠 = 基线变空 = 假绿）；
-- 键名判定在**任意深度**生效（对象快照里的 `pid`、数组元素里的绝对路径都会被处理）；
-- 时间类断言与基线互斥：`expected: baseline` 的用例 `## 期望` 里不能贴 json 块，
-  `$range` matcher 没有落点。时间不进基线，看证据（`clock.txt` / 对象快照）。
+- `meta.matcherized` 是被转成 matcher 的时间字段——"运行期被写入过"仍然可断言，
+  只是不写死时刻；
+- 键名判定在**任意深度**生效（对象快照里的 `pid`、嵌套的 `lm` 一样处理）；
+- **基线里的 `expected` 与用例 md 内联期望使用同一套 matcher**：比较器只认
+  `expected` 这个数据结构，不关心它来自 md 内联块还是基线文件，`$range` / `$regex` /
+  `$ignore` 在基线里照样生效；
+- `ct` / `lm` / `expi` 的值不是数字（字符串 / null / 对象）时没法转 `$range`，
+  退回 dropped（路径进 `meta.dropped`）。
 
 ## 来源哈希
 

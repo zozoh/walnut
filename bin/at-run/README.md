@@ -348,19 +348,20 @@ atlib 只依赖标准库与 `AT_*` 环境变量；失败一律 `SystemExit(2)` �
 {
   "meta": {"case": "CASE-101", "source_hash": "c98a92e31e265e2d",
            "instance": "L1", "recorded_at": "2026-11-13T15:09:08+08:00",
-           "reviewer": "unreviewed", "dropped": ["pid"]},
+           "reviewer": "unreviewed", "dropped": ["pid"], "matcherized": []},
   "expected": {"nm": "case101-dir", "race": "DIR"}
 }
 ```
 
 - 基线建立后要能**反复执行**：同一份基线在 L1 / L2、在别人的机器上都应通过。
   不同实例结果不同，本身就是用例或产品的问题，**不用"两套基线"消化**；
-- 所以基线只收**与环境无关**的值：`id` / `pid` / `ct` / `lm` / `sha1` / `ph` /
-  `mnt` / `ln` / `c` / `m` / `g` / `d0` / `d1` 与含绝对路径的值一律不进基线
-  （由 `at-baseline` 清洗，并记进 `meta.dropped`）；
-- 时间类断言与基线互斥：`expected: baseline` 的用例 `## 期望` 里不能再贴 json 块
-  （`--check` 报 `expected-mismatch`），`$range` matcher 也就没有落点——易变时间
-  不进基线，改为在证据（`clock.txt` / 对象快照）里人工核对；
+- 所以基线只收**与环境无关**的值：`id` / `pid` / `sha1` / `ph` / `mnt` / `ln` /
+  `c` / `m` / `g` / `d0` / `d1` 与含绝对路径的值一律不进基线（由 `at-baseline`
+  清洗，并记进 `meta.dropped`）；
+- 时间类字段 `ct` / `lm` / `expi` **不丢也不写死**：`at-baseline` 把数值转成
+  `{"$range": ["$t0", "$t1"]}`（记进 `meta.matcherized`），"运行期被写入过"仍可断言；
+- **基线里的 `expected` 与用例 md 内联期望使用同一套 matcher**（比较器只看
+  `expected` 这个结构）：`$range` / `$regex` / `$ignore` 在基线里同样生效；
 - 建法：`--record` 录 actual → `bin/at-baseline --from <actual.json>` 清洗落盘；
   已有基线缺 `--force` 不覆盖（防误刷），`--audit` 比对来源哈希报"待复核"；
 - 缺基线仍是 **blocked**（不算红），提示里给完整路径；本工具不建/不改基线；

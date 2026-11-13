@@ -1,17 +1,24 @@
 {
   "meta": {
     "case": "CASE-104",
-    "source_hash": "a44f1c9741e14a2e",
+    "source_hash": "2fa7cbc21c2ad36b",
     "instance": "L1",
-    "recorded_at": "2026-11-13T15:09:08+08:00",
+    "recorded_at": "2026-11-13T15:14:45+08:00",
     "reviewer": "unreviewed",
-    "dropped": [
+    "dropped": [],
+    "matcherized": [
       "lm"
     ]
   },
   "expected": {
     "nm": "hello.txt",
     "owner": "walnut",
-    "seq": 7
+    "seq": 7,
+    "lm": {
+      "$range": [
+        "$t0",
+        "$t1"
+      ]
+    }
   }
 }

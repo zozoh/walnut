@@ -14,8 +14,9 @@ expected: baseline
 
 - 夹具由 `atlib.fixture()` 铺好 `~/atest-lab/hello.txt`；本例只改它的元数据
   （`owner` / `seq`），不改内容。
-- `@update` 每次执行都会刷新 `lm`；它是易变字段，基线只锁 `nm` / `owner` / `seq`
-  （`lm` 的值看证据快照，不写进期望）。
+- `@update` 每次执行都会刷新 `lm`；基线不写死时刻——录基线时自动转成
+  `{"$range": ["$t0", "$t1"]}`（基线里的 `expected` 与内联期望用**同一套 matcher**），
+  断言 `lm` 落在本次执行区间内。
 - 重复执行写的是同一组元数据，结果一致；无独立清理脚本。
 
 ## 步骤
@@ -30,10 +31,9 @@ expected: baseline
 
 - `nm` = `hello.txt`；
 - `owner` = `walnut`；
-- `seq` = `7`。
-
-`lm` 是 `@update` 刷新的时间戳，属易变字段，**不进基线**（写死就没法在别的实例上过，
-基线会被录成垃圾）；它仍在证据的 `objects/` 快照与 `clock.txt` 里，需要时人工核对。
+- `seq` = `7`；
+- `lm` = 本次执行区间内的毫秒时间戳（基线里是 `{"$range": ["$t0", "$t1"]}`
+  matcher，不写死时刻；基线内的 `expected` 与内联期望使用同一套 matcher）。
 
 ## 证据
 
