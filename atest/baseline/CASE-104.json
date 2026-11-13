@@ -1,0 +1,17 @@
+{
+  "meta": {
+    "case": "CASE-104",
+    "source_hash": "a44f1c9741e14a2e",
+    "instance": "L1",
+    "recorded_at": "2026-11-13T15:09:08+08:00",
+    "reviewer": "unreviewed",
+    "dropped": [
+      "lm"
+    ]
+  },
+  "expected": {
+    "nm": "hello.txt",
+    "owner": "walnut",
+    "seq": 7
+  }
+}

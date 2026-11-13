@@ -1,0 +1,16 @@
+{
+  "meta": {
+    "case": "CASE-101",
+    "source_hash": "c98a92e31e265e2d",
+    "instance": "L1",
+    "recorded_at": "2026-11-13T15:09:08+08:00",
+    "reviewer": "unreviewed",
+    "dropped": [
+      "pid"
+    ]
+  },
+  "expected": {
+    "nm": "case101-dir",
+    "race": "DIR"
+  }
+}

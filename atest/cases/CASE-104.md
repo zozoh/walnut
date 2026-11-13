@@ -5,7 +5,7 @@ source: ATESET-06 / man cmd_o §@update
 contracts:
   - cmd_o @update
   - cmd_o @json
-expected: inline
+expected: baseline
 ---
 
 # CASE-104 改元数据后按路径读回新值
@@ -14,8 +14,8 @@ expected: inline
 
 - 夹具由 `atlib.fixture()` 铺好 `~/atest-lab/hello.txt`；本例只改它的元数据
   （`owner` / `seq`），不改内容。
-- `@update` 每次执行都会刷新 `lm`：用 `{"$range": ["$t0", "$t1"]}` 断言它落在本次执行区间内，
-  不写死时间戳。
+- `@update` 每次执行都会刷新 `lm`；它是易变字段，基线只锁 `nm` / `owner` / `seq`
+  （`lm` 的值看证据快照，不写进期望）。
 - 重复执行写的是同一组元数据，结果一致；无独立清理脚本。
 
 ## 步骤
@@ -26,16 +26,14 @@ expected: inline
 
 ## 期望
 
-`lm` 落在 runner 取的区间内，其余字段精确相等：
+只比基线 `atest/baseline/CASE-104.json` 的 `expected` 里出现的键：
 
-```json
-{
-  "nm": "hello.txt",
-  "owner": "walnut",
-  "seq": 7,
-  "lm": {"$range": ["$t0", "$t1"]}
-}
-```
+- `nm` = `hello.txt`；
+- `owner` = `walnut`；
+- `seq` = `7`。
+
+`lm` 是 `@update` 刷新的时间戳，属易变字段，**不进基线**（写死就没法在别的实例上过，
+基线会被录成垃圾）；它仍在证据的 `objects/` 快照与 `clock.txt` 里，需要时人工核对。
 
 ## 证据
 

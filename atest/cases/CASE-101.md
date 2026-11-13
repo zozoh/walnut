@@ -5,7 +5,7 @@ source: ATESET-06 / man cmd_o §@create
 contracts:
   - cmd_o @create
   - cmd_o @json
-expected: inline
+expected: baseline
 ---
 
 # CASE-101 在 atest-lab 下建目录后按路径读回
@@ -26,15 +26,13 @@ expected: inline
 
 ## 期望
 
-只比下面 json 里出现的键；`pid` 是父目录 id，本批显式声明不比较：
+只比基线 `atest/baseline/CASE-101.json` 的 `expected` 里出现的键：
 
-```json
-{
-  "nm": "case101-dir",
-  "race": "DIR",
-  "pid": {"$ignore": true}
-}
-```
+- `nm` = `case101-dir`；
+- `race` = `DIR`。
+
+`pid` 是父目录 id，跨实例不同（不可移植），属易变字段——它在基线里没有位置，
+工具录基线时会把它丢掉并在 `meta.dropped` 留痕。
 
 ## 证据
 

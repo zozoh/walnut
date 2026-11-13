@@ -14,6 +14,8 @@ JSON 输出、退出码有语义。直接用仓库里的同一份，**不要复�
 | `wn-cli` | 主力客户端：`login / cmd / obj / mnt / check-node / init-node` |
 | `walnut-at-init` | 工作目录 `.at/` 脚手架（懒惰模式，绝不重置已有积累） |
 | `at-init` | 项目 `atest/` 脚手架：ATEST 骨架、`atest.json` 配置与实例登记样例（只管 `atest/`，不管 `.at/`） |
+| `at-run` | 运行器：校验用例 → 解析实例/会话 → 逐例执行 → JSON 报告；`--record` 录 actual 供建基线 |
+| `at-baseline` | 基线：`--from` 把 actual 清洗成可移植基线（来源哈希 + `meta.dropped` 留痕），`--audit` 查"用例改了、基线没重审" |
 | `at-report` | 报告视图：JSON → Markdown（总览 / 用例表格 / 红灯 diff 与证据 / 趋势），并刷新 `latest.md` |
 
 行为契约（参数/退出码/输出格式）见

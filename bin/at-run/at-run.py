@@ -7,6 +7,9 @@ at-run — ATEST 运行器（v2）
 
     --check                 只校验用例（字段 / 命名 / 四节 / 期望声明一致性），不执行
     （无参数）              发现用例 → 解析实例 → 复用会话 → 逐例执行 → 写 JSON 报告
+    --record                同一次执行，另把每例 actual 写到
+                            <root>/report/<ts>.actual.json，供 bin/at-baseline 建基线；
+                            该模式**不比较期望**（录制不是验收，绿以普通运行为准）
     --only                  选例执行；--stop-on-fail 遇到红灯即停
     --instance L1|L2        跑哪一级实例（缺省读 atest.json 的 instance）
     --reset                 整批执行前先跑 <root>/cleanup.py（套件级清理）
@@ -52,6 +55,7 @@ at-run — ATEST 运行器（v2）
 
 报告（JSON，唯一源；Markdown 归 07）:
     <root>/report/<timestamp>.json  +  同内容的 latest.json
+    <root>/report/<timestamp>.actual.json  仅 --record：{CASE-ID: actual} + _meta
     {"schema","timestamp","instance","instance_source","total","passed",
      "failed","blocked","cases":[{"caseID","status","duration_ms","evidence_dir",
      "diff","evidence"}]}
@@ -66,6 +70,7 @@ at-run — ATEST 运行器（v2）
 """
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -106,6 +111,9 @@ IGNORE_KEYS = ("id", "pid", "ct", "lm", "sha1")
 # 期望 matcher（ATESET-04 T1 定稿的硬接口）：$ 前缀与普通字段区分，三者互斥
 MATCHER_KEYS = ("$ignore", "$range", "$regex")
 REPORT_SCHEMA = "atest-report/2"
+# --record 产出的 actual 文件（喂给 bin/at-baseline --from）；_meta 是录制元信息，
+# 其余键 = CASE-ID → 脚本 actual。at-baseline 把 _ 开头的键当元信息、不当用例。
+ACTUAL_SCHEMA = "atest-actual/1"
 
 # contracts 某项只写命令族不算"被测契约"（02 反例错误 3）
 GENERIC_CONTRACTS = ("o", "obj", "cmd", "cmd_o", "cmd_obj", "cmd_sqlx", "sqlx",
@@ -134,6 +142,7 @@ EPILOG = """\
   baseline / report 都在 <root>/ 下。atest.json 缺失 → 退出 2（先跑 at-init）。
   基线 <root>/baseline/<CASE-ID>.json 必须可移植：只收与环境无关的值（易变字段、
   绝对路径不写进基线），同一份基线在 L1/L2 与别人的机器上都要能过。
+  建立：--record 产 actual → bin/at-baseline --from 清洗后落盘（见其 README）。
 
 配置（项目根 atest.json，唯一来源）:
   root / instance / test_domain / init_template 都从这里读；
@@ -181,11 +190,14 @@ EPILOG = """\
 
 --check 警告码（只警告，不影响退出码）:
   init-template-missing / init-template-not-file / init-template-unreadable /
-  init-template-too-large / init-template-external-ref / init-template-include
+  init-template-too-large / init-template-external-ref / init-template-include /
+  baseline-missing / baseline-invalid / baseline-no-hash / baseline-stale /
+  baseline-hash-skipped
 
 示例:
   python bin/at-run/at-run.py --check
   python bin/at-run/at-run.py --check bin/at-init/tmpl/CASE-001.md
+  python bin/at-run/at-run.py --record
   python bin/at-run/at-run.py --instance L1 --only CASE-001,CASE-002
   python bin/at-run/at-run.py --instance L1 --reset
   python bin/at-run/at-run.py --instance L2 --stop-on-fail
@@ -576,6 +588,60 @@ def init_template_warnings(project, config, root):
     return out
 
 
+def source_hash(case_path, init_path):
+    """基线来源哈希：sha256(用例 md + 夹具模板) 前 16 位（ATESET-08 定稿）。
+
+    用例 md 或夹具模板改了，期望就可能变——两者都进哈希。
+    公式必须与 bin/at-baseline/at-baseline.py 完全一致（两处都写了注释）：
+        sha256("md\n" + md + "\\x00" + "init\n" + init + "\\x00")[:16]
+    CRLF 先归一成 LF，同一份内容在 Windows / Linux checkout 上哈希相同。
+    """
+    digest = hashlib.sha256()
+    for label, path in (("md", case_path), ("init", init_path)):
+        text = read_text(path).replace("\r\n", "\n").replace("\r", "\n")
+        digest.update(label.encode("ascii") + b"\n")
+        digest.update(text.encode("utf-8"))
+        digest.update(b"\x00")
+    return digest.hexdigest()[:16]
+
+
+def baseline_warnings(project, root, config, case_path, case_id):
+    """--check 对 expected: baseline 的警告：缺失 / 坏 JSON / 无哈希 / 哈希过期。
+
+    **只警告不阻塞**：基线可能还没建立（新用例常态），用例改了没重审也不该让
+    --check 变红——但必须让人看见，否则"绿灯"会拿着过期的期望跑。
+    """
+    path = Path(project) / root / "baseline" / ("%s.json" % case_id)
+    if not path.is_file():
+        return [warn_of(path, "baseline-missing",
+                        "缺基线 %s：该例执行时记 blocked；建法见 "
+                        "bin/at-baseline/README.md" % rel(path, project))]
+    try:
+        data = json.loads(path.read_text(encoding="utf-8-sig"))
+    except (ValueError, OSError, EnvError) as e:
+        return [warn_of(path, "baseline-invalid",
+                        "基线读不了或不是合法 JSON：%s" % e)]
+    if not isinstance(data, dict):
+        return [warn_of(path, "baseline-invalid", "基线顶层应为对象")]
+    meta = data.get("meta")
+    stored = meta.get("source_hash") if isinstance(meta, dict) else None
+    try:
+        current = source_hash(case_path, init_template_path(project, config, root))
+    except (EnvError, OSError) as e:
+        return [warn_of(path, "baseline-hash-skipped",
+                        "算不了来源哈希（夹具模板缺失/不可读？）：%s" % e)]
+    if not stored:
+        return [warn_of(path, "baseline-no-hash",
+                        "基线缺 meta.source_hash：用例改了也发现不了；"
+                        "用 at-baseline --from 重录（当前哈希 %s）" % current)]
+    if stored != current:
+        return [warn_of(path, "baseline-stale",
+                        "用例 md / 夹具模板已改，基线待复核："
+                        "基线 %s ≠ 当前 %s（重新审核后 at-baseline --from --force）"
+                        % (stored, current))]
+    return []
+
+
 def contract_is_generic(item):
     """契约项是否只写了命令族（02 反例错误 3）。"""
     text = item.strip()
@@ -769,6 +835,9 @@ def run_check(project, paths, root=ROOT_DEFAULT, config=None):
         fields, _sections, errs = check_case(path, text, root, project)
         errors.extend(errs)
         case_id = fields.get("caseID", "")
+        if case_id and fields.get("expected") == "baseline":
+            warnings.extend(baseline_warnings(project, root, config or {},
+                                             path, case_id))
         checked.append(str(path))
         if case_id:
             if case_id in seen:
@@ -786,7 +855,7 @@ def run_check(project, paths, root=ROOT_DEFAULT, config=None):
               "错误码含义见 --help）" % (len(checked), len(errors)),
               file=sys.stderr)
     if warnings:
-        print("at-run --check：%d 条警告（不阻塞；夹具模板问题见 --help）"
+        print("at-run --check：%d 条警告（不阻塞；夹具模板与基线问题见 --help）"
               % len(warnings), file=sys.stderr)
     return EXIT_OK if ok else EXIT_USAGE
 
@@ -955,7 +1024,16 @@ def load_expected(project, case, kind, root=ROOT_DEFAULT):
         return None, ("基线缺失：%s（expected: baseline；基线必须可移植——只收与"
                       "环境无关的值，L1/L2 与别人的机器上都要能过；由审核者建立，08）"
                       % rel(path, project))
-    return read_json_file(path), None
+    data = read_json_file(path)
+    # 基线格式 {"meta": {...}, "expected": {...}}：runner 只读 expected（meta 不是断言）；
+    # 没有 expected 键的裸对象（手写基线）整份当期望，向后兼容。
+    if isinstance(data, dict) and "expected" in data:
+        expected = data["expected"]
+        if not isinstance(expected, dict):
+            raise EnvError("基线 %s 的 expected 不是对象：基线期望必须是一个 JSON 对象"
+                           % rel(path, project))
+        return expected, None
+    return data, None
 
 
 def diff_of(path, expected, actual):
@@ -1046,38 +1124,45 @@ def last_json_line(stdout):
         return None, "stdout 最后一行不是 JSON：%r" % last[:200]
 
 
-def judge(returncode, stdout, expected, evidence, clock=None):
-    """按脚本契约判定一例；返回 (status, diff, note)。"""
+def judge(returncode, stdout, expected, evidence, clock=None, record=False):
+    """按脚本契约判定一例；返回 (status, diff, note, actual)。
+
+    record=True 时只验脚本契约（ok / actual 在位），**不比较期望**——那是 --record
+    的语义：录制不是验收。actual 供 --record 落盘（没取到时为 None）。
+    """
     result, problem = last_json_line(stdout)
     if problem:
         # 脚本以 2 退出但没来得及写结果 JSON（如 atlib 在 fixture/snap 里
         # _die）仍是"环境不可用"，按契约记 blocked，不伪装成红。
         if returncode == 2:
             return "blocked", [], ("脚本报环境不可用（exit 2）：%s"
-                                   % problem)
-        return "failed", [], problem
+                                   % problem), None
+        return "failed", [], problem, None
     write_json(Path(evidence) / "result.json", result)
     if not isinstance(result, dict):
-        return "failed", [], "结果 JSON 不是对象"
+        return "failed", [], "结果 JSON 不是对象", None
     ok = result.get("ok")
     message = result.get("error") or result.get("msg") or ""
     if ok is False:
         if returncode == 2:
             return "blocked", [], ("脚本报环境不可用（exit 2）：%s"
-                                   % (message or "（无 error 字段）"))
+                                   % (message or "（无 error 字段）")), None
         return "failed", [], ("脚本报失败：%s"
-                              % (message or "（无 error 字段）"))
+                              % (message or "（无 error 字段）")), None
     if ok is not True:
-        return "failed", [], "结果 JSON 缺 ok 布尔字段"
+        return "failed", [], "结果 JSON 缺 ok 布尔字段", None
     if returncode != 0:
         return "failed", [], ("脚本退出码 %d，但结果 JSON 声明 ok=true（矛盾）"
-                              % returncode)
+                              % returncode), None
     if "actual" not in result:
-        return "failed", [], "结果 JSON 声明 ok=true 但缺 actual 字段"
-    diffs = compare(expected, result["actual"], clock)
+        return "failed", [], "结果 JSON 声明 ok=true 但缺 actual 字段", None
+    actual = result["actual"]
+    if record:
+        return "passed", [], "", actual
+    diffs = compare(expected, actual, clock)
     if diffs:
-        return "failed", diffs, "与期望不一致（%d 处）" % len(diffs)
-    return "passed", [], ""
+        return "failed", diffs, "与期望不一致（%d 处）" % len(diffs), None
+    return "passed", [], "", actual
 
 
 # ---------------------------------------------------------------- 证据包
@@ -1110,10 +1195,13 @@ def script_notes(evidence):
 
 
 def write_summary(evidence, case_id, status, duration, diff, note, repro,
-                  clock, level, notes):
+                  clock, level, notes, record=False):
     """写人一眼看懂为什么红/绿的一句话总结（报告 evidence 清单会指向它）。"""
     lines = []
-    if status == "passed":
+    if status == "passed" and record:
+        lines.append("%s recorded —— 录制模式：脚本契约通过，本次不比较期望（%dms）"
+                     % (case_id, duration))
+    elif status == "passed":
         lines.append("%s passed —— 与期望一致（%dms）" % (case_id, duration))
     elif status == "failed":
         lines.append("%s failed —— %s" % (case_id, note or "判定失败"))
@@ -1344,6 +1432,7 @@ def run_suite(project, args, root, config, config_path):
                       % detail, file=sys.stderr)
 
     results = []
+    actuals = {}
     not_run = []
     stopped = False
     for case in selected:
@@ -1385,8 +1474,13 @@ def run_suite(project, args, root, config, config_path):
                 # 坏的期望文件/基线是项目资产问题：记 blocked 并继续跑其余用例，
                 # 不整体中断（失败隔离），也不把它伪装成红/绿。
                 missing = "期望值读取失败：%s" % e
-            if missing:
+            if missing and not args.record:
                 note = missing
+            elif missing:
+                # 录制模式：没有期望正是要录的场景（基线还没建就是这条路）；
+                # 原因留在证据里，不静默丢掉"为什么这次没比较"。
+                write_text(evidence / "note.txt",
+                           "录制模式：本次没有可比的期望（%s）\n" % missing)
         if note:
             write_text(evidence / "note.txt", note + "\n")
             write_summary(evidence, case_id, "blocked", 0, [], note, repro,
@@ -1442,11 +1536,16 @@ def run_suite(project, args, root, config, config_path):
             stderr = proc.stderr.decode("utf-8", "replace")
             write_text(evidence / "stdout.txt", stdout)
             write_text(evidence / "stderr.txt", stderr)
-            status, diff, note = judge(proc.returncode, stdout, expected,
-                                       evidence, {"t0": t0, "t1": t1})
+            status, diff, note, actual = judge(
+                proc.returncode, stdout, expected, evidence,
+                {"t0": t0, "t1": t1}, record=args.record)
             entry["status"] = status
             entry["duration_ms"] = duration
             entry["diff"] = diff
+            if args.record:
+                entry["recorded"] = actual is not None
+                if actual is not None:
+                    actuals[case_id] = actual
         except subprocess.TimeoutExpired as e:
             t1 = int(time.time() * 1000)
             duration = t1 - t0
@@ -1465,11 +1564,14 @@ def run_suite(project, args, root, config, config_path):
             write_text(evidence / "note.txt", note + "\n")
         write_summary(evidence, case_id, entry["status"], entry["duration_ms"],
                       entry["diff"], note, repro, clock, level,
-                      script_notes(evidence))
+                      script_notes(evidence), record=args.record)
         entry["evidence"] = evidence_files(evidence)
         results.append(entry)
-        line = "at-run: %s %s（%dms）" % (case_id, entry["status"],
-                                         entry["duration_ms"])
+        line = "at-run: %s %s（%dms）" % (
+            case_id,
+            "recorded" if args.record and entry["status"] == "passed"
+            else entry["status"],
+            entry["duration_ms"])
         if note:
             line += " —— " + note
         print(line, file=sys.stderr)
@@ -1491,24 +1593,55 @@ def run_suite(project, args, root, config, config_path):
               "failed": failed,
               "blocked": blocked,
               "cases": results}
+
+    actual_path = None
+    actual_doc = None
+    if args.record:
+        actual_path = report_base / (run_id + ".actual.json")
+        actual_doc = {"_meta": {"schema": ACTUAL_SCHEMA,
+                                "timestamp": report["timestamp"],
+                                "instance": level,
+                                "root": root,
+                                "report": rel(report_path, project),
+                                "recorded": len(actuals),
+                                "unrecorded": [r["caseID"] for r in results
+                                               if r["caseID"] not in actuals]}}
+        actual_doc.update(actuals)
+        # mode 标在报告上：录制跑出来的 passed 只代表脚本契约通过，不是验收绿。
+        report["mode"] = "record"
+        report["actual"] = rel(actual_path, project)
+
     write_json(report_path, report)
     write_json(latest_path, report)
+    if actual_path is not None:
+        write_json(actual_path, actual_doc)
 
     exit_code = EXIT_OK if failed == 0 else EXIT_USAGE
-    emit({"ok": failed == 0, "root": root,
-          "instance": level, "test_domain": domain,
-          "init_template": init_template,
-          "instance_source": instance_source, "session": se,
-          "reset": bool(args.reset), "cleanup": cleanup_state,
-          "total": len(results), "passed": passed, "failed": failed,
-          "blocked": blocked, "skipped": len(not_run),
-          "report": str(report_path.resolve()),
-          "latest": str(latest_path.resolve()), "exit": exit_code})
-    print("at-run: %s —— %d 例：%d 绿 / %d 红 / %d blocked%s（报告 %s）"
-          % (level, len(results), passed, failed, blocked,
-             "，%d 例未执行" % len(not_run) if not_run else "",
-             rel(report_path, project)),
-          file=sys.stderr)
+    summary = {"ok": failed == 0, "root": root,
+               "instance": level, "test_domain": domain,
+               "init_template": init_template,
+               "instance_source": instance_source, "session": se,
+               "reset": bool(args.reset), "cleanup": cleanup_state,
+               "total": len(results), "passed": passed, "failed": failed,
+               "blocked": blocked, "skipped": len(not_run),
+               "report": str(report_path.resolve()),
+               "latest": str(latest_path.resolve()), "exit": exit_code}
+    if args.record:
+        summary["mode"] = "record"
+        summary["recorded"] = len(actuals)
+        summary["actual"] = str(actual_path.resolve())
+    emit(summary)
+    if args.record:
+        print("at-run: %s —— 录制 %d 例 actual（%d 例未录到）→ %s；"
+              "本模式不比较期望，绿以普通 at-run 为准"
+              % (level, len(actuals), len(results) - len(actuals),
+                 rel(actual_path, project)), file=sys.stderr)
+    else:
+        print("at-run: %s —— %d 例：%d 绿 / %d 红 / %d blocked%s（报告 %s）"
+              % (level, len(results), passed, failed, blocked,
+                 "，%d 例未执行" % len(not_run) if not_run else "",
+                 rel(report_path, project)),
+              file=sys.stderr)
     return exit_code
 
 
@@ -1520,6 +1653,9 @@ def main(argv=None):
                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--check", action="store_true",
                     help="只校验用例（字段/命名/四节/期望声明一致性），不执行")
+    ap.add_argument("--record", action="store_true",
+                    help="跑全套并另写 <root>/report/<ts>.actual.json（供 "
+                         "at-baseline 建基线；本模式不比较期望）")
     ap.add_argument("paths", nargs="*", metavar="PATH",
                     help="--check 要检查的用例文件或目录（缺省 <dir>/<root>/cases）")
     ap.add_argument("--dir", default=".", metavar="DIR",
@@ -1549,9 +1685,11 @@ def main(argv=None):
     if args.timeout <= 0:
         emit({"ok": False, "error": "--timeout 必须大于 0"})
         return EXIT_USAGE
-    if args.check and (args.only or args.stop_on_fail or args.reset):
+    if args.check and (args.only or args.stop_on_fail or args.reset
+                       or args.record):
         emit({"ok": False,
-              "error": "--check 不接受 --only / --stop-on-fail / --reset"})
+              "error": "--check 不接受 --only / --stop-on-fail / --reset / "
+                       "--record"})
         return EXIT_USAGE
     if not args.check and args.paths:
         emit({"ok": False,

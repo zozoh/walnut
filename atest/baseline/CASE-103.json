@@ -1,0 +1,17 @@
+{
+  "meta": {
+    "case": "CASE-103",
+    "source_hash": "30665da260f3987e",
+    "instance": "L1",
+    "recorded_at": "2026-11-13T15:09:08+08:00",
+    "reviewer": "unreviewed",
+    "dropped": []
+  },
+  "expected": {
+    "nm": [
+      "c103-a",
+      "c103-b",
+      "c103-c"
+    ]
+  }
+}

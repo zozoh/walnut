@@ -6,7 +6,7 @@ contracts:
   - cmd_o @create
   - cmd_o @query
   - cmd_o @json
-expected: inline
+expected: baseline
 ---
 
 # CASE-103 按元数据条件查询并按名字排序
@@ -29,13 +29,10 @@ expected: inline
 
 ## 期望
 
-命中集合的名字有序列表（干扰对象 `c103-x` 不出现）：
+只比基线 `atest/baseline/CASE-103.json` 的 `expected` 里出现的键：
 
-```json
-{
-  "nm": ["c103-a", "c103-b", "c103-c"]
-}
-```
+- `nm` = 命中集合的名字有序列表（`c103-a` / `c103-b` / `c103-c`；干扰项
+  `c103-x` 不出现，顺序按 `-sort '{nm:1}'`）。
 
 ## 证据
 

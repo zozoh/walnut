@@ -60,6 +60,10 @@ python bin/at-run/at-run.py --check atest/cases/
 # 全量跑（级别 / 测试域 / 端点都按 atest.json 与 .wn-instances.json 解析）
 python bin/at-run/at-run.py
 
+# 录制：跑全套并另写 <ts>.actual.json（不比较期望；喂给 bin/at-baseline 建基线）
+python bin/at-run/at-run.py --record
+python bin/at-run/at-run.py --record --only CASE-101,CASE-102
+
 # 只跑一例 / 一个套件；遇到红灯即停
 python bin/at-run/at-run.py --only CASE-001
 python bin/at-run/at-run.py --only CASE-001,CASE-002 --stop-on-fail
@@ -75,6 +79,7 @@ python bin/at-run/at-run.py --root spec --check
 | 参数 | 说明 |
 |------|------|
 | `--check` | 只校验，不执行；可用位置参数指定文件或目录（缺省 `<dir>/<root>/cases`） |
+| `--record` | 跑全套并另写 `<root>/report/<ts>.actual.json`；只验脚本契约，**不比较期望** |
 | `--dir DIR` | 项目目录（默认当前目录） |
 | `--root NAME` | 集成测试根目录；缺省读 `atest.json` 的 `root`，再缺省 `atest` |
 | `--instance L1\|L2` | 实例级别；缺省读 `atest.json` 的 `instance` |
@@ -108,6 +113,23 @@ stdout 是**单行 JSON**（提示与逐例进度进 stderr）：
 
 `skipped` = `--stop-on-fail` 提前结束时未执行的用例数（它们**不进报告**，但一定
 出现在这个字段与 stderr 摘要里，不静默）。
+
+`--record` 另写一份 actual（同一次执行的产物；`_meta` 是录制元信息，其余键 =
+CASE-ID → 脚本 actual）：
+
+```json
+{"_meta":{"schema":"atest-actual/1","timestamp":"2026-11-13T15:09:08+08:00",
+          "instance":"L1","root":"atest","report":"atest/report/…json",
+          "recorded":4,"unrecorded":[]},
+ "CASE-101":{"nm":"case101-dir","race":"DIR","pid":"…"}}
+```
+
+- `_meta` 以 `_` 开头，`at-baseline` 不当用例读；`unrecorded` = 跑了但没拿到
+  `actual` 的用例（脚本失败 / blocked），不静默；
+- 报告里多出 `mode: "record"` 与 `actual`：这次 `passed` **只代表脚本契约通过**，
+  不是验收绿——验收用普通运行；
+- 录制模式不因"缺期望"而 blocked：`expected: baseline` 还没建基线时正该录这一轮
+  （没有可比的期望会把原因写进证据 `note.txt`）。
 
 `--check` 的 stdout 还带 `root`；它读同一份配置（缺 `atest.json` 或 `instance`
 为空同样退出 2），只是不执行。
@@ -230,6 +252,19 @@ emit({"atest-owner": obj.get("atest-owner")})
 | `init-template-external-ref` | `%COPY >` / `%TMPL >` / `%EXPLAIN >` 等外部文件引用 |
 | `init-template-include` | `@INCLUDE`（也是外部文件引用） |
 
+### `--check` 的基线警告（不阻塞）
+
+`--check` 对每个 `expected: baseline` 的用例校验基线**存在 + 来源哈希**，
+问题只进 `warnings`、不影响 `ok` / 退出码：
+
+| 警告码 | 含义 |
+|---|---|
+| `baseline-missing` | 基线还没建（该例执行时记 blocked；建法见 `bin/at-baseline/README.md`） |
+| `baseline-invalid` | 基线读不了 / 不是合法 JSON / 顶层不是对象 |
+| `baseline-no-hash` | 基线缺 `meta.source_hash`（手写的裸对象基线）：改了用例也发现不了 |
+| `baseline-stale` | 用例 md / 夹具模板已改，基线待复核（哈希对不上） |
+| `baseline-hash-skipped` | 夹具模板缺失/不可读，算不了哈希（另见 `init-template-*` 警告） |
+
 ## 期望 matcher（T1 定稿）
 
 `## 期望` 里某个字段的值可以是 matcher 对象（`$` 前缀与普通字段区分）：
@@ -307,14 +342,30 @@ atlib 只依赖标准库与 `AT_*` 环境变量；失败一律 `SystemExit(2)` �
 <root>/baseline/<CASE-ID>.json      # 如 atest/baseline/CASE-101.json
 ```
 
+文件格式（`meta` 是溯源信息，**runner 只读 `expected`**）：
+
+```json
+{
+  "meta": {"case": "CASE-101", "source_hash": "c98a92e31e265e2d",
+           "instance": "L1", "recorded_at": "2026-11-13T15:09:08+08:00",
+           "reviewer": "unreviewed", "dropped": ["pid"]},
+  "expected": {"nm": "case101-dir", "race": "DIR"}
+}
+```
+
 - 基线建立后要能**反复执行**：同一份基线在 L1 / L2、在别人的机器上都应通过。
   不同实例结果不同，本身就是用例或产品的问题，**不用"两套基线"消化**；
-- 所以基线只收**与环境无关**的值：`id` / `pid` / `ct` / `lm` / `sha1`、绝对路径
-  （如 `ph`）、会话名/机器名等一律不写进基线；时间类约束用用例 `## 期望` 里的
-  `$range` 表达，不要往基线里塞执行时刻；
-- 缺基线仍是 **blocked**（不算红），提示里给完整路径；本工具不建基线、不改基线（08）；
-- `--check` 不要求基线存在（尚未建立是常态），但期望声明与内容矛盾会报
-  `expected-mismatch`。
+- 所以基线只收**与环境无关**的值：`id` / `pid` / `ct` / `lm` / `sha1` / `ph` /
+  `mnt` / `ln` / `c` / `m` / `g` / `d0` / `d1` 与含绝对路径的值一律不进基线
+  （由 `at-baseline` 清洗，并记进 `meta.dropped`）；
+- 时间类断言与基线互斥：`expected: baseline` 的用例 `## 期望` 里不能再贴 json 块
+  （`--check` 报 `expected-mismatch`），`$range` matcher 也就没有落点——易变时间
+  不进基线，改为在证据（`clock.txt` / 对象快照）里人工核对；
+- 建法：`--record` 录 actual → `bin/at-baseline --from <actual.json>` 清洗落盘；
+  已有基线缺 `--force` 不覆盖（防误刷），`--audit` 比对来源哈希报"待复核"；
+- 缺基线仍是 **blocked**（不算红），提示里给完整路径；本工具不建/不改基线；
+- `--check` 不要求基线存在，但对存在性/哈希给 warning（见上表）；期望声明与内容
+  矛盾仍报 `expected-mismatch`。
 
 ## 报告
 
@@ -375,7 +426,7 @@ atlib 只依赖标准库与 `AT_*` 环境变量；失败一律 `SystemExit(2)` �
   三个 matcher 之外的自定义比较交给用例脚本自己算；
 - 不做全量快照（只存脚本显式 `snap()` 的路径）；夹具走 `atlib.fixture()`
   的本地最小渲染器（**不调用 `app init`**）；不挂 `mnt`；不写 Markdown 报告（07）；
-  不建基线（08）；**不并发**执行；
+  不建基线（`--record` 只录 actual，清洗/落盘归 `bin/at-baseline`）；**不并发**执行；
 - 夹具 v1 只支持 `@DIR` / `@FILE` + `%TMPL:` / `%EXPLAIN:` / `%COPY:` 内联块；
   `@HOME` / `@ENV` / `@API` / `@INCLUDE` / `%COPY >` / `?` 条件写入明确拒绝；
 - 清理脚本的约束是**约定**，工具不做静态检查：不许删域 / 删数据目录，只删自己造的对象；

@@ -5,7 +5,7 @@ source: ATESET-06 / man cmd_echo、cmd_cat
 contracts:
   - cmd_echo -n 重定向写文本
   - cmd_cat ~/atest-lab/docs/case102-note.txt
-expected: inline
+expected: baseline
 ---
 
 # CASE-102 写入文本后 cat 读回内容完全一致
@@ -25,13 +25,10 @@ expected: inline
 
 ## 期望
 
-文件内容字符串完全相等：
+只比基线 `atest/baseline/CASE-102.json` 的 `expected` 里出现的键：
 
-```json
-{
-  "content": "hello from atest case102"
-}
-```
+- `content` = 写进去的原文 `hello from atest case102`（字符串完全相等，
+  不做包含/前缀比较）。
 
 ## 证据
 
