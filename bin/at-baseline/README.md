@@ -17,7 +17,7 @@ bug，**不用"两套基线"消化**（2026-11-13 用户裁定）。
 让用例作者自己录基线，等于把"当前实现"固化成"预期"。所以本工具只做**机械动作**：
 
 ```text
-at-run --record                     → <root>/report/<ts>.actual.json
+at-run --record                     → <root>/report/<ts>/actual.json
 at-baseline --from <actual.json>    → <root>/baseline/<CASE-ID>.json（清洗 + meta）
 at-baseline --audit                 → 用例 md / 夹具模板变了就报 stale
 ```
@@ -31,7 +31,7 @@ at-baseline --audit                 → 用例 md / 夹具模板变了就报 sta
 python bin/at-run/at-run.py --record
 
 # 2) 清洗落盘（已有基线缺 --force 会拒绝，一个文件都不写）
-python bin/at-baseline/at-baseline.py --from atest/report/20261113T150908.actual.json
+python bin/at-baseline/at-baseline.py --from atest/report/20261113T150908/actual.json
 
 # 3) 只录/只刷其中几例，并签名
 python bin/at-baseline/at-baseline.py --from <file> --only CASE-101,CASE-102 --reviewer 智群
@@ -42,7 +42,7 @@ python bin/at-baseline/at-baseline.py --audit
 
 | 参数 | 说明 |
 |------|------|
-| `--from FILE` | `at-run --record` 产的 `<ts>.actual.json`（与 `--audit` 二选一） |
+| `--from FILE` | `at-run --record` 产的 `<ts>/actual.json`（与 `--audit` 二选一） |
 | `--audit` | 扫全部基线，比对来源哈希；有问题退出 1 |
 | `--dir DIR` | 项目目录（默认当前目录） |
 | `--root NAME` | 集成测试根目录；缺省读 `<dir>/atest.json` 的 `root`，再缺省 `atest` |
