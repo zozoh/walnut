@@ -32,8 +32,8 @@ ATESET-02 定稿（模板 [`bin/at-init/tmpl/CASE-001.md`](../at-init/tmpl/CASE-
 }
 ```
 
-- `root`：集成测试根目录；`cases/` / `scripts/` / `expect/` /
-  `baseline/<实例>/` / `report/` 都在它下面（基线按实例分目录，见下文）；
+- `root`：集成测试根目录；`cases/` / `scripts/` / `expect/` / `baseline/` /
+  `report/` 都在它下面；
 - `instance`：`L1` / `L2`，缺省来源；为空时执行退出 2；
 - `test_domain`：会话名 `<级别>-<域>-00`；
 - `init_template`：夹具模板路径（v1 只读取并在 stdout 回显；渲染归 ATESET-05）；
@@ -207,29 +207,24 @@ atlib 只依赖标准库与 `AT_*` 环境变量；失败一律 `SystemExit(2)` �
     `note.txt` / `clock.txt`（`$t0` / `$t1` 的毫秒与本地时间）；
 - `blocked` 的来源：缺脚本（未实现）、缺期望文件或基线（`expected: file` /
   `baseline`）、期望文件/基线不是合法 JSON（记 blocked 而非红，也不中断其余用例）。
-  基线缺失不算红（路径按实例展开，08 建立；L1 对照审核、L2 最终判定）。
+  基线缺失不算红（基线由 08 的审核者建立，必须可移植）。
 
-## 基线（按实例分目录）
+## 基线（必须可移植）
 
-`expected: baseline` 的期望值放在：
-
-```text
-<root>/baseline/<实例>/<CASE-ID>.json
-```
-
-`<实例>` 是本次运行解析出的级别（`--instance` 或 `atest.json` 的 `instance`）：
+`expected: baseline` 的期望值放在单一、可移植的路径：
 
 ```text
-atest/baseline/L1/CASE-101.json    # L1 基线：用于对照审核（用户拿它比）
-atest/baseline/L2/CASE-101.json    # L2 基线：最终判定（08 由审核者建立）
+<root>/baseline/<CASE-ID>.json      # 如 atest/baseline/CASE-101.json
 ```
 
-- 级别不同、期望值就可能不同，所以**不共用一份文件**，避免 L1/L2 互相覆盖；
-- 缺基线仍是 **blocked**（不算红），提示里带按级别展开的完整路径；本工具不建基线、
-  不改基线（08）；
+- 基线建立后要能**反复执行**：同一份基线在 L1 / L2、在别人的机器上都应通过。
+  不同实例结果不同，本身就是用例或产品的问题，**不用"两套基线"消化**；
+- 所以基线只收**与环境无关**的值：`id` / `pid` / `ct` / `lm` / `sha1`、绝对路径
+  （如 `ph`）、会话名/机器名等一律不写进基线；时间类约束用用例 `## 期望` 里的
+  `$range` 表达，不要往基线里塞执行时刻；
+- 缺基线仍是 **blocked**（不算红），提示里给完整路径；本工具不建基线、不改基线（08）；
 - `--check` 不要求基线存在（尚未建立是常态），但期望声明与内容矛盾会报
-  `expected-mismatch`，文案里同样给出按级别展开的路径（`--check` 用的是
-  `--instance` 或 `atest.json` 的级别）。
+  `expected-mismatch`。
 
 ## 报告
 

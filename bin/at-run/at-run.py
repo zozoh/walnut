@@ -114,8 +114,9 @@ ATEST 运行器：校验用例、解析实例、复用会话、逐例执行并�
 EPILOG = """\
 根目录:
   atest.json 的 root（缺省 atest）→ --root 覆盖；cases / scripts / expect /
-  baseline/<实例> / report 都在 <root>/ 下。atest.json 缺失 → 退出 2（先跑 at-init）。
-  基线按实例分目录：<root>/baseline/L1|L2/<CASE-ID>.json（L1 对照审核、L2 最终判定）。
+  baseline / report 都在 <root>/ 下。atest.json 缺失 → 退出 2（先跑 at-init）。
+  基线 <root>/baseline/<CASE-ID>.json 必须可移植：只收与环境无关的值（易变字段、
+  绝对路径不写进基线），同一份基线在 L1/L2 与别人的机器上都要能过。
 
 配置（项目根 atest.json，唯一来源）:
   root / instance / test_domain / init_template 都从这里读；
@@ -455,7 +456,7 @@ def err_of(path, case_id, code, message):
             "message": message}
 
 
-def check_case(path, text, root=ROOT_DEFAULT, project=None, level=None):
+def check_case(path, text, root=ROOT_DEFAULT, project=None):
     """校验一个用例文件；返回 (fields, sections, errors)。root 只用于路径文案。"""
     errors = []
     fm, body = split_front_matter(text)
@@ -542,9 +543,8 @@ def check_case(path, text, root=ROOT_DEFAULT, project=None, level=None):
         elif kind == "baseline" and blocks:
             errors.append(err_of(path, case_id, "expected-mismatch",
                                  "expected: baseline 却贴了内联 json 块：基线的值只能"
-                                 "来自 %s/baseline/%s/%s.json（按实例分目录，"
-                                 "审核者写）"
-                                 % (root, level or "<instance>", case_id)))
+                                 "来自 %s/baseline/%s.json（基线必须可移植：只收与"
+                                 "环境无关的值）" % (root, case_id)))
 
         if data is None and blocks and kind != "inline":
             # 声明与内容矛盾已单独报错；这里只为易变字段检查试着解析
@@ -587,7 +587,7 @@ def collect_cases(paths, project, root=ROOT_DEFAULT):
     return sorted(x for x in cases_dir.glob("*.md") if x.is_file())
 
 
-def run_check(project, paths, root=ROOT_DEFAULT, level=None):
+def run_check(project, paths, root=ROOT_DEFAULT):
     targets = collect_cases(paths, project, root)
     errors = []
     seen = {}
@@ -598,7 +598,7 @@ def run_check(project, paths, root=ROOT_DEFAULT, level=None):
         except EnvError as e:
             errors.append(err_of(path, "", "read-failed", str(e)))
             continue
-        fields, _sections, errs = check_case(path, text, root, project, level)
+        fields, _sections, errs = check_case(path, text, root, project)
         errors.extend(errs)
         case_id = fields.get("caseID", "")
         checked.append(str(path))
@@ -763,12 +763,12 @@ def read_json_file(path):
         raise EnvError("期望文件不是合法 JSON：%s（%s）" % (path, e))
 
 
-def load_expected(project, case, kind, root=ROOT_DEFAULT, level=None):
+def load_expected(project, case, kind, root=ROOT_DEFAULT):
     """按 expected 声明取期望值；返回 (值, 缺失原因)。缺基线/期望文件 = blocked。
 
-    baseline **按实例分目录**：<root>/baseline/<实例>/<CASE-ID>.json
-    （L1 基线用于对照审核，L2 基线是最终判定；级别不同期望值可能不同，
-    所以不共用一份文件）。
+    baseline 是**单一、可移植**的路径：<root>/baseline/<CASE-ID>.json。
+    同一份基线在 L1 / L2、在别人的机器上都要能过；不同实例结果不同就是 bug，
+    不用"两套基线"消化。
     """
     case_id = case["caseID"]
     if kind == "inline":
@@ -778,11 +778,10 @@ def load_expected(project, case, kind, root=ROOT_DEFAULT, level=None):
         if not path.is_file():
             return None, "期望文件缺失：%s（expected: file）" % rel(path, project)
         return read_json_file(path), None
-    instance = level or "<instance>"
-    path = Path(project) / root / "baseline" / instance / ("%s.json" % case_id)
+    path = Path(project) / root / "baseline" / ("%s.json" % case_id)
     if not path.is_file():
-        return None, ("基线缺失：%s（expected: baseline，按实例分目录；"
-                      "L1 基线用于对照审核、L2 基线为最终判定，由审核者建立，08）"
+        return None, ("基线缺失：%s（expected: baseline；基线必须可移植——只收与"
+                      "环境无关的值，L1/L2 与别人的机器上都要能过；由审核者建立，08）"
                       % rel(path, project))
     return read_json_file(path), None
 
@@ -1044,7 +1043,7 @@ def run_suite(project, args, root, config, config_path):
     parsed = []
     for path in files:
         fields, sections, errors = check_case(path, read_text(path), root,
-                                              project, level)
+                                              project)
         expected_value = None
         if fields.get("expected") == "inline":
             blocks = json_blocks(sections.get("期望", ""))
@@ -1130,8 +1129,7 @@ def run_suite(project, args, root, config, config_path):
         else:
             try:
                 expected, missing = load_expected(
-                    project, case, case["fields"].get("expected", ""), root,
-                    level)
+                    project, case, case["fields"].get("expected", ""), root)
             except EnvError as e:
                 # 坏的期望文件/基线是项目资产问题：记 blocked 并继续跑其余用例，
                 # 不整体中断（失败隔离），也不把它伪装成红/绿。
@@ -1298,8 +1296,7 @@ def main(argv=None):
             raise EnvError("实例级别未定：在 %s 里填 instance（如 L1 / L2），"
                            "或用 --instance 覆盖" % config_path)
         if args.check:
-            return run_check(project, args.paths, root,
-                             args.instance or config.get("instance"))
+            return run_check(project, args.paths, root)
         return run_suite(project, args, root, config, config_path)
     except UsageError as e:
         emit({"ok": False, "error": str(e)})
