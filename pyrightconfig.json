@@ -1,0 +1,19 @@
+{
+  "include": [
+    "atest",
+    "bin/at-run",
+    "bin/at-init",
+    "bin/at-baseline"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    "target",
+    "dist"
+  ],
+  "extraPaths": [
+    "bin/at-run"
+  ],
+  "pythonVersion": "3.12",
+  "typeCheckingMode": "basic"
+}
