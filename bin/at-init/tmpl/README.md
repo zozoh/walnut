@@ -16,11 +16,24 @@
    ```
 
 3. 确认 `atest.json` 里的 `instance` / `test_domain` 与你的环境一致；
-4. **登录一次**（之后会话会被复用；失效时工具会自动删缓存，重新登录即可）：
+4. **会话（二选一）**
 
-   ```powershell
-   python ../walnut/bin/wn-cli/wn-cli.py --level L1 login --usr demo --passwd 123456
-   ```
+   - **A. 配凭据，自动登录（推荐）**：在工作目录建 `.at/credentials.json`（已在 .gitignore）：
+
+     ```json
+     { "usr": "demo", "passwd": "123456" }
+     ```
+
+     之后每次跑测试，工具发现没有会话就自动登录；会话过期会自动删缓存并重建，你什么都不用管。
+
+   - **B. 手工登录一次**：不配凭据文件，就先登录一次，再跑测试：
+
+     ```powershell
+     python ../walnut/bin/wn-cli/wn-cli.py --level L1 login --usr demo --passwd 123456
+     python atest/run.py
+     ```
+
+     会话会被复用；过期时手工再登录一次即可。
 
 日常（在项目根执行）：
 
@@ -69,6 +82,9 @@ python atest/run.py --reset              # 整批跑之前先执行 atest/cleanu
 ## 环境依赖
 
 - **Python 3.10+**（`at-run` / `atlib` / `at-init` 均为标准库实现，**没有第三方依赖**）；
+- **首次运行不用手工造会话**：配 `.at/credentials.json`（`{"usr":"…","passwd":"…"}`，不进 git）
+  就自动登录；不配就先手工登录一次（见上方第 4 步）。缺凭据且没有会话时，
+  工具会明确报错并给出 JSON 形状与登录命令。
 - 不需要 `pip install` 任何东西；如果你的机器上 `python` 指向 2.x，用 `python3` 或改 PATH；
 - 跑测试**不需要** Java / Maven —— 只有构建 Walnut 本身才需要；
 - Windows 上建议用 PowerShell；**Git Bash 用户**注意先 `export MSYS2_ARG_CONV_EXCL='*'`，
@@ -100,6 +116,13 @@ atest/
 
 **跑之前报"实例不可用"（退出码 2）**
 实例没起、端口不对，或 `.wn-instances.json` 没找到。依次确认：实例在跑 → 端口对 → 文件在项目根或工作区根。
+
+**报"缺凭据文件"（退出码 2）**
+二选一：建 `.at/credentials.json`（`{"usr":"…","passwd":"…"}`，不进 git），之后工具自动登录；
+或者先手工 `wn-cli … login` 一次再跑（会话会被复用）。
+
+**会话失效（401）**
+配了凭据文件时，工具会自动删缓存并重建，无需手工处理；没配凭据就先手工再登录一次。
 
 **报"基线缺失 / blocked"**
 该用例声明了 `expected: baseline` 但还没建基线。先 `--record` 再 `at-baseline --from`，由**审核者**签发。

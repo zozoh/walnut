@@ -24,12 +24,17 @@ at-run — ATEST 运行器（v2）
     端点:  .wn-instances.json（--instances > $WN_INSTANCES > 从项目目录逐级向上
            > 用户目录；先命中先用）→ 报错，并打印搜过的路径清单与模板
     会话:  工作区级会话池（.wn-instances.json 所在目录的 .at/client/session）里的
-           <级别>-<测试域>-00；**只复用、不代登录**——缺失或失效就退出 2 并提示登录命令。
+           <级别>-<测试域>-00；存在就直接复用（不看凭据文件），不存在就用凭据
+           自动登录（--creds / atest.json 的 credentials_file /
+           .at/credentials.json）；没凭据则退出 2 并给出两条路。执行中 401
+           自动重登一次并重跑该例。
 
 配置解析（项目根 atest.json，唯一来源）:
     root:         atest.json 的 root（缺省 atest）→ --root 覆盖。
     instance:     --instance 覆盖 → atest.json 的 instance → 空则退出 2。
     test_domain:  --domain 覆盖 → atest.json 的 test_domain → 空则退出 2。
+    credentials_file: atest.json 的 credentials_file（缺省 .at/credentials.json）
+                    → --creds 覆盖；只在需要自动登录时读（--check 不读、不登录）。
     init_template: atest.json 的 init_template（缺省 <root>/atest.init）；
                    夹具模板；--check 会警告缺失、异常大与 v1 不支持的外部引用。
     atest.json 缺失 → 退出 2，提示先跑 at-init 或补上配置。
@@ -62,9 +67,11 @@ at-run — ATEST 运行器（v2）
     schema = "atest-report/2"（v1 无此键，只增不改；v2 用例格式去掉 suite）；
     status = passed / failed / blocked（blocked = 未实现或缺基线，不算红）；
     evidence 是相对证据目录的文件清单（summary.txt / objects/… 等）。
+    stdout 摘要另有 session_created（本次是否新建会话：true = 自动登录新建，
+    false = 复用已有会话），便于人确认没有悄悄换身份。
 
 退出码: 0 全绿（failed 为 0，blocked 不算红）；1 有红 / 用法错误；
-        2 环境不可用（atest.json 或实例登记缺失、端口不通、会话缺失或失效）。
+        2 环境不可用（atest.json 或实例登记缺失、端口不通、缺凭据或自动登录失败）。
 
 零依赖 Python3；所有写入 UTF-8 无 BOM、LF。
 """
@@ -84,9 +91,17 @@ from pathlib import Path
 EXIT_OK = 0
 EXIT_USAGE = 1
 EXIT_ENV = 2
+# wn-cli 的认证失败退出码（401 / 登录失败）；执行中命中它 → 重登一次并重跑该例
+EXIT_AUTH = 3
+WNCLI_AUTH_RE = re.compile(r"wn-cli 退出码 3(?![0-9])")
 
 INSTANCES_NAME = ".wn-instances.json"
 CONFIG_NAME = "atest.json"
+
+# 凭据（ATESET 会话透明化）：--creds > atest.json 的 credentials_file > 该缺省
+CREDS_DEFAULT = ".at/credentials.json"
+# 缺凭据时给人看的可照抄形状；口令由使用者自己填，工具不猜、不写进仓库
+CREDS_SHAPE = '{"usr":"…","passwd":"…"}'
 
 ROOT_DEFAULT = "atest"
 # 集成测试根目录名：不许路径分隔符，也不许 . / ..（否则路径会跑出项目）
@@ -145,8 +160,9 @@ EPILOG = """\
   建立：--record 产 actual → bin/at-baseline --from 清洗后落盘（见其 README）。
 
 配置（项目根 atest.json，唯一来源）:
-  root / instance / test_domain / init_template 都从这里读；
-  --root / --instance / --domain 可覆盖；instance 为空 → 退出 2（--check 也一样）。
+  root / instance / test_domain / init_template / credentials_file 都从这里读；
+  --root / --instance / --domain / --creds 可覆盖；instance 为空 → 退出 2
+  （--check 也一样）；凭据只在需要自动登录时读（--check 不读、不登录）。
 
 用例发现:
   <dir>/<root>/cases/*.md    文件名 = caseID；脚本 <root>/scripts/<caseID>.py
@@ -161,7 +177,12 @@ EPILOG = """\
 实例与会话:
   级别  --instance L1|L2  →  atest.json 的 instance  →  报错
   端点  .wn-instances.json（--instances > $WN_INSTANCES > 逐级向上 > 用户目录）
-  会话  工作区池 .at/client/session 的 <级别>-<测试域>-00（只复用；缺失请先 wn-cli login）
+  会话  工作区池 .at/client/session 的 <级别>-<测试域>-00；
+        存在就直接复用（不看凭据文件）；不存在就自动登录（凭据：--creds >
+        atest.json 的 credentials_file > .at/credentials.json，形状
+        {"usr":"…","passwd":"…"}，不进 git）；没凭据 → 退出 2 并给出两条路
+        （建凭据自动登录 / 先手工 wn-cli login 一次）。
+        执行中 401 自动重登一次并重跑该例；仍失败记 failed（不是 blocked）。
 
 脚本契约（ATESET-03 T1 定稿）:
   注入 AT_LEVEL / AT_URL / AT_SESSION_DIR / AT_DOMAIN / AT_WNCLI / AT_CASE_ID / AT_OUT
@@ -201,6 +222,7 @@ EPILOG = """\
   python bin/at-run/at-run.py --instance L1 --only CASE-001,CASE-002
   python bin/at-run/at-run.py --instance L1 --reset
   python bin/at-run/at-run.py --instance L2 --stop-on-fail
+  python bin/at-run/at-run.py --creds .at/temp-creds.json
   python bin/at-run/at-run.py --root spec --check
 """
 
@@ -965,22 +987,98 @@ def run_wncli(wncli, argv, cwd, timeout=60.0):
             proc.stderr.decode("utf-8", "replace"))
 
 
-def ensure_session(wncli, level, domain, session_dir, url, project):
-    """复用工作区池会话 <级别>-<测试域>-00；缺失/失效/指错端点一律退出 2。"""
-    se = "%s-%s-00" % (level, domain)
-    sess_file = session_dir / (se + ".toml")
-    if not sess_file.is_file():
-        raise EnvError("会话池里没有 %s：先登录一次——\n"
-                       "  python bin/wn-cli/wn-cli.py --level %s login "
-                       "--usr <登录名> --passwd <密码>\n（会话池：%s）"
-                       % (se, level, session_dir))
-    base = session_base(sess_file)
-    if base and base.rstrip("/") != url.rstrip("/"):
-        raise EnvError("会话 %s 指向 %s，与本次端点 %s 不一致：拒绝复用"
-                       "（防 L1/L2 混跑）。确认后用 wn-cli 重新登录"
-                       % (se, base, url))
+def resolve_creds_path(project, config, override):
+    """凭据文件：--creds > atest.json 的 credentials_file > .at/credentials.json。
+
+    --creds 的相对路径按当前目录解析（与 --instances / --session-dir 一致）；
+    atest.json 里的相对路径按项目目录解析（配置就在项目根）。
+    """
+    if override:
+        return Path(override).expanduser().resolve()
+    raw = (config or {}).get("credentials_file") or CREDS_DEFAULT
+    path = Path(str(raw)).expanduser()
+    if not path.is_absolute():
+        path = Path(project) / path
+    return path.resolve()
+
+
+def manual_login_hint(wncli, level, se, session_dir, url):
+    """可直接照抄的手工登录命令（缺凭据时给人的 B 路）。"""
+    return ('python "%s" --level %s --se %s --session-dir "%s" --url %s '
+            'login --usr <登录名> --passwd <密码>'
+            % (wncli, level, se, session_dir, url))
+
+
+def load_credentials(path, manual_hint=""):
+    """读凭据文件（{"usr":"…","passwd":"…"}）；缺失 / 坏档 / 缺键 → EnvError。
+
+    错误信息同时给出两条路（用户口径）：A. 建凭据文件让工具自动登录；
+    B. 不建凭据，先手工 `wn-cli … login` 一次。会话存在时本工具不读这个文件，
+    所以 B 路用户不会被凭据文件的存在与否打扰。
+    口令只进 wn-cli 的 argv，不进日志 / 错误信息 / 报告。
+    """
+    alt = ""
+    if manual_hint:
+        alt = ("\n  B. 不建凭据文件，先手工登录一次"
+               "（之后直接跑，会话会被复用，过期再登录一次）：\n"
+               "       %s" % manual_hint)
+    hint = ("二选一：\n"
+            "  A. 建该文件（UTF-8 无 BOM），内容形如：\n"
+            "       %s\n"
+            "     该文件不进 git（放在 .at/ 目录里即被忽略；"
+            "也可用 --creds 放到别处）。%s"
+            % (CREDS_SHAPE, alt))
+    if not path.is_file():
+        raise EnvError("缺凭据文件 %s：没有它就没法自动建会话。\n%s"
+                       % (path, hint))
     try:
-        rc, out, err = run_wncli(
+        data = json.loads(read_text(path))
+    except (ValueError, EnvError, OSError) as e:
+        raise EnvError("凭据文件 %s 读不了或不是合法 JSON（%s）。\n%s"
+                       % (path, e, hint))
+    if not isinstance(data, dict):
+        raise EnvError("凭据文件 %s 顶层必须是对象。\n%s" % (path, hint))
+    usr = data.get("usr")
+    passwd = data.get("passwd")
+    if not isinstance(usr, str) or not usr.strip():
+        raise EnvError("凭据文件 %s 缺 usr（或不是非空字符串）。\n%s"
+                       % (path, hint))
+    if not isinstance(passwd, str) or not passwd:
+        raise EnvError("凭据文件 %s 缺 passwd（或不是非空字符串）。\n%s"
+                       % (path, hint))
+    return data
+
+
+def login_session(wncli, level, se, session_dir, url, project,
+                  creds_path, creds):
+    """用凭据执行一次 wn-cli login（argv 传参，绝不经 shell）。
+
+    成功才返回；失败抛 EnvError 并原样带上 wn-cli 的输出。口令只在 argv 里，
+    不写日志、不进报告、不出现在错误信息中。
+    """
+    argv = ["--level", level, "--se", se,
+            "--session-dir", str(session_dir), "--url", url,
+            "--creds", str(creds_path),
+            "login", "--usr", creds["usr"], "--passwd", creds["passwd"]]
+    print("at-run: 会话 %s 不存在或已失效，自动登录（--usr %s）"
+          % (se, creds["usr"]), file=sys.stderr)
+    try:
+        rc, out, err = run_wncli(wncli, argv, project)
+    except subprocess.TimeoutExpired:
+        raise EnvError("自动登录超时（wn-cli 60s 未返回）：实例可能挂了，"
+                       "请开发者确认 %s" % url)
+    if rc != 0:
+        raw = ("\n".join(x for x in (out.strip(), err.strip()) if x)
+               or "（无输出）")
+        raise EnvError("自动登录失败（wn-cli 退出码 %d，会话 %s，凭据 %s）：\n%s"
+                       % (rc, se, creds_path, raw))
+    return se
+
+
+def probe_session(wncli, level, se, session_dir, url, project):
+    """用一条只读命令确认会话真能连上实例；返回 (rc, out, err)。"""
+    try:
+        return run_wncli(
             wncli,
             ["--level", level, "--se", se, "--session-dir", str(session_dir),
              "--url", url, "cmd", "o ~ @json -cqn"],
@@ -988,12 +1086,45 @@ def ensure_session(wncli, level, domain, session_dir, url, project):
     except subprocess.TimeoutExpired:
         raise EnvError("会话探活超时（wn-cli 60s 未返回）：实例可能挂了"
                        "（L1 上挂了断点也会这样），请开发者确认")
+
+
+def ensure_session(wncli, level, domain, session_dir, url, project, creds_path):
+    """复用或自动建立工作区池会话 <级别>-<测试域>-00；返回 (会话名, 是否新建)。
+
+    判定（用户口径）：
+      - 会话文件存在 → 直接探活复用，**不看凭据文件**（手工登录过的用户走这条）；
+        探活 401（wn-cli 退出码 3，缓存已被它当场删掉）→ 有凭据就自动重登；
+      - 会话文件不存在 → 有凭据就自动登录后跑；
+      - 上面两种情况没凭据 → 退出 2，错误信息同时给"建凭据"与"手工登录"两条路；
+      - 端点与会话里的 base 不一致 → 拒绝复用（防 L1/L2 混跑，需人确认配置）。
+    """
+    se = "%s-%s-00" % (level, domain)
+    sess_file = session_dir / (se + ".toml")
+    hint = manual_login_hint(wncli, level, se, session_dir, url)
+    if sess_file.is_file():
+        base = session_base(sess_file)
+        if base and base.rstrip("/") != url.rstrip("/"):
+            raise EnvError("会话 %s 指向 %s，与本次端点 %s 不一致：拒绝复用"
+                           "（防 L1/L2 混跑）。确认后用 wn-cli 重新登录"
+                           % (se, base, url))
+        rc, out, err = probe_session(wncli, level, se, session_dir, url, project)
+        if rc == 0:
+            return se, False
+        if rc != EXIT_AUTH:
+            detail = (err.strip() or out.strip() or "").replace("\n", " ")[:500]
+            raise EnvError("会话 %s 不可用（wn-cli 退出码 %d）：%s"
+                           % (se, rc, detail))
+        print("at-run: 会话 %s 已失效（wn-cli 退出码 3，缓存已删），尝试自动重建"
+              % se, file=sys.stderr)
+    creds = load_credentials(creds_path, hint)
+    login_session(wncli, level, se, session_dir, url, project, creds_path, creds)
+    # 登录成功再确认一次：票据写坏 / 目录不可写时不能假装会话可用
+    rc, out, err = probe_session(wncli, level, se, session_dir, url, project)
     if rc != 0:
         detail = (err.strip() or out.strip() or "").replace("\n", " ")[:500]
-        raise EnvError("会话 %s 不可用（wn-cli 退出码 %d）：%s\n"
-                       "失效会话已被 wn-cli 当场删除；请重新 login"
+        raise EnvError("自动登录后会话 %s 仍不可用（wn-cli 退出码 %d）：%s"
                        % (se, rc, detail))
-    return se
+    return se, True
 
 
 # ---------------------------------------------------------------- 期望与比较
@@ -1123,6 +1254,24 @@ def last_json_line(stdout):
         return json.loads(last), None
     except ValueError:
         return None, "stdout 最后一行不是 JSON：%r" % last[:200]
+
+
+def auth_failure(returncode, stdout, stderr):
+    """这一例是不是因为认证失败（wn-cli 退出码 3）而中止的。
+
+    atlib 把 wn-cli 的非 0 退出码原样写进原因（`wn-cli 退出码 3：…`），
+    所以从脚本输出里认这个标记；脚本自己经 wn-cli 之外取数、把 401 /
+    e.auth 写进结果 JSON 的，也认。
+    """
+    text = "\n".join(x for x in (stdout, stderr) if x)
+    if WNCLI_AUTH_RE.search(text):
+        return True
+    result, _problem = last_json_line(stdout)
+    if isinstance(result, dict) and result.get("ok") is False:
+        message = str(result.get("error") or result.get("msg") or "")
+        return ("e.auth" in message or "401" in message
+                or "退出码 3" in message)
+    return False
 
 
 def judge(returncode, stdout, expected, evidence, clock=None, record=False):
@@ -1311,6 +1460,34 @@ def run_cleanup(project, script, evidence, env_extra, timeout, label):
     return ok, detail
 
 
+def run_case_script(script, project, env_extra, timeout):
+    """跑一次用例脚本；返回 dict（超时 / 启动失败也返回，不抛）。
+
+    键：rc（None = 没跑起来）、stdout / stderr、t0 / t1 / duration_ms、
+    timeout（是否超时）、oserror（启动失败的说明）。401 重跑时用它把两次
+    执行的时间区间与输出分清楚。
+    """
+    t0 = int(time.time() * 1000)
+    out = {"t0": t0, "rc": None, "stdout": "", "stderr": "",
+           "timeout": False, "oserror": ""}
+    try:
+        proc = subprocess.run([sys.executable, str(script)],
+                              cwd=str(project), env=script_env(env_extra),
+                              capture_output=True, timeout=timeout)
+        out["rc"] = proc.returncode
+        out["stdout"] = proc.stdout.decode("utf-8", "replace")
+        out["stderr"] = proc.stderr.decode("utf-8", "replace")
+    except subprocess.TimeoutExpired as e:
+        out["timeout"] = True
+        out["stdout"] = (e.stdout or b"").decode("utf-8", "replace")
+        out["stderr"] = (e.stderr or b"").decode("utf-8", "replace")
+    except OSError as e:
+        out["oserror"] = str(e)
+    out["t1"] = int(time.time() * 1000)
+    out["duration_ms"] = out["t1"] - out["t0"]
+    return out
+
+
 def run_suite(project, args, root, config, config_path):
     project = Path(project).resolve()
 
@@ -1337,6 +1514,11 @@ def run_suite(project, args, root, config, config_path):
     host, port = endpoint
     url = "http://%s:%d" % (host, port)
     session_dir = resolve_session_dir(args.session_dir, inst_file, project)
+
+    creds_path = resolve_creds_path(project, config, args.creds)
+    if args.creds and not creds_path.is_file():
+        # 显式指定就先校验：别等"要登录了"才发现路径写错
+        load_credentials(creds_path)
 
     wncli = find_wncli()
     if wncli is None:
@@ -1406,7 +1588,27 @@ def run_suite(project, args, root, config, config_path):
     if not port_open(host, port):
         raise EnvError("实例 %s 端点 %s 连不上（探活 3s 超时）：智能体不启动实例，"
                        "请开发者确认实例状态" % (level, url))
-    se = ensure_session(wncli, level, domain, session_dir, url, project)
+    se, session_created = ensure_session(wncli, level, domain, session_dir,
+                                         url, project, creds_path)
+    print("at-run: 会话 %s —— %s"
+          % (se, "新建（自动登录）" if session_created else "复用已有会话"),
+          file=sys.stderr)
+
+    # 执行中 401：重登一次。重登失败的原因在本批内记住，避免每个用例都去
+    # 撞同一堵墙；该例仍记 failed（不是 blocked）。
+    auth_login_failed = ""
+
+    def relogin():
+        """执行中 401 用：读凭据 → wn-cli login；返回 (ok, 失败说明)。"""
+        try:
+            creds = load_credentials(
+                creds_path,
+                manual_login_hint(wncli, level, se, session_dir, url))
+            login_session(wncli, level, se, session_dir, url, project,
+                          creds_path, creds)
+            return True, ""
+        except EnvError as e:
+            return False, str(e)
 
     cleanup_state = "skipped"
     batch_cleanup_note = ""
@@ -1524,48 +1726,79 @@ def run_suite(project, args, root, config, config_path):
         write_text(evidence / "env.txt",
                    "\n".join("%s=%s" % (k, env_extra[k]) for k in sorted(env_extra))
                    + "\n")
-        # $t0 / $t1：runner 在用例开始前、结束后各取一次（脚本的本地时钟不参与）
-        t0 = int(time.time() * 1000)
-        t1 = t0
-        try:
-            proc = subprocess.run([sys.executable, str(script)],
-                                  cwd=str(project), env=script_env(env_extra),
-                                  capture_output=True, timeout=args.timeout)
-            t1 = int(time.time() * 1000)
-            duration = t1 - t0
-            stdout = proc.stdout.decode("utf-8", "replace")
-            stderr = proc.stderr.decode("utf-8", "replace")
-            write_text(evidence / "stdout.txt", stdout)
-            write_text(evidence / "stderr.txt", stderr)
-            status, diff, note, actual = judge(
-                proc.returncode, stdout, expected, evidence,
-                {"t0": t0, "t1": t1}, record=args.record)
-            entry["status"] = status
-            entry["duration_ms"] = duration
-            entry["diff"] = diff
-            if args.record:
-                entry["recorded"] = actual is not None
-                if actual is not None:
-                    actuals[case_id] = actual
-        except subprocess.TimeoutExpired as e:
-            t1 = int(time.time() * 1000)
-            duration = t1 - t0
-            partial = (e.stdout or b"").decode("utf-8", "replace")
-            write_text(evidence / "stdout.txt", partial)
-            entry["status"] = "failed"
-            entry["duration_ms"] = duration
-            note = "超时（%.0fs）已被终止" % args.timeout
-        except OSError as e:
-            t1 = int(time.time() * 1000)
-            entry["status"] = "failed"
-            note = "脚本启动失败：%s" % e
+        # $t0 / $t1：runner 在用例开始前、结束后各取一次（脚本的本地时钟不参与）；
+        # 401 重跑时重置，时间区间只覆盖真正产出数据的那一次。
+        first_t0 = None
+        t0 = t1 = int(time.time() * 1000)
         clock = {"t0": t0, "t1": t1}
+        retried_auth = False
+        while True:
+            attempt = run_case_script(script, project, env_extra, args.timeout)
+            if first_t0 is None:
+                first_t0 = attempt["t0"]
+            t0, t1 = attempt["t0"], attempt["t1"]
+            clock = {"t0": t0, "t1": t1}
+            write_text(evidence / "stdout.txt", attempt["stdout"])
+            write_text(evidence / "stderr.txt", attempt["stderr"])
+            if attempt["timeout"]:
+                status, diff, note, actual = (
+                    "failed", [], "超时（%.0fs）已被终止" % args.timeout, None)
+            elif attempt["oserror"]:
+                status, diff, note, actual = (
+                    "failed", [], "脚本启动失败：%s" % attempt["oserror"], None)
+            else:
+                status, diff, note, actual = judge(
+                    attempt["rc"], attempt["stdout"], expected, evidence,
+                    clock, record=args.record)
+            if status == "passed" or not auth_failure(
+                    attempt["rc"], attempt["stdout"], attempt["stderr"]):
+                break
+            # 认证失败（wn-cli 退出码 3）：重登一次并重跑该例；仍失败记 failed
+            if retried_auth:
+                status, diff = "failed", []
+                note = ("重新登录后仍认证失败（wn-cli 退出码 3）：%s"
+                        % (note or "脚本未给出原因"))
+                break
+            if auth_login_failed:
+                status, diff = "failed", []
+                note = ("会话已失效（wn-cli 退出码 3），本批自动重登已失败：%s"
+                        % auth_login_failed)
+                break
+            # 首次失败的输出另存，重跑覆盖 stdout.txt / stderr.txt 也不丢证据
+            write_text(evidence / "stdout.attempt1.txt", attempt["stdout"])
+            write_text(evidence / "stderr.attempt1.txt", attempt["stderr"])
+            print("at-run: %s 认证失败（wn-cli 退出码 3），重新登录一次并重跑"
+                  % case_id, file=sys.stderr)
+            ok, detail = relogin()
+            if not ok:
+                auth_login_failed = detail
+                status, diff = "failed", []
+                note = ("会话已失效（wn-cli 退出码 3），自动重新登录失败：%s"
+                        % detail)
+                break
+            session_created = True
+            retried_auth = True
+            write_text(evidence / "relogin.txt",
+                       "第 1 次执行认证失败（wn-cli 退出码 3），已自动重新登录"
+                       "并重跑该例；首次 stdout/stderr 见 stdout.attempt1.txt / "
+                       "stderr.attempt1.txt。\n")
+        entry["status"] = status
+        entry["duration_ms"] = t1 - first_t0
+        entry["diff"] = diff
+        if args.record:
+            entry["recorded"] = actual is not None
+            if actual is not None:
+                actuals[case_id] = actual
         write_text(evidence / "clock.txt", clock_text(clock))
         if note:
             write_text(evidence / "note.txt", note + "\n")
+        notes = script_notes(evidence)
+        if retried_auth and status == "passed":
+            notes = ["[runner] 第 1 次执行认证失败（wn-cli 退出码 3），"
+                     "已自动重新登录并重跑成功"] + notes
         write_summary(evidence, case_id, entry["status"], entry["duration_ms"],
-                      entry["diff"], note, repro, clock, level,
-                      script_notes(evidence), record=args.record)
+                      entry["diff"], note, repro, clock, level, notes,
+                      record=args.record)
         entry["evidence"] = evidence_files(evidence)
         results.append(entry)
         line = "at-run: %s %s（%dms）" % (
@@ -1622,6 +1855,7 @@ def run_suite(project, args, root, config, config_path):
                "instance": level, "test_domain": domain,
                "init_template": init_template,
                "instance_source": instance_source, "session": se,
+               "session_created": session_created,
                "reset": bool(args.reset), "cleanup": cleanup_state,
                "total": len(results), "passed": passed, "failed": failed,
                "blocked": blocked, "skipped": len(not_run),
@@ -1672,6 +1906,10 @@ def main(argv=None):
                     help="实例登记文件（缺省 $WN_INSTANCES > 逐级向上 > 用户目录）")
     ap.add_argument("--session-dir", metavar="DIR",
                     help="会话池目录（缺省：登记文件所在目录的 .at/client/session）")
+    ap.add_argument("--creds", metavar="FILE",
+                    help="凭据文件（缺省读 atest.json 的 credentials_file，再缺省 "
+                         ".at/credentials.json）；只在需要自动登录时读，"
+                         '形状 {"usr":"…","passwd":"…"}，该文件不进 git')
     ap.add_argument("--only", action="append", default=[], metavar="IDS",
                     help="只跑这些 CASE-ID（逗号分隔，可重复）")
     ap.add_argument("--stop-on-fail", action="store_true",

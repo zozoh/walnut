@@ -1,6 +1,6 @@
 # at-run — ATEST 运行器（v2）
 
-一条命令把 ATEST 串起来：发现用例 → 校验格式 → 解析实例 → 复用会话 →
+一条命令把 ATEST 串起来：发现用例 → 校验格式 → 解析实例 → 复用/自动建立会话 →
 逐例执行 → 写 JSON 报告。它是"绿灯可信"的物理载体：人只认它的退出码与报告。
 
 v2（ATESET-04）在 v1 之上补了**表达力**与**证据**：期望支持
@@ -18,7 +18,8 @@ ATESET-05 补上**夹具**：静态布局写进 `<root>/atest.init`，用例脚�
 
 与 [`at-init`](../at-init/) 分工：`at-init` 铺骨架，**本工具只跑**；用例格式由
 ATESET-02 定稿（模板 [`bin/at-init/tmpl/CASE-001.md`](../at-init/tmpl/CASE-001.md)），
-实例与会话由 [`wn-cli`](../wn-cli/) 负责，本工具只读实例登记、只复用会话。
+实例与会话由 [`wn-cli`](../wn-cli/) 负责，本工具只读实例登记，会话不存在时按需
+自动登录（见下文「实例与会话」）。
 
 > 契约来源：ATESET-03 任务书 §脚本契约 / §报告（T1 定稿，硬接口）。
 > 本 README 是实现口径的补充，**不改变**那两处定义。
@@ -46,9 +47,11 @@ ATESET-02 定稿（模板 [`bin/at-init/tmpl/CASE-001.md`](../at-init/tmpl/CASE-
 - `test_domain`：会话名 `<级别>-<域>-00`；
 - `init_template`：夹具模板路径（缺省 `<root>/atest.init`）；`atlib.fixture()` 用它，
   `--check` 会警告缺失 / 异常大 / 外部引用（外部引用只是审阅提示，`app init` 支持）；
+- `credentials_file`：凭据文件位置（缺省 `.at/credentials.json`）；只在**需要自动
+  登录**时读（会话还在就不读，手工登录过的项目不受影响）；
 - 文件缺失、不是合法 JSON、或无 `instance` → 退出码 2，不猜（`--check` 也一样）。
 
-CLI 覆盖：`--root` / `--instance` / `--domain`。
+CLI 覆盖：`--root` / `--instance` / `--domain` / `--creds`。
 
 ## 用法
 
@@ -72,8 +75,9 @@ python bin/at-run/at-run.py --only CASE-001,CASE-002 --stop-on-fail
 # 整批执行前先跑套件级清理 <root>/cleanup.py
 python bin/at-run/at-run.py --reset
 
-# 指定项目目录 / 实例级别 / 测试域 / 根目录
+# 指定项目目录 / 实例级别 / 测试域 / 根目录 / 凭据文件
 python bin/at-run/at-run.py --dir D:/work/myproj --instance L2 --domain mytest
+python bin/at-run/at-run.py --creds .at/temp-creds.json
 python bin/at-run/at-run.py --root spec --check
 ```
 
@@ -87,6 +91,7 @@ python bin/at-run/at-run.py --root spec --check
 | `--domain NAME` | 覆盖 `atest.json` 的 `test_domain`（会话名 `<级别>-<域>-00`） |
 | `--instances FILE` | 实例登记文件；缺省 `$WN_INSTANCES` → 从 `<dir>` 逐级向上 → 用户目录 |
 | `--session-dir DIR` | 会话池目录；缺省登记文件所在目录的 `.at/client/session`（工作区级） |
+| `--creds FILE` | 凭据文件；缺省读 `atest.json` 的 `credentials_file`，再缺省 `.at/credentials.json`。只在需要自动登录时读 |
 | `--only IDS` | 只跑这些 CASE-ID（逗号分隔，可重复） |
 | `--stop-on-fail` | 第一个红灯即停；**blocked 不算红** |
 | `--reset` | 整批执行前先跑 `<root>/cleanup.py`；失败则全批记 **blocked**（不算红） |
@@ -99,14 +104,14 @@ python bin/at-run/at-run.py --root spec --check
 
 退出码：`0` 全绿（`failed == 0`，**blocked 不算红**）；`1` 有红 / 用法错误
 （参数、`--check` 有错、`--only` 指向不存在的用例）；`2` 环境不可用
-（`atest.json` 或实例登记缺失/不合法、端点连不上、会话缺失或失效）。
+（`atest.json` 或实例登记缺失/不合法、端点连不上、缺凭据、启动时自动登录失败）。
 
 stdout 是**单行 JSON**（提示与逐例进度进 stderr）：
 
 ```json
 {"ok":true,"root":"atest","instance":"L1","test_domain":"demo",
  "init_template":"atest/atest.init","instance_source":".../atest.json",
- "session":"L1-demo-00","reset":true,"cleanup":"ok",
+ "session":"L1-demo-00","session_created":false,"reset":true,"cleanup":"ok",
  "total":1,"passed":1,"failed":0,"blocked":0,"skipped":0,
  "report":".../atest/report/20261113T113351.json",
  "latest":".../atest/report/latest.json","exit":0}
@@ -135,7 +140,7 @@ CASE-ID → 脚本 actual）：
 `--check` 的 stdout 还带 `root`；它读同一份配置（缺 `atest.json` 或 `instance`
 为空同样退出 2），只是不执行。
 
-## 实例与会话（只连不管）
+## 实例与会话（会话自动建立）
 
 - **级别**：`--instance` → `atest.json` 的 `instance` → 退出 2。
 - **端点**：`.wn-instances.json` 的 `{级别: {host, port}}`。查找顺序
@@ -143,9 +148,25 @@ CASE-ID → 脚本 actual）：
   显式给出的文件**必须存在**（静默回退会跑错实例）。
 - **探活**：TCP 连接端点，3 秒不通即退出 2；**不尝试拉起实例**（1/2 级实例都由
   开发者手工管理）。
-- **会话**：工作区池里的 `<级别>-<测试域>-00`。存在则复用，并核对会话里的 `base`
-  与本次端点一致（不一致拒绝复用，防 L1/L2 混跑）；缺失或失效则退出 2 并给出登录
-  命令——**本工具不代登录、不建域**。会话过期（401）由 `wn-cli` 当场删除缓存文件。
+- **会话**：工作区池里的 `<级别>-<测试域>-00`，决定见下：
+
+  | 场景 | 行为 |
+  |---|---|
+  | 会话文件存在 | 直接复用；核对 `base` 与本次端点一致（不一致拒绝复用，防 L1/L2 混跑）。**不看凭据文件**——手工登录过的项目照常跑 |
+  | 会话文件不存在 + 有凭据 | 自动登录一次后跑（`session_created: true`） |
+  | 会话文件不存在 + 没凭据 | 退出 2，错误信息同时给两条路：建凭据文件（附 JSON 形状）或先手工 `wn-cli … login` 一次 |
+  | 执行中 401（某例 `wn-cli` 退出码 3） | 自动**重新登录一次并重跑该例**；仍失败才记该例 **failed**（不是 blocked） |
+
+  - 凭据来源：`--creds` → `atest.json` 的 `credentials_file` →
+    `.at/credentials.json`，形状 `{"usr":"…","passwd":"…"}`；**该文件不进 git**。
+  - 登录失败（启动时）→ 退出 2，错误信息带上 `wn-cli` 的原始输出；执行中重登失败
+    → 该例 failed，原因同样带原始输出，且本批不再反复重登。
+  - 401 重跑时首次输出留 `evidence/stdout.attempt1.txt` /
+    `stderr.attempt1.txt`，外加 `evidence/relogin.txt` 说明；`$t0` / `$t1`
+    重置为真正产出数据的那一次。
+  - `--check` **不建会话、不读凭据**（只看格式，不碰实例）。
+- **`session_created`**：stdout 摘要里的 `true` = 本次新建了会话（自动登录），
+  `false` = 复用已有会话——人一眼能确认工具没有悄悄换身份。
 
 ## 脚本契约（T1 定稿）
 
@@ -451,6 +472,9 @@ atlib 只依赖标准库与 `AT_*` 环境变量；失败一律 `SystemExit(2)` �
   由 `atest.json` / `--instance` 指定，`suite` 用 `--only` 代替；
 - 全 blocked 的运行退出码仍是 `0`（按"blocked 不算红"的约定）；报告里
   `passed=0` / `blocked=n` 与 stderr 摘要是唯一警示；
+- 会话透明化：会话缺失 → 按需自动登录（会话存在时连凭据文件都不读）；执行中 401
+  只重登**一次**并重跑该例，仍失败记 **failed**（不是 blocked）；重登失败的原因在
+  本批内记住，不会每个用例都反复试错；
 - 子进程注入 `PYTHONUTF8=1` / `PYTHONIOENCODING=utf-8`（Windows 控制台 cp936 会把
   中文证据拆坏）、`PYTHONDONTWRITEBYTECODE=1`（脚本 import `atlib` 不往仓库里落
   `__pycache__`）与 `PYTHONPATH`（指向 `bin/at-run`，供 `import atlib`）；
