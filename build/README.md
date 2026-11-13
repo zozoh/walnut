@@ -109,6 +109,33 @@ dist\wn4j\sbin\stop_with_redis.cmd
 - 启动脚本接受 `--conf <目录>` 与 `--pid-dir <目录>`，给级别 3 的私有实例用；
   日常 2 级实例不用传。
 
+### 私有 Redis 的两种形态（在哪配）
+
+分两层，别混：
+
+**构建期**（决定用哪种方式拉起 redis）——`build/make.json` 的 `REDIS_SERVER`：
+
+```jsonc
+"D:/opt/redis/redis-server.exe"                                        // A. 本机 exe
+"Docker:redis<sha256:bdff4838…>=wn4j-redis-L2"                          // B. Docker（当前）
+""                                                                      // 留空：不生成 with_redis 脚本
+```
+
+构建脚本把它烘进产物（`sbin/start_with_redis.cmd` 里的 `RD_SERVER` /
+`RD_DOCKER_IMAGE` / `RD_DOCKER_IMAGE_ID` / `RD_DOCKER_CONTAINER`），
+脚本运行时按「有没有 docker id」二选一。改了要重新 `--dist`。
+
+**运行期**（决定连哪个端口/库/密码、RDB 放哪）——生效的 `web_local.properties`：
+
+| 键 | 含义 |
+|---|---|
+| `redis-port` | 私有 redis 端口（当前 6390，别和开发者实例的 6379 撞） |
+| `redis-database` | 库号（当前 9） |
+| `redis-password` | 密码（空 = 无密码） |
+
+改了不用重建，重启实例即可生效。RDB 目录：级别 2 = `<Walnut>\.at\redis\data`；
+级别 3 = `<conf>\..\..\redis\data`。
+
 ## 六、常见问题
 
 **构建报 `mvn` 失败**
