@@ -13,6 +13,7 @@ python walnut-at-init.py --name big-dad --force D:/work/myproj
 
 生成内容：`.at/whoami.toml`、`.at/bin/`（工具包装脚本 cmd+sh）、
 `.at/walnut/conf/`（级别 3 样例）、`.at/client/session/`、`.at/_ottl/`、
-`ATEST.md` / `LOCAL_REF.md` 样例，并向 `.gitignore` 追加敏感条目。
+`LOCAL_REF.md` 样例，并向 `.gitignore` 追加敏感条目。
+（集成测试配置 `atest.json` 与 `atest/` 骨架由 `bin/at-init/at-init.py` 生成，本工具不再写 `ATEST.md`。）
 
 退出码：`0` 成功；`1` 代号不合法；`2` `.at` 已存在且未加 `--force`。
