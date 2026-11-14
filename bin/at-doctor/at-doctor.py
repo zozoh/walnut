@@ -526,7 +526,8 @@ def main(argv: Sequence[str] | None = None) -> int:
               % (item["id"], item["status"], item["detail"]), file=sys.stderr)
     print("at-doctor: %d 项：%d ok / %d warn / %d fail —— %s（exit %d）"
           % (len(checks), len(checks) - failures - warnings, warnings,
-             failures, "可以跑 at-run" if failures == 0 else "先修 fail 项",
+             failures, "可以尝试 at-run（会话项只查文件是否存在，票据仍可能已失效）"
+               if failures == 0 else "先修 fail 项",
              EXIT_OK if failures == 0 else EXIT_USAGE), file=sys.stderr)
 
     emit({"ok": failures == 0, "checks": checks, "failures": failures})

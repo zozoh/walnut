@@ -54,7 +54,7 @@ at-doctor: reachable  ok   http://127.0.0.1:7709 alive，agent_ready（system=PA
 at-doctor: session    ok   会话 L2-demo-00 存在（.at/client/session/L2-demo-00.toml；直接复用，不读凭据）
 at-doctor: tools      ok   at-run / at-report / at-baseline / wn-cli 都在 ...\walnut\bin
 at-doctor: report     ok   可写：atest/report
-at-doctor: 8 项：8 ok / 0 warn / 0 fail —— 可以跑 at-run（exit 0）
+at-doctor: 8 项：8 ok / 0 warn / 0 fail —— 可以尝试 at-run（会话项只查文件是否存在，票据仍可能已失效）（exit 0）
 ```
 
 stdout 最后一行单行 JSON：
