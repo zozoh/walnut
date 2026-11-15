@@ -8,11 +8,16 @@ import org.junit.Test;
 import com.site0.walnut.core.IoCoreTest;
 import com.site0.walnut.security.captcha.WnCaptchaAnswerStore;
 
-public class AbstractWnCaptchaAnswerStoreTest extends IoCoreTest {
+/**
+ * 验证码答案存储的**测试基类，不要直接运行**。
+ * <p>
+ * 本类的 {@code @Test} 依赖 {@link #store}，由子类在 {@code @Before} 里注入；
+ * 直接实例化会 NPE。声明为 {@code abstract} 是给 surefire 的信号——抽象类不参与扫描。
+ * 具体实现见子类 {@code WnRedisCaptchaAnswerStoreTest}。
+ */
+public abstract class AbstractWnCaptchaAnswerStoreTest extends IoCoreTest {
 
-    /**
-     * 子类需要设置这个参数
-     */
+    /** 由子类在 @Before 注入，本类不初始化 */
     protected WnCaptchaAnswerStore store;
 
     /**
