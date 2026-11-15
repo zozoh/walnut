@@ -68,6 +68,17 @@ login/   # 账户与会话；util/ alg/ val/ = 工具层
 构建运行：Maven 项目（`pom.xml`）；服务装配走 `web2/service`（WnServiceFactory + register/*，无 IoC 容器），配置在 `conf/web.properties`。
 上手步骤见 `{WN_DOC_HOME}/public/reference/00.start-here/quick-start.md`。
 
+## 跑测试（先看这条）
+
+- **优先走工作区的 `wn-mcp`**：工具列表里有 `mcp__wn__junit` 就用它，`project=walnut`，可加 `class_name` / `method` 收窄。
+  它在正常环境跑 Maven，返回「用例数 / 失败清单 / 日志路径」，不受本机沙箱限制。
+- **没有 MCP 才用 `mvn`**：`mvn -o test -Dtest=<类名>`。全量 `mvn -o test` 能跑，但**当前不是全绿**
+  （Mongo 依赖、`D:/DB/walnut_test` 本地路径、索引状态等已知红），先跑一次改动前的基线，别把既存红当成自己改坏。
+- **判绿看用例计数，不看退出码**：`junit` 工具返回的 `exit` 恒为 `0`（内部按失败不中断取数）。
+- **`test/` 下的 `Abstract*Test` 是基类，必须声明 `abstract`**：surefire 会跳过抽象类；
+  漏了这个关键字就会被直接实例化，字段为 null，产生一堆 NPE 假红。
+- 集成/验收用例不在这里：走 `atest/`（`python atest/run.py --only CASE-xxx`）。
+
 ## 重要：这些已弃用，不要读不要改
 
 - **`thing` 全系列**（概念与源码都将删除）
