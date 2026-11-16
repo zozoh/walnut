@@ -184,9 +184,18 @@ public class WnMvcFactory {
                     return type.cast(c.newInstance(arg));
                 }
                 catch (ReflectiveOperationException e) {
-                    throw Wlang.makeThrow("fail to born %s with arg %s",
-                                          type.getName(),
-                                          null == arg ? "null" : arg.getClass().getName());
+                    // 反射调用把构造器内抛出的异常包了一层，这里解包，
+                    // 否则真正的失败原因（如 Error: Unresolved compilation problem）会被吞掉
+                    Throwable cause = (e instanceof java.lang.reflect.InvocationTargetException
+                                       && null != e.getCause()) ? e.getCause() : e;
+                    RuntimeException re = Wlang.makeThrow("fail to born %s with arg %s: %s: %s",
+                                                          type.getName(),
+                                                          null == arg ? "null"
+                                                                      : arg.getClass().getName(),
+                                                          cause.getClass().getName(),
+                                                          cause.getMessage());
+                    re.initCause(cause);
+                    throw re;
                 }
             }
         }

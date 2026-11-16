@@ -1,44 +1,43 @@
 # 过滤器简介
 
-`@exec` 执行指定的 SQL
+`@exec` 执行 INSERT / UPDATE / DELETE 模板，或在 `-as list` 下批量执行。
+结果默认写入 `result`，也可回查后放进管道上下文。
 
-这个变量集合中的变量将与模板中的占位符 `${@vars}` 结合输出特定的sql条件或者插入字段。
-嗯，你也可以直接在模板中通过通用占位符 `${varName}` 使用这些变量。
-
-对于列表或者是判断条件，可以通过模板中的 `${#loop}` 以及  `${#if}` 来控制模板渲染结果
-详细语法，请参加： `man tmpl`
-
+模板语法见
+[编写 SQL 模板（sqlx）](@wn-doc::reference/101.dev/21-write-sqlx-tmpl.md)。
 
 # 用法
 
 ```bash
-sqlx @exec 
-  [sqlName]           # sql 模板的名称
-  [-dao daoName]      # 指定一个 dao，如果未指定则采用当前数据源
-                      # 当然，如果同源的数据操作才会被事务保护
-  [-explain]          # 执行前自动展开要更新元数据的【宏】
-  [-test {...}]       # 指定一个条件，当上下文满足这个条件时才会执行
-  # 执行结果不记录到上下文中，使用的场景，通常是前序过滤器插入主对象
-  # 之后 fetchBack, 后续的 exec 插入子对象但是如果也记录 result，
-  # 那么调用者就丢失了主对象的信息，因此这时候就要跳过结果的记录
-  # !注! 如果声明了这个参数， fetch_by 就会被无视
-  [-noresult]
-  # 执行完毕，执行回查的语句
-  [-fetch_by xxx]
-  # 执行完毕，执行回查的参数 
-  # 如果不声明它，则用插入的对象（不是 list）作为上下文
-  # 如果声明了它，则用插入的对象（不是 list）来解释它。
-  # 因此，这个值可以写成 '{id:"=id"}'
-  # 通常，这个参数可以不同设置
-  [-fetch_vars {..}]
-  # 如果有 fetch 的结果，结果可以暂存在【过滤管线上下文】里，
-  # 注意，这个结果仅仅考虑查询回来结果集的第一个对象
-  # "..." 为默认值，表示将结果对象打撒，放入【过滤管线上下文】
-  # 如果指定一个名称，譬如 "pet" 
-  # 则表示将结果及放入【过滤管线上下文】中的 pet 键。
-  # 无论怎样，都是覆盖模式的推入。
-  [-fetch_save ..]    
-  
+sqlx @exec
+  [sqlName]           # 模板名，如 pet.insert
+  [-batch]            # 批量模式，需配合 @vars -as list
+  [-test {...}]       # 上下文匹配条件，不满足则跳过执行
+  [-explain]          # 执行前展开宏
+  [-noresult]         # 不把本次结果写入上下文
+  [-fetch_by name]    # 执行后按这个模板回查
+  [-fetch_vars {...}] # 回查参数，默认用插入对象
+  [-fetch_save key]   # 回查结果放入管道上下文；默认解构推入
 ```
 
+- `-batch` 用第一条数据渲染 SQL 结构，后续数据按同一结构批量执行
+- `-noresult` 常用于“插主表后还要插子表”，避免覆盖主表结果
+- `-fetch_by` 与 `-noresult` 同时出现时，`-fetch_by` 不生效
+- `-fetch_save` 只保存回查结果的第一条
 
+# 示例
+
+```bash
+# 单条插入
+sqlx @vars '{id:"P001",name:"Be"}' @exec pet.insert
+
+# 批量插入
+cat ~/pets.json | sqlx @vars -as list @exec pet.insert -batch
+
+# 插入后回查，并放入管道上下文
+sqlx @vars '{id:"P001",name:"Be"}' \
+  @exec pet.insert -fetch_by pet.fetch -fetch_save pet
+
+# 条件执行
+sqlx @vars '{type:"dog"}' @exec pet.insert -test '{type:"dog"}'
+```

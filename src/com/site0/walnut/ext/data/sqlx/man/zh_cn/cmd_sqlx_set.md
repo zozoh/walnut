@@ -107,10 +107,10 @@ sqlx @set
 
 ```bash
 # 自动为所有要插入的对象设置 ID
-cat ~/list.json | sqlx @vars '=list' -as list @set id 'snowQ::10' -to list @exec pet.insert -p;
+cat ~/list.json | sqlx @vars '=list' -as list @set id 'snowQ::10' -to list @exec pet.insert;
 
 # 自动为所有对象设置 ID 并且，如果对象 type='dog' 则为其 note 字段也设置这个 ID
-cat ~/list.json | sqlx @vars '=list' -as list @set id 'snowQ::10' -alias note -when '{type:"dog"}' -to list @exec pet.insert -p;
+cat ~/list.json | sqlx @vars '=list' -as list @set id 'snowQ::10' -alias note -when '{type:"dog"}' -to list @exec pet.insert;
 
 ```
 
