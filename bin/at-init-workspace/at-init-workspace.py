@@ -20,7 +20,7 @@ build.rs.json（--rs > ./build.rs.json > {Walnut}/build/build.rs.json）——
 本工具是**懒惰**的：要创建的文件/目录已存在就跳过，绝不重置
 已有的测试经验与工具积累。需要重置时，人类手动删除。
 
-公共工具（wn-ping/wn-up/wn-down/wn-cli）在 Walnut 仓库 bin/ 下，
+公共工具（wn-ping/wn-cli）在 Walnut 仓库 bin/ 下，
 不在 .at/ 里 —— 每个智能体都直接用同一份。
 
 用法:

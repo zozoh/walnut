@@ -9,8 +9,6 @@ JSON 输出、退出码有语义。直接用仓库里的同一份，**不要复�
 | 工具 | 一句话职责 |
 |------|-----------|
 | `wn-ping` | 探活：`GET /a/login_mode`，判定实例存活与 `agent_ready` |
-| `wn-up` | 启动或复用实例：探活 → 复用/拉起 → 等就绪 → 可选 init-node（级别 2 由开发者执行，智能体仅用于级别 3） |
-| `wn-down` | 温柔停止实例：核对运行锁归属，连带关闭私有 redis |
 | `wn-cli` | 主力客户端：`login / cmd / obj / mnt / check-node / init-node` |
 | `at-init-workspace` | 工作目录 `.at/` 脚手架（懒惰模式，绝不重置已有积累） |
 | `at-init-cases` | 项目 `atest/` 脚手架：ATEST 骨架、`atest.json` 配置与实例登记样例（只管 `atest/`，不管 `.at/`） |
