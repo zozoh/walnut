@@ -3,7 +3,7 @@
 """
 build/wn4j-make.py — Walnut 构建脚本
 
-契约见 wn-doc/public/reference/102.auto-test/10-at-build.md。
+契约见 wn-doc/public/atest/reference/10-at-build.md。
 
 用法:
     python build/wn4j-make.py            # 默认: 编译(mvn) + 打包(dist) + 校验
