@@ -154,7 +154,7 @@ def gen_server_conf(rs: dict, work: Path) -> str:
         "# 改下面 app-root 与 init-mnt 两节的路径",
         "app-root=%s/WebContent" % dist.as_posix(),
         "",
-        "# 登录模式：智能体测试的硬性前提（见 102.auto-test/20-at-setup.md）",
+        "# 登录模式：智能体测试的硬性前提（见 public/atest/reference/20-at-setup.md）",
         "app-module-sys-login=PASSWD_ONLY",
         "app-module-dmn-login=PASSWD_ONLY",
         "app-port=%d" % app_port,
@@ -314,7 +314,7 @@ def main():
     print(json.dumps(out, ensure_ascii=False, indent=2))
     print("下一步: 完善 .at/credentials.json；要跑集成测试先执行 "
           "bin/at-init-cases/at-init-cases.py（生成 atest.json 与 atest/），然后读 "
-          "wn-doc/public/reference/102.auto-test/20-at-setup.md 开始登录。", file=sys.stderr)
+          "wn-doc/public/reference/public/atest/reference/20-at-setup.md 开始登录。", file=sys.stderr)
     return EXIT_OK
 
 

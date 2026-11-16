@@ -1,6 +1,6 @@
 # at-init-workspace — 工作目录 .at 脚手架
 
-生成 `{WN_DOC_HOME}/reference/102.auto-test/40-at-project.md` 约定的测试工作目录
+生成 `{WN_DOC_HOME}/public/atest/reference/40-at-project.md` 约定的测试工作目录
 （`{WN_DOC_HOME}` = 工作区同级 `../wn-doc/`）。
 
 ```bash

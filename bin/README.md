@@ -36,6 +36,6 @@ JSON 输出、退出码有语义。直接用仓库里的同一份，**不要复�
    或 `npx pyright`（需要 Node 与网络；没有就靠编辑器）。
 
 行为契约（参数/退出码/输出格式）见
-`{WN_DOC_HOME}/reference/102.auto-test/30-at-tools.md`（`{WN_DOC_HOME}` = 工作区同级 `../wn-doc/`）；
+`{WN_DOC_HOME}/public/atest/reference/30-at-tools.md`（`{WN_DOC_HOME}` = 工作区同级 `../wn-doc/`）；
 操作套路（先查命令表、纯用命令、找不到就问）见
-`{WN_DOC_HOME}/skill/use-wn-cli.skill.md`。
+`{WN_DOC_HOME}/public/skill/use-wn-cli.skill.md`。
