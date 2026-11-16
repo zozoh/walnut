@@ -87,7 +87,7 @@ login/   # 账户与会话；util/ alg/ val/ = 工具层
 - **`cmd_crontab`**（旧单文件定时器，标记 @deprecated，用 `cron` 三件套代替）
 - `client/ gradle/ build.py jdbc/` 基本弃用；`.gitignore` 忽略的文件都不用看
 - 例外：`bin/` 目录已复活为**智能体自动化测试的公共工具集**
-  （wn-ping/wn-up/wn-down/wn-cli/walnut-at-init），见 `{WN_DOC_HOME}/public/reference/102.auto-test/`
+  （wn-ping/wn-up/wn-down/wn-cli/at-init-workspace），见 `{WN_DOC_HOME}/public/reference/102.auto-test/`
 
 ## 临时文件纪律
 

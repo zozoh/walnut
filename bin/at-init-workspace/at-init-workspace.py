@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-walnut-at-init — Agent 测试工作目录（.at/）脚手架
+at-init-workspace — Agent 测试工作目录（.at/）脚手架
 
 默认只初始化**客户端**（连接别人启动的实例）：
 生成 .at/whoami.toml（身份牌）、.at/client/（会话缓存）、
 .at/_ottl/（一次性测试工具）、.at/AGENTS.md（入口说明，
 内容是指向 use-wn-cli skill 与 LOCAL_REF.md 约定的引用）、
-LOCAL_REF.md 手册样例（集成测试配置由 `bin/at-init` 生成 `atest.json`）。
+LOCAL_REF.md 手册样例（集成测试配置由 `bin/at-init-cases` 生成 `atest.json`）。
 
 只有显式加 --with-server 才生成 .at/walnut/（级别 3 私有服务器配置）与
 .at/redis/data/（独立 redis 数据空间），且必须提供运行时服务配置
@@ -24,8 +24,8 @@ build.rs.json（--rs > ./build.rs.json > {Walnut}/build/build.rs.json）——
 不在 .at/ 里 —— 每个智能体都直接用同一份。
 
 用法:
-    python walnut-at-init.py --name big-dad [目标目录]            # 仅客户端
-    python walnut-at-init.py --name big-dad --with-server [--rs build.rs.json]
+    python at-init-workspace.py --name big-dad [目标目录]         # 仅客户端
+    python at-init-workspace.py --name big-dad --with-server [--rs build.rs.json]
 
 退出码: 0 成功；1 用法错误；2 配置缺失
 """
@@ -42,7 +42,7 @@ EXIT_NO_RS = 2
 
 NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]{1,31}$")
 
-# 本脚本住在 Walnut 仓库 bin/walnut-at-init/ 里，仓库根 = 上两级
+# 本脚本住在 Walnut 仓库 bin/at-init-workspace/ 里，仓库根 = 上两级
 WALNUT_ROOT = Path(__file__).resolve().parents[2]
 
 GITIGNORE_BLOCK = """
@@ -89,7 +89,7 @@ LOCAL_REF_SAMPLE = """# LOCAL_REF — 本工作目录引用的工程仓库
 # 找不到就停下来问主人，不遍历磁盘猜。
 AT_AGENTS_MD = """# AGENTS.md — 本目录是 Walnut 测试营地（.at/）
 
-本 `.at/` 由 walnut-at-init 生成：`whoami.toml`（身份牌）、
+本 `.at/` 由 at-init-workspace 生成：`whoami.toml`（身份牌）、
 `client/session/`（会话缓存）、`_ottl/`（一次性脚本）。
 
 ## 操作 Walnut 前必读
@@ -146,7 +146,7 @@ def gen_server_conf(rs: dict, work: Path) -> str:
     mo, rd = rs.get("mongo", {}), rs.get("redis", {})
     dist = (WALNUT_ROOT / "dist" / "wn4j").resolve()
     lines = [
-        "# 级别 3 私有配置 —— 由 walnut-at-init 依据 build.rs.json 首次生成",
+        "# 级别 3 私有配置 —— 由 at-init-workspace 依据 build.rs.json 首次生成",
         "# 本文件即权威配置：之后改端口/db/桶目录直接改这里，",
         "# 不要回源 build.rs.json；只有想整个重铺时才 --force --with-server",
         "#",
@@ -248,7 +248,7 @@ def main():
             return EXIT_USAGE
         created_at = __import__("datetime").datetime.now().isoformat(timespec="seconds")
         w("whoami.toml",
-          "# 智能体身份牌（walnut-at-init 生成；可补充 note / duty 等字段）\n"
+          "# 智能体身份牌（at-init-workspace 生成；可补充 note / duty 等字段）\n"
           "name = %s\n"
           "created_at = %s\n"
           "note = \"\"\n" % (_toml_quote(name), _toml_quote(created_at)),
@@ -313,7 +313,7 @@ def main():
            "server": bool(args.with_server), "created": created, "kept": kept}
     print(json.dumps(out, ensure_ascii=False, indent=2))
     print("下一步: 完善 .at/credentials.json；要跑集成测试先执行 "
-          "bin/at-init/at-init.py（生成 atest.json 与 atest/），然后读 "
+          "bin/at-init-cases/at-init-cases.py（生成 atest.json 与 atest/），然后读 "
           "wn-doc/public/reference/102.auto-test/20-at-setup.md 开始登录。", file=sys.stderr)
     return EXIT_OK
 

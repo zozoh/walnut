@@ -184,7 +184,7 @@ def load_config(project):
     """读项目根 atest.json（唯一配置源）；缺失/坏档 → 退出 2，不猜。"""
     path = Path(project) / CONFIG_NAME
     if not path.is_file():
-        raise EnvError("找不到 %s：先跑 bin/at-init/at-init.py 生成它" % path)
+        raise EnvError("找不到 %s：先跑 bin/at-init-cases/at-init-cases.py 生成它" % path)
     try:
         data = json.loads(path.read_text(encoding="utf-8-sig"))
     except (ValueError, OSError) as e:
@@ -552,7 +552,7 @@ def cmd_from(project, root, config, args):
 def cmd_audit(project, root, config):
     baseline_dir = Path(project) / root / "baseline"
     if not baseline_dir.is_dir():
-        raise EnvError("找不到基线目录 %s：先跑 bin/at-init/at-init.py"
+        raise EnvError("找不到基线目录 %s：先跑 bin/at-init-cases/at-init-cases.py"
                        % rel(baseline_dir, project))
     files = sorted(x for x in baseline_dir.glob("*.json") if x.is_file())
     results = []
@@ -653,7 +653,7 @@ def main(argv=None):
         root = resolve_root(config, args.root)
         cases_dir = project / root / "cases"
         if not cases_dir.is_dir():
-            raise EnvError("找不到用例目录 %s：先跑 bin/at-init/at-init.py"
+            raise EnvError("找不到用例目录 %s：先跑 bin/at-init-cases/at-init-cases.py"
                            % rel(cases_dir, project))
         if args.audit:
             return cmd_audit(project, root, config)

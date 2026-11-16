@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""CASE-001 脚本模板（`bin/at-init/tmpl/`；复制成 `atest/scripts/CASE-001.py` 后改写）
+"""CASE-001 脚本模板（`bin/at-init-cases/tmpl/`；复制成 `atest/scripts/CASE-001.py` 后改写）
 
 与 `CASE-001.md` 配套：在域 home 下建一个目录对象，再把取到的结果交给 runner 断言。
 **本文件可直接跑**（`at-run --only CASE-001`）；新用例复制后只改 TODO 1~3。

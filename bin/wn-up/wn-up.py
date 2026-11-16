@@ -244,7 +244,7 @@ def main():
     who = find_whoami(cwd, args.who)
     if not who:
         print(json.dumps({"ok": False, "error":
-                          "缺少身份：请先用 walnut-at-init --name <代号> 建立 .at/whoami.toml，"
+                          "缺少身份：请先用 at-init-workspace --name <代号> 建立 .at/whoami.toml，"
                           "或传 --who"}, ensure_ascii=False))
         return EXIT_USAGE
 

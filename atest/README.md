@@ -82,7 +82,7 @@ python atest/run.py --reset              # 整批跑之前先执行 atest/cleanu
 
 ## 环境依赖
 
-- **Python 3.10+**（`at-run` / `atlib` / `at-init` 均为标准库实现，**没有第三方依赖**）；
+- **Python 3.10+**（`at-run` / `atlib` / `at-init-cases` 均为标准库实现，**没有第三方依赖**）；
 - **首次运行不用手工造会话**：配 `.at/credentials.json`（`{"usr":"…","passwd":"…"}`，不进 git）
   就自动登录；不配就先手工登录一次（见上方第 4 步）。缺凭据且没有会话时，
   工具会明确报错并给出 JSON 形状与登录命令。
@@ -148,6 +148,6 @@ atest/
 
 ## 更多
 
-- 用例怎么写：`at-init` 模板目录里的 `CASE-001.md` 与 skill 文档；
+- 用例怎么写：`at-init-cases` 模板目录里的 `CASE-001.md` 与 skill 文档；
 - 夹具怎么写：`init/common.init` 与 `init/<suite>.init` 顶部注释（语法与 `app init` 一致）；
 - 计划与规则：`wn-plan` 仓库的 ATESET 计划。

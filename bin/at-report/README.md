@@ -157,5 +157,5 @@ stdout 先打印两行人读摘要，**最后一行是单行 JSON**（机器解�
 - 趋势只比上一份，不做历史聚合（需要趋势图时用 `at-gc` 之后的归档另做）；
 - 截图 / 二进制证据不内嵌，只给路径；
 - 中文列宽不做 padding 对齐（Markdown 表格本来就不保证等宽，别为对齐破坏 diff）；
-- 报告与 `latest.md` 都在 `<root>/report/` 下，该目录已由 `at-init` 写进 `.gitignore`；
+- 报告与 `latest.md` 都在 `<root>/report/` 下，该目录已由 `at-init-cases` 写进 `.gitignore`；
 - 生成物 UTF-8 无 BOM、LF；Windows 控制台用 UTF-8 输出，避免中文乱码。

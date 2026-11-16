@@ -1,4 +1,4 @@
-# at-init — ATEST 项目骨架脚手架
+# at-init-cases — ATEST 项目骨架脚手架
 
 在项目里生成**运行时集成测试（ATEST）**的 `atest/` 骨架、`atest.json` 配置与
 实例登记样例。一条命令、可重复执行、不覆盖已有内容。
@@ -11,7 +11,7 @@
 `instance` / `test_domain` / `credentials_file` / `init_template` /
 `sql_datasource` / `report_keep` 都在里面——智能体读它，人也能直接看和改。
 
-与 [`walnut-at-init`](../walnut-at-init/) 分工：后者管 `.at/`（身份 / 会话 /
+与 [`at-init-workspace`](../at-init-workspace/) 分工：后者管 `.at/`（身份 / 会话 /
 私有配置），**本工具只管 `<root>/` 与 `atest.json`**；检测到 `.at/`
 缺失时只提示，不代建。
 
@@ -19,19 +19,19 @@
 
 ```bash
 # 当前目录（项目名取目录名，根目录 atest）
-python bin/at-init/at-init.py
+python bin/at-init-cases/at-init-cases.py
 
 # 指定目录与项目名
-python bin/at-init/at-init.py --dir D:/work/myproj --name myproj
+python bin/at-init-cases/at-init-cases.py --dir D:/work/myproj --name myproj
 
 # 集成测试根目录改名（目录与 atest.json 的 root 一起变）
-python bin/at-init/at-init.py --root spec
+python bin/at-init-cases/at-init-cases.py --root spec
 
 # 只算不写（先看要生成什么）
-python bin/at-init/at-init.py --dry-run
+python bin/at-init-cases/at-init-cases.py --dry-run
 
 # 刷新实例登记样例（不动用户内容）
-python bin/at-init/at-init.py --force
+python bin/at-init-cases/at-init-cases.py --force
 ```
 
 | 参数 | 说明 |
@@ -55,7 +55,7 @@ stdout 是**单行 JSON**（适合机器解析，提示进 stderr）：
 
 ```text
 <项目>/
-|-- .at/                       # 归 walnut-at-init（本工具只提示，不创建）
+|-- .at/                       # 归 at-init-workspace（本工具只提示，不创建）
 |-- atest.json                 # 唯一配置（机器可读，人也能看）
 |-- .wn-instances.example.json # 实例登记样例（真身由开发者维护）
 `-- atest/                     # 根目录名由 --root 决定
@@ -160,4 +160,4 @@ stdout 是**单行 JSON**（适合机器解析，提示进 stderr）：
   只在确有缺键时才写盘）；
 - 不校验 `instance` 是否在 `.wn-instances.json` 里登记（那是 `at-run` 的事）；
 - 不生成、不读取、不修复 `ATEST.md`：它已被 `atest.json` 取代；
-- `.at/` 里由 `walnut-at-init` 生成的东西不在本工具职责内。
+- `.at/` 里由 `at-init-workspace` 生成的东西不在本工具职责内。

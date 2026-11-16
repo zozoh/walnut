@@ -23,8 +23,8 @@ ATESET-15 起支持**目录即 suite**：存在 `<root>/init/` 时，suite 名�
 > 用例格式 v2（2026-11-13）：必填 `contracts` 有序数组；不再有 `instance` /
 > `suite` 字段，报告也不再按 suite 分目录。权威定义见 ATESET-02 任务书。
 
-与 [`at-init`](../at-init/) 分工：`at-init` 铺骨架，**本工具只跑**；用例格式由
-ATESET-02 定稿（模板 [`bin/at-init/tmpl/CASE-001.md`](../at-init/tmpl/CASE-001.md)），
+与 [`at-init-cases`](../at-init-cases/) 分工：`at-init-cases` 铺骨架，**本工具只跑**；用例格式由
+ATESET-02 定稿（模板 [`bin/at-init-cases/tmpl/CASE-001.md`](../at-init-cases/tmpl/CASE-001.md)），
 实例与会话由 [`wn-cli`](../wn-cli/) 负责，本工具只读实例登记，会话不存在时按需
 自动登录（见下文「实例与会话」）。
 
@@ -33,7 +33,7 @@ ATESET-02 定稿（模板 [`bin/at-init/tmpl/CASE-001.md`](../at-init/tmpl/CASE-
 
 ## 配置：项目根 `atest.json`
 
-**唯一配置源**（不再有 `ATEST.md`）。`at-init` 生成，人可直接编辑：
+**唯一配置源**（不再有 `ATEST.md`）。`at-init-cases` 生成，人可直接编辑：
 
 ```json
 {
@@ -67,7 +67,7 @@ CLI 覆盖：`--root` / `--instance` / `--domain` / `--creds`。
 ```bash
 # 只校验用例格式，不执行（0 错 = 退出 0）
 python bin/at-run/at-run.py --check
-python bin/at-run/at-run.py --check bin/at-init/tmpl/CASE-001.md
+python bin/at-run/at-run.py --check bin/at-init-cases/tmpl/CASE-001.md
 python bin/at-run/at-run.py --check atest/cases/
 
 # 全量跑（级别 / 测试域 / 端点都按 atest.json 与 .wn-instances.json 解析）
@@ -282,8 +282,8 @@ JSON；`-cqn` 才是紧凑标准 JSON）。
 > `-script` 默认 **off**：脚本测试要收尾脚本时自己在用例脚本里调
 > （收尾脚本名 / 内容由模板作者约定）。
 
-> `at-init` 目前只复制 `atest.init`；需要变量时把
-> `bin/at-init/tmpl/vars.json` 复制成 `<root>/vars.json` 再改（模板里的变量都有
+> `at-init-cases` 目前只复制 `atest.init`；需要变量时把
+> `bin/at-init-cases/tmpl/vars.json` 复制成 `<root>/vars.json` 再改（模板里的变量都有
 > 默认值，不复制也能跑）。
 
 ### `atlib.fixture()`
@@ -539,7 +539,7 @@ emit({"status": st, "ctype": hdrs.get("Content-Type", "")})
   生效）或相对路径 `atest.json`——报告是可搬运的产物，不该出现盘符与反斜杠。
 - **stdout 摘要的 `report` / `latest` / `actual` 是绝对路径**（给人复制粘贴），
   与报告内的相对路径**有意不同**；别把它当 bug。`<root>/report/` 已在项目
-  `.gitignore` 里（`at-init` 追加），报告不进库。
+  `.gitignore` 里（`at-init-cases` 追加），报告不进库。
 - 写完后自动调用 `bin/at-gc` 归档旧报告：保留最近 `report_keep` 次（缺省 3），
   更早的压成 `archive/<timestamp>.zip`（校验通过才删原件）。本次报告与
   `latest.*` 永不归档；`--no-gc` 关闭；归档失败只在 stderr 警告，退出码不变。

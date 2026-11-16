@@ -15,7 +15,7 @@ python bin/at-doctor/at-doctor.py [--dir <项目>] [--instance L1|L2]
 | id | 检查 | 判据 | fail 通常意味着 |
 |---|---|---|---|
 | `python` | 解释器 | 当前 Python ≥ 3.10 | 换 `python3` 或升级 |
-| `config` | `atest.json` | 存在、合法 JSON、`root` 指向的目录存在 | 先跑 `bin/at-init`，或修 `root` |
+| `config` | `atest.json` | 存在、合法 JSON、`root` 指向的目录存在 | 先跑 `bin/at-init-cases`，或修 `root` |
 | `cases` | 用例 | `at-run --check` 的 `error_count = 0`（warn 不算失败） | 用例 md 有格式错误，按 error 码修 |
 | `instances` | 实例登记 | `.wn-instances.json` 可解析，目标级别有合法 `host` + `port` | 建/补登记文件，或级别写错 |
 | `reachable` | 实例可达 | `wn-ping` 返回 `alive:true` **且** `agent_ready:true` | 实例没起、端口错、登录模式不允许纯密码 |
@@ -77,12 +77,12 @@ stdout 最后一行单行 JSON：
 
 | 项 | 先做什么 |
 |---|---|
-| `config` | 跑 `python bin/at-init/at-init.py`；`root` 要与实际目录一致 |
+| `config` | 跑 `python bin/at-init-cases/at-init-cases.py`；`root` 要与实际目录一致 |
 | `cases` | 跑 `python bin/at-run/at-run.py --check` 看错误码（`--help` 有全集） |
 | `instances` | 在工作区根放 `.wn-instances.json`（形状见 `bin/at-run/README.md`） |
 | `reachable` | 确认实例在跑、端口与登记一致；`wn-ping --url <url>` 单独复核 |
 | `session` | 配 `.at/credentials.json`（`{"usr":"…","passwd":"…"}`，不进 git），或先手工 `wn-cli … login` 一次 |
-| `report` | 检查目录权限 / 磁盘；`<root>` 不存在时先跑 `at-init` |
+| `report` | 检查目录权限 / 磁盘；`<root>` 不存在时先跑 `at-init-cases` |
 
 ## 已知边界
 
