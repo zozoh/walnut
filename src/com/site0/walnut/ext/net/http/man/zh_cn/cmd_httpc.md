@@ -32,5 +32,20 @@ httpc [{method}] {URL} [-rhH] [@FILTER ...]
 @timeout     # 超时设定
 ```
 
+# 安全提醒（用代理时必读）
+
+`@proxy` 走的是 JDK 原生 `java.net.Proxy`，**只有明文 HTTP CONNECT / SOCKS，没有加密**。
+把 `@proxy` 指向公网上的明文代理，Basic 认证口令会**明文过网**。
+
+正确做法：本机（或同信誉域内）先起一条加密隧道（Reality / Hysteria2 / TLS 代理之类），
+让 `httpc` 连 `127.0.0.1:<端口>`；口令和证书都归隧道管。
+
+```bash
+# 本地隧道监听 127.0.0.1:7899
+httpc https://api.openai.com/v1/models @proxy 7899 127.0.0.1
+```
+
+详见 `man cmd_httpc_proxy`。
+
     
     
