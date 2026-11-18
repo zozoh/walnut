@@ -142,4 +142,4 @@ atest/
 
 - 用例怎么写：`at-init-cases` 模板目录里的 `CASE-001.md` 与 skill 文档；
 - 夹具怎么写：`atest.init` 顶部注释（语法与 `app init` 一致）；
-- 计划与规则：`wn-plan` 仓库的 ATESET 计划。
+- 计划与规则：见仓库内的 ATESET 文档。
