@@ -78,3 +78,4 @@ bin/test/
 /atest/report/
 /.wn-instances.json
 __pycache__/
+/.workbuddy/*
