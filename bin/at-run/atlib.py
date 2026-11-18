@@ -23,7 +23,7 @@
   原因同时写进 summary.txt：runner 记 **blocked**，绝不伪装成红/绿；
 - `emit()` 打印后直接退出 0——保证 stdout 最后一行就是结果 JSON，后面别再加输出。
 
-示例（`bin/at-init/tmpl/CASE-001.py` 就是可直接跑的版本）：
+示例（`bin/at-init-cases/tmpl/CASE-001.py` 就是可直接跑的版本）：
 
     from atlib import wn, snap, emit, note
 
@@ -481,7 +481,7 @@ def fixture(root=None, name=None, vars=None, timeout=90):
             _die("夹具名 %r 不合法：只允许 %s（且不能是 . / ..）"
                  % (fixture_name, NAME_RE.pattern))
         if not init_path.is_file():
-            _die("夹具模板不存在：%s（先照 bin/at-init/tmpl/atest.init 写一份）"
+            _die("夹具模板不存在：%s（先照 bin/at-init-cases/tmpl/atest.init 写一份）"
                  % init_path)
         template = init_path
         text = _read_text_file(init_path, "夹具模板")

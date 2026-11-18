@@ -2,7 +2,7 @@
   "include": [
     "atest",
     "bin/at-run",
-    "bin/at-init",
+    "bin/at-init-cases",
     "bin/at-baseline",
     "bin/at-doctor",
     "bin/at-gc"

@@ -1,7 +1,7 @@
 # wn-cli — Walnut 智能体客户端
 
 登录（含建域决策树）、命令通道、对象操作、本地挂载。契约见
-`{WN_DOC_HOME}/reference/102.auto-test/30-at-tools.md`（`{WN_DOC_HOME}` = 工作区同级 `../wn-doc/`）。
+`{WN_DOC_HOME}/public/atest/reference/30-at-tools.md`（`{WN_DOC_HOME}` = 工作区同级 `../wn-doc/`）。
 
 ```bash
 # 登录：给 --level 就不用写 --url（端点从 .wn-instances.json 解析）

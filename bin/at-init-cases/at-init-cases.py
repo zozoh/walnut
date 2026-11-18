@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-at-init — 运行时集成测试（ATEST）项目骨架脚手架
+at-init-cases — 运行时集成测试（ATEST）项目骨架脚手架
 
 一条命令在项目里铺开 ATEST 约定好的东西（`<root>` 默认 `atest`，`--root` 可改）：
 
@@ -24,7 +24,7 @@ at-init — 运行时集成测试（ATEST）项目骨架脚手架
 之所以不叫 `test/`：项目自己的测试框架（如 Maven 的 `testSourceDirectory`）已经
 占用了这个目录，集成测试另起一个根。
 
-分工：`.at/`（身份、会话、私有配置）归 `walnut-at-init`；本工具**只管 <root>/**
+分工：`.at/`（身份、会话、私有配置）归 `at-init-workspace`；本工具**只管 <root>/**
 与 `atest.json`，检测到 `.at/` 缺失时只提示、不代建。
 
 幂等：已存在的文件一律 `kept`，**绝不覆盖用户内容**。`--force` 只刷新
@@ -38,11 +38,11 @@ at-init — 运行时集成测试（ATEST）项目骨架脚手架
 带 BOM 会让 TOML/JSON 解析出空值，本项目踩过）。
 
 用法:
-    python at-init.py                              # 当前目录，根目录 atest
-    python at-init.py --dir D:/work/myproj --name myproj
-    python at-init.py --root spec                  # 集成测试根目录改名 spec
-    python at-init.py --dry-run                    # 只报计划，不落盘
-    python at-init.py --force                      # 刷新 .wn-instances.example.json
+    python at-init-cases.py                        # 当前目录，根目录 atest
+    python at-init-cases.py --dir D:/work/myproj --name myproj
+    python at-init-cases.py --root spec            # 集成测试根目录改名 spec
+    python at-init-cases.py --dry-run              # 只报计划，不落盘
+    python at-init-cases.py --force                # 刷新 .wn-instances.example.json
 
 退出码: 0 成功；1 用法错误；2 环境问题（目录不存在 / 模板缺失 / 写入失败 /
 atest.json 不是合法 JSON）
@@ -58,7 +58,7 @@ EXIT_OK = 0
 EXIT_USAGE = 1
 EXIT_ENV = 2
 
-# 模板真身就在本脚本旁边：bin/at-init/tmpl/（与代码同仓，可离线使用）
+# 模板真身就在本脚本旁边：bin/at-init-cases/tmpl/（与代码同仓，可离线使用）
 TMPL_DIR = Path(__file__).resolve().parent / "tmpl"
 
 CONFIG_NAME = "atest.json"
@@ -71,6 +71,8 @@ PROJECT_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,31}$")
 # 集成测试根目录名：不允许路径分隔符，也不允许 . / ..（否则 <root>/cases 会跑出项目）
 ROOT_RE = re.compile(r"^[A-Za-z0-9._-]+$")
 
+# 标记沿用老名（`# at-init:`）而不是新工具名：它已经写进各业务项目的 .gitignore，
+# 改名会让旧块认不出来、重复追加一块。这是存量兼容，不是漏改。
 GITIGNORE_MARK = "# at-init: ATEST 产物（报告不进库；实例登记真身是本机配置）"
 
 
@@ -142,7 +144,7 @@ EPILOG = """\
   旧块里的 /test/report/ 会被替换成 /<root>/report/（迁移），其余行不动。
 
 分工:
-  .at/（身份 / 会话 / 凭据）归 walnut-at-init；本工具只管 <root>/ 与 atest.json。
+  .at/（身份 / 会话 / 凭据）归 at-init-workspace；本工具只管 <root>/ 与 atest.json。
 
 退出码:
   0  成功（含"全部 kept"）
@@ -155,10 +157,10 @@ EPILOG = """\
    "warnings":[...]}
 
 示例:
-  python at-init.py --dir D:/work/myproj --name myproj
-  python at-init.py --root spec
-  python at-init.py --dry-run
-  python at-init.py --force
+  python at-init-cases.py --dir D:/work/myproj --name myproj
+  python at-init-cases.py --root spec
+  python at-init-cases.py --dry-run
+  python at-init-cases.py --force
 """
 
 
@@ -310,7 +312,7 @@ def _force_utf8_stdio():
 
 def main(argv=None):
     _force_utf8_stdio()
-    ap = _Parser(prog="at-init", description=DESCRIPTION, epilog=EPILOG,
+    ap = _Parser(prog="at-init-cases", description=DESCRIPTION, epilog=EPILOG,
                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--dir", default=".", metavar="DIR",
                     help="目标项目目录（默认当前目录）")
@@ -416,7 +418,7 @@ def main(argv=None):
 
     if not (work / ".at").is_dir():
         warnings.append("未发现 .at/（身份 / 会话 / 凭据）：先跑 "
-                        "walnut-at-init --name <代号>；at-init 不代建 .at/")
+                        "at-init-workspace --name <代号>；at-init-cases 不代建 .at/")
     if find_instances(work) is None:
         warnings.append("从 %s 逐级向上没找到 %s：at-run 会报错；本工具只生成样例 "
                         "%s，真身请开发者放到工作区根或用户目录"
@@ -431,7 +433,7 @@ def main(argv=None):
         print("dry-run：以上只是计划，未写任何文件。", file=sys.stderr)
     else:
         print("下一步: 改 atest.json 的 instance / test_domain，写 %s/atest.init，"
-              "再照 bin/at-init/tmpl/ 写第一个用例；跑 `python %s/run.py --check` 自检。"
+              "再照 bin/at-init-cases/tmpl/ 写第一个用例；跑 `python %s/run.py --check` 自检。"
               % (root, root), file=sys.stderr)
     return EXIT_OK
 

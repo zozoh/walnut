@@ -3,7 +3,7 @@
 """
 build/wn4j-make.py — Walnut 构建脚本
 
-契约见 wn-doc/public/reference/102.auto-test/10-at-build.md。
+契约见 wn-doc/public/atest/reference/10-at-build.md。
 
 用法:
     python build/wn4j-make.py            # 默认: 编译(mvn) + 打包(dist) + 校验
@@ -351,7 +351,7 @@ def assert_no_running_instance():
             continue
         if pid and pid_alive(pid):
             print("!!! 有实例正在从本产物运行: %s (pid=%d)" % (lock.name, pid))
-            print("!!! 请先用 wn-down 或 sbin/stop_with_redis.cmd 停止实例，再重建")
+            print("!!! 请先用 sbin/stop_with_redis.cmd（或 sbin/stop.cmd）停止实例，再重建")
             sys.exit(1)
 
 
@@ -442,7 +442,7 @@ def do_dist():
     shutil.copyfile(str(D_BIN / "stop.cmd"), str(D_OUT / "sbin" / "stop.cmd"))
     # start/stop_with_redis.cmd 是测试工具（私有 redis 进程生命周期），
     # 仅在 make.json 的 REDIS_SERVER 非空时生成，并把程序路径烘焙进脚本；
-    # 留空 = 产物不带私有 redis 能力，wn-up 走 start.cmd 直启
+    # 留空 = 产物不带私有 redis 能力，直接用 start.cmd 起
     if RD_SERVER:
         swr = (D_BIN / "start_with_redis.cmd").read_text(encoding="utf-8")
         swr = (swr.replace("@REDIS_SERVER@", RD_EXE)

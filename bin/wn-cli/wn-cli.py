@@ -3,7 +3,7 @@
 """
 wn-cli — Walnut 智能体客户端
 
-对接 web2 路由（wn-doc/public/reference/102.auto-test/30-at-tools.md）:
+对接 web2 路由（wn-doc/public/atest/reference/30-at-tools.md）:
     AppSysLoginByPasswdController  /a/sys_login_by_passwd  登录（ajax 信封）
     AppRunController               /a/run/wn-term          命令通道（mkdir/mount/ln/o/app init/sqlx ...）
     Obj*Controller                 /o/*                    对象与文件字节
@@ -528,7 +528,7 @@ def toml_parse(text):
 class Session:
     """会话缓存: <session_dir>/<se>.toml（兼容读旧 <se>.json）
 
-    契约见 wn-doc/public/reference/102.auto-test/30-at-tools.md 的 wn-cli 一节:
+    契约见 wn-doc/public/atest/reference/30-at-tools.md 的 wn-cli 一节:
 
       base       实例地址
       loginName  登录名（root 或域用户）
@@ -887,7 +887,7 @@ class WnClient:
         return {"mounted": path, "url": file_url, "checked": True,
                 "listing_head": listing.strip().splitlines()[:10]}
 
-    # ---------------- 节点初始化（root，见 wn-doc/public/reference/102.auto-test/） ----------------
+    # ---------------- 节点初始化（root，见 wn-doc/public/atest/reference/） ----------------
     def check_node(self):
         """看 /app 权限就知道节点是否初始化过（空白库启动时是 0750）。
         返回 initialized + 细节，自身总是成功（除非连不上）。"""
@@ -898,7 +898,7 @@ class WnClient:
 
     def init_node(self):
         """空白数据库节点的首次初始化（幂等，可重复跑）。
-        步骤来自 wn-doc/public/reference/102.auto-test：
+        步骤来自 wn-doc/public/atest/reference：
         1. 顶级目录放开读+执行
         2. 系统钩子（缩略图/视频预览）
         3. MongoDB 索引（mgadmin）

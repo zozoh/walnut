@@ -1,77 +1,65 @@
 # 命令简介
 
-`sqlx` 用来处理 SQL 数据库
+`sqlx` 执行用户目录 `~/.sqlx` 下的 SQL 模板，完成查询、增删改、事务和历史记录。
 
-它根据用户自定义的 SQL, 配合用户传入的上下文变量，可以实现对各种数据库的增删改查
-等操作。
+模板文件、`${@vars}` 语法、条件值和 `EXISTS` 配方统一见
+[编写 SQL 模板（sqlx）](@wn-doc::reference/101.dev/21-write-sqlx-tmpl.md)；
+本篇只讲命令怎么调用。
 
-在每个用户的 `~/.sqlx` 的目录下，存放所有支持的 sql:
-
-```bash
-~/.sqlx/
-|-- pet.sql
-|-- address.sql
-|-- food.sql
-```
-
-每个 SQL 文件实际上就是一个模板，它支持 `cmd_tmpl` 同样的语法。并在此基础上，支
-持特殊占位符 `${@vars}`, 这个占位符会结合命令的上下文变量集合，输出 SQL 语句的片
-段，具体的细节，请参见 `man sqlx vars`。
-
-同时，一个 SQL 模板文件支持存放多个sql的语句模板：
+一个 `.sql` 文件可以包含多条实体：
 
 ```sql
-------------------------------------------------
--- pet.sql
-------------------------------------------------
--- 每个SQL语句之前的注释 @xxx=xx 将作为语句的元数据
--- @name=query
--- @type=select
--- @omit=a,b,c
--- @pick=x,y,z
--- @ignoreNil=true
--- 通过访问 pet.query 即可获取本条语句的模板
-SELECT * FROM t_pet WHERE ${@vars=where};
--------------------------------------------------
--- @name=update
-UPDATE t_pet SET${@vars=update} WHERE id=?;
+-- @name = pet.select
+-- @type = SELECT
+SELECT id, name FROM t_pet WHERE 1=1
+${@vars=where; prefix=AND}
+
+-- @name = pet.update
+-- @type = UPDATE
+UPDATE t_pet SET ${@vars=update; omit=id} WHERE id=${@vars=param; name=id}
 ```
 
-## 上下文
-
-整个命令生命周期内护一个上下文:
-
-```bash
-SqlxContext
-|-- input  -------+ <-- # 标准输入
-|                 |
-|-- pipeContext --+ <-- @set|query|pipe 直接设置
-|                 V
-|                 V # @vars 取出之值，并设置
-|                 V # 以便 @exec|query 子命令获取输入
-|-- varMap -------+
-|                 |
-|-- varList ------+
-|
-|-- varMode'LIST|MAP'  # 标识 @exec 采用哪种模式的数据
-#-----------------------------------------------
-- input        输入上下文
-- pipeContext  管线上下文
-```
+调用名是“文件名.实体名”，例如 `pet.select`。
 
 # 用法
+
+```bash
+sqlx [daoName] [@filter ...]
+```
+
+- `daoName`：数据源名，缺省 `default`
+- `-conf <dir>`：模板目录，缺省 `~/.sqlx`
+- 过滤器按出现顺序执行；前一个过滤器的 `result` / 管道上下文可给后一个使用
+- 模板写错时先用 `@view ... -p` 看渲染结果
 
 # 过滤器列表
 
 ```bash
-@vars       # 为当前上下文指定变量集合
-@set        # 设置上下文的某个变量
-@dvcheck    # 检查数据版本，防止数据同时被写入
-@exec       # 执行指定的 UPDATE/DELETE/INSERT 语句
-@query      # 执行指定的 SELECT 语句
-@trans      # 事务相关操作
-@view       # 测试 SQL 的渲染结果
-@cache      # 处理 SQL 的缓存
-@json       # 定义输出结果的 JSON 格式化方式
-@tab        # 用表格的形式输出结果
+@vars       # 设置本次执行的变量集合
+@set        # 设置上下文变量（ID、时间、序列等）
+@pipe       # 设置/查看管道上下文
+@dvcheck    # 数据版本检查
+@trans      # 设置本命令周期的事务级别
+@exec       # 执行 INSERT / UPDATE / DELETE
+@query      # 执行 SELECT
+@view       # 只渲染 SQL，不执行
+@cache      # 查看或清理模板缓存
+@json       # 控制结果 JSON 输出
+@tab        # 把结果输出为表格
+@hislog     # 控制本次执行的历史记录
 ```
+
+# 子命令文档
+
+- [`@vars`](cmd_sqlx_vars.md) —— 输入变量集合；模板语法见 21 篇，不在本命令里
+- [`@set`](cmd_sqlx_set.md) —— 生成/设置变量
+- [`@pipe`](cmd_sqlx_pipe.md) —— 管道上下文
+- [`@dvcheck`](cmd_sqlx_dvcheck.md) —— 乐观锁式版本检查
+- [`@trans`](cmd_sqlx_trans.md) —— 事务
+- [`@exec`](cmd_sqlx_exec.md) —— 非查询执行
+- [`@query`](cmd_sqlx_query.md) —— 查询
+- [`@view`](cmd_sqlx_view.md) —— 预览渲染
+- [`@cache`](cmd_sqlx_cache.md) —— 模板缓存
+- [`@json`](cmd_sqlx_json.md) —— JSON 输出
+- [`@tab`](cmd_sqlx_tab.md) —— 表格输出
+- [`@hislog`](cmd_sqlx_hislog.md) —— 历史记录

@@ -7,8 +7,8 @@ REM  Usage: start.cmd [--conf <dir>] [--pid-dir <dir>]
 REM
 REM  Env:
 REM    JAVA_HOME       - preferred JDK
-REM    WN_AGENT_NAME   - agent code name (injected by wn-up)
-REM    WN_WORK_PATH    - agent working dir (injected by wn-up)
+REM    WN_AGENT_NAME   - agent code name (passed by the launcher)
+REM    WN_WORK_PATH    - agent working dir (passed by the launcher)
 REM
 REM  NOTE: keep every user-facing message ASCII-only, and avoid
 REM  unquoted parentheses inside (...) blocks - cmd.exe parses

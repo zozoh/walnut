@@ -1,28 +1,35 @@
 # 过滤器简介
 
-`@query` 执行指定的 SQL 查询语句
+`@query` 执行 SELECT 模板，结果默认作为 `result` 输出；也可以用 `-set` 放进管道上下文。
 
-这个变量集合中的变量将与模板中的占位符 `${@vars=where}` 结合输出特定的sql条件或者插入字段。
-嗯，你也可以直接在模板中通过通用占位符 `${varName}` 使用这些变量。
-
-> - 模板详细语法请参加： `man tmpl`
-> - 模板的文件格式请参见： `man sqlx view`
+模板语法见
+[编写 SQL 模板（sqlx）](@wn-doc::reference/101.dev/21-write-sqlx-tmpl.md)。
 
 # 用法
 
 ```bash
 sqlx @query
-  [sqlName]          # sql 模板的名称
-  [-p]               # 采用参数模式可以避免 SQL 注入
-  [-set key]         # 查询的结果设置到【管道上下文】
-                     # 如果是 "..." 表示解构推入
-                     # 但是值必须是一个 Map
-  [-val '{...}']     # 在 -set 模式下，可以用一个Explain表达式，
-                     # 可以转换一下设置的值，默认的，会查询结果列表
-                     # 依次转换一遍
-  [-as obj|list]     # 开启模式 `-as obj` 则会仅仅挑选结果集第一个对象
-                     # 并且 [-set key] 支持 explain 表达式，上下文是
-                     # 原始的查询对象。 默认是 `-as list`
+  [sqlName]           # 模板名，如 pet.select
+  [-p]                # 参数模式，避免 SQL 注入；生产查询建议始终加
+  [-by {...}]         # 对每条结果做 Explain 形状转换
+  [-set key]          # 结果写入管道上下文
+  [-val {...}]        # -set 时对结果做 Explain 转换
+  [-as obj|list]      # -set 模式：obj 只取第一条，默认 list
 ```
 
+- 不加 `-set`：结果由 `@json` / `@tab` 等后续过滤器输出
+- `-set ...`：解构推入管道上下文；`-set pet` 则放到 `pet` 键
+- `-as obj` 只对 `-set` 生效
 
+# 示例
+
+```bash
+# 参数化查询并输出
+sqlx @vars '{filter:{st:1}}' @query pet.select -p
+
+# 查询结果放入管道上下文
+sqlx @vars '{id:"xxx"}' @query pet.fetch -p -set pet -as obj
+
+# 直接转换结果形状
+sqlx @vars '{filter:{st:1}}' @query pet.select -p -by '{id:id,name:name}'
+```

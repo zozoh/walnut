@@ -43,7 +43,7 @@ at-run — ATEST 运行器（v2）
                     → --creds 覆盖；只在需要自动登录时读（--check 不读、不登录）。
     init_template: atest.json 的 init_template（缺省 <root>/atest.init）；
                    夹具模板；--check 会警告缺失、异常大与 v1 不支持的外部引用。
-    atest.json 缺失 → 退出 2，提示先跑 at-init 或补上配置。
+    atest.json 缺失 → 退出 2，提示先跑 at-init-cases 或补上配置。
 
 脚本契约（ATESET-03 T1 定稿，见同目录 README）:
     runner 以子进程执行 <root>/scripts/<CASE-ID>.py（argv 传参，绝不经 shell），
@@ -185,7 +185,7 @@ ATEST 运行器：校验用例、解析实例、复用会话、逐例执行并�
 EPILOG = """\
 根目录:
   atest.json 的 root（缺省 atest）→ --root 覆盖；cases / scripts / expect /
-  baseline / report 都在 <root>/ 下。atest.json 缺失 → 退出 2（先跑 at-init）。
+  baseline / report 都在 <root>/ 下。atest.json 缺失 → 退出 2（先跑 at-init-cases）。
   基线 <root>/baseline/<CASE-ID>.json 必须可移植：只收与环境无关的值（易变字段、
   绝对路径不写进基线），同一份基线在 L1/L2 与别人的机器上都要能过。
   建立：--record 产 actual → bin/at-baseline --from 清洗后落盘（见其 README）。
@@ -261,7 +261,7 @@ EPILOG = """\
 
 示例:
   python bin/at-run/at-run.py --check
-  python bin/at-run/at-run.py --check bin/at-init/tmpl/CASE-001.md
+  python bin/at-run/at-run.py --check bin/at-init-cases/tmpl/CASE-001.md
   python bin/at-run/at-run.py --record
   python bin/at-run/at-run.py --instance L1 --only CASE-001,CASE-002
   python bin/at-run/at-run.py --instance L1 --reset
@@ -357,7 +357,7 @@ def load_config(project):
     """读项目根 atest.json（唯一配置源）；缺失/坏档 → 退出 2，不猜。"""
     path = Path(project) / CONFIG_NAME
     if not path.is_file():
-        raise EnvError("找不到 %s：先跑 bin/at-init/at-init.py 生成它，"
+        raise EnvError("找不到 %s：先跑 bin/at-init-cases/at-init-cases.py 生成它，"
                        "或在项目根建 atest.json 并填 instance" % path)
     try:
         data = json.loads(path.read_text(encoding="utf-8-sig"))
@@ -782,7 +782,7 @@ def _init_file_warnings(path, project, warn_includes, uploads_tree=False):
     if not path.exists():
         return [warn_of(path, "init-template-missing",
                         "缺夹具模板 %s：用例仍可跑，但 atlib.fixture() 会记 "
-                        "blocked；照 bin/at-init/tmpl/atest.init 写一份"
+                        "blocked；照 bin/at-init-cases/tmpl/atest.init 写一份"
                         % rel(path, project))]
     if not path.is_file():
         return [warn_of(path, "init-template-not-file",
@@ -1076,7 +1076,7 @@ def collect_cases(paths, project, root=ROOT_DEFAULT):
         return targets
     cases_dir = Path(project) / root / "cases"
     if not cases_dir.is_dir():
-        raise EnvError("找不到用例目录 %s：先跑 bin/at-init/at-init.py" % cases_dir)
+        raise EnvError("找不到用例目录 %s：先跑 bin/at-init-cases/at-init-cases.py" % cases_dir)
     return sorted(x for x in cases_dir.rglob("*.md") if x.is_file())
 
 
@@ -1809,7 +1809,7 @@ def run_suite(project, args, root, config, config_path):
 
     cases_dir = project / root / "cases"
     if not cases_dir.is_dir():
-        raise EnvError("找不到用例目录 %s：先跑 bin/at-init/at-init.py"
+        raise EnvError("找不到用例目录 %s：先跑 bin/at-init-cases/at-init-cases.py"
                        % cases_dir)
     files = sorted(x for x in cases_dir.rglob("*.md") if x.is_file())
 
@@ -1829,7 +1829,7 @@ def run_suite(project, args, root, config, config_path):
                        "fields": fields, "sections": sections,
                        "errors": errors, "expected_value": expected_value})
     if not parsed:
-        raise EnvError("%s 下没有用例（*.md）：先照 bin/at-init/tmpl/CASE-001.md "
+        raise EnvError("%s 下没有用例（*.md）：先照 bin/at-init-cases/tmpl/CASE-001.md "
                        "写一个" % rel(cases_dir, project))
 
     only = set(split_list(args.only))

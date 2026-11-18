@@ -1,7 +1,7 @@
 # build/ — 构建 Walnut 测试服务（dist/wn4j）
 
 > 这份文件是写给**人**的：照着做，一条命令就能得到一份可以直接启动的 Walnut。
-> 机制细节见 `wn-doc/public/reference/102.auto-test/10-at-build.md`；这里只讲"怎么做"。
+> 机制细节见 `wn-doc/public/atest/reference/10-at-build.md`；这里只讲"怎么做"。
 
 ## 一、这是什么
 
@@ -191,6 +191,6 @@ redis 走 `build.rs.json` 里配的那个（通常是开发者本机的 6379）�
 
 ## 八、更多
 
-- 构建机制与改动清单：`wn-doc/public/reference/102.auto-test/10-at-build.md`
+- 构建机制与改动清单：`wn-doc/public/atest/reference/10-at-build.md`
 - 启动/建域/探活：`20-at-setup.md`、`30-at-tools.md`
 - 集成测试怎么跑：`walnut/atest/README.md`

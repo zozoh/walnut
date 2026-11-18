@@ -175,7 +175,7 @@ def load_config(project: str | Path) -> tuple[dict[str, Any] | None, Path, str]:
     """读 atest.json；返回 (dict, 路径, 错误说明)。"""
     path = Path(project) / CONFIG_NAME
     if not path.is_file():
-        return None, path, "找不到 %s：先跑 bin/at-init/at-init.py" % path
+        return None, path, "找不到 %s：先跑 bin/at-init-cases/at-init-cases.py" % path
     try:
         raw = json.loads(path.read_text(encoding="utf-8-sig"))
     except (ValueError, OSError) as e:

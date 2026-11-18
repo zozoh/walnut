@@ -143,7 +143,7 @@ def load_config(project):
     """读项目根 atest.json（唯一配置源）；缺失/坏档 → 退出 2，不猜。"""
     path = Path(project) / CONFIG_NAME
     if not path.is_file():
-        raise EnvError("找不到 %s：先跑 bin/at-init/at-init.py 生成它，"
+        raise EnvError("找不到 %s：先跑 bin/at-init-cases/at-init-cases.py 生成它，"
                        "或在项目根建 atest.json" % path)
     try:
         data = json.loads(read_text(path))

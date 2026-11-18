@@ -1,24 +1,30 @@
 # 过滤器简介
 
-`@exec` 处理 SQL 的缓存
+`@cache` 查看或清理 `sqlx` 的 SQL 模板缓存。
 
+模板按目录加载并缓存在当前服务进程内；改了 `~/.sqlx/*.sql` 后如果仍读到旧内容，
+用 `-clear` 清理。
 
 # 用法
 
 ```bash
-sqlx @cache 
-  [-get xxx]   # 指明一个要查看的键，
-               # - 如果是字符串，则会直接查询缓存键
-  [-clear]     # 本操作是重置缓存
-               # 如果不声明这个选项，则表示查看缓存
+sqlx @cache
+  [-get xxx]    # 只查看匹配的模板；支持通配符，如 pet*
+  [-clear]      # 清空模板缓存
 ```
+
+- 不带 `-get` / `-clear`：输出全部已缓存模板
+- `-clear` 只清当前命令实例的模板缓存，不修改磁盘文件
 
 # 示例
 
 ```bash
-# 获取某个指定的键
+# 看某个模板是否已加载
 sqlx @cache -get pet.select
 
-# 获取以指定的值为前缀的一组SQL模版
-sqlx @cache -get pet*
+# 看 pet 下所有实体
+sqlx @cache -get 'pet*'
+
+# 清缓存
+sqlx @cache -clear
 ```
