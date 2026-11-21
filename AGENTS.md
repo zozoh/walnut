@@ -1,102 +1,37 @@
-# AGENT.md — 快速了解 Walnut 项目
+# AGENTS.md — Walnut
 
-> 给 AI Agent 的入口文件。读完本篇 + 按顺序点开 2~3 个链接，即可建立对全项目的认知，不必瞎翻。
+业务系统开发基座（Java + 内嵌 Nutz）：**一切数据源是一棵对象树，用命令操作它，用 JS 写业务。**
 
-## 这个项目是什么
+## 阅读顺序（最少 token）
 
-Walnut 是一个**业务系统开发基座**（Java + 内嵌 Nutz 框架），核心思想一句话：
+文档在私有库 `../wn-doc/`（`{WN_DOC_HOME}`）：
 
-**把一切数据源统一成一棵对象树，用命令操作它，用 JS 写业务。**
+1. `{WN_DOC_HOME}/public/reference/INDEX.md` — 全量索引，按关键词直达；
+2. `.../10.concepts/README.md` — 五大核心概念（对象 / IO-Indexer-BM / Domain / 会话 / 命令）；
+3. `.../SOURCEMAP.md` — 源码包 ↔ 文档映射；
+4. 写代码前看 `.../101.dev/` + 对应 `man/zh_cn/cmd_*.md`。
 
-- 一切数据都是对象（文件/目录/会话/支付单……），对象 = 元数据 + 内容桶，
-  元数据与内容可存在不同介质上（Mongo/SQL/Redis/文件/对象存储，可任意组合）
-- 操作全部命令化（139 个命令：71 内置（可执行）+ 68 扩展），支持管道与重定向，高仿 Linux
-- 每个命令有 man 文档，随源码存放（`man/zh_cn/cmd_*.md`）
-- 业务逻辑主要用 `jsc` 命令 + JS 脚本动态扩展，无需重新部署
+文档与源码冲突时**以源码为准**；命令契约 = 源码头注释 + 同目录 man 文档，改命令必改 man。
 
-## 阅读顺序（最少 token 路线）
+## 跑测试
 
-> 文档已迁至独立的私有文档库 **wn-doc**（工作区同级目录，下称 `{WN_DOC_HOME}` = `../wn-doc/`）。
-> 双向寻址：本仓库 [LOCAL_REF.md](LOCAL_REF.md) 指向 wn-doc；wn-doc 的 `LOCAL_REF.md` 指回本仓库。
-> wn-doc 的 Agent 入口是 `{WN_DOC_HOME}/AGENTS.md`。
+- 优先用工作区 MCP 的 `mcp__wn__junit`（`project=walnut`，可加 `class_name` / `method`）；
+- 没有 MCP 才 `mvn -o test -Dtest=<类名>`；全量已知有红（Mongo/本地路径），先跑基线，别把既存红当自己改坏；
+- 判绿看**用例计数**，`junit` 的 `exit` 恒为 0；
+- `test/` 下 `Abstract*Test` 必须声明 `abstract`，否则被实例化出一堆 NPE 假红；
+- 集成/验收用例在 `atest/`（`python atest/run.py --only CASE-xxx`）。
 
-1. **`{WN_DOC_HOME}/public/reference/INDEX.md`** — 全量文档索引（每篇一行：标题/模块/关键词）。
-   需要了解什么主题，按关键词搜这里，直达对应文档。
-2. **`{WN_DOC_HOME}/public/reference/10.concepts/README.md`** — 五大核心概念
-   （标准对象、IO/Indexer/BM、Domain/Home、会话、命令模型），是理解一切的地基。
-3. **`{WN_DOC_HOME}/public/reference/SOURCEMAP.md`** — 源码包 ↔ 文档的双向映射。
-   已经拿到一个类/包名？查这张表找到对应文档，反之亦然。
-4. 写代码前再看 **`{WN_DOC_HOME}/public/reference/101.dev/`**（扩展开发）和对应命令的 man 文档。
+## 源码布局
 
-## 文档体系（wn-doc 私有库）
+`src/com/site0/walnut/`：`api`（接口，先读 Javadoc）、`core`（io/索引器/桶管理）、`impl`（服务 + `box/cmd` 内置命令）、`ext`（扩展命令）、`web2`（Jetty12 栈）、`cron`、`ooml`、`login`。
+构建：Maven（`pom.xml`）；装配 `web2/service`；配置 `conf/web.properties`。
 
-文档全部放在工作区同级的 **wn-doc** 私有库（`../wn-doc/`，即 `{WN_DOC_HOME}`）：
+## 弃用（不要读、不要改）
 
-```bash
-wn-doc/
-|-- README.md      # 给人看的总览
-|-- AGENTS.md      # 给 Agent 的入口与守则（先读这个）
-|-- LOCAL_REF.md   # 引用的工程仓库（指回本仓库 ../walnut）
-|-- public/        # ★ 公开内容，发布为文档站点（站点根 = public/）
-|   |-- reference/ # 正式参考手册（分模块：00 快速开始 / 10 概念 / 20 存储 / 30 认证 /
-|   |              #   40 命令 / 45 网站 / 50 HTTP API / 60 定时任务 / 70 功能场景 /
-|   |              #   100 运维 / 101 开发 / 102 测试）
-|   `-- skill/     # 给 AI Agent 的技能文档（write-walnut-doc.skill.md = 写文档的规范与叙事风格）
-|-- note/          # 历史工作笔记（私有）
-`-- _old/          # 旧文档存档，内容已与源码脱节，不要引用
-```
+`thing` 全系列、`600.site-app/`、`cmd_obj`（用 `cmd_o`）、`cmd_crontab`（用 `cron`）、`client/ gradle/ build.py jdbc/`。
+例外：`bin/` 是智能体测试公共工具集（wn-ping / wn-cli / at-*）。
 
-- 知识文档之间已互通真实链接（正文里的 `[标题](相对路径.md)`），跟着链接读即可。
-- 命令的权威文档在**本仓库**源码旁的 `man/zh_cn/`，格式：简单命令一篇，复杂/过滤命令主文档 + 每子命令一篇。
-- 文档与源码冲突时，**以源码为准**；可顺手修正文档（遵守 `{WN_DOC_HOME}/public/skill/write-walnut-doc.skill.md`）。
+## 纪律
 
-## 源码布局（src/com/site0/walnut/）
-
-```bash
-api/     # 核心接口（io/auth/hook/session……）—— 先读接口，语义都在 Javadoc
-core/    # api 的主要实现（io 映射/索引器/桶管理器）
-impl/    # 服务实现；impl/box/cmd/ = 71 个可执行内置命令（73 个文件含 2 抽象基类）
-ext/     # 68 个扩展命令，按逻辑分类：data / geo / media / net / sys / util / xo
-web2/    # Jetty12 HTTP 栈（WnLauncher2/WnMvcJetty12Handler/WnRoutes/控制器/regapi）；mvc/ = 中立 MVC 层
-cron/    # WnCron 表达式引擎（Quartz 兼容 + 区间扩展）
-ooml/    # OOML 文档格式（类 Markdown， Walnut 富文本）
-login/   # 账户与会话；util/ alg/ val/ = 工具层
-```
-
-构建运行：Maven 项目（`pom.xml`）；服务装配走 `web2/service`（WnServiceFactory + register/*，无 IoC 容器），配置在 `conf/web.properties`。
-上手步骤见 `{WN_DOC_HOME}/public/reference/00.start-here/quick-start.md`。
-
-## 跑测试（先看这条）
-
-- **优先走工作区的 `wn-mcp`**：工具列表里有 `mcp__wn__junit` 就用它，`project=walnut`，可加 `class_name` / `method` 收窄。
-  它在正常环境跑 Maven，返回「用例数 / 失败清单 / 日志路径」，不受本机沙箱限制。
-- **没有 MCP 才用 `mvn`**：`mvn -o test -Dtest=<类名>`。全量 `mvn -o test` 能跑，但**当前不是全绿**
-  （Mongo 依赖、`D:/DB/walnut_test` 本地路径、索引状态等已知红），先跑一次改动前的基线，别把既存红当成自己改坏。
-- **判绿看用例计数，不看退出码**：`junit` 工具返回的 `exit` 恒为 `0`（内部按失败不中断取数）。
-- **`test/` 下的 `Abstract*Test` 是基类，必须声明 `abstract`**：surefire 会跳过抽象类；
-  漏了这个关键字就会被直接实例化，字段为 null，产生一堆 NPE 假红。
-- 集成/验收用例不在这里：走 `atest/`（`python atest/run.py --only CASE-xxx`）。
-
-## 重要：这些已弃用，不要读不要改
-
-- **`thing` 全系列**（概念与源码都将删除）
-- **`600.site-app/` 相关**（`cmd_www` 已删）
-- **`cmd_obj` 命令** → 用 **`cmd_o`** 代替（文档示例均已改用 `o`）
-- **`cmd_crontab`**（旧单文件定时器，标记 @deprecated，用 `cron` 三件套代替）
-- `client/ gradle/ build.py jdbc/` 基本弃用；`.gitignore` 忽略的文件都不用看
-- 例外：`bin/` 目录已复活为**智能体自动化测试的公共工具集**
-  （wn-ping/wn-cli/at-*），见 `{WN_DOC_HOME}/public/atest/reference/`
-
-## 临时文件纪律
-
-- 不要往项目根目录堆临时目录/文件：确需临时目录一律放 `.tmp/` 下
-  （已 gitignore），用完即删。
-- 任务结束前必须清理自己创建的临时文件；确有原因不能删的（比如
-  会话缓存、身份信息），要在汇报里明确告知用户原因。
-
-## 上手建议
-
-1. 先跑通 `{WN_DOC_HOME}/public/reference/00.start-here/quick-start.md`，在控制台玩 `o` 命令（一切皆对象的最佳入口：`man cmd_o`）
-2. 重点命令（设计最完整、最值得当范例读）：
-   `cmd_o`（过滤）、`cmd_sqlx`（复杂）、`cmd_tmpl`（过滤）、`cmd_xapi`（复杂）
-3. 每个命令源码头部注释 + 同目录 man 文档就是它的全部契约；改命令必改 man 文档
+- 临时文件只放 `.tmp/`（已 gitignore），任务结束前清理；不能删的要在汇报里说明原因；
+- 上手先跑 `.../00.start-here/quick-start.md`，玩 `o` 命令；重点范本：`cmd_o`、`cmd_sqlx`、`cmd_tmpl`、`cmd_xapi`。
