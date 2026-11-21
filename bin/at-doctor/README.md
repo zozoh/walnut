@@ -17,7 +17,7 @@ python bin/at-doctor/at-doctor.py [--dir <项目>] [--instance L1|L2]
 | `python` | 解释器 | 当前 Python ≥ 3.10 | 换 `python3` 或升级 |
 | `config` | `atest.json` | 存在、合法 JSON、`root` 指向的目录存在 | 先跑 `bin/at-init-cases`，或修 `root` |
 | `cases` | 用例 | `at-run --check` 的 `error_count = 0`（warn 不算失败） | 用例 md 有格式错误，按 error 码修 |
-| `instances` | 实例登记 | `.wn-instances.json` 可解析，目标级别有合法 `host` + `port` | 建/补登记文件，或级别写错 |
+| `instances` | 实例登记 | `.at/instances.json` 可解析，目标级别有合法 `host` + `port` | 建/补登记文件，或级别写错 |
 | `reachable` | 实例可达 | `wn-ping` 返回 `alive:true` **且** `agent_ready:true` | 实例没起、端口错、登录模式不允许纯密码 |
 | `session` | 会话或凭据 | 会话文件 `<级别>-<域>-00` 存在，**或**凭据文件可用（`usr` / `passwd` 非空） | 先手工登录一次，或配 `.at/credentials.json` |
 | `tools` | 工具齐全 | `bin/` 下 `at-run` / `at-report` / `at-baseline` / `wn-cli` 都在 | 仓库不完整或 `bin/` 被挪动 |
@@ -49,7 +49,7 @@ stderr 逐行人读：
 at-doctor: python     ok   Python 3.12.3（要求 ≥ 3.10）
 at-doctor: config     ok   atest.json 合法；root=atest，目录存在；instance=L1
 at-doctor: cases      ok   at-run --check：10 个用例文件，0 错误
-at-doctor: instances  ok   L2 = 127.0.0.1:7709（.wn-instances.json）
+at-doctor: instances  ok   L2 = 127.0.0.1:7709（.at/instances.json）
 at-doctor: reachable  ok   http://127.0.0.1:7709 alive，agent_ready（system=PASSWD_ONLY / domain=PASSWD_ONLY）
 at-doctor: session    ok   会话 L2-demo-00 存在（.at/client/session/L2-demo-00.toml；直接复用，不读凭据）
 at-doctor: tools      ok   at-run / at-report / at-baseline / wn-cli 都在 ...\walnut\bin
@@ -79,7 +79,7 @@ stdout 最后一行单行 JSON：
 |---|---|
 | `config` | 跑 `python bin/at-init-cases/at-init-cases.py`；`root` 要与实际目录一致 |
 | `cases` | 跑 `python bin/at-run/at-run.py --check` 看错误码（`--help` 有全集） |
-| `instances` | 在工作区根放 `.wn-instances.json`（形状见 `bin/at-run/README.md`） |
+| `instances` | 在工作区根放 `.at/instances.json`（形状见 `bin/at-run/README.md`） |
 | `reachable` | 确认实例在跑、端口与登记一致；`wn-ping --url <url>` 单独复核 |
 | `session` | 配 `.at/credentials.json`（`{"usr":"…","passwd":"…"}`，不进 git），或先手工 `wn-cli … login` 一次 |
 | `report` | 检查目录权限 / 磁盘；`<root>` 不存在时先跑 `at-init-cases` |

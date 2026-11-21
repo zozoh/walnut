@@ -27,7 +27,7 @@ wn-cli — Walnut 智能体客户端
     --who           智能体代号（写入会话缓存 agent.name；缺省读 .at/whoami.toml）
     --creds         凭据 JSON（默认若 ./.at/credentials.json 存在则用它）
 
-实例登记 `.wn-instances.json`（开发者维护，智能体只读）:
+实例登记 `.at/instances.json`（开发者维护，智能体只读；旧 `.wn-instances.json` 仍兼容）:
     {"L1": {"host": "127.0.0.1", "port": 8080},
      "L2": {"host": "127.0.0.1", "port": 8090}}
     给了 --level 就能省掉 --url；会话按级别分开存，同一项目在 L1/L2 上互不串用。
@@ -167,7 +167,9 @@ def load_instances(start=None, explicit=None):
     if env:
         cands.append(Path(env))
     here = Path(start or os.getcwd()).resolve()
-    cands.extend([d / INSTANCES_NAME for d in [here] + list(here.parents)])
+    dirs = [here] + list(here.parents)
+    cands.extend([d / INSTANCES_NAME for d in dirs])
+    cands.extend([d / ".at" / "instances.json" for d in dirs])
     cands.append(Path.home() / INSTANCES_NAME)
     for f in cands:
         if f.is_file():
@@ -217,7 +219,9 @@ def resolve_session_dir(explicit, instances_file):
     if env:
         return env
     if instances_file:
-        return str(Path(instances_file).parent / ".at" / "client" / "session")
+        parent = Path(instances_file).parent
+        root = parent.parent if parent.name == ".at" else parent
+        return str(root / ".at" / "client" / "session")
     return ".at/client/session"
 
 

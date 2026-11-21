@@ -27,7 +27,7 @@ at-run — ATEST 运行器（v2）
 
 实例解析（两个轴分开，都不猜）:
     级别:  --instance  →  atest.json 的 instance  →  报错
-    端点:  .wn-instances.json（--instances > $WN_INSTANCES > 从项目目录逐级向上
+    端点:  .at/instances.json（旧 .wn-instances.json 兼容；--instances > $WN_INSTANCES > 从项目目录逐级向上
            > 用户目录；先命中先用）→ 报错，并打印搜过的路径清单与模板
     会话:  工作区级会话池（.wn-instances.json 所在目录的 .at/client/session）里的
            <级别>-<测试域>-00；存在就直接复用（不看凭据文件），不存在就用凭据
@@ -210,7 +210,7 @@ EPILOG = """\
 
 实例与会话:
   级别  --instance L1|L2  →  atest.json 的 instance  →  报错
-  端点  .wn-instances.json（--instances > $WN_INSTANCES > 逐级向上 > 用户目录）
+  端点  .at/instances.json（旧 .wn-instances.json 兼容；--instances > $WN_INSTANCES > 逐级向上 > 用户目录）
   会话  工作区池 .at/client/session 的 <级别>-<测试域>-00；
         存在就直接复用（不看凭据文件）；不存在就自动登录（凭据：--creds >
         atest.json 的 credentials_file > .at/credentials.json，形状
@@ -1140,7 +1140,9 @@ def find_instances_file(project, explicit):
 
     candidates = [path for _label, path in explicit_paths]
     here = Path(project).resolve()
-    candidates.extend([d / INSTANCES_NAME for d in [here] + list(here.parents)])
+    dirs = [here] + list(here.parents)
+    candidates.extend([d / INSTANCES_NAME for d in dirs])
+    candidates.extend([d / ".at" / "instances.json" for d in dirs])
     candidates.append(Path.home() / INSTANCES_NAME)
     searched = []
     for f in candidates:
@@ -1153,9 +1155,9 @@ def find_instances_file(project, explicit):
 def load_instances(project, explicit):
     found, searched = find_instances_file(project, explicit)
     if found is None:
-        raise EnvError("找不到实例登记 %s（从 %s 逐级向上找过）：\n%s\n"
+        raise EnvError("找不到实例登记（.at/instances.json 或旧 .wn-instances.json；从 %s 逐级向上找过）：\n%s\n"
                        "请开发者创建（本工具不代写）：\n%s"
-                       % (INSTANCES_NAME, project, "\n".join(searched),
+                       % (project, "\n".join(searched),
                           INSTANCES_TEMPLATE))
     try:
         data = json.loads(found.read_text(encoding="utf-8-sig"))
@@ -1186,8 +1188,9 @@ def resolve_session_dir(explicit, instances_file, project):
     if env:
         return Path(env).resolve()
     if instances_file is not None:
-        return (Path(instances_file).parent / ".at" / "client" / "session"
-                ).resolve()
+        parent = Path(instances_file).parent
+        root = parent.parent if parent.name == ".at" else parent
+        return (root / ".at" / "client" / "session").resolve()
     return (Path(project) / ".at" / "client" / "session").resolve()
 
 

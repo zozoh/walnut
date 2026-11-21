@@ -62,8 +62,9 @@ EXIT_ENV = 2
 TMPL_DIR = Path(__file__).resolve().parent / "tmpl"
 
 CONFIG_NAME = "atest.json"
-INSTANCES_EXAMPLE = ".wn-instances.example.json"
-INSTANCES_REAL = ".wn-instances.json"
+INSTANCES_EXAMPLE = ".at/instances.example.json"
+INSTANCES_REAL = ".at/instances.json"
+INSTANCES_LEGACY = ".wn-instances.json"
 
 ROOT_DEFAULT = "atest"
 
@@ -292,11 +293,12 @@ def update_gitignore(work, root, dry_run, warnings):
 
 
 def find_instances(work):
-    """从项目目录逐级向上找 .wn-instances.json（只用于给提示）。"""
+    """从项目目录逐级向上找 `.at/instances.json`（旧 `.wn-instances.json` 也认）。"""
     for d in [work] + list(work.parents):
-        p = d / INSTANCES_REAL
-        if p.is_file():
-            return p
+        for name in (INSTANCES_REAL, INSTANCES_LEGACY):
+            p = d / name
+            if p.is_file():
+                return p
     return None
 
 

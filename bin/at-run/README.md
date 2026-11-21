@@ -70,7 +70,7 @@ python bin/at-run/at-run.py --check
 python bin/at-run/at-run.py --check bin/at-init-cases/tmpl/CASE-001.md
 python bin/at-run/at-run.py --check atest/cases/
 
-# 全量跑（级别 / 测试域 / 端点都按 atest.json 与 .wn-instances.json 解析）
+# 全量跑（级别 / 测试域 / 端点都按 atest.json 与 .at/instances.json 解析）
 python bin/at-run/at-run.py
 
 # 录制：跑全套并另写 <ts>/actual.json（不比较期望；喂给 bin/at-baseline 建基线）
@@ -188,7 +188,7 @@ at-run: L2 —— 11 例：11 ✅ / 0 ❌ / 0 ⛔（报告 atest/report/20261113
 ## 实例与会话（会话自动建立）
 
 - **级别**：`--instance` → `atest.json` 的 `instance` → 退出 2。
-- **端点**：`.wn-instances.json` 的 `{级别: {host, port}}`。查找顺序
+- **端点**：`.at/instances.json` 的 `{级别: {host, port}}`。查找顺序
   `--instances` → `$WN_INSTANCES` → 从 `<dir>` 逐级向上 → `~/.wn-instances.json`；
   显式给出的文件**必须存在**（静默回退会跑错实例）。
 - **探活**：TCP 连接端点，3 秒不通即退出 2；**不尝试拉起实例**（1/2 级实例都由

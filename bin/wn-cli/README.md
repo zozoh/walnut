@@ -4,7 +4,7 @@
 `{WN_DOC_HOME}/public/atest/reference/30-at-tools.md`（`{WN_DOC_HOME}` = 工作区同级 `../wn-doc/`）。
 
 ```bash
-# 登录：给 --level 就不用写 --url（端点从 .wn-instances.json 解析）
+# 登录：给 --level 就不用写 --url（端点从 .at/instances.json 解析）
 # 域不存在时自动转 root 建域；密码错 3 次终止
 python wn-cli.py --level L1 --dist D:/work/zozoh/walnut/dist/wn4j --who big-dad \
     login --usr demo --passwd 123456
@@ -30,7 +30,7 @@ python wn-cli.py --level L1 obj set ~/thedir 'mnt="file://D:/work/proj/www"'
 python wn-cli.py --level L1 mnt ~/site D:/work/proj/www
 ```
 
-**实例登记** `.wn-instances.json`（开发者维护，智能体只读）：
+**实例登记** `.at/instances.json`（开发者维护，智能体只读）：
 
 ```json
 {"L1": {"host": "127.0.0.1", "port": 8080},
@@ -41,7 +41,7 @@ python wn-cli.py --level L1 mnt ~/site D:/work/proj/www
 
 会话缓存：`<工作区>/.at/client/session/<级别>-<登录名>-00.toml`（如 `L1-demo-00.toml`；TOML）。
 **会话池是工作区级的**——同一工作区里所有项目共用一份登录，换个仓库不用重登。
-目录解析顺序：`--session-dir` → `$WN_SESSION_DIR` → 工作区级（`.wn-instances.json` 所在目录）
+目录解析顺序：`--session-dir` → `$WN_SESSION_DIR` → 工作区级（`.at/instances.json` 所在目录）
 → 项目级 `./.at/client/session`。**级别进名字**，1 级/2 级互不串用；第二个会话用 `--se L1-demo-01`。
 
 **不带 `--se` 时怎么选**（ATESET 定稿）：

@@ -12,7 +12,7 @@ at-doctor — ATEST 环境自检（ATESET-14）
     python     Python ≥ 3.10
     config     <dir>/atest.json 存在、合法 JSON、root 指向的目录存在
     cases      at-run --check 的 error_count = 0
-    instances  .wn-instances.json 可解析，目标级别有合法 host+port
+    instances  .at/instances.json 可解析（旧名兼容），目标级别有合法 host+port
     reachable  wn-ping 返回 alive:true 且 agent_ready:true
     session    会话文件存在，或凭据文件可用（二者之一）
     tools      bin/ 下 at-run / at-report / at-baseline / wn-cli 都在
@@ -59,7 +59,7 @@ EPILOG = """\
   python     当前解释器 ≥ 3.10
   config     <dir>/atest.json 存在、合法、root 目录存在
   cases      at-run --check 的 error_count = 0（warn 不算失败）
-  instances  .wn-instances.json 可解析且目标级别有 host+port
+  instances  .at/instances.json 可解析（旧名兼容）且目标级别有 host+port
   reachable  wn-ping：alive=true 且 agent_ready=true（允许纯密码登录）
   session    会话文件存在，或凭据文件可用（{"usr","passwd"} 非空）
   tools      bin/ 下 at-run / at-report / at-baseline / wn-cli 都在
@@ -266,7 +266,9 @@ def find_instances(project: str | Path) -> tuple[Path | None, list[str]]:
     if env:
         candidates.append(Path(env))
     here = Path(project).resolve()
-    candidates.extend([d / INSTANCES_NAME for d in [here] + list(here.parents)])
+    dirs = [here] + list(here.parents)
+    candidates.extend([d / INSTANCES_NAME for d in dirs])
+    candidates.extend([d / ".at" / "instances.json" for d in dirs])
     candidates.append(Path.home() / INSTANCES_NAME)
     searched: list[str] = []
     for path in candidates:
@@ -373,8 +375,9 @@ def resolve_session_dir(instances_file: Path | None,
     if env:
         return Path(env).resolve()
     if instances_file is not None:
-        return (Path(instances_file).parent / ".at" / "client" / "session"
-                ).resolve()
+        parent = Path(instances_file).parent
+        root = parent.parent if parent.name == ".at" else parent
+        return (root / ".at" / "client" / "session").resolve()
     return (Path(project) / ".at" / "client" / "session").resolve()
 
 
