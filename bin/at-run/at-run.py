@@ -1227,19 +1227,27 @@ def run_wncli(wncli, argv, cwd, timeout=60.0):
             proc.stderr.decode("utf-8", "replace"))
 
 
-def resolve_creds_path(project, config, override):
+def resolve_creds_path(project, config, override, instances_file=None):
     """凭据文件：--creds > atest.json 的 credentials_file > .at/credentials.json。
 
     --creds 的相对路径按当前目录解析（与 --instances / --session-dir 一致）；
-    atest.json 里的相对路径按项目目录解析（配置就在项目根）。
+    atest.json 里的相对路径先按项目目录找，项目里没有时再按工作区级
+    （实例登记所在目录，即 .at 的上一级）找——.at 可能在项目根，也可能在工作区根。
     """
     if override:
         return Path(override).expanduser().resolve()
     raw = (config or {}).get("credentials_file") or CREDS_DEFAULT
     path = Path(str(raw)).expanduser()
-    if not path.is_absolute():
-        path = Path(project) / path
-    return path.resolve()
+    if path.is_absolute():
+        return path.resolve()
+    project_path = (Path(project) / path).resolve()
+    if project_path.exists() or instances_file is None:
+        return project_path
+    parent = Path(instances_file).parent
+    root = parent.parent if parent.name == ".at" else parent
+    ws_path = (root / path).resolve()
+    # 工作区级候选优先作为默认路径（即使两处都不存在，错误信息也指向工作区）
+    return ws_path
 
 
 def manual_login_hint(wncli, level, se, session_dir, url):
@@ -1799,7 +1807,7 @@ def run_suite(project, args, root, config, config_path):
     url = "http://%s:%d" % (host, port)
     session_dir = resolve_session_dir(args.session_dir, inst_file, project)
 
-    creds_path = resolve_creds_path(project, config, args.creds)
+    creds_path = resolve_creds_path(project, config, args.creds, inst_file)
     if args.creds and not creds_path.is_file():
         # 显式指定就先校验：别等"要登录了"才发现路径写错
         load_credentials(creds_path)

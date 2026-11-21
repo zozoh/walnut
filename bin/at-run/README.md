@@ -57,7 +57,8 @@ ATESET-02 定稿（模板 [`bin/at-init-cases/tmpl/CASE-001.md`](../at-init-case
   用它，`--check` 会警告缺失 / 异常大 / 外部引用（外部引用只是审阅提示，
   `app init` 支持）；
 - `credentials_file`：凭据文件位置（缺省 `.at/credentials.json`）；只在**需要自动
-  登录**时读（会话还在就不读，手工登录过的项目不受影响）；
+  登录**时读（会话还在就不读，手工登录过的项目不受影响）。相对路径先按项目目录找，
+  项目里没有时再按工作区级（实例登记所在目录）找——`.at` 可能在工作区根；
 - 文件缺失、不是合法 JSON、或无 `instance` → 退出码 2，不猜（`--check` 也一样）。
 
 CLI 覆盖：`--root` / `--instance` / `--domain` / `--creds`。
@@ -203,7 +204,8 @@ at-run: L2 —— 11 例：11 ✅ / 0 ❌ / 0 ⛔（报告 atest/report/20261113
   | 执行中 401（某例 `wn-cli` 退出码 3） | 自动**重新登录一次并重跑该例**；仍失败才记该例 **failed**（不是 blocked） |
 
   - 凭据来源：`--creds` → `atest.json` 的 `credentials_file` →
-    `.at/credentials.json`，形状 `{"usr":"…","passwd":"…"}`；**该文件不进 git**。
+    `.at/credentials.json`（相对路径先按项目根、再按工作区级找），形状
+    `{"usr":"…","passwd":"…"}`；**该文件不进 git**。
   - 登录失败（启动时）→ 退出 2，错误信息带上 `wn-cli` 的原始输出；执行中重登失败
     → 该例 failed，原因同样带原始输出，且本批不再反复重登。
   - 401 重跑时首次输出留 `evidence/stdout.attempt1.txt` /

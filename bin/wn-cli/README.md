@@ -6,12 +6,12 @@
 ```bash
 # 登录：给 --level 就不用写 --url（端点从 .at/instances.json 解析）
 # 域不存在时自动转 root 建域；密码错 3 次终止
-python wn-cli.py --level L1 --dist D:/work/zozoh/walnut/dist/wn4j --who big-dad \
+python wn-cli.py --level L1 --dist D:/work/zozoh/walnut/dist/wn4j \
     login --usr demo --passwd 123456
 
 # root 登录不用传密码：按 web_local.properties → web.properties →
 # 缺省 123456 的顺序现找，失败终止并请主人提供
-python wn-cli.py --level L2 --dist D:/work/zozoh/walnut/dist/wn4j --who big-dad \
+python wn-cli.py --level L2 --dist D:/work/zozoh/walnut/dist/wn4j \
     login --usr root
 
 # 之后带同一个 --level 即可，会话与端点都自动挑（也可显式 --se L1-demo-00）
@@ -43,6 +43,10 @@ python wn-cli.py --level L1 mnt ~/site D:/work/proj/www
 **会话池是工作区级的**——同一工作区里所有项目共用一份登录，换个仓库不用重登。
 目录解析顺序：`--session-dir` → `$WN_SESSION_DIR` → 工作区级（`.at/instances.json` 所在目录）
 → 项目级 `./.at/client/session`。**级别进名字**，1 级/2 级互不串用；第二个会话用 `--se L1-demo-01`。
+
+**默认凭据是向上找的**：`--creds` 缺省从当前目录逐级向上找 `.at/credentials.json`
+（`.at` 可能在项目根，也可能在工作区根）。身份（"我是谁"）由 wn-memo 管理，
+会话缓存不写 agent。
 
 **不带 `--se` 时怎么选**（ATESET 定稿）：
 

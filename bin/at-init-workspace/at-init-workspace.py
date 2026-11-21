@@ -4,10 +4,12 @@
 at-init-workspace — Agent 测试工作目录（.at/）脚手架
 
 默认只初始化**客户端**（连接别人启动的实例）：
-生成 .at/whoami.toml（身份牌）、.at/client/（会话缓存）、
-.at/_ottl/（一次性测试工具）、.at/AGENTS.md（入口说明，
+生成 .at/client/（会话缓存）、.at/AGENTS.md（入口说明，
 内容是指向 use-wn-cli skill 与 LOCAL_REF.md 约定的引用）、
 LOCAL_REF.md 手册样例（集成测试配置由 `bin/at-init-cases` 生成 `atest.json`）。
+
+身份（"我是谁"）不再落盘到 .at/：由 wn-memo 管理；本工具只做与
+Walnut 测试直接相关的骨架。
 
 只有显式加 --with-server 才生成 .at/walnut/（级别 3 私有服务器配置）与
 .at/redis/data/（独立 redis 数据空间），且必须提供运行时服务配置
@@ -24,15 +26,16 @@ build.rs.json（--rs > ./build.rs.json > {Walnut}/build/build.rs.json）——
 不在 .at/ 里 —— 每个智能体都直接用同一份。
 
 用法:
-    python at-init-workspace.py --name big-dad [目标目录]         # 仅客户端
-    python at-init-workspace.py --name big-dad --with-server [--rs build.rs.json]
+    python at-init-workspace.py [目标目录]                    # 仅客户端
+    python at-init-workspace.py --with-server [--rs build.rs.json]
+
+备注: --name 仍被接受但已弃用（仅作兼容，不再生成身份文件）。
 
 退出码: 0 成功；1 用法错误；2 配置缺失
 """
 
 import argparse
 import json
-import re
 import sys
 from pathlib import Path
 
@@ -40,41 +43,14 @@ EXIT_OK = 0
 EXIT_USAGE = 1
 EXIT_NO_RS = 2
 
-NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]{1,31}$")
-
 # 本脚本住在 Walnut 仓库 bin/at-init-workspace/ 里，仓库根 = 上两级
 WALNUT_ROOT = Path(__file__).resolve().parents[2]
 
 GITIGNORE_BLOCK = """
-# .at 目录：身份、会话、私有配置与运行时数据，整体不提交
+# .at 目录：会话、私有配置与运行时数据，整体不提交
 .at/
 """
 
-
-def _toml_quote(s):
-    """把字符串写成 TOML 基本字符串（单行）。"""
-    return '"%s"' % s.replace("\\", "\\\\").replace('"', '\\"')
-
-
-def whoami_name(path):
-    """从 whoami.toml 里读 name（只关心这一个字段）。"""
-    try:
-        for line in path.read_text(encoding="utf-8").splitlines():
-            s = line.strip()
-            if not s.startswith("name"):
-                continue
-            k, eq, v = s.partition("=")
-            if not eq or k.strip() != "name":
-                continue
-            v = v.strip()
-            if len(v) >= 2 and v.startswith('"') and v.endswith('"'):
-                v = v[1:-1].replace('\\"', '"').replace("\\\\", "\\")
-            elif len(v) >= 2 and v.startswith("'") and v.endswith("'"):
-                v = v[1:-1]
-            return v or None
-    except OSError:
-        pass
-    return None
 
 LOCAL_REF_SAMPLE = """# LOCAL_REF — 本工作目录引用的工程仓库
 
@@ -89,8 +65,8 @@ LOCAL_REF_SAMPLE = """# LOCAL_REF — 本工作目录引用的工程仓库
 # 找不到就停下来问主人，不遍历磁盘猜。
 AT_AGENTS_MD = """# AGENTS.md — 本目录是 Walnut 测试营地（.at/）
 
-本 `.at/` 由 at-init-workspace 生成：`whoami.toml`（身份牌）、
-`client/session/`（会话缓存）、`_ottl/`（一次性脚本）。
+本 `.at/` 由 at-init-workspace 生成：`client/session/`（会话缓存）。
+身份（"我是谁"）由 wn-memo 管理，不在 `.at/` 里。
 
 ## 操作 Walnut 前必读
 
@@ -198,15 +174,14 @@ def gen_server_conf(rs: dict, work: Path) -> str:
 
 def main():
     ap = argparse.ArgumentParser(description="生成 .at/ 测试工作目录骨架（懒惰模式）")
-    ap.add_argument("--name", help="智能体代号（小写字母/数字/连字符）；"
-                                   "已有 whoami.toml 时可省略，沿用旧代号")
+    ap.add_argument("--name", help="已弃用（仅兼容旧命令；身份由 wn-memo 管理，不再生成 whoami.toml）")
     ap.add_argument("--with-server", action="store_true",
                     help="同时生成 .at/walnut/（级别 3 私有服务器配置），"
                          "需要 build.rs.json，否则拒绝")
     ap.add_argument("--rs", help="build.rs.json 路径（缺省 ./build.rs.json > "
                                  "{Walnut}/build/build.rs.json）")
     ap.add_argument("--force", action="store_true",
-                    help="刷新骨架样例文件（仍不覆盖 whoami.toml 与已有会话）")
+                    help="刷新骨架样例文件（仍不覆盖已有会话）")
     ap.add_argument("target", nargs="?", default=".", help="目标工作目录（默认当前）")
     args = ap.parse_args()
 
@@ -221,42 +196,8 @@ def main():
         else:
             kept.append(str(p.relative_to(work)))
 
-    # ---------- 身份牌：最高优先，绝不覆盖 ----------
-    whoami = at / "whoami.toml"
-    legacy = at / "whoami.json"
-    if whoami.exists() or legacy.exists():
-        name = whoami_name(whoami) if whoami.exists() else None
-        if not name and legacy.exists():
-            try:
-                name = json.loads(legacy.read_text(encoding="utf-8")).get("name")
-            except (ValueError, OSError):
-                name = None
-        if not name:
-            print(json.dumps({"ok": False,
-                              "error": "whoami.toml 已存在但内容无效，请人工修复"},
-                             ensure_ascii=False))
-            return EXIT_USAGE
-        kept.append(str((whoami if whoami.exists() else legacy)
-                        .relative_to(work)))
-    else:
-        name = args.name
-        if not name or not NAME_RE.match(name):
-            print(json.dumps({"ok": False,
-                              "error": "代号需匹配 %s（如 big-dad）；"
-                                       "已有身份牌时可省略 --name" % NAME_RE.pattern},
-                             ensure_ascii=False))
-            return EXIT_USAGE
-        created_at = __import__("datetime").datetime.now().isoformat(timespec="seconds")
-        w("whoami.toml",
-          "# 智能体身份牌（at-init-workspace 生成；可补充 note / duty 等字段）\n"
-          "name = %s\n"
-          "created_at = %s\n"
-          "note = \"\"\n" % (_toml_quote(name), _toml_quote(created_at)),
-          overwrite=False)
-
     # ---------- 客户端骨架（默认行为） ----------
     w("client/session/.gitkeep", "", overwrite=args.force)
-    w("_ottl/.gitkeep", "", overwrite=args.force)
     # 入口说明：内容是"引用"（指向 walnut 的 skill 文档与 LOCAL_REF.md
     # 约定），套路升级时只改 walnut 仓库那一份
     w("AGENTS.md", AT_AGENTS_MD, overwrite=args.force)
@@ -309,7 +250,7 @@ def main():
     if ".at/" not in old:
         write(gi, old.rstrip("\n") + "\n" + GITIGNORE_BLOCK.strip("\n") + "\n")
 
-    out = {"ok": True, "work": str(work), "name": name,
+    out = {"ok": True, "work": str(work),
            "server": bool(args.with_server), "created": created, "kept": kept}
     print(json.dumps(out, ensure_ascii=False, indent=2))
     print("下一步: 完善 .at/credentials.json；要跑集成测试先执行 "

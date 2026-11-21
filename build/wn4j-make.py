@@ -211,10 +211,11 @@ UP_DEPS_URI = "".join([UP_HOST, UP_DEPS])
 D_OUT = Path(OUT_DIST)
 D_WN_TARGET = D_WN / "target"
 
-# 二级启动（默认 conf）的数据家：Walnut 仓库 .at/ 目录——
+# 二级启动（默认 conf）的数据家：工作区根 .at/ 目录（Walnut 仓库的上一级）——
 # dist 是程序目录（删了不心疼），持久化数据（桶/swap/redis RDB）
-# 全部落在这里；运行锁与日志仍是可丢状态，留在产物 run/ 下
-WALNUT_AT = D_WN / ".at"
+# 全部落在这里，与智能体共享的 instances.json / client/session 同处一份 .at；
+# 运行锁与日志仍是可丢状态，留在产物 run/ 下
+WALNUT_AT = D_WN.parent / ".at"
 
 # ============================================================
 # 产物布局契约: (相对 dist 的路径, 校验方式)
@@ -400,7 +401,7 @@ def do_dist():
         gen += "\nmongo-usr=%s\nmongo-pwd=%s" % (mo["usr"], mo.get("passwd", ""))
     if rd.get("passwd"):
         gen += "\nredis-password=%s" % rd["passwd"]
-    # 可选：自定义桶/交换目录（默认 = Walnut 仓库 .at/walnut/ 下，见模板 @WALNUT_AT@）
+    # 可选：自定义桶/交换目录（默认 = 工作区根 .at/walnut/ 下，见模板 @WALNUT_AT@）
     if rs.get("buck") and rs["buck"] != "auto":
         gen = re.sub(r"^global-bm-bucket=.*$",
                      "global-bm-bucket=%s" % rs["buck"], gen, flags=re.M)
@@ -409,7 +410,7 @@ def do_dist():
                      "global-bm-swap=%s" % rs["swap"], gen, flags=re.M)
     (D_OUT / "conf" / "web_local.properties").write_text(gen, encoding="utf-8")
     # log4j2.xml 以模板注入日志目录：二级启动的日志也放数据家
-    # （.at/walnut/log/），不留在 dist 里
+    # （<工作区>/.at/walnut/log/），不留在 dist 里
     LOG_DIR = WALNUT_AT / "walnut" / "log"
     log_xml = (D_BIN / "log4j2.xml").read_text(encoding="utf-8")
     (D_OUT / "conf" / "log4j2.xml").write_text(

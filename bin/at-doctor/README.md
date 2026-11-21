@@ -36,8 +36,8 @@ python bin/at-doctor/at-doctor.py [--dir <项目>] [--instance L1|L2]
   用户目录；
 - 会话目录：`$WN_SESSION_DIR` → 实例登记文件所在目录的
   `.at/client/session`（工作区级）→ 项目目录；
-- 凭据文件：`atest.json` 的 `credentials_file`（缺省 `.at/credentials.json`，
-  相对项目目录解析）；
+- 凭据文件：`atest.json` 的 `credentials_file`（缺省 `.at/credentials.json`；
+  相对路径先按项目目录找，项目里没有时再按工作区级找）；
 - 实例级别：`--instance` > `atest.json` 的 `instance`；都没有时只在依赖它的
   项上报 fail。
 

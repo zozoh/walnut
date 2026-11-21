@@ -48,7 +48,7 @@ set "RD_SERVER=@REDIS_SERVER@"
 set "RD_DOCKER_IMAGE=@RD_DOCKER_IMAGE@"
 set "RD_DOCKER_IMAGE_ID=@RD_DOCKER_IMAGE_ID@"
 set "RD_DOCKER_CONTAINER=@RD_DOCKER_CONTAINER@"
-REM level-2 redis data home (Walnut repo .at/); level 3 derives from --conf
+REM level-2 redis data home (workspace-root .at/); level 3 derives from --conf
 set "WALNUT_AT=@WALNUT_AT@"
 
 :parse
@@ -148,7 +148,7 @@ if /i not "%RD_HOST%"=="127.0.0.1" if /i not "%RD_HOST%"=="localhost" (
 
 REM ---------- data sources (print before anything starts) ----------
 REM redis persistence dir (flat data dir, RDB inside):
-REM   level 2 (default conf) -> WALNUT_AT\redis\data (Walnut repo .at/, baked)
+REM   level 2 (default conf) -> WALNUT_AT\redis\data (workspace-root .at/, baked)
 REM   level 3 (--conf)       -> <work>\.at\redis\data, derived from the conf
 REM     dir (<conf>\..\..) — the agent working dir owns its own data, so
 REM     several level-3 instances never share RDB files

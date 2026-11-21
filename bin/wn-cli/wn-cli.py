@@ -24,17 +24,16 @@ wn-cli — Walnut 智能体客户端
     --session-dir   会话缓存目录（默认 ./.at/client/session）
     --dist          dist/wn4j 目录：root 密码发现（conf/web_local.properties
                     → core/conf/web.properties 的 root-init-passwd）
-    --who           智能体代号（写入会话缓存 agent.name；缺省读 .at/whoami.toml）
-    --creds         凭据 JSON（默认若 ./.at/credentials.json 存在则用它）
+    --creds         凭据 JSON（缺省从当前目录逐级向上找 .at/credentials.json）
 
 实例登记 `.at/instances.json`（开发者维护，智能体只读；旧 `.wn-instances.json` 仍兼容）:
     {"L1": {"host": "127.0.0.1", "port": 8080},
      "L2": {"host": "127.0.0.1", "port": 8090}}
     给了 --level 就能省掉 --url；会话按级别分开存，同一项目在 L1/L2 上互不串用。
 
-会话缓存是 TOML 文件（<se>.toml），只存票据与身份（base/loginName/ticket/
-agent/create_on/saved_at），不存任何密码：root 会话的密码每次从实例配置现找，
-域会话密码不落盘。
+会话缓存是 TOML 文件（<se>.toml），只存票据（base/loginName/ticket/
+dist/create_on/saved_at），不存任何密码：root 会话的密码每次从实例配置现找，
+域会话密码不落盘。身份（"我是谁"）由 wn-memo 管理，不写进会话缓存。
 
 退出码: 0 成功；1 用法错误；2 目标不存在；3 认证失败；4 服务器响应异常
 
@@ -383,36 +382,19 @@ def guess_root_passwd(dist, explicit=None):
     return None
 
 
-def resolve_agent_name(who):
-    """智能体代号: --who 优先，其次工作目录 .at/whoami.toml
-    （兼容旧 .at/whoami.json）的 name 字段。
-    都没有 → None（人类手动使用 wn-cli 的场景）。"""
-    if who:
-        return who
-    at = Path(".at")
-    for f, loader in ((at / "whoami.toml", toml_parse),
-                      (at / "whoami.json", json.loads)):
-        if not f.exists():
-            continue
-        try:
-            j = loader(f.read_text(encoding="utf-8"))
-            if isinstance(j, dict) and j.get("name"):
-                return j["name"]
-        except (ValueError, OSError):
-            pass
+def find_at_file(*names):
+    """从当前目录逐级向上找 .at/<name>（工作区级 .at 与项目级 .at 都认，
+    离得最近的优先）。返回 Path 或 None。"""
+    start = Path.cwd().resolve()
+    for d in [start, *start.parents]:
+        for n in names:
+            p = d / ".at" / n
+            if p.is_file():
+                return p
     return None
 
 
-def merge_agent(old, name):
-    """把新代号并入 agent 对象，保留已有的其它字段（如 duty）。"""
-    if not name:
-        return old
-    a = dict(old or {})
-    a["name"] = name
-    return a
-
-
-# ---------------- TOML 读写（会话缓存与身份文件） ----------------
+# ---------------- TOML 读写（会话缓存） ----------------
 def toml_escape(s):
     """把一个字符串写成 TOML 基本字符串（单行，换行用 \\n 转义）。"""
     out = []
@@ -432,11 +414,6 @@ def toml_escape(s):
         else:
             out.append(ch)
     return '"%s"' % "".join(out)
-
-
-def _toml_key(k):
-    """合法裸键原样写，其余（如中文键）用引号包起来。"""
-    return k if re.match(r"^[A-Za-z0-9_-]+$", k) else toml_escape(k)
 
 
 def _toml_unescape(s):
@@ -537,7 +514,6 @@ class Session:
       base       实例地址
       loginName  登录名（root 或域用户）
       ticket     会话票据
-      agent      智能体身份（[agent] 表：name / duty / 自定义字段）
       dist       dist/wn4j 目录（root 会话用于重登时找回 root-init-passwd）
       create_on  首次创建时间
       saved_at   最后保存时间
@@ -553,7 +529,6 @@ class Session:
         self.base = None
         self.usr = None
         self.ticket = None
-        self.agent = None
         self.dist = None
         self.create_on = None
         self.saved_at = None
@@ -577,7 +552,6 @@ class Session:
         # 兼容旧格式: 旧文件里叫 usr，新格式叫 loginName
         self.usr = data.get("loginName") or data.get("usr")
         self.ticket = data.get("ticket")
-        self.agent = data.get("agent")
         self.dist = data.get("dist")
         self.create_on = data.get("create_on")
         self.saved_at = data.get("saved_at")
@@ -596,15 +570,6 @@ class Session:
             lines.append("dist = %s" % toml_escape(self.dist))
         lines.append("create_on = %s" % toml_escape(self.create_on))
         lines.append("saved_at = %s" % toml_escape(self.saved_at))
-        if isinstance(self.agent, dict) and self.agent:
-            lines.extend(["", "[agent]"])
-            for k, v in self.agent.items():
-                if isinstance(v, str):
-                    lines.append("%s = %s" % (_toml_key(k), toml_escape(v)))
-                else:
-                    lines.append("%s = %s"
-                                 % (_toml_key(k),
-                                    json.dumps(v, ensure_ascii=False)))
         self.path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -988,7 +953,11 @@ class WnClient:
 # CLI
 # ============================================================
 def load_creds(path):
-    p = Path(path) if path else Path(".at/credentials.json")
+    if path:
+        p = Path(path)
+    else:
+        # 默认凭据文件：优先最近的 .at/credentials.json（.at 可能在工作区根）
+        p = find_at_file("credentials.json") or Path(".at/credentials.json")
     if p.exists():
         try:
             return json.loads(p.read_text(encoding="utf-8"))
@@ -1021,7 +990,6 @@ def main():
     ap.add_argument("--session-dir",
                     help="会话缓存目录（缺省：$WN_SESSION_DIR > 工作区级 .at/client/session > 项目级）")
     ap.add_argument("--dist", help="dist/wn4j 目录（root 密码发现）")
-    ap.add_argument("--who", help="智能体代号（写入会话缓存 agent.name）")
     ap.add_argument("--creds", help="凭据 JSON 文件")
     sub = ap.add_subparsers(dest="sub", required=True)
 
@@ -1098,9 +1066,6 @@ def main():
             root_passwd = (args.root_passwd if args.root_passwd is not None
                            else creds.get("root_passwd") or None)
             root_passwd = guess_root_passwd(dist, root_passwd) or "123456"
-            # 智能体身份: --who > .at/whoami.toml > null（人类使用）
-            c.session.agent = merge_agent(c.session.agent,
-                                          resolve_agent_name(args.who))
             ticket, how = c.login_or_create_domain(usr, passwd, root_usr, root_passwd)
             print(json.dumps({"ok": True, "action": how, "usr": usr,
                               "base": c.base,

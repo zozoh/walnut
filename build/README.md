@@ -14,7 +14,7 @@ mvn package -DskipTests dependency:copy-dependencies   # 编译 + 拷依赖
   → 逐项校验产物布局（缺件即非零退出）
 ```
 
-产物 `dist/wn4j/` 是**程序目录**：删了重建不心疼。持久化数据（Mongo 库、Redis RDB、桶文件、日志）全在**仓库的 `.at/`** 下，不在 dist 里。
+产物 `dist/wn4j/` 是**程序目录**：删了重建不心疼。持久化数据（Mongo 库、Redis RDB、桶文件、日志）全在**工作区根 `.at/`**（Walnut 仓库的上一级）下，不在 dist 里。
 
 ## 二、前置条件
 
@@ -32,7 +32,7 @@ mvn package -DskipTests dependency:copy-dependencies   # 编译 + 拷依赖
 {
   "mongo": { "db": "walnut_wn4j" },      // 别用开发者日常实例的库
   "redis": { "port": 6390, "db": 9 },    // 端口与 db 都要错开
-  "buck": "auto",                        // auto = 仓库 .at/walnut/buck
+  "buck": "auto",                        // auto = 工作区根 .at/walnut/buck
   "swap": "auto"
 }
 ```
@@ -65,7 +65,7 @@ dist/wn4j/
 |-- deps/                    # 依赖 jar（mvn copy-dependencies 的产物）
 |-- conf/
 |   |-- web_local.properties # 覆盖层配置（PASSWD_ONLY、端口、mongo/redis、桶目录）
-|   `-- log4j2.xml           # 日志：@LOG_DIR@ 已指到 <Walnut>/.at/walnut/log/
+|   `-- log4j2.xml           # 日志：@LOG_DIR@ 已指到 <工作区>/.at/walnut/log/
 |-- ROOT/
 |   |-- app/wn-term/         # 内置终端应用（挂到 /app/wn-term）
 |   `-- etc/hosts.d/default/ # 默认登录页（挂到 /etc/hosts.d/default/）
@@ -80,10 +80,10 @@ dist/wn4j/
 `-- run/                     # 运行锁：pid-<port>.json、redis-<port>.json
 ```
 
-数据家（不在 dist 里）：
+数据家（不在 dist 里；与智能体共享的 `instances.json` / `client/session` 同处一份 `.at`）：
 
 ```text
-<Walnut>/.at/
+<工作区>/.at/
 |-- walnut/{buck,swap,log}/  # 桶文件、交换区、日志
 `-- redis/data/             # 私有 redis 的 RDB
 ```
@@ -133,7 +133,7 @@ dist\wn4j\sbin\stop_with_redis.cmd
 | `redis-database` | 库号（当前 9） |
 | `redis-password` | 密码（空 = 无密码） |
 
-改了不用重建，重启实例即可生效。RDB 目录：级别 2 = `<Walnut>\.at\redis\data`；
+改了不用重建，重启实例即可生效。RDB 目录：级别 2 = `<工作区>\.at\redis\data`；
 级别 3 = `<conf>\..\..\redis\data`。
 
 ## 六、常见问题

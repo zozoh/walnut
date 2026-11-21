@@ -8,7 +8,7 @@
         </Console>
 
         <!-- 文件输出 Appenders：目录由 @LOG_DIR@ 注入
-             （二级启动 = Walnut 仓库 .at/walnut/log，
+             （二级启动 = 工作区根 .at/walnut/log，
                三级启动 = 智能体工作目录 .at/walnut/log） -->
         <RollingFile name="core" fileName="@LOG_DIR@/core.log"
                     filePattern="@LOG_DIR@/core-%d{yyyy-MM-dd}.log">

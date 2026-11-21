@@ -18,7 +18,7 @@
 3. 确认 `atest.json` 里的 `instance` / `test_domain` 与你的环境一致；
 4. **会话（二选一）**
 
-   - **A. 配凭据，自动登录（推荐）**：在工作目录建 `.at/credentials.json`（已在 .gitignore）：
+   - **A. 配凭据，自动登录（推荐）**：在工作区根的 `.at/` 建 `credentials.json`（已在 .gitignore；工具从项目目录逐级向上找）：
 
      ```json
      { "usr": "demo", "passwd": "123456" }
