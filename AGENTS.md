@@ -2,6 +2,8 @@
 
 业务系统开发基座（Java + 内嵌 Nutz）：**一切数据源是一棵对象树，用命令操作它，用 JS 写业务。**
 
+> 维护：本文件由智能体自己维护；改之前先读 [如何编写AGENTS.md](../dev-tools/doc/write-AGENTS.md)。
+
 ## 阅读顺序（最少 token）
 
 文档在私有库 `../wn-doc/`（`{WN_DOC_HOME}`）：
