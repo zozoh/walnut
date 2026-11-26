@@ -177,7 +177,9 @@ public class IoCoreSetup {
             Mirror.me(jef)
                 .setValue(jef,
                           "scanPkgs",
-                          Wlang.array("com.site0.walnut.impl.box.cmd"));
+                          // 与生产的 jvmbox-pkgs 保持一致，否则 ext 下的命令在
+                          // box 测试里会"不存在"（e.cmd.notfound）
+                          Wlang.array("com.site0.walnut"));
             _boxService = new JvmBoxService(jef);
         }
         return _boxService;

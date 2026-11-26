@@ -2,6 +2,7 @@ package com.site0.walnut;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import com.site0.walnut.ext.data.pebble.cmd_pebbleTest;
 import com.site0.walnut.impl.box.JvmBoxTest;
 import com.site0.walnut.impl.hook.IoHookTest;
 
@@ -11,5 +12,5 @@ import com.site0.walnut.impl.hook.IoHookTest;
  * @author zozoh(zozohtnt@gmail.com)
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({JvmBoxTest.class, IoHookTest.class,})
+@Suite.SuiteClasses({JvmBoxTest.class, IoHookTest.class, cmd_pebbleTest.class,})
 public class AllWnInBoxTest {}
