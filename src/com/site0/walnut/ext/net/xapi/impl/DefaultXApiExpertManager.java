@@ -40,7 +40,7 @@ public class DefaultXApiExpertManager extends AbstractXApiExpertManager {
         super();
 
         for (File f : files) {
-            if (f.isHidden()) {
+            if (null == f || f.isHidden()) {
                 continue;
             }
             if (!f.getName().endsWith(".json")) {
@@ -54,7 +54,7 @@ public class DefaultXApiExpertManager extends AbstractXApiExpertManager {
         this();
 
         for (File f : files) {
-            if (f.isHidden()) {
+            if (null == f || f.isHidden()) {
                 continue;
             }
             if (!f.getName().endsWith(".json")) {
