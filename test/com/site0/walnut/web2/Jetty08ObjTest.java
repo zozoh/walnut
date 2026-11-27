@@ -323,7 +323,7 @@ public class Jetty08ObjTest {
         assertNotNull(cd);
         assertTrue(cd.contains("attachment"));
         assertTrue(cd.contains("renamed.txt"));
-        assertEquals(Wn.getEtag(io.objects.get("/home/tester/main.txt")),
+        assertEquals("\"" + Wn.getEtag(io.objects.get("/home/tester/main.txt")) + "\"",
                      resp.header("ETag"));
     }
 

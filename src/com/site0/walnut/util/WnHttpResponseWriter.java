@@ -5,10 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -24,6 +22,7 @@ import com.site0.walnut.api.io.WnObj;
 import com.site0.walnut.util.range.WnGetInputStream;
 import com.site0.walnut.util.range.WnGetLocalFileInputStream;
 import com.site0.walnut.util.range.WnGetObjInputStream;
+import com.site0.walnut.util.range.WnHttpRanges;
 import com.site0.walnut.util.stream.WnByteInputStream;
 
 /**
@@ -154,101 +153,46 @@ public class WnHttpResponseWriter {
         this.prepare(range, getInput);
     }
 
-    // public void __prepare(WnIo io, WnObj wobj, String range) {
-    // // 默认采用 obj 的 mime
-    // if (Ws.isBlank(this.contentType))
-    // this.contentType = wobj.mime();
-    //
-    // // 默认用 obj 的名称作为下载名
-    // if (Ws.isBlank(this.downloadName)) {
-    // this.downloadName = wobj.name();
-    // // 确保有正确的扩展名作为结尾
-    // String suffixName = Wfiles.getSuffixName(this.downloadName);
-    // if (wobj.hasType() && !wobj.isType(suffixName)) {
-    // this.downloadName += "." + wobj.type();
-    // }
-    // }
-    //
-    // // 准备记录 ETag
-    // String objETag = Wn.getEtag(wobj);
-    //
-    // // etag存在且相等, 304搞定
-    // if (objETag.equalsIgnoreCase(etag)) {
-    // this.status = 304;
-    // // this.headers.put("Walnut-Object-Id", wobj.id());
-    // return;
-    // }
-    // headers.put("ETag", objETag);
-    //
-    // if (Ws.isBlank(range)) {
-    // ins = io.getInputStream(wobj, 0);
-    // headers.put("Content-Length", wobj.len());
-    // } else {
-    // // 解析 Range
-    // List<RangeRange> rs = new ArrayList<RawView.RangeRange>();
-    // if (!RawView2.parseRange(range, rs, (int) wobj.len()) || rs.size() != 1)
-    // {
-    // this.status = 400;
-    // this.headers.put("Walnut-Http-Range-WARN", "Range Not Satisfiable");
-    // }
-    // // 解析成功
-    // else {
-    // RangeRange rr = rs.get(0);
-    // headers.put("Content-Length", rr.end - rr.start);
-    // headers.put("Accept-Ranges", "bytes");
-    // headers.put("Content-Range",
-    // String.format("bytes %d-%d/%d", rr.start, rr.end - 1, wobj.len()));
-    // status = 206;
-    // ins = io.getInputStream(wobj, rr.start);
-    // ins = new LimitInputStream(ins, rr.end - rr.start);
-    // }
-    // }
-    // }
-
     /**
-     * 写入前的准备（通用）
-     * 
+     * 写入前的准备（通用）：条件请求与区间判定统一走 {@link WnHttpRanges}。
+     *
+     * <p>304 也带 ETag；不可满足的区间回 416 + <code>Content-Range: bytes * / len</code>；
+     * 区间上界由 {@link WnHttpRanges#decide} 夹到内容长度。</p>
+     *
      * @param range
-     *            断点续传
+     *            请求头 <code>Range</code> 原文（可空）
      * @param getInput
      *            一个封装获取对象流/ETag/内容长度的接口
-     * 
      */
     public void prepare(String range, WnGetInputStream getInput) {
         String objETag = getInput.getETag();
         long objLen = getInput.getContentLenth();
+        WnHttpRanges.Decision d = WnHttpRanges.decide(objLen, objETag, this.etag, range);
 
-        // etag存在且相等, 304搞定
-        if (null != objETag && objETag.equalsIgnoreCase(etag)) {
-            this.status = 304;
-            // this.headers.put("Walnut-Object-Id", wobj.id());
+        this.status = d.status;
+        String quoted = WnHttpRanges.quote(objETag);
+        if (null != quoted)
+            headers.put("ETag", quoted);
+        headers.put("Accept-Ranges", "bytes");
+
+        // 304 / 416 都不带 body（416 只带 Content-Range: bytes */len）
+        if (WnHttpRanges.SC_NOT_MODIFIED == d.status)
+            return;
+        if (WnHttpRanges.SC_RANGE_NOT_SATISFIABLE == d.status) {
+            headers.put("Content-Range", d.contentRange);
             return;
         }
-        headers.put("ETag", objETag);
 
+        headers.put("Content-Length", d.length);
+        if (null != d.contentRange)
+            headers.put("Content-Range", d.contentRange);
+        if (d.length <= 0)
+            return;
         try {
-            if (Ws.isBlank(range)) {
-                ins = getInput.getStream(0);
-                headers.put("Content-Length", objLen);
-            } else {
-                // 解析 Range（只支持单区间，RM-NUTZ-15 去 Nutz MVC 依赖）
-                List<RangeRange> rs = new ArrayList<>();
-                if (!parseRange(range, rs, objLen) || rs.size() != 1) {
-                    this.status = 400;
-                    this.headers.put("Walnut-Http-Range-WARN", "Range Not Satisfiable");
-                }
-                // 解析成功
-                else {
-                    RangeRange rr = rs.get(0);
-                    headers.put("Content-Length", rr.end - rr.start);
-                    headers.put("Accept-Ranges", "bytes");
-                    headers.put("Content-Range",
-                                String.format("bytes %d-%d/%d", rr.start, rr.end - 1, objLen));
-                    status = 206;
-                    ins = getInput.getStream(rr.start);
-                    ins = new LimitInputStream(ins, rr.end - rr.start);
-                }
-            }
+            ins = getInput.getStream(d.start);
+            // 206 才需要限长；bytes=0- 覆盖全文件时 d.length == objLen
+            if (d.length != objLen)
+                ins = new LimitInputStream(ins, d.length);
         }
         catch (IOException e) {
             throw Er.create(e, "e.http.range");
@@ -280,21 +224,19 @@ public class WnHttpResponseWriter {
     }
 
     public void prepare(byte[] buf, String bufEtag) {
-        // 记录 ETag
-        if (!Ws.isBlank(bufEtag)) {
-            headers.put("ETag", bufEtag);
-        }
+        // ETag 带引号；304 也要把它发回去
+        String quoted = WnHttpRanges.quote(bufEtag);
+        if (null != quoted)
+            headers.put("ETag", quoted);
 
         // 304
-        if (null != etag && etag.equalsIgnoreCase(bufEtag)) {
-            this.status = 304;
-
+        if (WnHttpRanges.noneMatch(bufEtag, etag)) {
+            this.status = WnHttpRanges.SC_NOT_MODIFIED;
+            return;
         }
-        // 否则就准备写吧
-        else {
-            ins = new WnByteInputStream(buf);
-            headers.put("Content-Length", buf.length);
-        }
+        // 否则就准备写吧（byte[] 不可回退，不声明 Accept-Ranges）
+        ins = new WnByteInputStream(buf);
+        headers.put("Content-Length", buf.length);
     }
 
     public void prepare(String content, String contentETag) {
@@ -377,8 +319,9 @@ public class WnHttpResponseWriter {
             if (null != ins) {
                 __write_to_output(ops, ins);
             }
-            // 写入空
-            else {
+            // 2xx 且无内容时写一个空格（历史行为，避免空响应）；
+            // 304 / 416 绝不能带 body
+            else if (status < 300) {
                 Streams.write(ops, " ".getBytes());
             }
         }
@@ -426,56 +369,6 @@ public class WnHttpResponseWriter {
 
     public WnHttpResponseWriter(String headers_str) {
         this.headers = Ws.isBlank(headers_str) ? new NutMap() : Wlang.map(headers_str);
-    }
-
-    private static class RangeRange {
-        long start;
-        long end;
-    }
-
-    private static boolean parseRange(String range, List<RangeRange> rs, long len) {
-        if (null == range || !range.startsWith("bytes=")) {
-            return false;
-        }
-        String s = range.substring(6).trim();
-        if (s.isEmpty() || s.indexOf(',') >= 0) {
-            return false;
-        }
-        int p = s.indexOf('-');
-        if (p < 0) {
-            return false;
-        }
-        try {
-            String a = s.substring(0, p).trim();
-            String b = s.substring(p + 1).trim();
-            long start;
-            long end;
-            if (a.isEmpty()) {
-                long suffix = Long.parseLong(b);
-                if (suffix <= 0) {
-                    return false;
-                }
-                start = Math.max(0, len - suffix);
-                end = len;
-            } else {
-                start = Long.parseLong(a);
-                if (start < 0 || start >= len) {
-                    return false;
-                }
-                end = b.isEmpty() ? len : Math.min(len, Long.parseLong(b) + 1);
-                if (end <= start) {
-                    return false;
-                }
-            }
-            RangeRange rr = new RangeRange();
-            rr.start = start;
-            rr.end = end;
-            rs.add(rr);
-            return true;
-        }
-        catch (NumberFormatException e) {
-            return false;
-        }
     }
 
 }

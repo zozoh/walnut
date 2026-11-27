@@ -177,7 +177,8 @@ public class Jetty07AppTest {
         MockWnMvcResponse resp = dispatch(signed("/a/load/demo/main.txt").build());
         assertEquals(200, resp.status());
         assertEquals("0123456789", resp.bodyString());
-        assertEquals(Wn.getEtag(io.objects.get("/apps/demo/main.txt")), resp.header("ETag"));
+        assertEquals("\"" + Wn.getEtag(io.objects.get("/apps/demo/main.txt")) + "\"",
+                     resp.header("ETag"));
         int reads = io.streamReads;
         resp = dispatch(signed("/a/load/demo/main.txt").header("If-None-Match", resp.header("ETag")).build());
         assertEquals(304, resp.status());
@@ -512,11 +513,20 @@ public class Jetty07AppTest {
         assertEquals("2345", resp.bodyString());
         assertEquals("bytes 2-5/10", resp.header("Content-Range"));
         assertEquals("4", resp.header("Content-Length"));
+
+        // #495：多区间 / 语法坏的 Range 一律忽略，按 200 全量处理（RFC 允许），不再回 400
         for (String range : new String[]{"bytes=1-2,4-5", "invalid"}) {
             resp = dispatch(signed("/a/load/demo/main.txt").header("Range", range).build());
-            assertEquals(400, resp.status());
-            assertNotNull(resp.header("Walnut-Http-Range-WARN"));
+            assertEquals(200, resp.status());
+            assertEquals("0123456789", resp.bodyString());
+            assertNull(resp.header("Walnut-Http-Range-WARN"));
         }
+
+        // #495：区间越界改为 416 + Content-Range: bytes * / len
+        resp = dispatch(signed("/a/load/demo/main.txt").header("Range", "bytes=99-").build());
+        assertEquals(416, resp.status());
+        assertEquals("bytes */10", resp.header("Content-Range"));
+        assertEquals("", resp.bodyString());
     }
 
     @Test

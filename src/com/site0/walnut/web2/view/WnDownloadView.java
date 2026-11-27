@@ -37,6 +37,14 @@ public class WnDownloadView implements WnMvcView {
         this.re.prepare(io, o, range);
     }
 
+    /**
+     * 直接给定的输入流（不可回退）。
+     *
+     * <p><b>不支持</b> ETag / Range：流只能从头读一次，没法按偏移重读，也没法算稳定的
+     * validator。{@code etag} / {@code range} 形参因此被忽略——行为由
+     * {@link WnHttpResponseWriter#prepare(InputStream, int)} 决定（只发 Content-Length）。
+     * 需要 304 / 206 的场景请用对象或 byte[] 构造。</p>
+     */
     public WnDownloadView(InputStream ins,
                              int len,
                              String ua,
@@ -53,6 +61,14 @@ public class WnDownloadView implements WnMvcView {
         this.re.prepare(ins, len);
     }
 
+    /**
+     * 动态生成的字节（例如登录页模板渲染结果）。
+     *
+     * <p><b>不做 validator</b>：{@code etag} 形参只被记为请求头
+     * <code>If-None-Match</code>，但本构造不提供资源 ETag（动态内容每次可能不同），
+     * 因此不会命中 304；{@code range} 同样忽略（字节内容不可按偏移复用）。
+     * 需要 304 / 206 请用带 {@code bufEtag} 的 7 参构造。</p>
+     */
     public WnDownloadView(byte[] buf,
                              String ua,
                              String mimeType,
