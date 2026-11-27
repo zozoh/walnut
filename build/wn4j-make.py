@@ -652,6 +652,12 @@ def do_upload():
         run_checked("docker push %s:%s" % (UP_DEPS_URI, IMG_TAG))
     run_checked("docker push %s:%s" % (UP_CORE_URI, IMG_TAG))
     print(" >> 已推送: %s:%s" % (UP_CORE_URI, IMG_TAG))
+    # 顺手补一个版本号 tag：:latest 被覆盖后就找不回旧镜像，
+    # 有 :<jar 版本> 才能回滚（同一批层，只多一个 tag，不占空间）
+    if JAR_VER:
+        run_checked("docker tag wn4j:%s %s:%s" % (IMG_TAG, UP_CORE_URI, JAR_VER))
+        run_checked("docker push %s:%s" % (UP_CORE_URI, JAR_VER))
+        print(" >> 已推送版本标签: %s:%s（可回滚）" % (UP_CORE_URI, JAR_VER))
 
 
 # ============================================================
