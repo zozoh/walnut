@@ -46,6 +46,10 @@ build/wn4j-make.py — Walnut 构建脚本
     make.json 的 ROOT_FULL:    true = 整份拷 ROOT（jsbin/rs/sys/site_example）。
                             出镜像必须开：部署 conf 会挂 /opt/mnt/walnut/jsbin
                             与 /opt/mnt/walnut/rs/*，缺了静态资源全 404
+    make.json 的 DEPS_IMAGE:   构建依赖层镜像用的「带 JDK 的基础镜像」—— 连不上
+                            Docker Hub 时指一个内网镜像来替代 openjdk:17，
+                            例 ccr.ccs.tencentyun.com/site0/wn4jdeps:latest
+                            （依赖层仍用本次 dist/deps 重建，旧 jar 先清掉）
 
 约定:
     - 本脚本住在 Walnut 仓库的 build/ 目录里，仓库根 = 本脚本的上一级
@@ -162,6 +166,10 @@ LOG_DIR_CONF = (Conf.get("LOG_DIR") or "").strip()
 # 默认登录页，拷整份没必要；出镜像则必须整份——部署 conf 会把
 # /opt/mnt/walnut/jsbin、/opt/mnt/walnut/rs/* 挂出去，缺了静态资源就 404。
 ROOT_FULL = bool(Conf.get("ROOT_FULL", False))
+# 基础镜像来源：本地没有 wn4jdeps:<tag> 时，从哪个仓库拉（拉完改成本地 tag）。
+# 例 ccr.ccs.tencentyun.com/site0/wn4jdeps:latest —— 内网/国内机器连不上
+# Docker Hub 时，靠它绕开 openjdk:17 的拉取。留空 = 按 Dockerfile_wn4jdeps 自己构建。
+DEPS_IMAGE = (Conf.get("DEPS_IMAGE") or "").strip()
 
 # 同级前端工程的应用挂载（init-mnt）：逐一检查 <walnut仓库同级>/<name>/dist/
 # index.html，存在才生成挂载行（别的开发者机器没有这些工程也能正常构建）
@@ -554,6 +562,45 @@ def do_dist():
 # ============================================================
 # Docker（保留旧逻辑；智能体默认流程不执行）
 # ============================================================
+def run_checked(cmd, cwd=None, stdin=None):
+    """跑一条外部命令；非零退出就打印失败并中止构建。
+
+    2026-11 的真实事故：docker build 因为拉不到 openjdk:17 失败，
+    旧代码不看返回码，脚本照样打印「总用时」正常退出 —— 人以为镜像推出去了。
+    """
+    print("docker:> %s" % cmd)
+    r = subprocess.run(cmd, shell=True, cwd=cwd, stdin=stdin)
+    if r.returncode != 0:
+        print("!!! 命令失败 (exit=%s): %s" % (r.returncode, cmd))
+        sys.exit(1)
+    return r
+
+
+def have_image(ref):
+    r = subprocess.run(["docker", "image", "inspect", ref],
+                       capture_output=True, text=True)
+    return r.returncode == 0
+
+
+def _image_dep_names(ref):
+    """镜像 /opt/wn4j/deps 下的文件名集合；镜像不存在或跑不起来返回 None。"""
+    r = subprocess.run(["docker", "run", "--rm", "--entrypoint", "sh", ref,
+                        "-c", "ls /opt/wn4j/deps"], capture_output=True, text=True)
+    if r.returncode != 0:
+        return None
+    return set(x for x in r.stdout.split() if x)
+
+
+def deps_image_matches():
+    """本地依赖层镜像是否与本次 dist/deps 完全一致（清单对比）。"""
+    ref = "wn4jdeps:%s" % IMG_TAG
+    if not have_image(ref):
+        return False
+    got = _image_dep_names(ref)
+    want = set(p.name for p in (D_OUT / "deps").iterdir())
+    return got is not None and got == want
+
+
 def do_docker():
     # Dockerfile_wn4j 里有 ADD ./titanium，产物缺这个目录 docker build 会直接失败
     if not (D_OUT / "titanium").is_dir():
@@ -567,22 +614,44 @@ def do_docker():
             print("!!! 缺少 %s，无法构建镜像" % (df0 + suf))
             sys.exit(1)
         shutil.copyfile(df0 + suf, df1 + suf)
-    subprocess.run("docker build -t wn4jdeps:%s -f ./Dockerfile_wn4jdeps ./" % IMG_TAG,
-                   shell=True, cwd=str(D_OUT))
-    subprocess.run("docker build -t wn4j:%s -f ./Dockerfile_wn4j ./" % IMG_TAG,
-                   shell=True, cwd=str(D_OUT))
+
+    # 依赖层：本地已有且 jar 清单与本次 dist/deps 完全一致 → 直接复用。
+    # 否则重建（复用旧依赖层会出事：2026-11 实测 CCR 上的 wn4jdeps:latest
+    # 还停在 Jetty 11，缺 7 个 jetty-12 jar）。
+    # 重建时如果连不上 Docker Hub，把 DEPS_IMAGE 当「有 JDK 的基础镜像」用。
+    if deps_image_matches():
+        print(" -- 复用本地 wn4jdeps:%s（依赖清单与 dist/deps 一致）" % IMG_TAG)
+    else:
+        base = DEPS_IMAGE or "openjdk:17"
+        if DEPS_IMAGE:
+            run_checked("docker pull %s" % DEPS_IMAGE)
+        run_checked('docker build -t wn4jdeps:%s --build-arg BASE_IMAGE=%s '
+                    '-f ./Dockerfile_wn4jdeps ./' % (IMG_TAG, base), cwd=str(D_OUT))
+    run_checked("docker build -t wn4j:%s -f ./Dockerfile_wn4j ./" % IMG_TAG,
+                cwd=str(D_OUT))
 
 
 def do_upload():
-    subprocess.run("docker tag wn4jdeps:%s %s:%s" % (IMG_TAG, UP_DEPS_URI, IMG_TAG),
-                   shell=True, cwd=str(D_OUT))
-    subprocess.run("docker tag wn4j:%s %s:%s" % (IMG_TAG, UP_CORE_URI, IMG_TAG),
-                   shell=True, cwd=str(D_OUT))
-    with open(UP_PWD_AT, "r", encoding="utf-8") as f:
-        subprocess.run("docker login -u %s --password-stdin %s" % (UP_ACC, UP_HOST),
-                       shell=True, cwd=str(D_OUT), stdin=f)
-    subprocess.run("docker push %s:%s" % (UP_DEPS_URI, IMG_TAG), shell=True, cwd=str(D_OUT))
-    subprocess.run("docker push %s:%s" % (UP_CORE_URI, IMG_TAG), shell=True, cwd=str(D_OUT))
+    pwd_at = Path(UP_PWD_AT)
+    if not pwd_at.is_file():
+        print("!!! 登录密码文件不存在: %s（make.json 的 UP_PWD_AT）" % pwd_at)
+        sys.exit(1)
+    # 依赖层镜像只在构建时用。配了 DEPS_IMAGE 时它是从 CCR 拉下来又叠了一层，
+    # 再推回去会让它每轮涨一层（实测 651M → 833M），所以跳过，只推运行时镜像。
+    if DEPS_IMAGE:
+        print(" -- 跳过 wn4jdeps 推送（DEPS_IMAGE 已指定远程基础镜像，推回去只会涨层）")
+        core_only = True
+    else:
+        run_checked("docker tag wn4jdeps:%s %s:%s" % (IMG_TAG, UP_DEPS_URI, IMG_TAG))
+        core_only = False
+    run_checked("docker tag wn4j:%s %s:%s" % (IMG_TAG, UP_CORE_URI, IMG_TAG))
+    with open(pwd_at, "r", encoding="utf-8") as f:
+        run_checked("docker login -u %s --password-stdin %s" % (UP_ACC, UP_HOST),
+                    stdin=f)
+    if not core_only:
+        run_checked("docker push %s:%s" % (UP_DEPS_URI, IMG_TAG))
+    run_checked("docker push %s:%s" % (UP_CORE_URI, IMG_TAG))
+    print(" >> 已推送: %s:%s" % (UP_CORE_URI, IMG_TAG))
 
 
 # ============================================================

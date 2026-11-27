@@ -20,6 +20,11 @@ LABEL Author="Peter Zhang<zozoh@qq.com>"
 # 添加必要的目录
 ADD ./sbin /opt/wn4j/sbin
 ADD ./core /opt/wn4j/core
+# conf 里烤一份可启动的默认配置（dist/conf = make.json 的 WEB_LOCAL_AT）。
+# 部署时用 ConfigMap/volume 挂到 /opt/wn4j/conf 会整体覆盖它；
+# 不挂也能起来 —— 否则启动直接报
+# "Fail to found path 'web_local.properties' in CLASSPATH or File System!"
+ADD ./conf /opt/wn4j/conf
 ADD ./ROOT /opt/mnt/walnut
 ADD ./titanium /opt/mnt/titanium
 

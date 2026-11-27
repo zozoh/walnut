@@ -8,12 +8,19 @@
 # 这样，后面的 ADD 指令才能被正确执行
 #
 
-# 指定基于的基础镜像
-FROM openjdk:17
+# 基础镜像可用 --build-arg 注入：连不上 Docker Hub 的机器
+# （如国内构建服务器）指一个本地已有的 JDK 17 镜像即可，例如
+#   --build-arg BASE_IMAGE=ccr.ccs.tencentyun.com/site0/wn4jdeps:latest
+ARG BASE_IMAGE=openjdk:17
+FROM ${BASE_IMAGE}
 
 # 维护者信息
 LABEL Owner="Site0 Inc."
 LABEL Author="Peter Zhang<zozoh@qq.com>"
+
+# 依赖层必须与本次 dist/deps 完全一致，所以复用基础镜像时先清掉旧的依赖层
+# （旧镜像里可能还带 Jetty 11、WebContent 这类残留）
+RUN rm -rf /opt/wn4j/deps /opt/wn4j/WebContent
 
 # 添加必要的目录
 # 只烤依赖库；WebContent 随 Jetty12 重构已删除（静态资源改到 ROOT/），别再 ADD

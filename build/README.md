@@ -166,6 +166,12 @@ Maven 即使不下载也要写 `resolver-status.properties` 之类的跟踪文�
 杀毒软件的启发式规则误杀（它被识别成"投放器"）。把 `dist/` 与 `build/` 加进信任区，
 再从 `build/start.cmd` 拷回产物。
 
+**`--push` 说跑完了，但仓库里没有新镜像**
+2026-11 修过的一个坑：旧脚本不看 `docker build` / `docker push` 的返回码，
+拉不到基础镜像时**静默失败**，脚本照样打印「总用时」正常退出。
+现在任何一步非零都会中止并打印失败的那条命令。
+若失败信息是拉不到 `openjdk:17`：配 `DEPS_IMAGE` 从 CCR 拉现成的 `wn4jdeps`。
+
 **Docker 相关报错**
 `make.json` 的 `REDIS_SERVER` 用了 `Docker:redis<sha256:…>=wn4j-redis-L2`，
 要求本机**已有**这个镜像（脚本不会自动 pull）。没有 Docker 就把 `REDIS_SERVER` 清空，
@@ -200,6 +206,7 @@ redis 走 `build.rs.json` 里配的那个（通常是开发者本机的 6379）�
 | `WEB_LOCAL_AT` | 部署用的整份 `web_local.properties` → 直接做产物 conf | 用模板生成（含构建机绝对路径，进镜像就是错的） |
 | `LOG_DIR` | `conf/log4j2.xml` 的日志目录 | `<Walnut 的上一级>/.at/walnut/log`（测试实例用）；镜像里给 `/var/log/walnut` |
 | `ROOT_FULL` | `true` = 整份拷 `ROOT`（`jsbin`/`rs`/`sys`/`site_example`） | `false` 只拷 `app/wn-term` + `etc/hosts.d/default`。**出镜像必须开**：部署 conf 会挂 `/opt/mnt/walnut/jsbin` 和 `/opt/mnt/walnut/rs/*`，缺了静态资源全 404 |
+| `DEPS_IMAGE` | 构建依赖层用的「带 JDK 的基础镜像」，替代 `Dockerfile_wn4jdeps` 里的 `openjdk:17`；例 `ccr.ccs.tencentyun.com/site0/wn4jdeps:latest` | 空 = `openjdk:17`（**能拉 Docker Hub 才行**，国内机器基本拉不动）。依赖层始终用本次 `dist/deps` 重建，旧 jar 会先清掉 |
 
 ```jsonc
 // build/make.json（gitignore，每台机器自己配）
