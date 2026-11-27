@@ -2,7 +2,9 @@ package com.site0.walnut.web2;
 
 import static org.junit.Assert.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -439,6 +441,8 @@ public class Jetty06SwitchSessionTest {
         WnIoObj obj = new WnIoObj();
         obj.name(name);
         obj.mime(mime);
+        // 静态服务按 obj.len() 下发 Content-Length（#494 起走流式，不再 readBytes）
+        obj.len(name.getBytes(StandardCharsets.UTF_8).length);
         return obj;
     }
 
@@ -512,6 +516,17 @@ public class Jetty06SwitchSessionTest {
         @Override
         public byte[] readBytes(WnObj obj) {
             return obj.name().getBytes(StandardCharsets.UTF_8);
+        }
+
+        /**
+         * 静态资源自 #494 起走流式（{@code WnIoStaticResolver.open} → 本方法），
+         * 不再整文件 {@link #readBytes(WnObj)}。
+         */
+        @Override
+        public InputStream getInputStream(WnObj obj, long off) {
+            byte[] data = obj.name().getBytes(StandardCharsets.UTF_8);
+            int s = (int) Math.max(0, Math.min(off, data.length));
+            return new ByteArrayInputStream(data, s, data.length - s);
         }
     }
 
