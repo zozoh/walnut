@@ -10,18 +10,19 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import org.junit.Test;
 
 import com.site0.walnut.mvc.MockWnMvcResponse;
+import com.site0.walnut.util.WnHttpResponseWriter;
 import com.site0.walnut.util.range.WnGetInputStream;
-import com.site0.walnut.web2.view.WnHttpResponseWriter;
 
 /**
- * #495：两份 {@code WnHttpResponseWriter} 的 304 / 416 / 区间夹取。
+ * #495：下载 / HTTPOUT 的 304 / 416 / 区间夹取。
  *
- * <p>两份拷贝现在共用 {@link com.site0.walnut.util.range.WnHttpRanges} 的判定；
- * 这里守住三个 bug 的修复：</p>
+ * <p>两份 {@code WnHttpResponseWriter} 已合并成 {@code util} 一份：本测试分别走两个出口
+ * （MVC 的「状态 + 头 + body」与裸 HTTP 的 {@code writeTo(OutputStream)}），守住三个 bug 的修复：</p>
  * <ol>
  * <li>304 必须带 ETag（以前回 304 却没有 validator）；</li>
  * <li>不可满足区间回 416 + <code>Content-Range: bytes * / len</code>（以前回 400）；</li>
@@ -120,17 +121,25 @@ public class WnHttpRangeWritersTest {
     // 脚手架
     // ======================================================================
 
+    /**
+     * MVC 出口：仓库里只剩 util 一份 writer（#495 合并），渲染就是「状态 + 头 + body」
+     * 三步——这里照 {@code WnDownloadView.render} 的写法走，保证测的是同一条路径。
+     */
     private MockWnMvcResponse write(String ifNoneMatch, String range) throws IOException {
         WnHttpResponseWriter w = new WnHttpResponseWriter();
         w.setEtag(ifNoneMatch);
         w.prepare(range, src());
         MockWnMvcResponse resp = new MockWnMvcResponse();
-        w.writeTo(resp);
+        resp.status(w.getStatus());
+        for (Map.Entry<String, String> en : w.toHeaders().entrySet()) {
+            resp.header(en.getKey(), en.getValue());
+        }
+        w.writeBodyTo(resp.outputStream());
         return resp;
     }
 
     private String raw(String ifNoneMatch, String range) throws IOException {
-        com.site0.walnut.util.WnHttpResponseWriter w = new com.site0.walnut.util.WnHttpResponseWriter();
+        WnHttpResponseWriter w = new WnHttpResponseWriter();
         w.setEtag(ifNoneMatch);
         w.prepare(range, src());
         ByteArrayOutputStream out = new ByteArrayOutputStream();

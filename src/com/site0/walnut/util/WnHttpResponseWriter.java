@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -255,11 +256,15 @@ public class WnHttpResponseWriter {
             headers.put("Content-Length", ins.available());
     }
 
-    public static interface HandleHeader {
-        public void invoke(String key, String val) throws IOException;
-    }
-
-    public void __do_header(HandleHeader callback) throws IOException {
+    /**
+     * 把要写的响应头整理出来（已补齐 Content-Type / Content-Disposition 默认值，
+     * 并过滤空值）。
+     *
+     * <p>两个出口共用：{@link #writeTo(OutputStream)} 写成裸 HTTP 文本；
+     * MVC 侧（{@code WnDownloadView}）逐条塞进 {@code WnMvcResponse}。
+     * 会顺手把默认头回写到内部 <code>headers</code>。</p>
+     */
+    public Map<String, String> toHeaders() {
         // 然后是确保有 Content-Type
         if (this.asBase64) {
             headers.putDefault("Content-Type", "text/plain");
@@ -273,16 +278,30 @@ public class WnHttpResponseWriter {
                                WnWeb.autoContentDisposition(this.downloadName, this.userAgent));
         }
 
-        // 输出Header
+        Map<String, String> re = new LinkedHashMap<>();
         for (Entry<String, Object> en : headers.entrySet()) {
-            String key = en.getKey();
             Object val = en.getValue();
-            if (null != val) {
-                String str = val.toString();
-                if (!Ws.isBlank(str)) {
-                    callback.invoke(key, str);
-                }
+            if (null == val)
+                continue;
+            String str = val.toString();
+            if (!Ws.isBlank(str))
+                re.put(en.getKey(), str);
+        }
+        return re;
+    }
+
+    /**
+     * 只写正文（不写状态行 / 头），供 MVC 出口复用；写完关闭输入流。
+     */
+    public void writeBodyTo(OutputStream ops) throws IOException {
+        try {
+            if (null != ins) {
+                __write_to_output(ops, ins);
+                ops.flush();
             }
+        }
+        finally {
+            Streams.safeClose(ins);
         }
     }
 
@@ -304,12 +323,9 @@ public class WnHttpResponseWriter {
             w.write(String.format("HTTP/1.1 %d %s\n", status, status_text));
 
             // 输出Header
-            this.__do_header((key, val) -> {
-                // w.write(URLEncoder.encode(key, "UTF-8"));
-                // sys.out.println(URLEncoder.encode(""+en.getValue(),
-                // "UTF-8"));
-                w.write(key + ": " + val + "\n");
-            });
+            for (Entry<String, String> en : toHeaders().entrySet()) {
+                w.write(en.getKey() + ": " + en.getValue() + "\n");
+            }
 
             // 来个空行准备写 Body
             w.write("\n");

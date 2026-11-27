@@ -1,23 +1,40 @@
 package com.site0.walnut.web2.view;
 
 import com.site0.walnut.mvc.WnMvcContext;
+import com.site0.walnut.mvc.WnMvcResponse;
 import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.WnHttpResponseWriter;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 import com.site0.walnut.mvc.WnMvcView;
 import com.site0.walnut.api.io.WnIo;
 import com.site0.walnut.api.io.WnObj;
 
+/**
+ * 下载视图：把 {@link WnHttpResponseWriter} 准备好的一次响应渲染进 MVC 上下文。
+ *
+ * <p>#495 起仓库里只有一份 {@code WnHttpResponseWriter}（{@code util} 包）：它持有
+ * 状态 / 头 / 待写的流，两个出口由调用方决定——{@code cmd_httpout} 走
+ * {@code writeTo(OutputStream)}（裸 HTTP），MVC 走这里的 {@link #render}。</p>
+ */
 public class WnDownloadView implements WnMvcView {
 
-    private WnHttpResponseWriter re;
+    private final WnHttpResponseWriter re;
 
     @Override
     public void render(WnMvcContext ctx) {
+        WnMvcResponse resp = ctx.response();
+        resp.status(re.getStatus());
+        for (Map.Entry<String, String> en : re.toHeaders().entrySet()) {
+            resp.header(en.getKey(), en.getValue());
+        }
+        // 与旧实现一致：写完头先 flush（提交响应），正文中途 IO 失败时不能再改状态
+        resp.flush();
         try {
-            re.writeTo(ctx.response());
+            re.writeBodyTo(resp.outputStream());
         }
         catch (IOException e) {
             throw Wlang.wrapThrow(e);
