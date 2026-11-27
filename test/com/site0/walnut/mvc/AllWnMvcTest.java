@@ -11,5 +11,6 @@ import org.junit.runners.Suite;
                      WnMvcParamBindTest.class,
                      WnMvcViewTest.class,
                      WnMvcChainTest.class,
+                     WnDefaultStaticServiceTest.class,
                      WnMvcDispatcherTest.class,})
 public class AllWnMvcTest {}

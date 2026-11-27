@@ -2,6 +2,8 @@ package com.site0.walnut.mvc;
 
 import java.io.InputStream;
 
+import com.site0.walnut.util.range.WnGetInputStream;
+
 /**
  * 中立 Web 视图：把控制器入口方法返回的结果渲染进 {@link WnMvcContext#response()}。
  *
@@ -11,6 +13,7 @@ import java.io.InputStream;
  * <li>{@link #json(Object)}：JSON 输出（对应 <code>@Ok("json")</code>）。</li>
  * <li>{@link #ajax(Object)}：Ajax 信封输出（对应 <code>@Ok("ajax")</code> / AjaxView）。</li>
  * <li>{@link #raw}：原始字节/流输出（对应 <code>@Ok("raw")</code>）。</li>
+ * <li>{@link #asset}：静态资源输出，带 ETag / 304 / Range / HEAD 语义。</li>
  * <li>{@link #download}：带 Content-Disposition 的下载（对应 WnObjDownloadView）。</li>
  * <li>{@link #redirect(String)}：302 重定向（对应 ServerRedirectView / <code>&gt;&gt;:/</code>）。</li>
  * <li>{@link #html(String)}：HTML 文本输出。</li>
@@ -59,6 +62,23 @@ public interface WnMvcView {
     /** 原始流视图：按给定 Content-Type 写出输入流（不关闭流）。 */
     static WnMvcView raw(InputStream in, String contentType) {
         return new WnMvcViews.RawView(in, contentType);
+    }
+
+    /**
+     * 静态资源视图：按 {@link WnGetInputStream} 的长度 / ETag 处理 HTTP 缓存与分段语义。
+     *
+     * <p>行为：<code>ETag</code> + <code>Accept-Ranges: bytes</code> 必发；
+     * <code>If-None-Match</code> 命中 → <code>304</code>；单区间 <code>Range</code> →
+     * <code>206</code> + <code>Content-Range</code>；不可满足 → <code>416</code>；
+     * <code>HEAD</code> 只写头不写正文。多区间忽略 Range 回 <code>200</code> 全量。</p>
+     *
+     * @param src
+     *            取流入口（长度 / ETag / 按偏移取流）
+     * @param contentType
+     *            内容类型，可为 <code>null</code>
+     */
+    static WnMvcView asset(WnGetInputStream src, String contentType) {
+        return new WnMvcViews.AssetView(src, contentType);
     }
 
     /** 下载视图：写出带 Content-Disposition(attachment) 的字节。 */

@@ -10,6 +10,9 @@ import org.nutz.json.JsonFormat;
 import org.nutz.lang.util.NutMap;
 
 import com.site0.walnut.util.Wlang;
+import com.site0.walnut.util.Ws;
+import com.site0.walnut.util.range.WnGetInputStream;
+import com.site0.walnut.util.range.WnHttpRanges;
 
 /**
  * {@link WnMvcView} 各静态工厂的实现类集合（包私有）。
@@ -120,6 +123,83 @@ final class WnMvcViews {
                     int n;
                     while ((n = in.read(buf)) >= 0)
                         out.write(buf, 0, n);
+                }
+                out.flush();
+            }
+            catch (IOException e) {
+                throw Wlang.wrapThrow(e);
+            }
+        }
+    }
+
+    /**
+     * 静态资源视图：ETag / 304 / Range / HEAD。
+     *
+     * <p>头在写正文之前一次定稿（{@link WnMvcResponse} 一旦 committed 就改不了）：
+     * 条件命中先判（304 不设 Content-Length），再判区间（416 / 206），最后才是 200。</p>
+     */
+    static class AssetView implements WnMvcView {
+
+        private final WnGetInputStream src;
+
+        private final String contentType;
+
+        AssetView(WnGetInputStream src, String contentType) {
+            this.src = src;
+            this.contentType = contentType;
+        }
+
+        @Override
+        public void render(WnMvcContext context) {
+            WnMvcRequest req = context.request();
+            WnMvcResponse resp = context.response();
+            long len = null == src ? 0 : src.getContentLenth();
+            String etag = null == src ? null : src.getETag();
+            WnHttpRanges.Decision d = WnHttpRanges.decide(len,
+                                                          etag,
+                                                          req.getHeader("If-None-Match"),
+                                                          req.getHeader("Range"));
+
+            // 1) 公共头：Content-Type / ETag / Accept-Ranges
+            if (!Ws.isBlank(contentType))
+                resp.contentType(contentType);
+            if (!Ws.isBlank(etag))
+                resp.header("ETag", WnHttpRanges.quote(etag));
+            resp.header("Accept-Ranges", "bytes");
+            resp.status(d.status);
+
+            // 2) 304：不写 body，也不带 Content-Length
+            if (WnHttpRanges.SC_NOT_MODIFIED == d.status)
+                return;
+
+            // 3) 416：只带 Content-Range: bytes */len
+            if (WnHttpRanges.SC_RANGE_NOT_SATISFIABLE == d.status) {
+                resp.header("Content-Range", d.contentRange);
+                return;
+            }
+
+            // 4) 200 / 206：长度 + 区间头
+            resp.header("Content-Length", String.valueOf(d.length));
+            if (null != d.contentRange)
+                resp.header("Content-Range", d.contentRange);
+
+            // 5) HEAD / 空体：只写头
+            if (d.length <= 0 || "HEAD".equalsIgnoreCase(req.getMethod()))
+                return;
+
+            // 6) 按区间取流并写出（不整文件进内存）
+            try (InputStream in = src.getStream(d.start)) {
+                if (null == in)
+                    return;
+                OutputStream out = resp.outputStream();
+                byte[] buf = new byte[8192];
+                long left = d.length;
+                while (left > 0) {
+                    int n = in.read(buf, 0, (int) Math.min(buf.length, left));
+                    if (n < 0)
+                        break;
+                    out.write(buf, 0, n);
+                    left -= n;
                 }
                 out.flush();
             }
