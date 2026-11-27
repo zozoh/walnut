@@ -16,6 +16,9 @@ build/wn4j-make.py — Walnut 构建脚本
     python build/wn4j-make.py --all      # clear + mvn + dist + docker + upload
     --config/-f <file>                   # 指定配置文件
 
+    产物同时带 start.cmd/stop.cmd（Windows 测试实例）与 start.sh/stop.sh
+    （Linux 镜像：Dockerfile 的 CMD 就是 sbin/start.sh），两边都能用。
+
 配置:
     build/make.json         个人配置（.gitignore，不出现在仓库里）
     build/make-example.json 共享模板（make.json 缺失时回退）
@@ -32,6 +35,17 @@ build/wn4j-make.py — Walnut 构建脚本
                             web_local.properties 模板的 @APP_PORT@ 占位注入
                             产物 conf。不用 8080：那是开发者 IDE 实例的常用
                             端口，撞车时二级实例会 BindException
+    make.json 的 TI_SRC:       Ti 仓库的 src 目录；非空 = 额外拷成 dist/titanium
+                            （镜像 Dockerfile 里 ADD ./titanium，出镜像必须给）
+    make.json 的 WEB_LOCAL_AT: 部署用的 web_local.properties；非空 = 直接用它做
+                            产物 conf（跳过模板生成）。镜像里的 buck/init-mnt
+                            都是容器内路径，跟构建机绝对路径不同，必须单独给；
+                            此时 build.rs.json 不再必需
+    make.json 的 LOG_DIR:      log4j2 的日志目录；缺省 <工作区根 .at>/walnut/log
+                            （Windows 测试实例），镜像里应给 /var/log/walnut
+    make.json 的 ROOT_FULL:    true = 整份拷 ROOT（jsbin/rs/sys/site_example）。
+                            出镜像必须开：部署 conf 会挂 /opt/mnt/walnut/jsbin
+                            与 /opt/mnt/walnut/rs/*，缺了静态资源全 404
 
 约定:
     - 本脚本住在 Walnut 仓库的 build/ 目录里，仓库根 = 本脚本的上一级
@@ -125,7 +139,8 @@ print("load config:> %s" % CONF_AT)
 with open(CONF_AT, "r", encoding="utf-8") as f:
     Conf = json.load(f)
 
-OUT_DIST = Conf.get("OUT_DIST") or os.getenv("WN_OUT_DIST") or str(D_WN / "dist" / "wn4j")
+# 优先级：WN_OUT_DIST（临时换输出目录）> make.json 的 OUT_DIST > 仓库内 dist/wn4j
+OUT_DIST = os.getenv("WN_OUT_DIST") or Conf.get("OUT_DIST") or str(D_WN / "dist" / "wn4j")
 if not os.path.isabs(OUT_DIST):
     OUT_DIST = str(D_WN / OUT_DIST)
 JAVA_HOME = Conf.get("JAVA_HOME", "")
@@ -136,6 +151,17 @@ APP_PORT = int(Conf.get("APP_PORT") or 7709)
 # 管理端口 = app-port + 1。模板必须显式声明：内核 web.properties
 # 写死了 admin-port=8081，不覆盖时二级实例的管理端口会错落到 8081
 ADMIN_PORT = APP_PORT + 1
+# 出镜像用的三项（缺省 None = 老行为，Windows 测试实例不受影响）：
+#   TI_SRC        Ti 仓库 src → dist/titanium（Dockerfile 里 ADD ./titanium）
+#   WEB_LOCAL_AT  部署用 web_local.properties → 直接做产物 conf，跳过模板生成
+#   LOG_DIR       日志目录；缺省 <工作区根 .at>/walnut/log
+TI_SRC = (Conf.get("TI_SRC") or "").strip()
+WEB_LOCAL_AT = (Conf.get("WEB_LOCAL_AT") or "").strip()
+LOG_DIR_CONF = (Conf.get("LOG_DIR") or "").strip()
+# 整份拷 ROOT（含 jsbin/rs/sys/site_example）。测试实例只用到 wn-term 与
+# 默认登录页，拷整份没必要；出镜像则必须整份——部署 conf 会把
+# /opt/mnt/walnut/jsbin、/opt/mnt/walnut/rs/* 挂出去，缺了静态资源就 404。
+ROOT_FULL = bool(Conf.get("ROOT_FULL", False))
 
 # 同级前端工程的应用挂载（init-mnt）：逐一检查 <walnut仓库同级>/<name>/dist/
 # index.html，存在才生成挂载行（别的开发者机器没有这些工程也能正常构建）
@@ -233,6 +259,8 @@ DIST_LAYOUT = [
     ("core/walnut.jar", "file"),
     ("sbin/start.cmd", "file"),
     ("sbin/stop.cmd", "file"),
+    ("sbin/start.sh", "file"),
+    ("sbin/stop.sh", "file"),
     ("run", "edir"),
     ]
 
@@ -358,8 +386,10 @@ def assert_no_running_instance():
 
 def do_dist():
     # 先校验运行时配置（build.rs.json），失败立即退出，
-    # 避免删空 dist/wn4j 后才发现配置缺失（半毁状态）
-    rs = load_rs()
+    # 避免删空 dist/wn4j 后才发现配置缺失（半毁状态）。
+    # 例外：WEB_LOCAL_AT 直接给整份部署 conf 时，构建机这侧的
+    # mongo/redis/buck 全都用不上，就不强制 build.rs.json。
+    rs = {} if WEB_LOCAL_AT else load_rs()
     # 同理：有实例从本产物运行时拒绝重建（运行锁是活的就是证据）
     assert_no_running_instance()
 
@@ -376,48 +406,63 @@ def do_dist():
     for d in ["conf", "core", "sbin", "deps", "ROOT", "run"]:
         (D_OUT / d).mkdir()
 
-    # 确保二级启动的数据目录存在（桶/swap/redis RDB/日志）
-    for d in ["walnut/buck", "walnut/swap", "walnut/log", "redis/data"]:
-        (WALNUT_AT / d).mkdir(parents=True, exist_ok=True)
+    # 确保二级启动的数据目录存在（桶/swap/redis RDB/日志）。
+    # 部署 conf 自带容器内路径时不需要这些构建机目录。
+    if not WEB_LOCAL_AT:
+        for d in ["walnut/buck", "walnut/swap", "walnut/log", "redis/data"]:
+            (WALNUT_AT / d).mkdir(parents=True, exist_ok=True)
 
-    # --- conf: 模板改写（只注入 Walnut 连接信息，私有 redis 进程配置给测试工具链，见下）---
-    mnt_allow = calc_mnt_file_allow()
+    # --- conf: 两种来源 ---
+    #   1) 缺省：模板改写，注入端口 / mongo / redis（Windows 测试实例用）
+    #   2) WEB_LOCAL_AT：整份部署 conf 直接上位。镜像里 buck / init-mnt 都是
+    #      容器内路径，构建机的绝对路径写进去就是错的，所以不能靠模板生成
     mo, rd = rs.get("mongo", {}), rs.get("redis", {})
-    tpl = (D_BIN / "web_local.properties").read_text(encoding="utf-8")
-    gen = (tpl.replace("@DIST_HOME@", str(D_OUT).replace(os.sep, "/"))
-              .replace("@WALNUT_AT@", str(WALNUT_AT).replace(os.sep, "/"))
-              .replace("@MNT_FILE_ALLOW@", mnt_allow)
-              .replace("@APP_PORT@", str(APP_PORT))
-              .replace("@ADMIN_PORT@", str(ADMIN_PORT))
-              .replace("@APP_MOUNTS@", gen_app_mounts())
-              .replace("@MONGO_HOST@", str(mo.get("host", "127.0.0.1")))
-              .replace("@MONGO_PORT@", str(mo.get("port", 27017)))
-              .replace("@MONGO_DB@", str(mo.get("db", "walnut_wn4j")))
-              .replace("@REDIS_HOST@", str(rd.get("host", "127.0.0.1")))
-              .replace("@REDIS_PORT@", str(rd.get("port", 6379)))
-              .replace("@REDIS_DB@", str(rd.get("db", 9))))
-    # 可选：mongo/redis 认证
-    if mo.get("usr"):
-        gen += "\nmongo-usr=%s\nmongo-pwd=%s" % (mo["usr"], mo.get("passwd", ""))
-    if rd.get("passwd"):
-        gen += "\nredis-password=%s" % rd["passwd"]
-    # 可选：自定义桶/交换目录（默认 = 工作区根 .at/walnut/ 下，见模板 @WALNUT_AT@）
-    if rs.get("buck") and rs["buck"] != "auto":
-        gen = re.sub(r"^global-bm-bucket=.*$",
-                     "global-bm-bucket=%s" % rs["buck"], gen, flags=re.M)
-    if rs.get("swap") and rs["swap"] != "auto":
-        gen = re.sub(r"^global-bm-swap=.*$",
-                     "global-bm-swap=%s" % rs["swap"], gen, flags=re.M)
-    (D_OUT / "conf" / "web_local.properties").write_text(gen, encoding="utf-8")
-    # log4j2.xml 以模板注入日志目录：二级启动的日志也放数据家
-    # （<工作区>/.at/walnut/log/），不留在 dist 里
-    LOG_DIR = WALNUT_AT / "walnut" / "log"
+    if WEB_LOCAL_AT:
+        wit = Path(WEB_LOCAL_AT)
+        if not wit.is_file():
+            print("!!! WEB_LOCAL_AT 指向的文件不存在: %s" % wit)
+            sys.exit(1)
+        shutil.copyfile(str(wit), str(D_OUT / "conf" / "web_local.properties"))
+        print(" ++ conf/web_local.properties (= %s)" % wit)
+    else:
+        mnt_allow = calc_mnt_file_allow()
+        tpl = (D_BIN / "web_local.properties").read_text(encoding="utf-8")
+        gen = (tpl.replace("@DIST_HOME@", str(D_OUT).replace(os.sep, "/"))
+                  .replace("@WALNUT_AT@", str(WALNUT_AT).replace(os.sep, "/"))
+                  .replace("@MNT_FILE_ALLOW@", mnt_allow)
+                  .replace("@APP_PORT@", str(APP_PORT))
+                  .replace("@ADMIN_PORT@", str(ADMIN_PORT))
+                  .replace("@APP_MOUNTS@", gen_app_mounts())
+                  .replace("@MONGO_HOST@", str(mo.get("host", "127.0.0.1")))
+                  .replace("@MONGO_PORT@", str(mo.get("port", 27017)))
+                  .replace("@MONGO_DB@", str(mo.get("db", "walnut_wn4j")))
+                  .replace("@REDIS_HOST@", str(rd.get("host", "127.0.0.1")))
+                  .replace("@REDIS_PORT@", str(rd.get("port", 6379)))
+                  .replace("@REDIS_DB@", str(rd.get("db", 9))))
+        # 可选：mongo/redis 认证
+        if mo.get("usr"):
+            gen += "\nmongo-usr=%s\nmongo-pwd=%s" % (mo["usr"], mo.get("passwd", ""))
+        if rd.get("passwd"):
+            gen += "\nredis-password=%s" % rd["passwd"]
+        # 可选：自定义桶/交换目录（默认 = 工作区根 .at/walnut/ 下，见模板 @WALNUT_AT@）
+        if rs.get("buck") and rs["buck"] != "auto":
+            gen = re.sub(r"^global-bm-bucket=.*$",
+                         "global-bm-bucket=%s" % rs["buck"], gen, flags=re.M)
+        if rs.get("swap") and rs["swap"] != "auto":
+            gen = re.sub(r"^global-bm-swap=.*$",
+                         "global-bm-swap=%s" % rs["swap"], gen, flags=re.M)
+        (D_OUT / "conf" / "web_local.properties").write_text(gen, encoding="utf-8")
+        print(" ++ conf/ (web_local.properties 已生成, app-port=%s, mnt-file-allow=%s, mongo-db=%s, redis-db=%s)"
+              % (APP_PORT, mnt_allow, mo.get("db"), rd.get("db")))
+
+    # log4j2.xml 以模板注入日志目录：二级启动的日志放数据家
+    # （<工作区>/.at/walnut/log/），镜像里则给 /var/log/walnut（见 make.json 的 LOG_DIR）
+    LOG_DIR = LOG_DIR_CONF or str(WALNUT_AT / "walnut" / "log")
     log_xml = (D_BIN / "log4j2.xml").read_text(encoding="utf-8")
     (D_OUT / "conf" / "log4j2.xml").write_text(
-        log_xml.replace("@LOG_DIR@", str(LOG_DIR).replace(os.sep, "/")),
+        log_xml.replace("@LOG_DIR@", LOG_DIR.replace(os.sep, "/")),
         encoding="utf-8")
-    print(" ++ conf/ (web_local.properties 已生成, app-port=%s, mnt-file-allow=%s, mongo-db=%s, redis-db=%s)"
-          % (APP_PORT, mnt_allow, mo.get("db"), rd.get("db")))
+    print(" ++ conf/log4j2.xml (log-dir=%s)" % LOG_DIR)
 
     # --- core: 内核配置（剔除个人 web_local.properties）+ jar ---
     shutil.copytree(str(D_WN / "conf"), str(D_OUT / "core" / "conf"),
@@ -429,18 +474,33 @@ def do_dist():
     shutil.copytree(str(D_WN_TARGET / "dependency"), str(D_OUT / "deps"),
                     dirs_exist_ok=True)
 
-    # --- ROOT: 只取 app/wn-term 与 etc/hosts.d/default ---
-    (D_OUT / "ROOT" / "app").mkdir()
-    shutil.copytree(str(D_WN / "ROOT" / "app" / "wn-term"),
-                    str(D_OUT / "ROOT" / "app" / "wn-term"))
-    (D_OUT / "ROOT" / "etc" / "hosts.d").mkdir(parents=True)
-    shutil.copytree(str(D_WN / "ROOT" / "etc" / "hosts.d" / "default"),
-                    str(D_OUT / "ROOT" / "etc" / "hosts.d" / "default"))
-    print(" ++ ROOT/ (app/wn-term, etc/hosts.d/default)")
+    # --- ROOT: 测试实例只取 app/wn-term 与 etc/hosts.d/default；
+    #     出镜像（ROOT_FULL）取整份，否则 jsbin / rs/* 在容器里是空的 ---
+    if ROOT_FULL:
+        shutil.copytree(str(D_WN / "ROOT"), str(D_OUT / "ROOT"), dirs_exist_ok=True)
+        print(" ++ ROOT/ (整份: app, etc, jsbin, rs, sys, site_example)")
+    else:
+        (D_OUT / "ROOT" / "app").mkdir()
+        shutil.copytree(str(D_WN / "ROOT" / "app" / "wn-term"),
+                        str(D_OUT / "ROOT" / "app" / "wn-term"))
+        (D_OUT / "ROOT" / "etc" / "hosts.d").mkdir(parents=True)
+        shutil.copytree(str(D_WN / "ROOT" / "etc" / "hosts.d" / "default"),
+                        str(D_OUT / "ROOT" / "etc" / "hosts.d" / "default"))
+        print(" ++ ROOT/ (app/wn-term, etc/hosts.d/default)")
 
     # --- sbin: 启停脚本模板 ---
+    # Windows 测试实例用 .cmd，Linux 镜像用 .sh（Dockerfile 的 CMD 就是
+    # sbin/start.sh）。两个平台都产，这样从 Windows 出镜像也不会缺文件。
     shutil.copyfile(str(D_BIN / "start.cmd"), str(D_OUT / "sbin" / "start.cmd"))
     shutil.copyfile(str(D_BIN / "stop.cmd"), str(D_OUT / "sbin" / "stop.cmd"))
+    for name in ("start.sh", "stop.sh"):
+        dst = D_OUT / "sbin" / name
+        shutil.copyfile(str(D_BIN / name), str(dst))
+        # 不管谁在哪个平台构建，产物里的 .sh 必须是 LF：
+        # Windows 上 core.autocrlf 会把它们签出成 CRLF，进容器就成
+        # "bad interpreter: /bin/bash^M"
+        dst.write_bytes(dst.read_bytes().replace(b"\r\n", b"\n"))
+        dst.chmod(0o755)
     # start/stop_with_redis.cmd 是测试工具（私有 redis 进程生命周期），
     # 仅在 make.json 的 REDIS_SERVER 非空时生成，并把程序路径烘焙进脚本；
     # 留空 = 产物不带私有 redis 能力，直接用 start.cmd 起
@@ -461,6 +521,17 @@ def do_dist():
     # --- version.json ---
     ver_json = D_OUT / "core" / "conf" / "version.json"
     ver_json.write_text(json.dumps(VERSION_INFO, indent=2), encoding="utf-8")
+
+    # --- titanium（只有出镜像才需要：Dockerfile_wn4j 里 ADD ./titanium /opt/mnt/titanium）---
+    if TI_SRC:
+        ti = Path(TI_SRC)
+        if not ti.is_dir():
+            print("!!! TI_SRC 指向的目录不存在: %s" % ti)
+            sys.exit(1)
+        shutil.copytree(str(ti), str(D_OUT / "titanium"))
+        print(" ++ titanium/ (= %s)" % ti)
+    else:
+        print(" -- skip titanium/（TI_SRC 为空；出镜像需要它在产物里）")
 
     # --- 布局校验 ---
     missing = []
@@ -484,6 +555,11 @@ def do_dist():
 # Docker（保留旧逻辑；智能体默认流程不执行）
 # ============================================================
 def do_docker():
+    # Dockerfile_wn4j 里有 ADD ./titanium，产物缺这个目录 docker build 会直接失败
+    if not (D_OUT / "titanium").is_dir():
+        print("!!! Dockerfile_wn4j 会 ADD ./titanium，但产物里没有钛仓库")
+        print("!!! 请在 make.json 里配 TI_SRC 后重新 --dist（或 --all）")
+        sys.exit(1)
     df0 = str(D_BIN / "Dockerfile")
     df1 = str(D_OUT / "Dockerfile")
     for suf in ["_wn4jdeps", "_wn4j"]:

@@ -16,6 +16,6 @@ LABEL Owner="Site0 Inc."
 LABEL Author="Peter Zhang<zozoh@qq.com>"
 
 # 添加必要的目录
+# 只烤依赖库；WebContent 随 Jetty12 重构已删除（静态资源改到 ROOT/），别再 ADD
 ADD ./deps /opt/wn4j/deps
-ADD ./WebContent /opt/wn4j/WebContent
 

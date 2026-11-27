@@ -189,7 +189,49 @@ redis 走 `build.rs.json` 里配的那个（通常是开发者本机的 6379）�
   "L2": { "host": "127.0.0.1", "port": 7709 } }
 ```
 
-## 八、更多
+## 八、出镜像（Linux 服务器 / CCR）
+
+1–八 讲的是 Windows 上的测试实例。要在 Linux 构建服务器（如 TECL-P1）上出**发布镜像**，
+同一个脚本就行，但产物里有三处和构建机环境有关，得在 `build/make.json` 里单独给：
+
+| 键 | 作用 | 缺省（不给） |
+|---|---|---|
+| `TI_SRC` | Ti 仓库的 `src` 目录 → 拷成 `dist/titanium` | 不拷；`Dockerfile_wn4j` 里 `ADD ./titanium` 会因此失败，`--docker` 直接报错退出 |
+| `WEB_LOCAL_AT` | 部署用的整份 `web_local.properties` → 直接做产物 conf | 用模板生成（含构建机绝对路径，进镜像就是错的） |
+| `LOG_DIR` | `conf/log4j2.xml` 的日志目录 | `<Walnut 的上一级>/.at/walnut/log`（测试实例用）；镜像里给 `/var/log/walnut` |
+| `ROOT_FULL` | `true` = 整份拷 `ROOT`（`jsbin`/`rs`/`sys`/`site_example`） | `false` 只拷 `app/wn-term` + `etc/hosts.d/default`。**出镜像必须开**：部署 conf 会挂 `/opt/mnt/walnut/jsbin` 和 `/opt/mnt/walnut/rs/*`，缺了静态资源全 404 |
+
+```jsonc
+// build/make.json（gitignore，每台机器自己配）
+{
+  "OUT_DIST": "/home/ubuntu/dist/wn4j",
+  "TI_SRC": "/home/ubuntu/git/github/titanium/src",
+  "WEB_LOCAL_AT": "/home/ubuntu/walnut/web_local.properties",
+  "LOG_DIR": "/var/log/walnut",
+  "ROOT_FULL": true,
+  "UP_HOST": "ccr.ccs.tencentyun.com", "UP_ACC": "…", "UP_PWD_AT": "/home/ubuntu/.pass.txt"
+}
+```
+
+```bash
+cd <walnut 仓库根>
+python3 build/wn4j-make.py            # 编译 + 打包 + 校验
+python3 build/wn4j-make.py --push     # 出镜像并推 CCR（= --docker + --upload）
+```
+
+输出目录优先级：环境变量 `WN_OUT_DIST` > `make.json` 的 `OUT_DIST` > 仓库内 `dist/wn4j`
+（临时换个地方出产物就设环境变量，不改机器配置）。
+
+- 给了 `WEB_LOCAL_AT` 时**不再要求** `build/build.rs.json`：容器里的 mongo/redis/buck
+  跟构建机没关系。
+- 产物 `sbin/` 里**同时**有 `start.cmd`/`stop.cmd` 和 `start.sh`/`stop.sh`；
+  镜像的 `CMD` 用的是 `sbin/start.sh`，所以从 Windows 出镜像也不会缺文件。
+- 启动类：Jetty 12 重构后旧的 `com.site0.walnut.web.WnLauncher` 已删除，
+  `start.sh` 与 `Dockerfile_wn4j` 都用 `com.site0.walnut.web2.WnLauncher2`。
+- 旧的全家桶（`~/sbin/wn4j-make` v1.0 那一套，自己拷 `WebContent` 和 `.sh`）
+  已不再需要，本目录就是唯一入口。
+
+## 九、更多
 
 - 构建机制与改动清单：`wn-doc/public/atest/reference/10-at-build.md`
 - 启动/建域/探活：`20-at-setup.md`、`30-at-tools.md`

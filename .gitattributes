@@ -1,0 +1,4 @@
+# shell 脚本一律 LF：仓库存 LF、签出也 LF。
+# 否则 Windows 上 core.autocrlf 会签出成 CRLF，进容器就报
+# "bad interpreter: /bin/bash^M"（产物里的 .sh 构建时还会再兜一次）
+*.sh   text eol=lf
